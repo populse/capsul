@@ -1,0 +1,8 @@
+include AUTHOR LICENSE MANIFEST.in setup.py README.txt
+# documentation
+include doc/Makefile 
+recursive-include doc/source *
+recursive-exclude doc/source *.*~
+prune doc/source/*/generated
+# list of files to include in the distribution built by the sdist command
+recursive-include capsul/apps_qt/resources *.ui *.png *.txt *.qrc
