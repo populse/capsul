@@ -45,10 +45,13 @@ class ControllerGUIBuilder(QtGui.QWidget):
         # output property
         self._inputs, self._outputs = self._split_pipeline_plugs(
             pipeline.nodes[""].plugs)
-
+        
         # Insert the splitted parameters in the tree
-        self.data_to_tree(self._inputs, "inputs")
-        self.data_to_tree(self._outputs, "outputs")
+        self.data_to_tree(self._pipeline.nodes_activation,
+                          self._pipeline.nodes_activation.user_traits(),
+                          "node activation")
+        self.data_to_tree(self._pipeline, self._inputs, "inputs")
+        self.data_to_tree(self._pipeline, self._outputs, "outputs")
 
     ##############
     # Properties #
@@ -80,11 +83,9 @@ class ControllerGUIBuilder(QtGui.QWidget):
                 if plug.output:
                     (source_node_name, source_plug_name, source_node,
                      source_plug, weak_link) = list(plug.links_from)[0]
-                    #if (not isinstance(source_node, Switch) and
-                    #    not "_nipype_interface" in dir(source_node.process)):
-                    outputs[plug_name] = plug
+                    outputs[plug_name] = self._pipeline.trait(plug_name)
                 else:
-                    inputs[plug_name] = plug
+                    inputs[plug_name] = self._pipeline.trait(plug_name)
 
         return inputs, outputs
 
@@ -103,11 +104,13 @@ class ControllerGUIBuilder(QtGui.QWidget):
         """
         return title.replace("_", " ").capitalize()
 
-    def data_to_tree(self, parameters, name):
+    def data_to_tree(self, trait_item, parameters, name):
         """ Method to insert plug parameters in the class tree
 
         Parameters
         ----------
+        trait_item: has_traits item (mandatory)
+            parameter where the trait are stored
         parameters: dict (mandatory)
             structure that contains the plug names and values
         name: str (mandatory)
@@ -121,13 +124,13 @@ class ControllerGUIBuilder(QtGui.QWidget):
         self._tree.setItemExpanded(root, True)
 
         # Generate controller controls
-        for plug_name, plug in parameters.iteritems():
+        for trait_name, trait in parameters.iteritems():
             # Generate
             child = QtGui.QTreeWidgetItem(root)
-            child.setText(1, plug_name)
-            widget = self._create_control(plug_name, child.treeWidget())
+            child.setText(1, trait_name)
+            widget = self._create_control(trait_name, trait, trait_item,
+                                          child.treeWidget())
             # Add some documentation from trait desc
-            trait = self._pipeline.trait(plug_name)
             child.setToolTip(1, unicode(trait.desc))
             # Insert in tree
             child.treeWidget().setItemWidget(child, 2, widget)
@@ -136,7 +139,10 @@ class ControllerGUIBuilder(QtGui.QWidget):
         """ Method to update trait values when the user interface changed.
         """
         try:
-            setattr(self._pipeline, signal.trait_name, signal.value)
+            if "trait_item" in dir(signal):
+                setattr(signal.trait_item, signal.trait_name, signal.value)
+            else:
+                setattr(self._pipeline, signal.trait_name, signal.value)
         except:
             exc_info = sys.exc_info()
             logging.error("{0}: {1}".format(exc_info[0], exc_info[1]))
@@ -164,13 +170,17 @@ class ControllerGUIBuilder(QtGui.QWidget):
         #self._ui.tree_widget.layout().update()
         #self._ui.tree_widget.parentWidget().layout().update()
 
-    def _create_control(self, name, parent):
+    def _create_control(self, name, trait, trait_item, parent):
         """ Method to create a new control for a plug.
 
         Parameters
         ----------
         name: str (mandatory)
             the plug name
+        trait: trait (mandatory)
+            the trait beeing processed
+        trait_item: has_traits item (mandatory)
+            parameter where the trait are stored
         parent: QtGui.QWidget (mandatory)
             the parent widget
 
@@ -180,9 +190,8 @@ class ControllerGUIBuilder(QtGui.QWidget):
             the plug corresponding control
         """
         # Get trait description
-        trait = self._pipeline.trait(name)
         parameters = trait_ids(trait)
-        trait_value = getattr(self._pipeline, name)
+        trait_value = getattr(trait_item, name)
 
         # Create the controls
         for parameter in parameters[:1]:  #TODO change hack
@@ -196,6 +205,8 @@ class ControllerGUIBuilder(QtGui.QWidget):
                 expression += "inner_controls, "
             expression += "name, "
             expression += "trait_value, "
+            if parameter[0] == "Bool":
+                expression += "trait_item, "
             expression += ")"
 
             try:

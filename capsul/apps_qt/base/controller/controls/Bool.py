@@ -18,15 +18,20 @@ class Bool(QtGui.QWidget, Observable):
     correctely respectivelly.
     """
 
-    def __init__(self, trait_name, value=False):
+    def __init__(self, trait_name, value=False, trait_item=None):
         """ Method to initialize a File control.
 
         Parameters
         ----------
+        trait_name: str (mandatory)
+            the corresponding trait name
         value: str (optional)
             the default string
+        trait_item: has_traits item (mandatory)
+            parameter where the trait are stored
         """
         # Default parameters
+        self._trait_item = trait_item
         self._trait_name = trait_name
         self._value = None
         self._is_valid = False
@@ -95,7 +100,8 @@ class Bool(QtGui.QWidget, Observable):
         self._validate()
         if self._is_valid:
             self.notify_observers("value", value=value,
-                                  trait_name=self._trait_name)
+                                  trait_name=self._trait_name,
+                                  trait_item=self._trait_item)
 
     value = property(lambda x: x._value, _set_value)
     valid = property(lambda x: x._is_valid)
