@@ -18,7 +18,8 @@ class Bool(QtGui.QWidget, Observable):
     correctely respectivelly.
     """
 
-    def __init__(self, trait_name, value=False, trait_item=None):
+    def __init__(self, trait_name, value=False, trait_item=None,
+                 is_enabled=True):
         """ Method to initialize a File control.
 
         Parameters
@@ -29,6 +30,8 @@ class Bool(QtGui.QWidget, Observable):
             the default string
         trait_item: has_traits item (mandatory)
             parameter where the trait are stored
+        is_enabled: bool (mandatory)
+            parameter to activate or unactivate the control
         """
         # Default parameters
         self._trait_item = trait_item
@@ -36,6 +39,7 @@ class Bool(QtGui.QWidget, Observable):
         self._value = None
         self._is_valid = False
         self._default_value = value
+        self._is_enabled = is_enabled
 
         # Inheritance
         Observable.__init__(self, ["value"])
@@ -66,6 +70,7 @@ class Bool(QtGui.QWidget, Observable):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._check = QtGui.QCheckBox(self)
+        self._check.setEnabled(self._is_enabled)
         self._check.clicked.connect(self._onActivated)
         self._check.setChecked(self._default_value)
 

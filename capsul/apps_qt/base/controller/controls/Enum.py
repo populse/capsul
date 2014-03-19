@@ -18,7 +18,7 @@ class Enum(QtGui.QWidget, Observable):
     of the control and a bool set to True if the control is filled
     """
 
-    def __init__(self, initializer, trait_name, value=None):
+    def __init__(self, initializer, trait_name, value=None, is_enabled=True):
         """ Method to initialize a File control.
 
         Parameters
@@ -29,6 +29,8 @@ class Enum(QtGui.QWidget, Observable):
             the corresponding trait name
         value: str (optional)
             the default option
+        is_enabled: bool (mandatory)
+            parameter to activate or unactivate the control
         """
         # Default parameters
         self._trait_name = trait_name
@@ -36,6 +38,7 @@ class Enum(QtGui.QWidget, Observable):
         self._default_value = value
         self._is_valid = False
         self._choices = initializer
+        self._is_enabled = is_enabled
 
         # Inheritance
         Observable.__init__(self, ["value"])
@@ -66,6 +69,7 @@ class Enum(QtGui.QWidget, Observable):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._combo = QtGui.QComboBox(self)
+        self._combo.setEnabled(self._is_enabled)
         for item in self._choices:
             self._combo.addItem(item)
         if self._default_value not in self._choices:

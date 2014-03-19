@@ -203,7 +203,8 @@ class Pipeline(Process):
         dest_node.connect(dest_parameter, source_node, source_parameter)
 
     def export_parameter(self, node_name, parameter_name,
-                         pipeline_parameter=None, weak_link=False):
+                         pipeline_parameter=None, weak_link=False,
+                         is_enabled=True):
         '''Exports one of the nodes parameters at the level of the pipeline.
         '''
         node = self.nodes[node_name]
@@ -218,6 +219,7 @@ class Pipeline(Process):
                              'exported to pipeline parameter %(pp)s' %
                              dict(nn=node_name, pn=parameter_name,
                                   pp=pipeline_parameter))
+        trait.enabled = is_enabled
         self.add_trait(pipeline_parameter, trait)
 
         if trait.output:

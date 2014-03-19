@@ -19,7 +19,7 @@ class Directory(QtGui.QWidget, Observable):
     respectivelly.
     """
 
-    def __init__(self, trait_name, value=None):
+    def __init__(self, trait_name, value=None, is_enabled=True):
         """ Method to initialize a File control.
 
         Parameters
@@ -28,12 +28,15 @@ class Directory(QtGui.QWidget, Observable):
             the corresponding trait name
         value: str (optional)
             the default filename
+        is_enabled: bool (mandatory)
+            parameter to activate or unactivate the control
         """
         # Default parameters
         self._trait_name = trait_name
         self._value = None
         self._default_value = value or ""
         self._is_valid = False
+        self._is_enabled = is_enabled
 
         # Inheritance
         Observable.__init__(self, ["value"])
@@ -64,8 +67,10 @@ class Directory(QtGui.QWidget, Observable):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._path = QtGui.QLineEdit(self)
+        self._path.setEnabled(self._is_enabled)
         self._layout.addWidget(self._path)
         self._button = QtGui.QPushButton('...', self)
+        self._button.setEnabled(self._is_enabled)
         self._layout.addWidget(self._button)
         self._button.clicked.connect(self._onButton)
 

@@ -287,6 +287,6 @@ def nipype_factory(nipype_instance):
         process_instance.trait(private_name).optional = not trait.mandatory
         process_instance.trait(private_name).desc = trait.desc
         process_instance.trait(private_name).output = True
-        process_instance.get(private_name)
+        process_instance.trait(private_name).enabled = False
 
     return process_instance

@@ -115,6 +115,5 @@ class Controller(HasTraits):
 
        super( Controller, self ).add_trait( name, *trait )
        global_compt_order=global_compt_order+1
-       self.trait( name ).order = global_compt_order
        self.trait(name).defaultvalue = self.trait(name).default
        self.get(name)

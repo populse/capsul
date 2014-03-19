@@ -30,7 +30,8 @@ class List(QtGui.QWidget, Observable):
     correctely respectivelly.
     """
 
-    def __init__(self, inner_controls, trait_name, value=None):
+    def __init__(self, inner_controls, trait_name, value=None,
+                 is_enabled=True):
         """ Method to initialize a List control.
 
         Parameters
@@ -42,6 +43,8 @@ class List(QtGui.QWidget, Observable):
             the corresponding trait name
         value: str (optional)
             the default string
+        is_enabled: bool (mandatory)
+            parameter to activate or unactivate the control
         """
         # Default parameters
         self._trait_name = trait_name
@@ -51,6 +54,7 @@ class List(QtGui.QWidget, Observable):
         self._is_valid = False
         self._controls = []
         self._del_buttons = []
+        self._is_enabled = is_enabled
 
         # Inheritance
         Observable.__init__(self, ["value", "update"])
@@ -85,6 +89,7 @@ class List(QtGui.QWidget, Observable):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._add_control = QtGui.QToolButton(self)
+        self._add_control.setEnabled(self._is_enabled)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/add")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -122,6 +127,7 @@ class List(QtGui.QWidget, Observable):
         """
         control = self._create_control(value)
         button = QtGui.QToolButton(self)
+        button.setEnabled(self._is_enabled)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/delete")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -181,6 +187,7 @@ class List(QtGui.QWidget, Observable):
         expression += "self._trait_name, "
         if value != None:
             expression += "value, "
+        expression += "is_enabled=self._is_enabled, "
         expression += ")"
         try:
             # Create control

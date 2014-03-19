@@ -17,18 +17,22 @@ class Float(String):
     correctely respectivelly.
     """
 
-    def __init__(self, trait_name, value=None):
+    def __init__(self, trait_name, value=None, is_enabled=True):
         """ Method to initialize a File control.
 
         Parameters
         ----------
+        trait_name: str (mandatory)
+            the corresponding trait name
         value: str (optional)
             the default string
+        is_enabled: bool (mandatory)
+            parameter to activate or unactivate the control
         """
         # Inheritance
         if (value != None and not isinstance(value, str)):
             value = repr(value)
-        String.__init__(self, trait_name, value)
+        String.__init__(self, trait_name, value, is_enabled)
 
     def _validate(self):
         """ Check if a float has been entered in the text field and

@@ -41,11 +41,11 @@ class ControllerGUIBuilder(QtGui.QWidget):
         self._tree = ui.tree_controller
         self._controls = {}
 
-        # Split the pipeline plug parameters accordingly to there 
+        # Split the pipeline plug parameters accordingly to there
         # output property
         self._inputs, self._outputs = self._split_pipeline_plugs(
             pipeline.nodes[""].plugs)
-        
+
         # Insert the splitted parameters in the tree
         self.data_to_tree(self._pipeline.nodes_activation,
                           self._pipeline.nodes_activation.user_traits(),
@@ -207,6 +207,8 @@ class ControllerGUIBuilder(QtGui.QWidget):
             expression += "trait_value, "
             if parameter[0] == "Bool":
                 expression += "trait_item, "
+            if isinstance(trait.enabled, bool):
+                expression += "trait.enabled, "
             expression += ")"
 
             try:
