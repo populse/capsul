@@ -124,7 +124,8 @@ class MainWindow(MyQUiLoader):
                           FullPipelineView):
                 SimplePipelineView(self.pipeline, self.ui)
             else:
-                FullPipelineView(self.pipeline, self.ui)
+                widget = FullPipelineView(self.pipeline)
+                self._insert_widget_in_tab(widget)
         else:
             logging.error("No active pipeline selected. "
                           "Have you forgotten to click the load pipeline "
@@ -137,7 +138,8 @@ class MainWindow(MyQUiLoader):
             self.pipeline = get_process_instance(
                 str(self.ui.pipeline_module.lineEdit().text()))
             self.pipelines[self.pipeline.name] = self.pipeline
-            FullPipelineView(self.pipeline, self.ui)
+            widget = FullPipelineView(self.pipeline)
+            self._insert_widget_in_tab(widget)
         else:
             logging.error("No pipeline selected.")
 
@@ -219,6 +221,34 @@ class MainWindow(MyQUiLoader):
     #####################
     # Private interface #
     #####################
+
+    def _insert_widget_in_tab(self, widget):
+        """ Insert a new widget or replace an existing widget.
+
+        Parameters
+        ----------
+        widget: a widget (mandatory)
+            the widget we want to draw
+        """
+        # add the widget if new
+        # otherwise, recreate the widget
+        already_created = False
+        index = 0
+        for index in range(self.ui.simple_pipeline.count()):
+            if (self.ui.simple_pipeline.tabText(index) ==
+                    self.pipeline.name):
+                already_created = True
+                break
+        if not already_created:
+            self.ui.simple_pipeline.addTab(
+                widget, unicode(self.pipeline.name))
+            self.ui.simple_pipeline.setCurrentIndex(
+                self.ui.simple_pipeline.count() - 1)
+        else:
+            self.ui.simple_pipeline.removeTab(index)
+            self.ui.simple_pipeline.insertTab(
+                index, widget, unicode(self.pipeline.name))
+            self.ui.simple_pipeline.setCurrentIndex(index)
 
     def _is_active_pipeline_valid(self):
         """ Method to ceack that the active pipeline is valid

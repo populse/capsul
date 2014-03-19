@@ -359,26 +359,10 @@ class PipelineScene(QtGui.QGraphicsScene):
 
 class PipelineView(QtGui.QGraphicsView):
 
-  def __init__(self, pipeline, ui, parent=None):
+  def __init__(self, pipeline, parent=None):
     super( PipelineView, self ).__init__( parent )
     self.scene = None
-    self.ui = ui
     self.set_pipeline( pipeline ) 
-    # add the widget if new
-    # otherwise, recreate the widget
-    already_created = False
-    index = 0
-    for index in range(self.ui.simple_pipeline.count()):
-      if self.ui.simple_pipeline.tabText(index) == pipeline.name:
-        already_created = True
-        break
-    if not already_created:
-      self.ui.simple_pipeline.addTab(self, unicode(pipeline.name))
-      self.ui.simple_pipeline.setCurrentIndex(self.ui.simple_pipeline.count() - 1)
-    else:
-      self.ui.simple_pipeline.removeTab(index)
-      self.ui.simple_pipeline.insertTab(index, self, unicode(pipeline.name))
-      self.ui.simple_pipeline.setCurrentIndex(index)
   
   def _set_pipeline( self, pipeline ):
     if self.scene:
