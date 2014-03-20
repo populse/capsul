@@ -37,12 +37,12 @@ class MyPipeline(Pipeline):
     def pipeline_definition(self):
 
         # Create processes
-        self.add_process("node1",
-            "soma.pipeline.test.test_pipeline.DummyProcess")
-        self.add_process("node2",
-            "soma.pipeline.test.test_switch_pipeline.DummyProcess")
         self.add_process("constant",
-            "soma.pipeline.test.test_pipeline.DummyProcess")
+            "capsul.pipeline.test.test_pipeline.DummyProcess")
+        self.add_process("node1",
+            "capsul.pipeline.test.test_pipeline.DummyProcess")
+        self.add_process("node2",
+            "capsul.pipeline.test.test_pipeline.DummyProcess")
 
         # Links
         self.add_link("node1.output_image->node2.input_image")
@@ -66,6 +66,11 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.workflow_repr,
                          "constant->node1->node2")
 
+    def test_enabled(self):
+        setattr(self.pipeline.nodes_activation, "node2", False)
+        self.pipeline.workflow_ordered_nodes()
+        self.assertEqual(self.pipeline.workflow_repr, "")
+
 
 def test():
     """ Function to execute unitest
@@ -79,16 +84,13 @@ if __name__ == "__main__":
     print "RETURNCODE: ", test()
 
     import sys
-    from PyQt4 import QtGui
-    from soma.gui.widget_controller_creation import ControllerWidget
-    from soma.gui.pipeline.pipeline_gui import PipelineView
+    from PySide import QtGui
+    from capsul.apps_qt.base.pipeline_widgets import FullPipelineView
 
     app = QtGui.QApplication(sys.argv)
     pipeline = MyPipeline()
-    pipeline.switch = "two"
-    view1 = PipelineView(pipeline)
+    setattr(pipeline.nodes_activation, "node1", False)
+    view1 = FullPipelineView(pipeline)
     view1.show()
-    cw = ControllerWidget(pipeline, live=True)
-    cw.show()
     app.exec_()
     del view1

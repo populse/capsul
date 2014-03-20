@@ -13,6 +13,7 @@ from traits.api import File, Float
 from capsul.process import Process
 from capsul.pipeline import Pipeline, PipelineNode
 
+
 class DummyProcess(Process):
     """ Dummy Test Process
     """
@@ -30,16 +31,21 @@ class DummyProcess(Process):
     def __call__(self):
         pass
 
+
 class SwitchPipeline(Pipeline):
     """ Simple Pipeline to test the Switch Node
     """
     def pipeline_definition(self):
-        
+
         # Create processes
-        self.add_process("node", "soma.pipeline.test.test_switch_pipeline.DummyProcess")
-        self.add_process("way1", "soma.pipeline.test.test_switch_pipeline.DummyProcess")
-        self.add_process("way21", "soma.pipeline.test.test_switch_pipeline.DummyProcess")
-        self.add_process("way22", "soma.pipeline.test.test_switch_pipeline.DummyProcess")
+        self.add_process("node",
+            "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
+        self.add_process("way1",
+            "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
+        self.add_process("way21",
+            "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
+        self.add_process("way22",
+             "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
 
         # Create Switch
         self.add_switch("switch", ["one", "two", "none"],
@@ -47,7 +53,7 @@ class SwitchPipeline(Pipeline):
 
         # Links
         self.add_link("node.output_image->switch.none_switch_switch_image")
-        self.add_link("node.other_output->switch.none_switch_switch_output")   
+        self.add_link("node.other_output->switch.none_switch_switch_output")
         self.add_link("node.output_image->way1.input_image")
         self.add_link("node.other_output->way1.other_input")
         self.add_link("node.output_image->way21.input_image")
@@ -64,17 +70,18 @@ class SwitchPipeline(Pipeline):
 
         # Outputs
         self.export_parameter("node", "other_output",
-                              pipeline_parameter = "hard_output")
+                              pipeline_parameter="hard_output")
         self.export_parameter("way21", "other_output",
-                              pipeline_parameter = "weak_output_1",
+                              pipeline_parameter="weak_output_1",
                               weak_link=True)
         self.export_parameter("way22", "other_output",
-                              pipeline_parameter = "weak_output_2",
+                              pipeline_parameter="weak_output_2",
                               weak_link=True)
         self.export_parameter("switch", "switch_image",
-                              pipeline_parameter = "result_image")
+                              pipeline_parameter="result_image")
         self.export_parameter("switch", "switch_output",
-                              pipeline_parameter = "result_output")
+                              pipeline_parameter="result_output")
+
 
 class TestSwitchPipeline(unittest.TestCase):
 
@@ -171,17 +178,14 @@ if __name__ == "__main__":
     print "RETURNCODE: ", test()
 
     import sys
-    from PyQt4 import QtGui
-    from soma.gui.widget_controller_creation import ControllerWidget
-    from soma.gui.pipeline.pipeline_gui import PipelineView
+    from PySide import QtGui
+    from capsul.apps_qt.base.pipeline_widgets import FullPipelineView
 
     app = QtGui.QApplication(sys.argv)
     pipeline = SwitchPipeline()
     pipeline.switch = "two"
-    view1 = PipelineView(pipeline)
+    view1 = FullPipelineView(pipeline)
     view1.show()
-    cw = ControllerWidget(pipeline, live=True)
-    cw.show()
     app.exec_()
     del view1
 
