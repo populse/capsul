@@ -7,6 +7,7 @@
 # for details.
 ##########################################################################
 
+# Trait import
 try:
     import traits.api as traits
     from traits.api import (File, Float, Enum, Str, Int, Bool, List, Tuple,
@@ -16,26 +17,38 @@ except ImportError:
     from enthought.traits.api import (File, Float, Enum, Str, Int, Bool,
         List, Tuple, Instance, Any, Event, CTrait, Directory)
 
+# Capsul import
 from capsul.controller import Controller
 from capsul.utils.sorted_dictionary import SortedDictionary
 from capsul.process import get_process_instance
 
 
 class Plug(Controller):
-    """ Overload of traits in oder to keep the pipeline memory.
+    """ Overload of the traits in oder to keep the pipeline memory.
+
+    Attributes
+    ----------
+    enabled : bool
+        user parameter to control the plug activation
+    activated : bool
+        parameter describing the Plug status
+    output : bool
+        parameter to set the Plug type (input or output)
+    optional : bool
+        parameter to create an optional Plug
+    links_to : set (node, plug)
+        the successor plugs of this  plug
+    links_from : set (node, plug)
+        the predecessor plugs of this plug
     """
-    # User parameter to control the Plug activation
     enabled = Bool(default_value=True)
-    # Parameter describing the Plug status
     activated = Bool(default_value=False)
-    # Parameter to type the Plug as an output
     output = Bool(default_value=False)
-    # Parameter to create an aptional Plug
     optional = Bool(default_value=False)
 
     def __init__(self, **kwargs):
-        """ Generate a Plug, i.e. a traits with the memory of the
-        pipeline adjacent nodes
+        """ Generate a Plug, i.e. a trait with the memory of the
+        pipeline adjacent nodes.
         """
         super(Plug, self).__init__(**kwargs)
         # The links correspond to edges in the graph theory
@@ -48,12 +61,26 @@ class Plug(Controller):
 
 class Node(Controller):
     """ Basic Node structure of the pipeline that need to be tuned.
+
+    Attributes
+    ----------
+    name : str
+        the node name
+    enabled : bool
+        user parameter to control the node activation
+    activated : bool
+        parameter describing the node status
+
+    Methods
+    -------
+    connect
+    set_callback_on_plug
+    get_plug_value
+    set_plug_value
+    get_trait
     """
-    # Node name
     name = Str()
-    # User parameter to control the Node activation
     enabled = Bool(default_value=True)
-    # Parameter describing the Node status
     activated = Bool(default_value=False)
 
     def __init__(self, pipeline, name, inputs, outputs):
@@ -193,8 +220,35 @@ class Node(Controller):
 
 
 class ProcessNode(Node):
+    """ Process node.
 
+    Attributes
+    ----------
+    process : process instance
+        the process instance stored in the pipeline node
+
+    Methods
+    -------
+    set_callback_on_plug
+    get_plug_value
+    set_plug_value
+    get_trait
+    """
     def __init__(self, pipeline, name, process, **kwargs):
+        """ Generate a ProcessNode
+
+        Parameters
+        ----------
+        pipeline: Pipeline (mandatory)
+            the pipeline object where the node is added
+        name: str (mandatory)
+            the node name
+        process: instance or string
+            a process/interface instance or the correspondin string
+            description
+        kwargs: dict
+            process default values
+        """
         self.process = get_process_instance(process, **kwargs)
         self.kwargs = kwargs
         inputs = []
@@ -213,9 +267,30 @@ class ProcessNode(Node):
         super(ProcessNode, self).__init__(pipeline, name, inputs, outputs)
 
     def set_callback_on_plug(self, plug_name, callback):
+        """ Add an event when a plug change
+
+        Parameters
+        ----------
+        plug_name: str (mandatory)
+            a plug name
+        callback: @f (mandatory)
+            a callback function
+        """
         self.process.on_trait_change(callback, plug_name)
 
     def get_plug_value(self, plug_name):
+        """ Return the plug value
+
+        Parameters
+        ----------
+        plug_name: str (mandatory)
+            a plug name
+
+        Returns
+        -------
+        output: object
+            the plug value
+        """
         if not isinstance(self.get_trait(plug_name).handler,
                           traits.Event):
             return getattr(self.process, plug_name)
@@ -223,28 +298,65 @@ class ProcessNode(Node):
             return None
 
     def set_plug_value(self, plug_name, value):
+        """ Set the plug value
+
+        Parameters
+        ----------
+        plug_name: str (mandatory)
+            a plug name
+        value: object (mandatory)
+            the plug value we want to set
+        """
         from traits.trait_base import _Undefined
         if value in ["", "<undefined>"]:
             value = _Undefined()
         setattr(self.process, plug_name, value)
 
-    def get_trait(self, name):
-        return self.process.trait(name)
+    def get_trait(self, trait_name):
+        """ Return the desired trait
+
+        Parameters
+        ----------
+        trait_name: str (mandatory)
+            a trait name
+
+        Returns
+        -------
+        output: trait
+            the trait named trait_name
+        """
+        return self.process.trait(trait_name)
 
 
 class PipelineNode(ProcessNode):
+    """ A special node to store the pipeline user-parameters
+    """
     pass
 
 
 class Switch(Node):
-    """ Switch Node to select a specific Process.
+    """ Switch node to select a specific Process.
+
+    Attributes
+    ----------
+    _switch_values : list
+        the switch options
+    _outputs: list
+        the switch output parameters
+
+    See Also
+    --------
+    _switch_changed
+    _anytrait_changed
     """
 
     def __init__(self, pipeline, name, inputs, outputs):
         """ Generate a Switch Node
 
+        Warnings
+        --------
         The input plug names are built according to the following rule:
-            <input_name>-<output_name>
+        <input_name>_switch_<output_name>
 
         Parameters
         ----------
