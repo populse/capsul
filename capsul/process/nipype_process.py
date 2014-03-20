@@ -7,10 +7,12 @@
 # for details.
 ##########################################################################
 
+# System import
 import sys
 import os
 import types
 
+# Trait import
 try:
     import traits.api as traits
     from traits.api import (ListStr, HasTraits, File, Float, Instance,
@@ -21,6 +23,7 @@ except ImportError:
     from enthought.traits.api import (ListStr, HasTraits, File, Float,
                                       Instance, Enum, Str,CTrait)
 
+# Capsul import
 from capsul.controller import trait_ids
 from process import NipypeProcess
 
@@ -38,7 +41,19 @@ def nipype_factory(nipype_instance):
     -------
     process_instance : instance
         a process instance.
+        
+    See Also
+    --------
+    _run_interface
+    _list_outputs
+    _gen_filename
+    _parse_inputs
+    relax_exists_constrain
+    sync_nypipe_traits
+    sync_process_output_traits
+    clone_nipype_trait
     """
+    # Some trait types' correspondances
     trait_cvt_table = {
         "InputMultiPath_TraitCompound": "List",
         "InputMultiPath": "List",
@@ -49,17 +64,17 @@ def nipype_factory(nipype_instance):
         "OutputList": "List"
     }
 
-    # modify nipype interface to dynamically update the working dir
+    # Modify the nipype interface to dynamically update
+    # the working dir
     def _run_interface(self, runtime):
         """ Method to execute nipype interface
 
         Parameters
         ----------
         runtime: Bunch (mandatory)
-        the configuration structure
+            the configuration structure
         """
         runtime.cwd = self.inputs.output_directory
-        #print runtime
         return self._run_interface_core(runtime)
 
     def _list_outputs(self):
@@ -68,7 +83,7 @@ def nipype_factory(nipype_instance):
         Returns
         -------
         outputs: dict
-        all the interface outputs
+            all the interface outputs
         """
         outputs = self._list_outputs_core()
         corrected_outputs = {}
@@ -90,7 +105,7 @@ def nipype_factory(nipype_instance):
         Returns
         -------
         outputs: str
-        the generated output file name
+            the generated output file name
         """
         output = self._gen_filename_core(name)
         if output:
@@ -107,7 +122,7 @@ def nipype_factory(nipype_instance):
         Returns
         -------
         all_args : list
-        A list of all inputs formatted for the command line.
+            A list of all inputs formatted for the command line.
         """
         # reset input traits that has to be generated
         metadata = dict(argstr=lambda t: t is not None)
@@ -134,28 +149,18 @@ def nipype_factory(nipype_instance):
         nipype_instance._gen_filename = types.MethodType(_gen_filename,
                                                          nipype_instance)
 
-#    # add method in order to enable the cache pickling the instance.
-#    # add the virtual mathod
-#    attributes["_run_process"] = _call_nipype
-#    # store the nipype interface instance
-#    attributes["_nipype_interface"] = nipype_instance
-#    attributes["_nipype_module"] = nipype_instance.__class__.__module__
-#    attributes["_nipype_class"] = nipype_instance.__class__.__name__
-#    attributes["_nipype_interface_name"] = attributes["_nipype_module"].split(
-#                                                      ".")[2]
-#
-#    # create new instance derived from Process
-#    process_class = type(attributes["_nipype_class"],
-#                         (NipypeProcess, ),
-#                         attributes)
-#    process_instance = process_class()
-
-    # create new instance derived from Process
+    # Create new instance derived from Process
     process_instance = NipypeProcess(nipype_instance)
 
-    # relax exists constrain
+    # Relax the trait exist constrain
     def relax_exists_constrain(trait):
+        """ Relax the exist constrain of a trait
 
+        Parameters
+        ----------
+        trait: trait
+            a trait that will be relaxed from the exist constrain
+        """
         if "exists" in dir(trait.handler):
             trait.handler.exists = False
 
@@ -169,10 +174,10 @@ def nipype_factory(nipype_instance):
             for sub_c_trait in trait.inner_traits:
                 relax_exists_constrain(sub_c_trait)
 
-    # add traits to the process instance
+    # Event to synchronized nipype traits with the corresponding capsul
+    # traits
     def sync_nypipe_traits(process_instance, name, old, value):
-        """ Event handler function to update
-        the nipype interface traits
+        """ Event handler function to update the nipype interface traits
         """
         if old != value:
             # relax exists constrain
@@ -183,8 +188,8 @@ def nipype_factory(nipype_instance):
                     value)
 
     def sync_process_output_traits(process_instance, name, value):
-        """ Event handler function to update
-        the process instance outputs """
+        """ Event handler function to update the process instance outputs
+        """
         try:
             nipype_outputs = (process_instance.
                              _nipype_interface._list_outputs())
@@ -193,14 +198,24 @@ def nipype_factory(nipype_instance):
         except:
             pass
 
-    # clone a nipype trait
+    # Clone a nipype trait
     def clone_nipype_trait(nipype_trait):
         """ Create a new trait (clone) from a trait string description
+
+        Parameters
+        ----------
+        nipype_trait: trait
+            the nipype trait we want to clone
+
+        Returns
+        -------
+        process_trait: trait
+            the clone that will be used by capsul
         """
-        # get the string description
+        # Get the string description
         str_description = trait_ids(trait)
 
-        # normlize the description
+        # Normlize the description
         add_switch = False
         if "MultiPath" in str_description[0]:
             add_switch = True
@@ -212,7 +227,7 @@ def nipype_factory(nipype_instance):
             str_description = [str_description[0],
                                "_".join(str_description[0].split("_")[1:])]
 
-        # create a new trait from its expression and namespace
+        # Create a new trait from its expression and namespace
         namespace = {"traits": traits, "process_trait": None}
         trait_expressions = []
         for trait_spec in str_description:
@@ -244,7 +259,7 @@ def nipype_factory(nipype_instance):
         else:
             expression = "process_trait = {0}".format(trait_expressions[0])
 
-        # evaluate expression in namespace
+        # Evaluate expression in namespace
         def f():
             exec expression in namespace
 
@@ -257,17 +272,17 @@ def nipype_factory(nipype_instance):
                             namespace, sys.exc_info()[1]))
         process_trait = namespace["process_trait"]
 
-        # copy description*
+        # Copy description
         process_trait.desc = nipype_trait.desc
         process_trait.optional = not nipype_trait.mandatory
 
         return process_trait
 
-    # input
+    # Add nipype traits to the process instance
+    # inputs
     for name, trait in nipype_instance.input_spec().items():
         process_trait = clone_nipype_trait(trait)
         process_instance.add_trait(name, process_trait)
-        #print name, trait_ids(trait)
         # TODO: fix this hack in Controller
         process_instance.trait(name).optional = not trait.mandatory
         process_instance.trait(name).desc = trait.desc
@@ -276,12 +291,11 @@ def nipype_factory(nipype_instance):
         process_instance.on_trait_change(sync_nypipe_traits, name=name)
         process_instance.on_trait_change(sync_process_output_traits)
 
-    # output
+    # outputs
     for name, trait in nipype_instance.output_spec().items():
         process_trait = clone_nipype_trait(trait)
         process_trait.output = True
         private_name = "_" + name
-        #print private_name, trait_ids(trait)
         process_instance.add_trait(private_name, process_trait)
         # TODO: fix this hack in Controller
         process_instance.trait(private_name).optional = not trait.mandatory

@@ -58,11 +58,21 @@ Plug
 
 .. currentmodule:: capsul.process
 
+Classes
+-------
+
 .. autosummary::
     :toctree: generated/capsul-process/
-    :template: class.rst
+    :template: class_process.rst
 
     process.Process
+
+    :template: class.rst
+
+    process.ProcessResult
+
+Functions
+---------
 
 .. autosummary::
     :toctree: generated/capsul-process/

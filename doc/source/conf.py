@@ -53,8 +53,12 @@ extensions = [ 'sphinx.ext.autodoc',
 # Remove some numpy-linked warnings
 numpydoc_show_class_members = False
 
-# generate autosummary even if no references
+# Generate autosummary even if no references
 autosummary_generate = True
+
+# Autodoc of class members
+#autodoc_default_flags = ['members', 'inherited-members']
+autodoc_default_flags = ['members']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -236,8 +240,3 @@ latex_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {'http://docs.python.org/': None}
-
-
-# -- Options for Texinfo output ------------------------------------------------
-
-autodoc_default_flags = ["members", "undoc-members"]

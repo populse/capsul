@@ -7,6 +7,7 @@
 # for details.
 ##########################################################################
 
+# System import
 import os
 import sys
 import types
@@ -14,7 +15,9 @@ from socket import getfqdn
 from datetime import datetime as datetime
 from copy import deepcopy
 import json
+import subprocess
 
+# Trait import
 try:
     import traits.api as traits
     from traits.trait_base import _Undefined
@@ -27,10 +30,12 @@ except ImportError:
                                       Instance, Enum, Str, Directory, Dict,
                                       Undefined)
 
+# Capsul import
 from capsul.controller import Controller
 from capsul.controller import trait_ids
 from capsul.utils import LateBindingProperty, get_tool_version
 
+# If nipype is not found create a dummy InterfaceResult class
 try:
     from nipype.interfaces.base import InterfaceResult
 except:
@@ -39,32 +44,46 @@ except:
 
 
 class Process(Controller):
-    """ TODO
+    """ A prosess is an atomic component that contains the processing.
+
+    Attributes
+    ----------
+    `name` : str
+        the class name
+    `id` : str
+        the string description of the class location
+    `runtime` : dict (default None)
+        after the process execution, a dictionary containing all
+        exection information
+    `log_file` : str (default None)
+        if None, the log will be generated in the output_directory
+        otherwise is will be written in log_file
+        
+    Methods
+    -------
+    __call__
+    _run_process
+    get_commandline
+    save_log
+    get_input_spec
+    get_outputs
+    set_parameter
+    get_parameter
     """
     def __init__(self):
-        """ Init the process class.
-
-        In a process instance it is possible to define QC process(es)
-        that will be used to evaluate the quality of the result.
-
-        It is also possible to add viewers to check the input, output, or
-        QC data.
+        """ Initialize the Process class.
         """
-        # inheritance
+        # Inheritance
         super(Process, self).__init__()
 
-        # intern identifiers
+        # Intern identifiers
         self.name = self.__class__.__name__
-        self.id = self.__class__.__module__ + '.' + self.name
+        self.id = self.__class__.__module__ + "." + self.name
 
-        # tools around the current process
-        self.viewers = {}
-        self.qc_processes = {}
-
-        # runtime information
+        # Runtime information
         self.runtime = None
 
-        # log file name
+        # Log file name
         self.log_file = None
 
         # Add trait to store processing output directory
@@ -72,26 +91,23 @@ class Process(Controller):
                                        Directory(Undefined,
                                        exists=True, optional=True))
 
-        # Add trait to store the execution information
-        #super(Process, self).add_trait("exec_info",
-        #    Dict(output=True, optional=True))
-
-    ##############
-    # Members    #
-    ##############
-
     def __call__(self, **kwargs):
         """ Execute the Process
 
+        Keyword arguments may be passed to set parameters,
+        to allow calling the process like a standard python function.
+        In such case keyword arguments are set in the process in
+        addition to those already set before the call.
+
+        Parameters
+        ----------
+        kwargs
+            should correspond to the declared parameter traits.
+            
         Returns
         -------
         results:  ProcessResult object
-            Contains all execution information
-
-        Keyword arguments may be passed to set parameters, to allow calling the
-        process like a standard python function. In such case keyword arguments
-        are set in the process in addition to those already set before the
-        call. kwargs should correspond to the declared parameter traits.
+            contains all execution information
         """
         # Get class
         process = self.__class__
@@ -106,14 +122,13 @@ class Process(Controller):
             "hostname": getfqdn(),
         }
 
-        # set parameters
+        # Set parameters
         if kwargs:
             user_traits = self.user_traits()
             for arg_name, arg_val in kwargs.iteritems():
                 if arg_name not in user_traits:
-                    raise TypeError(
-                        "__call__ got an unexpected keyword argument '%s'" \
-                        % arg_name)
+                    raise TypeError("__call__ got an unexpected keyword "
+                        "argument '{0}'".foramt(arg_name))
                 setattr(self, arg_name, arg_val)
             del user_traits
 
@@ -125,7 +140,7 @@ class Process(Controller):
 
         # Get dependencies' versions
         versions = {
-            "soma": get_tool_version("soma"),
+            "capsul": get_tool_version("capsul"),
         }
         if "_nipype_interface" in dir(self):
             versions["nipype"] = get_tool_version("nipype")
@@ -158,189 +173,63 @@ class Process(Controller):
 
         return results
 
+    ##############
+    # Methods    #
+    ##############
+
     def _run_process(self):
-        """ Process function that will be called by __call__().
-        Either this function or get_commandline() must be defined in derived
-        classes.
+        """ Method that do the processings when the instance is called.
+
+        Either this _run_process() or get_commandline() must be
+        defined in derived classes.
         """
-        # check if get_commandline() is specialized. If yes, we can make use of
-        # it to execute the process
+        # check if get_commandline() is specialized.
+        # If yes, we can make use of it to execute the process
         if self.__class__.get_commandline != Process.get_commandline:
             commandline = self.get_commandline()
             subprocess.check_call(commandline)
         else:
-            raise NotImplementedError()
+            raise NotImplementedError("Either get_commandline() or "
+                "_run_process() should be redefined in "
+                "a process ({0})".format(self.__class__.__name__))
 
     def get_commandline(self):
-        """ Commandline representation of the process with parameters.
-        Either this function or _run_process() must be defined in derived
-        classes.
+        """ Commandline representation of the process.
+
+        Either this _run_process() or get_commandline() must be
+        defined in derived classes.
         """
         def _is_defined(self, name):
             value = getattr(self, name)
-            if value is None or value is Undefined \
-                    or (type(value) in types.StringTypes and value == ''):
+            if (value is None or value is Undefined or
+                (type(value) in types.StringTypes and value == "")):
                 return False
             return True
 
-        # check if _run_process() is specialized, because if not,
-        # it will definitely not work.
-        if self.__class__._run_process == Process._run_process:
-            raise NotImplementedError('Either get_commandline() or '\
-            '_run_process() should be redefined in a process (%s)' \
-            % self.__class__.__name__)
-
+        # Get command line defined arguments
         reserved_params = ('nodes_activation', 'selection_changed')
-        args = [name for name in self.user_traits().iterkeys() \
-            if name not in reserved_params and _is_defined(self, name)]
-        # temporary representation as python function call
-        argslist = ['%s=%s' % (name, repr(getattr(self, name))) \
-            for name in args]
+        args = [name for name in self.user_traits().iterkeys()
+                     if name not in reserved_params and
+                     _is_defined(self, name)]
+
+        # Build the python call expression
+        argslist = ["{0}={1}".format(name, repr(getattr(self, name)))
+                              for name in args]
         module_name = sys.modules[self.__module__].__name__
         class_name = self.__class__.__name__
-        commandline = ['python',
-            '-c',
-            'from %s import %s; %s()(%s)' \
-            % (module_name, class_name, class_name, ', '.join(argslist)),
+        commandline = ["python", "-c",
+                       "from {0} import {1}; {2}()({3})".format()
+                       (module_name, class_name, class_name,
+                        ", ".join(argslist)),
         ]
         return commandline
 
-#    def auto_nipype_process_qc(self):
-#        """ From a nipype process instance call automatically
-#        quality control tools
-#        """
-#        pass
-#        #interface_name = self._nipype_interface.__class__.__name__
-#        #qc_id = ("casper.use_cases.qc."
-#        #         "{0}QualityCheck".format(interface_name))
-#        #qc_instance = get_instance(qc_id,
-#        #                      nipype_interface=self._nipype_interface)
-#        #self.qc_processes["automatic"] = qc_instance
-
-#==============================================================================
-#
-#     def call_viewer(self, controller_widget, name):
-#         viewer, kwargs = self.viewers[name]
-#         if not kwargs:
-#             liste = []
-#             liste.append(getattr(controller_widget.controller, name))
-#             p = GlobalNaming().get_object(viewer)(*liste)
-#         else:
-#             dico_parameter = {}
-#             #dico_parameter[name]=value
-#             #get all traits name of the process
-#             trait_of_process = controller_widget.controller.user_traits(). \
-#                                keys()
-#             #Get parameters in the kwargs and complete value of traits needed
-#             for key, value in kwargs.iteritems():
-#                 dico_parameter[key] = value
-#                 if value in trait_of_process:
-#                     dico_parameter[key] = getattr(
-#                         controller_widget.controller,
-#                         value)
-#             p = GlobalNaming().get_object(viewer)(**dico_parameter)
-#         return p()
-#==============================================================================
-
-    ##############
-    # Properties #
-    ##############
-
-    def get_input_spec(self):
-        """ Pipeline input specification
-
-        Returns
-        -------
-        outputs: str
-            a dictionary with all the input Plugs' specifications
-        """
-        output = "\nINPUT SPECIFICATIONS\n\n"
-        for trait_name, trait in self.user_traits().iteritems():
-            if not trait.output:
-                output += "{0}: {1}\n".format(trait_name,
-                                            trait_ids(self.trait(trait_name)))
-        return output
-
-    def get_inputs(self):
-        """ Pipeline inputs
-
-        Returns
-        -------
-        outputs: dict
-            a dictionary with all the input Plugs' names and values
-        """
-        output = {}
-        for trait_name, trait in self.user_traits().iteritems():
-            if not trait.output:
-                output[trait_name] = getattr(self, trait_name)
-        return output
-
-    def get_outputs(self):
-        """ Pipeline outputs
-
-        Returns
-        -------
-        outputs: dict
-            a dictionary with all the output Plugs' names and values
-        """
-        output = {}
-        for trait_name, trait in self.user_traits().iteritems():
-            if trait.output:
-                output[trait_name] = getattr(self, trait_name)
-        return output
-
-    def set_qc(self, name, qc_id, **kwargs):
-        """ Create and set a viewer.
-        """
-        self.qc_processes[name] = (qc_id, kwargs)
-
-    def get_qc(self, name):
-        """ Get the viewer identified by name
-        """
-        return self.qc_processes[name]
-
-    def set_viewer(self, name, viewer_id, **kwargs):
-        """ Create and set a viewer.
-        """
-        self.viewers[name] = (viewer_id, kwargs)
-
-    def get_viewer(self, name):
-        """ Get the viewer identified by name
-        """
-        return self.viewers[name]
-
-    def set_parameter(self, name, value):
-        """ Set the parameter name of the process
-        instance.
-        """
-        setattr(self, name, value)
-
-    def get_parameter(self, name):
-        """ Get the parameter name of the process
-        instance.
-        """
-        return getattr(self, name)
-
-    def _get_log(self, exec_info):
-        """ Get process execution information
-        """
-        log = exec_info.runtime
-        log["process"] = self.id
-        log["inputs"] = exec_info.inputs.copy()
-        log["outputs"] = exec_info.outputs.copy()
-        #del log["outputs"]["exec_info"]
-
-        # Need to take the representation of undefined input or outputs
-        # traits
-        for parameter_type in ["inputs", "outputs"]:
-            for key, value in log[parameter_type].iteritems():
-                if value is Undefined:
-                    log[parameter_type][key] = repr(value)
-
-        return log
-
     def save_log(self):
-        """ Save the Process meta information in json format
+        """ Method to save process execution informations in json format
+
+        If the class attribute `log_file` is not set, a log.json output
+        file is generated in the process call current working directory.
+
         """
         if not self.log_file:
             self.log_file = os.path.join(self.exec_info["cwd"],
@@ -353,15 +242,134 @@ class Process(Controller):
             print >> f, json_struct
             f.close()
 
+    ##############
+    # Properties #
+    ##############
+
+    def get_input_spec(self):
+        """ Method to access the process input specifications
+
+        Returns
+        -------
+        outputs: str
+            a string representation of all the input trait specifications
+        """
+        output = "\nINPUT SPECIFICATIONS\n\n"
+        for trait_name, trait in self.user_traits().iteritems():
+            if not trait.output:
+                output += "{0}: {1}\n".format(trait_name,
+                    trait_ids(self.trait(trait_name)))
+        return output
+
+    def get_inputs(self):
+        """ Method to access the process inputs
+
+        Returns
+        -------
+        outputs: dict
+            a dictionary with all the input trait names and values
+        """
+        output = {}
+        for trait_name, trait in self.user_traits().iteritems():
+            if not trait.output:
+                output[trait_name] = getattr(self, trait_name)
+        return output
+
+    def get_outputs(self):
+        """ Method to access the process outputs
+
+        Returns
+        -------
+        outputs: dict
+            a dictionary with all the output trait names and values
+        """
+        output = {}
+        for trait_name, trait in self.user_traits().iteritems():
+            if trait.output:
+                output[trait_name] = getattr(self, trait_name)
+        return output
+
+    def set_parameter(self, name, value):
+        """ Method to set the trait value of a process instance.
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the trait name we want to modify
+        value: object (mandatory)
+            the trait value we want to set
+        """
+        setattr(self, name, value)
+
+    def get_parameter(self, name):
+        """ Method to access the value of a process instance.
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the trait name we want to modify
+
+        Returns
+        -------
+        value: object
+            the trait value we want to access
+        """
+        return getattr(self, name)
+
+    def _get_log(self, exec_info):
+        """ Intern method to format process instance execution
+        informations.
+
+        Parameters
+        ----------
+        exec_info: dict (mandatory)
+            the execution informations we want to format
+            the dictionnary is supposed to contain a runtime attribute
+
+        Returns
+        -------
+        log: dict
+            formated execution informations
+        """
+        log = exec_info.runtime
+        log["process"] = self.id
+        log["inputs"] = exec_info.inputs.copy()
+        log["outputs"] = exec_info.outputs.copy()
+
+        # Need to take the representation of undefined input or outputs
+        # traits
+        for parameter_type in ["inputs", "outputs"]:
+            for key, value in log[parameter_type].iteritems():
+                if value is Undefined:
+                    log[parameter_type][key] = repr(value)
+
+        return log
+
     run = LateBindingProperty(_run_process, None, None,
-                             "Processing function that has to be defined")
+             "Processing method that has to be defined in derived classes")
 
 
 class NipypeProcess(Process):
-    """ Dummy class for interfaces.
+    """ Dummy class to wrap nipype interfaces.
     """
     def __init__(self, nipype_instance, *args, **kwargs):
-        """ Init the nipype process class.
+        """ Initialize the NipypeProcess class.
+
+        Parameters
+        ----------
+        nipype_instance: nipype interface (mandatory)
+            the nipype interface we want to wrap
+
+        Attributes
+        ----------
+        _nipype_interface : interface
+            private attribute to store the nipye interface
+        _nipype_module : str
+            private attribute to store the nipye module name
+        _nipype_class : str
+            private attribute to store the nipye class name
+        _nipype_interface_name : str
+            private attribute to store the nipye interface name
         """
         # Inheritance
         super(NipypeProcess, self).__init__(*args, **kwargs)
@@ -372,10 +380,13 @@ class NipypeProcess(Process):
         self._nipype_class = nipype_instance.__class__.__name__
         self._nipype_interface_name = self._nipype_module.split(".")[2]
 
-        # reset the process name and id
+        # Reset the process name and id
         self.id = ".".join([self._nipype_module, self._nipype_class])
         self.name = self._nipype_interface.__class__.__name__
-        
+
+        # For the nipype dcm2nii interface to work properly,
+        # need to create attributes that will be modified by
+        # the nipype run call
         if self._nipype_interface_name == "dcm2nii":
             self.output_files = _Undefined()
             self.reoriented_files = _Undefined()
@@ -384,6 +395,13 @@ class NipypeProcess(Process):
             self.bvals = _Undefined()
 
     def _run_process(self):
+        """ Method that do the processings when the instance is called.
+
+        Returns
+        -------
+        runtime: InterfaceResult
+            object containing the running results
+        """
         return self._nipype_interface.run()
 
     run = property(_run_process)
@@ -405,8 +423,10 @@ class ProcessResult(object):
     """
 
     def __init__(self, process, runtime, inputs=None, outputs=None):
+        """ Initialize the ProcessResult class.
+        """
         self.process = process
         self.runtime = runtime
         self.inputs = inputs
         self.outputs = outputs
-        
+
