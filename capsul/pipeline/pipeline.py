@@ -204,7 +204,7 @@ class Pipeline(Process):
 
     def export_parameter(self, node_name, parameter_name,
                          pipeline_parameter=None, weak_link=False,
-                         is_enabled=True):
+                         is_enabled=None):
         '''Exports one of the nodes parameters at the level of the pipeline.
         '''
         node = self.nodes[node_name]
@@ -219,7 +219,11 @@ class Pipeline(Process):
                              'exported to pipeline parameter %(pp)s' %
                              dict(nn=node_name, pn=parameter_name,
                                   pp=pipeline_parameter))
-        trait.enabled = is_enabled
+        # Set user enabled parameter only if specified
+        # Important because this property is automatically set during
+        # the nipype interface wrappings
+        if isinstance(is_enabled, bool):
+            trait.enabled = is_enabled
         self.add_trait(pipeline_parameter, trait)
 
         if trait.output:
