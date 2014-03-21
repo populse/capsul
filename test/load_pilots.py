@@ -45,7 +45,7 @@ def load_pilots(root, path):
     for fname in files:
         if fname.endswith(".py") and fname.startswith("test_"):
 
-            module_name = (["soma"] +
+            module_name = (["capsul"] +
                 path[len(os.path.normpath(root)) + 1:].split(os.path.sep) +
                 [os.path.splitext(fname)[0]])
             module_name = ".".join([x for x in module_name if x])
