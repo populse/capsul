@@ -7,8 +7,10 @@
 # for details.
 ##########################################################################
 
+# System import
 import logging
 
+# Trait import
 try:
     import traits.api as traits
     from traits.api import (File, Float, Enum, Str, Int, Bool, List, Tuple,
@@ -18,26 +20,57 @@ except ImportError:
     from enthought.traits.api import (File, Float, Enum, Str, Int, Bool,
         List, Tuple, Instance, Any, Event, CTrait, Directory)
 
+# Capsul import
 from capsul.controller import Controller
 from capsul.utils.sorted_dictionary import SortedDictionary
 from capsul.process import Process
-
 from topological_sort import GraphNode, Graph
-
 from pipeline_nodes import (Plug, ProcessNode, PipelineNode,
                             Switch)
 
 
 class Pipeline(Process):
-    """ Pipeline containing Process nodes, and links between node parameters.
+    """ Pipeline containing Process nodes, and links between node
+    parameters.
+
+    Attributes
+    ----------
+    nodes : dict {node_name: node}
+        a dictionary containing the pipline nodes and where the pipeline node name is ''
+    workflow_list : list
+        a list of odered nodes that can be executed
+    workflow_repr : str
+        a string representation of the workflow list
+        `<node_i>-><node_i+1>`
+
+    Methods
+    -------
+    add_trait
+    add_process
+    add_switch
+    add_link
+    export_parameter
+    workflow_ordered_nodes
+    workflow_graph
+    update_nodes_and_plugs_activation
+    parse_link
+    parse_parameter
+    _set_node_enabled
+    _run_process
     """
 
+    #
     selection_changed = Event()
 
     def __init__(self, **kwargs):
+        """ Initialize the Pipeline class
+        """
+        # Inheritance
         super(Pipeline, self).__init__(**kwargs)
         super(Pipeline, self).add_trait('nodes_activation',
                                         Instance(Controller))
+
+        # Class attributes
         self.list_process_in_pipeline = []
         self.attributes = {}
         self.nodes_activation = Controller()
@@ -47,81 +80,115 @@ class Pipeline(Process):
         self.nodes[''] = self.pipeline_node
         self.do_not_export = set()
         self.pipeline_definition()
-
         self.workflow_repr = ""
         self.workflow_list = []
 
+        # Automatically export node containing pipeline plugs
+        # If plug is not optional and if the plug has to be exported
         for node_name, node in self.nodes.iteritems():
             for parameter_name, plug in node.plugs.iteritems():
                 if parameter_name in ('nodes_activation', 'selection_changed'):
                     continue
                 if ((node_name, parameter_name) not in self.do_not_export and
-                    not plug.links_to and not plug.links_from and not
-                   self.nodes[node_name].get_trait(parameter_name).optional):
+                        not plug.links_to and not plug.links_from and not
+                        self.nodes[node_name].get_trait(
+                        parameter_name).optional):
                     self.export_parameter(node_name, parameter_name)
 
+        # Refresh pipeline activation
         self.update_nodes_and_plugs_activation()
 
+    ##############
+    # Methods    #
+    ##############
+
     def add_trait(self, name, trait):
-        '''
-        '''
+        """ Add a trait to the pipeline
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the trait name
+        trait: trait instance (mandatory)
+            the trait we want to add
+        """
+        # Add the trait
         super(Pipeline, self).add_trait(name, trait)
         self.get(name)
 
+        # If we insert a user trait, create the associated plug
         if self.is_user_trait(trait):
-            # hack
-            #output = isinstance(trait, File) and bool(trait.output)
             output = bool(trait.output)
             plug = Plug(output=output)
             self.pipeline_node.plugs[name] = plug
-
             plug.on_trait_change(self.update_nodes_and_plugs_activation,
                                  'enabled')
 
     def add_process(self, name, process, do_not_export=None,
                     make_optional=None, **kwargs):
-        '''Add a new node in the pipeline
+        """ Add a new node in the pipeline
 
         Parameters
         ----------
-        name: str
-        process: Process
-        do_not_export: bool, optional
-        '''
+        name: str (mandatory)
+            the node name (has to be unique)
+        process: Process (mandatory)
+            the process we want to add
+        do_not_export: list of str (optional)
+            a list of plug names that we do not want to export
+        make_optional: list of str (optional)
+            a list of plug names that we do not want to export
+
+        """
+        # Unique constrains
         make_optional = set(make_optional or [])
         do_not_export = set(do_not_export or [])
         do_not_export.update(kwargs)
+
+        # Check the unicity of the name we want to insert
         if name in self.nodes:
-            raise ValueError('Pipeline cannot have two nodes with the'
-                             'same name : %s' % name)
+            raise ValueError("Pipeline cannot have two nodes with the"
+                             "same name : {0}".foramt(name))
+
+        # Create a process node
         self.nodes[name] = node = ProcessNode(self, name, process, **kwargs)
+
+        # Change plug default properties
         for parameter_name in self.nodes[name].plugs:
+            # Do not export plug
             if (parameter_name in do_not_export or
-                parameter_name in make_optional):
+                    parameter_name in make_optional):
                 self.do_not_export.add((name, parameter_name))
+
+            # Optional plug
             if parameter_name in make_optional:
-                # if do_not_export, set plug optional setting to True
                 self.nodes[name].plugs[parameter_name].optional = True
+
+        # Create a trait to control the node activation (enable property)
         self.nodes_activation.add_trait(name, Bool)
         setattr(self.nodes_activation, name, node.enabled)
+
+        # Observer
         self.nodes_activation.on_trait_change(self._set_node_enabled, name)
+
+        # Add new node in pipeline process list
         self.list_process_in_pipeline.append(process)
 
     def add_switch(self, name, inputs, outputs):
-        '''Add a switch node in the pipeline
+        """ Add a switch node in the pipeline
 
         Parameters
         ----------
-        name: str
-            name for the switch node
-        inputs: list of str
-            names for switch inputs. Switch activation will select amongst
-            them.
+        name: str (mandatory)
+            name for the switch node (has to be unique)
+        inputs: list of str (mandatory)
+            names for switch inputs.
+            Switch activation will select amongst them.
             Inputs names will actually be a combination of input and output,
-            in the shape "input-output".
+            in the shape "input_switch_output".
             This behaviour is needed when there are several outputs, and thus
             several input groups.
-        outputs: list of str
+        outputs: list of str (mandatory)
             names for outputs.
 
         Examples
@@ -130,113 +197,213 @@ class Pipeline(Process):
             ['out1', 'out2'])
 
         will create a switch with 4 inputs and 2 outputs:
-        inputs: "in1-out1", "in2-out1", "in1-out2", "in2-out2"
+        inputs: "in1_switch_out1", "in2_switch_out1", "in1_switch_out2",
+        "in2_switch_out2"
         outputs: "out1", "out2"
-        '''
+        """
+        # Check the unicity of the name we want to insert
         if name in self.nodes:
-            raise ValueError('Pipeline cannot have two nodes with the same '
-                             'name : %s' % name)
+            raise ValueError("Pipeline cannot have two nodes with the same "
+                             "name: {0}".format(name))
+
+        # Create the node
         node = Switch(self, name, inputs, outputs)
         self.nodes[name] = node
-        self.export_parameter(name, 'switch', name)
+
+        # Export the switch controller to the pipeline node
+        self.export_parameter(name, "switch", name)
 
     def parse_link(self, link):
-        source, dest = link.split('->')
-        source_node_name, source_parameter, source_node, source_plug = \
-            self.parse_parameter(source)
-        dest_node_name, dest_parameter, dest_node, dest_plug = \
-            self.parse_parameter(dest)
-        return (source_node_name, source_parameter, source_node, source_plug,
-                dest_node_name, dest_parameter, dest_node, dest_plug)
-
-    def parse_parameter(self, name):
-        dot = name.find('.')
-        if dot < 0:
-            node_name = ''
-            node = self.pipeline_node
-            parameter_name = name
-        else:
-            node_name = name[:dot]
-            node = self.nodes.get(node_name)
-            if node is None:
-                raise ValueError('%s is not a valid node name' % node_name)
-            parameter_name = name[dot + 1:]
-        if parameter_name not in node.plugs:
-            raise ValueError('%s is not a valid parameter name for node %s' %
-                             (parameter_name, (node_name if node_name else
-                                               'pipeline')))
-        return node_name, parameter_name, node, node.plugs[parameter_name]
-
-    def add_link(self, link, weak_link=False):
-        '''Add a link between pipeline nodes
+        """ Parse a link comming from export_parameter method.
 
         Parameters
         ----------
         link: str
-          link description. Its shape should be:
-          "node.output->other_node.input".
-          If no node is specified, the pipeline itself is assumed.
-        '''
-        source, dest = link.split('->')
-        source_node_name, source_parameter, source_node, source_plug = \
+            the link description of the form
+            'node_from.plug_name->node_to.plug_name'
+
+        Returns
+        -------
+        output: tuple
+            tuple containing the link description and instances
+
+        Examples
+        --------
+        >>> Pipeline.parse_link("node1.plug1->node2.plug2")
+        "node1", "plug1", <instance node1>, <instance plug1>,
+        "node2", "plug2", <instance node2>, <instance plug2>
+
+        For a pipeline node:
+
+        >>> Pipeline.parse_link("plug1->node2.plug2")
+        "", "plug1", <instance pipeline>, <instance plug1>,
+        "node2", "plug2", <instance node2>, <instance plug2>
+        """
+        # Split source and destination node descriptions
+        source, dest = link.split("->")
+
+        # Parse the source and destination parameters
+        source_node_name, source_plug_name, source_node, source_plug = \
             self.parse_parameter(source)
-        dest_node_name, dest_parameter, dest_node, dest_plug = \
+        dest_node_name, dest_plug_name, dest_node, dest_plug = \
             self.parse_parameter(dest)
+
+        return (source_node_name, source_plug_name, source_node, source_plug,
+                dest_node_name, dest_plug_name, dest_node, dest_plug)
+
+    def parse_parameter(self, name):
+        """ Parse parameter of a node from its description.
+
+        Parameters
+        ----------
+        name: str
+            the description plug we want to load
+            'node.plug'
+
+        Returns
+        -------
+        output: tuple
+            tuple containing the plug description and instances
+        """
+        # Parse the plug description
+        dot = name.find(".")
+
+        # Check if its a pipeline node
+        if dot < 0:
+            node_name = ""
+            node = self.pipeline_node
+            plug_name = name
+        else:
+            node_name = name[:dot]
+            node = self.nodes.get(node_name)
+            if node is None:
+                raise ValueError("{0} is not a valid node name".format(
+                                 node_name))
+            plug_name = name[dot + 1:]
+
+        # Check if plug nexists
+        if plug_name not in node.plugs:
+            raise ValueError('%s is not a valid parameter name for node %s' %
+                             (plug_name, (node_name if node_name else
+                                               'pipeline')))
+        return node_name, plug_name, node, node.plugs[plug_name]
+
+    def add_link(self, link, weak_link=False):
+        """ Add a link between pipeline nodes.
+
+        Parameters
+        ----------
+        link: str
+            link descriptionof the form:
+            "node.output->other_node.input".
+            If no node is specified, the pipeline node itself is used:
+            "output->other_node.input".
+        weak_link: bool
+             this property is used when nodes are optional,
+             the plug information may not be generated.
+        """
+        # Parse the link
+        (source_node_name, source_plug_name, source_node,
+         source_plug, dest_node_name, dest_plug_name, dest_node,
+        dest_plug) = self.parse_link(link)
+
+        # Assure that pipeline plugs are not linked
         if not source_plug.output and source_node is not self.pipeline_node:
-            raise ValueError('Cannot link from an input plug : %s' % link)
-        # hack: cant link output parameters
+            raise ValueError("Cannot link from a pipeline input "
+                             "plug: {0}".format(link))
         if dest_plug.output and dest_node is not self.pipeline_node:
-            raise ValueError('Cannot link to an output plug : %s' % link)
+            raise ValueError("Cannot link to a pipeline output "
+                             "plug: {0}".format(link))
 
-        source_plug.links_to.add((dest_node_name, dest_parameter, dest_node,
+        # Update plugs memory of the pipeline
+        source_plug.links_to.add((dest_node_name, dest_plug_name, dest_node,
                                   dest_plug, weak_link))
-        dest_plug.links_from.add((source_node_name, source_parameter,
+        dest_plug.links_from.add((source_node_name, source_plug_name,
                                   source_node, source_plug, weak_link))
-        if (isinstance(dest_node, ProcessNode) and
-            isinstance(source_node, ProcessNode)):
 
-            source_trait = source_node.process.trait(source_parameter)
-            dest_trait = dest_node.process.trait(dest_parameter)
+        # Set a connected_output property
+        if (isinstance(dest_node, ProcessNode) and
+                isinstance(source_node, ProcessNode)):
+            source_trait = source_node.process.trait(source_plug_name)
+            dest_trait = dest_node.process.trait(dest_plug_name)
             if source_trait.output and not dest_trait.output:
                 dest_trait.connected_output = True
-        source_node.connect(source_parameter, dest_node, dest_parameter)
-        dest_node.connect(dest_parameter, source_node, source_parameter)
 
-    def export_parameter(self, node_name, parameter_name,
+        # Observer
+        source_node.connect(source_plug_name, dest_node, dest_plug_name)
+        dest_node.connect(dest_plug_name, source_node, source_plug_name)
+
+    def export_parameter(self, node_name, plug_name,
                          pipeline_parameter=None, weak_link=False,
                          is_enabled=None):
-        '''Exports one of the nodes parameters at the level of the pipeline.
-        '''
+        """ Export a node plug at the pipeline level.
+
+        Parameters
+        ----------
+        node_name: str (mandatory)
+            the name of node containing the plug we want to export
+        plug_name: str (mandatory)
+            the node plug name we want to export
+        pipeline_parameter: str (optional)
+            the name to access this parameter at the pipeline level.
+            Default None, the plug name is used
+        weak_link: bool (optional)
+            this property is used when nodes are optional,
+            the plug information may not be generated.
+        is_enabled: bool (optional)
+            a property to specify that it is not a user-parameter
+            automatic generation)
+        """
+        # Get the node and parameter
         node = self.nodes[node_name]
-        trait = node.get_trait(parameter_name)
+        trait = node.get_trait(plug_name)
+
+        # Check if the plug name is valid
         if trait is None:
-            raise ValueError('Node %(n)s (%(nn)s) has no parameter %(p)s' %
-                             dict(n=node_name, nn=node.name, p=parameter_name))
+            raise ValueError("Node {0} ({1}) has no parameter "
+                             "{2}".format(node_name, node.name, plug_name))
+
+        # If a tuned name is not specified, used the plug name
         if not pipeline_parameter:
-            pipeline_parameter = parameter_name
+            pipeline_parameter = plug_name
+
+        # Check the the pipeline parameter name is not already used
         if pipeline_parameter in self.user_traits():
-            raise ValueError('Parameter %(pn)s of node %(nn)s cannot be '
-                             'exported to pipeline parameter %(pp)s' %
-                             dict(nn=node_name, pn=parameter_name,
-                                  pp=pipeline_parameter))
+            raise ValueError("Parameter {0} of node {1} cannot be "
+                             "exported to pipeline parameter "
+                             "{2}".format(node_name, plug_name,
+                             pipeline_parameter))
+
         # Set user enabled parameter only if specified
         # Important because this property is automatically set during
         # the nipype interface wrappings
         if isinstance(is_enabled, bool):
             trait.enabled = is_enabled
+
+        # Now add the parameter to the pipeline
         self.add_trait(pipeline_parameter, trait)
 
+        # Do not forget to link the node with the pipeline node
         if trait.output:
-            self.add_link('%s.%s->%s' % (node_name, parameter_name,
+            self.add_link("{0}.{1}->{2}".format(node_name, plug_name,
                                          pipeline_parameter), weak_link)
         else:
-            self.add_link('%s->%s.%s' % (pipeline_parameter,
-                                         node_name, parameter_name), weak_link)
+            self.add_link("{0}->{1}.{2}".format(pipeline_parameter,
+                                         node_name, plug_name), weak_link)
 
-    def _set_node_enabled(self, node_name, value):
+    def _set_node_enabled(self, node_name, is_enabled):
+        """ Method to enable or disabled a node
+
+        Parameters
+        ----------
+        node_name: str (mandatory)
+            the node name
+        is_enabled: bool (mandatory)
+            the desired property
+        """
         node = self.nodes.get(node_name)
         if node:
-            node.enabled = value
+            node.enabled = is_enabled
 
     def update_nodes_and_plugs_activation(self):
         """ Method to update the pipeline activation
@@ -342,12 +509,12 @@ class Pipeline(Process):
         self.selection_changed = True
 
     def workflow_graph(self):
-        """ Generate a workflow graph: list of process node to execute
+        """ Generate a workflow graph
 
         Returns
         -------
         graph: topological_sort.Graph
-            grpah representation of the workflow from the current state of
+            graph representation of the workflow from the current state of
             the pipeline
         """
 
@@ -443,11 +610,17 @@ class Pipeline(Process):
         return self.workflow_list
 
     def _run_process(self):
-        """ Execution of the pipeline, in a sequential, single-processor mode
+        """ Execution of the pipeline, in a sequential,
+        single-processor mode.
+
+        Returns
+        -------
+        returned: list
+            the execution return results of each node in the worflow
         """
         nodes_list = self.workflow_ordered_nodes()
         returned = []
         for node in nodes_list:
-            node_ret = node() # execute node
-            returned.append( node_ret )
+            node_ret = node()  # execute node
+            returned.append(node_ret)
         return returned

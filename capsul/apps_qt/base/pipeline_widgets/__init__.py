@@ -9,3 +9,4 @@
 
 from pipeline_widgets import PipelineView as SimplePipelineView
 from full_pipeline_widgets import PipelineView as FullPipelineView
+from workflow_widget import WorkflowViewer

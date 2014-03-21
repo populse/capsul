@@ -7,11 +7,34 @@
 # for details.
 ##########################################################################
 
+# System import
 import logging
 
 
 class GraphNode(object):
     """ Simple Graph Node Structure
+
+    Attributes
+    ----------
+    name : str
+        the node name
+    meta : object
+        a python object stored in the node
+    links_to : list
+         object to store the graph edges: sucessor
+    links_from : list
+        object to store the graph edges: predecessor
+    links_to_degree : int
+        degree of the node regarding the successors
+    links_from_degree : int
+        degree of the node regarding the predecessors
+
+    Methods
+    --------
+    add_link_to
+    remove_link_to
+    add_link_from
+    remove_link_from
     """
 
     def __init__(self, name, meta):
@@ -86,8 +109,23 @@ class GraphNode(object):
 class Graph(object):
     """ Simple Graph Structure on which we want to perform a
     topological tree (no cycle).
+
     The algorithm is based on the R.E. Tarjanlinear linear
     optimization (O(N+A)).
+
+    Attributes
+    ----------
+    _nodes : dict
+        the graph nodes {node.name: node}
+    _links : list
+        graph edges (from_node, to_node)
+
+    Methods
+    --------
+    add_node
+    find_node
+    add_link
+    topological_sort
     """
 
     def __init__(self):

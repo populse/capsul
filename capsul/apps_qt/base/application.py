@@ -27,13 +27,15 @@ class Application(QtGui.QApplication):
         line options (that can also be passed to the class constructor
         as extra_options). From the command line, we can set the
         debug level with the -d option:
-            * debug
-            * info
-            * warning
-            * error
-            * critical
+        * debug
+        * info
+        * warning
+        * error
+        * critical
+
         For exemple:
         >>> capsulview -d debug
+
         The default mode is debug.
 
         From the command line we can also redirect all messages
@@ -44,7 +46,7 @@ class Application(QtGui.QApplication):
         ----------
         extra_options: list (optional)
             some additional options that are not passed through the command
-            line
+            line.
         """
         # Inheritance
         QtGui.QApplication.__init__(self, [])

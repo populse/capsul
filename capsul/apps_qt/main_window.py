@@ -14,8 +14,8 @@ from PySide import QtCore, QtGui, QtWebKit
 
 from capsul.apps_qt.base.window import MyQUiLoader
 from capsul.process import get_process_instance
-from capsul.apps_qt.base.pipeline_widgets import SimplePipelineView
-from capsul.apps_qt.base.pipeline_widgets import FullPipelineView
+from capsul.apps_qt.base.pipeline_widgets import (SimplePipelineView,
+    FullPipelineView, WorkflowViewer)
 import capsul.apps_qt.resources as resources
 from capsul.apps_qt.base.controller import ControllerWindow
 
@@ -122,7 +122,8 @@ class MainWindow(MyQUiLoader):
         if self._is_active_pipeline_valid():
             if isinstance(self.ui.simple_pipeline.currentWidget(),
                           FullPipelineView):
-                SimplePipelineView(self.pipeline, self.ui)
+                widget = WorkflowViewer(self.pipeline)
+                self._insert_widget_in_tab(widget)
             else:
                 widget = FullPipelineView(self.pipeline)
                 self._insert_widget_in_tab(widget)
