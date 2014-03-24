@@ -34,6 +34,7 @@ from capsul.utils.sorted_dictionary import SortedDictionary
 from capsul.pipeline import Pipeline
 from capsul.process import Process
 from memory import _joblib_run_process, _run_process
+from pipeline_workflow import workflow_from_pipeline, local_workflow_run
 
 
 default_config = SortedDictionary(
@@ -252,29 +253,33 @@ class StudyConfig(Controller):
         process_or_pipeline: Process or Pipeline (mandatory)
             the process or pipeline we want to execute
         """
-        # Generate ordered execution list
-        execution_list = []
-        if isinstance(process_or_pipeline, Pipeline):
-            execution_list = process_or_pipeline.workflow_ordered_nodes()
-        elif isinstance(process_or_pipeline, Process):
-            execution_list.append(process_or_pipeline)
-        else:
-            raise Exception("Unknown instance type. Got {0}"
-                  "and expect Process or Pipeline"
-                  "instances".format(process_or_pipeline.__module__.name__))
 
-        # Execute each element
-        for cnt, process_instance in enumerate(execution_list):
-            # Use soma worflow
-            if self.get_trait_value("use_soma_workflow"):
-                print process_instance.get_commandline()
-            # Run 
+        # Use soma worflow
+        if self.get_trait_value("use_soma_workflow"):
+            # Create soma workflow pipeline
+            workflow = workflow_from_pipeline(process_or_pipeline)
+            local_workflow_run(process_or_pipeline.id, workflow)
+        else:
+            # Generate ordered execution list
+            execution_list = []
+            if isinstance(process_or_pipeline, Pipeline):
+                execution_list = process_or_pipeline.workflow_ordered_nodes()
+            elif isinstance(process_or_pipeline, Process):
+                execution_list.append(process_or_pipeline)
             else:
+                raise Exception("Unknown instance type. Got {0}"
+                    "and expect Process or Pipeline"
+                    "instances".format(process_or_pipeline.__module__.name__))
+
+            # Execute each element
+            for cnt, process_instance in enumerate(execution_list):
+                # Run
                 returncode, log_file = self._caller(self.output_directory,
                     "{0}-{1}".format(cnt + 1, process_instance.name),
                     process_instance,
                     self.generate_logging,
                     self.spm_directory)
+
 
 if __name__ == "__main__":
 
