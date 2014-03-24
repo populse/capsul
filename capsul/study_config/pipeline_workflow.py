@@ -12,6 +12,7 @@
 A single available function:
 workflow = workflow_from_pipeline(pipeline)
 """
+from socket import getfqdn
 
 import soma_workflow.client as swclient
 
@@ -21,18 +22,54 @@ from capsul.pipeline.topological_sort import Graph
 
 
 def workflow_from_pipeline(pipeline):
-    '''Create a soma-workflow workflow from a Capsul Pipeline
-    '''
+    """ Create a soma-workflow workflow from a Capsul Pipeline
 
-    def build_job(name, process):
-        # command = ['sleep', '1']
-        command = process.get_commandline()
-        job = swclient.Job(name=name, command=command)
-        return job
+    Parameters
+    ----------
+    pipeline: Pipeline (mandatory)
+        a CAPSUL pipeline
+
+    Returns
+    -------
+    workflow: Workflow
+        a soma-workflow workflow
+    """
+
+    def build_job(process):
+        """ Create a soma-workflow Job from a Capsul Process
+
+        Parameters
+        ----------
+        process: Process (mandatory)
+            a CAPSUL process instance
+
+        Returns
+        -------
+        job: Job
+            a soma-workflow Job instance that will execute the CAPSUL process
+        """
+        # Get the process command line
+        process_cmdline = process.get_commandline()
+
+        # Return the soma-workflow job
+        return swclient.Job(name=process.name, command=process_cmdline)
 
     def build_group(name, jobs):
-        group = swclient.Group(jobs, name=name)
-        return group
+        """ Create a group of jobs
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the group name
+        jobs: list of Job (mandatory)
+            the jobs we want to insert in the group
+
+        Returns
+        -------
+        group: Group
+            the soma-workflow Group instance
+        """
+        return swclient.Group(jobs, name=name)
 
     def get_jobs(group, groups):
         gqueue = list(group.elements)
@@ -46,6 +83,18 @@ def workflow_from_pipeline(pipeline):
         return jobs
 
     def workflow_from_graph(graph):
+        """ Convert a CAPSUL graph to a soma-workflow workflow
+
+        Parameters
+        ----------
+        graph: Graph (mandatory)
+            a CAPSUL graph
+
+        Returns
+        -------
+        workflow: Workflow
+            the corresponding soma-workflow workflow
+        """
         jobs = {}
         groups = {}
         root_jobs = {}
@@ -53,24 +102,28 @@ def workflow_from_pipeline(pipeline):
         dependencies = set()
         group_nodes = {}
 
+        # Go through all graph nodes
         for node_name, node in graph._nodes.iteritems():
-            sub_jobs = {}
+            # If the the node meta is a Graph store it
             if isinstance(node.meta, Graph):
                 group_nodes[node_name] = node
+            # Otherwise convert all the processes in meta as jobs
             else:
+                sub_jobs = {}
                 for process in node.meta:
-                    if not isinstance(process, Pipeline) \
-                            and isinstance(process, Process):
-                        job = build_job(process.name, process)
+                    if (not isinstance(process, Pipeline) and
+                            isinstance(process, Process)):
+                        job = build_job(process)
                         sub_jobs[process] = job
                         root_jobs[process] = job
-                        node.job = job
+                       #node.job = job
                 jobs.update(sub_jobs)
 
+        # Recurence on graph node
         for node_name, node in group_nodes.iteritems():
             wf_graph = node.meta
-            sub_jobs, sub_deps, sub_groups, sub_root_groups, sub_root_jobs \
-                = workflow_from_graph(wf_graph)
+            (sub_jobs, sub_deps, sub_groups, sub_root_groups,
+                       sub_root_jobs) = workflow_from_graph(wf_graph)
             group = build_group(node_name,
                 sub_root_groups.values() + sub_root_jobs.values())
             groups[node.meta] = group
@@ -79,33 +132,30 @@ def workflow_from_pipeline(pipeline):
             groups.update(sub_groups)
             dependencies.update(sub_deps)
 
-        groups_val = groups.values()
+        # Add dependencies between a source job and destination jobs
         for node_name, node in graph._nodes.iteritems():
+            # Source job
             if isinstance(node.meta, list) and node.meta[0] in jobs:
-                #sjobs = [jobs[node.meta[0]]]
                 sjob = jobs[node.meta[0]]
             else:
-                #sjobs = get_jobs(groups[node.meta], groups_val)
                 sjob = groups[node.meta]
+            # Destination jobs
             djobs = []
             for dnode in node.links_to:
                 if isinstance(dnode.meta, list) and dnode.meta[0] in jobs:
-                    #djobs.append(jobs[dnode.meta[0]])
                     djob = jobs[dnode.meta[0]]
                 else:
-                    #djobs = get_jobs(groups[dnode.meta], groups_val)
                     djob = groups[dnode.meta]
                 dependencies.add((sjob, djob))
-            #for sjob in sjobs:
-                #for djob in djobs:
-                    #dependencies.add((sjob, djob))
+
 
         return jobs, dependencies, groups, root_groups, root_jobs
 
-    # get a graph
+    # Get a graph
     graph = pipeline.workflow_graph()
-    jobs, dependencies, groups, root_groups, root_jobs \
-        = workflow_from_graph(graph)
+    (jobs, dependencies, groups, root_groups,
+           root_jobs) = workflow_from_graph(graph)
+
     # TODO: root_group would need reordering according to dependencies
     # (maybe using topological_sort)
     workflow = swclient.Workflow(jobs=jobs.values(),
@@ -114,3 +164,19 @@ def workflow_from_pipeline(pipeline):
         name=pipeline.name)
 
     return workflow
+
+
+def local_workflow_run(workflow_name, workflow):
+    """ Create a soma-workflow controller and submit a workflow
+
+    Parameters
+    ----------
+    workflow_name: str (mandatory)
+        the name of the workflow
+    workflow: Workflow (mandatory)
+        the soma-workflow workflow
+    """
+    localhost = getfqdn().split(".")[0]
+    controller = swclient.WorkflowController(localhost)
+    wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name)
+    swclient.Helper.wait_workflow(wf_id, controller)
