@@ -58,7 +58,7 @@ class Process(Controller):
     `log_file` : str (default None)
         if None, the log will be generated in the output_directory
         otherwise is will be written in log_file
-        
+
     Methods
     -------
     __call__
@@ -103,7 +103,7 @@ class Process(Controller):
         ----------
         kwargs
             should correspond to the declared parameter traits.
-            
+
         Returns
         -------
         results:  ProcessResult object
@@ -245,6 +245,18 @@ class Process(Controller):
     ##############
     # Properties #
     ##############
+
+    def get_viewer(self, name):
+        """ Get the viewer identified by name
+        TODO: move
+        """
+        return self.viewers[name]
+
+    def set_viewer(self, name, viewer_id, **kwargs):
+        """ Create and set a viewer.
+        TODO: move
+        """
+        self.viewers[name] = (viewer_id, kwargs)
 
     def get_input_spec(self):
         """ Method to access the process input specifications
