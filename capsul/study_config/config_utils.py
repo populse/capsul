@@ -7,15 +7,26 @@
 # for details.
 ##########################################################################
 
+# System import
 import os
 import re
 import subprocess
 
 
 def environment(sh_file=None):
-    """ Return a dictionary of the environment needed by FSL programs. fsl_sh
-        is the path to the fsl.sh script; if absent default locations are
-        searched.
+    """ Function that return a dictionary containing the environment
+    needed by FSL programs.
+
+    Parameters
+    ----------
+    fsl_sh: str (mandatory)
+        the path to the fsl.sh script.
+        If absent default locations are searched.
+
+    Returns
+    -------
+    environment: dict
+        a dict containing the FSL configuration
     """
     # Use sh commands and a string instead of a list since
     # we're using shell=True
@@ -45,22 +56,35 @@ def environment(sh_file=None):
 
 
 def find_spm(matlab=None, matlab_path=None):
-    """ Return the root directory of SPM.
-        'matlab', if given, is the path to the MATLAB executable.
-        'matlab_path', if given, is a MATLAB expression fed to addpath.
-    """
+    """ Function to return the root directory of SPM.
 
+    Parameters
+    ----------
+    matlab: str (default=None)
+        if given, is the path to the MATLAB executable.
+    matlab_path: str (default None)
+        if given, is a MATLAB expression fed to addpath.
+
+    Returns
+    -------
+    last_line: str
+        the SPM root directory
+    """
+    # Script to execute with matlab in order to find SPM root dir
     script = ("spm8;"
               "fprintf(1, '%s', spm('dir'));"
               "exit();")
 
+    # Add matlab path if necessary
     if matlab_path:
         script = "addpath({0});".format(matlab_path) + script
 
+    # Generate the matlab command
     command = [matlab or "matlab",
                "-nodisplay", "-nosplash", "-nojvm",
                "-r", script]
 
+    # Try to execute the command
     try:
         process = subprocess.Popen(command, stdout=subprocess.PIPE)
     except OSError:
@@ -68,9 +92,12 @@ def find_spm(matlab=None, matlab_path=None):
         raise Exception("Could not find SPM")
     stdout = process.communicate()[0]
     last_line = stdout.split("\n")[-1]
+
     # Weird data at the end of the line
     if '\x1b' in last_line:
         last_line = last_line[:last_line.index('\x1b')]
+
+    # If the last line is empty, SPM not found
     if last_line == "":
         raise Exception("Could not find SPM")
 

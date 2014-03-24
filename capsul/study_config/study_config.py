@@ -7,31 +7,32 @@
 # for details.
 ##########################################################################
 
+# System import
 import os
-from capsul.controller import Controller
+import logging
 
+# Trait import
 try:
+    from traits.trait_base import _Undefined
     from traits.api import HasTraits, Str, Enum, Directory, File, Bool
 except ImportError:
+    import enthought.traits.api as traits
     from enthought.traits.api import (HasTraits, Str ,Enum, Directory,
                                       File, Bool)
 
-# nipype
-import nipype.interfaces.matlab as matlab
-from nipype.interfaces import spm
+# Nipype import
+try:
+    import nipype.interfaces.matlab as matlab
+    from nipype.interfaces import spm
+except:
+    logging.warn("Impossible to import nipype, please investigate.")
 
-# traits
-from traits.trait_base import _Undefined
-
-# configuration utilitites
+# Capsul import
+from capsul.controller import Controller
 from config_utils import find_spm, environment
 from capsul.utils.sorted_dictionary import SortedDictionary
-
-# soma
 from capsul.pipeline import Pipeline
 from capsul.process import Process
-
-# call functions
 from memory import _joblib_run_process, _run_process
 
 
@@ -47,17 +48,58 @@ default_config = SortedDictionary(
 
 class StudyConfig(Controller):
     """ Class to store study parameters and processing options.
+
     This in turn is used to evaluate a Process instance or a Pipeline
+    
+    Attributes
+    ----------
+    `input_directory` : str
+        parameter to set the study input directory
+    `output_directory` : str
+        parameter to set the study output directory
+    `shared_directory` : dict (default None)
+        parameter to set the study shared directory
+    `generate_logging` : bool (default False)
+        parameter to control the log generation
+    `spm_directory` : str
+        parameter to set the SPM directory
+    `matlab_exec` : str
+        parameter to set the Matlab command path
+    `fsl_config` : str
+        parameter to specify the fsl.sh path
+    `spm_exec_cmd` : bool (default False)
+        parameter to set the SPM standalone (MCR) command path
+    `use_spm_mcr` : bool
+        parameter to select the standalone or matlab SPM version to use
+    `use_fsl` : bool
+        parameter to tell that we need to configure FSL
+    `use_smart_caching` : bool (default False)
+        parameter to use smart-caching during the execution
+
+    Methods
+    -------
+    run
+    set_trait_value
+    get_trait
+    get_trait_value
+    _use_smart_caching_changed
+    _use_spm_mcr_changed
+    _use_fsl_changed
     """
 
     def __init__(self, init_config=None):
-        """ Set the traits to control the study parameters and
-        processing options.
+        """ Initilize the StudyConfig class
+        
+        Parameters
+        ----------
+        init_config: ordered dict (default None)
+            the structure that contain the default study configuration.
+            Keys are in attributes.
         """
-        # update configuration
+        # Update configuration
         init_config = init_config or default_config
 
-        # inheritance
+        # Inheritance
         super(StudyConfig, self).__init__()
 
         # Add some study parameters
@@ -79,39 +121,67 @@ class StudyConfig(Controller):
         self.add_trait('use_spm_mcr', Bool(_Undefined()))
         self.add_trait('use_fsl', Bool(_Undefined()))
 
-        # set the caller
+        # Set the caller
         self.add_trait('use_smart_caching', Bool(False))
         self._caller = _run_process
 
-        # set configuration
+        # Set configuration
         for trait_name, trait_default_value in init_config.items():
             self.set_trait_value(trait_name, trait_default_value)
-
-        # set_event
-        #self.on_trait_change(self._use_smart_caching_update, 'output_type')
 
     ##############
     # Properties #
     ##############
 
     def set_trait_value(self, trait_name, trait_value):
+        """ Method to set the value of a parameter.
+
+        Parameters
+        ----------
+        trait_name: str (mandatory)
+            the trait name we want to modify
+        trait_value: object (madatory)
+            the trait value we want to set
+        """
         setattr(self, trait_name, trait_value)
 
     def get_trait(self, trait_name):
-        """ Method that returns the class trait with name trait_name
+        """ Method to access StudyConfig parameter.
+
+        Parameters
+        ----------
+        trait_name: str (mandatory)
+            the trait name we want to access
+
+        Returns
+        -------
+        trait: trait
+            the trait we want to access
         """
         # TODO test if trait_name exists
         return self.trait(trait_name)
 
     def get_trait_value(self, trait_name):
+        """ Method to access the value of a parameter.
+
+        Parameters
+        ----------
+        trait_name: str (mandatory)
+            the trait name we want to modify
+
+        Returns
+        -------
+        value: object
+            the trait value we want to access
+        """
         return getattr(self, trait_name)
 
     ##############
     # Events     #
     ##############
-    
+
     def _use_smart_caching_changed(self, old_trait_value, new_trait_value):
-        """ Setup the caller
+        """ Event to setup the the caller
         """
         if new_trait_value:
             self._caller = _joblib_run_process
@@ -119,7 +189,7 @@ class StudyConfig(Controller):
             self._caller = _run_process
 
     def _use_spm_mcr_changed(self, old_trait_value, new_trait_value):
-        """ Setup SPM environment
+        """ Event to setup SPM environment
         """
         # use compiled SPM
         if new_trait_value:
@@ -146,7 +216,7 @@ class StudyConfig(Controller):
             matlab.MatlabCommand.set_default_paths(self.spm_directory)
 
     def _use_fsl_changed(self, new_trait_value):
-        """ Setup FSL environment
+        """ Event tp setup FSL environment
         """
         if new_trait_value:
             fsl_config_file = self.get_trait_value('fsl_config')
@@ -171,17 +241,15 @@ class StudyConfig(Controller):
     ##############
 
     def run(self, process_or_pipeline):
-        """ Function to execute a process or a pipline
-        with the Study parameters
+        """ Function to execute a process or a pipline with the Study 
+        configuration
+        
+        Parameters
+        ----------
+        process_or_pipeline: Process or Pipeline (mandatory)
+            the process or pipeline we want to execute
         """
-        # create the output log directory
-        #date = datetime.datetime.now()
-        #date_dir = "_".join([str(date.day), str(date.month),
-        #                     str(date.year)])
-        #log_dir = os.path.join(self.output_directory, date_dir)
-        #ensure_is_dir(log_dir)
-
-        # generate ordered execution list
+        # Generate ordered execution list
         execution_list = []
         if isinstance(process_or_pipeline, Pipeline):
             execution_list = process_or_pipeline.workflow_ordered_nodes()
@@ -192,14 +260,14 @@ class StudyConfig(Controller):
                   "and expect Process or Pipeline"
                   "instances".format(process_or_pipeline.__module__.name__))
 
-        # execute each element
+        # Execute each element
         for cnt, process_instance in enumerate(execution_list):
-            # run
+            # Run
             returncode, log_file = self._caller(self.output_directory,
-                        "{0}-{1}".format(cnt + 1, process_instance.name),
-                         process_instance,
-                         self.generate_logging,
-                         self.spm_directory)
+                "{0}-{1}".format(cnt + 1, process_instance.name),
+                process_instance,
+                self.generate_logging,
+                self.spm_directory)
 
 if __name__ == "__main__":
 
