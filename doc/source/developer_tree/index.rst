@@ -92,7 +92,8 @@ Controller Definition
     spm_memory_utils.local_map
     spm_memory_utils.copy_resources
     spm_memory_utils.last_timestamp
-
+    pipeline_workflow.workflow_from_pipeline
+    pipeline_workflow.local_workflow_run
 
 
 
