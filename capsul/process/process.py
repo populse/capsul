@@ -56,7 +56,7 @@ class Process(Controller):
         after the process execution, a dictionary containing all
         exection information
     `log_file` : str (default None)
-        if None, the log will be generated in the output_directory
+        if None, the log will be generated in the current directory
         otherwise is will be written in log_file
 
     Methods
@@ -90,10 +90,6 @@ class Process(Controller):
         # Log file name
         self.log_file = None
 
-        # Add trait to store processing output directory
-        super(Process, self).add_trait("output_directory",
-                                       Directory(Undefined,
-                                       exists=True, optional=True))
 
     def __call__(self, **kwargs):
         """ Execute the Process
@@ -370,6 +366,9 @@ class NipypeProcess(Process):
     def __init__(self, nipype_instance, *args, **kwargs):
         """ Initialize the NipypeProcess class.
 
+        NipypeProcess instances get automatically an additional user trait:
+        "output_directory".
+
         Parameters
         ----------
         nipype_instance: nipype interface (mandatory)
@@ -398,6 +397,11 @@ class NipypeProcess(Process):
         # Reset the process name and id
         self.id = ".".join([self._nipype_module, self._nipype_class])
         self.name = self._nipype_interface.__class__.__name__
+
+        # Add trait to store processing output directory
+        super(Process, self).add_trait("output_directory",
+                                       Directory(Undefined,
+                                       exists=True, optional=True))
 
         # For the nipype dcm2nii interface to work properly,
         # need to create attributes that will be modified by
