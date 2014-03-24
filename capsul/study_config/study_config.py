@@ -50,7 +50,7 @@ class StudyConfig(Controller):
     """ Class to store study parameters and processing options.
 
     This in turn is used to evaluate a Process instance or a Pipeline
-    
+
     Attributes
     ----------
     `input_directory` : str
@@ -75,6 +75,8 @@ class StudyConfig(Controller):
         parameter to tell that we need to configure FSL
     `use_smart_caching` : bool (default False)
         parameter to use smart-caching during the execution
+    `use_soma_workflow` : bool (default False)
+        parameter to choose soma woklow for the execution
 
     Methods
     -------
@@ -89,7 +91,7 @@ class StudyConfig(Controller):
 
     def __init__(self, init_config=None):
         """ Initilize the StudyConfig class
-        
+
         Parameters
         ----------
         init_config: ordered dict (default None)
@@ -103,26 +105,27 @@ class StudyConfig(Controller):
         super(StudyConfig, self).__init__()
 
         # Add some study parameters
-        self.add_trait('input_directory', Directory(_Undefined()))
-        self.add_trait('output_directory', Directory(_Undefined(),
+        self.add_trait("input_directory", Directory(_Undefined()))
+        self.add_trait("output_directory", Directory(_Undefined(),
                                                      exists=True))
-        self.add_trait('shared_directory', Directory(_Undefined()))
-        self.add_trait('generate_logging', Bool(False))
+        self.add_trait("shared_directory", Directory(_Undefined()))
+        self.add_trait("generate_logging", Bool(False))
 
         # Add some dependencie parameters
-        self.add_trait('spm_directory', Directory(_Undefined(),
+        self.add_trait("spm_directory", Directory(_Undefined(),
                                                   exists=True))
-        self.add_trait('matlab_exec', File(_Undefined(),
+        self.add_trait("matlab_exec", File(_Undefined(),
                                            exists=True))
-        self.add_trait('fsl_config', File(_Undefined(),
+        self.add_trait("fsl_config", File(_Undefined(),
                                           exists=True))
-        self.add_trait('spm_exec_cmd', File(_Undefined(),
+        self.add_trait("spm_exec_cmd", File(_Undefined(),
                                             exists=True))
-        self.add_trait('use_spm_mcr', Bool(_Undefined()))
-        self.add_trait('use_fsl', Bool(_Undefined()))
+        self.add_trait("use_spm_mcr", Bool(_Undefined()))
+        self.add_trait("use_fsl", Bool(_Undefined()))
 
         # Set the caller
-        self.add_trait('use_smart_caching', Bool(False))
+        self.add_trait("use_soma_workflow", Bool(False))
+        self.add_trait("use_smart_caching", Bool(False))
         self._caller = _run_process
 
         # Set configuration
@@ -241,9 +244,9 @@ class StudyConfig(Controller):
     ##############
 
     def run(self, process_or_pipeline):
-        """ Function to execute a process or a pipline with the Study 
+        """ Function to execute a process or a pipline with the Study
         configuration
-        
+
         Parameters
         ----------
         process_or_pipeline: Process or Pipeline (mandatory)
@@ -262,12 +265,16 @@ class StudyConfig(Controller):
 
         # Execute each element
         for cnt, process_instance in enumerate(execution_list):
-            # Run
-            returncode, log_file = self._caller(self.output_directory,
-                "{0}-{1}".format(cnt + 1, process_instance.name),
-                process_instance,
-                self.generate_logging,
-                self.spm_directory)
+            # Use soma worflow
+            if self.get_trait_value("use_soma_workflow"):
+                print process_instance.get_commandline()
+            # Run 
+            else:
+                returncode, log_file = self._caller(self.output_directory,
+                    "{0}-{1}".format(cnt + 1, process_instance.name),
+                    process_instance,
+                    self.generate_logging,
+                    self.spm_directory)
 
 if __name__ == "__main__":
 
