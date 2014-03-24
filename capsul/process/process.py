@@ -80,6 +80,10 @@ class Process(Controller):
         self.name = self.__class__.__name__
         self.id = self.__class__.__module__ + "." + self.name
 
+        # tools around the current process
+        # TODO: remove it
+        self.viewers = {}
+
         # Runtime information
         self.runtime = None
 
