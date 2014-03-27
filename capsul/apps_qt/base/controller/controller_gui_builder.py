@@ -43,15 +43,20 @@ class ControllerGUIBuilder(QtGui.QWidget):
 
         # Split the pipeline plug parameters accordingly to there
         # output property
-        self._inputs, self._outputs = self._split_pipeline_plugs(
-            pipeline.nodes[""].plugs)
+        if self._pipeline.name == "StudyConfig":
+            self.data_to_tree(self._pipeline,
+                              self._pipeline.user_traits(), 
+                              "Configuration Options")
+        else:
+            self._inputs, self._outputs = self._split_pipeline_plugs(
+                pipeline.nodes[""].plugs)
 
-        # Insert the splitted parameters in the tree
-        self.data_to_tree(self._pipeline.nodes_activation,
-                          self._pipeline.nodes_activation.user_traits(),
-                          "node activation")
-        self.data_to_tree(self._pipeline, self._inputs, "inputs")
-        self.data_to_tree(self._pipeline, self._outputs, "outputs")
+            # Insert the splitted parameters in the tree
+            self.data_to_tree(self._pipeline.nodes_activation,
+                              self._pipeline.nodes_activation.user_traits(),
+                              "node activation")
+            self.data_to_tree(self._pipeline, self._inputs, "inputs")
+            self.data_to_tree(self._pipeline, self._outputs, "outputs")
 
     ##############
     # Properties #

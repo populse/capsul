@@ -99,6 +99,9 @@ class StudyConfig(Controller):
             the structure that contain the default study configuration.
             Keys are in attributes.
         """
+        # Intern identifier
+        self.name = self.__class__.__name__
+        
         # Update configuration
         init_config = init_config or default_config
 
@@ -106,27 +109,53 @@ class StudyConfig(Controller):
         super(StudyConfig, self).__init__()
 
         # Add some study parameters
-        self.add_trait("input_directory", Directory(_Undefined()))
-        self.add_trait("output_directory", Directory(_Undefined(),
-                                                     exists=True))
-        self.add_trait("shared_directory", Directory(_Undefined()))
-        self.add_trait("generate_logging", Bool(False))
+        self.add_trait("input_directory", Directory(
+            _Undefined(),
+            desc="Parameter to set the study input directory"))
+        self.add_trait("output_directory", Directory(
+            _Undefined(),
+            desc="Parameter to set the study output directory",
+            exists=True))
+        self.add_trait("shared_directory", Directory(
+            _Undefined(),
+            desc="Parameter to set the study shared directory",
+            exists=True))
+        self.add_trait("generate_logging", Bool(
+            False,
+            desc="Parameter to control the log generation"))
 
         # Add some dependencie parameters
-        self.add_trait("spm_directory", Directory(_Undefined(),
-                                                  exists=True))
-        self.add_trait("matlab_exec", File(_Undefined(),
-                                           exists=True))
-        self.add_trait("fsl_config", File(_Undefined(),
-                                          exists=True))
-        self.add_trait("spm_exec_cmd", File(_Undefined(),
-                                            exists=True))
-        self.add_trait("use_spm_mcr", Bool(_Undefined()))
-        self.add_trait("use_fsl", Bool(_Undefined()))
+        self.add_trait("spm_directory", Directory(
+            _Undefined(),
+            desc="Parameter to set the SPM directory",
+            exists=True))
+        self.add_trait("matlab_exec", File(
+            _Undefined(),
+            desc="Parameter to set the Matlab command path",
+            exists=True))
+        self.add_trait("fsl_config", File(
+            _Undefined(),
+            desc="Parameter to specify the fsl.sh path",
+            exists=True))
+        self.add_trait("spm_exec_cmd", File(
+            _Undefined(),
+            desc="parameter to set the SPM standalone (MCR) command path",
+            exists=True))
+        self.add_trait("use_spm_mcr", Bool(
+            _Undefined(),
+            desc=("Parameter to select the standalone or matlab SPM version "
+                 "to use")))
+        self.add_trait("use_fsl", Bool(
+            _Undefined(),
+            desc="Parameter to tell that we need to configure FSL"))
 
         # Set the caller
-        self.add_trait("use_soma_workflow", Bool(False))
-        self.add_trait("use_smart_caching", Bool(False))
+        self.add_trait("use_soma_workflow", Bool(
+            False,
+            desc="Parameter to choose soma woklow for the execution"))
+        self.add_trait("use_smart_caching", Bool(
+            False,
+            desc="Parameter to use smart-caching during the execution"))
         self._caller = _run_process
 
         # Set configuration

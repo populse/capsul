@@ -13,18 +13,20 @@ import logging
 from PySide import QtCore, QtGui, QtWebKit
 
 from capsul.apps_qt.base.window import MyQUiLoader
-from capsul.process import get_process_instance
 from capsul.apps_qt.base.pipeline_widgets import (PipelineDevelopperView,
     PipelineUserView)
 import capsul.apps_qt.resources as resources
 from capsul.apps_qt.base.controller import ControllerWindow
+
+from capsul.process import get_process_instance
+from capsul.study_config import StudyConfig
 
 
 class CapsulMainWindow(MyQUiLoader):
     """ CAPSULVIEW main window.
     """
 
-    def __init__(self, pipeline_names, ui_file):
+    def __init__(self, pipeline_names, ui_file, default_study_config=None):
         """ Method to initialize the CAPSUL main window.
 
         Parameters
@@ -34,9 +36,14 @@ class CapsulMainWindow(MyQUiLoader):
             ie. caps.preprocessings.Smooth
         ui_file: str (mandatory)
             a filename containing the user interface description
+        default_study_config: ordered dict (madatory)
+            some parameters for the study configuration
         """
         # Load user interface window
         MyQUiLoader.__init__(self, ui_file)
+
+        # Create the study configuration
+        self.study_config = StudyConfig(default_study_config)
 
         # Define dynamic controls
         self.controls = {QtGui.QVBoxLayout: ["simple_pipeline_layout",
@@ -46,12 +53,15 @@ class CapsulMainWindow(MyQUiLoader):
                          QtGui.QComboBox: ["pipeline_module"],
                          QtGui.QToolButton: ["clean_bottom_layout",
                                              "controller", "run",
-                                             "cahnge_view", "help"]}
+                                             "cahnge_view", "help",
+                                             "study_config"]}
 
         # Find dynamic controls
         self.add_controls_to_ui()
 
         # Connect
+        self.ui.study_config.clicked.connect(
+            self.onCreateStudyConfigControllerClicked)
         self.ui.change_view.clicked.connect(self.onChangeViewClicked)
         self.ui.run.clicked.connect(self.onRunClicked)
         self.ui.controller.clicked.connect(self.onCreateControllerClicked)
@@ -166,6 +176,14 @@ class CapsulMainWindow(MyQUiLoader):
         if pipeline_name:
             self.pipeline = self.pipelines[pipeline_name]
             self.onCleanBottomLayoutClicked()
+
+    def onCreateStudyConfigControllerClicked(self):
+        """ Event to create a controller for the active pipeline
+        """
+        ui_file = os.path.join(resources.__path__[0],
+                               "controller_viewer.ui")
+        self.controller_window = ControllerWindow(self.study_config, ui_file)
+        self.controller_window.show()
 
     def onCreateControllerClicked(self):
         """ Event to create a controller for the active pipeline
