@@ -10,7 +10,7 @@
 import os
 
 from capsul.apps_qt.base.application import Application
-from capsul.apps_qt.main_window import MainWindow
+from capsul.apps_qt.main_window import CapsulMainWindow
 from capsul.apps_qt.base.find_pipelines import find_pipelines
 
 import capsul.apps_qt.resources as resources
@@ -53,12 +53,7 @@ class PipelineViewerApp(Application):
             pipeline_names.extend(find_pipelines(module_name))
 
         # Create the main window
-        self.window = MainWindow(pipeline_names, ui_file)
+        self.window = CapsulMainWindow(pipeline_names, ui_file)
         self.window.show()
 
         return True
-
-
-
-
-

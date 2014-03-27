@@ -20,7 +20,7 @@ import capsul.apps_qt.resources as resources
 from capsul.apps_qt.base.controller import ControllerWindow
 
 
-class MainWindow(MyQUiLoader):
+class CapsulMainWindow(MyQUiLoader):
     """ CAPSULVIEW main window.
     """
 
