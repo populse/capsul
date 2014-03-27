@@ -208,6 +208,8 @@ class CapsulMainWindow(MyQUiLoader):
                 logging.info("-- plug name: {0} - plug value {1}".format(
                     plug_name,
                     self.pipeline.nodes[""].get_plug_value(plug_name)))
+
+            self.study_config.run(self.pipeline)
         else:
             logging.error("No active pipeline selected. "
                           "Have you forgotten to click the load pipeline "
