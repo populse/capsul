@@ -16,14 +16,14 @@ from subprocess import check_call
 from PySide import QtGui
 
 
-class WorkflowViewer(QtGui.QWidget):
+class PipelineUserView(QtGui.QWidget):
     """ A widget to visualize a pipeline as a simple workflow
     """
     def __init__(self, pipeline):
         """ Initialize the WorkflowViewer class
         """
         # Inheritance
-        super(WorkflowViewer, self).__init__()
+        super(PipelineUserView, self).__init__()
 
         # Class attributets
         self.pipeline = pipeline
@@ -42,7 +42,7 @@ class WorkflowViewer(QtGui.QWidget):
         self.write(dot)
         dot.flush()
         check_call(["dot", "-Tpng", "-o", image.name, dot.name])
-        self.pixmap = QtGui.QPixmap(image.name)#.scaledToHeight(600)
+        self.pixmap = QtGui.QPixmap(image.name)  # .scaledToHeight(600)
         self.label.setPixmap(self.pixmap)
 
     def write(self, out=sys.stdout):

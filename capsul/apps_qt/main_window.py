@@ -14,8 +14,8 @@ from PySide import QtCore, QtGui, QtWebKit
 
 from capsul.apps_qt.base.window import MyQUiLoader
 from capsul.process import get_process_instance
-from capsul.apps_qt.base.pipeline_widgets import (SimplePipelineView,
-    FullPipelineView, WorkflowViewer)
+from capsul.apps_qt.base.pipeline_widgets import (PipelineDevelopperView,
+    PipelineUserView)
 import capsul.apps_qt.resources as resources
 from capsul.apps_qt.base.controller import ControllerWindow
 
@@ -121,11 +121,11 @@ class MainWindow(MyQUiLoader):
         """
         if self._is_active_pipeline_valid():
             if isinstance(self.ui.simple_pipeline.currentWidget(),
-                          FullPipelineView):
-                widget = WorkflowViewer(self.pipeline)
+                          PipelineDevelopperView):
+                widget = PipelineUserView(self.pipeline)
                 self._insert_widget_in_tab(widget)
             else:
-                widget = FullPipelineView(self.pipeline)
+                widget = PipelineDevelopperView(self.pipeline)
                 self._insert_widget_in_tab(widget)
         else:
             logging.error("No active pipeline selected. "
@@ -139,7 +139,7 @@ class MainWindow(MyQUiLoader):
             self.pipeline = get_process_instance(
                 str(self.ui.pipeline_module.lineEdit().text()))
             self.pipelines[self.pipeline.name] = self.pipeline
-            widget = FullPipelineView(self.pipeline)
+            widget = PipelineDevelopperView(self.pipeline)
             self._insert_widget_in_tab(widget)
         else:
             logging.error("No pipeline selected.")

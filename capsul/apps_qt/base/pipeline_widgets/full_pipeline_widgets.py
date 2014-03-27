@@ -357,10 +357,10 @@ class PipelineScene(QtGui.QGraphicsScene):
   
   
 
-class PipelineView(QtGui.QGraphicsView):
+class PipelineDevelopperView(QtGui.QGraphicsView):
 
   def __init__(self, pipeline, parent=None):
-    super( PipelineView, self ).__init__( parent )
+    super( PipelineDevelopperView, self ).__init__( parent )
     self.scene = None
     self.set_pipeline( pipeline ) 
   

@@ -7,6 +7,6 @@
 # for details.
 ##########################################################################
 
-from pipeline_widgets import PipelineView as SimplePipelineView
-from full_pipeline_widgets import PipelineView as FullPipelineView
-from workflow_widget import WorkflowViewer
+#from pipeline_widgets import PipelineView as SimplePipelineView
+from full_pipeline_widgets import PipelineDevelopperView
+from workflow_widget import PipelineUserView
