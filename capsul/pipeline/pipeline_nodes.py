@@ -371,6 +371,7 @@ class Switch(Node):
         """
         # if the user pass a simple element, create a list and add this
         # element
+        super(Node, self).__init__()
         if not isinstance(outputs, list):
             outputs = [outputs, ]
 
