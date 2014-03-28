@@ -160,7 +160,11 @@ class StudyConfig(Controller):
 
         # Set configuration
         for trait_name, trait_default_value in init_config.items():
-            self.set_trait_value(trait_name, trait_default_value)
+            try:
+                self.set_trait_value(trait_name, trait_default_value)
+            except:
+                logging.warn('could not set value for config variable %s: %s' \
+                    % (trait_name, repr(trait_default_value)))
 
     ##############
     # Properties #
