@@ -9,6 +9,30 @@ the docstrings.
 
 .. _capsul_gui_ref:
 
+:mod:`capsul.apps_qt.qt_backend`
+================================
+
+.. automodule:: capsul.apps_qt.qt_backend
+   :no-members:
+   :no-inherited-members:
+
+**User guide:** See the :ref:`capsul_guide` section for further details.
+
+.. currentmodule:: capsul.apps_qt.qt_backend
+
+Functions
+---------
+.. autosummary::
+    :toctree: generated/capsul-apps/
+    :template: function.rst
+
+    set_qt_backend
+    get_qt_backend
+    get_qt_module
+    import_qt_submodule
+    loadUI
+
+
 :mod:`capsul.apps_qt`: Application
 ==================================
 
