@@ -371,7 +371,7 @@ class Pipeline(Process):
         if pipeline_parameter in self.user_traits():
             raise ValueError("Parameter {0} of node {1} cannot be "
                              "exported to pipeline parameter "
-                             "{2}".format(node_name, plug_name,
+                             "{2}".format(plug_name, node_name,
                              pipeline_parameter))
 
         # Set user enabled parameter only if specified
