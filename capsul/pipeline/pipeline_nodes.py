@@ -164,6 +164,23 @@ class Node(Controller):
                          dest_plug_name)] = value_callback
         self.set_callback_on_plug(source_plug_name, value_callback)
 
+    def disconnect(self, source_plug_name, dest_node, dest_plug_name):
+        """ disconnect linked plugs of two nodes
+
+        Parameters
+        ----------
+        source_plug_name: str (mandatory)
+            the source plug name
+        dest_node: Node (mandatory)
+            the destination node
+        dest_plug_name: str (mandatory)
+            the destination plug name
+        """
+        # remove the callback to spread the source plug value
+        del self._callbacks[(source_plug_name, dest_node,
+                            dest_plug_name)]
+        # self.set_callback_on_plug(source_plug_name)
+
     def set_callback_on_plug(self, plug_name, callback):
         """ Add an event when a plug change
 

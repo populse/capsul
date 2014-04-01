@@ -341,6 +341,43 @@ class Pipeline(Process):
         source_node.connect(source_plug_name, dest_node, dest_plug_name)
         dest_node.connect(dest_plug_name, source_node, source_plug_name)
 
+    def remove_link(self, link):
+        '''Remove a link between pipeline nodes
+
+        Parameters
+        ----------
+        link: str
+          link description. Its shape should be:
+          "node.output->other_node.input".
+          If no node is specified, the pipeline itself is assumed.
+        '''
+        # Parse the link
+        (source_node_name, source_plug_name, source_node,
+         source_plug, dest_node_name, dest_plug_name, dest_node,
+        dest_plug) = self.parse_link(link)
+
+        # Update plugs memory of the pipeline
+        source_plug.links_to.discard((dest_node_name, dest_plug_name, 
+                                      dest_node, dest_plug, True))
+        source_plug.links_to.discard((dest_node_name, dest_plug_name, 
+                                      dest_node, dest_plug, False))
+        dest_plug.links_from.discard((source_node_name, source_plug_name,
+                                      source_node, source_plug, True))
+        dest_plug.links_from.discard((source_node_name, source_plug_name,
+                                      source_node, source_plug, False))
+
+        # Set a connected_output property
+        if (isinstance(dest_node, ProcessNode) and
+                isinstance(source_node, ProcessNode)):
+            source_trait = source_node.process.trait(source_plug_name)
+            dest_trait = dest_node.process.trait(dest_plug_name)
+            if dest_trait.connected_output:
+                dest_trait.connected_output = False ### FIXME
+
+        # Observer
+        source_node.disconnect(source_plug_name, dest_node, dest_plug_name)
+        dest_node.disconnect(dest_plug_name, source_node, source_plug_name)
+
     def export_parameter(self, node_name, plug_name,
                          pipeline_parameter=None, weak_link=False,
                          is_enabled=None):
