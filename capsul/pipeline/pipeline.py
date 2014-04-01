@@ -62,8 +62,14 @@ class Pipeline(Process):
     #
     selection_changed = Event()
 
-    def __init__(self, **kwargs):
+    def __init__(self, autoexport_nodes_parameters=True, **kwargs):
         """ Initialize the Pipeline class
+
+        Parameters
+        ----------
+        autoexport_nodes_parameters: bool
+            if True (default) nodes containing pipeline plugs are automatically
+            exported.
         """
         # Inheritance
         super(Pipeline, self).__init__(**kwargs)
@@ -85,15 +91,17 @@ class Pipeline(Process):
 
         # Automatically export node containing pipeline plugs
         # If plug is not optional and if the plug has to be exported
-        for node_name, node in self.nodes.iteritems():
-            for parameter_name, plug in node.plugs.iteritems():
-                if parameter_name in ('nodes_activation', 'selection_changed'):
-                    continue
-                if ((node_name, parameter_name) not in self.do_not_export and
-                        not plug.links_to and not plug.links_from and not
-                        self.nodes[node_name].get_trait(
-                        parameter_name).optional):
-                    self.export_parameter(node_name, parameter_name)
+        if autoexport_nodes_parameters:
+            for node_name, node in self.nodes.iteritems():
+                for parameter_name, plug in node.plugs.iteritems():
+                    if parameter_name in \
+                            ('nodes_activation', 'selection_changed'):
+                        continue
+                    if ((node_name, parameter_name) not in self.do_not_export \
+                            and not plug.links_to and not plug.links_from \
+                            and not self.nodes[node_name].get_trait(
+                            parameter_name).optional):
+                        self.export_parameter(node_name, parameter_name)
 
         # Refresh pipeline activation
         self.update_nodes_and_plugs_activation()
