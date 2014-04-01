@@ -8,7 +8,6 @@
 ##########################################################################
 
 from capsul.apps_qt import qt_backend
-from capsul.apps_qt.qt_backend import QtCore
 from capsul.apps_qt.resources.icones import *
 
 

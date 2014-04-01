@@ -22,13 +22,54 @@ directly convert to/from python types, which is also PySide behaviour. The
 qt_backend module switches to this API level 2, but this only works before the
 PyQt modules are imported, thus it may fail if PyQt has already be imported
 without such settings.
+
+Qt submodules can be imported in two ways:
+
+>>> from capsul.apps_qt import qt_backend
+>>> qt_backend.import_qt_submodule('QtWebKit')
+
+or using the import statement:
+
+>>> from capsul.apps_qt.qt_backend import QtWebKit
+
+in the latter case, set_qt_backend() will be called automatically to setup the
+appropriate Qt backend, so that the use of the backend selection is more
+transparent.
 '''
 
 import logging
 import sys
+import os
+import imp
 
+
+# make qt_backend a fake module package, with Qt modules as sub-modules
+__package__ = __name__
+__path__ = [os.path.dirname(__file__)]
 
 qt_backend = None
+
+
+class QtImporter(object):
+    def find_module(self, fullname, path=None):
+        modsplit = fullname.split('.')
+        modpath = '.'.join(modsplit[:-1])
+        module_name = modsplit[-1]
+        if modpath != __name__ or module_name == 'sip':
+            return None
+        set_qt_backend()
+        qt_module = get_qt_module()
+        found = imp.find_module(module_name, qt_module.__path__)
+        return self
+
+    def load_module(self, name):
+        qt_backend = get_qt_backend()
+        module_name = name.split('.')[-1]
+        __import__('.'.join([qt_backend, module_name]))
+        return sys.modules['.'.join([qt_backend, module_name])]
+
+# tune the import statement to get Qt submodules in this one
+sys.meta_path.append(QtImporter())
 
 
 def get_qt_backend():
@@ -52,8 +93,6 @@ def set_qt_backend(backend=None):
     If no backend is specified, try to guess which one is already loaded, or
     default to PyQt4.
 
-    After the backend is set, QtCore and QtGui modules are imported and
-    available in the current module.
     Moreover if using PyQt4, QtCore is patched to duplicate QtCore.pyqtSignal
     and QtCore.pyqtSlot as QtCore.Signal and QtCore.Slot.
 
@@ -92,8 +131,6 @@ def set_qt_backend(backend=None):
     qt_module = __import__(backend)
     __import__(backend + '.QtCore')
     __import__(backend + '.QtGui')
-    sys.modules[__name__].QtCore = qt_module.QtCore
-    sys.modules[__name__].QtGui = qt_module.QtGui
     qt_backend = backend
     if backend == 'PyQt4':
         qt_module.QtCore.Signal = qt_module.QtCore.pyqtSignal
@@ -107,7 +144,7 @@ def get_qt_module():
 
 
 def import_qt_submodule(submodule):
-    '''Import a specified Qt submodule, and export it in the current module
+    '''Import a specified Qt submodule.
 
     Parameters
     ----------
@@ -120,7 +157,6 @@ def import_qt_submodule(submodule):
     '''
     __import__(qt_backend + '.' + submodule)
     mod = sys.modules[qt_backend + '.' + submodule]
-    setattr(sys.modules[__name__], submodule, mod)
     return mod
 
 

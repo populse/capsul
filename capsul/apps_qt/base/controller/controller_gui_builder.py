@@ -11,8 +11,6 @@ import logging
 import sys
 import traceback
 
-from capsul.apps_qt import qt_backend
-qt_backend.set_qt_backend()
 from capsul.apps_qt.qt_backend import QtGui
 
 from capsul.apps_qt.base.controller.controls import *

@@ -10,9 +10,7 @@
 import logging
 import sys
 
-from capsul.apps_qt import qt_backend
-qt_backend.set_qt_backend()
-QtCore = qt_backend.QtCore
+from capsul.apps_qt.qt_backend import QtCore
 
 try :
     from capsul.apps_qt.pipeline_viewer_app import PipelineViewerApp
