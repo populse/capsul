@@ -7,12 +7,12 @@
 # for details.
 ##########################################################################
 
-from PySide.QtUiTools import QUiLoader
-from PySide import QtCore
+from capsul.apps_qt import qt_backend
+from capsul.apps_qt.qt_backend import QtCore
 from capsul.apps_qt.resources.icones import *
 
 
-class MyQUiLoader(QUiLoader):
+class MyQUiLoader(object):
     """ Base window class based on ui file description.
     """
 
@@ -24,8 +24,4 @@ class MyQUiLoader(QUiLoader):
         uifile: str (mandatory)
             a filename containing the user interface description.
         """
-        QUiLoader.__init__(self)
-        fname = QtCore.QFile(uifile)
-        fname.open(QtCore.QFile.ReadOnly)
-        self.ui = self.load(fname)
-        fname.close()
+        self.ui = qt_backend.loadUi(uifile)

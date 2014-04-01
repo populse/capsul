@@ -8,7 +8,7 @@
 ##########################################################################
 
 from String import String
-from PySide import QtCore
+from capsul.apps_qt.qt_backend import QtCore
 
 class Float(String):
     """ Control to enter a float.

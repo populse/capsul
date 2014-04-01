@@ -30,7 +30,10 @@ Functions
     get_qt_backend
     get_qt_module
     import_qt_submodule
-    loadUI
+    loadUi
+    getOpenFileName
+    getSaveFileName
+    init_matplotlib_backend
 
 
 :mod:`capsul.apps_qt`: Application

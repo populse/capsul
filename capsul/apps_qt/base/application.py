@@ -13,7 +13,7 @@ import optparse
 import logging
 import warnings
 
-from PySide import QtGui, QtCore
+from capsul.apps_qt.qt_backend import QtGui, QtCore
 
 
 class Application(QtGui.QApplication):

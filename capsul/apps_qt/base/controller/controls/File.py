@@ -8,7 +8,7 @@
 ##########################################################################
 
 import os
-from PySide import QtCore, QtGui
+from capsul.apps_qt.qt_backend import QtCore, QtGui
 from observable import Observable
 
 

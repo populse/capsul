@@ -10,7 +10,10 @@
 import os
 import logging
 
-from PySide import QtCore, QtGui, QtWebKit
+from capsul.apps_qt import qt_backend
+qt_backend.set_qt_backend()
+from capsul.apps_qt.qt_backend import QtCore, QtGui
+QtWebKit = qt_backend.import_qt_submodule('QtWebKit')
 
 from capsul.apps_qt.base.window import MyQUiLoader
 from capsul.apps_qt.base.pipeline_widgets import (PipelineDevelopperView,

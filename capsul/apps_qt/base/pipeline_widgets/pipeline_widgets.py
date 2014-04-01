@@ -8,7 +8,9 @@
 ##########################################################################
 
 from pprint import pprint
-from PySide import QtGui, QtCore
+from capsul.apps_qt import qt_backend
+qt_backend.set_qt_backend()
+from capsul.apps_qt.qt_backend import QtCore, QtGui
 try:
     from traits.api import File
 except ImportError:

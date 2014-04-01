@@ -9,7 +9,9 @@
 
 import logging
 
-from PySide import QtGui
+from capsul.apps_qt import qt_backend
+qt_backend.set_qt_backend()
+from capsul.apps_qt.qt_backend import QtGui
 from capsul.apps_qt.base.window import MyQUiLoader
 from controller_gui_builder import ControllerGUIBuilder
 

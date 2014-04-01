@@ -10,7 +10,9 @@
 import logging
 import sys
 
-from PySide import QtCore
+from capsul.apps_qt import qt_backend
+qt_backend.set_qt_backend()
+QtCore = qt_backend.QtCore
 
 try :
     from capsul.apps_qt.pipeline_viewer_app import PipelineViewerApp
@@ -19,10 +21,10 @@ try :
 except :
     import sys
     import traceback
-    
+
     exc_info = sys.exc_info()
     trace = "".join(traceback.format_exception(*exc_info))
-    
+
     logging.error(trace)
 
 else :
