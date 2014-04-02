@@ -49,6 +49,7 @@ class Pipeline(Process):
     add_process
     add_switch
     add_link
+    remove_link
     export_parameter
     workflow_ordered_nodes
     workflow_graph

@@ -105,7 +105,7 @@ def set_qt_backend(backend=None):
     --------
         >>> from capsul.apps_qt import qt_backend
         >>> qt_backend.set_qt_backend('PySide')
-        >>> qt_backend.QtCore
+        >>> qt_backend.import_qt_submodule('QtCore')
         <module 'PySide.QtCore' from '/usr/lib/python2.7/dist-packages/PySide/QtCore.so'>
     '''
     global qt_backend
@@ -145,6 +145,36 @@ def get_qt_module():
 
 def import_qt_submodule(submodule):
     '''Import a specified Qt submodule.
+    An alternative to the standard statement:
+
+    >>> from capsul.apps_qt.qt_backend import <submodule>
+
+    The main differences is that it forces loading the module from the 
+    appropriate backend, whereas the import statement will reuse the already
+    loaded one. Moreover it returns the module.
+
+    For instance,
+
+    >>> from capsul.apps_qt import qt_backend
+    >>> qt_backend.set_qt_backend('PyQt4')
+    >>> from capsul.apps_qt.qt_backend import QtWebKit
+    >>> QtWebKit
+    <module 'PyQt4.QtWebKit' from '/usr/lib/python2.7/dist-packages/PyQt4/QtWebKit.so'>
+    >>> qt_backend.set_qt_backend('PySide') # changing backend
+    WARNING:root:set_qt_backend: a different backend, PyQt4, has already be set, and PySide is now requested
+    >>> from capsul.apps_qt.qt_backend import QtWebKit
+    >>> QtWebKit
+    <module 'PyQt4.QtWebKit' from '/usr/lib/python2.7/dist-packages/PyQt4/QtWebKit.so'>
+
+    In the above example, we are still using the QtWebKit from PyQt4.
+    Now:
+
+    >>> QtWebKit = qt_backend.import_qt_submodule('QtWebKit')
+    >>> QtWebKit
+    <module 'PySide.QtWebKit' from '/usr/lib/python2.7/dist-packages/PySide/QtWebKit.so'>
+
+    We are now actually using PySide.
+    Note that it is generally a bad idea to mix both...
 
     Parameters
     ----------
