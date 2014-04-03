@@ -428,6 +428,8 @@ class Pipeline(Process):
 
         # Now add the parameter to the pipeline
         self.add_trait(pipeline_parameter, trait)
+        # propagate the parameter value to the new exported one
+        setattr(self, pipeline_parameter, node.get_plug_value(plug_name))
 
         # Do not forget to link the node with the pipeline node
         if trait.output:
