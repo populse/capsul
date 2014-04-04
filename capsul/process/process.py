@@ -218,7 +218,7 @@ class Process(Controller):
         module_name = sys.modules[self.__module__].__name__
         class_name = self.__class__.__name__
         commandline = ["python", "-c",
-                       "from {0} import {1}; {1}({2})".format(
+                       "from {0} import {1}; {1}()({2})".format(
                        module_name, class_name, ", ".join(argslist)),
         ]
         return commandline
