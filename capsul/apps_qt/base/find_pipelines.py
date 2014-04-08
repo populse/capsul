@@ -15,7 +15,7 @@ from setuptools import find_packages
 from inspect import isclass
 
 
-def find_pipelines(module_name):
+def find_pipelines(module_name, allowed_instance="Pipeline"):
     """ Function that return all the Pipeline class of a module.
 
     Parameters
@@ -40,18 +40,22 @@ def find_pipelines(module_name):
     # Get the module
     module = sys.modules[module_name]
     module_path = module.__path__[0]
+    print module_path
 
     # Use setuptools to go through the module
     sub_modules = find_packages(where=module_path, exclude=("doc", ))
     sub_modules = [module_name + "." + x for x in sub_modules]
     sub_modules.insert(0, module_name)
 
+    # Shift
+    shift = len(module_name.split("."))
+
     # Set with all pipelines
     pipelines = set()
     for sub_module in sub_modules:
         # Get the sub module path
         sub_module_path = os.path.join(module_path,
-                                       *sub_module.split(".")[1:])
+                                       *sub_module.split(".")[shift:])
 
         # List all the mdule in sub module path
         sub_sub_module_names = [sub_module + "." + x[:-3]
@@ -78,7 +82,9 @@ def find_pipelines(module_name):
                 if tool_name.startswith("_"):
                     continue
                 tool = getattr(sub_sub_module, tool_name)
-                if isclass(tool) and tool.__mro__[1].__name__ == "Pipeline":
+                if (isclass(tool) and
+                        tool.__mro__[1].__name__ == allowed_instance and
+                        tool_name != "Pipeline"):
                     pipelines.add(sub_sub_module_name + "." + tool_name)
 
     return list(pipelines)
