@@ -414,6 +414,20 @@ class NipypeProcess(Process):
         elif (self._nipype_interface_name == "fsl" and
                   self._nipype_class == "Split"):
             self._nipype_interface.inputs.dimension = "t"
+        elif (self._nipype_interface_name == "fsl" and
+                  self._nipype_class == "Merge"):
+            self._nipype_interface.inputs.dimension = "t"
+
+    def set_output_directory(self, out_dir):
+        """ Set the process output directory
+
+        Parameters
+        ----------
+        out_dir: str (mandatory)
+            the output directory
+        """
+        self.output_directory = out_dir
+        self._nipype_interface.inputs.output_directory = out_dir
 
     def _run_process(self):
         """ Method that do the processings when the instance is called.
