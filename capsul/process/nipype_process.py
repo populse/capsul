@@ -15,11 +15,13 @@ import types
 # Trait import
 try:
     import traits.api as traits
+    from traits.trait_base import _Undefined
     from traits.api import (ListStr, HasTraits, File, Float, Instance,
                             Enum, Str, Directory, CTrait)
     from traits.trait_base import _Undefined
 except ImportError:
     import enthought.traits.api as traits
+    from enthought.traits.trait_base import _Undefined
     from enthought.traits.api import (ListStr, HasTraits, File, Float,
                                       Instance, Enum, Str,CTrait)
 
@@ -41,7 +43,7 @@ def nipype_factory(nipype_instance):
     -------
     process_instance : instance
         a process instance.
-        
+
     See Also
     --------
     _run_interface
@@ -97,6 +99,27 @@ def nipype_factory(nipype_instance):
                 corrected_outputs[key] = value
         return corrected_outputs
 
+    def _list_fsl_split_outputs(self):
+        """ Method to list the fsl split interface outputs
+
+        Returns
+        -------
+        outputs: dict
+            all the interface outputs
+        """
+        from glob import glob
+        from nipype.interfaces.fsl.base import Info
+        from nipype.interfaces.base import isdefined
+        outputs = self._outputs().get()
+        ext = Info.output_type_to_ext(self.inputs.output_type)
+        outbase = 'vol*'
+        if isdefined(self.inputs.out_base_name):
+            outbase = '%s*' % self.inputs.out_base_name
+        outputs['out_files'] = sorted(glob(
+            os.path.join(self.inputs.output_directory, outbase + ext)))
+
+        return outputs
+
     def _gen_filename(self, name):
         """ Method to generate automatically the output file name.
 
@@ -135,8 +158,13 @@ def nipype_factory(nipype_instance):
                                      Directory(os.getcwd()))
 
     nipype_instance._list_outputs_core = nipype_instance._list_outputs
-    nipype_instance._list_outputs = types.MethodType(_list_outputs,
-                                                     nipype_instance)
+    if (nipype_instance.__class__.__module__.split(".")[2] == "fsl" and
+            nipype_instance.__class__.__name__ == "Split"):
+        nipype_instance._list_outputs = types.MethodType(
+            _list_fsl_split_outputs, nipype_instance)
+    else:
+        nipype_instance._list_outputs = types.MethodType(_list_outputs,
+                                                         nipype_instance)
     nipype_instance._run_interface_core = nipype_instance._run_interface
     nipype_instance._run_interface = types.MethodType(_run_interface,
                                                       nipype_instance)
@@ -297,6 +325,8 @@ def nipype_factory(nipype_instance):
         process_trait.output = True
         private_name = "_" + name
         process_instance.add_trait(private_name, process_trait)
+        # Init output to undefined value
+        setattr(process_instance, private_name, _Undefined())
         # TODO: fix this hack in Controller
         process_instance.trait(private_name).optional = not trait.mandatory
         process_instance.trait(private_name).desc = trait.desc

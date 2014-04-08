@@ -36,7 +36,8 @@ class Pipeline(Process):
     Attributes
     ----------
     nodes : dict {node_name: node}
-        a dictionary containing the pipline nodes and where the pipeline node name is ''
+        a dictionary containing the pipline nodes and where the pipeline
+        node name is ''
     workflow_list : list
         a list of odered nodes that can be executed
     workflow_repr : str
@@ -157,7 +158,7 @@ class Pipeline(Process):
         # Check the unicity of the name we want to insert
         if name in self.nodes:
             raise ValueError("Pipeline cannot have two nodes with the"
-                             "same name : {0}".foramt(name))
+                             "same name : {0}".format(name))
 
         # Create a process node
         self.nodes[name] = node = ProcessNode(self, name, process, **kwargs)
@@ -385,7 +386,7 @@ class Pipeline(Process):
 
     def export_parameter(self, node_name, plug_name,
                          pipeline_parameter=None, weak_link=False,
-                         is_enabled=None):
+                         is_enabled=None, is_optional=None):
         """ Export a node plug at the pipeline level.
 
         Parameters
@@ -430,9 +431,13 @@ class Pipeline(Process):
         if isinstance(is_enabled, bool):
             trait.enabled = is_enabled
 
+        # Change the trait optional property
+        if isinstance(is_optional, bool):
+            trait.optional = is_optional
+
         # Now add the parameter to the pipeline
         self.add_trait(pipeline_parameter, trait)
-        # propagate the parameter value to the new exported one
+        # Propagate the parameter value to the new exported one
         setattr(self, pipeline_parameter, node.get_plug_value(plug_name))
 
         # Do not forget to link the node with the pipeline node

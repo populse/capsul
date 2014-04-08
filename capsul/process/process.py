@@ -90,7 +90,6 @@ class Process(Controller):
         # Log file name
         self.log_file = None
 
-
     def __call__(self, **kwargs):
         """ Execute the Process
 
@@ -412,6 +411,9 @@ class NipypeProcess(Process):
             self.reoriented_and_cropped_files = _Undefined()
             self.bvecs = _Undefined()
             self.bvals = _Undefined()
+        elif (self._nipype_interface_name == "fsl" and
+                  self._nipype_class == "Split"):
+            self._nipype_interface.inputs.dimension = "t"
 
     def _run_process(self):
         """ Method that do the processings when the instance is called.
