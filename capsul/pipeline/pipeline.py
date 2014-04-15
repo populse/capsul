@@ -681,3 +681,72 @@ class Pipeline(Process):
             node_ret = node()  # execute node
             returned.append(node_ret)
         return returned
+
+    def find_empty_parameters(self):
+        """ Find internal File/Directory parameters not exported to the main
+        input/output parameters of the pipeline with empty values. This is
+        meant to track parameters which should be associated with temporary
+        files internally.
+
+        Returns
+        -------
+        list
+            Each element is a list with 3 values: node, parameter_name,
+            optional
+        """
+        empty_params = []
+        # walk all activated nodes, recursively
+        nodes = [(node_name, node) \
+            for node_name, node in self.nodes.iteritems() \
+            if node_name != '' and node.enabled and node.activated]
+        while nodes:
+            node_name, node = nodes.pop(0)
+            if hasattr(node, 'process'):
+                process = node.process
+                if isinstance(process, Pipeline):
+                    nodes += [(cnode_name, cnode) \
+                        for cnode_name, cnode in process.nodes.iteritems() \
+                        if cnode_name != '' and cnode.enabled \
+                        and cnode.activated]
+            else:
+                process = node
+            # check output plugs; input ones don't work with generated
+            # temporary files (unless they are connected with an output one,
+            # which will do the job)
+            for plug_name, plug in node.plugs.iteritems():
+                if not plug.enabled or not plug.output or \
+                        (not plug.activated and plug.optional):
+                    continue
+                parameter = process.user_traits()[plug_name]
+                if not isinstance(parameter.trait_type, File) \
+                        and not isinstance(parameter.trait_type, Directory):
+                    continue
+                value = getattr(process, plug_name)
+                if value != '' and value is not traits.Undefined:
+                    continue # non-null value: not an empty parameter.
+                optional = bool(parameter.optional)
+                valid = True
+                links = list(plug.links_from.union(plug.links_to))
+                if len(links) == 0:
+                    if optional:
+                        # an optional, non-connected output can stay empty
+                        continue
+                # check where this plug is linked
+                while links:
+                    link = links.pop(0)
+                    oplug = link[3]
+                    if link[0] == '':
+                        if link[2] == self.nodes['']:
+                            # linked to the main node: keep it as is
+                            valid = False
+                            break
+                        # linked to an output plug of an intermediate pipeline:
+                        # needed only if this pipeline plug is used later,
+                        # or mandatory
+                        if oplug.optional:
+                            links += oplug.links_to
+                    optional &= bool(oplug.optional)
+                if valid:
+                    empty_params.append((node, plug_name, optional))
+        return empty_params
+

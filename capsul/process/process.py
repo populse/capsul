@@ -205,21 +205,36 @@ class Process(Controller):
                 return False
             return True
 
+        def _is_pathname(trait):
+            return isinstance(trait.trait_type, File) \
+                or isinstance(trait.trait_type, Directory)
+
         # Get command line defined arguments
         reserved_params = ('nodes_activation', 'selection_changed')
-        args = [name for name in self.user_traits().iterkeys()
-                     if name not in reserved_params and
-                     _is_defined(self, name)]
+        args = [(name, _is_pathname(trait)) \
+            for name, trait in self.user_traits().iteritems()
+                if name not in reserved_params and _is_defined(self, name)]
 
-        # Build the python call expression
-        argslist = ["{0}={1}".format(name, repr(getattr(self, name)))
-                              for name in args]
+        # Build the python call expression, keeping apart file names
+        # file names are given separately since they might be modified
+        # externally afterwards, typically to handle temporary files, or
+        # file transfers with Soma-Workflow.
+        argslist = {name: getattr(self, name) \
+            for name, is_pathname in args if not is_pathname}
+        pathslist = {name: getattr(self, name) \
+            for name, is_pathname in args if is_pathname}
+
         module_name = sys.modules[self.__module__].__name__
         class_name = self.__class__.__name__
-        commandline = ["python", "-c",
-                       "from {0} import {1}; {1}()({2})".format(
-                       module_name, class_name, ", ".join(argslist)),
-        ]
+        commandline = [
+            "python",
+            "-c",
+            "import sys; from %s import %s; kwargs=%s; " \
+            "kwargs.update({sys.argv[i*2+1]: sys.argv[i*2+2] " \
+            "for i in xrange((len(sys.argv)-1)/2)}); %s()(**kwargs)" \
+            % (module_name, class_name, repr(argslist), class_name)
+        ] + sum([list(x) for x in pathslist.items()], [])
+
         return commandline
 
     def save_log(self):
