@@ -399,11 +399,14 @@ class Pipeline(Process):
             the name to access this parameter at the pipeline level.
             Default None, the plug name is used
         weak_link: bool (optional)
-            this property is used when nodes are optional,
+            this property is used when nodes are weak,
+            **FIXME:** what does it exactly mean ?
             the plug information may not be generated.
         is_enabled: bool (optional)
             a property to specify that it is not a user-parameter
             automatic generation)
+        is_optional: bool (optional)
+            sets the exported parameter to be optional
         """
         # Get the node and parameter
         node = self.nodes[node_name]
