@@ -127,7 +127,7 @@ class Controller(HasTraits):
         '''
         return not isinstance(trait.handler, Event)
 
-    def add_trait(self, name, *trait):
+    def add_trait(self, name, *trait):   
        #global global_compt_order
 
        super(Controller, self).add_trait(name, *trait)

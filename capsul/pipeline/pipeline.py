@@ -363,9 +363,9 @@ class Pipeline(Process):
         dest_plug) = self.parse_link(link)
 
         # Update plugs memory of the pipeline
-        source_plug.links_to.discard((dest_node_name, dest_plug_name, 
+        source_plug.links_to.discard((dest_node_name, dest_plug_name,
                                       dest_node, dest_plug, True))
-        source_plug.links_to.discard((dest_node_name, dest_plug_name, 
+        source_plug.links_to.discard((dest_node_name, dest_plug_name,
                                       dest_node, dest_plug, False))
         dest_plug.links_from.discard((source_node_name, source_plug_name,
                                       source_node, source_plug, True))
@@ -378,7 +378,7 @@ class Pipeline(Process):
             source_trait = source_node.process.trait(source_plug_name)
             dest_trait = dest_node.process.trait(dest_plug_name)
             if dest_trait.connected_output:
-                dest_trait.connected_output = False ### FIXME
+                dest_trait.connected_output = False  # FIXME
 
         # Observer
         source_node.disconnect(source_plug_name, dest_node, dest_plug_name)
