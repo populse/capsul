@@ -261,7 +261,7 @@ class ProcessNode(Node):
         name: str (mandatory)
             the node name
         process: instance or string
-            a process/interface instance or the correspondin string
+            a process/interface instance or the corresponding string
             description
         kwargs: dict
             process default values
@@ -389,6 +389,7 @@ class Switch(Node):
         # if the user pass a simple element, create a list and add this
         # element
         super(Node, self).__init__()
+        self.__block_output_propagation = False
         if not isinstance(outputs, list):
             outputs = [outputs, ]
 
@@ -438,7 +439,8 @@ class Switch(Node):
         new_selection: str (mandatory)
             the new option
         """
-        # desactivate the plugs associated with the old option
+        self.__block_output_propagation = True
+        # deactivate the plugs associated with the old option
         old_plug_names = ["{0}_switch_{1}".format(old_selection, plug_name)
                           for plug_name in self._outputs]
         for plug_name in old_plug_names:
@@ -461,6 +463,7 @@ class Switch(Node):
                 new_selection, output_plug_name)
             setattr(self, output_plug_name,
                     getattr(self, corresponding_input_plug_name))
+        self.__block_output_propagation = False
 
     def _anytrait_changed(self, name, old, new):
         """ Add an event to the switch trait that enables us to select
@@ -475,7 +478,22 @@ class Switch(Node):
         new: str (mandatory)
             the new value
         """
+        # if the value change is on an output of the switch, and comes from
+        # an "external" assignment (ie not the result of switch action or
+        # change in one of its inputs), then propagate the new value to
+        # all corresponding inputs.
+        if hasattr(self, '_outputs') and not self.__block_output_propagation and name in self._outputs:
+            self.__block_output_propagation = True
+            flat_inputs = ["{0}_switch_{1}".format(switch_name, name) \
+                for switch_name in self._switch_values]
+            for input_name in flat_inputs:
+                setattr(self, input_name, new)
+            self.__block_output_propagation = False
+        # if the change is in an input, change the corresponding output
+        # accordingly.
         spliter = name.split("_switch_")
         if len(spliter) == 2 and spliter[0] in self._switch_values:
             switch_selection, output_plug_name = spliter
+            self.__block_output_propagation = True
             setattr(self, output_plug_name, new)
+            self.__block_output_propagation = False
