@@ -213,7 +213,6 @@ def workflow_from_pipeline(pipeline):
             else:
                 sjob = groups[node.meta]
             # Destination jobs
-            djobs = []
             for dnode in node.links_to:
                 if isinstance(dnode.meta, list) and dnode.meta[0] in jobs:
                     djob = jobs[dnode.meta[0]]
