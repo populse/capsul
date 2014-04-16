@@ -18,7 +18,6 @@ try:
     from traits.trait_base import _Undefined
     from traits.api import (ListStr, HasTraits, File, Float, Instance,
                             Enum, Str, Directory, CTrait)
-    from traits.trait_base import _Undefined
 except ImportError:
     import enthought.traits.api as traits
     from enthought.traits.trait_base import _Undefined
@@ -264,7 +263,23 @@ def nipype_factory(nipype_instance):
             for trait_item in trait_spec:
                 expression += "traits.{0}(".format(trait_item)
                 if trait_item == "Enum":
-                    expression += "{0}".format(trait.get_validate()[1])
+                    # Enum()
+                    if (isinstance(trait.get_validate(), tuple) and
+                           trait.get_validate()[0] == 5):
+                        expression += "{0}".format(trait.get_validate()[1])
+                    # List(Enum())
+                    elif trait.handler.inner_traits():
+                        inner_trait = trait.handler.inner_traits()[0]
+                        if (isinstance(inner_trait.get_validate(), tuple)
+                                and inner_trait.get_validate()[0] == 5):
+                            expression += "{0}".format(
+                                inner_trait.get_validate()[1])
+                    # Either(Enum(),..)
+                    else:
+                        for inner_trait in trait.handler.handlers:
+                            if inner_trait.values:
+                                expression += "{0}".format(
+                                    inner_trait.values)
 
                 #  Range Extra args
                 if trait_item == "Range":
@@ -309,6 +324,9 @@ def nipype_factory(nipype_instance):
     # Add nipype traits to the process instance
     # inputs
     for name, trait in nipype_instance.input_spec().items():
+        # Check if trait name already allocated
+        if name in dir(process_instance):
+            name = "nipype_" + name
         process_trait = clone_nipype_trait(trait)
         process_instance.add_trait(name, process_trait)
         # TODO: fix this hack in Controller
