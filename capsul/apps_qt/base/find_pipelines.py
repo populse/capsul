@@ -84,7 +84,7 @@ def find_pipelines(module_name, allowed_instance="Pipeline"):
                 tool = getattr(sub_sub_module, tool_name)
                 if (isclass(tool) and
                         tool.__mro__[1].__name__ == allowed_instance and
-                        tool_name != "Pipeline"):
+                        tool_name not in ["Pipeline", "ConnProcess"]):
                     pipelines.add(sub_sub_module_name + "." + tool_name)
 
     return list(pipelines)
