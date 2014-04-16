@@ -9,7 +9,7 @@
 
 import unittest
 import os
-from traits.api import File, Float
+from traits.api import Str, Float
 from capsul.process import Process
 from capsul.pipeline import Pipeline, PipelineNode
 
@@ -21,15 +21,16 @@ class DummyProcess(Process):
         super(DummyProcess, self).__init__()
 
         # inputs
-        self.add_trait("input_image", File(optional=False))
+        self.add_trait("input_image", Str(optional=False))
         self.add_trait("other_input", Float(optional=True))
 
         # outputs
-        self.add_trait("output_image", File(optional=True, output=True))
+        self.add_trait("output_image", Str(optional=True, output=True))
         self.add_trait("other_output", Float(optional=True, output=True))
 
-    def __call__(self):
-        pass
+    def _run_process(self):
+        self.output_image = self.input_image
+        self.other_output = self.other_input
 
 
 class SwitchPipeline(Pipeline):
@@ -50,6 +51,10 @@ class SwitchPipeline(Pipeline):
         # Create Switch
         self.add_switch("switch", ["one", "two", "none"],
                         ["switch_image", "switch_output", ])
+
+        # Link input
+        self.export_parameter("node", "input_image")
+        self.export_parameter("node", "other_input")
 
         # Links
         self.add_link("node.output_image->switch.none_switch_switch_image")
@@ -165,6 +170,21 @@ class TestSwitchPipeline(unittest.TestCase):
                 is_weak = is_weak or wl
         self.assertFalse(is_weak)
 
+    def test_parameter_propagation(self):
+        self.pipeline.switch = "one"
+        key = "test"
+        self.pipeline.input_image = key
+        # Test first level
+        self.assertEqual(self.pipeline.nodes["node"].process.input_image,
+                         key)
+        # Test second level
+        self.pipeline.nodes["node"].process()
+        self.assertEqual(self.pipeline.nodes["way1"].process.input_image,
+                         key)
+        self.pipeline.switch = "two"
+        self.assertEqual(self.pipeline.nodes["way21"].process.input_image,
+                         key)
+
 
 def test():
     """ Function to execute unitest
@@ -179,12 +199,12 @@ if __name__ == "__main__":
 
     import sys
     from PySide import QtGui
-    from capsul.apps_qt.base.pipeline_widgets import FullPipelineView
+    from capsul.apps_qt.base.pipeline_widgets import PipelineDevelopperView
 
     app = QtGui.QApplication(sys.argv)
     pipeline = SwitchPipeline()
-    pipeline.switch = "two"
-    view1 = FullPipelineView(pipeline)
+    pipeline.switch = "one"
+    view1 = PipelineDevelopperView(pipeline)
     view1.show()
     app.exec_()
     del view1

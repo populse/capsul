@@ -139,7 +139,7 @@ class Node(Controller):
 
         # add an event on the Node instance traits to validate the pipeline
         self.on_trait_change(pipeline.update_nodes_and_plugs_activation,
-                             'enabled')
+                             "enabled")
 
     def connect(self, source_plug_name, dest_node, dest_plug_name):
         """ Connect linked plugs of two nodes
@@ -438,7 +438,7 @@ class Switch(Node):
         new_selection: str (mandatory)
             the new option
         """
-        # deactivate the plugs associated with the old option
+        # desactivate the plugs associated with the old option
         old_plug_names = ["{0}_switch_{1}".format(old_selection, plug_name)
                           for plug_name in self._outputs]
         for plug_name in old_plug_names:

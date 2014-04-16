@@ -468,6 +468,16 @@ class Pipeline(Process):
     def update_nodes_and_plugs_activation(self):
         """ Method to update the pipeline activation
         """
+        # First store all inactive links to refresh them if activated at
+        # the end of this method
+        inactive_links = []
+        for node in self.nodes.itervalues():
+            for source_plug_name, source_plug in node.plugs.iteritems():
+                for nn, pn, n, p, weak_link in source_plug.links_to:
+                    if not source_plug.activated or not p.activated:
+                        inactive_links.append((node, source_plug_name,
+                                               source_plug, n, pn, p))
+
         # Activate the pipeline node and all its plugs (if they are enabled)
         # Activate the Switch Node and its connection with the Pipeline Node
         # Desactivate all other nodes (and their plugs).
@@ -567,6 +577,14 @@ class Pipeline(Process):
                         plug.activated = False
 
         self.selection_changed = True
+
+        # Update plug value of plug that has just been activated
+        for (src_node, src_plug_name, src_plug, dest_node, dest_plug_name,
+                 dest_plug) in inactive_links:
+            if (source_plug.activated and dest_plug.activated):
+                value = src_node.get_plug_value(src_plug_name)
+                src_node._callbacks[(src_plug_name, dest_node,
+                                     dest_plug_name)](value)
 
     def workflow_graph(self):
         """ Generate a workflow graph
