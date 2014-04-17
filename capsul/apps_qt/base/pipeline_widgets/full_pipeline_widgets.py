@@ -119,7 +119,7 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
   
   def __init__( self, name, parameters, 
                 number=None, active=True,
-                style= None, parent=None ):
+                style= None, parent=None, sub_pipeline=None ):
     super(NodeGWidget, self).__init__(parent)
     if style is None:
       style = 'default'
@@ -130,6 +130,7 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
     self.out_plugs = {}
     self.active = active
     self.number = number
+    self.sub_pipeline = sub_pipeline
     #gradient = QtGui.QRadialGradient(50, 50, 50, 50, 50)
 
     
@@ -239,6 +240,16 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
     #render(&painter,QRectF(QPointF(0,0),10*contentRect.size()),contentRect);
     painter.end()
 
+  def mouseDoubleClickEvent(self, event):
+    if self.sub_pipeline:
+      sub_view = PipelineDevelopperView(self.sub_pipeline)
+      sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+      sub_view.show()
+      event.accept()
+    else:
+      event.ignore()
+
+
 
 class Link(QtGui.QGraphicsPathItem):
 
@@ -326,7 +337,7 @@ class PipelineScene(QtGui.QGraphicsScene):
       dest_gnode = self.gnodes[ dest_gnode_name ]
       glink.update( source_gnode.mapToScene( source_gnode.out_plugs[ source_param ].get_plug_point() ),
                     dest_gnode.mapToScene( dest_gnode.in_plugs[ dest_param ].get_plug_point() ) )
-                     
+
 
   def set_pipeline( self, pipeline ):
     pipeline_inputs = SortedDictionary()
@@ -344,7 +355,13 @@ class PipelineScene(QtGui.QGraphicsScene):
         style = 'switch'
       else:
         style = None
-      self.add_node( node_name, NodeGWidget( node_name, node.plugs, active=node.activated, style=style ) )
+      if hasattr(node, 'process') and hasattr(node.process, 'nodes'):
+        sub_pipeline = node.process
+      elif hasattr(node, 'nodes'):
+        sub_pipeline = node
+      else:
+        sub_pipeline = None
+      self.add_node( node_name, NodeGWidget( node_name, node.plugs, active=node.activated, style=style, sub_pipeline=sub_pipeline ) )
     if pipeline_outputs:
       self.add_node( 'outputs', NodeGWidget( 'outputs', pipeline_outputs, active=True ) )
 
@@ -354,15 +371,23 @@ class PipelineScene(QtGui.QGraphicsScene):
           self.add_link((source_node_name, source_parameter ), ( dest_node_name, dest_parameter ), 
                          active=source_plug.activated and dest_plug.activated,
                          weak=weak_link)
-  
-  
+
+  def keyPressEvent(self, event):
+    print 'keyPressEvent'
+    if event.key() == QtCore.Qt.Key_P:
+      event.accept()
+      print self.pos
+    else:
+      super(PipelineScene, self).keyPressEvent(event)
+
 
 class PipelineDevelopperView(QtGui.QGraphicsView):
 
   def __init__(self, pipeline, parent=None):
     super( PipelineDevelopperView, self ).__init__( parent )
     self.scene = None
-    self.set_pipeline( pipeline ) 
+    self.set_pipeline( pipeline )
+    self._grab = False
   
   def _set_pipeline( self, pipeline ):
     if self.scene:
@@ -400,5 +425,29 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
       event.accept()
     else:
       QtGui.QGraphicsView.wheelEvent(self, event)
+
+  def mousePressEvent(self, event):
+    super(PipelineDevelopperView, self).mousePressEvent(event)
+    #item = self.itemAt(event.x(), event.y())
+    #if item is None:
+    if not event.isAccepted():
+      self._grab = True
+      self._grabpos = event.pos()
+
+  def mouseReleaseEvent(self, event):
+    self._grab = False
+    super(PipelineDevelopperView, self).mouseReleaseEvent(event)
+
+  def mouseMoveEvent(self, event):
+    if self._grab:
+      event.accept()
+      translation = event.pos() - self._grabpos
+      self._grabpos = event.pos()
+      self.horizontalScrollBar().setValue(
+        self.horizontalScrollBar().value() - int(translation.x()))
+      self.verticalScrollBar().setValue(
+        self.verticalScrollBar().value() - int(translation.y()))
+    else:
+      super(PipelineDevelopperView, self).mouseMoveEvent(event)
 
 
