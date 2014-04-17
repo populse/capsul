@@ -373,7 +373,6 @@ class PipelineScene(QtGui.QGraphicsScene):
                          weak=weak_link)
 
   def keyPressEvent(self, event):
-    print 'keyPressEvent'
     if event.key() == QtCore.Qt.Key_P:
       event.accept()
       print self.pos
