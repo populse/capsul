@@ -57,6 +57,8 @@ class Pipeline(Process):
     update_nodes_and_plugs_activation
     parse_link
     parse_parameter
+    find_empty_parameters
+    count_items
     _set_node_enabled
     _run_process
     """
@@ -770,4 +772,73 @@ class Pipeline(Process):
                 if valid:
                     empty_params.append((node, plug_name, optional))
         return empty_params
+
+    def count_items(self):
+        """ Count pipeline items to get its size.
+
+        Returns
+        -------
+        items: tuple
+            (nodes_count, processes_count, plugs_count, params_count,
+            links_count, enabled_nodes_count, enabled_procs_count,
+            enabled_links_count)
+        """
+        nodes = self.nodes.values()
+        plugs_count = 0
+        params_count = len([param \
+            for param_name, param in self.user_traits().iteritems() \
+            if param_name not in ('nodes_activation', 'selection_changed')])
+        nodes_count = 0
+        links_count = 0
+        procs = set()
+        nodeset = set()
+        enabled_nodes_count = 0
+        enabled_procs_count = 0
+        enabled_links_count = 0
+        while nodes:
+            node = nodes.pop(0)
+            nodeset.add(node)
+            nodes_count += 1
+            if node.enabled and node.activated:
+                enabled_nodes_count += 1
+            plugs_count += len(node.plugs)
+            links_count += sum([len(plug.links_to) + len(plug.links_from) \
+                for plug in node.plugs.itervalues()])
+            enabled_links_count += sum(
+                [len([pend for pend in plug.links_to \
+                        if pend[3].enabled and pend[3].activated]) \
+                    + len([pend for pend in plug.links_from
+                        if pend[3].enabled and pend[3].activated]) \
+                    for plug in node.plugs.itervalues() \
+                    if plug.enabled and plug.activated])
+            if hasattr(node, 'nodes'):
+                sub_nodes = [sub_node
+                    for sub_node in node.nodes.values()
+                    if sub_node not in nodeset and sub_node not in nodes]
+                nodes += sub_nodes
+            elif hasattr(node, 'process'):
+                if node.process in procs:
+                    continue
+                procs.add(node.process)
+                if node.enabled and node.activated:
+                    enabled_procs_count += 1
+                params_count += len([param \
+                    for param_name, param \
+                    in node.process.user_traits().iteritems() \
+                    if param_name not in (
+                        'nodes_activation', 'selection_changed')])
+                if hasattr(node.process, 'nodes'):
+                    sub_nodes = [sub_node
+                        for sub_node in node.process.nodes.values()
+                        if sub_node not in nodeset and sub_node not in nodes]
+                    nodes += sub_nodes
+            elif hasattr(node, 'user_traits'):
+                params_count += len([param \
+                    for param_name, param in node.user_traits().iteritems() \
+                    if param_name not in (
+                        'nodes_activation', 'selection_changed', 'activated',
+                        'enabled', 'name')])
+        return nodes_count, len(procs), plugs_count, params_count, \
+            links_count, enabled_nodes_count, enabled_procs_count, \
+            enabled_links_count
 
