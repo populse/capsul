@@ -142,15 +142,41 @@ class CapsulMainWindow(MyQUiLoader):
                           "Have you forgotten to click the load pipeline "
                           "button?")
 
+    def onLoadSubPipelineClicked(self, sub_pipeline_name):
+        """ Event to load a sub pipeline
+        """
+        # Get the pipeline instance from its string description
+        self.pipeline = get_process_instance(str(sub_pipeline_name))
+
+        # Store the pipeline instance
+        self.pipelines[self.pipeline.name] = self.pipeline
+
+        # Create the widget
+        widget = PipelineDevelopperView(self.pipeline)
+        self._insert_widget_in_tab(widget)
+
+        # Connect the subpipeline clicked signal to the
+        # onLoadSubPipelineClicked slot
+        widget.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
+
     def onLoadPipelineClicked(self):
         """ Event to load a pipeline
         """
         if self.ui.pipeline_module.lineEdit().text() != "":
+            # Get the pipeline instance from its string description
             self.pipeline = get_process_instance(
                 str(self.ui.pipeline_module.lineEdit().text()))
+
+            # Store the pipeline instance
             self.pipelines[self.pipeline.name] = self.pipeline
+
+            # Create the widget
             widget = PipelineDevelopperView(self.pipeline)
             self._insert_widget_in_tab(widget)
+
+            # Connect the subpipeline clicked signal to the
+            # onLoadSubPipelineClicked slot
+            widget.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
         else:
             logging.error("No pipeline selected.")
 
