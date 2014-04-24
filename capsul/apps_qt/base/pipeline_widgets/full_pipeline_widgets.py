@@ -115,7 +115,6 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
     _colors = {
         'default': (BLUE_1, BLUE_2, LIGHT_BLUE_1, LIGHT_BLUE_2),
         'switch': (SAND_1, SAND_2, LIGHT_SAND_1, LIGHT_SAND_2),
-        'pipeline': (PURPLE_1, PURPLE_2, DEEP_PURPLE_1, DEEP_PURPLE_2),
     }
 
     def __init__(self, name, parameters, active=True,
@@ -363,8 +362,6 @@ class PipelineScene(QtGui.QGraphicsScene):
                 sub_pipeline = node
             else:
                 sub_pipeline = None
-            if sub_pipeline:
-                style = 'pipeline'
             self.add_node(node_name, NodeGWidget(
                 node_name, node.plugs, active=node.activated, style=style,
                 sub_pipeline=sub_pipeline))
