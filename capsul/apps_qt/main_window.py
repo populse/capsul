@@ -31,9 +31,10 @@ class CapsulMainWindow(MyQUiLoader):
 
         Parameters
         ----------
-        pipeline_names: list of str (mandatory)
+        pipeline_names: list of tuple (mandatory)
             a list of all the proposed pipelines as string description,
-            ie. caps.preprocessings.Smooth
+            ie. caps.preprocessings.Smooth and the corresponding
+            documentation url.
         ui_file: str (mandatory)
             a filename containing the user interface description
         default_study_config: ordered dict (madatory)
@@ -77,9 +78,8 @@ class CapsulMainWindow(MyQUiLoader):
             self.onSearchInPipelines)
 
         # Set default values
-        self._pipeline_names = pipeline_names
-        self.path_to_pipeline_doc = ("http://neurospin-wiki.org/doc_nsap/"
-                                     "html/user_guide_tree/index.html")
+        self._pipeline_names = [x[0] for x in pipeline_names]
+        self.path_to_pipeline_doc = dict(item for item in pipeline_names)
         self.pipelines = {}
         self.pipeline = None
         self.ui.simple_pipeline.setTabsClosable(True)
@@ -202,6 +202,8 @@ class CapsulMainWindow(MyQUiLoader):
         if pipeline_name:
             self.pipeline = self.pipelines[pipeline_name]
             self.onCleanBottomLayoutClicked()
+        else:
+            self.pipeline = None
 
     def onCreateStudyConfigControllerClicked(self):
         """ Event to create a controller for the active pipeline
@@ -250,20 +252,24 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Build Pipeline documentation location
         if self.pipeline:
-            #path_to_active_pipeline_doc = os.path.join(
-            #    os.path.dirname(self.path_to_pipeline_doc),
-            #    self.pipeline.__class__.__name__)
-            path_to_active_pipeline_doc = self.path_to_pipeline_doc
+            # Generate the url to the active pipeline documentation
+            path_to_active_pipeline_doc = os.path.join(
+                self.path_to_pipeline_doc[self.pipeline.id],
+                self.pipeline.id.split(".")[1] + "_tree",
+                "generated", "pipeline", self.pipeline.id + ".html")
+            
+            # Create and fill a QWebView
+            help = QtWebKit.QWebView()
+            help.load(QtCore.QUrl(path_to_active_pipeline_doc))
+            help.show()
+            layout.addWidget(help)
+    
+            win.setLayout(layout)
+            win.exec_()
         else:
-            path_to_active_pipeline_doc = self.path_to_pipeline_doc
-        # Create and fill a QWebView
-        help = QtWebKit.QWebView()
-        help.load(QtCore.QUrl(path_to_active_pipeline_doc))
-        help.show()
-        layout.addWidget(help)
-
-        win.setLayout(layout)
-        win.exec_()
+            # No Pipeline loaded, cant't show the documentation message
+            QtGui.QMessageBox.information(
+                self.ui, "Information", "First load a pipeline!")
 
     #####################
     # Private interface #

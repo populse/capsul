@@ -49,8 +49,9 @@ class PipelineViewerApp(Application):
 
         # List capsul declared plugins (set of pipelines).
         pipeline_names = []
-        for module_name in PLUGS:
-            pipeline_names.extend(find_pipelines(module_name))
+        for module_name, doc_url in PLUGS:
+            item = [(x, doc_url) for x in find_pipelines(module_name)]
+            pipeline_names.extend(item)
 
         # Create the main window
         self.window = CapsulMainWindow(pipeline_names, ui_file)
