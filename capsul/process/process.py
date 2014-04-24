@@ -219,10 +219,13 @@ class Process(Controller):
         # file names are given separately since they might be modified
         # externally afterwards, typically to handle temporary files, or
         # file transfers with Soma-Workflow.
-        argslist = {name: getattr(self, name) \
-            for name, is_pathname in args if not is_pathname}
-        pathslist = {name: getattr(self, name) \
-            for name, is_pathname in args if is_pathname}
+        argslist = [(name, getattr(self, name))
+                        for name, is_pathname in args if not is_pathname]
+        argsdict = dict(argslist)
+        pathslist = [(name, getattr(self, name))
+                        for name, is_pathname in args if is_pathname]
+        pathsdict = dict(pathslist)
+
 
         module_name = sys.modules[self.__module__].__name__
         class_name = self.__class__.__name__
@@ -232,8 +235,8 @@ class Process(Controller):
             "import sys; from %s import %s; kwargs=%s; " \
             "kwargs.update({sys.argv[i*2+1]: sys.argv[i*2+2] " \
             "for i in xrange((len(sys.argv)-1)/2)}); %s()(**kwargs)" \
-            % (module_name, class_name, repr(argslist), class_name)
-        ] + sum([list(x) for x in pathslist.items()], [])
+            % (module_name, class_name, repr(argsdict), class_name)
+        ] + sum([list(x) for x in pathsdict.items()], [])
 
         return commandline
 
