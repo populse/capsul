@@ -7,11 +7,14 @@
 # for details.
 ##########################################################################
 
+# System import
 from pprint import pprint
-from capsul.apps_qt.qt_backend import QtCore, QtGui
 
+# Capsul import
+from capsul.apps_qt.qt_backend import QtCore, QtGui
 from capsul.utils.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline import Switch
+from capsul.process import get_process_instance
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -237,9 +240,6 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
     def mouseDoubleClickEvent(self, event):
         if self.sub_pipeline:
             self.scene().subpipeline_clicked.emit(self.sub_pipeline.id)
-            # sub_view = PipelineDevelopperView(self.sub_pipeline)
-            # sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            # sub_view.show()
             event.accept()
         else:
             event.ignore()
@@ -393,11 +393,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     # Signal emitted when a sub pipeline has to be open.
     subpipeline_clicked = QtCore.Signal(str)
 
-    def __init__(self, pipeline, parent=None):
+    def __init__(self, pipeline, parent=None, force_plot=False):
         super(PipelineDevelopperView, self).__init__(parent)
         self.scene = None
         self.set_pipeline(pipeline)
         self._grab = False
+        self._force_plot = force_plot
 
     def _set_pipeline(self, pipeline):
         if self.scene:
@@ -408,6 +409,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                        for i, j in pipeline.node_position.iteritems())
         self.scene = PipelineScene()
         self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
+        self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
         self.subpipeline_clicked.emit("test")
         self.scene.pos = pos
         self.scene.set_pipeline(pipeline)
@@ -461,3 +463,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self.verticalScrollBar().value() - int(translation.y()))
         else:
             super(PipelineDevelopperView, self).mouseMoveEvent(event)
+            
+    def onLoadSubPipelineClicked(self, sub_pipeline_name):
+        """ Event to load a sub pipeline
+        """
+        if self._force_plot:
+            sub_pipeline = get_process_instance(str(sub_pipeline_name))
+            sub_view = PipelineDevelopperView(sub_pipeline)
+            sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            sub_view.show()
+            
