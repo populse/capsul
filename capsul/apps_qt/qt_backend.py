@@ -76,13 +76,13 @@ def get_qt_backend():
     '''get currently setup or loaded Qt backend name: "PyQt4" or "PySide"'''
     global qt_backend
     if qt_backend is None:
-        pyqt = sys.modules.get('PyQt4')
-        if pyqt is not None:
-            qt_backend = 'PyQt4'
+        pyside = sys.modules.get('PySide')
+        if pyside is not None:
+            qt_backend = 'PySide'
         else:
-            pyside = sys.modules.get('PySide')
-            if pyside is not None:
-                qt_backend = 'PySide'
+            pyqt = sys.modules.get('PyQt4')
+            if pyqt is not None:
+                qt_backend = 'PyQt4'
     return qt_backend
 
 
@@ -91,7 +91,7 @@ def set_qt_backend(backend=None):
 
     If a different backend has already setup or loaded, a warning is issued.
     If no backend is specified, try to guess which one is already loaded, or
-    default to PyQt4.
+    default to PySide.
 
     Moreover if using PyQt4, QtCore is patched to duplicate QtCore.pyqtSignal
     and QtCore.pyqtSlot as QtCore.Signal and QtCore.Slot.
@@ -112,7 +112,7 @@ def set_qt_backend(backend=None):
     get_qt_backend()
     if backend is None:
         if qt_backend is None:
-            backend = 'PyQt4'
+            backend = 'PySide'
         else:
             backend = qt_backend
     if qt_backend is not None and qt_backend != backend:
