@@ -142,11 +142,11 @@ class CapsulMainWindow(MyQUiLoader):
                           "Have you forgotten to click the load pipeline "
                           "button?")
 
-    def onLoadSubPipelineClicked(self, sub_pipeline_name):
+    def onLoadSubPipelineClicked(self, sub_pipeline):
         """ Event to load a sub pipeline
         """
-        # Get the pipeline instance from its string description
-        self.pipeline = get_process_instance(str(sub_pipeline_name))
+        # Store the pipeline instance
+        self.pipeline = sub_pipeline
 
         # Store the pipeline instance
         self.pipelines[self.pipeline.name] = self.pipeline
