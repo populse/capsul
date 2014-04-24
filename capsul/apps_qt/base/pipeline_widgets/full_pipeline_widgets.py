@@ -50,10 +50,10 @@ RED_2 = QtGui.QColor.fromRgb(234, 131, 31)
 LIGHT_RED_1 = QtCore.Qt.gray  # TBI
 LIGHT_RED_2 = QtCore.Qt.gray  # TBI
 
-PURPLE_1 = QtGui.QColor.fromRgb(212, 199, 204)
-PURPLE_2 = QtGui.QColor.fromRgb(200, 183, 190)
-DEEP_PURPLE_1 = QtGui.QColor.fromRgb(157, 126, 139)
-DEEP_PURPLE_2 = QtGui.QColor.fromRgb(121, 97, 124)
+PURPLE_1 = QtGui.QColor.fromRgbF(0.85, 0.8, 0.85, 1)
+PURPLE_2 = QtGui.QColor.fromRgbF(0.8, 0.75, 0.8, 1)
+DEEP_PURPLE_1 = QtGui.QColor.fromRgbF(0.8, 0.7, 0.8, 1)
+DEEP_PURPLE_2 = QtGui.QColor.fromRgbF(0.6, 0.5, 0.6, 1)
 
 
 # -----------------------------------------------------------------------------
@@ -115,6 +115,7 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
     _colors = {
         'default': (BLUE_1, BLUE_2, LIGHT_BLUE_1, LIGHT_BLUE_2),
         'switch': (SAND_1, SAND_2, LIGHT_SAND_1, LIGHT_SAND_2),
+        'pipeline': (DEEP_PURPLE_1, DEEP_PURPLE_2, PURPLE_1, PURPLE_2),
     }
 
     def __init__(self, name, parameters, active=True,
@@ -362,6 +363,11 @@ class PipelineScene(QtGui.QGraphicsScene):
                 sub_pipeline = node
             else:
                 sub_pipeline = None
+            if sub_pipeline and self.parent() is not None \
+                    and hasattr(self.parent(), '_show_sub_pipelines') \
+                    and self.parent()._show_sub_pipelines:
+                # this test is not really pretty...
+                style = 'pipeline'
             self.add_node(node_name, NodeGWidget(
                 node_name, node.plugs, active=node.activated, style=style,
                 sub_pipeline=sub_pipeline))
@@ -396,9 +402,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def __init__(self, pipeline, parent=None, show_sub_pipelines=False):
         super(PipelineDevelopperView, self).__init__(parent)
         self.scene = None
+        self._show_sub_pipelines = show_sub_pipelines
         self.set_pipeline(pipeline)
         self._grab = False
-        self._show_sub_pipelines = show_sub_pipelines
 
     def _set_pipeline(self, pipeline):
         if self.scene:
@@ -407,7 +413,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         else:
             pos = dict((i, QtCore.QPointF(*j))
                        for i, j in pipeline.node_position.iteritems())
-        self.scene = PipelineScene()
+        self.scene = PipelineScene(self)
         self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
         self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
         self.scene.pos = pos
