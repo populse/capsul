@@ -9,6 +9,7 @@
 
 from load_pilots import load_pilots
 import capsul
+import sys
 
 error_message = """
 
@@ -56,7 +57,7 @@ def run_all_tests():
     is_valid = True
     for module, ltest in tests.items():
         for test in ltest:
-            is_valid = is_valid and test()
+            is_valid = test() and is_valid
 
     return is_valid
 
@@ -67,7 +68,11 @@ def is_valid_module():
         print valid_message
     else:
         print error_message
+    return is_valid
 
 
 if __name__ == "__main__":
-    is_valid_module()
+    is_valid = is_valid_module()
+    if not is_valid:
+        sys.exit(1)
+
