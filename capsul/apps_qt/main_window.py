@@ -298,7 +298,9 @@ class CapsulMainWindow(MyQUiLoader):
             self.ui.simple_pipeline.setCurrentIndex(
                 self.ui.simple_pipeline.count() - 1)
         else:
+            pipeline = self.pipeline
             self.ui.simple_pipeline.removeTab(index)
+            self.pipeline = pipeline
             self.ui.simple_pipeline.insertTab(
                 index, widget, unicode(self.pipeline.name))
             self.ui.simple_pipeline.setCurrentIndex(index)
