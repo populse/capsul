@@ -87,8 +87,8 @@ def get_process_instance(process_or_id, **kwargs):
         # Expect only one Process
         module_objects = module_objects or []
         if len(module_objects) != 1:
-            raise ImportError('Found {0} processes declared '
-                              'in {1}'.format(len(module_objects),
+            raise ImportError("Found {0} processes declared "
+                              "in {1}".format(len(module_objects),
                                process_or_id))
 
         # Get the target Process
@@ -106,9 +106,9 @@ def get_process_instance(process_or_id, **kwargs):
             result.set_parameter(name, value)
 
     else:
-        raise ValueError('Invalid process_or_id argument.'
-                         'Got {0} and expect a Process instance/string'
-                         'description or an Interface instance/string'
-                         'description'.format(process_or_id))
+        raise ValueError("Invalid process_or_id argument. "
+                         "Got '{0}' and expect a Process instance/string "
+                         "description or an Interface instance/string "
+                         "description".format(process_or_id))
 
     return result
