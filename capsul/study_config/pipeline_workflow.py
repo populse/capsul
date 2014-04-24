@@ -223,7 +223,8 @@ def workflow_from_pipeline(pipeline):
         return jobs, dependencies, groups, root_groups, root_jobs
 
     temp_map = assign_temporary_filenames(pipeline)
-    temp_subst_map = {x1: x2[0] for x1, x2 in temp_map.iteritems()}
+    temp_subst_list = [(x1, x2[0]) for x1, x2 in temp_map.iteritems()]
+    temp_subst_map = dict(temp_subst_list)
 
     # Get a graph
     graph = pipeline.workflow_graph()
