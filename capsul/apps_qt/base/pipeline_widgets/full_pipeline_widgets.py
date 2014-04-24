@@ -115,6 +115,7 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
     _colors = {
         'default': (BLUE_1, BLUE_2, LIGHT_BLUE_1, LIGHT_BLUE_2),
         'switch': (SAND_1, SAND_2, LIGHT_SAND_1, LIGHT_SAND_2),
+        'pipeline': (PURPLE_1, PURPLE_2, DEEP_PURPLE_1, DEEP_PURPLE_2),
     }
 
     def __init__(self, name, parameters, active=True,
@@ -362,6 +363,8 @@ class PipelineScene(QtGui.QGraphicsScene):
                 sub_pipeline = node
             else:
                 sub_pipeline = None
+            if sub_pipeline:
+                style = 'pipeline'
             self.add_node(node_name, NodeGWidget(
                 node_name, node.plugs, active=node.activated, style=style,
                 sub_pipeline=sub_pipeline))
@@ -393,12 +396,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     # Signal emitted when a sub pipeline has to be open.
     subpipeline_clicked = QtCore.Signal(str)
 
-    def __init__(self, pipeline, parent=None, force_plot=False):
+    def __init__(self, pipeline, parent=None, show_sub_pipelines=False):
         super(PipelineDevelopperView, self).__init__(parent)
         self.scene = None
         self.set_pipeline(pipeline)
         self._grab = False
-        self._force_plot = force_plot
+        self._show_sub_pipelines = show_sub_pipelines
 
     def _set_pipeline(self, pipeline):
         if self.scene:
@@ -467,9 +470,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def onLoadSubPipelineClicked(self, sub_pipeline_name):
         """ Event to load a sub pipeline
         """
-        if self._force_plot:
+        if self._show_sub_pipelines:
             sub_pipeline = get_process_instance(str(sub_pipeline_name))
-            sub_view = PipelineDevelopperView(sub_pipeline)
+            sub_view = PipelineDevelopperView(sub_pipeline,
+                show_sub_pipelines=self._show_sub_pipelines)
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.show()
             
