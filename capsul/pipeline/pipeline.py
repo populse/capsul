@@ -325,10 +325,11 @@ class Pipeline(Process):
             raise ValueError("Cannot link to a pipeline output "
                              "plug: {0}".format(link))
 
-        # propagate the plug value from source to destination
+        # Propagate the plug value from source to destination
         value = source_node.get_plug_value(source_plug_name)
         if value is not None:
             dest_node.set_plug_value(dest_plug_name, value)
+
         # Update plugs memory of the pipeline
         source_plug.links_to.add((dest_node_name, dest_plug_name, dest_node,
                                   dest_plug, weak_link))
