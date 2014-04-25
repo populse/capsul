@@ -52,14 +52,14 @@ class MetaController( HasTraits.__metaclass__ ):
     def __new__( mcs, name, bases, dictionary ):
         cls = super( MetaController, mcs ).__new__( mcs, name, bases, dictionary )
 
-        controlled_class = dictionary.get( 'register_class_controller' )
-        if controlled_class is not None:
-            ControllerFactories.register_global_factory( controlled_class, cls )
-
-        gui = dictionary.get('create_widget_from_ui')
-        if gui is not None:
-            from soma.gui.widget_factory import WidgetFactories, create_widget_from_ui
-            WidgetFactories.register_global_factory( cls, partial( create_widget_from_ui, gui ) )
+#        controlled_class = dictionary.get( 'register_class_controller' )
+#        if controlled_class is not None:
+#            ControllerFactories.register_global_factory( controlled_class, cls )
+#
+#        gui = dictionary.get('create_widget_from_ui')
+#        if gui is not None:
+#            from soma.gui.widget_factory import WidgetFactories, create_widget_from_ui
+#            WidgetFactories.register_global_factory( cls, partial( create_widget_from_ui, gui ) )
 
         return cls
 
