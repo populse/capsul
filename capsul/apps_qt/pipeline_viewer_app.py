@@ -7,14 +7,14 @@
 # for details.
 ##########################################################################
 
+# System import
 import os
 
+# Capsul import
 from capsul.apps_qt.base.application import Application
 from capsul.apps_qt.main_window import CapsulMainWindow
 from capsul.apps_qt.base.find_pipelines import find_pipelines
-
 import capsul.apps_qt.resources as resources
-
 from capsul.plugins import PLUGS
 
 

@@ -7,4 +7,5 @@
 # for details.
 ##########################################################################
 
-from controller_window import ControllerWindow
+
+from board_window import BoardWindow

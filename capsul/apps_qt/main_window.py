@@ -13,10 +13,11 @@ import logging
 from capsul.apps_qt.qt_backend import QtCore, QtGui, QtWebKit
 
 from capsul.apps_qt.base.window import MyQUiLoader
-from capsul.apps_qt.base.pipeline_widgets import (PipelineDevelopperView,
-    PipelineUserView)
+from capsul.apps_qt.base.pipeline_widgets import (
+    PipelineDevelopperView, PipelineUserView)
 import capsul.apps_qt.resources as resources
 from capsul.apps_qt.base.controller import ControllerWindow
+from capsul.apps_qt.base.board import BoardWindow
 
 from capsul.process import get_process_instance
 from capsul.study_config import StudyConfig
@@ -55,7 +56,7 @@ class CapsulMainWindow(MyQUiLoader):
                          QtGui.QToolButton: ["clean_bottom_layout",
                                              "controller", "run",
                                              "cahnge_view", "help",
-                                             "study_config"]}
+                                             "study_config", "view_result"]}
 
         # Find dynamic controls
         self.add_controls_to_ui()
@@ -76,6 +77,7 @@ class CapsulMainWindow(MyQUiLoader):
         self.ui.help.clicked.connect(self.onHelpClicked)
         self.ui.pipeline_module.editTextChanged.connect(
             self.onSearchInPipelines)
+        self.ui.view_result.clicked.connect(self.onViewResultClicked)
 
         # Set default values
         self._pipeline_names = [x[0] for x in pipeline_names]
@@ -88,12 +90,14 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Set some tooltips
         self.ui.help.setToolTip("Active Pipeline Documentation")
+        self.ui.view_result.setToolTip("Active Pipeline Result Board")
         self.ui.change_view.setToolTip("Switch Pipeline Vizualisation")
         self.ui.run.setToolTip("Execute Pipeline")
         self.ui.controller.setToolTip("Active Pipeline Controller")
         self.ui.clean_bottom_layout.setToolTip("Delete Sub Pipeline View")
-        self.ui.pipeline_module.setToolTip("Type to filter known pipline "
-            "list or enter a valid pipeline location")
+        self.ui.pipeline_module.setToolTip(
+            "Type to filter known pipline list or enter a valid pipeline "
+            "location")
 
     def show(self):
         """ Shows the widget and its child widgets.
@@ -110,17 +114,31 @@ class CapsulMainWindow(MyQUiLoader):
                     setattr(self.ui, control_name, value)
                 except:
                     logging.error("{0} has no attribute"
-                        "'{1}'".format(type(self.ui), control_name))
+                                  "'{1}'".format(type(self.ui), control_name))
 
     ###########
     # Signals #
     ###########
 
+    def onViewResultClicked(self):
+        """ Event to create a result board
+        """
+        if self._is_active_pipeline_valid():
+            ui_file = os.path.join(resources.__path__[0],
+                                   "controller_viewer.ui")
+            self.board_window = BoardWindow(self.pipeline, ui_file,
+                                            self.study_config)
+            self.board_window.show()
+        else:
+            logging.error("No active pipeline selected. "
+                          "Have you forgotten to click the load pipeline "
+                          "button?")
+
     def onSearchInPipelines(self, text):
         """ Event to filter the pipelines
         """
         matches = [module_name for module_name in self._pipeline_names
-                               if text.lower() in module_name.lower()]
+                   if text.lower() in module_name.lower()]
         if matches and not text == matches[0]:
             while self.ui.pipeline_module.count() > 1:
                 self.ui.pipeline_module.removeItem(1)
@@ -257,13 +275,13 @@ class CapsulMainWindow(MyQUiLoader):
                 self.path_to_pipeline_doc[self.pipeline.id],
                 self.pipeline.id.split(".")[1] + "_tree",
                 "generated", "pipeline", self.pipeline.id + ".html")
-            
+
             # Create and fill a QWebView
             help = QtWebKit.QWebView()
             help.load(QtCore.QUrl(path_to_active_pipeline_doc))
             help.show()
             layout.addWidget(help)
-    
+
             win.setLayout(layout)
             win.exec_()
         else:
@@ -313,4 +331,4 @@ class CapsulMainWindow(MyQUiLoader):
         is_valid: bool
             True if the active pipeline is valid
         """
-        return self.pipeline != None
+        return self.pipeline is not None

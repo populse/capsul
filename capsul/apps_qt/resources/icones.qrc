@@ -8,6 +8,7 @@
         <file alias="controller">controller.png</file>  
         <file alias="add">add.png</file>
         <file alias="change_view">change_view.png</file>
-        <file alias="config">config.png</file>            
+        <file alias="config">config.png</file>
+        <file alias="view_result">view_result.png</file>          
     </qresource>
 </RCC>
