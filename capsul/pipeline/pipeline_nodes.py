@@ -82,6 +82,7 @@ class Node(Controller):
     name = Str()
     enabled = Bool(default_value=True)
     activated = Bool(default_value=False)
+    node_type = Enum(("processing_node", "view_node"))
 
     def __init__(self, pipeline, name, inputs, outputs):
         """ Generate a Node
