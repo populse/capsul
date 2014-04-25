@@ -255,7 +255,8 @@ def nipype_factory(nipype_instance):
                                "_".join(str_description[0].split("_")[1:])]
 
         # Create a new trait from its expression and namespace
-        namespace = {"traits": traits, "process_trait": None}
+        namespace = {"traits": traits, "_Undefined": _Undefined,
+                     "process_trait": None}
         trait_expressions = []
         for trait_spec in str_description:
             trait_spec = trait_spec.split("_")
@@ -281,7 +282,7 @@ def nipype_factory(nipype_instance):
                                 expression += "{0}".format(
                                     inner_trait.values)
 
-                #  Range Extra args
+                # Range Extra args
                 if trait_item == "Range":
                     if isinstance(nipype_trait, traits.CTrait):
                         expression += "low={0},high={1}".format(
@@ -291,6 +292,11 @@ def nipype_factory(nipype_instance):
                         expression += "low={0},high={1}".format(
                             nipype_trait._low,
                             nipype_trait._high)
+                            
+                # File default value to undefined
+                if trait_item == "File":
+                    expression += "_Undefined()"
+
             expression += ")" * len(trait_spec)
             trait_expressions.append(expression)
 
@@ -309,8 +315,7 @@ def nipype_factory(nipype_instance):
         try:
             f()
         except:
-            raise Exception("Can't evaluate expression {0} in namespace"
-                            "{1}."
+            raise Exception("Can't evaluate expression {0} in namespace {1}."
                             "Please investigate: {2}.".format(expression,
                             namespace, sys.exc_info()[1]))
         process_trait = namespace["process_trait"]
