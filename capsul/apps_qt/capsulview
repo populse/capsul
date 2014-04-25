@@ -7,9 +7,15 @@
 # for details.
 ##########################################################################
 
+# System import
 import logging
 import sys
 
+# Capsul import
+from capsul.apps_qt import qt_backend
+# TODO: add option to set backend befor importing QtCore
+#qt_backend.set_qt_backend("PyQt4")
+#qt_backend.init_matplotlib_backend()
 from capsul.apps_qt.qt_backend import QtCore
 
 try :
