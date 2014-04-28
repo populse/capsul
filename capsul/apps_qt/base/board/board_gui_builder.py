@@ -153,7 +153,7 @@ class ViewerWidget(QtGui.QWidget):
        
         # Execute the viewer process using the defined study configuration
         if is_viewer_active:
-            subprocess.call(viewer_process.get_commandline())
+            subprocess.Popen(viewer_process.get_commandline())
             # self.study_config.run(viewer_process)
         else:
             logging.error("The viewer is not active yet, maybe "
