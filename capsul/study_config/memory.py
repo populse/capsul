@@ -55,7 +55,11 @@ def _run_process(subj_output_dir, description, process_instance,
                  generate_logging, spm_dir):
     """ Execute the process
     """
+    # First set instance parameters
     set_output_dir(subj_output_dir, process_instance, spm_dir)
+    if generate_logging:
+        output_log_file = os.path.join(subj_output_dir, description + ".json")
+        process_instance.log_file = output_log_file
     returncode = process_instance()
 
     # generate some log
@@ -63,7 +67,7 @@ def _run_process(subj_output_dir, description, process_instance,
     if generate_logging:
         output_log_file = os.path.join(subj_output_dir, description + ".json")
         process_instance.log_file = output_log_file
-        process_instance.save_log()
+        process_instance.save_log(returncode)
 
     # for spm, need to move the batch
     # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)
@@ -92,9 +96,16 @@ def _joblib_run_process(subj_output_dir, description, process_instance,
     subj_output_dir = os.path.join(subj_output_dir, name)
     ensure_is_dir(subj_output_dir)
 
+    # instance parameters
+    # set before execution to prevent instance modification after the
+    # call
     # update process instance output dir
     set_output_dir(subj_output_dir, process_instance, spm_dir)
-
+    # set log file name
+    if generate_logging:
+        output_log_file = os.path.join(subj_output_dir, description + ".json")
+        process_instance.log_file = output_log_file   
+    
     # init smart-caching with joblib
     mem = Memory(cachedir=subj_output_dir, verbose=2)
 
@@ -128,6 +139,7 @@ def _joblib_run_process(subj_output_dir, description, process_instance,
 
     # find and update joblib smart-caching directory
     output_dir, argument_hash = _mprocess.get_output_dir()
+    from joblib.func_inspect import filter_args
     if os.path.exists(output_dir):
         cache_time = os.path.getmtime(output_dir)
         # call the joblib clear function if necessary to deal with
@@ -177,9 +189,7 @@ def _joblib_run_process(subj_output_dir, description, process_instance,
     # generate log
     output_log_file = None
     if generate_logging:
-        output_log_file = os.path.join(subj_output_dir, description + ".json")
-        process_instance.log_file = output_log_file
-        process_instance.save_log()
+        process_instance.save_log(outputs)
 
     # remove symbolic links
     to_delete = [os.path.join(subj_output_dir, x)

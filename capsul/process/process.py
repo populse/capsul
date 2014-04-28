@@ -89,7 +89,7 @@ class Process(Controller):
 
         # Log file name
         self.log_file = None
-
+        
     def __call__(self, **kwargs):
         """ Execute the Process
 
@@ -166,10 +166,6 @@ class Process(Controller):
         results = ProcessResult(process, runtime, self.get_inputs(),
                                 outputs)
 
-        # Sotre execution informations
-        self.exec_info = self._get_log(results)
-        results.outputs["exec_info"] = self.exec_info
-
         return results
 
     ##############
@@ -240,19 +236,29 @@ class Process(Controller):
 
         return commandline
 
-    def save_log(self):
+    def save_log(self, returncode):
         """ Method to save process execution informations in json format
 
         If the class attribute `log_file` is not set, a log.json output
         file is generated in the process call current working directory.
 
+        Parameters
+        ----------
+        returncode: ProcessResult
+            the process reesult return code
         """
-        if not self.log_file:
-            self.log_file = os.path.join(self.exec_info["cwd"],
-                                         "log.json")
+        # Access execution informations
+        exec_info = self._get_log(returncode)
 
-        json_struct = unicode(json.dumps(self.exec_info, sort_keys=True,
+        # Generate output log file name if necessary
+        if not self.log_file:
+            self.log_file = os.path.join(exec_info["cwd"], "log.json")
+
+        # Dump
+        json_struct = unicode(json.dumps(exec_info, sort_keys=True,
                                          check_circular=True, indent=4))
+        
+        # Save Dump
         if self.log_file:
             f = open(self.log_file, 'w')
             print >> f, json_struct
