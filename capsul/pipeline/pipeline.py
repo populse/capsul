@@ -348,6 +348,9 @@ class Pipeline(Process):
         source_node.connect(source_plug_name, dest_node, dest_plug_name)
         dest_node.connect(dest_plug_name, source_node, source_plug_name)
 
+        # Refresh pipeline activation
+        self.update_nodes_and_plugs_activation()
+
     def remove_link(self, link):
         '''Remove a link between pipeline nodes
 
@@ -451,7 +454,7 @@ class Pipeline(Process):
         else:
             self.add_link("{0}->{1}.{2}".format(pipeline_parameter,
                                          node_name, plug_name), weak_link)
-
+        
     def _set_node_enabled(self, node_name, is_enabled):
         """ Method to enable or disabled a node
 
