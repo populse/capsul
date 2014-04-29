@@ -23,6 +23,9 @@ except AttributeError:
 from capsul.pipeline import Pipeline
 from capsul.pipeline.pipeline_nodes import Switch, PipelineNode
 from capsul.controller import trait_ids
+from capsul.apps_qt.base.window import MyQUiLoader
+import capsul.apps_qt.resources as resources
+
 
 class BoardGUIBuilder(QtGui.QWidget):
     """ Create the result board of a pipeline.
@@ -100,6 +103,12 @@ class BoardGUIBuilder(QtGui.QWidget):
                 child = QtGui.QTreeWidgetItem(root)
                 child.setText(1, self._title_for(node_name))
 
+                # Set process logs
+                for process_node in process_nodes:
+                    widget = LogWidget(process_node)
+                    widget.setParent(root.treeWidget())
+                    child.treeWidget().setItemWidget(child, 3, widget)
+
                 # Set viewers
                 for viewer_node, pipeline in view_nodes:
                     widget = ViewerWidget(viewer_node.name, pipeline,
@@ -131,7 +140,7 @@ class BoardGUIBuilder(QtGui.QWidget):
 
             # Browse recursively pipeline nodes
             if (isinstance(node.process, Pipeline) and
-                node.node_type != "view_node"):
+               node.node_type != "view_node"):
 
                 pipeline = node.process
                 for sub_node in pipeline.nodes.values():
@@ -146,12 +155,153 @@ class BoardGUIBuilder(QtGui.QWidget):
                     process_nodes.append(node)
 
 
+class LogWindow(MyQUiLoader):
+    """ Window to show a process log.
+    """
+
+    def __init__(self, log_data=None, window_name=None):
+        """ Method to initialize the log window.
+
+        Parameters
+        ----------
+        log_data: dict (mandatory)
+            the data contained in the log file
+        window_name: str (optional)
+            the window name
+        """
+        # Load UI
+        ui_file = os.path.join(resources.__path__[0], "controller_viewer.ui")
+        MyQUiLoader.__init__(self, ui_file)
+
+        # Define controls
+        self.controls = {QtGui.QTreeWidget: ["tree_controller", ],
+                         QtGui.QWidget: ["tree_widget", ]}
+
+        # Find controls
+        self.add_controls_to_ui()
+
+        # Init tree
+        self.ui.tree_controller.setColumnCount(2)
+        self.ui.tree_controller.headerItem().setText(0, "Item")
+        self.ui.tree_controller.headerItem().setText(1, "Value")
+
+        # Update window name
+        self.ui.tree_widget.parentWidget().setWindowTitle(
+            "Log Board Viewer: {0}".format(window_name or ""))
+
+        # Create the board
+        for item_name, item in log_data.iteritems():
+            self.data_to_tree(item_name, item)
+
+    #####################
+    #      Members      #
+    #####################
+
+    def show(self):
+        """ Shows the widget and its child widgets.
+        """
+        self.ui.show()
+
+    #####################
+    # Private interface #
+    #####################
+
+    def _title_for(self, title):
+        """ Method to tune a plug name
+
+        Parameters
+        ----------
+        title: str (mandatory)
+            the name of a plug
+
+        Returns
+        -------
+        output: str
+            the tuned name
+        """
+        return title.replace("_", " ")
+
+    def data_to_tree(self, name, parameters):
+        """ Method to insert plug parameters in the class tree
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the desired new tree enty name
+        parameters: object (mandatory)
+            object that contain the process return code
+        """
+        # Create item
+        root = QtGui.QTreeWidgetItem(self.ui.tree_controller.invisibleRootItem())
+        root.setText(0, self._title_for(name))
+
+        # Insert expanded item
+        self.ui.tree_controller.setItemExpanded(root, True)
+
+        # Parse the parameters
+        if isinstance(parameters, dict):
+            for parameter_name, parameter in parameters.iteritems():
+                # Generate sub item
+                child = QtGui.QTreeWidgetItem(root)
+                child.setText(1, "{0}: {1}".format(parameter_name,
+                                                   repr(parameter)))
+        else:
+            root.setText(1, repr(parameters))
+
+    def add_controls_to_ui(self):
+        """ Method that set all desired controls in ui.
+        """
+        for control_type in self.controls.keys():
+            for control_name in self.controls[control_type]:
+                try:
+                    value = self.ui.findChild(control_type, control_name)
+                except:
+                    logging.warning(
+                        "{0} has no attribute "
+                        "'{1}'".format(type(self.ui), control_name))
+                setattr(self.ui, control_name, value)
+
+
+class LogWidget(QtGui.QWidget):
+    """ Process log result class
+    """
+
+    def __init__(self, process_node):
+        """ Method to initialize a LogWidget class.
+
+        Parameters
+        ----------
+        process_node: ProcessingNode
+            a process node
+        """
+        # Inheritance
+        super(LogWidget, self).__init__()
+
+        # Default parameters
+        self.process = process_node.process
+
+        # Build control
+        self.button = QtGui.QToolButton(self)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/view_result")),
+                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button.setIcon(icon)
+        self.button.setEnabled(os.path.isfile(self.process.log_file or ""))
+        self.button.clicked.connect(self.onCreateViewerClicked)
+
+    def onCreateViewerClicked(self):
+        """ Event to create the viewer
+        """
+        self.log_window = LogWindow(self.process.get_log(), self.process.name)
+        self.log_window.show()
+
+
 class ViewerWidget(QtGui.QWidget):
     """ View result class
     """
 
     def __init__(self, viewer_node_name, pipeline, study_config):
-        """ Method to initialize a ViewConrol class.
+        """ Method to initialize a ViewerWidget class.
 
         Parameters
         ----------
@@ -189,13 +339,13 @@ class ViewerWidget(QtGui.QWidget):
         # are specified -> corresponding process have run)
         is_viewer_active = True
         for plug_name, plug in viewer_node.plugs.iteritems():
-            
+
             if plug_name in ["nodes_activation", "selection_changed"]:
                 continue
-            
+
             # Since it is a viewer node we normally have only inputs
             for (source_node_name, source_plug_name, source_node,
-                source_plug, weak_link) in plug.links_from:
+                 source_plug, weak_link) in plug.links_from:
 
                 # Get the source plug value and source trait
                 source_plug_value = getattr(source_node.process,
@@ -205,17 +355,17 @@ class ViewerWidget(QtGui.QWidget):
                 # Check if the viewer is active:
                 # 1) the source_plug_value has been set
                 if source_plug_value == source_trait.handler.default_value:
-                   is_viewer_active = False
-                   break
+                    is_viewer_active = False
+                    break
                 # 2) if the plug is a file, the file exists
                 str_description = trait_ids(source_trait)
                 if (len(str_description) == 1 and
-                    str_description[0] == "File" and
-                    not os.path.isfile(source_plug_value)):
+                   str_description[0] == "File" and
+                   not os.path.isfile(source_plug_value)):
 
                     is_viewer_active = False
                     break
-                    
+
                 # Update destination trait
                 setattr(viewer_process, plug_name, source_plug_value)
 

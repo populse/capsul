@@ -89,7 +89,7 @@ class Process(Controller):
 
         # Log file name
         self.log_file = None
-        
+
     def __call__(self, **kwargs):
         """ Execute the Process
 
@@ -127,7 +127,7 @@ class Process(Controller):
             for arg_name, arg_val in kwargs.iteritems():
                 if arg_name not in user_traits:
                     raise TypeError("__call__ got an unexpected keyword "
-                        "argument '{0}'".foramt(arg_name))
+                                    "argument '{0}'".foramt(arg_name))
                 setattr(self, arg_name, arg_val)
             del user_traits
 
@@ -157,8 +157,8 @@ class Process(Controller):
             runtime["cwd"] = returncode.runtime.cwd
             runtime["returncode"] = returncode.runtime.returncode
             outputs = dict(("_" + x[0],
-                            self._nipype_interface._list_outputs()[x[0]])
-                            for x in returncode.outputs.get().iteritems())
+                           self._nipype_interface._list_outputs()[x[0]])
+                           for x in returncode.outputs.get().iteritems())
         else:
             outputs = self.get_outputs()
 
@@ -184,7 +184,8 @@ class Process(Controller):
             commandline = self.get_commandline()
             subprocess.check_call(commandline)
         else:
-            raise NotImplementedError("Either get_commandline() or "
+            raise NotImplementedError(
+                "Either get_commandline() or "
                 "_run_process() should be redefined in "
                 "a process ({0})".format(self.__class__.__name__))
 
@@ -197,7 +198,7 @@ class Process(Controller):
         def _is_defined(self, name):
             value = getattr(self, name)
             if (value is None or value is Undefined or
-                (type(value) in types.StringTypes and value == "")):
+               (type(value) in types.StringTypes and value == "")):
                 return False
             return True
 
@@ -207,8 +208,8 @@ class Process(Controller):
 
         # Get command line defined arguments
         reserved_params = ('nodes_activation', 'selection_changed')
-        args = [(name, _is_pathname(trait)) \
-            for name, trait in self.user_traits().iteritems()
+        args = [(name, _is_pathname(trait))
+                for name, trait in self.user_traits().iteritems()
                 if name not in reserved_params and _is_defined(self, name)]
 
         # Build the python call expression, keeping apart file names
@@ -216,21 +217,20 @@ class Process(Controller):
         # externally afterwards, typically to handle temporary files, or
         # file transfers with Soma-Workflow.
         argslist = [(name, getattr(self, name))
-                        for name, is_pathname in args if not is_pathname]
+                    for name, is_pathname in args if not is_pathname]
         argsdict = dict(argslist)
         pathslist = [(name, getattr(self, name))
-                        for name, is_pathname in args if is_pathname]
+                     for name, is_pathname in args if is_pathname]
         pathsdict = dict(pathslist)
-
 
         module_name = sys.modules[self.__module__].__name__
         class_name = self.__class__.__name__
         commandline = [
             "python",
             "-c",
-            "import sys; from %s import %s; kwargs=%s; " \
-            "kwargs.update({sys.argv[i*2+1]: sys.argv[i*2+2] " \
-            "for i in xrange((len(sys.argv)-1)/2)}); %s()(**kwargs)" \
+            ("import sys; from %s import %s; kwargs=%s; "
+            "kwargs.update({sys.argv[i*2+1]: sys.argv[i*2+2] "
+            "for i in xrange((len(sys.argv)-1)/2)}); %s()(**kwargs)")
             % (module_name, class_name, repr(argsdict), class_name)
         ] + sum([list(x) for x in pathsdict.items()], [])
 
@@ -257,12 +257,26 @@ class Process(Controller):
         # Dump
         json_struct = unicode(json.dumps(exec_info, sort_keys=True,
                                          check_circular=True, indent=4))
-        
+
         # Save Dump
         if self.log_file:
             f = open(self.log_file, 'w')
             print >> f, json_struct
             f.close()
+
+    def get_log(self):
+        """ Log the log file
+
+        Returns
+        -------
+        log: dict
+            the content of the log file
+        """
+        if os.path.isfile(self.log_file):
+            with open(self.log_file) as json_file:
+                return json.load(json_file)
+        else:
+            return None
 
     ##############
     # Properties #
@@ -291,8 +305,8 @@ class Process(Controller):
         output = "\nINPUT SPECIFICATIONS\n\n"
         for trait_name, trait in self.user_traits().iteritems():
             if not trait.output:
-                output += "{0}: {1}\n".format(trait_name,
-                    trait_ids(self.trait(trait_name)))
+                output += "{0}: {1}\n".format(
+                    trait_name, trait_ids(self.trait(trait_name)))
         return output
 
     def get_inputs(self):
@@ -379,8 +393,9 @@ class Process(Controller):
 
         return log
 
-    run = LateBindingProperty(_run_process, None, None,
-             "Processing method that has to be defined in derived classes")
+    run = LateBindingProperty(
+        _run_process, None, None,
+        "Processing method that has to be defined in derived classes")
 
 
 class NipypeProcess(Process):
