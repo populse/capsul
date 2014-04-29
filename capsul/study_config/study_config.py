@@ -107,6 +107,9 @@ class StudyConfig(Controller):
 
         # Inheritance
         super(StudyConfig, self).__init__()
+        
+        # Parameter that is incremented at each execution
+        self.process_counter = 1
 
         # Add some study parameters
         self.add_trait("input_directory", Directory(
@@ -169,6 +172,11 @@ class StudyConfig(Controller):
     ##############
     # Properties #
     ##############
+    
+    def reset_process_counter(self):
+        """ Method to reset the process counter to one
+        """
+        self.process_counter = 1
 
     def set_trait_value(self, trait_name, trait_value):
         """ Method to set the value of a parameter.
@@ -305,13 +313,17 @@ class StudyConfig(Controller):
                     "instances".format(process_or_pipeline.__module__.name__))
 
             # Execute each element
-            for cnt, process_instance in enumerate(execution_list):
+            for process_instance in execution_list:
                 # Run
                 returncode, log_file = self._caller(self.output_directory,
-                    "{0}-{1}".format(cnt + 1, process_instance.name),
+                    "{0}-{1}".format(self.process_counter,
+                                     process_instance.name),
                     process_instance,
                     self.generate_logging,
                     self.spm_directory)
+                    
+                # Increment
+                self.process_counter += 1
 
 
 if __name__ == "__main__":
