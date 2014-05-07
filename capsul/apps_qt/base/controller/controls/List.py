@@ -21,6 +21,7 @@ except AttributeError:
 
 from File import File
 from Float import Float
+from String import String
 
 
 class List(QtGui.QWidget, Observable):
