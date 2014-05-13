@@ -70,6 +70,7 @@ Classes
     :template: class.rst
 
     process.ProcessResult
+    process_with_fom.ProcessWithFom
 
 Functions
 ---------
@@ -113,7 +114,5 @@ Functions
     :template: function.rst
 
     trait_utils.trait_ids
-
-
 
 
