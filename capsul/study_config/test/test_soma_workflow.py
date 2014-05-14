@@ -166,13 +166,13 @@ class TestSomaWorkflow(unittest.TestCase):
     def test_composite_dependencies(self):
         workflow = workflow_from_pipeline(self.composite_pipeline)
         dependencies = [(x.name, y.name) for x, y in workflow.dependencies]
-        self.assertTrue(len(dependencies) == 8)
+        self.assertTrue(len(dependencies) == 16)
         self.assertEqual(dependencies.count(("Process_1", "Process_2")), 1)
         self.assertEqual(dependencies.count(("Process_1", "Process_3")), 2)
         self.assertEqual(dependencies.count(("Process_2", "Process_4")), 1)
         self.assertEqual(dependencies.count(("Process_3", "Process_4")), 2)
-        self.assertEqual(dependencies.count(("Process_1", "node2")), 1)
-        self.assertEqual(dependencies.count(("node2", "Process_4")), 1)
+        self.assertEqual(dependencies.count(("Process_1", "node2_input")), 1)
+        self.assertEqual(dependencies.count(("node2_output", "Process_4")), 1)
         self.assertTrue(len(workflow.groups) == 1)
 
     def test_composite_execution(self):
@@ -195,11 +195,11 @@ if __name__ == "__main__":
 
     import sys
     from PySide import QtGui
-    from capsul.apps_qt.base.pipeline_widgets import FullPipelineView
+    from capsul.apps_qt.base.pipeline_widgets import PipelineDevelopperView
 
     app = QtGui.QApplication(sys.argv)
     pipeline = MyCompositePipeline()
-    view1 = FullPipelineView(pipeline)
+    view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
     view1.show()
     app.exec_()
     del view1
