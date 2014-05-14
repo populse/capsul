@@ -85,12 +85,12 @@ if __name__ == "__main__":
 
     import sys
     from PySide import QtGui
-    from capsul.apps_qt.base.pipeline_widgets import FullPipelineView
+    from capsul.apps_qt.base.pipeline_widgets import PipelineDevelopperView
 
     app = QtGui.QApplication(sys.argv)
     pipeline = MyPipeline()
-    setattr(pipeline.nodes_activation, "node1", False)
-    view1 = FullPipelineView(pipeline)
+    #setattr(pipeline.nodes_activation, "node1", False)
+    view1 = PipelineDevelopperView(pipeline)
     view1.show()
     app.exec_()
     del view1
