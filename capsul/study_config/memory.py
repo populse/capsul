@@ -24,7 +24,11 @@ from capsul.utils import ensure_is_dir
 from capsul.process import ProcessResult
 
 # joblib caching
-from joblib import Memory
+try:
+  from joblib import Memory
+except ImportError:
+  import sys
+  print >> sys.stderr, 'WARNING: Cannot import joblib'
 
 
 def set_output_dir(subj_output_dir, process_instance, spm_dir):
