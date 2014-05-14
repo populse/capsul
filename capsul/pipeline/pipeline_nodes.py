@@ -122,6 +122,7 @@ class Node(Controller):
                     raise Exception("Can't create parameter with unknown"
                                     "identifier and parameter {0}".format(
                                         parameter))
+                parameter = parameter.copy()
                 plug_name = parameter.pop("name")
                 # force the parameter type
                 parameter["output"] = parameter_type
@@ -389,7 +390,7 @@ class Switch(Node):
         """
         # if the user pass a simple element, create a list and add this
         # element
-        super(Node, self).__init__()
+        #super(Node, self).__init__()
         self.__block_output_propagation = False
         if not isinstance(outputs, list):
             outputs = [outputs, ]
@@ -404,8 +405,6 @@ class Switch(Node):
         self._outputs = outputs
         self._switch_values = inputs
 
-        # add switch enum trait to select the process
-        self.add_trait('switch', Enum(*inputs))
 
         # format inputs and outputs to inherit from Node class
         flat_inputs = []
@@ -419,7 +418,12 @@ class Switch(Node):
         # inherit from Node class
         super(Switch, self).__init__(pipeline, name, node_inputs,
                                      node_outputs)
+        for i in node_inputs[1:]:
+            self.plugs[i['name']].enabled = False
 
+        # add switch enum trait to select the process
+        self.add_trait('switch', Enum(*inputs))
+        
         # add a trait for each input and each output
         for i in flat_inputs:
             self.add_trait(i, Any())
