@@ -127,7 +127,7 @@ def set_qt_backend(backend=None):
             try:
                 sip.setapi(sip_class, SIP_API)
             except ValueError, e:
-                logging.error(e.message)
+                logging.warning(e.message)
     qt_module = __import__(backend)
     __import__(backend + '.QtCore')
     __import__(backend + '.QtGui')
@@ -190,24 +190,63 @@ def import_qt_submodule(submodule):
     return mod
 
 
-def loadUi(ui_file):
-    '''Load a .ui file and returns the widget instance
+def loadUi(ui_file, *args, **kwargs):
+    '''Load a .ui file and returns the widget instance.
+
+    This function is a replacement of PyQt4.uic.loadUi. The only difference is 
+    that relative icon or pixmap file names that are stored in the *.ui file 
+    are considered to be relative to the directory containing the ui file. With
+    PyQt4.uic.loadUi, relative file names are considered relative to the 
+    current working directory therefore if this directory is not the one 
+    containing the ui file, icons cannot be loaded.
     '''
     if get_qt_backend() == 'PyQt4':
-        from PyQt4 import uic
-        return uic.loadUi(ui_file)
+        # the problem is corrected in version > 4.7.2,
+        if QtCore.PYQT_VERSION > 0x040702:
+            from PyQt4 import uic
+            return uic.loadUi(ui_file, *args, **kwargs)
+        else:
+            from PyQt4.uic.Loader import loader
+            uiLoader = loader.DynamicUILoader()
+            uiLoader.wprops._basedirectory = os.path.dirname( 
+                os.path.abspath(ui_file))
+            uiLoader.wprops._iconset = partial(_iconset, uiLoader.wprops)
+            uiLoader.wprops._pixmap = partial(_pixmap, uiLoader.wprops)
+            return uiLoader.loadUi(ui_file, *args, **kwargs)
     else:
-        from PySide import QtUiTools
-        return QtUiTools.QUiLoader().load(ui_file)
+        from PySide.QtUiTools import QUiLoader
+        return QUiLoader().load(ui_file) #, *args, **kwargs )
+
+
+def loadUiType(uifile, from_imports=False):
+    '''PyQt4 / PySide abstraction to uic.loadUiType.
+    Not implemented for PySide, actually, because PySide does not have this 
+    feature.
+    '''
+    if get_qt_backend() == 'PyQt4':
+        # the parameter from_imports doesn't exist in our version of PyQt
+        return uic.loadUiType(uifile)
+    else:
+        raise NotImplementedError('loadUiType does not work with PySide')
+        #ui = loadUi(uifile)
+        #return ui.__class__, QtGui.QWidget # FIXME
 
 
 def getOpenFileName(parent=None, caption='', directory='', filter='',
         selectedFilter=None, options=0):
     '''PyQt4 / PySide compatible call to QFileDialog.getOpenFileName'''
     if get_qt_backend() == 'PyQt4':
+        kwargs = {}
+        # kwargs are used because passing None or '' as selectedFilter
+        # does not work, at least in PyQt 4.10
+        # On the other side I don't know if this kwargs works with older
+        # sip/PyQt versions.
+        if selectedFilter:
+            kwargs['selectedFilter'] = selectedFilter
+        if options:
+            kwargs['options'] = QtGui.QFileDialog.Options(options)
         return get_qt_module().QtGui.QFileDialog.getOpenFileName(parent,
-            caption, directory, filter, selectedFilter,
-            QtGui.QFileDialog.Options(options))
+            caption, directory, filter, **kwargs )
     else:
         return get_qt_module().QtGui.QFileDialog.getOpenFileName(parent,
             caption, directory, filter, selectedFilter,
@@ -218,8 +257,17 @@ def getSaveFileName(parent=None, caption='', directory='', filter='',
         selectedFilter=None, options=0):
     '''PyQt4 / PySide compatible call to QFileDialog.getSaveFileName'''
     if get_qt_backend() == 'PyQt4':
+        kwargs = {}
+        # kwargs are used because passing None or '' as selectedFilter
+        # does not work, at least in PyQt 4.10
+        # On the other side I don't know if this kwargs works with older
+        # sip/PyQt versions.
+        if selectedFilter:
+            kwargs['selectedFilter'] = selectedFilter
+        if options:
+            kwargs['options'] = QtGui.QFileDialog.Options(options)
         return get_qt_module().QtGui.QFileDialog.getSaveFileName(parent,
-            caption, directory, filter, selectedFilter, options)
+            caption, directory, filter, **kwargs)
     else:
         return get_qt_module().QtGui.QFileDialog.getSaveFileName(parent,
             caption, directory, filter, selectedFilter, options)[0]
@@ -232,7 +280,13 @@ def init_matplotlib_backend():
     and returned by this function.
     '''
     import matplotlib
-    matplotlib.use('Qt4Agg')
+    guiBackend = 'Qt4Agg'
+    if 'matplotlib.backends' not in sys.modules:
+        matplotlib.use(guiBackend)
+    elif matplotlib.get_backend() != guiBackend:
+        raise RuntimeError( 
+            'Mismatch between Qt version and matplotlib backend: '
+            'matplotlib uses ' + matplotlib.get_backend() + ' but ' + guiBackend + ' is required.')
     if get_qt_backend() == 'PySide':
         if 'backend.qt4' in matplotlib.rcParams.keys():
             matplotlib.rcParams['backend.qt4'] = 'PySide'
