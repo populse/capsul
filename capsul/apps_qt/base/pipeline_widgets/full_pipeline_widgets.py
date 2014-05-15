@@ -15,6 +15,12 @@ from capsul.apps_qt.qt_backend import QtCore, QtGui
 from capsul.utils.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline import Switch
 from capsul.process import get_process_instance, Process
+from capsul.controller import Controller
+try:
+    from soma.gui.widget_controller_creation import ControllerWidget
+except ImportError:
+    # soma-base not available
+    pass
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -119,7 +125,7 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
     }
 
     def __init__(self, name, parameters, active=True,
-                 style=None, parent=None, sub_pipeline=None):
+                 style=None, parent=None, process=None, sub_pipeline=None):
         super(NodeGWidget, self).__init__(parent)
         if style is None:
             style = 'default'
@@ -129,6 +135,7 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
         self.in_plugs = {}
         self.out_plugs = {}
         self.active = active
+        self.process = process
         self.sub_pipeline = sub_pipeline
 
         if self.active:
@@ -240,10 +247,19 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
 
     def mouseDoubleClickEvent(self, event):
         if self.sub_pipeline:
-            self.scene().subpipeline_clicked.emit(self.sub_pipeline)
+            self.scene().subpipeline_clicked.emit(self.name, self.sub_pipeline)
             event.accept()
         else:
             event.ignore()
+
+    def mousePressEvent(self, event):
+        super(NodeGWidget, self).mousePressEvent(event)
+        # item = self.itemAt(event.x(), event.y())
+        # if item is None:
+        if event.button() == QtCore.Qt.RightButton \
+                and self.process is not None:
+            self.scene().node_right_clicked.emit(self.name, self.process)
+            event.accept()
 
 
 class Link(QtGui.QGraphicsPathItem):
@@ -282,7 +298,9 @@ class Link(QtGui.QGraphicsPathItem):
 
 class PipelineScene(QtGui.QGraphicsScene):
     # Signal emitted when a sub pipeline has to be open.
-    subpipeline_clicked = QtCore.Signal(Process)
+    subpipeline_clicked = QtCore.Signal(str, Process)
+    # Signal emitted when a node box is right-clicked
+    node_right_clicked = QtCore.Signal(str, Controller)
 
     def __init__(self, parent=None):
         super(PipelineScene, self).__init__(parent)
@@ -349,14 +367,19 @@ class PipelineScene(QtGui.QGraphicsScene):
                 pipeline_inputs[name] = plug
         if pipeline_inputs:
             self.add_node(
-                'inputs', NodeGWidget('inputs', pipeline_inputs, active=True))
+                'inputs', NodeGWidget('inputs', pipeline_inputs, active=True,
+                    process=pipeline))
         for node_name, node in pipeline.nodes.iteritems():
             if not node_name:
                 continue
+            process = None
             if isinstance(node, Switch):
                 style = 'switch'
+                process = node
             else:
                 style = None
+            if hasattr(node, 'process'):
+                process = node.process
             if hasattr(node, 'process') and hasattr(node.process, 'nodes'):
                 sub_pipeline = node.process
             elif hasattr(node, 'nodes'):
@@ -370,11 +393,11 @@ class PipelineScene(QtGui.QGraphicsScene):
                 style = 'pipeline'
             self.add_node(node_name, NodeGWidget(
                 node_name, node.plugs, active=node.activated, style=style,
-                sub_pipeline=sub_pipeline))
+                sub_pipeline=sub_pipeline, process=process))
         if pipeline_outputs:
             self.add_node(
                 'outputs', NodeGWidget('outputs', pipeline_outputs,
-                                       active=True))
+                                       active=True, process=pipeline))
 
         for source_node_name, source_node in pipeline.nodes.iteritems():
             for source_parameter, source_plug in source_node.plugs.iteritems():
@@ -397,12 +420,16 @@ class PipelineScene(QtGui.QGraphicsScene):
 
 class PipelineDevelopperView(QtGui.QGraphicsView):
     # Signal emitted when a sub pipeline has to be open.
-    subpipeline_clicked = QtCore.Signal(Process)
+    subpipeline_clicked = QtCore.Signal(str, Process)
+    # Signal emitted when a node box is right-clicked
+    node_right_clicked = QtCore.Signal(str, Controller)
 
-    def __init__(self, pipeline, parent=None, show_sub_pipelines=False):
+    def __init__(self, pipeline, parent=None, show_sub_pipelines=False,
+            allow_open_controller=False):
         super(PipelineDevelopperView, self).__init__(parent)
         self.scene = None
         self._show_sub_pipelines = show_sub_pipelines
+        self._allow_open_controller = allow_open_controller
         self.set_pipeline(pipeline)
         self._grab = False
 
@@ -416,6 +443,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene = PipelineScene(self)
         self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
         self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
+        self.scene.node_right_clicked.connect(self.node_right_clicked)
+        self.scene.node_right_clicked.connect(self.onOpenProcessController)
         self.scene.pos = pos
         self.scene.set_pipeline(pipeline)
         self.setWindowTitle(pipeline.name)
@@ -468,13 +497,32 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self.verticalScrollBar().value() - int(translation.y()))
         else:
             super(PipelineDevelopperView, self).mouseMoveEvent(event)
-            
-    def onLoadSubPipelineClicked(self, sub_pipeline):
+
+    def onLoadSubPipelineClicked(self, node_name, sub_pipeline):
         """ Event to load a sub pipeline
         """
         if self._show_sub_pipelines:
             sub_view = PipelineDevelopperView(sub_pipeline,
-                show_sub_pipelines=self._show_sub_pipelines)
+                show_sub_pipelines=self._show_sub_pipelines,
+                allow_open_controller=self._allow_open_controller)
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            sub_view.setWindowTitle(node_name)
             sub_view.show()
-            
+
+    def onOpenProcessController(self, node_name, process):
+        """ Event to open a sub-process/sub-pipeline controller
+        """
+        if self._allow_open_controller:
+            sub_view = QtGui.QScrollArea()
+            cwidget = ControllerWidget(process, live=True)
+            cwidget.setParent(sub_view)
+            sub_view.setWidget(cwidget)
+            sub_view.setWidgetResizable(True)
+            sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            sub_view.setWindowTitle(node_name)
+            sub_view.show()
+            # keep this variable to avoid destroying the scroll area right now.
+            # FIXME: in any case, ControllerWidget does never delete due to
+            # cyclic references or something.
+            # PipelineDevelopperView neither...
+            cwidget._parent_scroll = sub_view
