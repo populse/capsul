@@ -11,6 +11,8 @@
 import sys
 import os
 import types
+import logging
+import traceback
 
 # Trait import
 try:
@@ -90,7 +92,8 @@ def nipype_factory(nipype_instance):
         corrected_outputs = {}
         for key, value in outputs.iteritems():
             if (not isinstance(value, _Undefined) and
-                not isinstance(value, list)):
+               not isinstance(value, list)):
+
                 corrected_outputs[key] = os.path.join(
                     self.inputs.output_directory,
                     os.path.basename(value))
@@ -219,11 +222,26 @@ def nipype_factory(nipype_instance):
         """
         try:
             nipype_outputs = (process_instance.
-                             _nipype_interface._list_outputs())
+                              _nipype_interface._list_outputs())
+            # Synchronize traits and add an exists constrain for
+            # File
             for out_name, out_value in nipype_outputs.iteritems():
-                process_instance.set_parameter("_" + out_name, out_value)
-        except:
-            pass
+                # Get trait type
+                trait_type = trait_ids(
+                    process_instance._nipype_interface.output_spec().
+                    trait(out_name))
+                # Check if we synchronize the traits
+                if (trait_type[0] is not "File" or
+                   os.path.isfile(repr(out_value))):
+                               
+                    process_instance.set_parameter("_" + out_name, out_value)
+        except Exception as e:
+            ex_type, ex, tb = sys.exc_info()
+            logging.info("Something wrong in the nipype output "
+                          "trait synchronization:\n\n"
+                          "\tError: {0} - {1}\n\tTraceback:\n{2}".format(
+                          ex_type, ex, "".join(traceback.format_tb(tb))))
+            del tb
 
     # Clone a nipype trait
     def clone_nipype_trait(nipype_trait):
@@ -292,7 +310,7 @@ def nipype_factory(nipype_instance):
                         expression += "low={0},high={1}".format(
                             nipype_trait._low,
                             nipype_trait._high)
-                            
+
                 # File default value to undefined
                 if trait_item == "File":
                     expression += "_Undefined()"
@@ -315,9 +333,10 @@ def nipype_factory(nipype_instance):
         try:
             f()
         except:
-            raise Exception("Can't evaluate expression {0} in namespace {1}."
-                            "Please investigate: {2}.".format(expression,
-                            namespace, sys.exc_info()[1]))
+            raise Exception(
+                "Can't evaluate expression {0} in namespace {1}."
+                "Please investigate: {2}.".format(
+                    expression, namespace, sys.exc_info()[1]))
         process_trait = namespace["process_trait"]
 
         # Copy description
