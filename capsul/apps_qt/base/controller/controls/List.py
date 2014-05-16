@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+l#! /usr/bin/env python
 ##########################################################################
 # CAPSUL - Copyright (C) CEA, 2013
 # Distributed under the terms of the CeCILL-B license, as published by
@@ -22,6 +22,7 @@ except AttributeError:
 from File import File
 from Float import Float
 from String import String
+from Directory import Directory
 
 
 class List(QtGui.QWidget, Observable):
