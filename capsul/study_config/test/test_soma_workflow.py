@@ -159,8 +159,9 @@ class TestSomaWorkflow(unittest.TestCase):
 
     def test_atomic_execution(self):
         self.atomic_pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.atomic_pipeline.workflow_repr,
-                         "node1->node3->node2->node4")
+        self.assertIn(self.atomic_pipeline.workflow_repr,
+                      ('node1->node3->node2->node4',
+                       'node1->node2->node3->node4'))
         self.study_config.run(self.atomic_pipeline)
 
     def test_composite_dependencies(self):
@@ -191,15 +192,25 @@ def test():
 
 
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
+    #print("RETURNCODE: ", test())
 
     import sys
     from PySide import QtGui
     from capsul.apps_qt.base.pipeline_widgets import PipelineDevelopperView
 
+    #app = QtGui.QApplication(sys.argv)
+    #pipeline = MyCompositePipeline()
+    #view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
+    #view1.show()
+    #app.exec_()
+    #del view1
+
+    from capsul.apps_qt.base.pipeline_widgets import PipelineUserView
     app = QtGui.QApplication(sys.argv)
     pipeline = MyCompositePipeline()
     view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
     view1.show()
+    view2 = PipelineUserView(pipeline)
+    view2.show()
     app.exec_()
     del view1

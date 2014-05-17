@@ -329,17 +329,18 @@ class PipelineScene(QtGui.QGraphicsScene):
         dest_gnode_name, dest_param = dest
         if not dest_gnode_name:
             dest_gnode_name = 'outputs'
-        dest_gnode = self.gnodes[dest_gnode_name]
-        if dest_param in dest_gnode.in_plugs:
-            glink = Link(
-                source_gnode.mapToScene(
-                    source_gnode.out_plugs[source_param].get_plug_point()),
-                dest_gnode.mapToScene(
-                    dest_gnode.in_plugs[dest_param].get_plug_point()),
-                active, weak)
-            self.glinks[((source_gnode_name, source_param),
-                         (dest_gnode_name, dest_param))] = glink
-            self.addItem(glink)
+        dest_gnode = self.gnodes.get(dest_gnode_name)
+        if dest_gnode is not None:
+            if dest_param in dest_gnode.in_plugs:
+                glink = Link(
+                    source_gnode.mapToScene(
+                        source_gnode.out_plugs[source_param].get_plug_point()),
+                    dest_gnode.mapToScene(
+                        dest_gnode.in_plugs[dest_param].get_plug_point()),
+                    active, weak)
+                self.glinks[((source_gnode_name, source_param),
+                            (dest_gnode_name, dest_param))] = glink
+                self.addItem(glink)
 
     def update_paths(self):
         for i in self.items():
@@ -403,12 +404,12 @@ class PipelineScene(QtGui.QGraphicsScene):
             for source_parameter, source_plug in source_node.plugs.iteritems():
                 for (dest_node_name, dest_parameter, dest_node, dest_plug,
                      weak_link) in source_plug.links_to:
-
-                    self.add_link(
-                        (source_node_name, source_parameter),
-                        (dest_node_name, dest_parameter),
-                        active=source_plug.activated and dest_plug.activated,
-                        weak=weak_link)
+                    if dest_node is pipeline.nodes.get(dest_node_name):
+                        self.add_link(
+                            (source_node_name, source_parameter),
+                            (dest_node_name, dest_parameter),
+                            active=source_plug.activated and dest_plug.activated,
+                            weak=weak_link)
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_P:

@@ -24,6 +24,7 @@ except ImportError:
 from capsul.controller import Controller
 from capsul.utils.sorted_dictionary import SortedDictionary
 from capsul.process import Process
+from capsul.process import get_process_instance
 from topological_sort import GraphNode, Graph
 from pipeline_nodes import (Plug, ProcessNode, PipelineNode,
                             Switch)
@@ -95,19 +96,22 @@ class Pipeline(Process):
         # If plug is not optional and if the plug has to be exported
         if autoexport_nodes_parameters:
             for node_name, node in self.nodes.iteritems():
+                if node_name == '':
+                    continue
                 for parameter_name, plug in node.plugs.iteritems():
                     if parameter_name in \
                             ('nodes_activation', 'selection_changed'):
                         continue
                     if ((node_name, parameter_name) not in self.do_not_export \
-                            and not plug.links_to and not plug.links_from \
+                            and ((plug.output and not plug.links_to) or\
+                                 (not plug.output and not plug.links_from)) \
                             and not self.nodes[node_name].get_trait(
                             parameter_name).optional):
                         self.export_parameter(node_name, parameter_name)
 
         # Refresh pipeline activation
         self.update_nodes_and_plugs_activation()
-
+        
     ##############
     # Methods    #
     ##############
@@ -161,7 +165,13 @@ class Pipeline(Process):
                              "same name : {0}".format(name))
 
         # Create a process node
-        self.nodes[name] = node = ProcessNode(self, name, process, **kwargs)
+        process = get_process_instance(process, **kwargs)
+        if isinstance(process, Pipeline):
+            node = process.pipeline_node
+            node.name = name
+        else:
+            node = ProcessNode(self, name, process)
+        self.nodes[name] = node
 
         # Change plug default properties
         for parameter_name in self.nodes[name].plugs:
@@ -435,7 +445,7 @@ class Pipeline(Process):
         if pipeline_parameter in self.user_traits():
             raise ValueError("Parameter {0} of node {1} cannot be "
                              "exported to pipeline parameter "
-                             "{2}".format(plug_name, node_name,
+                             "{2}".format(plug_name, node_name or 'pipeline_node',
                              pipeline_parameter))
 
         # Set user enabled parameter only if specified
@@ -784,34 +794,31 @@ class Pipeline(Process):
             the pipeline
         """
 
-        def insert(node_name, plug, dependencies, direct=True):
+        def insert(pipeline, node_name, plug, dependencies):
             """ Browse the plug links and add the correspondings edges
             to the node.
             If direct is set to true, the search looks for successor nodes.
             Otherwise, the search looks for predecessor nodes
             """
-            # Get links
-            if direct:
-                plug_to_treat = plug.links_to
-            else:
-                plug_to_treat = plug.links_from
 
             # Main loop
-            for item in plug_to_treat:
-                # Plug need to be activated and must not be in the pipeline
-                if (item[2].activated and not isinstance(item[2],
-                                                         PipelineNode)):
+            for dest_node_name, dest_plug_name, dest_node, dest_plug, \
+                  weak_link in plug.links_to:
+                # Ignore the link if it is pointing to a node in a
+                # sub-pipeline or in the parent pipeline
+                if pipeline.nodes.get(dest_node_name) is not dest_node:
+                    continue
+                
+                # Plug need to be activated
+                if dest_node.activated:
                     # If plug links to a switch, we need to address the switch
                     # plugs
-                    if not isinstance(item[2], Switch):
-                        if direct:
-                            dependencies.add((node_name, item[0]))
-                        else:
-                            dependencies.add((item[0], node_name))
+                    if not isinstance(dest_node, Switch):
+                        dependencies.add((node_name, dest_node_name))
                     else:
-                        for switch_plug in item[2].plugs.itervalues():
-                            insert(node_name, switch_plug, dependencies,
-                                   direct)
+                        for switch_plug in dest_node.plugs.itervalues():
+                            insert(pipeline, node_name, switch_plug,
+                                   dependencies)
 
         # Create a graph and a list of graph node edges
         graph = Graph()
@@ -819,9 +826,10 @@ class Pipeline(Process):
 
         # Add activated Process nodes in the graph
         for node_name, node in self.nodes.iteritems():
+            if not node_name:
+                continue
             # Select only Process nodes
-            if (node.activated and not isinstance(node, PipelineNode) and
-                    not isinstance(node, Switch)):
+            if node.activated and not isinstance(node, Switch):
                 # If Pipeline: meta in node is the workflow (list of
                 # Process)
                 if isinstance(node.process, Pipeline):
@@ -829,18 +837,18 @@ class Pipeline(Process):
                                              node.process.workflow_graph()))
                 # If Process: meta in node is a list with one Process
                 else:
-                    graph.add_node(GraphNode(node_name, [node.process, ]))
+                    graph.add_node(GraphNode(node_name, [node.process]))
 
                 # Add node edges (Successor: direct=True and
                 # Predecessor: direct=False)
                 for plug_name, plug in node.plugs.iteritems():
                     if plug.activated:
-                        insert(node_name, plug, dependencies, direct=False)
-                        insert(node_name, plug, dependencies, direct=True)
+                        insert(self, node_name, plug, dependencies)
 
         # Add edges to the graph
         for d in dependencies:
-            graph.add_link(d[0], d[1])
+            if graph.find_node(d[0]) and graph.find_node(d[1]):
+                graph.add_link(d[0], d[1])
 
         return graph
 
@@ -870,10 +878,10 @@ class Pipeline(Process):
         # Generate the output
         self.workflow_repr = "->".join([x[0] for x in ordered_list])
         logging.debug("Workflow: {0}". format(self.workflow_repr))
-        self.workflow_list = []
-        walk_wokflow(ordered_list, self.workflow_list)
+        workflow_list = []
+        walk_wokflow(ordered_list, workflow_list)
 
-        return self.workflow_list
+        return workflow_list
 
     def _run_process(self):
         """ Execution of the pipeline, in a sequential,
