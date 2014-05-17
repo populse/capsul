@@ -25,7 +25,8 @@ except ImportError:
 
 
 def get_process_instance(process_or_id, **kwargs):
-    """ Return a Process instance given an identifier.
+    """ Return a Process instance given an identifier or a class
+    derived from Process.
 
     The identifier is a derived Process class or a Nipype Interface.
     It can also be the string description of such objects:
@@ -43,7 +44,7 @@ def get_process_instance(process_or_id, **kwargs):
 
     Parameters
     ----------
-    process_or_id: str or instance (mandatory)
+    process_or_id: str, instance or class (mandatory)
         a process/nipype interface or its string description.
     kwargs:
         default values of the process instance.
@@ -61,7 +62,7 @@ def get_process_instance(process_or_id, **kwargs):
         result = nipype_factory(process_or_id)
         result.auto_nipype_process_qc()
     # From string description
-    elif isinstance(process_or_id, str):
+    elif isinstance(process_or_id, basestring):
         # Try to import a module that must contain a single
         # Process derived class
 
@@ -105,6 +106,8 @@ def get_process_instance(process_or_id, **kwargs):
         for name, value in kwargs.iteritems():
             result.set_parameter(name, value)
 
+    elif isinstance(process_or_id,type) and issubclass(process_or_id,Process):
+      return get_process_instance(process_or_id(),**kwargs)
     else:
         raise ValueError("Invalid process_or_id argument. "
                          "Got '{0}' and expect a Process instance/string "
