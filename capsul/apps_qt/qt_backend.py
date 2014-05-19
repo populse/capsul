@@ -231,6 +231,7 @@ def loadUiType(uifile, from_imports=False):
     '''
     if get_qt_backend() == 'PyQt4':
         # the parameter from_imports doesn't exist in our version of PyQt
+        from PyQt4 import uic
         return uic.loadUiType(uifile)
     else:
         raise NotImplementedError('loadUiType does not work with PySide')
