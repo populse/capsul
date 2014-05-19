@@ -47,6 +47,9 @@ import imp
 __package__ = __name__
 __path__ = [os.path.dirname(__file__)]
 
+# internal variable to avoid warning several times
+_sip_api_set = False
+
 qt_backend = None
 
 
@@ -123,11 +126,14 @@ def set_qt_backend(backend=None):
         SIP_API = 2
         sip_classes = ['QString', 'QVariant', 'QDate', 'QDateTime',
             'QTextStream', 'QTime', 'QUrl']
+        global _sip_api_set
         for sip_class in sip_classes:
             try:
                 sip.setapi(sip_class, SIP_API)
             except ValueError, e:
-                logging.warning(e.message)
+                if not _sip_api_set:
+                    logging.warning(e.message)
+        _sip_api_set = True
     qt_module = __import__(backend)
     __import__(backend + '.QtCore')
     __import__(backend + '.QtGui')
