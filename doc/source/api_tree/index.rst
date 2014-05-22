@@ -99,20 +99,3 @@ Functions
 
     study_config.StudyConfig
 
-
-:mod:`capsul.controller`: Traits
-================================
-
-.. automodule:: capsul.controller
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: capsul.controller
-
-.. autosummary::
-    :toctree: generated/capsul-traits/
-    :template: function.rst
-
-    trait_utils.trait_ids
-
-
