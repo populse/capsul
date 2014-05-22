@@ -28,7 +28,7 @@ except:
     logging.warn("Impossible to import nipype, please investigate.")
 
 # Capsul import
-from capsul.controller import Controller
+from soma.controller import Controller
 from config_utils import find_spm, environment
 from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline import Pipeline

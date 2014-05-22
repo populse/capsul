@@ -22,7 +22,7 @@ except AttributeError:
 # Capsul import
 from capsul.pipeline import Pipeline
 from capsul.pipeline.pipeline_nodes import Switch, PipelineNode
-from capsul.controller import trait_ids
+from soma.controller import trait_ids
 from capsul.apps_qt.base.window import MyQUiLoader
 import capsul.apps_qt.resources as resources
 

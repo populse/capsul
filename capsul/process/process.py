@@ -31,8 +31,8 @@ except ImportError:
                                       Undefined)
 
 # Capsul import
-from capsul.controller import Controller
-from capsul.controller import trait_ids
+from soma.controller import Controller
+from soma.controller import trait_ids
 from capsul.utils import get_tool_version
 from soma.utils import LateBindingProperty
 

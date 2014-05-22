@@ -5,7 +5,7 @@ try:
 except ImportError:
     from enthought.traits.api import Str
 
-from capsul.controller import Controller
+from soma.controller import Controller
 from capsul.pipeline import Pipeline
 from soma.application import Application
 from soma.fom import PathToAttributes, AttributesToPaths, DirectoryAsDict

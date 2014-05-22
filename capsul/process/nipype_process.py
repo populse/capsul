@@ -27,7 +27,7 @@ except ImportError:
                                       Instance, Enum, Str,CTrait)
 
 # Capsul import
-from capsul.controller import trait_ids
+from soma.controller import trait_ids
 from process import NipypeProcess
 
 

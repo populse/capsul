@@ -15,7 +15,7 @@ from capsul.apps_qt.qt_backend import QtGui
 
 from capsul.apps_qt.base.controller.controls import *
 
-from capsul.controller import trait_ids
+from soma.controller import trait_ids
 
 
 class ControllerGUIBuilder(QtGui.QWidget):

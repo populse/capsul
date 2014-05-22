@@ -18,7 +18,7 @@ except ImportError:
         List, Tuple, Instance, Any, Event, CTrait, Directory)
 
 # Capsul import
-from capsul.controller import Controller
+from soma.controller import Controller
 from soma.sorted_dictionary import SortedDictionary
 from capsul.process import get_process_instance
 

@@ -66,7 +66,7 @@ def clean_coverage_report(nose_coverage):
     for line in lines:
         if (line.startswith("capsul.pipeline.") or
                 line.startswith("capsul.process.") or
-                line.startswith("capsul.controller.") or
+                line.startswith("soma.controller.") or
                 line.startswith("capsul.study_config.")):
             # Remove the Missing lines
             percent_index = line.find("%")
