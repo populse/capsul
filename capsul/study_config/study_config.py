@@ -33,8 +33,9 @@ from config_utils import find_spm, environment
 from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline import Pipeline
 from capsul.process import Process
-from memory import _joblib_run_process, _run_process
-from pipeline_workflow import workflow_from_pipeline, local_workflow_run
+from run_with_cache import _joblib_run_process, _run_process
+from capsul.pipeline.pipeline_workflow \
+    import workflow_from_pipeline, local_workflow_run
 
 
 default_config = SortedDictionary(

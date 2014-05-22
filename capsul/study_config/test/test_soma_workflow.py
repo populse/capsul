@@ -14,7 +14,7 @@ from capsul.study_config import StudyConfig
 from capsul.process import Process
 from capsul.pipeline import Pipeline
 from soma.sorted_dictionary import SortedDictionary
-from capsul.study_config.pipeline_workflow import workflow_from_pipeline
+from capsul.pipeline.pipeline_workflow import workflow_from_pipeline
 
 
 class EchoProcess(Process):
