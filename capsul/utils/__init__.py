@@ -8,6 +8,5 @@
 ##########################################################################
 
 from loader import load_objects
-from utils import (ensure_is_dir,  get_tool_version,
+from utils import (get_tool_version,
                    get_nipype_interfaces_versions)
-from late_binding_property import LateBindingProperty

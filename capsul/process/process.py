@@ -33,7 +33,8 @@ except ImportError:
 # Capsul import
 from capsul.controller import Controller
 from capsul.controller import trait_ids
-from capsul.utils import LateBindingProperty, get_tool_version
+from capsul.utils import get_tool_version
+from soma.utils import LateBindingProperty
 
 # If nipype is not found create a dummy InterfaceResult class
 try:

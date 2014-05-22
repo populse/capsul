@@ -12,7 +12,7 @@ from pprint import pprint
 
 # Capsul import
 from capsul.apps_qt.qt_backend import QtCore, QtGui
-from capsul.utils.sorted_dictionary import SortedDictionary
+from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline import Switch
 from capsul.process import get_process_instance, Process
 from capsul.controller import Controller

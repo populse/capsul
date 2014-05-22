@@ -16,8 +16,7 @@ except ImportError:
     from enthought.traits.api import HasTraits, Event
 
 from weakref import WeakKeyDictionary
-from capsul.utils.functiontools import partial
-#from capsul.utils.sorted_dictionary import SortedDictionary
+from soma.utils.functiontools import partial
 from collections import OrderedDict
 
 from capsul.controller.factory import Factories

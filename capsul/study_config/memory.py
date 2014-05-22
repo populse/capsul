@@ -18,7 +18,7 @@ from capsul.controller import trait_ids
 
 # spm copy tools
 from spm_memory_utils import local_map, last_timestamp
-from capsul.utils import ensure_is_dir
+from soma.path import ensure_is_dir
 
 # soma
 from capsul.process import ProcessResult

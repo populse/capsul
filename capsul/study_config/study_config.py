@@ -30,7 +30,7 @@ except:
 # Capsul import
 from capsul.controller import Controller
 from config_utils import find_spm, environment
-from capsul.utils.sorted_dictionary import SortedDictionary
+from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline import Pipeline
 from capsul.process import Process
 from memory import _joblib_run_process, _run_process

@@ -13,7 +13,7 @@ from traits.api import File
 from capsul.study_config import StudyConfig
 from capsul.process import Process
 from capsul.pipeline import Pipeline
-from capsul.utils.sorted_dictionary import SortedDictionary
+from soma.sorted_dictionary import SortedDictionary
 from capsul.study_config.pipeline_workflow import workflow_from_pipeline
 
 

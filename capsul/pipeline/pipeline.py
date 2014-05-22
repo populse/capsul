@@ -22,7 +22,7 @@ except ImportError:
 
 # Capsul import
 from capsul.controller import Controller
-from capsul.utils.sorted_dictionary import SortedDictionary
+from soma.sorted_dictionary import SortedDictionary
 from capsul.process import Process
 from capsul.process import get_process_instance
 from topological_sort import GraphNode, Graph
