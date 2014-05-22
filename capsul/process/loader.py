@@ -19,8 +19,8 @@ from capsul.utils import load_objects
 try:
     from nipype.interfaces.base import Interface
 except ImportError:
-    warnings.warn("Nipype not installed: the process mdodule may not work"
-                  "properly,please investigate")
+    # warnings.warn("Nipype not installed: the process mdodule may not work"
+    #               "properly,please investigate")
     Interface = type("Interface", (object, ), {})
 
 

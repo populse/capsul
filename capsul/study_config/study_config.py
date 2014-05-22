@@ -24,8 +24,10 @@ except ImportError:
 try:
     import nipype.interfaces.matlab as matlab
     from nipype.interfaces import spm
-except:
-    logging.warn("Impossible to import nipype, please investigate.")
+except ImportError:
+    spm = None
+    matlab = None
+    # logging.warn("Impossible to import nipype, please investigate.")
 
 # Capsul import
 from soma.controller import Controller
@@ -34,7 +36,10 @@ from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline import Pipeline
 from capsul.process import Process
 from run import _run_process
-from run_with_cache import _joblib_run_process
+try:
+    from run_with_cache import _joblib_run_process
+except ImportError:
+    _joblib_run_process = None
 from capsul.pipeline.pipeline_workflow \
     import workflow_from_pipeline, local_workflow_run
 
@@ -231,7 +236,11 @@ class StudyConfig(Controller):
         """ Event to setup the the caller
         """
         if new_trait_value:
-            self._caller = _joblib_run_process
+            if _joblib_run_process is not None:
+                self._caller = _joblib_run_process
+            else:
+                # we could issue a warning
+                self._caller = _run_process
         else:
             self._caller = _run_process
 
@@ -241,26 +250,34 @@ class StudyConfig(Controller):
         # use compiled SPM
         if new_trait_value:
             if not isinstance(self.spm_exec_cmd, _Undefined):
-                spm.SPMCommand.set_mlab_paths(
-                    matlab_cmd=self.spm_exec_cmd + " run script",
-                    use_mcr=True)
+                if spm is not None:
+                    spm.SPMCommand.set_mlab_paths(
+                        matlab_cmd=self.spm_exec_cmd + " run script",
+                        use_mcr=True)
+                # else: ?
             else:
                 raise Exception("No SPM execution command specified. "
                                 "It is impossible to configure SPM.")
         # use Matlab + SPM
         else:
-            spm.SPMCommand.set_mlab_paths(matlab_cmd="",
-                                          use_mcr=False)
+            if spm is not None:
+                spm.SPMCommand.set_mlab_paths(matlab_cmd="",
+                                              use_mcr=False)
+            # else: ?
             if not isinstance(self.matlab_exec, _Undefined):
-                matlab.MatlabCommand.set_default_matlab_cmd(self.matlab_exec +
-                       " -nodesktop -nosplash")
+                if matlab is not None:
+                    matlab.MatlabCommand.set_default_matlab_cmd(
+                        self.matlab_exec + " -nodesktop -nosplash")
+                # else: ?
             else:
                 raise Exception("No MATLAB binary specified. "
                                 "It is impossible to configure MATLAB.")
             if isinstance(self.spm_directory, _Undefined):
                 # automatic search of SPM
                 self.spm_directory = find_spm(self.matlab_exec)
-            matlab.MatlabCommand.set_default_paths(self.spm_directory)
+            if matlab is not None:
+                matlab.MatlabCommand.set_default_paths(self.spm_directory)
+            # else: ?
 
     def _use_fsl_changed(self, new_trait_value):
         """ Event tp setup FSL environment
