@@ -7,7 +7,7 @@
 # for details.
 ##########################################################################
 
-from capsul.apps_qt.qt_backend import QtGui, QtCore
+from soma.qt_gui.qt_backend import QtGui, QtCore
 from observable import Observable
 
 

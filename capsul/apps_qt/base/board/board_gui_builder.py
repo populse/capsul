@@ -13,7 +13,7 @@ import subprocess
 import os
 
 # Qt import
-from capsul.apps_qt.qt_backend import QtGui, QtCore
+from soma.qt_gui.qt_backend import QtGui, QtCore
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:

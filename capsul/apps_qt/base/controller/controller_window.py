@@ -9,7 +9,7 @@
 
 import logging
 
-from capsul.apps_qt.qt_backend import QtGui
+from soma.qt_gui.qt_backend import QtGui
 from capsul.apps_qt.base.window import MyQUiLoader
 from controller_gui_builder import ControllerGUIBuilder
 

@@ -10,7 +10,7 @@
 import os
 import logging
 
-from capsul.apps_qt.qt_backend import QtCore, QtGui, QtWebKit
+from soma.qt_gui.qt_backend import QtCore, QtGui, QtWebKit
 
 from capsul.apps_qt.base.window import MyQUiLoader
 from capsul.apps_qt.base.pipeline_widgets import (

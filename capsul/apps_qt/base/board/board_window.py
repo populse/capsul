@@ -11,7 +11,7 @@
 import logging
 
 # Capsul import
-from capsul.apps_qt.qt_backend import QtGui
+from soma.qt_gui.qt_backend import QtGui
 from capsul.apps_qt.base.window import MyQUiLoader
 from board_gui_builder import BoardGUIBuilder
 

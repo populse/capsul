@@ -7,7 +7,7 @@
 # for details.
 ##########################################################################
 
-from capsul.apps_qt import qt_backend
+from soma.qt_gui import qt_backend
 from capsul.apps_qt.resources.icones import *
 
 

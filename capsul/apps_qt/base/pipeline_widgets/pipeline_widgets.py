@@ -8,7 +8,7 @@
 ##########################################################################
 
 from pprint import pprint
-from capsul.apps_qt.qt_backend import QtCore, QtGui
+from soma.qt_gui.qt_backend import QtCore, QtGui
 try:
     from traits.api import File
 except ImportError:

@@ -8,7 +8,7 @@
 ##########################################################################
 
 import os
-from capsul.apps_qt.qt_backend import QtCore, QtGui
+from soma.qt_gui.qt_backend import QtCore, QtGui
 from observable import Observable
 
 

@@ -14,7 +14,7 @@ import tempfile
 from subprocess import check_call
 
 # Qt import
-from capsul.apps_qt.qt_backend import QtCore, QtGui
+from soma.qt_gui.qt_backend import QtCore, QtGui
 
 
 class PipelineUserView(QtGui.QWidget):
