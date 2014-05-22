@@ -33,7 +33,8 @@ from config_utils import find_spm, environment
 from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline import Pipeline
 from capsul.process import Process
-from run_with_cache import _joblib_run_process, _run_process
+from run import _run_process
+from run_with_cache import _joblib_run_process
 from capsul.pipeline.pipeline_workflow \
     import workflow_from_pipeline, local_workflow_run
 
