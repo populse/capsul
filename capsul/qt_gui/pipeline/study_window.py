@@ -4,7 +4,7 @@ if __name__ == '__main__':
     set_qt_backend('PyQt4')
 from soma.qt_gui.qt_backend import QtGui, QtCore, getOpenFileName
 from soma.gui.widget_controller_creation import ControllerWidget
-from soma.gui.pipeline.display_database import DisplayBDD
+from soma.gui.pipeline.display_database import ProcessDatabaseWidget
 from soma.application import Application 
 from soma.pipeline.study import Study
 from capsul.qt_gui.pipeline.process_with_fom_widget import ProcessWithFomWidget
@@ -148,7 +148,7 @@ class StudyWindow(QtGui.QMainWindow):
 
     def on_display_database(self):
         process = self.get_process()
-        self.display_database = DisplayBDD(process)
+        self.display_database = ProcessDatabaseWidget(process)
         self.display_database.open()
 
 
