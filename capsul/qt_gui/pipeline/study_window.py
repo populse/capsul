@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+if __name__ == '__main__':
+    from soma.qt_gui.qt_backend import set_qt_backend
+    set_qt_backend('PyQt4')
 from soma.qt_gui.qt_backend import QtGui, QtCore, getOpenFileName
 from soma.gui.widget_controller_creation import ControllerWidget
 from soma.gui.pipeline.display_database import DisplayBDD
@@ -153,3 +156,17 @@ class StudyWindow(QtGui.QMainWindow):
         """This will be automatic"""
         return get_process_instance(str(Study.get_instance().process))
 
+
+if __name__ == '__main__':
+    import sys
+    soma_app = Application( 'soma.fom', '1.0' )
+    # Register module to load and call functions before and/or after
+    # initialization
+    soma_app.plugin_modules.append( 'soma.fom' )
+    # Application initialization (e.g. configuration file may be read here)
+    soma_app.initialize()
+
+    app = QtGui.QApplication( sys.argv )
+    w = StudyWindow()
+    w.show()
+    app.exec_()
