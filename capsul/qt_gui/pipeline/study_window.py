@@ -108,7 +108,7 @@ class StudyWindow(QtGui.QMainWindow):
             self.on_page_changed)
         self.first_page = IterationGui()
         self.wizard.addPage(self.first_page)
-        self.second_page = ChoiceParameters(process,process_with_fom)
+        self.second_page = ChoiceParameters(process, process_with_fom)
         self.connect(self.wizard.button(3), QtCore.SIGNAL('clicked()'),
             process_with_fom.iteration_run)
         self.wizard.addPage(self.second_page)
