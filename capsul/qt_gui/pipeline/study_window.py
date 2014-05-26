@@ -9,7 +9,8 @@ from capsul.qt_gui.pipeline.process_database_widget \
 from soma.application import Application 
 from soma.pipeline.study import Study
 from capsul.qt_gui.pipeline.process_with_fom_widget import ProcessWithFomWidget
-from soma.gui.pipeline.iteration_gui import IterationGui, ChoiceParameters
+from capsul.qt_gui.pipeline.process_iteration_gui \
+    import ProcessIterationGui, ProcessParametersTable
 from capsul.process import get_process_instance
 from capsul.process.process_with_fom import ProcessWithFom
 import subprocess
@@ -106,9 +107,9 @@ class StudyWindow(QtGui.QMainWindow):
         self.wizard.setButtonText(3, 'Run all')
         self.connect(self.wizard, QtCore.SIGNAL('currentIdChanged( int )'),
             self.on_page_changed)
-        self.first_page = IterationGui()
+        self.first_page = ProcessIterationGui()
         self.wizard.addPage(self.first_page)
-        self.second_page = ChoiceParameters(process, process_with_fom)
+        self.second_page = ProcessParametersTable(process, process_with_fom)
         self.connect(self.wizard.button(3), QtCore.SIGNAL('clicked()'),
             process_with_fom.iteration_run)
         self.wizard.addPage(self.second_page)
