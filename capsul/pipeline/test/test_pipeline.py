@@ -20,11 +20,11 @@ class DummyProcess(Process):
         super(DummyProcess, self).__init__()
 
         # inputs
-        self.add_trait("input_image", File(optional=True))
+        self.add_trait("input_image", File(optional=False))
         self.add_trait("other_input", Float(optional=True))
 
         # outputs
-        self.add_trait("output_image", File(optional=True, output=True))
+        self.add_trait("output_image", File(optional=False, output=True))
         self.add_trait("other_output", Float(optional=True, output=True))
 
     def __call__(self):
@@ -38,7 +38,9 @@ class MyPipeline(Pipeline):
 
         # Create processes
         self.add_process("constant",
-            "capsul.pipeline.test.test_pipeline.DummyProcess")
+            "capsul.pipeline.test.test_pipeline.DummyProcess",
+            do_not_export=['input_image', 'other_input'],
+            make_optional=['input_image', 'other_input'],)
         self.add_process("node1",
             "capsul.pipeline.test.test_pipeline.DummyProcess")
         self.add_process("node2",
@@ -89,7 +91,7 @@ if __name__ == "__main__":
 
     app = QtGui.QApplication(sys.argv)
     pipeline = MyPipeline()
-    #setattr(pipeline.nodes_activation, "node1", False)
+    setattr(pipeline.nodes_activation, "node2", False)
     view1 = PipelineDevelopperView(pipeline)
     view1.show()
     app.exec_()

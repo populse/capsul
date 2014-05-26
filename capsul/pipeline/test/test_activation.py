@@ -20,11 +20,11 @@ class DummyProcess(Process):
         super(DummyProcess, self).__init__()
 
         # inputs
-        self.add_trait("input_image", File(optional=True))
+        self.add_trait("input_image", File(optional=False))
         self.add_trait("other_input", Float(optional=True))
 
         # outputs
-        self.add_trait("output_image", File(optional=True, output=True))
+        self.add_trait("output_image", File(optional=False, output=True))
         self.add_trait("other_output", Float(optional=True, output=True))
 
     def __call__(self):
@@ -38,13 +38,15 @@ class MyPipeline(Pipeline):
 
         # Create processes
         self.add_process("way11",
-            "capsul.pipeline.test.test_pipeline.DummyProcess")
+            DummyProcess)
         self.add_process("way12",
-            "capsul.pipeline.test.test_pipeline.DummyProcess")
+            DummyProcess)
         self.add_process("way21",
-            "capsul.pipeline.test.test_pipeline.DummyProcess")
+            DummyProcess)
         self.add_process("way22",
-            "capsul.pipeline.test.test_pipeline.DummyProcess")
+            DummyProcess,
+            do_not_export=['output_image' ],
+            make_optional=['output_image'])
 
         # Inputs
         self.export_parameter("way11", "input_image")
@@ -55,7 +57,7 @@ class MyPipeline(Pipeline):
         self.add_link("way21.output_image->way22.input_image")
 
         # Outputs
-        self.export_parameter("way12", "output_image")
+        self.export_parameter("way12", "output_image", is_optional=True)
         self.export_parameter("way22", "other_output")
 
 
@@ -84,6 +86,9 @@ class TestPipeline(unittest.TestCase):
     def test_full_desactivation(self):
         setattr(self.pipeline.nodes_activation, "way11", False)
         setattr(self.pipeline.nodes_activation, "way21", False)
+
+        self.assertFalse(self.pipeline.nodes["way11"].enabled)
+        self.assertFalse(self.pipeline.nodes["way21"].enabled)
         self.assertFalse(self.pipeline.nodes["way11"].activated)
         self.assertFalse(self.pipeline.nodes["way12"].activated)
         self.assertFalse(self.pipeline.nodes["way21"].activated)

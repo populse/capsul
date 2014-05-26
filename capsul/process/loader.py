@@ -106,8 +106,8 @@ def get_process_instance(process_or_id, **kwargs):
         for name, value in kwargs.iteritems():
             result.set_parameter(name, value)
 
-    elif isinstance(process_or_id,type) and issubclass(process_or_id,Process):
-      return get_process_instance(process_or_id(),**kwargs)
+    elif isinstance(process_or_id,type) and issubclass(process_or_id, Process):
+        return get_process_instance(process_or_id(), **kwargs)
     else:
         raise ValueError("Invalid process_or_id argument. "
                          "Got '{0}' and expect a Process instance/string "

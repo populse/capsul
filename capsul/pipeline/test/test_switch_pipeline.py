@@ -25,8 +25,8 @@ class DummyProcess(Process):
         self.add_trait("other_input", Float(optional=True))
 
         # outputs
-        self.add_trait("output_image", Str(optional=True, output=True))
-        self.add_trait("other_output", Float(optional=True, output=True))
+        self.add_trait("output_image", Str(optional=False, output=True))
+        self.add_trait("other_output", Float(optional=False, output=True))
 
     def _run_process(self):
         self.output_image = self.input_image
@@ -75,13 +75,16 @@ class SwitchPipeline(Pipeline):
 
         # Outputs
         self.export_parameter("node", "other_output",
-                              pipeline_parameter="hard_output")
+                              pipeline_parameter="hard_output",
+                              is_optional=True)
         self.export_parameter("way21", "other_output",
                               pipeline_parameter="weak_output_1",
-                              weak_link=True)
+                              weak_link=True,
+                              is_optional=True)
         self.export_parameter("way22", "other_output",
                               pipeline_parameter="weak_output_2",
-                              weak_link=True)
+                              weak_link=True,
+                              is_optional=True)
         self.export_parameter("switch", "switch_image",
                               pipeline_parameter="result_image")
         self.export_parameter("switch", "switch_output",

@@ -445,18 +445,18 @@ class Switch(Node):
             the new option
         """
         self.__block_output_propagation = True
+        self.pipeline._disable_update_nodes_and_plugs_activation = True
         # deactivate the plugs associated with the old option
         old_plug_names = ["{0}_switch_{1}".format(old_selection, plug_name)
                           for plug_name in self._outputs]
         for plug_name in old_plug_names:
-            self.plugs[plug_name].activated = False
             self.plugs[plug_name].enabled = False
+        self.pipeline._disable_update_nodes_and_plugs_activation = False
 
         # activate the plugs associated with the new option
         new_plug_names = ["{0}_switch_{1}".format(new_selection, plug_name)
                           for plug_name in self._outputs]
         for plug_name in new_plug_names:
-            self.plugs[plug_name].activated = True
             self.plugs[plug_name].enabled = True
 
         # refresh the pipeline
