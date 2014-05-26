@@ -420,13 +420,38 @@ class PipelineScene(QtGui.QGraphicsScene):
 
 
 class PipelineDevelopperView(QtGui.QGraphicsView):
-    # Signal emitted when a sub pipeline has to be open.
+    '''
+    Pipeline representation as a graph, using boxes and arrows.
+
+    Based on Qt QGraphicsView, this can be used as a Qt QWidget.
+
+    Qt signals are emitted on a right click on a node box, and on a double 
+    click on a sub-pipeline box, to allow handling at a higher level. Default
+    behaviors can be enabled using constructor parameters.
+    '''
     subpipeline_clicked = QtCore.Signal(str, Process)
-    # Signal emitted when a node box is right-clicked
+    '''Signal emitted when a sub pipeline has to be open.'''
     node_right_clicked = QtCore.Signal(str, Controller)
+    '''Signal emitted when a node box is right-clicked'''
 
     def __init__(self, pipeline, parent=None, show_sub_pipelines=False,
             allow_open_controller=False):
+        '''
+        Parameters
+        ----------
+        pipeline:  Pipeline (mandatory)
+            pipeline object to be displayed
+        parent:  QWidget (optional)
+            parent widget
+        show_sub_pipelines:  bool (optional)
+            if set, sub-pipelines will appear as red/pink boxes and a double 
+            click on one of them will open another window with the sub-pipeline
+            structure in it
+        allow_open_controller:  bool (optional)
+            if set, a right click on any box will open another window with the
+            underlying node controller, allowing to see and edit parameters
+            values, switches states, etc.
+        '''
         super(PipelineDevelopperView, self).__init__(parent)
         self.scene = None
         self._show_sub_pipelines = show_sub_pipelines

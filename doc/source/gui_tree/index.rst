@@ -9,33 +9,6 @@ the docstrings.
 
 .. _capsul_gui_ref:
 
-:mod:`capsul.apps_qt.qt_backend`
-================================
-
-.. automodule:: capsul.apps_qt.qt_backend
-   :no-members:
-   :no-inherited-members:
-
-**User guide:** See the :ref:`capsul_guide` section for further details.
-
-.. currentmodule:: capsul.apps_qt.qt_backend
-
-Functions
----------
-.. autosummary::
-    :toctree: generated/capsul-apps/
-    :template: function.rst
-
-    set_qt_backend
-    get_qt_backend
-    get_qt_module
-    import_qt_submodule
-    loadUi
-    getOpenFileName
-    getSaveFileName
-    init_matplotlib_backend
-
-
 :mod:`capsul.apps_qt`: Application
 ==================================
 
@@ -141,10 +114,30 @@ Classes
     :toctree: generated/capsul-apps-base-widget/
     :template: class.rst
 
-    full_pipeline_widgets.PipelineView
+    full_pipeline_widgets.PipelineDevelopperView
     pipeline_widgets.PipelineView
-    workflow_widget.WorkflowViewer
+    workflow_widget.PipelineUserView
 
+
+:mod:`capsul.qt_gui`: Graphical elements and widgets for CAPSUL pipelines
+=========================================================================
+
+.. automodule:: capsul.qt_gui
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: capsul.qt_gui
+
+Classes
+-------
+.. autosummary::
+    :toctree: generated/capsul-qt_gui/
+    :template: class.rst
+
+    pipeline.process_with_fom_widget.ProcessWithFomWidget
+    pipeline.study_window.StudyWindow
+    pipeline.process_database_widget.ProcessDatabaseWidget
+    pipeline.process_iteration_gui.ProcessIterationGui
 
 
 

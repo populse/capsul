@@ -18,7 +18,9 @@ from soma.qt_gui.qt_backend import QtCore, QtGui
 
 
 class PipelineUserView(QtGui.QWidget):
-    """ A widget to visualize a pipeline as a simple workflow
+    """ A widget to visualize a pipeline as a simple workflow.
+
+    Uses Graphviz `dot` tool.
     """
     def __init__(self, pipeline):
         """ Initialize the WorkflowViewer class

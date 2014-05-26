@@ -46,13 +46,33 @@ Plug
 
     pipeline.Plug
 
+Workflow conversion
+-------------------
+.. autosummary::
+    :toctree: generated/capsul-pipeline/
+    :template: function.rst
+
+    pipeline_workflow.workflow_from_pipeline
+    pipeline_workflow.local_workflow_run
+
+Nodes sorting (lower level)
++++++++++++++++++++++++++++
+Pipeline nodes sorting and workflow helper
+
+.. autosummary::
+    :toctree: generated/capsul-pipeline/
+    :template: class.rst
+
+    topological_sort.Graph
+    topological_sort.GraphNode
+
 
 :mod:`capsul.process`: Process
 ===============================
 
 .. automodule:: capsul.process
-   :no-members:
-   :no-inherited-members:
+    :no-members:
+    :no-inherited-members:
 
 **User guide:** See the :ref:`capsul_guide` section for further details.
 
@@ -66,6 +86,7 @@ Classes
     :template: class_process.rst
 
     process.Process
+    nipype_process.NipypeProcess
 
     :template: class.rst
 
