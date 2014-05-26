@@ -170,5 +170,8 @@ if __name__ == '__main__':
 
     app = QtGui.QApplication( sys.argv )
     w = StudyWindow()
+    if len(sys.argv) >= 2:
+        study_file = sys.argv[1]
+        Study.get_instance().load(study_file)
     w.show()
     app.exec_()
