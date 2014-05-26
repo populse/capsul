@@ -4,7 +4,8 @@ if __name__ == '__main__':
     set_qt_backend('PyQt4')
 from soma.qt_gui.qt_backend import QtGui, QtCore, getOpenFileName
 from soma.gui.widget_controller_creation import ControllerWidget
-from soma.gui.pipeline.display_database import ProcessDatabaseWidget
+from capsul.qt_gui.pipeline.process_database_widget \
+    import ProcessDatabaseWidget
 from soma.application import Application 
 from soma.pipeline.study import Study
 from capsul.qt_gui.pipeline.process_with_fom_widget import ProcessWithFomWidget
@@ -48,8 +49,9 @@ class StudyWindow(QtGui.QMainWindow):
         self.btn_run_pipeline_process = QtGui.QPushButton('View pipeline')
         #Launch Iteration process
         self.btn_iterate_process = QtGui.QPushButton('Iteration')
-        #Launch display BDD
-        self.btn_display_database=QtGui.QPushButton('Database view')
+        #Launch display DB
+        self.btn_display_database=QtGui.QPushButton(
+            'Database view (for outputs)')
 
         self.vbox.addWidget(self.btn_show_process)
         self.vbox.addWidget(self.btn_run_pipeline_process)
