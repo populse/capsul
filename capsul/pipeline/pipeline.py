@@ -170,6 +170,9 @@ class Pipeline(Process):
 
         # Create a process node
         process = get_process_instance(process, **kwargs)
+        for i in kwargs:
+            if process.trait(i):
+                make_optional.add(i)
         if isinstance(process, Pipeline):
             node = process.pipeline_node
             node.name = name
@@ -562,7 +565,7 @@ class Pipeline(Process):
         # output plugs. Node is supposed to be activated when this
         # function is called.
         activations_modified = False
-        if node.activated:
+        if node.activated and node is not self.pipeline_node:
             #print '!bacward_deactivations!', ('<?>' if force_plug_output is None else ('->' if force_plug_output else '<-')), node.name, getattr(node,'process',None) or node
             for plug_name, plug in node.plugs.iteritems():
                 if plug.activated:
