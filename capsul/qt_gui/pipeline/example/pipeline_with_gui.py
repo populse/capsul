@@ -161,16 +161,16 @@ class Morphologist(Pipeline):
         self.add_process('bias_correction', BiasCorrection())
 
         self.add_process(
-            'spm_normalization', 'soma.pipeline.sandbox.SPMNormalization')
+            'spm_normalization', SPMNormalization)
         self.export_parameter('spm_normalization', 'template')
         self.add_link('t1mri->spm_normalization.image')
         # self.add_link(
         # 'spm_normalization.normalized->select_normalization.spm-t1mri' )
         self.export_parameter('spm_normalization', 'normalized')
 
-        self.add_process('fsl_convert', 'soma.pipeline.sandbox.ConvertForFSL')
+        self.add_process('fsl_convert', ConvertForFSL)
         self.add_process(
-            'fsl_normalization', 'soma.pipeline.sandbox.FSLNormalization', 
+            'fsl_normalization', FSLNormalization, 
             do_not_export=['normalized'])
         self.add_link('t1mri->fsl_convert.input')
         self.add_link('template->fsl_normalization.template')
@@ -180,9 +180,9 @@ class Morphologist(Pipeline):
 #    self.export_parameter( 'fsl_normalization', 'another', weak=True )
 
         self.add_process(
-            'another_convert', 'soma.pipeline.sandbox.ConvertForAnother')
+            'another_convert', ConvertForAnother)
         self.add_process(
-            'another_normalization', 'soma.pipeline.sandbox.AnotherNormalization', do_not_export=['normalized'])
+            'another_normalization', AnotherNormalization, do_not_export=['normalized'])
         self.add_link('t1mri->another_convert.input')
         self.add_link('template->another_normalization.template')
         self.add_link('another_convert.output->another_normalization.image')
