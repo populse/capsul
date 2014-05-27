@@ -164,31 +164,31 @@ class Morphologist(Pipeline):
             'spm_normalization', SPMNormalization)
         self.export_parameter('spm_normalization', 'template')
         self.add_link('t1mri->spm_normalization.image')
-        # self.add_link(
-        # 'spm_normalization.normalized->select_normalization.spm-t1mri' )
-        self.export_parameter('spm_normalization', 'normalized')
+        self.add_link(
+          'spm_normalization.normalized->select_normalization.spm_switch_t1mri' )
+        self.export_parameter('spm_normalization', 'normalized', weak_link=True)
 
         self.add_process('fsl_convert', ConvertForFSL)
         self.add_process(
-            'fsl_normalization', FSLNormalization, 
-            do_not_export=['normalized'])
+            'fsl_normalization', FSLNormalization)
         self.add_link('t1mri->fsl_convert.input')
         self.add_link('template->fsl_normalization.template')
         self.add_link('fsl_convert.output->fsl_normalization.image')
-        self.export_parameter('fsl_convert', 'output', 'fsl_converted')
-        # self.add_link('fsl_normalization.normalized->select_normalization.fsl-t1mri')
-#    self.export_parameter( 'fsl_normalization', 'another', weak=True )
+        self.export_parameter('fsl_convert', 'output', 'fsl_converted', weak_link=True)
+        self.add_link('fsl_normalization.normalized->select_normalization.fsl_switch_t1mri')
+        #self.export_parameter( 'fsl_normalization', 'another', weak_link=True )
 
         self.add_process(
             'another_convert', ConvertForAnother)
         self.add_process(
-            'another_normalization', AnotherNormalization, do_not_export=['normalized'])
+            'another_normalization', AnotherNormalization)
+        self.add_link('another_normalization.normalized->normalized',weak_link=True)
         self.add_link('t1mri->another_convert.input')
         self.add_link('template->another_normalization.template')
         self.add_link('another_convert.output->another_normalization.image')
-        # self.add_link('another_normalization.normalized->select_normalization.another-t1mri')
+        self.add_link('another_normalization.normalized->select_normalization.another_switch_t1mri')
 
-        # self.add_link( 't1mri->select_normalization.none-t1mri' )
+        self.add_link( 't1mri->select_normalization.none_switch_t1mri' )
 
         self.add_link('select_normalization.t1mri->bias_correction.t1mri')
         self.export_parameter('bias_correction', 'nobias')
@@ -303,9 +303,6 @@ if __name__ == '__main__':
     view1 = PipelineDevelopperView(morphologist, show_sub_pipelines=True,
                                    allow_open_controller=True)
     view1.show()
-    view2 = PipelineDevelopperView(GreyWhite())
-    view2.show()
-
     cw = ControllerWidget(morphologist, live=True)
     cw.show()
 
@@ -325,5 +322,4 @@ if __name__ == '__main__':
     app.exec_()
     #  morphologist.workflow_graph().write( sys.stdout )
     del view1
-    del view2
     del view3
