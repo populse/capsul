@@ -368,7 +368,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                 pipeline_inputs[name] = plug
         if pipeline_inputs:
             self.add_node(
-                'inputs', NodeGWidget('inputs', pipeline_inputs, active=True,
+                'inputs', NodeGWidget('inputs', pipeline_inputs, active=pipeline.pipeline_node.activated,
                     process=pipeline))
         for node_name, node in pipeline.nodes.iteritems():
             if not node_name:
@@ -398,7 +398,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         if pipeline_outputs:
             self.add_node(
                 'outputs', NodeGWidget('outputs', pipeline_outputs,
-                                       active=True, process=pipeline))
+                                       active=pipeline.pipeline_node.activated, process=pipeline))
 
         for source_node_name, source_node in pipeline.nodes.iteritems():
             for source_parameter, source_plug in source_node.plugs.iteritems():

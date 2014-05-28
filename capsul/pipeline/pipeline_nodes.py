@@ -36,9 +36,11 @@ class Plug(Controller):
         parameter to set the Plug type (input or output)
     optional : bool
         parameter to create an optional Plug
-    links_to : set (node, plug)
+    has_default_value : bool
+        indicate if a value is available for that plug even if its not linked
+    links_to : set (node_name, plug_name, node, plug, is_weak)
         the successor plugs of this  plug
-    links_from : set (node, plug)
+    links_from : set (node_name, plug_name, node, plug, is_weak)
         the predecessor plugs of this plug
     """
     enabled = Bool(default_value=True)
@@ -57,6 +59,9 @@ class Plug(Controller):
         # A link is a tuple of the form (node, plug)
         self.links_to = set()
         self.links_from = set()
+        # The has_default value flag can be set by setting a value for a
+        # parameter in Pipeline.add_process
+        self.has_default_value = False
 
 
 class Node(Controller):
@@ -66,6 +71,8 @@ class Node(Controller):
     ----------
     name : str
         the node name
+    full_name : str
+        a unique name among all nodes and sub-nodes of the top level pipeline 
     enabled : bool
         user parameter to control the node activation
     activated : bool
@@ -142,7 +149,14 @@ class Node(Controller):
         # add an event on the Node instance traits to validate the pipeline
         self.on_trait_change(pipeline.update_nodes_and_plugs_activation,
                              "enabled")
-
+    
+    @property
+    def full_name(self):
+        if self.pipeline.parent_pipeline:
+            return self.pipeline.pipeline_node.full_name + '.' + self.name
+        else:
+            return self.name
+    
     def connect(self, source_plug_name, dest_node, dest_plug_name):
         """ Connect linked plugs of two nodes
 
@@ -351,7 +365,6 @@ class PipelineNode(ProcessNode):
     """ A special node to store the pipeline user-parameters
     """
     pass
-
 
 class Switch(Node):
     """ Switch node to select a specific Process.
