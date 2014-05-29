@@ -9,6 +9,7 @@
 
 import unittest
 import os
+import json
 from traits.api import Str
 from capsul.process import Process
 from capsul.pipeline import Pipeline, PipelineNode
@@ -186,20 +187,47 @@ class MainTestPipeline(Pipeline):
                               'way2_1': (376.0, 246.0),
                               'way2_2': (507.0, 296.0)}
 
+class TestSwitchPipeline(unittest.TestCase):
+
+    def setUp(self):
+        self.maxDiff = None
+        self.pipeline = MainTestPipeline()
+
+    def load_state(self, file_name):
+        file_name = os.path.join(os.path.dirname(__file__), file_name + '.json')
+        return json.load(open(file_name))
+    
+    def test_self_state(self):
+        # verify that the state of a pipeline does not generate differences
+        # when compared to itself
+        state = self.pipeline.pipeline_state()
+        self.assertEqual(self.pipeline.compare_to_state(state),[])
+
+    def test_switch_value(self):
+        state_one = self.load_state('test_switch_subpipeline_one')    
+        state_two = self.load_state('test_switch_subpipeline_two')
+        self.pipeline.which_way = 'two'
+        self.assertEqual(self.pipeline.compare_to_state(state_two),[])
+        self.pipeline.which_way = 'one'
+        self.assertEqual(self.pipeline.compare_to_state(state_one),[])
 
 
+def test():
+    """ Function to execute unitest
+    """
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestSwitchPipeline)
+    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
+    return runtime.wasSuccessful()
 
-
-#def test():
-    #""" Function to execute unitest
-    #"""
-    #suite = unittest.TestLoader().loadTestsFromTestCase(TestSwitchPipeline)
-    #runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    #return runtime.wasSuccessful()
 
 
 if __name__ == "__main__":
-    #print "RETURNCODE: ", test()
+    print "RETURNCODE: ", test()
+
+    def write_state():
+        state_file_name = '/tmp/state.json'
+        json.dump(pipeline.pipeline_state(), open(state_file_name,'w'))
+        print 'Wrote', state_file_name
 
     import sys
     #from PySide import QtGui
@@ -210,15 +238,12 @@ if __name__ == "__main__":
 
     app = QtGui.QApplication(sys.argv)
     pipeline = get_process_instance(MainTestPipeline)
-    state = pipeline.pipeline_state()
-    pipeline.nodes_activation.way1_1 = False
-    for d in pipeline.compare_to_state(state):
-        print d
-    #view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True, allow_open_controller=True)
-    #view1.show()
+    pipeline.on_trait_change(write_state,'selection_changed')
+    view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True, allow_open_controller=True)
+    view1.show()
     #view2 = PipelineUserView(pipeline)
     #view2.show()
-    #app.exec_()
-    #del view1
+    app.exec_()
+    del view1
     #del view2
 

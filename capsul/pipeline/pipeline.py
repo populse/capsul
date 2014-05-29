@@ -727,7 +727,7 @@ class Pipeline(Process):
         for node in self.all_nodes():
             if isinstance(node, PipelineNode):
                 node.process.selection_changed = True
-
+            
     def workflow_graph(self):
         """ Generate a workflow graph
 
@@ -781,8 +781,7 @@ class Pipeline(Process):
                 else:
                     graph.add_node(GraphNode(node_name, [node.process]))
 
-                # Add node edges (Successor: direct=True and
-                # Predecessor: direct=False)
+                # Add node edges
                 for plug_name, plug in node.plugs.iteritems():
                     if plug.activated:
                         insert(self, node_name, plug, dependencies)
