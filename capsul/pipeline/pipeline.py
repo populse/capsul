@@ -524,8 +524,9 @@ class Pipeline(Process):
         
         Returns
         -------
-        can_be_activated: Bool
-            True if at least a plug has been activated.
+        plugs_activated: list
+            list of (plug_name,plug) containing all plugs that have been
+            activated
         '''
         plugs_activated = []
         # If a node is disabled, it will never be activated
@@ -533,12 +534,15 @@ class Pipeline(Process):
             # Try to activate input plugs
             node_activated = True
             if node is self.pipeline_node:
+                # For the top-level pipeline node, all enabled plugs
+                # are activated
                 for plug_name, plug in node.plugs.iteritems():
                     if plug.enabled:
                         if not plug.activated:
                             plug.activated = True
                             plugs_activated.append((plug_name, plug))
             else:
+                # Look for input plugs that can be activated
                 for plug_name, plug in node.plugs.iteritems():
                     if plug.output:
                         # ignore output plugs
@@ -555,16 +559,12 @@ class Pipeline(Process):
                                     plug.activated = True
                                     plugs_activated.append((plug_name,plug))
                                     break
-                    # If the plug is not activated, is mandatory and must be
-                    # exported, the whole node is deactivated
-                    if not plug.activated and not (plug.optional or
-                        (node.name, node) in node.pipeline.do_not_export):
+                    # If the plug is not activated and is not optional the
+                    # whole node is deactivated
+                    if not plug.activated and not plug.optional:
                         node_activated = False
-                        #plugs_activated = []
-                        #break
             if node_activated:
-                if not node.activated:
-                    node.activated = True
+                node.activated = True
                 # If node is activated, activate enabled output plugs
                 for plug_name, plug in node.plugs.iteritems():
                     if plug.output and plug.enabled:
@@ -574,15 +574,39 @@ class Pipeline(Process):
         return plugs_activated
         
     def _check_local_node_deactivation(self, node, force_plug_output):
-        # Desactivate node (and its plugs) according only to links to its
-        # output plugs. Node is supposed to be activated when this
-        # function is called.
+        '''Check plugs that have to be deactivated according to node
+        activation state and to the state of its direct neighbouring nodes.
+
+        Parameters
+        ----------
+        node: Node (mandatory)
+            node to check
+        force_plug_output: Bool or None
+            If True, all plugs are considered as output and plug.links_to is
+            used to assess plug connectivity
+            If False, all plugs are considered as input and plug.links_from is
+            used to assess plug connectivity
+            If None, each plug is considered as input or output according to
+            its plug.output attribute
+        
+        Returns
+        -------
+        plugs_deactivated: list
+            list of (plug_name,plug) containing all plugs that have been
+            deactivated
+        '''
         plugs_deactivated = []
+        # If node has already been  deactivated there is nothing to do
         if node.activated:
             for plug_name, plug in node.plugs.iteritems():
+                # Check all activated plugs
                 if plug.activated:
+                    # A plug with a default value is always activated
                     if plug.has_default_value:
                         continue
+                    
+                    # Select plug.links_to or plugs.links_from according to
+                    # force_plug_output parameter
                     if force_plug_output is None:
                         output = plug.output
                         if node is self.pipeline_node:
@@ -593,7 +617,17 @@ class Pipeline(Process):
                         links = plug.links_to
                     else:
                         links = plug.links_from
+                    
+                    # After th next fo loop, plug_activated can have three
+                    # values:
+                    #  True  if there is a non weak link connected to an 
+                    #        activated plug
+                    #  False if there are non weak links that ar all connected
+                    #        to inactive plugs
+                    #  None if there is no non weak links
                     plug_activated = None
+                    # weak_activation will be True if there is at least one
+                    # weak link connected to an activated plug
                     weak_activation = False
                     for nn, pn, n, p, weak_link in links:
                         if weak_link:
@@ -604,33 +638,33 @@ class Pipeline(Process):
                                 break
                             else:
                                 plug_activated = False
+                    
                     if plug_activated is None:
-                        # plug is connected only with weak links
+                        # plug is connected only with weak links therefore
+                        # they are used to define its activation state
                         plug_activated = weak_activation
+                    
+                    # Plug must be deactivated, record it in result and check
+                    # if this deactivation also deactivate the node
                     if not plug_activated:
                         plug.activated = False
                         plugs_deactivated.append(('%s[%s]' % (plug_name,repr(force_plug_output)), plug))
                         if not (plug.optional or
-                                (node.name, node) in node.pipeline.do_not_export or
                                 node is self.pipeline_node):
                             node.activated = False
                             break
         return plugs_deactivated
 
     def update_nodes_and_plugs_activation(self):
-        """Reset all nodes and plugs activations according to the current state
+        '''Reset all nodes and plugs activations according to the current state
         of the pipeline (i.e. switch selection, nodes disabled, etc.).
         Activations are set according to the following rules.
-        1) A node is not activated if it is not enabled.
-        2) A plug is not activated if it is not enabled
-        3)
-        """
+        '''
         if self._disable_update_nodes_and_plugs_activation:
             return
         if not hasattr(self, 'parent_pipeline'):
             # self is being initialized (the call comes from self.__init__).
             return
-         
         if self.parent_pipeline is not None:
             # Only the top level pipeline can manage activations
             self.parent_pipeline.update_nodes_and_plugs_activation()
@@ -638,6 +672,7 @@ class Pipeline(Process):
         
         #print '!'
         #print '!update_nodes_and_plugs_activation!', self.id
+        
         # Remember all links that are inactive (i.e. at least one of the two
         # plugs is inactive) in order to execute a callback if they become
         # active (see at the end of this method)
@@ -656,8 +691,9 @@ class Pipeline(Process):
                 plug.activated = False
 
         # Forward activation : try to activate nodes (and their input plugs) and
-        # propagate activations to output plugs and to nodes connected to
-        # output plugs.
+        # propagate activations neighbours of activated plugs
+        
+        # Starts iterations with all nodes
         nodes_to_check = set(self.all_nodes())
         iteration = 1
         while nodes_to_check:
@@ -671,16 +707,23 @@ class Pipeline(Process):
             nodes_to_check = new_nodes_to_check
             iteration += 1
 
-        # Backward deactivation
+        # Backward deactivation : deactivate plugs that should not been
+        # activated and propagate deactivation to neighbouring plugs
         nodes_to_check = set(self.all_nodes())
         iteration = 1
         while nodes_to_check:
             new_nodes_to_check = set()
             for node in nodes_to_check:
                 if isinstance(node, PipelineNode) and node is not self.pipeline_node:
+                    # Pipeline nodes (except the top-level one) act as
+                    # interfaces between outputs and inputs of other nodes.
+                    # Therfore, their plugs activation must be checked for
+                    # both input and output whatever their input/output state.
                     test = self._check_local_node_deactivation(node,True) +\
                            self._check_local_node_deactivation(node,False)
                 else:
+                    # Test plugs deactivation according to their input/output
+                    # state
                     test = self._check_local_node_deactivation(node,None)
                 if test:
                     for plug_name, plug in test:
@@ -689,6 +732,9 @@ class Pipeline(Process):
                             if p.activated:
                                 new_nodes_to_check.add(n)
                     if not node.activated:
+                        # If the node has been deactivated, force deactivation
+                        # of all plugs that are still active and propagate
+                        # this deactivation to neighbours
                         for plug_name, plug in node.plugs.iteritems():
                             if plug.activated:
                                 plug.activated = False
@@ -729,7 +775,7 @@ class Pipeline(Process):
                 node.process.selection_changed = True
             
     def workflow_graph(self):
-        """ Generate a workflow graph
+        """Generate a workflow graph
 
         Returns
         -------
