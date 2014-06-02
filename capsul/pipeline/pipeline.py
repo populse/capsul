@@ -648,7 +648,7 @@ class Pipeline(Process):
                     # if this deactivation also deactivate the node
                     if not plug_activated:
                         plug.activated = False
-                        plugs_deactivated.append(('%s[%s]' % (plug_name,repr(force_plug_output)), plug))
+                        plugs_deactivated.append((plug_name, plug))
                         if not (plug.optional or
                                 node is self.pipeline_node):
                             node.activated = False
@@ -672,7 +672,11 @@ class Pipeline(Process):
         
         #print '!'
         #print '!update_nodes_and_plugs_activation!', self.id
-        
+        debug = getattr(self, '_debug_activations', None)
+        if debug:
+            debug = open(debug,'w')
+            print >> debug,self.id
+                
         # Remember all links that are inactive (i.e. at least one of the two
         # plugs is inactive) in order to execute a callback if they become
         # active (see at the end of this method)
@@ -699,11 +703,17 @@ class Pipeline(Process):
         while nodes_to_check:
             new_nodes_to_check = set()
             for node in nodes_to_check:
+                node_activated = node.activated
                 for plug_name, plug in self._check_local_node_activation(node):
+                    if debug:
+                        print >> debug, '%d+%s:%s' % (iteration, node.full_name, plug_name)
                     #print '!activations! iteration', iteration, '+++ %s:%s' % (node.full_name,plug_name)
                     for nn, pn, n, p, weak_link in plug.links_to.union(plug.links_from):
                         if not weak_link and p.enabled:
                             new_nodes_to_check.add(n)
+                if (not node_activated) and node.activated:
+                    if debug:
+                        print >> debug, '%d+%s' % (iteration, node.full_name)
             nodes_to_check = new_nodes_to_check
             iteration += 1
 
@@ -714,6 +724,7 @@ class Pipeline(Process):
         while nodes_to_check:
             new_nodes_to_check = set()
             for node in nodes_to_check:
+                node_activated = node.activated
                 if isinstance(node, PipelineNode) and node is not self.pipeline_node:
                     # Pipeline nodes (except the top-level one) act as
                     # interfaces between outputs and inputs of other nodes.
@@ -727,6 +738,8 @@ class Pipeline(Process):
                     test = self._check_local_node_deactivation(node,None)
                 if test:
                     for plug_name, plug in test:
+                        if debug:
+                            print >> debug, '%d-%s:%s' % (iteration, node.full_name, plug_name)
                         #print '!deactivations! iteration', iteration, '--- %s:%s' % (node.full_name,plug_name)
                         for nn, pn, n, p, weak_link in plug.links_from.union(plug.links_to):
                             if p.activated:
@@ -735,10 +748,14 @@ class Pipeline(Process):
                         # If the node has been deactivated, force deactivation
                         # of all plugs that are still active and propagate
                         # this deactivation to neighbours
+                        if node_activated and debug:
+                            print >> debug, '%d-%s' % (iteration, node.full_name)
                         for plug_name, plug in node.plugs.iteritems():
                             if plug.activated:
                                 plug.activated = False
                                 #print '!deactivations! iteration', iteration, '--> %s:%s' % (node.full_name,plug_name)
+                                if debug:
+                                    print >> debug, '%d=%s:%s' % (iteration, node.full_name, plug_name)
                                 for nn, pn, n, p, weak_link in plug.links_from.union(plug.links_to):
                                     if p.activated:
                                         new_nodes_to_check.add(n)
