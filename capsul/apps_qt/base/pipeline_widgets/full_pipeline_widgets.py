@@ -117,7 +117,7 @@ class Plug(QtGui.QGraphicsPolygonItem):
             self.boundingRect().size().height() / 2.0)
         return self.mapToParent(point)
 
-        
+
     def mousePressEvent(self, event):
         super(Plug, self).mousePressEvent(event)
         if event.button() == QtCore.Qt.LeftButton:
@@ -264,15 +264,15 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
             event.ignore()
 
     def mousePressEvent(self, event):
-        super(NodeGWidget, self).mousePressEvent(event)
         item = self.scene().itemAt(event.scenePos())
-        if isinstance(item,Plug):
+        if isinstance(item, Plug) and event.button() == QtCore.Qt.LeftButton:
             item.mousePressEvent(event)
-        if not event.isAccepted():
-            if event.button() == QtCore.Qt.RightButton \
-                    and self.process is not None:
-                self.scene().node_right_clicked.emit(self.name, self.process)
-                event.accept()
+            return
+        super(NodeGWidget, self).mousePressEvent(event)
+        if event.button() == QtCore.Qt.RightButton \
+                and self.process is not None:
+            self.scene().node_right_clicked.emit(self.name, self.process)
+            event.accept()
 
 
 class Link(QtGui.QGraphicsPathItem):
