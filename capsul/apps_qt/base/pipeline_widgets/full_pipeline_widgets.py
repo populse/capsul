@@ -68,9 +68,10 @@ DEEP_PURPLE_2 = QtGui.QColor.fromRgbF(0.6, 0.5, 0.6, 1)
 
 class Plug(QtGui.QGraphicsPolygonItem):
 
-    def __init__(self, height, width, activated=True, optional=False,
+    def __init__(self, name, height, width, activated=True, optional=False,
                  parent=None):
         super(Plug, self).__init__(parent)
+        self.name = name
         if optional:
             if activated:
                 color = QtCore.Qt.darkGreen
@@ -108,12 +109,20 @@ class Plug(QtGui.QGraphicsPolygonItem):
         self.setPolygon(polygon)
         self.setBrush(brush)
         self.setZValue(3)
+        self.setAcceptedMouseButtons(QtCore.Qt.LeftButton)
 
     def get_plug_point(self):
         point = QtCore.QPointF(
             self.boundingRect().size().width() / 2.0,
             self.boundingRect().size().height() / 2.0)
         return self.mapToParent(point)
+
+        
+    def mousePressEvent(self, event):
+        super(Plug, self).mousePressEvent(event)
+        if event.button() == QtCore.Qt.LeftButton:
+            self.scene().plug_clicked.emit(self.name)
+            event.accept()
 
 
 class NodeGWidget(QtGui.QGraphicsItemGroup):
@@ -185,7 +194,8 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
             if output:
                 continue
             param_name = QtGui.QGraphicsTextItem(in_param, self)
-            plug = Plug(param_name.boundingRect().size().height(),
+            plug_name = '%s:%s' % (self.name, in_param)
+            plug = Plug(plug_name,param_name.boundingRect().size().height(),
                         plug_width, activated=pipeline_plug.activated,
                         optional=pipeline_plug.optional, parent=self)
             param_name.setZValue(2)
@@ -202,7 +212,8 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
             if not output:
                 continue
             param_name = QtGui.QGraphicsTextItem(out_param, self)
-            plug = Plug(param_name.boundingRect().size().height(),
+            plug_name = '%s:%s' % (self.name, out_param)
+            plug = Plug(plug_name,param_name.boundingRect().size().height(),
                         plug_width, activated=pipeline_plug.activated,
                         optional=pipeline_plug.optional, parent=self)
             param_name.setZValue(2)
@@ -254,12 +265,14 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
 
     def mousePressEvent(self, event):
         super(NodeGWidget, self).mousePressEvent(event)
-        # item = self.itemAt(event.x(), event.y())
-        # if item is None:
-        if event.button() == QtCore.Qt.RightButton \
-                and self.process is not None:
-            self.scene().node_right_clicked.emit(self.name, self.process)
-            event.accept()
+        item = self.scene().itemAt(event.scenePos())
+        if isinstance(item,Plug):
+            item.mousePressEvent(event)
+        if not event.isAccepted():
+            if event.button() == QtCore.Qt.RightButton \
+                    and self.process is not None:
+                self.scene().node_right_clicked.emit(self.name, self.process)
+                event.accept()
 
 
 class Link(QtGui.QGraphicsPathItem):
@@ -301,6 +314,8 @@ class PipelineScene(QtGui.QGraphicsScene):
     subpipeline_clicked = QtCore.Signal(str, Process)
     # Signal emitted when a node box is right-clicked
     node_right_clicked = QtCore.Signal(str, Controller)
+    # Signal emitted when a plug is clicked
+    plug_clicked = QtCore.Signal(str)
 
     def __init__(self, parent=None):
         super(PipelineScene, self).__init__(parent)
@@ -433,6 +448,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     '''Signal emitted when a sub pipeline has to be open.'''
     node_right_clicked = QtCore.Signal(str, Controller)
     '''Signal emitted when a node box is right-clicked'''
+    plug_clicked = QtCore.Signal(str)
+    '''Signal emitted when a plug is right-clicked'''
 
     def __init__(self, pipeline, parent=None, show_sub_pipelines=False,
             allow_open_controller=False):
@@ -471,6 +488,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
         self.scene.node_right_clicked.connect(self.node_right_clicked)
         self.scene.node_right_clicked.connect(self.onOpenProcessController)
+        self.scene.plug_clicked.connect(self.plug_clicked)
         self.scene.pos = pos
         self.scene.set_pipeline(pipeline)
         self.setWindowTitle(pipeline.name)
