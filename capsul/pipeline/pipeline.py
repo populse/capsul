@@ -670,8 +670,10 @@ class Pipeline(Process):
             self.parent_pipeline.update_nodes_and_plugs_activation()
             return
         
+        self._disable_update_nodes_and_plugs_activation = True
+        
         #print '!'
-        #print '!update_nodes_and_plugs_activation!', self.id
+        #print '!update_nodes_and_plugs_activation!', self.id, self, self._disable_update_nodes_and_plugs_activation
         debug = getattr(self, '_debug_activations', None)
         if debug:
             debug = open(debug,'w')
@@ -790,6 +792,8 @@ class Pipeline(Process):
         for node in self.all_nodes():
             if isinstance(node, PipelineNode):
                 node.process.selection_changed = True
+        
+        self._disable_update_nodes_and_plugs_activation = False
             
     def workflow_graph(self):
         """Generate a workflow graph
