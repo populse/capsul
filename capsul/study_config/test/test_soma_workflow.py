@@ -8,6 +8,7 @@
 ##########################################################################
 
 from __future__ import print_function
+import sys
 import unittest
 from traits.api import File
 from capsul.study_config import StudyConfig
@@ -159,9 +160,14 @@ class TestSomaWorkflow(unittest.TestCase):
 
     def test_atomic_execution(self):
         self.atomic_pipeline.workflow_ordered_nodes()
-        self.assertIn(self.atomic_pipeline.workflow_repr,
-                      ('node1->node3->node2->node4',
-                       'node1->node2->node3->node4'))
+        if sys.version_info >= (2, 7):
+            self.assertIn(self.atomic_pipeline.workflow_repr,
+                          ('node1->node3->node2->node4',
+                          'node1->node2->node3->node4'))
+        else: # python 2.6 unittest does not have assertIn()
+            self.assertTrue(self.atomic_pipeline.workflow_repr in \
+                ('node1->node3->node2->node4',
+                'node1->node2->node3->node4'))
         self.study_config.run(self.atomic_pipeline)
 
     def test_composite_dependencies(self):
