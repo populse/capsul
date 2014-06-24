@@ -18,8 +18,8 @@ try:
         Instance, Any, Event, CTrait, Directory, Trait)
 except ImportError:
     import enthought.traits.api as traits
-    from enthought.traits.api import File, Float, Enum, Str, Int, Bool,\
-        List, Tuple, Instance, Any, Event, CTrait, Directory
+    from enthought.traits.api import (File, Float, Enum, Str, Int, Bool,
+        List, Tuple, Instance, Any, Event, CTrait, Directory)
 
 # Capsul import
 from soma.controller import Controller
@@ -27,8 +27,7 @@ from soma.sorted_dictionary import SortedDictionary
 from capsul.process import Process
 from capsul.process import get_process_instance
 from topological_sort import GraphNode, Graph
-from pipeline_nodes import Plug, ProcessNode, PipelineNode,\
-                           Switch
+from pipeline_nodes import (Plug, ProcessNode, PipelineNode, Switch)
 
 
 class Pipeline(Process):
@@ -330,6 +329,9 @@ class Pipeline(Process):
     def add_link(self, link, weak_link=False):
         """ Add a link between pipeline nodes.
 
+        If the destination node is a switch, force the source plug to be not 
+        optional.
+
         Parameters
         ----------
         link: str
@@ -345,6 +347,11 @@ class Pipeline(Process):
         (source_node_name, source_plug_name, source_node,
          source_plug, dest_node_name, dest_plug_name, dest_node,
         dest_plug) = self.parse_link(link)
+
+        # Froce the plug optional value to False if the destination node is a
+        # switch
+        if isinstance(dest_node, Switch):
+            source_plug.optional = False  
 
         # Assure that pipeline plugs are not linked
         if not source_plug.output and source_node is not self.pipeline_node:
