@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>activations_inspector</class>
+ <widget class="QWidget" name="activations_inspector">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>542</width>
+    <height>390</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Activation inspector</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QListWidget" name="events"/>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLineEdit" name="pattern"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="next">
+       <property name="text">
+        <string>&amp;Next</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="previous">
+       <property name="text">
+        <string>&amp;Previous</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnUpdate">
+       <property name="text">
+        <string>&amp;Update</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
