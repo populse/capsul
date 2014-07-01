@@ -122,7 +122,7 @@ class ProcessWithFom(Controller):
 
         self.output_atp = AttributesToPaths(
             self.output_fom,
-            selection=dict(fom_process=self.process.name),
+            selection={}, #dict(fom_process=self.process.name),
             directories=self.directories,
             prefered_formats=set((formats)))
 
@@ -281,11 +281,9 @@ class ProcessWithFom(Controller):
             # parameter otherwise other attibutes can prevent the appropriate
             # rule to match
             if parameter in process.user_traits():
-                #print 'parameter',parameter
                 if process.trait(parameter).output:
                     atp = self.output_atp
                 else:
-                    #print 'input ',parameter
                     atp = self.input_atp
                 parameter_attributes = [ 'fom_process' ] \
                     + atp.find_discriminant_attributes(
