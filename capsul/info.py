@@ -7,16 +7,23 @@
 # for details.
 ##########################################################################
 
-_version_major = 0
-_version_minor = 0
-_version_micro = 1
-_version_extra = '.dev'
+version_major = 0
+version_minor = 0
+version_micro = 1
+version_extra = '.dev'
+
+# The following variables are here for backward compatibility in order to
+# ease a transition for bv_maker users. They will be removed in a few days.
+_version_major = version_major
+_version_minor = version_minor
+_version_micro = version_micro
+_version_extra = version_extra
 
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
-__version__ = "%s.%s.%s%s" % (_version_major,
-                              _version_minor,
-                              _version_micro,
-                              _version_extra)
+__version__ = "%s.%s.%s%s" % (version_major,
+                              version_minor,
+                              version_micro,
+                              version_extra)
 CLASSIFIERS = ["Development Status :: 1 - Planning",
                "Environment :: Console",
                "Operating System :: OS Independent",
@@ -53,10 +60,7 @@ CLASSIFIERS = CLASSIFIERS
 AUTHOR = "CAPSUL developers"
 AUTHOR_EMAIL = "antoine.grigis@cea.fr"
 PLATFORMS = "OS Independent"
-MAJOR = _version_major
-MINOR = _version_minor
-MICRO = _version_micro
-ISRELEASE = _version_extra == ''
+ISRELEASE = version_extra == ''
 VERSION = __version__
 PROVIDES = ["capsul"]
 REQUIRES = ["nipype=={0}".format(NIPYPE_VERSION)]
