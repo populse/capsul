@@ -8,9 +8,9 @@ except ImportError:
 from soma.controller import Controller
 from capsul.pipeline import Pipeline
 from soma.application import Application
-from soma.fom import PathToAttributes, AttributesToPaths, DirectoryAsDict
+from soma.fom import DirectoryAsDict
 from soma.path import split_path
-from soma.pipeline.study import Study
+from capsul.study_config.study_config2 import StudyConfig
 
 
 class ProcessWithFom(Controller):
@@ -27,25 +27,29 @@ class ProcessWithFom(Controller):
         soma_app.plugin_modules.append( 'soma.fom' )
         soma_app.initialize()
 
-    * A Study also needs to be configured with selected FOMS and directories:
+    * A StudyConfig also needs to be configured with selected FOMS and directories:
 
     ::
 
-        from soma.pipeline.study import Study
-        study = Study.get_instance()
-        study.load('study_config.json')
+        from capsul.study_config.study_config2 import StudyConfig
+        from capsul.study_config.study_config_fom import StudyConfigFomManager
+        study_config = StudyConfig()
+        study_config.load('study_config.json')
+        StudyConfigFomManager.check_and_update_foms(study_config)
 
     * Only then a ProcessWithFom can be created:
 
     ::
 
         process = get_process_instance('morphologist')
-        process_with_fom = ProcessWithFom(process)
+        process_with_fom = ProcessWithFom(process, study_config)
 
     Parameters
     ----------
     process: Process instance (mandatory)
         the process (or piprline) to be associated with FOMS
+    study_config: StudyConfig (mandatory)
+        config needed for FOMs, see capsul.study_config.study_config2
     name: string (optional)
         name of the process in the FOM dictionary. By default the
         process.name variable will be used.
@@ -55,27 +59,16 @@ class ProcessWithFom(Controller):
     create_completion()
     create_attributes_with_fom()
     """
-    def __init__(self, process, name=None):
+    def __init__(self, process, study_config, name=None):
         super(ProcessWithFom, self).__init__()
         self.process = process
         if name is None:
             self.name = process.name
         else:
             self.name = name
+        self.study_config = study_config
         self.list_process_iteration = []
         self.attributes = {}
-        self.study = Study.get_instance()
-        self.directories = {}
-        self.directories['spm'] = self.study.spm_directory
-        self.directories['shared'] = self.study.shared_directory
-        self.directories[ 'input' ] = self.study.input_directory
-        self.directories[ 'output' ] = self.study.output_directory
-        self.input_fom = Application().fom_manager.load_foms(
-            self.study.input_fom)
-        self.output_fom = Application().fom_manager.load_foms(
-            self.study.output_fom )
-        self.input_atp = None
-        self.output_atp = None
         self.create_attributes_with_fom()
         self.completion_ongoing = False
 
@@ -109,29 +102,17 @@ class ProcessWithFom(Controller):
 
     def create_attributes_with_fom(self):
         """To get useful attributes by the fom"""
-        #self.attributes=self.foms.get_attributes_without_value()
-        ## Create an AttributesToPaths specialized for our process
-        formats = tuple(getattr(self.study, key) \
-            for key in self.study.user_traits() if key.startswith('format'))
 
-        self.input_atp = AttributesToPaths(
-            self.input_fom,
-            selection=dict(fom_process=self.process.name),
-            directories=self.directories,
-            prefered_formats=set((formats)))
-
-        self.output_atp = AttributesToPaths(
-            self.output_fom,
-            selection={}, #dict(fom_process=self.process.name),
-            directories=self.directories,
-            prefered_formats=set((formats)))
-
+        input_atp = self.study_config.internal_data.atp['input']
+        output_atp = self.study_config.internal_data.atp['output']
+        input_fom = self.study_config.internal_data.foms['input']
+        output_fom = self.study_config.internal_data.foms['output']
 
         #Get attributes in input fom
         process_attributes = set()
         names_search_list = (self.name, self.process.id, self.process.name)
         for name in names_search_list:
-            fom_patterns = self.input_fom.patterns.get(name)
+            fom_patterns = input_fom.patterns.get(name)
             if fom_patterns is not None:
                 break
         else:
@@ -139,31 +120,31 @@ class ProcessWithFom(Controller):
                 % repr(names_search_list))
         for parameter in fom_patterns:
             process_attributes.update(
-                self.input_atp.find_discriminant_attributes(
+                input_atp.find_discriminant_attributes(
                     fom_parameter=parameter))
 
         for att in process_attributes:
             if not att.startswith('fom_'):
                 default_value \
-                    = self.input_fom.attribute_definitions[att].get(
+                    = input_fom.attribute_definitions[att].get(
                         'default_value')
                 self.attributes[att] = default_value
                 self.add_trait(att, Str(self.attributes[att]))
 
         # Only search other attributes if fom not the same (by default merge
         # attributes of the same foms)
-        if self.study.input_fom != self.study.output_fom:
-            #G et attributes in output fom
+        if self.study_config.input_fom != self.study_config.output_fom:
+            # Get attributes in output fom
             process_attributes2 = set()
-            for parameter in self.output_fom.patterns[self.process.name]:
+            for parameter in output_fom.patterns[self.process.name]:
                 process_attributes2.update(
-                    self.output_atp.find_discriminant_attributes(
+                    output_atp.find_discriminant_attributes(
                         fom_parameter=parameter))
 
             for att in process_attributes2:
                 if not att.startswith('fom_'):
                     default_value \
-                        = self.output_fom.attribute_definitions[att].get(
+                        = output_fom.attribute_definitions[att].get(
                             'default_value')
                     if att in process_attributes \
                             and default_value != self.attributes[att]:
@@ -176,9 +157,8 @@ class ProcessWithFom(Controller):
 
     def find_attributes(self, value):
         """By the path, find value of attributes"""
-        #By the value find attributes
-        pta = PathToAttributes( self.input_fom,
-            selection=dict( fom_process=self.process.name))
+
+        pta = self.study_config.internal_data.pta['input']
 
         # Extract the attributes from the first result returned by
         # parse_directory
@@ -238,6 +218,11 @@ class ProcessWithFom(Controller):
         if name is None:
             name = self.name
 
+        #input_fom = self.study_config.internal_data.foms['input']
+        output_fom = self.study_config.internal_data.foms['output']
+        input_atp = self.study_config.internal_data.atp['input']
+        output_atp = self.study_config.internal_data.atp['output']
+
         # if process is a pipeline, create completions for its nodes and
         # sub-pipelines.
         #
@@ -259,17 +244,14 @@ class ProcessWithFom(Controller):
                         pname = '.'.join([name, node_name])
                         self.process_completion(subprocess, pname)
                     except Exception, e:
-                        print 'warning, node %s cound not complete FOM' \
+                        print 'warning, node %s could not complete FOM' \
                             % node_name
                         print e
 
         #Create completion
-        #completion={}
-        #for i in process.user_traits():
-            #parameter = self.output_fom.patterns[ process.name ].get( i )
         names_search_list = (name, process.id, process.name)
         for fname in names_search_list:
-            fom_patterns = self.output_fom.patterns.get(fname)
+            fom_patterns = output_fom.patterns.get(fname)
             if fom_patterns is not None:
                 break
         else:
@@ -282,9 +264,9 @@ class ProcessWithFom(Controller):
             # rule to match
             if parameter in process.user_traits():
                 if process.trait(parameter).output:
-                    atp = self.output_atp
+                    atp = output_atp
                 else:
-                    atp = self.input_atp
+                    atp = input_atp
                 parameter_attributes = [ 'fom_process' ] \
                     + atp.find_discriminant_attributes(
                         fom_parameter=parameter )

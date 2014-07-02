@@ -5,7 +5,7 @@ from soma.gui.file_selection import FileAttributeSelection
 from soma.controller import trait_ids
 from capsul.process import get_process_instance
 from capsul.process.process_with_fom import ProcessWithFom
-from soma.pipeline.study import Study
+from capsul.study_config.study_config2 import StudyConfig
 from soma.gui.widget_controller_creation import ControllerWidget
 from functools import partial
 import os
@@ -18,7 +18,7 @@ except ImportError:
 
 class ProcessIterationGui(QtGui.QWizardPage):
     """Interface for process execution on many subjects"""
-    def __init__(self):
+    def __init__(self, study_config):
         super(ProcessIterationGui, self).__init__()
         self.list_simple_process = {}
         self.list_process = {}
@@ -26,7 +26,7 @@ class ProcessIterationGui(QtGui.QWizardPage):
         self.dico_btn_delete = {}
         self.dico_header = {}
         self.list_subjects_selected = []
-        self.Study = Study.get_instance()
+        self.study_config = study_config
         #Need object_attribute to create headser
         #self.object_attribute=object_attribute
         self.first_subject_add = 0
@@ -68,8 +68,9 @@ class ProcessIterationGui(QtGui.QWizardPage):
         objects for each
         """
         file_selection = FileAttributeSelection()
-        selection = file_selection.select(self.Study.input_fom, 'unused',
-            [ 'unused' ], self.Study.input_directory)
+        selection = file_selection.select(self.study_config.input_fom,
+            'unused',
+            [ 'unused' ], self.study_config.input_directory)
         if selection is None:
             return
         for i in range(0, len(selection)):
@@ -80,7 +81,8 @@ class ProcessIterationGui(QtGui.QWizardPage):
             else:
                 self.list_subjects_selected.append(self.new_sub['subject'])
                 #import morphologistSimp
-                self.pwd = ProcessWithFom(self.get_process())
+                self.pwd = ProcessWithFom(self.get_process(),
+                    self.study_config)
                 self.pwd.attributes = self.new_sub
 
 
@@ -139,7 +141,7 @@ class ProcessIterationGui(QtGui.QWizardPage):
 
     def get_process(self):
         """This will be automatic"""
-        return get_process_instance(str(Study.get_instance().process))
+        return get_process_instance(str(self.study_config.process))
 
 
 

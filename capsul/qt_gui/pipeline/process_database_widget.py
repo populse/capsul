@@ -1,5 +1,5 @@
 from soma.qt_gui.qt_backend import QtGui, QtCore
-from soma.pipeline.study import Study
+from capsul.study_config.study_config2 import StudyConfig
 import glob
 import json
 import os
@@ -11,7 +11,7 @@ except ImportError:
     from enthought.traits.api import HasTraits,File
 
 class ProcessDatabaseWidget(QtGui.QDialog):
-    def __init__(self,process):
+    def __init__(self, process, study_config):
         super(ProcessDatabaseWidget, self).__init__()
         self.process = process
         self.vbox = QtGui.QVBoxLayout()
@@ -19,7 +19,7 @@ class ProcessDatabaseWidget(QtGui.QDialog):
         self.table.setRowCount(0)
         self.table.setColumnCount(0)
         self.vbox.addWidget(self.table)
-        self.Study = Study.get_instance()
+        self.study_config = study_config
         self.setLayout(self.vbox)
         self.sub = collections.OrderedDict()
         self.list_subjects = []
@@ -88,10 +88,10 @@ class ProcessDatabaseWidget(QtGui.QDialog):
 
     def check_subjets_not_used(self):
         file_selection = FileAttributeSelection()
-        selector_class = file_selection.find_selector(self.Study.input_fom,
+        selector_class = file_selection.find_selector(self.study_config.input_fom,
             'unused', ['unused'])
         if selector_class:
-            a = selector_class(directory=self.Study.input_directory)
+            a = selector_class(directory=self.study_config.input_directory)
         else:
             return
         #print a.attributes['subject']
@@ -100,7 +100,7 @@ class ProcessDatabaseWidget(QtGui.QDialog):
                 row = self.table.rowCount()
                 self.table.setRowCount(row + 1)
                 col = self.table.columnCount()
-                self.table.setItem(row, 0, QtGui.QTableWidgetItem('NOT'))
+                self.table.setItem(row, 0, QtGui.QTableWidgetItem('NONE'))
                 self.table.setItem(row, 1,
                     QtGui.QTableWidgetItem(ele['subject']))
                 for num_col in range(2, self.table.columnCount()):
@@ -117,10 +117,10 @@ class ProcessDatabaseWidget(QtGui.QDialog):
 
     def get_directories(self):
         #get output directory
-        for path in os.listdir(self.Study.output_directory):
+        for path in os.listdir(self.study_config.output_directory):
             if not os.path.isfile(os.path.join(
-                    self.Study.output_directory,path)):
-                yield os.path.join(self.Study.output_directory,path)
+                    self.study_config.output_directory, path)):
+                yield os.path.join(self.study_config.output_directory, path)
 
 
     def get_json_files(self):

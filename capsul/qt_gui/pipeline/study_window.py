@@ -7,14 +7,18 @@ from soma.gui.widget_controller_creation import ControllerWidget
 from capsul.qt_gui.pipeline.process_database_widget \
     import ProcessDatabaseWidget
 from soma.application import Application 
-from soma.pipeline.study import Study
+from capsul.study_config.study_config2 import StudyConfig
+from capsul.study_config.study_config_fom import StudyConfigFomManager
 from capsul.qt_gui.pipeline.process_with_fom_widget import ProcessWithFomWidget
 from capsul.qt_gui.pipeline.process_iteration_gui \
     import ProcessIterationGui, ProcessParametersTable
 from capsul.process import get_process_instance
 from capsul.process.process_with_fom import ProcessWithFom
-import subprocess
 import os
+try:
+    from traits.api import Str
+except:
+    from enthought.traits.api import Str
 
 
 class StudyWindow(QtGui.QMainWindow):
@@ -39,8 +43,10 @@ class StudyWindow(QtGui.QMainWindow):
         self.vbox.addWidget(self.scroll_area)
 
         #Create controller widget for process and object_attribute
-        self.controller_widget22 = ControllerWidget(Study.get_instance(),
-          live=True, parent=self.scroll_area)
+        self.study_config = StudyConfig()
+        self.study_config.add_trait('process', Str())
+        self.controller_widget22 = ControllerWidget(self.study_config,
+            live=True, parent=self.scroll_area)
         self.scroll_area.setWidget(self.controller_widget22)
 
 
@@ -78,18 +84,19 @@ class StudyWindow(QtGui.QMainWindow):
     def on_get_study(self):
         name_json = getOpenFileName(self, 'Select a .json study','', '*.json')
         if name_json:
-            Study.get_instance().load(name_json)
+            self.study_config.load(name_json)
+            StudyConfigFomManager.check_and_update_foms(self.study_config)
 
 
 
     def show_process(self):
         """Launch simple process"""
         #FIXME utile je pense pour creer fichier json si existe pas..
-        Study.get_instance().save()
+        #self.study_config.save()
         process = self.get_process()
         #To have attributes on header
-        process_with_fom = ProcessWithFom(process)
-        self.process_gui = ProcessWithFomWidget(process_with_fom,process)
+        process_with_fom = ProcessWithFom(process, self.study_config)
+        self.process_gui = ProcessWithFomWidget(process_with_fom, process)
         self.process_gui.show()
 
 
@@ -102,12 +109,12 @@ class StudyWindow(QtGui.QMainWindow):
     def iterate_process(self):
         """Launch iteration process"""
         process = self.get_process()
-        process_with_fom = ProcessWithFom(process)
+        process_with_fom = ProcessWithFom(process, self.study_config)
         self.wizard = QtGui.QWizard()
         self.wizard.setButtonText(3, 'Run all')
         self.connect(self.wizard, QtCore.SIGNAL('currentIdChanged( int )'),
             self.on_page_changed)
-        self.first_page = ProcessIterationGui()
+        self.first_page = ProcessIterationGui(self.study_config)
         self.wizard.addPage(self.first_page)
         self.second_page = ProcessParametersTable(process, process_with_fom)
         self.connect(self.wizard.button(3), QtCore.SIGNAL('clicked()'),
@@ -151,13 +158,14 @@ class StudyWindow(QtGui.QMainWindow):
 
     def on_display_database(self):
         process = self.get_process()
-        self.display_database = ProcessDatabaseWidget(process)
+        self.display_database = ProcessDatabaseWidget(process,
+            self.study_config)
         self.display_database.open()
 
 
     def get_process(self):
         """This will be automatic"""
-        return get_process_instance(str(Study.get_instance().process))
+        return get_process_instance(str(self.study_config.process))
 
 
 if __name__ == '__main__':
@@ -173,6 +181,7 @@ if __name__ == '__main__':
     w = StudyWindow()
     if len(sys.argv) >= 2:
         study_file = sys.argv[1]
-        Study.get_instance().load(study_file)
+        w.study_config.load(study_file)
+        StudyConfigFomManager.check_and_update_foms(w.study_config)
     w.show()
     app.exec_()

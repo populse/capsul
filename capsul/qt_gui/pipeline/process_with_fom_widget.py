@@ -5,7 +5,6 @@ import collections
 from soma.gui.icon_factory import IconFactory
 from soma.qt_gui.widgets.file_selection_widget import FileSelectionWidget
 from soma.qt4gui.api import TimeredQLineEdit
-from soma.pipeline.study import Study
 try:
     from traits.api import File,HasTraits
 except ImportError:
@@ -15,7 +14,6 @@ class ProcessWithFomWidget(QtGui.QWidget):
     """Process interface with FOM handling, and execution running"""
     def __init__(self, process_with_fom, process):
         super(ProcessWithFomWidget, self).__init__()
-        self.Study = Study.get_instance()
         self.setLayout( QtGui.QVBoxLayout() )
         # Get the object process (SimpMorpho)
         self.process_with_fom = process_with_fom
@@ -30,7 +28,8 @@ class ProcessWithFomWidget(QtGui.QWidget):
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed))
 
         self.layout().addWidget(self.lineedit_input)
-        if self.Study.input_fom != self.Study.output_fom:
+        if self.process_with_fom.study_config.input_fom \
+                != self.process_with_fom.study_config.output_fom:
             self.lineedit_output = FileSelectionWidget(
                 'File','File for attributes output', 165)
             self.lineedit_output.setSizePolicy(QtGui.QSizePolicy(
@@ -165,6 +164,7 @@ class ProcessWithFomWidget(QtGui.QWidget):
         #To execute the process
         self.process()
         #How pass atributes
-        self.Study.save_run(self.process_with_fom.attributes,self.process)
+        # FIXME
+        #self.study_config.save_run(self.process_with_fom.attributes,self.process)
 
 
