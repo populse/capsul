@@ -24,7 +24,7 @@ from capsul.process import ProcessResult
 from joblib import Memory
 from joblib.func_inspect import filter_args, get_func_code
 
-spm_interface_modules = ("nipype.interfaces.spm", "nsap.nipype.spm_interface")
+spm_interface_modules = ("nipype.interfaces.spm", "caps.nipype_interfaces.spm")
 
 
 def _joblib_run_process(subj_output_dir, description, process_instance,
