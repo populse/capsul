@@ -22,6 +22,9 @@ from capsul.process import ProcessResult
 
 # joblib caching
 from joblib import Memory
+from joblib.func_inspect import filter_args, get_func_code
+
+spm_interface_modules = ("nipype.interfaces.spm", "nsap.nipype.spm_interface")
 
 
 def _joblib_run_process(subj_output_dir, description, process_instance,
@@ -52,7 +55,7 @@ def _joblib_run_process(subj_output_dir, description, process_instance,
 
     # copy : bool : copy all files (used when image headers are modified)
     copy = False
-    if process_instance.id.startswith("nipype.interfaces.spm"):
+    if process_instance.id.startswith(spm_interface_modules):
         copy = True
 
     # first get input file modified times
@@ -80,7 +83,6 @@ def _joblib_run_process(subj_output_dir, description, process_instance,
 
     # find and update joblib smart-caching directory
     output_dir, argument_hash = _mprocess.get_output_dir()
-    from joblib.func_inspect import filter_args
     if os.path.exists(output_dir):
         cache_time = os.path.getmtime(output_dir)
         # call the joblib clear function if necessary to deal with
@@ -110,6 +112,13 @@ def _joblib_run_process(subj_output_dir, description, process_instance,
 
     # call interface
     outputs = _mprocess()
+
+    # Ensure that the func_code.py is written in the cache
+    # Not necessary with joblib version < 8
+    func_code, source_file, first_line = get_func_code(_mprocess.func)
+    func_dir = _mprocess._get_func_dir()
+    func_code_file = os.path.join(func_dir, "func_code.py")
+    _mprocess._write_func_code(func_code_file, func_code, first_line)
 
     # for Process, need to set the class instance attributes returned
     if isinstance(outputs, ProcessResult):

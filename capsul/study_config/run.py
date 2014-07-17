@@ -35,7 +35,7 @@ def set_output_dir(subj_output_dir, process_instance, spm_dir):
                     "config_file")
                 trait.genfile = False
 
-        if "output_directory" in dir(process_instance):
+        if "output_directory" in process_instance.user_traits():
             process_instance.output_directory = subj_output_dir
 
 
