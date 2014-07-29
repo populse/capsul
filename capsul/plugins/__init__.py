@@ -9,4 +9,5 @@
 
 PLUGS = [
     ("caps", "http://nsap.intra.cea.fr/caps-doc"),
+    ("qmri", ""),
 ]
