@@ -40,7 +40,6 @@ def find_pipelines(module_name, allowed_instance="Pipeline"):
     # Get the module
     module = sys.modules[module_name]
     module_path = module.__path__[0]
-    print module_path
 
     # Use setuptools to go through the module
     sub_modules = find_packages(where=module_path, exclude=("doc", ))
