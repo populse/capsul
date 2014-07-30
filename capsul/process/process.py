@@ -279,6 +279,26 @@ class Process(Controller):
         else:
             return None
 
+    def add_trait(self, name, *trait):
+        """ Add a new trait
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the trait name.
+        trait: traits.api (mandatory)
+            a valid trait.
+        """
+        # Call the controller add_trait method
+        super(Process, self).add_trait(name, *trait)
+
+        # Get the trait instance and if it is a user trait load the traits
+        # to get it in the traits accessor method that can select traits from
+        # trait attributes
+        trait_instance = self.trait(name)
+        if self.is_user_trait(trait_instance):
+            self.get(name)
+
     ##############
     # Properties #
     ##############
