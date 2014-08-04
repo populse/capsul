@@ -10,6 +10,7 @@
 # System import
 import logging
 from copy import deepcopy
+import types
 
 # Trait import
 try:
@@ -22,12 +23,15 @@ except ImportError:
         List, Tuple, Instance, Any, Event, CTrait, Directory)
 
 # Capsul import
-from soma.controller import Controller
-from soma.sorted_dictionary import SortedDictionary
 from capsul.process import Process
 from capsul.process import get_process_instance
 from topological_sort import GraphNode, Graph
-from pipeline_nodes import (Plug, ProcessNode, PipelineNode, Switch)
+from pipeline_nodes import (
+    Plug, ProcessNode, PipelineNode, Switch, IterativeNode)
+
+# Soma import
+from soma.controller import Controller
+from soma.sorted_dictionary import SortedDictionary
 
 
 class Pipeline(Process):
@@ -108,9 +112,9 @@ class Pipeline(Process):
     ##############
 
     def autoexport_nodes_parameters(self):
-        '''Automatically export node containing pipeline plugs
+        """Automatically export node containing pipeline plugs
         If plug is not optional and if the plug has to be exported
-        '''
+        """
         for node_name, node in self.nodes.iteritems():
             if node_name == '':
                     continue
@@ -187,10 +191,10 @@ class Pipeline(Process):
         
         # If a default value is given to a parameter, change the corresponding
         # plug so that it gets activated even if not linked
-        for i in kwargs:
-            if process.trait(i):
+        for parameter_name in kwargs:
+            if process.trait(parameter_name):
                 node.plugs[i].has_default_value = True
-                make_optional.add(i)
+                make_optional.add(parameter_name)
 
         # Change plug default properties
         for parameter_name in node.plugs:
@@ -212,6 +216,52 @@ class Pipeline(Process):
 
         # Add new node in pipeline process list
         self.list_process_in_pipeline.append(process)
+
+    def add_iterative_process(self, name, process, iterative_plugs=None,
+                              do_not_export=None, make_optional=None, **kwargs):
+        """ Add a new iterative node in the pipeline.
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the node name (has to be unique)
+        process: Process (mandatory)
+            the process we want to add
+        iterative_plugs: list of str (optional)
+            a list of plug names on which we want to iterate 
+        do_not_export: list of str (optional)
+            a list of plug names that we do not want to export
+        make_optional: list of str (optional)
+            a list of plug names that we do not want to export
+        """
+        # If no iterative plug are given as parameter, add a process
+        if iterative_plugs is None:
+            self.add_process(name, process, do_not_export,
+                             make_optional, **kwargs)
+
+        # Otherwise, need to create a dynamic structure
+        else:
+            # Check the unicity of the name we want to insert
+            if name in self.nodes:
+                raise ValueError("Pipeline cannot have two nodes with the"
+                                 "same name : {0}".format(name)) 
+   
+            # Create the iterative pipeline node
+            process = get_process_instance(process, **kwargs)
+            node = IterativeNode(
+                self, name, process, iterative_plugs, do_not_export,
+                make_optional, **kwargs)
+            self.nodes[name] = node
+
+            # Create a trait to control the node activation (enable property)
+            self.nodes_activation.add_trait(name, Bool)
+            setattr(self.nodes_activation, name, node.enabled)
+
+            # Observer
+            self.nodes_activation.on_trait_change(self._set_node_enabled, name)
+
+            # Add new node in pipeline process list
+            self.list_process_in_pipeline.append(node.process)
 
     def add_switch(self, name, inputs, outputs):
         """ Add a switch node in the pipeline
