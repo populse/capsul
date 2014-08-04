@@ -4,11 +4,15 @@
         <file alias="help">help.png</file>
         <file alias="logo">logo.png</file>
         <file alias="play">play.png</file>    
-        <file alias="delete">delete.png</file>
-        <file alias="controller">controller.png</file>  
+        <file alias="delete">delete.png</file> 
         <file alias="add">add.png</file>
         <file alias="change_view">change_view.png</file>
-        <file alias="config">config.png</file>
-        <file alias="view_result">view_result.png</file>          
+        <file alias="controller">controller.png</file>
+        <file alias="view">inspect.png</file>
+        <file alias="search">search.png</file>
+        <file alias="open">transfer.png</file>
+        <file alias="exit">exit.png</file> 
+        <file alias="browse">open.png</file>
+        <file alias="config">config.png</file>                  
     </qresource>
 </RCC>

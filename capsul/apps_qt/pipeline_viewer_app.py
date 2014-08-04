@@ -44,8 +44,7 @@ class PipelineViewerApp(Application):
         self.setApplicationVersion(self._organisation_name)
 
         # Get the user interface description from capsul resources
-        ui_file = os.path.join(resources.__path__[0],
-                               "pipeline_viewer.ui")
+        ui_file = os.path.join(resources.__path__[0], "capsul.ui")
 
         # List capsul declared plugins (set of pipelines).
         pipeline_names = []
