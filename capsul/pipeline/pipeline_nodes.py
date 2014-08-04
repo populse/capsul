@@ -7,6 +7,9 @@
 # for details.
 ##########################################################################
 
+# System import
+import numpy
+
 # Trait import
 try:
     import traits.api as traits
@@ -18,10 +21,14 @@ except ImportError:
         List, Tuple, Instance, Any, Event, CTrait, Directory)
 
 # Capsul import
+from capsul.process import get_process_instance
+from capsul.utils.trait_utils import clone_trait
+
+# Soma import
+from soma.controller import trait_ids
 from soma.controller import Controller
 from soma.sorted_dictionary import SortedDictionary
 from soma.functiontools import SomaPartial
-from capsul.process import get_process_instance
 
 
 class Plug(Controller):
@@ -385,6 +392,223 @@ class PipelineNode(ProcessNode):
     """ A special node to store the pipeline user-parameters
     """
     pass
+
+
+class IterativeNode(Node):
+    """ A special node to store an iterative process.
+
+    This node is dynamic and try to be updated when a trait value is modified.
+    """
+    def __init__(self, pipeline, name, process, iterative_plugs, do_not_export,
+                 make_optional, **kwargs):
+        """ Initialize the IterativeNode class.
+
+        Parameters
+        ----------
+        pipeline: Pipeline (mandatory)
+            the pipeline object where the node is added
+        name: str (mandatory)
+            the node name
+        process: instance or string
+            a process/interface instance or the corresponding string
+            description
+        iterative_plugs: list of str (optional)
+            a list of plug names on which we want to iterate
+        do_not_export: list of str (optional)
+            a list of plug names that we do not want to export
+        make_optional: list of str (optional)
+            a list of plug names that we do not want to export
+        """
+        # Class parameters
+        self.iterative_plugs = iterative_plugs
+        self.iterative_process = process
+        self.do_not_export = do_not_export
+        self.make_optional = make_optional
+        self.kwargs = kwargs
+        self.process = None
+
+        # Get the traits splited by type: input or output
+        self.input_iterative_traits = {}
+        self.input_traits = {}
+        for trait_name in self.iterative_process.traits(output=False):
+            trait_description = trait_ids(self.iterative_process.trait(trait_name))
+            if trait_name in self.iterative_plugs:
+                self.input_iterative_traits[trait_name] = [
+                    "List_" + x for x in trait_description]
+            else:
+                self.input_traits[trait_name] = trait_description 
+        self.output_iterative_traits = {}
+        self.output_traits = {}
+        for trait_name in self.iterative_process.traits(output=True):
+            trait_description = trait_ids(self.iterative_process.trait(trait_name))
+            if trait_name in self.iterative_plugs:
+                self.output_iterative_traits[trait_name] = [
+                    "List_" + x for x in trait_description]
+            else:
+                self.output_traits[trait_name] = trait_description
+
+        # No regular output traits accepted in an iterative node
+        if self.output_traits:
+            raise Exception(
+                "No regular output traits accepted in an iterative node, got "
+                "{0}.".format(self.output_traits))
+
+        # Inherit from node class
+        input_traits = [
+            dict(name=trait_name)
+            for trait_name in self.iterative_process.traits(output=False)]
+        output_traits = [
+            dict(name=trait_name)
+            for trait_name in self.iterative_process.traits(output=True)]
+        super(IterativeNode, self).__init__(
+            pipeline, name, input_traits, output_traits)
+
+        # Add a trait for each input and each output
+        for trait_name, trait_description in self.input_iterative_traits.iteritems():
+            trait = clone_trait(trait_description)
+            self.add_trait(trait_name, trait)
+            self.trait(trait_name).output = False
+        for trait_name, trait_description in self.input_traits.iteritems():
+            trait = clone_trait(trait_description)
+            self.add_trait(trait_name, trait)
+            self.trait(trait_name).output = False
+        for trait_name, trait_description in self.output_iterative_traits.iteritems():
+            trait = clone_trait(trait_description)
+            self.add_trait(trait_name, trait)
+            self.trait(trait_name).output = True
+
+        # Generate / update the iterative pipeline
+        self.update_iterative_pipeline(0)
+
+    def _anytrait_changed(self, name, old, new):
+        """ Add an event that enables us to create process on the fly when an 
+        iterative input trait value has changed.
+
+        .. note ::
+
+            Wait to have the same number of items in iterative input traits
+            to update the iterative pipeline.            
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the trait name
+        old: str (mandatory)
+            the old value
+        new: str (mandatory)
+            the new value
+        """
+        # If an iterative plug has changed
+        if hasattr(self, "iterative_plugs") and name in self.iterative_plugs:
+
+            # To refresh the iterative pipeline, need to have the same number
+            # of items in iterative traits
+            input_size = numpy.asarray([
+                len(getattr(self, trait_name))
+                for trait_name in self.input_iterative_traits])
+            if len(input_size) != 0:
+                nb_of_inputs = input_size[0]
+                is_valid = (input_size == nb_of_inputs).all()
+            else:
+                nb_of_inputs = 0
+                is_valid = True            
+
+            # Generate / update the iterative pipeline
+            if is_valid:
+                self.update_iterative_pipeline(nb_of_inputs)
+
+        # If a regular trait is modified while the iterative process is created
+        # synchronized the trait value 
+        if (hasattr(self, "input_traits") and name in self.input_traits and
+            self.process is not None):
+    
+            # Synchronized the trait value
+            setattr(self.process, name, new)
+
+    def update_iterative_pipeline(self, nb_of_inputs):
+        """ Update the pipeline.
+
+        Parameters
+        ----------
+        nb_of_inputs: int (mandatory)
+            the number of input iterative trait items
+        """
+        # Local import
+        from pipeline_iterative import IterativePipeline, IterativeManager
+
+        # Create the iterative pipeline
+        self.process = IterativePipeline()
+
+        # Go through all input regular traits
+        pipeline_node = self.process.nodes[""]
+        for trait_name, trait_description in self.input_traits.iteritems():
+            trait = clone_trait(trait_description)
+            pipeline_node.process.add_trait(trait_name, trait)
+            pipeline_node.process.trait(trait_name).optional = False
+            pipeline_node.process.trait(trait_name).output = False
+            pipeline_node.process.trait(trait_name).desc = (
+                "a regular trait that will be repeted")
+
+        # Create the dynamic input output iterative traits manager subpipelines
+        iterative_traits = {}
+        for trait_name, trait_description in self.input_iterative_traits.iteritems():
+            iterative_traits[trait_name] = (
+                trait_description, getattr(self, trait_name))
+        regular_traits = {}
+        for trait_name, trait_description in self.input_traits.iteritems():
+            regular_traits[trait_name] = (
+                trait_description, getattr(self, trait_name))
+        input_manager = IterativeManager(
+            self.iterative_process.name, iterative_traits,
+            regular_traits, is_input_traits=True)
+        iterative_traits = {}
+        for trait_name, trait_description in self.output_iterative_traits.iteritems():
+            iterative_traits[trait_name] = (
+                trait_description, [""] * nb_of_inputs)
+        output_manager = IterativeManager(
+            self.iterative_process.name, iterative_traits, None,
+            is_input_traits=False, node=self)
+
+        # Add manager node to the pipeline
+        self.process.add_process("input_manager", input_manager)
+        self.process.add_process("output_manager", output_manager)
+
+        # Ass processing nodes to the pipeline: only attached to input manager
+        for node_name in input_manager.nodes:
+            self.process.add_process(node_name, self.iterative_process.id,
+            self.do_not_export, self.make_optional, **self.kwargs)
+
+        # Add link to manager
+        for link in input_manager.links:
+            self.process.add_link(link)
+        for link in output_manager.links:
+            self.process.add_link(link)
+
+        # Auto export nodes parameters
+        self.process.autoexport_nodes_parameters()
+
+        # Get the largest element size
+        element_sizes = []
+        for node_name, node in self.process.nodes.iteritems():
+            element_sizes.append(len(node_name))
+            element_sizes.extend([len(x) for x in node.plugs])
+        fixed_width = numpy.asarray(element_sizes).max() * 10.
+
+        # Get the number of elements in the processing node
+        fixed_height = len(self.iterative_process.user_traits()) * 50.
+
+        # Set iterative pipeline node positions
+        self.process.node_position = {
+            "inputs": (0 * fixed_width, 0.),
+            "input_manager": (1 * fixed_width, 0),
+            "output_manager": (3 * fixed_width, 0.),
+            "outputs": (4 * fixed_width, 0.),
+        }
+        shift = round(len(input_manager.nodes) / 2)
+        for cnt, node_name in enumerate(input_manager.nodes):
+            self.process.node_position[node_name] = (
+                2 * fixed_width, (cnt - shift) * fixed_height)
+
 
 class Switch(Node):
     """ Switch node to select a specific Process.
