@@ -21,20 +21,20 @@ from capsul.apps_qt.base.pipeline_widgets import (
 import capsul.apps_qt.resources as resources
 from capsul.process import get_process_instance
 from capsul.study_config import StudyConfig
+from capsul.apps_qt.base.utils.fill_treectrl import fill_treectrl
 
 
 class CapsulMainWindow(MyQUiLoader):
     """ CAPSULVIEW main window.
     """
-    def __init__(self, pipeline_names, ui_file, default_study_config=None):
+    def __init__(self, pipeline_menu, ui_file, default_study_config=None):
         """ Method to initialize the CAPSUL main window.
 
         Parameters
         ----------
-        pipeline_names: list of tuple (mandatory)
-            a list of all the proposed pipelines as string description,
-            ie. caps.preprocessings.Smooth and the corresponding
-            documentation url.
+        pipeline_menu: hierachic dict
+            each key is a sub module of the module. Leafs contain a list with
+            the url to the documentation.
         ui_file: str (mandatory)
             a filename containing the user interface description
         default_study_config: ordered dict (madatory)
@@ -42,6 +42,11 @@ class CapsulMainWindow(MyQUiLoader):
         """
         # Inheritance: load user interface window
         MyQUiLoader.__init__(self, ui_file)
+
+        # Class parameters
+        self.pipeline_menu = pipeline_menu
+        self.pipelines = {}
+        self.pipeline = None
 
         # Create the study configuration
         self.study_config = StudyConfig(default_study_config)
@@ -52,7 +57,7 @@ class CapsulMainWindow(MyQUiLoader):
                             "actionLoad", "actionChangeView",
                             "actionParameters", "actionRun",
                             "actionStudyConfig", "actionQualityControl"],
-            QtGui.QTableWidget: ["display", ],
+            QtGui.QTabWidget: ["display", ],
             QtGui.QDockWidget: ["dockWidgetBrowse", "dockWidgetParameters",
                                 "dockWidgetStudyConfig"],
             QtGui.QWidget: ["dock_browse", "dock_parameters",
@@ -64,10 +69,25 @@ class CapsulMainWindow(MyQUiLoader):
         # Add ui class parameter with the dynamic controls
         self.add_controls_to_ui()
 
+        # Create the pipeline menu
+        fill_treectrl(self.ui.menu_treectrl, self.pipeline_menu)
+
+        # Set table widget properties
+        self.ui.display.setTabsClosable(True)
+
+        # Signal for tab widget
+        self.ui.display.tabCloseRequested.connect(self.onCloseTabClicked)
+
         # Signal for dock widget
         self.ui.actionBrowse.triggered.connect(self.onBrowseClicked)
         self.ui.actionParameters.triggered.connect(self.onParametersClicked)
         self.ui.actionStudyConfig.triggered.connect(self.onStudyConfigClicked)
+
+        # Signal for the pipeline creation
+        self.ui.search.textChanged.connect(self.onSearchClicked)
+        self.ui.menu_treectrl.currentItemChanged.connect(
+            self.onTreeSelectionChanged)
+        self.ui.actionLoad.triggered.connect(self.onLoadClicked)
 
         # Set default values
 
@@ -138,3 +158,100 @@ class CapsulMainWindow(MyQUiLoader):
         # Hide browse dock widget
         else:
             self.ui.dockWidgetStudyConfig.hide()
+
+    def onSearchClicked(self):
+        """ Event to refresh the menu tree control that contains the pipeline
+        modules.
+        """
+        # Clear the current tree control
+        self.ui.menu_treectrl.clear()
+
+        # Build the new filtered tree control
+        fill_treectrl(self.ui.menu_treectrl, self.pipeline_menu,
+                      self.ui.search.text().lower())
+
+    def onTreeSelectionChanged(self):
+        """ Event to refresh the pipeline load button status.
+        """
+        # Get the cuurent item
+        item = self.ui.menu_treectrl.currentItem()
+
+        # Check if we have selected a pipeline in the tree and enable / disable
+        # the load button
+        url = item.text(2)
+        if url == "None":
+            self.ui.actionLoad.setEnabled(False)
+        else:
+            self.ui.actionLoad.setEnabled(True)
+
+    def onLoadClicked(self):
+        """ Event to load and display a pipeline.
+        """
+        # Get the pipeline instance from its string description
+        item = self.ui.menu_treectrl.currentItem()
+        process_description = str(item.text(1) + "." + item.text(0))
+        self.pipeline = get_process_instance(process_description)
+
+        # Store the pipeline instance
+        self.pipelines[self.pipeline.name] = self.pipeline
+
+        # Create the widget
+        widget = PipelineDevelopperView(self.pipeline)
+        self._insert_widget_in_tab(widget)
+
+        # Connect the subpipeline clicked signal to the
+        # onLoadSubPipelineClicked slot
+        #widget.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
+
+    def onCloseTabClicked(self, index):
+        """ Event to close a pipeline view
+        """
+        del self.pipelines[self.ui.display.tabText(index)]
+        self.ui.display.removeTab(index)
+
+    #####################
+    # Private interface #
+    #####################
+
+    def _insert_widget_in_tab(self, widget):
+        """ Insert a new widget or replace an existing widget.
+
+        Parameters
+        ----------
+        widget: a widget (mandatory)
+            the widget we want to draw
+        """
+        # add the widget if new
+        # otherwise, recreate the widget
+        already_created = False
+        index = 0
+        for index in range(self.ui.display.count()):
+            if (self.ui.display.tabText(index) ==
+                    self.pipeline.name):
+                already_created = True
+                break
+        if not already_created:
+            self.ui.display.addTab(
+                widget, unicode(self.pipeline.name))
+            self.ui.display.setCurrentIndex(
+                self.ui.display.count() - 1)
+        else:
+            pipeline = self.pipeline
+            self.ui.display.removeTab(index)
+            self.pipeline = pipeline
+            self.ui.display.insertTab(
+                index, widget, unicode(self.pipeline.name))
+            self.ui.display.setCurrentIndex(index)
+
+    def _is_active_pipeline_valid(self):
+        """ Method to ceack that the active pipeline is valid
+
+        Returns
+        -------
+        is_valid: bool
+            True if the active pipeline is valid
+        """
+        return self.pipeline is not None
+
+
+

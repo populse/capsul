@@ -15,29 +15,35 @@ from setuptools import find_packages
 from inspect import isclass
 
 
-def find_pipelines(module_name, allowed_instance="Pipeline"):
+def find_pipelines(module_name, url=None, allowed_instance="Pipeline"):
     """ Function that return all the Pipeline class of a module.
+
+    All the mdoule path are scanned recuresively. Any pipeline will be added
+    to the output.
 
     Parameters
     ----------
     module_name: str (mandatory)
         the name of the module we want to go through in order to find all
         pipeline classes.
+    url: str (optional)
+        the url to the module documentation
 
     Returns
     -------
-    pipelines: list of str
-        a list of all pipelines found in the module.
+    pipelines: hierachic dict
+        each key is a sub module of the module. Leafs contain a list with
+        the url to the documentation.
     """
 
-    # First try to import the module
+    # Try to import the module
     try:
         __import__(module_name)
     except:
         logging.error("Can't load module {0}".format(module_name))
         return []
 
-    # Get the module
+    # Get the module path
     module = sys.modules[module_name]
     module_path = module.__path__[0]
 
@@ -49,7 +55,7 @@ def find_pipelines(module_name, allowed_instance="Pipeline"):
     # Shift
     shift = len(module_name.split("."))
 
-    # Set with all pipelines
+    # Create a set with all pipelines
     pipelines = set()
     for sub_module in sub_modules:
         # Get the sub module path
@@ -86,5 +92,43 @@ def find_pipelines(module_name, allowed_instance="Pipeline"):
                         tool_name not in ["Pipeline", "ConnProcess"]):
                     pipelines.add(sub_sub_module_name + "." + tool_name)
 
-    return list(pipelines)
+    # Organize the pipeline string description by module names
+    pipelines = lists2dict([x.split(".") for x in pipelines], url)
+
+    return pipelines
+
+
+def lists2dict(list_of_pipeline_description, url):
+    """ Convert a list of splited module names to a hierachic dictionary with
+    list leafs that contain the url to the module docuementation.
+    
+    Parameters
+    ----------
+    list_of_pipeline_description: list of list of str (mandatory)
+        the splited module names to organize bu modules
+    url: str (mandatory)
+        the url to the module documentation
+
+    Returns
+    -------
+    d: hierachic dict
+        each key is a sub module of the module. Leafs contain a list with
+        the url to the documentation.
+    """
+    # Create an empty dictionary
+    d = {}
+
+    # Go through all pipeline descriptions
+    for l in list_of_pipeline_description:
+
+        # Reach a leaf (a pipeline)
+        if len(l) == 1:
+            d.setdefault(l[0], []).append(url or "")
+
+        # Continue the recursion
+        else:
+            d.setdefault(l[0], {}).update(lists2dict([l[1:]], url))
+
+    return d
+
 
