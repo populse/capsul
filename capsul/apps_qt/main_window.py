@@ -66,14 +66,13 @@ class CapsulMainWindow(MyQUiLoader):
             QtGui.QLineEdit: ["search", ],            
         }
 
-        # Add ui class parameter with the dynamic controls
+        # Add ui class parameter with the dynamic controls and initialize
+        # default values
         self.add_controls_to_ui()
+        self.ui.display.setTabsClosable(True)
 
         # Create the pipeline menu
         fill_treectrl(self.ui.menu_treectrl, self.pipeline_menu)
-
-        # Set table widget properties
-        self.ui.display.setTabsClosable(True)
 
         # Signal for tab widget
         self.ui.display.tabCloseRequested.connect(self.onCloseTabClicked)
@@ -92,6 +91,7 @@ class CapsulMainWindow(MyQUiLoader):
         # Set default values
 
         # Set some tooltips
+
 
 
     def show(self):
@@ -201,13 +201,31 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Connect the subpipeline clicked signal to the
         # onLoadSubPipelineClicked slot
-        #widget.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
+        widget.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
+
+    def onLoadSubPipelineClicked(self, name, sub_pipeline):
+        """ Event to load and display a sub pipeline.
+        """
+        # Store the pipeline instance in class parameters
+        self.pipeline = sub_pipeline
+        self.pipelines[self.pipeline.name] = self.pipeline
+
+        # Create the widget
+        widget = PipelineDevelopperView(self.pipeline)
+        self._insert_widget_in_tab(widget)
+
+        # Connect the subpipeline clicked signal to the
+        # onLoadSubPipelineClicked slot
+        widget.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
 
     def onCloseTabClicked(self, index):
-        """ Event to close a pipeline view
+        """ Event to close a pipeline view.
         """
-        del self.pipelines[self.ui.display.tabText(index)]
-        self.ui.display.removeTab(index)
+        # Remove the pipeline from the intern pipeline list
+        del self.pipelines[self.ui.simple_pipeline.tabText(index)]
+
+        # Remove the table that contains the pipeline
+        self.ui.simple_pipeline.removeTab(index)
 
     #####################
     # Private interface #

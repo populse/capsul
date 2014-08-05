@@ -31,7 +31,7 @@ def find_pipelines(module_name, url=None, allowed_instance="Pipeline"):
 
     Returns
     -------
-    pipelines: hierachic dict
+    structured_pipelines: hierachic dict
         each key is a sub module of the module. Leafs contain a list with
         the url to the documentation.
     """
@@ -93,12 +93,13 @@ def find_pipelines(module_name, url=None, allowed_instance="Pipeline"):
                     pipelines.add(sub_sub_module_name + "." + tool_name)
 
     # Organize the pipeline string description by module names
-    pipelines = lists2dict([x.split(".") for x in pipelines], url)
+    structured_pipelines = {}
+    lists2dict([x.split(".") for x in pipelines], url, structured_pipelines)
 
-    return pipelines
+    return structured_pipelines
 
 
-def lists2dict(list_of_pipeline_description, url):
+def lists2dict(list_of_pipeline_description, url, d):
     """ Convert a list of splited module names to a hierachic dictionary with
     list leafs that contain the url to the module docuementation.
     
@@ -115,19 +116,19 @@ def lists2dict(list_of_pipeline_description, url):
         each key is a sub module of the module. Leafs contain a list with
         the url to the documentation.
     """
-    # Create an empty dictionary
-    d = {}
-
     # Go through all pipeline descriptions
     for l in list_of_pipeline_description:
 
         # Reach a leaf (a pipeline)
         if len(l) == 1:
-            d.setdefault(l[0], []).append(url or "")
+            d.setdefault(l[0], []).append(url or "") 
 
         # Continue the recursion
         else:
-            d.setdefault(l[0], {}).update(lists2dict([l[1:]], url))
+            if not l[0] in d:
+                d[l[0]] = lists2dict([l[1:]], url, {})
+            else:
+                d[l[0]].update(lists2dict([l[1:]], url, d[l[0]]))
 
     return d
 
