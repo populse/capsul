@@ -77,6 +77,7 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Signal for window interface
         self.ui.actionHelp.triggered.connect(self.onHelpClicked)
+        self.ui.actionChangeView.triggered.connect(self.onChangeViewClicked)
 
         # Signal for tab widget
         self.ui.display.tabCloseRequested.connect(self.onCloseTabClicked)
@@ -269,6 +270,34 @@ class CapsulMainWindow(MyQUiLoader):
         else:
             QtGui.QMessageBox.information(
                 self.ui, "Information", "First load a pipeline!")
+
+    def onChangeViewClicked(self):
+        """ Event to switch between simple and full pipeline views.
+        """
+        # Check if a pipeline has been loaded
+        if self._is_active_pipeline_valid():
+
+            # Check the current display mode
+            # Case PipelineDevelopperView
+            if isinstance(self.ui.display.currentWidget(),
+                          PipelineDevelopperView):
+
+                # Switch to PipelineUserView display mode
+                widget = PipelineUserView(self.pipeline)
+                self._insert_widget_in_tab(widget)
+
+            # Case PipelineUserView
+            else:
+
+                # Switch to PipelineDevelopperView display mode
+                widget = PipelineDevelopperView(self.pipeline)
+                self._insert_widget_in_tab(widget)
+
+        # No pipeline loaded error
+        else:
+            logging.error("No active pipeline selected. "
+                          "Have you forgotten to click the load pipeline "
+                          "button?")
 
     #####################
     # Private interface #
