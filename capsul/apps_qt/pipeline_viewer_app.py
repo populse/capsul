@@ -19,7 +19,7 @@ from capsul.plugins import PLUGS
 
 
 class PipelineViewerApp(Application):
-    """ CAPSULVIEW Aplication.
+    """ CAPSULVIEW Application.
     """
 
     # Load some meta informations

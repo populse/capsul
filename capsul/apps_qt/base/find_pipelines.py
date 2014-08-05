@@ -34,6 +34,8 @@ def find_pipelines(module_name, url=None, allowed_instance="Pipeline"):
     structured_pipelines: hierachic dict
         each key is a sub module of the module. Leafs contain a list with
         the url to the documentation.
+    pipelines: list
+        a list a pipeline string descriptions.
     """
 
     # Try to import the module
@@ -41,7 +43,7 @@ def find_pipelines(module_name, url=None, allowed_instance="Pipeline"):
         __import__(module_name)
     except:
         logging.error("Can't load module {0}".format(module_name))
-        return []
+        return {}, []
 
     # Get the module path
     module = sys.modules[module_name]
