@@ -494,6 +494,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.setWindowTitle(pipeline.name)
         self.setScene(self.scene)
 
+        # Try to initialize the scene scale factor
+        if hasattr(pipeline, "scene_scale_factor"):
+            self.scale(
+                pipeline.scene_scale_factor, pipeline.scene_scale_factor)
+        
+
     def set_pipeline(self, pipeline):
         self._set_pipeline(pipeline)
 
