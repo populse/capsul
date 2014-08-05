@@ -47,6 +47,7 @@ class CapsulMainWindow(MyQUiLoader):
         self.pipeline_menu = pipeline_menu
         self.pipelines = {}
         self.pipeline = None
+        self.path_to_pipeline_doc = {}
 
         # Create the study configuration
         self.study_config = StudyConfig(default_study_config)
@@ -73,6 +74,9 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Create the pipeline menu
         fill_treectrl(self.ui.menu_treectrl, self.pipeline_menu)
+
+        # Signal for window interface
+        self.ui.actionHelp.triggered.connect(self.onHelpClicked)
 
         # Signal for tab widget
         self.ui.display.tabCloseRequested.connect(self.onCloseTabClicked)
@@ -191,6 +195,9 @@ class CapsulMainWindow(MyQUiLoader):
         item = self.ui.menu_treectrl.currentItem()
         process_description = str(item.text(1) + "." + item.text(0))
         self.pipeline = get_process_instance(process_description)
+        
+        # Store the pipeline documentation root path
+        self.path_to_pipeline_doc[self.pipeline.id] = item.text(2)
 
         # Store the pipeline instance
         self.pipelines[self.pipeline.name] = self.pipeline
@@ -226,6 +233,42 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Remove the table that contains the pipeline
         self.ui.simple_pipeline.removeTab(index)
+
+    def onHelpClicked(self):
+        """ Event to display the documentation of the active pipeline.
+        """
+        # Create a dialog box to display the html documentation
+        win = QtGui.QDialog()
+        win.setWindowTitle("Pipeline Help")
+
+        # Build the pipeline documentation location
+        # Possible since common tools generate the sphinx documentation
+        if self.pipeline:
+
+            # Generate the url to the active pipeline documentation
+            path_to_active_pipeline_doc = os.path.join(
+                self.path_to_pipeline_doc[self.pipeline.id], "generated",
+                self.pipeline.id.split(".")[1], "pipeline",
+                self.pipeline.id + ".html")
+
+            # Create and fill a QWebView
+            help = QtWebKit.QWebView()
+            help.load(QtCore.QUrl(path_to_active_pipeline_doc))
+            help.show()
+
+            # Create and set a layout with the web view
+            layout = QtGui.QHBoxLayout()
+            layout.addWidget(help)
+            win.setLayout(layout)
+
+            # Display the window
+            win.exec_()
+
+        # No Pipeline loaded, cant't show the documentation message
+        # Display a message box
+        else:
+            QtGui.QMessageBox.information(
+                self.ui, "Information", "First load a pipeline!")
 
     #####################
     # Private interface #
