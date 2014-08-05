@@ -96,7 +96,7 @@ def find_pipelines(module_name, url=None, allowed_instance="Pipeline"):
     structured_pipelines = {}
     lists2dict([x.split(".") for x in pipelines], url, structured_pipelines)
 
-    return structured_pipelines
+    return structured_pipelines, list(pipelines)
 
 
 def lists2dict(list_of_pipeline_description, url, d):
