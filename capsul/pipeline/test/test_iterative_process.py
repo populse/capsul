@@ -50,6 +50,9 @@ class MyPipeline(Pipeline):
             "iterative", "capsul.pipeline.test.test_iterative_process.DummyProcess",
             iterative_plugs=["input_image", "output_image", "dynamic_parameter"])
 
+        # Set the pipeline view scale factor
+        self.scene_scale_factor = 1.0
+
 
 class TestPipeline(unittest.TestCase):
     """ Class to test a pipeline with an iterative node
@@ -106,11 +109,11 @@ if __name__ == "__main__":
 
     app = QtGui.QApplication(sys.argv)
     pipeline = MyPipeline()
-    pipeline.input_image = ["toto", "tutu"]
-    pipeline.dynamic_parameter = [3, 1]
+    pipeline.input_image = ["toto", "tutu", "titi"]
+    pipeline.dynamic_parameter = [3, 1, 4]
     pipeline.other_input = 0
     pipeline = pipeline.nodes["iterative"].process
-
+    pipeline.scene_scale_factor = 0.4
     view1 = PipelineDevelopperView(pipeline)
     view1.show()
     app.exec_()
