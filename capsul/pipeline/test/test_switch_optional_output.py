@@ -21,11 +21,9 @@ class DummyProcess(Process):
 
         # inputs
         self.add_trait("input_image", File(optional=False))
-        #self.add_trait("other_input", Float(optional=True))
 
         # outputs
         self.add_trait("output_image", File(optional=True, output=True))
-        #self.add_trait("other_output", Float(optional=True, output=True))
 
     def __call__(self):
         pass
@@ -53,8 +51,6 @@ class MyPipeline(Pipeline):
         # exports
         self.export_parameter("node1", "input_image", "input_image1")
         self.export_parameter("node2", "input_image", "input_image2")
-        #self.export_parameter("node1", "other_output", "other_output1")
-        #self.export_parameter("node2", "other_output", "other_output2")
 
         self.node_position = {
             'inputs': (-206.0, 242.0),
