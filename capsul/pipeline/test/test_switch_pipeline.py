@@ -207,7 +207,8 @@ if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     pipeline = SwitchPipeline()
     pipeline.switch = "one"
-    view1 = PipelineDevelopperView(pipeline)
+    view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+                                   allow_open_controller=True)
     view1.show()
     app.exec_()
     del view1

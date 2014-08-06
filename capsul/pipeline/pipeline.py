@@ -399,11 +399,6 @@ class Pipeline(Process):
          source_plug, dest_node_name, dest_plug_name, dest_node,
         dest_plug) = self.parse_link(link)
 
-        # Froce the plug optional value to False if the destination node is a
-        # switch
-        if isinstance(dest_node, Switch):
-            source_plug.optional = False  
-
         # Assure that pipeline plugs are not linked
         if not source_plug.output and source_node is not self.pipeline_node:
             raise ValueError("Cannot link from a pipeline input "
@@ -709,7 +704,7 @@ class Pipeline(Process):
                                 node is self.pipeline_node):
                             node.activated = False
                             break
-                if plug.activated:
+                if plug.output and plug.activated:
                     deactivate_node = False
             if deactivate_node:
                 node.activated = False
