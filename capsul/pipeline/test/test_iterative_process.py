@@ -7,6 +7,7 @@
 # for details.
 ##########################################################################
 
+import sys
 import unittest
 from traits.api import String, Float
 from capsul.process import Process
@@ -86,8 +87,12 @@ class TestPipeline(unittest.TestCase):
 
         # Test the output connection
         self.pipeline()
-        self.assertIn("toto:5.0:3.0", iterative_pipeline.output_image)
-        self.assertIn("tutu:5.0:1.0", iterative_pipeline.output_image)
+        if sys.version_info >= (2, 7):
+            self.assertIn("toto:5.0:3.0", iterative_pipeline.output_image)
+            self.assertIn("tutu:5.0:1.0", iterative_pipeline.output_image)
+        else:
+            self.assertTrue("toto:5.0:3.0" in iterative_pipeline.output_image)
+            self.assertTrue("tutu:5.0:1.0" in iterative_pipeline.output_image)
         self.assertEqual(
             self.pipeline.output_image,iterative_pipeline.output_image)
 
@@ -103,7 +108,6 @@ def test():
 if __name__ == "__main__":
     test()
 
-    import sys
     from PySide import QtGui
     from capsul.apps_qt.base.pipeline_widgets import PipelineDevelopperView
 
