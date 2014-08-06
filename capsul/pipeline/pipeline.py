@@ -713,6 +713,10 @@ class Pipeline(Process):
                     deactivate_node = False
             if deactivate_node:
                 node.activated = False
+                for plug_name, plug in node.plugs.iteritems():
+                    if plug.activated:
+                        plug.activated = False
+                        plugs_deactivated.append((plug_name,plug))
         return plugs_deactivated
 
     def delay_update_nodes_and_plugs_activation(self):
