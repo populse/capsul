@@ -676,6 +676,7 @@ class Pipeline(Process):
         plugs_deactivated = []
         # If node has already been  deactivated there is nothing to do
         if node.activated:
+            deactivate_node = bool(node.plugs)
             for plug_name, plug in node.plugs.iteritems():
                 # Check all activated plugs
                 if plug.activated:
@@ -708,6 +709,10 @@ class Pipeline(Process):
                                 node is self.pipeline_node):
                             node.activated = False
                             break
+                if plug.activated:
+                    deactivate_node = False
+            if deactivate_node:
+                node.activated = False
         return plugs_deactivated
 
     def delay_update_nodes_and_plugs_activation(self):
