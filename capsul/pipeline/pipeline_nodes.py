@@ -472,6 +472,10 @@ class IterativeNode(Node):
             trait = clone_trait(trait_description)
             self.add_trait(trait_name, trait)
             self.trait(trait_name).output = False
+            setattr(
+                self, trait_name, getattr(self.iterative_process, trait_name))
+            self._anytrait_changed(
+                trait_name, None, getattr(self.iterative_process, trait_name))
         for trait_name, trait_description in self.output_iterative_traits.iteritems():
             trait = clone_trait(trait_description)
             self.add_trait(trait_name, trait)
@@ -479,6 +483,12 @@ class IterativeNode(Node):
 
         # Generate / update the iterative pipeline
         self.update_iterative_pipeline(0)
+
+        # Synchronize the regular input trait default values
+        for trait_name, trait_description in self.input_traits.iteritems():
+            print "TIME", trait_name
+            self._anytrait_changed(
+                trait_name, None, getattr(self.iterative_process, trait_name))
 
     def _anytrait_changed(self, name, old, new):
         """ Add an event that enables us to create process on the fly when an 
@@ -498,6 +508,7 @@ class IterativeNode(Node):
         new: str (mandatory)
             the new value
         """
+        print "EVENT:::", name, old, new
         # If an iterative plug has changed
         if hasattr(self, "iterative_plugs") and name in self.iterative_plugs:
 
@@ -521,7 +532,9 @@ class IterativeNode(Node):
         # synchronized the trait value 
         if (hasattr(self, "input_traits") and name in self.input_traits and
             self.process is not None):
-    
+
+            print "IN"
+ 
             # Synchronized the trait value
             setattr(self.process, name, new)
 
@@ -548,6 +561,8 @@ class IterativeNode(Node):
             pipeline_node.process.trait(trait_name).output = False
             pipeline_node.process.trait(trait_name).desc = (
                 "a regular trait that will be repeted")
+            setattr(
+                pipeline_node.process, trait_name, getattr(self, trait_name))
 
         # Create the dynamic input output iterative traits manager subpipelines
         iterative_traits = {}
