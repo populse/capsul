@@ -15,10 +15,12 @@ import types
 # Trait import
 try:
     import traits.api as traits
+    from traits.trait_base import _Undefined
     from traits.api import (File, Float, Enum, Str, Int, Bool, List, Tuple,
         Instance, Any, Event, CTrait, Directory, Trait)
 except ImportError:
     import enthought.traits.api as traits
+    from enthought.traits.trait_base import _Undefined
     from enthought.traits.api import (File, Float, Enum, Str, Int, Bool,
         List, Tuple, Instance, Any, Event, CTrait, Directory)
 
@@ -116,17 +118,16 @@ class Pipeline(Process):
         If plug is not optional and if the plug has to be exported
         """
         for node_name, node in self.nodes.iteritems():
-            if node_name == '':
+            if node_name == "":
                     continue
             for parameter_name, plug in node.plugs.iteritems():
-                if parameter_name in \
-                        ('nodes_activation', 'selection_changed'):
+                if parameter_name in ("nodes_activation", "selection_changed"):
                     continue
-                if ((node_name, parameter_name) not in self.do_not_export \
-                        and ((plug.output and not plug.links_to) or\
-                                (not plug.output and not plug.links_from)) \
-                        and not self.nodes[node_name].get_trait(
-                        parameter_name).optional):
+                if (((node_name, parameter_name) not in self.do_not_export and
+                    ((plug.output and not plug.links_to) or
+                    (not plug.output and not plug.links_from)) and
+                    not self.nodes[node_name].get_trait(parameter_name).optional)):
+
                     self.export_parameter(node_name, parameter_name)
 
     def add_trait(self, name, trait):
@@ -527,6 +528,13 @@ class Pipeline(Process):
 
         # Now add the parameter to the pipeline
         self.add_trait(pipeline_parameter, trait)
+
+        # If the plug value is None, replace it by the undefined 
+        # trait value
+        plug_value = node.get_plug_value(plug_name)
+        if plug_value is None:
+            node.set_plug_value(plug_name, _Undefined())
+
         # Propagate the parameter value to the new exported one
         setattr(self, pipeline_parameter, node.get_plug_value(plug_name))
 
