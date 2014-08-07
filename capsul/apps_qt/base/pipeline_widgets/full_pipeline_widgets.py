@@ -258,7 +258,8 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
 
     def mouseDoubleClickEvent(self, event):
         if self.sub_pipeline:
-            self.scene().subpipeline_clicked.emit(self.name, self.sub_pipeline)
+            self.scene().subpipeline_clicked.emit(self.name, self.sub_pipeline,
+                                                  event.modifiers())
             event.accept()
         else:
             event.ignore()
@@ -311,7 +312,8 @@ class Link(QtGui.QGraphicsPathItem):
 
 class PipelineScene(QtGui.QGraphicsScene):
     # Signal emitted when a sub pipeline has to be open.
-    subpipeline_clicked = QtCore.Signal(str, Process)
+    subpipeline_clicked = QtCore.Signal(str, Process,
+                                        QtCore.Qt.KeyboardModifiers)
     # Signal emitted when a node box is right-clicked
     node_right_clicked = QtCore.Signal(str, Controller)
     # Signal emitted when a plug is clicked
@@ -374,6 +376,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                     dest_gnode.in_plugs[dest_param].get_plug_point()))
 
     def set_pipeline(self, pipeline):
+        self.pipeline = pipeline
         pipeline_inputs = SortedDictionary()
         pipeline_outputs = SortedDictionary()
         for name, plug in pipeline.nodes[''].plugs.iteritems():
@@ -413,7 +416,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         if pipeline_outputs:
             self.add_node(
                 'outputs', NodeGWidget('outputs', pipeline_outputs,
-                                       active=pipeline.pipeline_node.activated, process=pipeline))
+                                       active=pipeline.pipeline_node.activated,
+                                       process=pipeline))
 
         for source_node_name, source_node in pipeline.nodes.iteritems():
             for source_parameter, source_plug in source_node.plugs.iteritems():
@@ -429,9 +433,57 @@ class PipelineScene(QtGui.QGraphicsScene):
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_P:
             event.accept()
-            print self.pos
+            posdict = dict([(key, (value.x(), value.y())) \
+                            for key, value in self.pos.iteritems()])
+            print posdict
         else:
             super(PipelineScene, self).keyPressEvent(event)
+
+    def helpEvent(self, event):
+        item = self.itemAt(event.scenePos())
+        if isinstance(item, Link):
+            for source_dest, glink in self.glinks.iteritems():
+                if glink is item:
+                    src = self.pipeline.nodes[source_dest[0][0]]
+                    proc = src
+                    if hasattr(src, 'process'):
+                        proc = src.process
+                    name = source_dest[0][1]
+                    value = getattr(proc, name)
+                    #trait = proc.user_traits()[name]
+                    typestr = str(type(value)).replace('<', '').replace('>', '')
+                    msg = '<html><b>%s</b><br/>type: %s<br/>value: %s</html>' \
+                        % (source_dest[0][1], typestr, str(value))
+                    item.setToolTip(msg)
+                    break
+        elif isinstance(item, Plug):
+            node = item.parentItem()
+            output = 'input'
+            found = False
+            for name, plug in node.in_plugs.iteritems():
+                if plug is item:
+                    found = True
+                    break
+            if not found:
+              for name, plug in node.out_plugs.iteritems():
+                  if plug is item:
+                      found = True
+                      output = 'output'
+                      break
+            if found:
+                src = self.pipeline.nodes[node.name]
+                splug = src.plugs[name]
+                msg = '<b>%s</b><br/>%s<br/>activated: %s<br/>optional: %s<br/>' \
+                    % (name, output, str(splug.activated), str(splug.optional))
+                proc = src
+                if hasattr(src, 'process'):
+                    proc = src.process
+                value = getattr(proc, name)
+                typestr = str(type(value)).replace('<', '').replace('>', '')
+                msg += 'type: %s<br/>value: %s' % (typestr, str(value))
+                item.setToolTip(msg)
+
+        super(PipelineScene, self).helpEvent(event)
 
 
 class PipelineDevelopperView(QtGui.QGraphicsView):
@@ -444,7 +496,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     click on a sub-pipeline box, to allow handling at a higher level. Default
     behaviors can be enabled using constructor parameters.
     '''
-    subpipeline_clicked = QtCore.Signal(str, Process)
+    subpipeline_clicked = QtCore.Signal(str, Process,
+                                        QtCore.Qt.KeyboardModifiers)
     '''Signal emitted when a sub pipeline has to be open.'''
     node_right_clicked = QtCore.Signal(str, Controller)
     '''Signal emitted when a node box is right-clicked'''
@@ -548,13 +601,25 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         else:
             super(PipelineDevelopperView, self).mouseMoveEvent(event)
 
-    def onLoadSubPipelineClicked(self, node_name, sub_pipeline):
+    def onLoadSubPipelineClicked(self, node_name, sub_pipeline, modifiers):
         """ Event to load a sub pipeline
         """
         if self._show_sub_pipelines:
             sub_view = PipelineDevelopperView(sub_pipeline,
                 show_sub_pipelines=self._show_sub_pipelines,
                 allow_open_controller=self._allow_open_controller)
+            #if modifiers & QtCore.Qt.ControlModifier:
+                #print 'CTRL : embed', repr(node_name)
+                #gnode = self.scene.gnodes.get(str(node_name))
+                #if gnode is not None:
+                    #print 'gnode:', gnode
+                    #pwid = QtGui.QGraphicsProxyWidget(gnode)
+                    #pwid.setWidget(sub_view)
+                    #gnode.addToGroup(pwid)
+                    #return
+                #else:
+                    #print 'node not found in:'
+                    #print self.scene.gnodes.keys()
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.setWindowTitle(node_name)
             sub_view.show()
