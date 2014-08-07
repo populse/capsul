@@ -333,6 +333,11 @@ class StudyConfig(Controller):
 
             # Execute each element
             for process_instance in execution_list:
+
+                # Message
+                logging.info("Study Config: executing process "
+                             "'{0}'...".format(process_instance.id))
+
                 # Run
                 returncode, log_file = self._caller(self.output_directory,
                     "{0}-{1}".format(self.process_counter,
