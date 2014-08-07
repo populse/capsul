@@ -94,20 +94,24 @@ def search_in_menu(menu, match) :
     # Initialize the default value: match not found
     is_included = False
 
-    # Stop if we are already on a leaf
-    if is_included or isinstance(menu, list):
+    # If we are on a leaf, check in the module list
+    if isinstance(menu, list):
         return is_included
 
     # Go through the current module sub modules
     for module_name, child_modules in menu.iteritems():
 
         # Stop criteria
-        if is_included or isinstance(child_modules, list):
-            return is_included
+        if isinstance(child_modules, list):
+            return is_included or match in module_name.lower()
 
         # Recursive search
         is_included = (
             is_included or match in module_name.lower() or
-            any(search_in_menu(child, match) for child in child_modules.values()))
+            search_in_menu(child_modules, match))
+
+        # Stop criteria
+        if is_included:
+            return is_included
 
     return is_included
