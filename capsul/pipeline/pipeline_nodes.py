@@ -584,7 +584,7 @@ class IterativeNode(Node):
         self.process.add_process("input_manager", input_manager)
         self.process.add_process("output_manager", output_manager)
 
-        # Ass processing nodes to the pipeline: only attached to input manager
+        # Add processing nodes to the pipeline: only attached to input manager
         for node_name in input_manager.nodes:
             self.process.add_process(node_name, self.iterative_process.id,
             self.do_not_export, self.make_optional, **self.kwargs)
