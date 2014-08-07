@@ -444,10 +444,14 @@ class PipelineScene(QtGui.QGraphicsScene):
         if isinstance(item, Link):
             for source_dest, glink in self.glinks.iteritems():
                 if glink is item:
-                    src = self.pipeline.nodes[source_dest[0][0]]
-                    proc = src
-                    if hasattr(src, 'process'):
-                        proc = src.process
+                    node_name = source_dest[0][0]
+                    if node_name in ('inputs', 'outputs'):
+                        proc = self.pipeline
+                    else:
+                        src = self.pipeline.nodes[node_name]
+                        proc = src
+                        if hasattr(src, 'process'):
+                            proc = src.process
                     name = source_dest[0][1]
                     value = getattr(proc, name)
                     #trait = proc.user_traits()[name]
@@ -471,13 +475,17 @@ class PipelineScene(QtGui.QGraphicsScene):
                       output = 'output'
                       break
             if found:
-                src = self.pipeline.nodes[node.name]
-                splug = src.plugs[name]
+                if node.name in ('inputs', 'outputs'):
+                    proc = self.pipeline
+                    splug = self.pipeline.pipeline_node.plugs[name]
+                else:
+                    src = self.pipeline.nodes[node.name]
+                    splug = src.plugs[name]
+                    proc = src
+                    if hasattr(src, 'process'):
+                        proc = src.process
                 msg = '<b>%s</b><br/>%s<br/>activated: %s<br/>optional: %s<br/>' \
                     % (name, output, str(splug.activated), str(splug.optional))
-                proc = src
-                if hasattr(src, 'process'):
-                    proc = src.process
                 value = getattr(proc, name)
                 typestr = str(type(value)).replace('<', '').replace('>', '')
                 msg += 'type: %s<br/>value: %s' % (typestr, str(value))
