@@ -146,6 +146,7 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
         self.active = active
         self.process = process
         self.sub_pipeline = sub_pipeline
+        self.embedded_subpipeline = None
 
         if self.active:
             color_1, color_2 = self._colors[style][0:2]
@@ -256,6 +257,27 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
         # render(&painter,QRectF(QPointF(0,0),10*contentRect.size()),contentRect);
         painter.end()
 
+    def add_subpipeline_view(self, sub_pipeline, allow_open_controller=True):
+        if self.embedded_subpipeline:
+            if self.embedded_subpipeline.isVisible():
+                self.embedded_subpipeline.hide()
+                self.box.setRect(self.boundingRect())
+            else:
+                self.embedded_subpipeline.show()
+                self.box.setRect(self.boundingRect())
+        else:
+            sub_view = PipelineDevelopperView(sub_pipeline,
+                show_sub_pipelines=True,
+                allow_open_controller=allow_open_controller)
+            margin = 5
+            pos = margin * 2 + self.title.boundingRect().size().height()
+            pwid = QtGui.QGraphicsProxyWidget(self)
+            pwid.setWidget(sub_view)
+            pwid.setPos(100, pos)
+            self.addToGroup(pwid)
+            self.embedded_subpipeline = pwid
+            self.box.setRect(self.boundingRect())
+
     def mouseDoubleClickEvent(self, event):
         if self.sub_pipeline:
             self.scene().subpipeline_clicked.emit(self.name, self.sub_pipeline,
@@ -266,9 +288,13 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
 
     def mousePressEvent(self, event):
         item = self.scene().itemAt(event.scenePos())
+        #print 'NodeGWidget click, item:', item
         if isinstance(item, Plug) and event.button() == QtCore.Qt.LeftButton:
             item.mousePressEvent(event)
             return
+        elif isinstance(item, QtGui.QGraphicsProxyWidget):
+            #print 'widget.'
+            event.accept()
         super(NodeGWidget, self).mousePressEvent(event)
         if event.button() == QtCore.Qt.RightButton \
                 and self.process is not None:
@@ -559,7 +585,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         if hasattr(pipeline, "scene_scale_factor"):
             self.scale(
                 pipeline.scene_scale_factor, pipeline.scene_scale_factor)
-        
+
 
     def set_pipeline(self, pipeline):
         self._set_pipeline(pipeline)
@@ -587,7 +613,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     def mousePressEvent(self, event):
         super(PipelineDevelopperView, self).mousePressEvent(event)
-        # item = self.itemAt(event.x(), event.y())
+        #item = self.itemAt(event.x(), event.y())
         # if item is None:
         if not event.isAccepted():
             self._grab = True
@@ -613,21 +639,18 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         """ Event to load a sub pipeline
         """
         if self._show_sub_pipelines:
+            if modifiers & QtCore.Qt.ControlModifier:
+                gnode = self.scene.gnodes.get(str(node_name))
+                if gnode is not None:
+                    gnode.add_subpipeline_view(
+                        sub_pipeline, self._allow_open_controller)
+                    return
+                else:
+                    print 'node not found in:'
+                    print self.scene.gnodes.keys()
             sub_view = PipelineDevelopperView(sub_pipeline,
                 show_sub_pipelines=self._show_sub_pipelines,
                 allow_open_controller=self._allow_open_controller)
-            #if modifiers & QtCore.Qt.ControlModifier:
-                #print 'CTRL : embed', repr(node_name)
-                #gnode = self.scene.gnodes.get(str(node_name))
-                #if gnode is not None:
-                    #print 'gnode:', gnode
-                    #pwid = QtGui.QGraphicsProxyWidget(gnode)
-                    #pwid.setWidget(sub_view)
-                    #gnode.addToGroup(pwid)
-                    #return
-                #else:
-                    #print 'node not found in:'
-                    #print self.scene.gnodes.keys()
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.setWindowTitle(node_name)
             sub_view.show()
