@@ -211,7 +211,7 @@ class CapsulMainWindow(MyQUiLoader):
         # onLoadSubPipelineClicked slot
         widget.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
 
-    def onLoadSubPipelineClicked(self, name, sub_pipeline):
+    def onLoadSubPipelineClicked(self, name, sub_pipeline, modifiers):
         """ Event to load and display a sub pipeline.
         """
         # Store the pipeline instance in class parameters
