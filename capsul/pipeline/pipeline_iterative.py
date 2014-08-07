@@ -9,6 +9,7 @@
 
 # System import
 import os
+import re
 
 # Capsul import
 from capsul.pipeline import Pipeline
@@ -77,7 +78,7 @@ class IterativeManager(Process):
 
             # Unpack the iterative traits
             trait_description = [
-                x.replace("List_","") for x in trait_description]
+                re.sub("^List_*", "", x) for x in trait_description]
             for cnt, item in enumerate(trait_value):
 
                 # Create one unpack trait
