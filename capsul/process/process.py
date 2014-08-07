@@ -330,6 +330,21 @@ class Process(Controller):
                     trait_name, trait_ids(self.trait(trait_name)))
         return output
 
+    def get_output_spec(self):
+        """ Method to access the process output specifications
+
+        Returns
+        -------
+        outputs: str
+            a string representation of all the output trait specifications
+        """
+        output = "\nOUTPUT SPECIFICATIONS\n\n"
+        for trait_name, trait in self.user_traits().iteritems():
+            if trait.output:
+                output += "{0}: {1}\n".format(
+                    trait_name, trait_ids(self.trait(trait_name)))
+        return output
+
     def get_inputs(self):
         """ Method to access the process inputs
 
