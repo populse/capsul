@@ -230,10 +230,10 @@ class CapsulMainWindow(MyQUiLoader):
         """ Event to close a pipeline view.
         """
         # Remove the pipeline from the intern pipeline list
-        del self.pipelines[self.ui.simple_pipeline.tabText(index)]
+        del self.pipelines[self.ui.display.tabText(index)]
 
         # Remove the table that contains the pipeline
-        self.ui.simple_pipeline.removeTab(index)
+        self.ui.display.removeTab(index)
 
     def onHelpClicked(self):
         """ Event to display the documentation of the active pipeline.
