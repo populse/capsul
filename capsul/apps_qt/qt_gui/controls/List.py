@@ -18,6 +18,13 @@ from soma.controller import trait_ids
 
 # Capsul import
 from capsul.apps_qt.qt_gui.controller_widget import ControllerWidget
+from soma.controller import Controller
+
+
+class ListController(Controller):
+    """ Dummy list controller to simplify the creation of a list widget
+    """
+    pass
 
 
 class ListControlWidget(object):
@@ -95,51 +102,27 @@ class ListControlWidget(object):
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QtGui.QFrame.StyledPanel)
 
-        # Try to find the control name associated with the current inner
-        # trait
-        inner_control_class = ListControlWidget.get_control_class(inner_trait)
-        print inner_control_class
-        if isinstance(inner_control_class, str) and inner_control_class == "self":
-            inner_control_class = ListControlWidget
-
-        # If no control has been found, skip this trait and print
-        # an error message. Note that the parameter will not be
-        # accessible in the user interface.
-        if inner_control_class is None:
-            logging.error("No control defined for inner trait '{0}'. This "
-                          "parameter will not be accessible in the "
-                          "user interface.".format(control_name))
-            return (scroll_area, None)
-
-        # Create the inner widgets
-        inner_widgets = []
-
-        # Create the layout of the controller widget
-        # We will add all the controls to this layout
-        grid_layout = QtGui.QGridLayout()
-        grid_layout.setAlignment(QtCore.Qt.AlignTop)
-        grid_layout.setSpacing(3)
-        grid_layout.setContentsMargins(5, 5, 5, 5)
-        scroll_area.setLayout(grid_layout)
-
+        # Create a new controller with the inner trait
+        controller = ListController()
         for cnt, inner_control_values in enumerate(control_value):
+            controller.add_trait(str(cnt), inner_trait)
+            #trait = list_controller.trait(str(i))
+            #trait.order = i
+            setattr(controller, str(cnt), inner_control_values)
 
-            print cnt, inner_control_values
+        # Create the associated controller widget
+        controller_widget = ControllerWidget(controller, parent=scroll_area)
+        #control_instance, control_label = ControllerWidget.create_widget(
+        #    scroll_area, control_name, None, controller)
 
-            # Create the control instance and associated label
-            control_instance, control_label = inner_control_class.create_widget(
-                scroll_area, str(cnt), inner_control_values,
-                inner_trait)
-            inner_widgets.append(control_instance)
-
-            # Append the label and control in two separate columns of the
-            # grid layout
-            last_row = grid_layout.rowCount()
-            grid_layout.addWidget(control_label, last_row, 0)
-            grid_layout.addWidget(control_instance, last_row, 1)
+        # Connection
+        #control_instance.controller_widget.connect_controller()
+        #control_instance.item_trait = inner_trait
+        #control_instance.controller = controller
+        #control_instance.connected = False
 
         # Add the grid layout to the scroll area
-        #scroll_area.setWidget(control_instance)
+        scroll_area.setWidget(controller_widget)
 
         # Create the label associated with the string widget
         control_label = trait.label
