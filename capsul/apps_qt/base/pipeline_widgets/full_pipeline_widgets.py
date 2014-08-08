@@ -125,7 +125,7 @@ class Plug(QtGui.QGraphicsPolygonItem):
             event.accept()
 
 
-class NodeGWidget(QtGui.QGraphicsItemGroup):
+class NodeGWidget(QtGui.QGraphicsItem):
 
     _colors = {
         'default': (BLUE_1, BLUE_2, LIGHT_BLUE_1, LIGHT_BLUE_2),
@@ -167,6 +167,7 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
         gradient.setColorAt(1, color_1)
         gradient.setColorAt(0, color_2)
         self.title_brush = QtGui.QBrush(gradient)
+        self.setAcceptedMouseButtons(QtCore.Qt.LeftButton|QtCore.Qt.RightButton|QtCore.Qt.MiddleButton)
 
         self._build()
 
@@ -186,7 +187,8 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
         self.title.setPos(margin, margin)
         self.title.setZValue(2)
         # always add to group after setPos
-        self.addToGroup(self.title)
+        #self.addToGroup(self.title)
+        self.title.setParentItem(self)
 
         pos = margin + margin + self.title.boundingRect().size().height()
         for in_param, pipeline_plug in self.parameters.iteritems():
@@ -202,8 +204,10 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
             param_name.setZValue(2)
             plug.setPos(margin, pos)
             param_name.setPos(plug.boundingRect().size().width() + margin, pos)
-            self.addToGroup(param_name)
-            self.addToGroup(plug)
+            #self.addToGroup(param_name)
+            #self.addToGroup(plug)
+            param_name.setParentItem(self)
+            plug.setParentItem(self)
             self.in_plugs[in_param] = plug
             pos = pos + param_name.boundingRect().size().height()
 
@@ -221,8 +225,10 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
             param_name.setPos(plug.boundingRect().size().width() + margin, pos)
             plug.setPos(plug.boundingRect().size().width() + margin +
                         param_name.boundingRect().size().width() + margin, pos)
-            self.addToGroup(plug)
-            self.addToGroup(param_name)
+            #self.addToGroup(plug)
+            #self.addToGroup(param_name)
+            param_name.setParentItem(self)
+            plug.setParentItem(self)
             self.out_plugs[out_param] = plug
             pos = pos + param_name.boundingRect().size().height()
 
@@ -230,16 +236,42 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
         self.box.setBrush(self.bg_brush)
         self.box.setPen(QtGui.QPen(QtCore.Qt.NoPen))
         self.box.setZValue(-1)
-        self.addToGroup(self.box)
-        self.box.setRect(self.boundingRect())
+        #self.addToGroup(self.box)
+        self.box.setParentItem(self)
+        self.box.setRect(self.contentsRect())
 
         self.box_title = QtGui.QGraphicsRectItem(self)
         rect = self.title.mapRectToParent(self.title.boundingRect())
-        rect.setWidth(self.boundingRect().width())
+        brect = self.contentsRect()
+        brect.setWidth(brect.right() - margin * 2)
+        rect.setWidth(brect.width())
         self.box_title.setRect(rect)
         self.box_title.setBrush(self.title_brush)
         self.box_title.setPen(QtGui.QPen(QtCore.Qt.NoPen))
-        self.addToGroup(self.box_title)
+        #self.addToGroup(self.box_title)
+        self.box_title.setParentItem(self)
+
+    def contentsRect(self):
+        brect = QtCore.QRectF(0, 0, 0, 0)
+        for child in self.childItems():
+            if not child.isVisible() or child is self.box:
+                continue
+            item_rect = self.mapRectFromItem(child, child.boundingRect())
+            if item_rect.right() > brect.right():
+                brect.setRight(item_rect.right())
+            if item_rect.bottom() > brect.bottom():
+                brect.setBottom(item_rect.bottom())
+        return brect
+
+    def boundingRect(self):
+        margin = 0
+        brect = self.contentsRect()
+        brect.setRight(brect.right() + margin * 2)
+        brect.setBottom(brect.bottom() + margin * 2)
+        return brect
+
+    def paint(self, painter, option, widget=None):
+        pass
 
     def postscript(self, file_name):
         printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
@@ -274,9 +306,12 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
             pwid = QtGui.QGraphicsProxyWidget(self)
             pwid.setWidget(sub_view)
             pwid.setPos(100, pos)
-            self.addToGroup(pwid)
+            #self.addToGroup(pwid)
+            pwid.setParentItem(self)
             self.embedded_subpipeline = pwid
             self.box.setRect(self.boundingRect())
+            #pwid.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, True)
+            self.setFiltersChildEvents(False)
 
     def mouseDoubleClickEvent(self, event):
         if self.sub_pipeline:
@@ -292,9 +327,9 @@ class NodeGWidget(QtGui.QGraphicsItemGroup):
         if isinstance(item, Plug) and event.button() == QtCore.Qt.LeftButton:
             item.mousePressEvent(event)
             return
-        elif isinstance(item, QtGui.QGraphicsProxyWidget):
-            #print 'widget.'
-            event.accept()
+        #elif isinstance(item, QtGui.QGraphicsProxyWidget):
+            ##print 'widget.'
+            #event.accept()
         super(NodeGWidget, self).mousePressEvent(event)
         if event.button() == QtCore.Qt.RightButton \
                 and self.process is not None:
@@ -550,6 +585,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         Display tooltips on plugs and links
         '''
         item = self.itemAt(event.scenePos())
+        #print 'helpEvent for', self, ', on:', item
         if isinstance(item, Link):
             for source_dest, glink in self.glinks.iteritems():
                 if glink is item:
@@ -571,8 +607,34 @@ class PipelineScene(QtGui.QGraphicsScene):
             if found:
                 text = self.plug_tooltip_text(node, name)
                 item.setToolTip(text)
+        elif isinstance(item, QtGui.QGraphicsProxyWidget):
+            # PROBLEM:
+            # the coords in event.scenePos() are relative to this (parent) scene
+            # and will not work if the event is transmitted as is to the
+            # child scene of the subpipeline.
+            # We should translate them to child coordinates before calling
+            # the child scene helpEvent.
+            # But QGraphicsSceneHelpEvent does not allow changing its internal
+            # state, and has no public constructor. So we just cannot build
+            # a fixed event.
 
-        super(PipelineScene, self).helpEvent(event)
+            #print 'helpEvent on sub-pipeline:', item.widget().scene
+            #scene_pos = event.scenePos()
+            #scene_pos2 = item.mapFromScene(scene_pos)
+            #class fake_help_event(object):
+                #def __init__(self, scene_pos, event):
+                    #self._scene_pos = scene_pos
+                    #self.event = event
+                #def scenePos(self):
+                    #return self._scene_pos
+            #help_event = fake_help_event(scene_pos2, event)
+            #item.widget().scene.helpEvent(help_event)
+            item.widget().scene.helpEvent(event)
+
+        if hasattr(event, 'event'):
+            super(PipelineScene, self).helpEvent(event.event)
+        else:
+            super(PipelineScene, self).helpEvent(event)
 
 
 class PipelineDevelopperView(QtGui.QGraphicsView):
