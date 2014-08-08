@@ -608,33 +608,10 @@ class PipelineScene(QtGui.QGraphicsScene):
                 text = self.plug_tooltip_text(node, name)
                 item.setToolTip(text)
         elif isinstance(item, QtGui.QGraphicsProxyWidget):
-            # PROBLEM:
-            # the coords in event.scenePos() are relative to this (parent) scene
-            # and will not work if the event is transmitted as is to the
-            # child scene of the subpipeline.
-            # We should translate them to child coordinates before calling
-            # the child scene helpEvent.
-            # But QGraphicsSceneHelpEvent does not allow changing its internal
-            # state, and has no public constructor. So we just cannot build
-            # a fixed event.
+            # PROBLEM: tooltips in child graphics scenes seem no to popup.
+            event.setAccepted(False)
 
-            #print 'helpEvent on sub-pipeline:', item.widget().scene
-            #scene_pos = event.scenePos()
-            #scene_pos2 = item.mapFromScene(scene_pos)
-            #class fake_help_event(object):
-                #def __init__(self, scene_pos, event):
-                    #self._scene_pos = scene_pos
-                    #self.event = event
-                #def scenePos(self):
-                    #return self._scene_pos
-            #help_event = fake_help_event(scene_pos2, event)
-            #item.widget().scene.helpEvent(help_event)
-            item.widget().scene.helpEvent(event)
-
-        if hasattr(event, 'event'):
-            super(PipelineScene, self).helpEvent(event.event)
-        else:
-            super(PipelineScene, self).helpEvent(event)
+        super(PipelineScene, self).helpEvent(event)
 
 
 class PipelineDevelopperView(QtGui.QGraphicsView):
