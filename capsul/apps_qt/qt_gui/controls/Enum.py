@@ -50,7 +50,7 @@ class EnumControlWidget(object):
         control_instance.textChanged.connect(widget_callback)
 
     @staticmethod
-    def create_widget(parent, control_name, control_label, control_value):
+    def create_widget(parent, control_name, control_value, trait):
         """ Method to create the widget.
 
         Parameters
@@ -59,10 +59,10 @@ class EnumControlWidget(object):
             the parent widget
         control_name: str (mandatory)
             the name of the control we want to create
-        control_label: str (mandatory)
-            the label asssociated with the control
         control_value: str (mandatory)
             the default control value, here the enum values
+        trait: Tait (mandatory)
+            the trait associated to the control
 
         Returns
         -------
@@ -74,19 +74,19 @@ class EnumControlWidget(object):
         widget = QtGui.QComboBox(parent)
 
         # Save the possible choices
-        widget._choices = control_label
+        widget._choices = trait.handler.values
 
         # Set the enum list items to the widget
-        for item in control_label:
+        for item in widget._choices:
             widget.addItem(item)
 
         # Select the default value
         # If the default value is not in the enum list, pick the first item
         # of the enum list
-        if control_value not in control_label:
+        if control_value not in widget._choices:
             widget.setCurrentIndex(0)
         else:
-            widget.setCurrentIndex(control_label.index(control_value))
+            widget.setCurrentIndex(widget._choices.index(control_value))
 
         # Create the label associated with the enum widget
         if control_name is not None:

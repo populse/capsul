@@ -81,7 +81,7 @@ class StrControlWidget(object):
 
 
     @staticmethod
-    def create_widget(parent, control_name, control_label, control_value):
+    def create_widget(parent, control_name, control_value, trait):
         """ Method to create the widget.
 
         Parameters
@@ -90,10 +90,10 @@ class StrControlWidget(object):
             the parent widget
         control_name: str (mandatory)
             the name of the control we want to create
-        control_label: str (mandatory)
-            the label asssociated with the control
         control_value: str (mandatory)
             the default control value
+        trait: Tait (mandatory)
+            the trait associated to the control
 
         Returns
         -------
@@ -105,6 +105,7 @@ class StrControlWidget(object):
         widget = QtGui.QLineEdit(parent)
 
         # Create the label associated with the string widget
+        control_label = trait.label
         if control_label is None:
             control_label = control_name
         if control_label is not None:

@@ -12,6 +12,7 @@ from Str import StrControlWidget
 from Float import FloatControlWidget
 from Int import IntControlWidget
 from Enum import EnumControlWidget
+from List import ListControlWidget
 
 
 controls = {}
@@ -21,3 +22,4 @@ controls["String"] = StrControlWidget
 controls["Float"] = FloatControlWidget
 controls["Int"] = IntControlWidget
 controls["Enum"] = EnumControlWidget
+controls["List"] = ListControlWidget

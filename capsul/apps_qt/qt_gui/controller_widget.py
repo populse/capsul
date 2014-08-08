@@ -14,9 +14,6 @@ import logging
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.controller import trait_ids, Controller
 
-# Capsul import
-import capsul.qtgui.controls as controls
-
 
 class ControllerWidget(QtGui.QWidget):
     """ Class that create a widget to set the controller parameters.
@@ -24,7 +21,7 @@ class ControllerWidget(QtGui.QWidget):
 
     # Parameter to store the mapping between the string trait descriptions and
     # the associated control names
-    _defined_controls = controls.controls
+    _defined_controls = {} #controls.controls
 
     def __init__(self, controller, parent=None, name=None, live=False,
                  hide_labels=False):
@@ -271,8 +268,8 @@ class ControllerWidget(QtGui.QWidget):
 
                 # Create the control instance and associated label
                 control_instance, control_label = control_class.create_widget(
-                    self, trait_name, trait.label or trait.handler.values, 
-                    getattr(self.controller, trait_name))
+                    self, trait_name, getattr(self.controller, trait_name),
+                    trait)
         
                 # If the trait contains a description, insert a tool tip to the
                 # control instance
@@ -387,6 +384,9 @@ class ControllerWidget(QtGui.QWidget):
         # choose which one he wants to fill.
         for trait_id in trait_ids(trait):
 
+            # Recursive construction: get only the top level
+            trait_id = trait_id.split("_")[0]
+
             # Try to get the control class
             control_class = cls._defined_controls.get(trait_id)
 
@@ -395,3 +395,9 @@ class ControllerWidget(QtGui.QWidget):
                 break
 
         return control_class
+
+
+# Capsul import
+from capsul.apps_qt.qt_gui.controls import controls
+
+ControllerWidget._defined_controls.update(controls)
