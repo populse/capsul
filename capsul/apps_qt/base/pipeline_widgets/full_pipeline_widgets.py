@@ -412,7 +412,8 @@ class PipelineScene(QtGui.QGraphicsScene):
                 pipeline_inputs[name] = plug
         if pipeline_inputs:
             self.add_node(
-                'inputs', NodeGWidget('inputs', pipeline_inputs, active=pipeline.pipeline_node.activated,
+                'inputs', NodeGWidget('inputs', pipeline_inputs,
+                    active=pipeline.pipeline_node.activated,
                     process=pipeline))
         for node_name, node in pipeline.nodes.iteritems():
             if not node_name:
@@ -465,30 +466,98 @@ class PipelineScene(QtGui.QGraphicsScene):
         else:
             super(PipelineScene, self).keyPressEvent(event)
 
+
+    def link_tooltip_text(self, source_dest):
+        node_name = source_dest[0][0]
+        if node_name in ('inputs', 'outputs'):
+            proc = self.pipeline
+        else:
+            src = self.pipeline.nodes[node_name]
+            proc = src
+            if hasattr(src, 'process'):
+                proc = src.process
+        name = source_dest[0][1]
+        value = getattr(proc, name)
+        #trait = proc.user_traits()[name]
+        typestr = str(type(value)).replace('<', '').replace('>', '')
+        msg = '''<h3>%s</h3>
+<table>
+  <tr>
+    <td>type:</td>
+    <td>%s</td>
+  </tr>
+  <tr>
+    <td>value:</td>
+    <td>%s</td>
+  </tr>
+</table>''' \
+            % (source_dest[0][1], typestr, str(value))
+        return msg
+
+    def plug_tooltip_text(self, node, name):
+        if node.name in ('inputs', 'outputs'):
+            proc = self.pipeline
+            splug = self.pipeline.pipeline_node.plugs[name]
+        else:
+            src = self.pipeline.nodes[node.name]
+            splug = src.plugs[name]
+            proc = src
+            if hasattr(src, 'process'):
+                proc = src.process
+        if splug.output:
+            output = '<font color="#d00000">output</font>'
+        else:
+            output = '<font color="#00d000">input</font>'
+        if splug.enabled:
+            enabled = 'enabled'
+        else:
+            enabled = '<font color="#a0a0a0">disabled</font>'
+        if splug.activated:
+            activated = 'activated'
+        else:
+            activated = '<font color="#a0a0a0">inactive</font>'
+        if splug.optional:
+            optional = '<font color="#00d000">optional</font>'
+        else:
+            optional = 'mandatory'
+        value = getattr(proc, name)
+        typestr = str(type(value)).replace('<', '').replace('>', '')
+        msg = '''<h3>%s</h3>
+<table cellspacing="6">
+    <tr>
+      <td>%s</td>
+      <td>%s</td>
+      <td>%s</td>
+      <td>%s</td>
+    </tr>
+</table>
+<table>
+    <tr>
+      <td>type:</td>
+      <td>%s</td>
+    </tr>
+    <tr>
+      <td>value:</td>
+      <td><b>%s</b></td>
+    </tr>
+</table>''' \
+            % (name, output, optional, enabled, activated, typestr, str(value))
+        return msg
+
+
     def helpEvent(self, event):
+        '''
+        Display tooltips on plugs and links
+        '''
         item = self.itemAt(event.scenePos())
         if isinstance(item, Link):
             for source_dest, glink in self.glinks.iteritems():
                 if glink is item:
-                    node_name = source_dest[0][0]
-                    if node_name in ('inputs', 'outputs'):
-                        proc = self.pipeline
-                    else:
-                        src = self.pipeline.nodes[node_name]
-                        proc = src
-                        if hasattr(src, 'process'):
-                            proc = src.process
-                    name = source_dest[0][1]
-                    value = getattr(proc, name)
-                    #trait = proc.user_traits()[name]
-                    typestr = str(type(value)).replace('<', '').replace('>', '')
-                    msg = '<html><b>%s</b><br/>type: %s<br/>value: %s</html>' \
-                        % (source_dest[0][1], typestr, str(value))
-                    item.setToolTip(msg)
+                    text = self.link_tooltip_text(source_dest)
+                    item.setToolTip(text)
                     break
         elif isinstance(item, Plug):
             node = item.parentItem()
-            output = 'input'
             found = False
             for name, plug in node.in_plugs.iteritems():
                 if plug is item:
@@ -498,24 +567,10 @@ class PipelineScene(QtGui.QGraphicsScene):
               for name, plug in node.out_plugs.iteritems():
                   if plug is item:
                       found = True
-                      output = 'output'
                       break
             if found:
-                if node.name in ('inputs', 'outputs'):
-                    proc = self.pipeline
-                    splug = self.pipeline.pipeline_node.plugs[name]
-                else:
-                    src = self.pipeline.nodes[node.name]
-                    splug = src.plugs[name]
-                    proc = src
-                    if hasattr(src, 'process'):
-                        proc = src.process
-                msg = '<b>%s</b><br/>%s<br/>activated: %s<br/>optional: %s<br/>' \
-                    % (name, output, str(splug.activated), str(splug.optional))
-                value = getattr(proc, name)
-                typestr = str(type(value)).replace('<', '').replace('>', '')
-                msg += 'type: %s<br/>value: %s' % (typestr, str(value))
-                item.setToolTip(msg)
+                text = self.plug_tooltip_text(node, name)
+                item.setToolTip(text)
 
         super(PipelineScene, self).helpEvent(event)
 
