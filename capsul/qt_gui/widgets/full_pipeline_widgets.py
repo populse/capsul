@@ -72,16 +72,7 @@ class Plug(QtGui.QGraphicsPolygonItem):
                  parent=None):
         super(Plug, self).__init__(parent)
         self.name = name
-        if optional:
-            if activated:
-                color = QtCore.Qt.darkGreen
-            else:
-                color = QtGui.QColor('#BFDB91')
-        else:
-            if activated:
-                color = QtCore.Qt.black
-            else:
-                color = QtCore.Qt.gray
+        color = self._color(activated, optional)
         if True:
             brush = QtGui.QBrush(QtCore.Qt.SolidPattern)
             brush.setColor(color)
@@ -110,6 +101,25 @@ class Plug(QtGui.QGraphicsPolygonItem):
         self.setBrush(brush)
         self.setZValue(3)
         self.setAcceptedMouseButtons(QtCore.Qt.LeftButton)
+
+    def _color(self, activated, optional):
+        if optional:
+            if activated:
+                color = QtCore.Qt.darkGreen
+            else:
+                color = QtGui.QColor('#BFDB91')
+        else:
+            if activated:
+                color = QtCore.Qt.black
+            else:
+                color = QtCore.Qt.gray
+        return color
+
+    def update_plug(self, activated, optional):
+        color = self._color(activated, optional)
+        brush = QtGui.QBrush(QtCore.Qt.SolidPattern)
+        brush.setColor(color)
+        self.setBrush(brush)
 
     def get_plug_point(self):
         point = QtCore.QPointF(
@@ -151,6 +161,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         super(NodeGWidget, self).__init__(parent)
         if style is None:
             style = 'default'
+        self.style = style
         self.name = name
         self.parameters = parameters
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
@@ -163,25 +174,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.sub_pipeline = sub_pipeline
         self.embedded_subpipeline = None
 
-        if self.active:
-            color_1, color_2 = self._colors[style][0:2]
-        else:
-            color_1, color_2 = self._colors[style][2:4]
-        gradient = QtGui.QLinearGradient(0, 0, 0, 50)
-        gradient.setColorAt(0, color_1)
-        gradient.setColorAt(1, color_2)
-        self.bg_brush = QtGui.QBrush(gradient)
-
-        if self.active:
-            color_1 = GRAY_1
-            color_2 = GRAY_2
-        else:
-            color_1 = LIGHT_GRAY_1
-            color_2 = LIGHT_GRAY_2
-        gradient = QtGui.QLinearGradient(0, 0, 0, 50)
-        gradient.setColorAt(1, color_1)
-        gradient.setColorAt(0, color_2)
-        self.title_brush = QtGui.QBrush(gradient)
+        self._set_brush()
         self.setAcceptedMouseButtons(
             QtCore.Qt.LeftButton|QtCore.Qt.RightButton|QtCore.Qt.MiddleButton)
 
@@ -212,14 +205,12 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 continue
             param_name = QtGui.QGraphicsTextItem(in_param, self)
             plug_name = '%s:%s' % (self.name, in_param)
-            plug = Plug(plug_name,param_name.boundingRect().size().height(),
+            plug = Plug(plug_name, param_name.boundingRect().size().height(),
                         plug_width, activated=pipeline_plug.activated,
                         optional=pipeline_plug.optional, parent=self)
             param_name.setZValue(2)
             plug.setPos(margin, pos)
             param_name.setPos(plug.boundingRect().size().width() + margin, pos)
-            #self.addToGroup(param_name)
-            #self.addToGroup(plug)
             param_name.setParentItem(self)
             plug.setParentItem(self)
             self.in_plugs[in_param] = plug
@@ -233,15 +224,13 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 continue
             param_name = QtGui.QGraphicsTextItem(out_param, self)
             plug_name = '%s:%s' % (self.name, out_param)
-            plug = Plug(plug_name,param_name.boundingRect().size().height(),
+            plug = Plug(plug_name, param_name.boundingRect().size().height(),
                         plug_width, activated=pipeline_plug.activated,
                         optional=pipeline_plug.optional, parent=self)
             param_name.setZValue(2)
             param_name.setPos(plug.boundingRect().size().width() + margin, pos)
             plug.setPos(plug.boundingRect().size().width() + margin +
                         param_name.boundingRect().size().width() + margin, pos)
-            #self.addToGroup(plug)
-            #self.addToGroup(param_name)
             param_name.setParentItem(self)
             plug.setParentItem(self)
             self.out_plugs[out_param] = plug
@@ -252,7 +241,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.box.setBrush(self.bg_brush)
         self.box.setPen(QtGui.QPen(QtCore.Qt.NoPen))
         self.box.setZValue(-1)
-        #self.addToGroup(self.box)
         self.box.setParentItem(self)
         self.box.setRect(self.contentsRect())
 
@@ -264,8 +252,41 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.box_title.setRect(rect)
         self.box_title.setBrush(self.title_brush)
         self.box_title.setPen(QtGui.QPen(QtCore.Qt.NoPen))
-        #self.addToGroup(self.box_title)
         self.box_title.setParentItem(self)
+
+    def _set_brush(self):
+        if self.active:
+            color_1, color_2 = self._colors[self.style][0:2]
+        else:
+            color_1, color_2 = self._colors[self.style][2:4]
+        gradient = QtGui.QLinearGradient(0, 0, 0, 50)
+        gradient.setColorAt(0, color_1)
+        gradient.setColorAt(1, color_2)
+        self.bg_brush = QtGui.QBrush(gradient)
+
+        if self.active:
+            color_1 = GRAY_1
+            color_2 = GRAY_2
+        else:
+            color_1 = LIGHT_GRAY_1
+            color_2 = LIGHT_GRAY_2
+        gradient = QtGui.QLinearGradient(0, 0, 0, 50)
+        gradient.setColorAt(1, color_1)
+        gradient.setColorAt(0, color_2)
+        self.title_brush = QtGui.QBrush(gradient)
+
+    def update_node(self):
+        self._set_brush()
+        self.box_title.setBrush(self.title_brush)
+        self.box.setBrush(self.bg_brush)
+        for param, pipeline_plug in self.parameters.iteritems():
+            output = (not pipeline_plug.output if self.name in (
+                'inputs', 'outputs') else pipeline_plug.output)
+            if output:
+                gplug = self.out_plugs[param]
+            else:
+                gplug = self.in_plugs[param]
+            gplug.update_plug(pipeline_plug.activated, pipeline_plug.optional)
 
     def contentsRect(self):
         brect = QtCore.QRectF(0, 0, 0, 0)
@@ -417,6 +438,17 @@ class Link(QtGui.QGraphicsPathItem):
 
     def __init__(self, origin, target, active, weak, parent=None):
         super(Link, self).__init__(parent)
+        self._set_pen(active, weak)
+
+        path = QtGui.QPainterPath()
+        path.moveTo(origin.x(), origin.y())
+        path.cubicTo(origin.x() + 100, origin.y(),
+                     target.x() - 100, target.y(),
+                     target.x(), target.y())
+        self.setPath(path)
+        self.setZValue(0.5)
+
+    def _set_pen(self, active, weak):
         pen = QtGui.QPen()
         pen.setWidth(2)
         if active:
@@ -427,15 +459,7 @@ class Link(QtGui.QGraphicsPathItem):
             pen.setStyle(QtCore.Qt.DashLine)
         pen.setCapStyle(QtCore.Qt.RoundCap)
         pen.setJoinStyle(QtCore.Qt.RoundJoin)
-
-        path = QtGui.QPainterPath()
-        path.moveTo(origin.x(), origin.y())
-        path.cubicTo(origin.x() + 100, origin.y(),
-                     target.x() - 100, target.y(),
-                     target.x(), target.y())
-        self.setPath(path)
         self.setPen(pen)
-        self.setZValue(0.5)
 
     def update(self, origin, target):
         path = QtGui.QPainterPath()
@@ -445,6 +469,9 @@ class Link(QtGui.QGraphicsPathItem):
                      target.x(), target.y())
 
         self.setPath(path)
+
+    def update_activation(self, active, weak):
+        self._set_pen(active, weak)
 
 
 class PipelineScene(QtGui.QGraphicsScene):
@@ -568,6 +595,30 @@ class PipelineScene(QtGui.QGraphicsScene):
                             active=source_plug.activated \
                                 and dest_plug.activated,
                             weak=weak_link)
+
+    def update_pipeline(self):
+        for node_name, gnode in self.gnodes.iteritems():
+            if node_name in ('inputs', 'outputs'):
+                node = self.pipeline.nodes['']
+            else:
+                node = self.pipeline.nodes[node_name]
+            gnode.active = node.activated
+            gnode.update_node()
+        for source_dest, glink in self.glinks.iteritems():
+            source, dest = source_dest
+            source_node_name, source_param = source
+            dest_node_name, dest_param = dest
+            if source_node_name == 'inputs':
+                source_node_name = ''
+            if dest_node_name == 'outputs':
+                dest_node_name = ''
+            source_plug \
+                = self.pipeline.nodes[source_node_name].plugs[source_param]
+            dest_plug = self.pipeline.nodes[dest_node_name].plugs[dest_param]
+            active = source_plug.activated and dest_plug.activated
+            weak = [x[4] for x in source_plug.links_to \
+                if x[:2] == (dest_node_name, dest_param)][0]
+            glink.update_activation(active, weak)
 
     def keyPressEvent(self, event):
         super(PipelineScene, self).keyPressEvent(event)
@@ -768,7 +819,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
         # Setup callback to update view when pipeline state is modified
         def reset_pipeline():
-            self._set_pipeline(pipeline)
+            #self._set_pipeline(pipeline)
+            self.scene.update_pipeline()
         pipeline.on_trait_change(reset_pipeline, 'selection_changed')
 
     def zoom_in(self):
