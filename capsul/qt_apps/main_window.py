@@ -73,7 +73,8 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Create the controller widget associated to the study
         # configuration controller
-        self.study_config_widget = ScrollControllerWidget(self.study_config)
+        self.study_config_widget = ScrollControllerWidget(
+            self.study_config, live=True)
         self.ui.dockWidgetStudyConfig.setWidget(self.study_config_widget)
 
         # Create the pipeline menu
@@ -201,7 +202,7 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Create the controller widget associated to the pipeline
         # controller
-        pipeline_widget = ScrollControllerWidget(self.pipeline)
+        pipeline_widget = ScrollControllerWidget(self.pipeline, live=True)
         self.ui.dockWidgetParameters.setWidget(pipeline_widget)
 
         # Store the pipeline documentation root path
