@@ -124,6 +124,32 @@ class Plug(QtGui.QGraphicsPolygonItem):
             self.scene().plug_clicked.emit(self.name)
             event.accept()
 
+class EmbeddedSubPipelineItem(QtGui.QGraphicsProxyWidget):
+    '''
+    QGraphicsItem containing a sub-pipeline view
+    '''
+
+    def __init__(self, sub_pipeline_wid):
+        super(EmbeddedSubPipelineItem, self).__init__()
+        #wid = QtGui.QWidget(None, QtCore.Qt.SubWindow)
+        #layout = QtGui.QVBoxLayout(wid)
+        #layout.setMargin(0)
+        #layout.setSpacing(0)
+        #wid.setLayout(layout)
+        #sizegrip = QtGui.QSizeGrip(wid)
+        #layout.addWidget(sub_pipeline_wid)
+        #lay2 = QtGui.QHBoxLayout()
+        #lay2.setMargin(0)
+        #lay2.setSpacing(0)
+        #layout.addLayout(lay2)
+        #lay2.addWidget(QtGui.QWidget())
+        #lay2.addStretch()
+        #lay2.addWidget(sizegrip)
+        #self.setWidget(wid)
+        self.setWidget(sub_pipeline_wid)
+
+    #def mouseMoveEvent(self, event):
+        #print 'move EmbeddedSubPipelineItem', self
 
 class NodeGWidget(QtGui.QGraphicsItem):
 
@@ -142,7 +168,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.parameters = parameters
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.in_plugs = {}
+        self.in_params = {}
         self.out_plugs = {}
+        self.out_params = {}
         self.active = active
         self.process = process
         self.sub_pipeline = sub_pipeline
@@ -209,6 +237,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_name.setParentItem(self)
             plug.setParentItem(self)
             self.in_plugs[in_param] = plug
+            self.in_params[in_param] = param_name
             pos = pos + param_name.boundingRect().size().height()
 
         for out_param, pipeline_plug in self.parameters.iteritems():
@@ -230,6 +259,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_name.setParentItem(self)
             plug.setParentItem(self)
             self.out_plugs[out_param] = plug
+            self.out_params[out_param] = param_name
             pos = pos + param_name.boundingRect().size().height()
 
         self.box = QtGui.QGraphicsRectItem(self)
@@ -243,7 +273,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.box_title = QtGui.QGraphicsRectItem(self)
         rect = self.title.mapRectToParent(self.title.boundingRect())
         brect = self.contentsRect()
-        brect.setWidth(brect.right() - margin * 2)
+        brect.setWidth(brect.right() - margin)
         rect.setWidth(brect.width())
         self.box_title.setRect(rect)
         self.box_title.setBrush(self.title_brush)
@@ -253,14 +283,27 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
     def contentsRect(self):
         brect = QtCore.QRectF(0, 0, 0, 0)
+        first = True
+        excluded = []
+        for name in ('box', 'box_title'):
+            if hasattr(self, name):
+                excluded.append(getattr(self, name))
         for child in self.childItems():
-            if not child.isVisible() or child is self.box:
+            if not child.isVisible() or child in excluded:
                 continue
             item_rect = self.mapRectFromItem(child, child.boundingRect())
-            if item_rect.right() > brect.right():
-                brect.setRight(item_rect.right())
-            if item_rect.bottom() > brect.bottom():
-                brect.setBottom(item_rect.bottom())
+            if first:
+                first = False
+                brect = item_rect
+            else:
+                if item_rect.left() < brect.left():
+                    brect.setLeft(item_rect.left())
+                if item_rect.top() < brect.top():
+                    brect.setTop(item_rect.top())
+                if item_rect.right() > brect.right():
+                    brect.setRight(item_rect.right())
+                if item_rect.bottom() > brect.bottom():
+                    brect.setBottom(item_rect.bottom())
         return brect
 
     def boundingRect(self):
@@ -289,29 +332,80 @@ class NodeGWidget(QtGui.QGraphicsItem):
         # render(&painter,QRectF(QPointF(0,0),10*contentRect.size()),contentRect);
         painter.end()
 
+    def resize_subpipeline_on_show(self):
+        margin = 5
+        param_width = self.in_params_width()
+        pos = margin * 2 + self.title.boundingRect().size().height()
+        #self.embedded_subpipeline.setPos(param_width, pos)
+        opos = param_width \
+            + self.embedded_subpipeline.boundingRect().width()
+        for name, param in self.out_params.iteritems():
+            param.setPos(opos, param.pos().y())
+            plug = self.out_plugs[name]
+            plug.setPos(opos + margin + param.boundingRect().size().width(),
+                plug.pos().y())
+        rect = self.box_title.boundingRect()
+        rect.setWidth(self.contentsRect().width())
+        self.box_title.setRect(rect)
+        self.box.setRect(self.boundingRect())
+
+    def resize_subpipeline_on_hide(self):
+        margin = 5
+        opos = self.in_params_width() \
+            + self.embedded_subpipeline.boundingRect().width()
+        self.embedded_subpipeline.setPos(self.in_params_width() + margin,
+            self.embedded_subpipeline.pos().y())
+        for name, param in self.out_params.iteritems():
+            plug = self.out_plugs[name]
+            param.setPos(plug.boundingRect().width() + margin, param.pos().y())
+            plug.setPos(plug.boundingRect().size().width() + margin +
+                param.boundingRect().size().width() + margin, plug.pos().y())
+        rect = self.box_title.boundingRect()
+        rect.setWidth(self.contentsRect().width())
+        self.box_title.setRect(rect)
+        self.box.setRect(self.boundingRect())
+
+    def in_params_width(self):
+        margin = 5
+        width = 0
+        pwidth = 0
+        for param_name, param in self.in_params.iteritems():
+            if param.boundingRect().width() > width:
+                width = param.boundingRect().width()
+            if pwidth == 0:
+                plug = self.in_plugs[param_name]
+                pwidth = plug.boundingRect().width()
+        return width + margin + pwidth
+
+    def out_params_width(self):
+        width = 0
+        for param_name, param in self.out_params.iteritems():
+            if param.boundingRect().width() > width:
+                width = param.boundingRect().width()
+        return width
+
     def add_subpipeline_view(self, sub_pipeline, allow_open_controller=True):
         if self.embedded_subpipeline:
             if self.embedded_subpipeline.isVisible():
                 self.embedded_subpipeline.hide()
-                self.box.setRect(self.boundingRect())
+                self.resize_subpipeline_on_hide()
             else:
                 self.embedded_subpipeline.show()
-                self.box.setRect(self.boundingRect())
+                self.resize_subpipeline_on_show()
         else:
             sub_view = PipelineDevelopperView(sub_pipeline,
                 show_sub_pipelines=True,
                 allow_open_controller=allow_open_controller)
+            pwid = EmbeddedSubPipelineItem(sub_view)
+            #self.addToGroup(pwid)
             margin = 5
             pos = margin * 2 + self.title.boundingRect().size().height()
-            pwid = QtGui.QGraphicsProxyWidget(self)
-            pwid.setWidget(sub_view)
-            pwid.setPos(100, pos)
-            #self.addToGroup(pwid)
             pwid.setParentItem(self)
+            pwid.setPos(self.in_params_width(), pos)
             self.embedded_subpipeline = pwid
-            self.box.setRect(self.boundingRect())
-            #pwid.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, True)
+            self.resize_subpipeline_on_show()
             self.setFiltersChildEvents(False)
+            pwid.geometryChanged.connect(self.resize_subpipeline_on_show)
 
     def mouseDoubleClickEvent(self, event):
         if self.sub_pipeline:
@@ -328,13 +422,32 @@ class NodeGWidget(QtGui.QGraphicsItem):
             item.mousePressEvent(event)
             return
         #elif isinstance(item, QtGui.QGraphicsProxyWidget):
-            ##print 'widget.'
-            #event.accept()
+            #print 'widget.', self
+            #item.mousePressEvent(event)
+            #return
         super(NodeGWidget, self).mousePressEvent(event)
         if event.button() == QtCore.Qt.RightButton \
                 and self.process is not None:
             self.scene().node_right_clicked.emit(self.name, self.process)
             event.accept()
+
+    #def mouseMoveEvent(self, event):
+        #print 'move 2', self
+        #item = self.scene().itemAt(event.scenePos())
+        #if isinstance(item, QtGui.QGraphicsProxyWidget):
+            #print 'move proxy'
+            #item.mouseMoveEvent(event)
+            #return
+        #super(NodeGWidget, self).mouseMoveEvent(event)
+
+    #def mouseReleaseEvent(self, event):
+        #print "release 2", self
+        #item = self.scene().itemAt(event.scenePos())
+        #if isinstance(item, QtGui.QGraphicsProxyWidget):
+            #print 'release proxy'
+            #item.mouseReleaseEvent(event)
+            #return
+        #super(NodeGWidget, self).mouseReleaseEvent(event)
 
 
 class Link(QtGui.QGraphicsPathItem):
@@ -706,19 +819,79 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             QtGui.QGraphicsView.wheelEvent(self, event)
 
     def mousePressEvent(self, event):
+        #print 'press 1', self
         super(PipelineDevelopperView, self).mousePressEvent(event)
         #item = self.itemAt(event.x(), event.y())
-        # if item is None:
+        #if not event.isAccepted() \
+                #and not isinstance(item, QtGui.QGraphicsProxyWidget):
         if not event.isAccepted():
+            print 'grab', self
             self._grab = True
             self._grabpos = event.pos()
+        #elif isinstance(item, QtGui.QGraphicsProxyWidget):
+            #sub_view = item.widget().findChild(PipelineDevelopperView)
+            #if sub_view:
+                #scene_pos = self.mapToScene(event.pos())
+                #item_pos = item.mapFromScene(scene_pos)
+                #ipos = QtCore.QPoint(int(item_pos.x()), int(item_pos.y()))
+                ##print 'pos:', event.pos(), '->', ipos
+                #child = item.widget().childAt(ipos)
+                ##print 'child:', child
+                #if child:
+                    #print child.parent(), child.objectName()
+                    #cpos = child.mapFrom(item.widget(), ipos)
+                ## if ipos is on the scrollbars or size grip, don't
+                ## propagate the event
+                #if child and child is sub_view.viewport(): #and ipos.y() < sub_view.viewport().height() and ipos.x() < sub_view.viewport().width(): #isinstance(child, PipelineDevelopperView):
+                    #print 'dev view'
+                    #sub_item = sub_view.itemAt(ipos)
+                    #print 'sub_item:', sub_item
+                    #sub_event = QtGui.QMouseEvent(event.type(), cpos,
+                        #event.globalPos(), event.button(), event.buttons(), event.modifiers())
+                    ##sub_view.mousePressEvent(sub_event)
+                #elif child:
+                    #sub_event = QtGui.QMouseEvent(event.type(), cpos,
+                        #event.globalPos(), event.button(), event.buttons(), event.modifiers())
+                    #child.mouseMoveEvent(sub_event)
 
     def mouseReleaseEvent(self, event):
+        print 'release', self
         self._grab = False
         super(PipelineDevelopperView, self).mouseReleaseEvent(event)
+        #item = self.itemAt(event.x(), event.y())
+        #if isinstance(item, QtGui.QGraphicsProxyWidget):
+            #sub_view = item.widget().findChild(PipelineDevelopperView)
+            #done = False
+            #if sub_view:
+                #scene_pos = self.mapToScene(event.pos())
+                #item_pos = item.mapFromScene(scene_pos)
+                #ipos = QtCore.QPoint(int(item_pos.x()), int(item_pos.y()))
+                ##print 'pos:', event.pos(), '->', ipos
+                #child = item.widget().childAt(ipos)
+                ##print 'child:', child
+                #if child:
+                    #print child.parent(), child.objectName()
+                    #cpos = child.mapFrom(item.widget(), ipos)
+                ## if ipos is on the scrollbars or size grip, don't
+                ## propagate the event
+                #if child and child is sub_view.viewport(): #and ipos.y() < sub_view.viewport().height() and ipos.x() < sub_view.viewport().width(): #isinstance(child, PipelineDevelopperView):
+                    #print 'dev view'
+                    #sub_item = sub_view.itemAt(ipos)
+                    #print 'sub_item:', sub_item
+                    #sub_event = QtGui.QMouseEvent(event.type(), ipos,
+                        #event.globalPos(), event.button(), event.buttons(), event.modifiers())
+                    #sub_view.mouseReleaseEvent(sub_event)
+                    #done = True
+                #elif child:
+                    #sub_event = QtGui.QMouseEvent(event.type(), cpos,
+                        #event.globalPos(), event.button(), event.buttons(), event.modifiers())
+                    #child.mouseReleaseEvent(sub_event)
+            #if not done:
+                #sub_view.mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event):
         if self._grab:
+            #print 'move', self
             event.accept()
             translation = event.pos() - self._grabpos
             self._grabpos = event.pos()
@@ -728,6 +901,34 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self.verticalScrollBar().value() - int(translation.y()))
         else:
             super(PipelineDevelopperView, self).mouseMoveEvent(event)
+            #item = self.itemAt(event.x(), event.y())
+            #if isinstance(item, QtGui.QGraphicsProxyWidget):
+                #sub_view = item.widget().findChild(PipelineDevelopperView)
+                ##print 'move 1', self,' - proxy:', item.widget(), sub_view
+                #if sub_view:
+                    #scene_pos = self.mapToScene(event.pos())
+                    #item_pos = item.mapFromScene(scene_pos)
+                    #ipos = QtCore.QPoint(int(item_pos.x()), int(item_pos.y()))
+                    ##print 'pos:', event.pos(), '->', ipos
+                    #child = item.widget().childAt(ipos)
+                    ##print 'child:', child
+                    #if child:
+                        #print child.parent(), child.objectName()
+                        #cpos = child.mapFrom(item.widget(), ipos)
+                    ## if ipos is on the scrollbars or size grip, don't
+                    ## propagate the event
+                    #if child and child is sub_view.viewport(): #and ipos.y() < sub_view.viewport().height() and ipos.x() < sub_view.viewport().width(): #isinstance(child, PipelineDevelopperView):
+                        #print 'dev view'
+                        #sub_item = sub_view.itemAt(ipos)
+                        #print 'sub_item:', sub_item
+                        #sub_event = QtGui.QMouseEvent(event.type(), cpos,
+                            #event.globalPos(), event.button(), event.buttons(), event.modifiers())
+                        #sub_view.mouseMoveEvent(sub_event)
+                    #else:
+                        #print 'other child, pos:', cpos
+                        #sub_event = QtGui.QMouseEvent(event.type(), cpos,
+                            #event.globalPos(), event.button(), event.buttons(), event.modifiers())
+                        #item.widget().mouseMoveEvent(sub_event)
 
     def onLoadSubPipelineClicked(self, node_name, sub_pipeline, modifiers):
         """ Event to load a sub pipeline
