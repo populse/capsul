@@ -119,7 +119,7 @@ class SwitchPipeline(Pipeline):
                               weak_link=True, is_optional=True)
         self.export_parameter("switch", "switch_image",
                               pipeline_parameter="result_image")
-        
+
         self.node_position = {'inputs': (40.0, 240.0),
                               'outputs': (605.0, 289.0),
                               'switch': (381.0, 255.0),
@@ -150,13 +150,12 @@ class MultipleConnectionsPipeline(Pipeline):
         self.add_link('process3.output->process4.input3')
         self.export_parameter('process4', 'input4', 'input2')
 
-        self.node_position = {'inputs': (5.0, 87.0),
-                              'outputs': (661.0, 239.0),
-                              'switch_pipeline': (173.0, 112.0),
-                              'way1_1': (377.0, 113.0),
-                              'way1_2': (510.0, 163.0),
-                              'way2_1': (376.0, 246.0),
-                              'way2_2': (507.0, 296.0)}
+        self.node_position = {'inputs': (28.9, 340.8),
+                              'outputs': (574.4, 236.0),
+                              'process1': (229.2, 82.8),
+                              'process2': (236.6, 206.7),
+                              'process3': (214.2, 327.6),
+                              'process4': (397.8, 314.2)}
 
 
 class MainTestPipeline(Pipeline):
@@ -178,14 +177,22 @@ class MainTestPipeline(Pipeline):
         self.add_link('switch_pipeline.result_image->way2_1.input2')
         self.add_link('way2_1.output->way2_2.input')
         self.add_link('way2_2.output->output')
-        
-        self.node_position = {'inputs': (5.0, 87.0),
-                              'outputs': (661.0, 239.0),
-                              'switch_pipeline': (173.0, 112.0),
-                              'way1_1': (377.0, 113.0),
-                              'way1_2': (510.0, 163.0),
-                              'way2_1': (376.0, 246.0),
-                              'way2_2': (507.0, 296.0)}
+
+        #self.node_position = {'inputs': (-33.8, 278.1),
+                              #'outputs': (661.0, 239.0),
+                              #'switch_pipeline': (173.0, 112.0),
+                              #'way1_1': (377.0, 113.0),
+                              #'way1_2': (510.0, 163.0),
+                              #'way2_1': (376.0, 246.0),
+                              #'way2_2': (507.0, 296.0)}
+        self.node_position = {'inputs': (-605.0, -77.0),
+                              'outputs': (1022.0, 56.0),
+                              'switch_pipeline': (-439.0, 51.0),
+                              'way1_1': (335.0, -207.0),
+                              'way1_2': (851.0, -66.0),
+                              'way2_1': (381.0, 116.0),
+                              'way2_2': (852.0, 170.0)}
+
 
 class TestSwitchPipeline(unittest.TestCase):
 
@@ -240,8 +247,11 @@ if __name__ == "__main__":
     pipeline = get_process_instance(MainTestPipeline)
     pipeline.on_trait_change(write_state,'selection_changed')
     view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True, allow_open_controller=True)
+    view1.add_embedded_subpipeline('switch_pipeline', scale=0.7)
+    view1.add_embedded_subpipeline('way1_1', scale=0.4)
+    view1.add_embedded_subpipeline('way2_1', scale=0.4)
     view1.show()
-    #view2 = PipelineUserView(pipeline)
+    view2 = PipelineUserView(pipeline)
     #view2.show()
     app.exec_()
     del view1

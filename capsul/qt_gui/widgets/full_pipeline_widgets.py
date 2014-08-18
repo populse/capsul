@@ -141,10 +141,14 @@ class EmbeddedSubPipelineItem(QtGui.QGraphicsProxyWidget):
 
     def __init__(self, sub_pipeline_wid):
         super(EmbeddedSubPipelineItem, self).__init__()
+        old_height = sub_pipeline_wid.sizeHint().height()
         sizegrip = QtGui.QSizeGrip(None)
+        new_height = old_height \
+            + sub_pipeline_wid.horizontalScrollBar().height()
         sub_pipeline_wid.setCornerWidget(sizegrip)
         sub_pipeline_wid.setHorizontalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOn)
+        sub_pipeline_wid.resize(sub_pipeline_wid.sizeHint().width(), new_height)
         self.setWidget(sub_pipeline_wid)
 
 
@@ -391,7 +395,11 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 width = param.boundingRect().width()
         return width
 
-    def add_subpipeline_view(self, sub_pipeline, allow_open_controller=True):
+    def add_subpipeline_view(
+            self,
+            sub_pipeline,
+            allow_open_controller=True,
+            scale=None):
         if self.embedded_subpipeline:
             if self.embedded_subpipeline.isVisible():
                 self.embedded_subpipeline.hide()
@@ -403,6 +411,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
             sub_view = PipelineDevelopperView(sub_pipeline,
                 show_sub_pipelines=True,
                 allow_open_controller=allow_open_controller)
+            if scale is not None:
+                sub_view.scale(scale, scale)
             pwid = EmbeddedSubPipelineItem(sub_view)
             margin = 5
             pos = margin * 2 + self.title.boundingRect().size().height()
@@ -627,7 +637,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             event.accept()
             posdict = dict([(key, (value.x(), value.y())) \
                             for key, value in self.pos.iteritems()])
-            print posdict
+            pprint(posdict)
 
     def link_tooltip_text(self, source_dest):
         node_name = source_dest[0][0]
@@ -865,17 +875,22 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         else:
             super(PipelineDevelopperView, self).mouseMoveEvent(event)
 
+    def add_embedded_subpipeline(self, subpipeline_name, scale=None):
+        gnode = self.scene.gnodes.get(str(subpipeline_name))
+        sub_pipeline = self.scene.pipeline.nodes[str(subpipeline_name)].process
+        if gnode is not None:
+            gnode.add_subpipeline_view(
+                sub_pipeline, self._allow_open_controller, scale=scale)
+
     def onLoadSubPipelineClicked(self, node_name, sub_pipeline, modifiers):
         """ Event to load a sub pipeline
         """
         if self._show_sub_pipelines:
             if modifiers & QtCore.Qt.ControlModifier:
-                gnode = self.scene.gnodes.get(str(node_name))
-                if gnode is not None:
-                    gnode.add_subpipeline_view(
-                        sub_pipeline, self._allow_open_controller)
+                try:
+                    self.add_embedded_subpipeline(node_name)
                     return
-                else:
+                except KeyError:
                     print 'node not found in:'
                     print self.scene.gnodes.keys()
             sub_view = PipelineDevelopperView(sub_pipeline,
