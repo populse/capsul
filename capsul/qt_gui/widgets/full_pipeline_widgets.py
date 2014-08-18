@@ -684,6 +684,13 @@ class PipelineScene(QtGui.QGraphicsScene):
                 item.setToolTip(text)
         elif isinstance(item, QtGui.QGraphicsProxyWidget):
             # PROBLEM: tooltips in child graphics scenes seem no to popup.
+            #
+            # to force them we would have to translate the event position to
+            # the sub-scene position, and call the child scene helpEvent()
+            # method, with a custom event.
+            # However this is not possible, since QGraphicsSceneHelpEvent
+            # does not provide a public (nor even protected) constructor, and
+            # secondarily helpEvent() is protected.
             event.setAccepted(False)
 
         super(PipelineScene, self).helpEvent(event)
