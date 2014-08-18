@@ -118,7 +118,7 @@ if __name__ == "__main__":
     test()
 
     from PySide import QtGui
-    from capsul.apps_qt.base.pipeline_widgets import PipelineDevelopperView
+    from capsul.qt_gui.widgets import PipelineDevelopperView
 
     app = QtGui.QApplication(sys.argv)
     pipeline = MyPipeline()

@@ -201,8 +201,10 @@ if __name__ == "__main__":
     print "RETURNCODE: ", test()
 
     import sys
-    from PySide import QtGui
-    from capsul.apps_qt.base.pipeline_widgets import PipelineDevelopperView
+    from soma.qt_gui import qt_backend
+    qt_backend.set_qt_backend('PyQt4')
+    from soma.qt_gui.qt_backend import QtGui
+    from capsul.qt_gui.widgets import PipelineDevelopperView
 
     app = QtGui.QApplication(sys.argv)
     pipeline = SwitchPipeline()
