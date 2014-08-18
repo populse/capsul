@@ -131,25 +131,12 @@ class EmbeddedSubPipelineItem(QtGui.QGraphicsProxyWidget):
 
     def __init__(self, sub_pipeline_wid):
         super(EmbeddedSubPipelineItem, self).__init__()
-        #wid = QtGui.QWidget(None, QtCore.Qt.SubWindow)
-        #layout = QtGui.QVBoxLayout(wid)
-        #layout.setMargin(0)
-        #layout.setSpacing(0)
-        #wid.setLayout(layout)
-        #sizegrip = QtGui.QSizeGrip(wid)
-        #layout.addWidget(sub_pipeline_wid)
-        #lay2 = QtGui.QHBoxLayout()
-        #lay2.setMargin(0)
-        #lay2.setSpacing(0)
-        #layout.addLayout(lay2)
-        #lay2.addWidget(QtGui.QWidget())
-        #lay2.addStretch()
-        #lay2.addWidget(sizegrip)
-        #self.setWidget(wid)
+        sizegrip = QtGui.QSizeGrip(None)
+        sub_pipeline_wid.setCornerWidget(sizegrip)
+        sub_pipeline_wid.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOn)
         self.setWidget(sub_pipeline_wid)
 
-    #def mouseMoveEvent(self, event):
-        #print 'move EmbeddedSubPipelineItem', self
 
 class NodeGWidget(QtGui.QGraphicsItem):
 
@@ -195,7 +182,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
         gradient.setColorAt(1, color_1)
         gradient.setColorAt(0, color_2)
         self.title_brush = QtGui.QBrush(gradient)
-        self.setAcceptedMouseButtons(QtCore.Qt.LeftButton|QtCore.Qt.RightButton|QtCore.Qt.MiddleButton)
+        self.setAcceptedMouseButtons(
+            QtCore.Qt.LeftButton|QtCore.Qt.RightButton|QtCore.Qt.MiddleButton)
 
         self._build()
 
@@ -214,8 +202,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.title.setFont(font)
         self.title.setPos(margin, margin)
         self.title.setZValue(2)
-        # always add to group after setPos
-        #self.addToGroup(self.title)
         self.title.setParentItem(self)
 
         pos = margin + margin + self.title.boundingRect().size().height()
@@ -397,7 +383,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 show_sub_pipelines=True,
                 allow_open_controller=allow_open_controller)
             pwid = EmbeddedSubPipelineItem(sub_view)
-            #self.addToGroup(pwid)
             margin = 5
             pos = margin * 2 + self.title.boundingRect().size().height()
             pwid.setParentItem(self)
@@ -421,33 +406,11 @@ class NodeGWidget(QtGui.QGraphicsItem):
         if isinstance(item, Plug) and event.button() == QtCore.Qt.LeftButton:
             item.mousePressEvent(event)
             return
-        #elif isinstance(item, QtGui.QGraphicsProxyWidget):
-            #print 'widget.', self
-            #item.mousePressEvent(event)
-            #return
         super(NodeGWidget, self).mousePressEvent(event)
         if event.button() == QtCore.Qt.RightButton \
                 and self.process is not None:
             self.scene().node_right_clicked.emit(self.name, self.process)
             event.accept()
-
-    #def mouseMoveEvent(self, event):
-        #print 'move 2', self
-        #item = self.scene().itemAt(event.scenePos())
-        #if isinstance(item, QtGui.QGraphicsProxyWidget):
-            #print 'move proxy'
-            #item.mouseMoveEvent(event)
-            #return
-        #super(NodeGWidget, self).mouseMoveEvent(event)
-
-    #def mouseReleaseEvent(self, event):
-        #print "release 2", self
-        #item = self.scene().itemAt(event.scenePos())
-        #if isinstance(item, QtGui.QGraphicsProxyWidget):
-            #print 'release proxy'
-            #item.mouseReleaseEvent(event)
-            #return
-        #super(NodeGWidget, self).mouseReleaseEvent(event)
 
 
 class Link(QtGui.QGraphicsPathItem):
@@ -698,7 +661,6 @@ class PipelineScene(QtGui.QGraphicsScene):
         Display tooltips on plugs and links
         '''
         item = self.itemAt(event.scenePos())
-        #print 'helpEvent for', self, ', on:', item
         if isinstance(item, Link):
             for source_dest, glink in self.glinks.iteritems():
                 if glink is item:
@@ -819,79 +781,17 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             QtGui.QGraphicsView.wheelEvent(self, event)
 
     def mousePressEvent(self, event):
-        #print 'press 1', self
         super(PipelineDevelopperView, self).mousePressEvent(event)
-        #item = self.itemAt(event.x(), event.y())
-        #if not event.isAccepted() \
-                #and not isinstance(item, QtGui.QGraphicsProxyWidget):
         if not event.isAccepted():
-            print 'grab', self
             self._grab = True
             self._grabpos = event.pos()
-        #elif isinstance(item, QtGui.QGraphicsProxyWidget):
-            #sub_view = item.widget().findChild(PipelineDevelopperView)
-            #if sub_view:
-                #scene_pos = self.mapToScene(event.pos())
-                #item_pos = item.mapFromScene(scene_pos)
-                #ipos = QtCore.QPoint(int(item_pos.x()), int(item_pos.y()))
-                ##print 'pos:', event.pos(), '->', ipos
-                #child = item.widget().childAt(ipos)
-                ##print 'child:', child
-                #if child:
-                    #print child.parent(), child.objectName()
-                    #cpos = child.mapFrom(item.widget(), ipos)
-                ## if ipos is on the scrollbars or size grip, don't
-                ## propagate the event
-                #if child and child is sub_view.viewport(): #and ipos.y() < sub_view.viewport().height() and ipos.x() < sub_view.viewport().width(): #isinstance(child, PipelineDevelopperView):
-                    #print 'dev view'
-                    #sub_item = sub_view.itemAt(ipos)
-                    #print 'sub_item:', sub_item
-                    #sub_event = QtGui.QMouseEvent(event.type(), cpos,
-                        #event.globalPos(), event.button(), event.buttons(), event.modifiers())
-                    ##sub_view.mousePressEvent(sub_event)
-                #elif child:
-                    #sub_event = QtGui.QMouseEvent(event.type(), cpos,
-                        #event.globalPos(), event.button(), event.buttons(), event.modifiers())
-                    #child.mouseMoveEvent(sub_event)
 
     def mouseReleaseEvent(self, event):
-        print 'release', self
         self._grab = False
         super(PipelineDevelopperView, self).mouseReleaseEvent(event)
-        #item = self.itemAt(event.x(), event.y())
-        #if isinstance(item, QtGui.QGraphicsProxyWidget):
-            #sub_view = item.widget().findChild(PipelineDevelopperView)
-            #done = False
-            #if sub_view:
-                #scene_pos = self.mapToScene(event.pos())
-                #item_pos = item.mapFromScene(scene_pos)
-                #ipos = QtCore.QPoint(int(item_pos.x()), int(item_pos.y()))
-                ##print 'pos:', event.pos(), '->', ipos
-                #child = item.widget().childAt(ipos)
-                ##print 'child:', child
-                #if child:
-                    #print child.parent(), child.objectName()
-                    #cpos = child.mapFrom(item.widget(), ipos)
-                ## if ipos is on the scrollbars or size grip, don't
-                ## propagate the event
-                #if child and child is sub_view.viewport(): #and ipos.y() < sub_view.viewport().height() and ipos.x() < sub_view.viewport().width(): #isinstance(child, PipelineDevelopperView):
-                    #print 'dev view'
-                    #sub_item = sub_view.itemAt(ipos)
-                    #print 'sub_item:', sub_item
-                    #sub_event = QtGui.QMouseEvent(event.type(), ipos,
-                        #event.globalPos(), event.button(), event.buttons(), event.modifiers())
-                    #sub_view.mouseReleaseEvent(sub_event)
-                    #done = True
-                #elif child:
-                    #sub_event = QtGui.QMouseEvent(event.type(), cpos,
-                        #event.globalPos(), event.button(), event.buttons(), event.modifiers())
-                    #child.mouseReleaseEvent(sub_event)
-            #if not done:
-                #sub_view.mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event):
         if self._grab:
-            #print 'move', self
             event.accept()
             translation = event.pos() - self._grabpos
             self._grabpos = event.pos()
@@ -901,34 +801,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self.verticalScrollBar().value() - int(translation.y()))
         else:
             super(PipelineDevelopperView, self).mouseMoveEvent(event)
-            #item = self.itemAt(event.x(), event.y())
-            #if isinstance(item, QtGui.QGraphicsProxyWidget):
-                #sub_view = item.widget().findChild(PipelineDevelopperView)
-                ##print 'move 1', self,' - proxy:', item.widget(), sub_view
-                #if sub_view:
-                    #scene_pos = self.mapToScene(event.pos())
-                    #item_pos = item.mapFromScene(scene_pos)
-                    #ipos = QtCore.QPoint(int(item_pos.x()), int(item_pos.y()))
-                    ##print 'pos:', event.pos(), '->', ipos
-                    #child = item.widget().childAt(ipos)
-                    ##print 'child:', child
-                    #if child:
-                        #print child.parent(), child.objectName()
-                        #cpos = child.mapFrom(item.widget(), ipos)
-                    ## if ipos is on the scrollbars or size grip, don't
-                    ## propagate the event
-                    #if child and child is sub_view.viewport(): #and ipos.y() < sub_view.viewport().height() and ipos.x() < sub_view.viewport().width(): #isinstance(child, PipelineDevelopperView):
-                        #print 'dev view'
-                        #sub_item = sub_view.itemAt(ipos)
-                        #print 'sub_item:', sub_item
-                        #sub_event = QtGui.QMouseEvent(event.type(), cpos,
-                            #event.globalPos(), event.button(), event.buttons(), event.modifiers())
-                        #sub_view.mouseMoveEvent(sub_event)
-                    #else:
-                        #print 'other child, pos:', cpos
-                        #sub_event = QtGui.QMouseEvent(event.type(), cpos,
-                            #event.globalPos(), event.button(), event.buttons(), event.modifiers())
-                        #item.widget().mouseMoveEvent(sub_event)
 
     def onLoadSubPipelineClicked(self, node_name, sub_pipeline, modifiers):
         """ Event to load a sub pipeline
