@@ -85,6 +85,7 @@ class CapsulMainWindow(MyQUiLoader):
         self.ui.actionChangeView.triggered.connect(self.onChangeViewClicked)
 
         # Signal for tab widget
+        self.ui.display.currentChanged.connect(self.onCurrentTabChanged)
         self.ui.display.tabCloseRequested.connect(self.onCloseTabClicked)
 
         # Signal for dock widget
@@ -247,10 +248,35 @@ class CapsulMainWindow(MyQUiLoader):
         """ Event to close a pipeline view.
         """
         # Remove the pipeline from the intern pipeline list
+        pipeline, pipeline_widget = self.pipelines[
+            self.ui.display.tabText(index)]
+        pipeline_widget.close()
+        pipeline_widget.deleteLater()
         del self.pipelines[self.ui.display.tabText(index)]
 
         # Remove the table that contains the pipeline
         self.ui.display.removeTab(index)
+
+    def onCurrentTabChanged(self, index):
+        """ Event to refresh the controller controller widget when a new
+        tab is selected
+        """
+        # If no valid tab index has been passed
+        if index < 0:
+            # Delete the controller widget in the dock widget
+            to_remove_widget = self.ui.dockWidgetParameters.widget()
+            to_remove_widget.close()
+            to_remove_widget.deleteLater()
+
+        # A new valid tab is selected
+        else:
+            # Get the selected pipeline widget
+            pipeline, pipeline_widget = self.pipelines[
+                self.ui.display.tabText(index)]
+
+            # Set the controller widget associated to the pipeline
+            # controller
+            self.ui.dockWidgetParameters.setWidget(pipeline_widget)
 
     def onHelpClicked(self):
         """ Event to display the documentation of the active pipeline.
