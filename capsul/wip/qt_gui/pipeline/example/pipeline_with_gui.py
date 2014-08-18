@@ -289,7 +289,7 @@ if __name__ == '__main__':
     from soma.qt_gui.qt_backend import QtGui
     from soma.gui.widget_controller_creation import ControllerWidget
     from soma.functiontools import SomaPartial as partial
-    from capsul.apps_qt.base.pipeline_widgets import PipelineDevelopperView
+    from capsul.qt_gui.widgets import PipelineDevelopperView
 
     app = QtGui.QApplication(sys.argv)
 
