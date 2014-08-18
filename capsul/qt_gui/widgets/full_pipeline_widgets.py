@@ -565,18 +565,18 @@ class PipelineScene(QtGui.QGraphicsScene):
                         self.add_link(
                             (source_node_name, source_parameter),
                             (dest_node_name, dest_parameter),
-                            active=source_plug.activated and dest_plug.activated,
+                            active=source_plug.activated \
+                                and dest_plug.activated,
                             weak=weak_link)
 
     def keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_P:
+        super(PipelineScene, self).keyPressEvent(event)
+        if not event.isAccepted() and event.key() == QtCore.Qt.Key_P:
+            done = True
             event.accept()
             posdict = dict([(key, (value.x(), value.y())) \
                             for key, value in self.pos.iteritems()])
             print posdict
-        else:
-            super(PipelineScene, self).keyPressEvent(event)
-
 
     def link_tooltip_text(self, source_dest):
         node_name = source_dest[0][0]
@@ -771,14 +771,18 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scale(1.0 / 1.2, 1.0 / 1.2)
 
     def wheelEvent(self, event):
+        done = False
         if event.modifiers() == QtCore.Qt.ControlModifier:
-            if event.delta() < 0:
-                self.zoom_out()
-            else:
-                self.zoom_in()
-            event.accept()
-        else:
-            QtGui.QGraphicsView.wheelEvent(self, event)
+            item = self.itemAt(event.pos())
+            if not isinstance(item, QtGui.QGraphicsProxyWidget):
+                done = True
+                if event.delta() < 0:
+                    self.zoom_out()
+                else:
+                    self.zoom_in()
+                event.accept()
+        if not done:
+            super(PipelineDevelopperView, self).wheelEvent(event)
 
     def mousePressEvent(self, event):
         super(PipelineDevelopperView, self).mousePressEvent(event)
