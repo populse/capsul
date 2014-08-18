@@ -13,6 +13,8 @@
         <file alias="open">transfer.png</file>
         <file alias="exit">exit.png</file> 
         <file alias="browse">open.png</file>
-        <file alias="config">config.png</file>                  
+        <file alias="config">config.png</file>
+        <file alias="nav_down">nav_down.png</file>
+        <file alias="nav_right">nav_right.png</file>               
     </qresource>
 </RCC>

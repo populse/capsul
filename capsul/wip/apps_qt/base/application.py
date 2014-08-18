@@ -7,23 +7,26 @@
 # for details.
 ##########################################################################
 
+# System import
 import sys
-
 import optparse
 import logging
 import warnings
 
+# Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
 
 
 class Application(QtGui.QApplication):
     """ Base Aplication class.
+
+    Used to set some user options
     """
 
     def __init__(self, extra_options=None):
-        """ Method to initialize the CAPSUL application.
+        """ Method to initialize the Application class.
 
-        The CAPS capsulview application can be executed with command
+        The capsulview application can be executed with command
         line options (that can also be passed to the class constructor
         as extra_options). From the command line, we can set the
         debug level with the -d option:
@@ -36,7 +39,7 @@ class Application(QtGui.QApplication):
         For exemple:
         >>> capsulview -d debug
 
-        The default mode is debug.
+        The default mode is error.
 
         From the command line we can also redirect all messages
         to a graphical message box with the -r option:
@@ -51,15 +54,17 @@ class Application(QtGui.QApplication):
         # Inheritance
         QtGui.QApplication.__init__(self, [])
 
-        # Init parameters
+        # Extra application options
         extra_options = extra_options or []
 
-        # Define log level
-        levels = {"debug": logging.DEBUG,
-                  "info": logging.INFO,
-                  "warning": logging.WARNING,
-                  "error": logging.ERROR,
-                  "critical": logging.CRITICAL}
+        # Define a mapping to the logging level
+        levels = {
+            "debug": logging.DEBUG,
+            "info": logging.INFO,
+            "warning": logging.WARNING,
+            "error": logging.ERROR,
+            "critical": logging.CRITICAL
+        }
 
         # Parse command line and internal options
         parser = optparse.OptionParser()
@@ -74,39 +79,50 @@ class Application(QtGui.QApplication):
             parser.add_option(*args, **kwargs)
         self.options, self.arguments = parser.parse_args()
 
-        # Log format
+        # Logging format
         logging_format = ("[%(asctime)s] "
                           "{%(pathname)s:%(lineno)d} "
                           "%(levelname)s - %(message)s")
         date_format = "%Y-%m-%d %H:%M:%S"
 
-        # if the log level is specified
+        # If the logging level is specified
         if self.options.debug is not None:
+
+            # Get the real logging level from the mapping
             level = levels.get(self.options.debug, None)
+
+            # If a no valid logging level is found raise an Exception
             if level is None:
                 raise Exception("Warning : unknown logging level "
                                 "{0}".format(self.options.debug))
 
+            # Configure the logging module
             logging.basicConfig(level=level, format=logging_format,
                                 datefmt=date_format)
 
+            # Disable deprecation warnings if we are not in the debug mode
             if level != logging.DEBUG:
-                # Disable deprecation warnings
                 warnings.simplefilter("ignore", DeprecationWarning)
+
+        # Set the default logging level
         else:
-            logging.basicConfig(level=logging.DEBUG, format=logging_format,
+            logging.basicConfig(level=logging.ERROR, format=logging_format,
                                 datefmt=date_format)
+
             # Disable deprecation warnings
             warnings.simplefilter("ignore", DeprecationWarning)
 
-        # option is set to redirecect stdout and stderr to a
-        # message box
+        # Check if the redirection option is found: redirecect stdout and stderr
+        # to a message box
         if self.options.redirect:
+
             # Create a message box
             self.message_box = QtGui.QTextEdit()
+
             # Redirect stdout and stderr
             sys.stdout = EmittingStream()
             sys.stderr = EmittingStream()
+
             # Connect with text written signal
             self.connect(sys.stdout,
                          QtCore.SIGNAL('textWritten(QString)'),
@@ -114,6 +130,7 @@ class Application(QtGui.QApplication):
             self.connect(sys.stderr,
                          QtCore.SIGNAL('textWritten(QString)'),
                          self._on_text_print)
+
             # Update root logger handler
             root_logger = logging.getLogger()
             h = root_logger.handlers[0]

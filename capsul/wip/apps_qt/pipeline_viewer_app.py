@@ -28,20 +28,22 @@ class PipelineViewerApp(Application):
     from capsul.info import ORGANISATION as _organisation_name
 
     def __init__(self, *args, **kwargs):
-        """ Method to initialize the CAPSUL application.
+        """ Method to initialize the PipelineViewerApp class.
         """
-        # Init application
-        self.window = None
+        # Inhetritance
         super(PipelineViewerApp, self).__init__(*args, **kwargs)
-        self.initWindow()
 
-    def initWindow(self):
-        """ Method to initialize the main window
+        # Initialize the application
+        self.window = None
+        self.init_window()
+
+    def init_window(self):
+        """ Method to initialize the main window.
         """
         # First set some meta informations
         self.setApplicationName(self._application_name)
-        self.setOrganizationName(self._version)
-        self.setApplicationVersion(self._organisation_name)
+        self.setOrganizationName(self._organisation_name)
+        self.setApplicationVersion(self._version)
 
         # Get the user interface description from capsul resources
         ui_file = os.path.join(resources.__path__[0], "capsul.ui")
@@ -51,7 +53,7 @@ class PipelineViewerApp(Application):
         for module_name, doc_url in PLUGS:
             pipeline_menu.update(find_pipelines(module_name, doc_url)[0])
 
-        # Create the main window
+        # Create and show the main window
         self.window = CapsulMainWindow(pipeline_menu, ui_file)
         self.window.show()
 

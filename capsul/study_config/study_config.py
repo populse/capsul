@@ -14,11 +14,9 @@ import logging
 # Trait import
 try:
     from traits.trait_base import _Undefined
-    from traits.api import HasTraits, Str, Enum, Directory, File, Bool
+    from traits.api import Directory, File, Bool
 except ImportError:
-    import enthought.traits.api as traits
-    from enthought.traits.api import (HasTraits, Str ,Enum, Directory,
-                                      File, Bool)
+    from enthought.traits.api import Directory, File, Bool
 
 # Nipype import
 try:
@@ -29,19 +27,21 @@ except ImportError:
     matlab = None
     # logging.warn("Impossible to import nipype, please investigate.")
 
-# Capsul import
+# Soma import
 from soma.controller import Controller
-from config_utils import find_spm, environment
 from soma.sorted_dictionary import SortedDictionary
+
+# Capsul import
+from config_utils import find_spm, environment
 from capsul.pipeline import Pipeline
 from capsul.process import Process
 from run import _run_process
+from capsul.pipeline.pipeline_workflow import (workflow_from_pipeline,
+                                               local_workflow_run)
 try:
     from run_with_cache import _joblib_run_process
 except ImportError:
     _joblib_run_process = None
-from capsul.pipeline.pipeline_workflow \
-    import workflow_from_pipeline, local_workflow_run
 
 
 default_config = SortedDictionary(
@@ -108,13 +108,13 @@ class StudyConfig(Controller):
         """
         # Intern identifier
         self.name = self.__class__.__name__
-        
+
         # Update configuration
         init_config = init_config or default_config
 
         # Inheritance
         super(StudyConfig, self).__init__()
-        
+
         # Parameter that is incremented at each execution
         self.process_counter = 1
 
@@ -154,7 +154,7 @@ class StudyConfig(Controller):
         self.add_trait("use_spm_mcr", Bool(
             _Undefined(),
             desc=("Parameter to select the standalone or matlab SPM version "
-                 "to use")))
+                  "to use")))
         self.add_trait("use_fsl", Bool(
             _Undefined(),
             desc="Parameter to tell that we need to configure FSL"))
@@ -173,13 +173,14 @@ class StudyConfig(Controller):
             try:
                 self.set_trait_value(trait_name, trait_default_value)
             except:
-                logging.warn('could not set value for config variable %s: %s' \
-                    % (trait_name, repr(trait_default_value)))
+                logging.info(
+                    "Could not set value for config variable {0}: "
+                    "{1}".format(trait_name, repr(trait_default_value)))
 
     ##############
     # Properties #
     ##############
-    
+
     def reset_process_counter(self):
         """ Method to reset the process counter to one
         """
@@ -287,7 +288,8 @@ class StudyConfig(Controller):
             if not isinstance(fsl_config_file, _Undefined):
                 envfsl = environment(fsl_config_file)
                 if (not envfsl["LD_LIBRARY_PATH"] in
-                       (os.environ.get("LD_LIBRARY_PATH") or [])):
+                   (os.environ.get("LD_LIBRARY_PATH") or [])):
+
                     for envname, envval in envfsl.items():
                         if envname in os.environ:
                             if envname.startswith("FSL"):
@@ -327,7 +329,8 @@ class StudyConfig(Controller):
             elif isinstance(process_or_pipeline, Process):
                 execution_list.append(process_or_pipeline)
             else:
-                raise Exception("Unknown instance type. Got {0}"
+                raise Exception(
+                    "Unknown instance type. Got {0}"
                     "and expect Process or Pipeline"
                     "instances".format(process_or_pipeline.__module__.name__))
 
@@ -339,13 +342,14 @@ class StudyConfig(Controller):
                              "'{0}'...".format(process_instance.id))
 
                 # Run
-                returncode, log_file = self._caller(self.output_directory,
+                returncode, log_file = self._caller(
+                    self.output_directory,
                     "{0}-{1}".format(self.process_counter,
                                      process_instance.name),
                     process_instance,
                     self.generate_logging,
                     self.spm_directory)
-                    
+
                 # Increment
                 self.process_counter += 1
 

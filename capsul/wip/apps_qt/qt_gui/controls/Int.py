@@ -7,13 +7,19 @@
 # for details.
 ##########################################################################
 
+# System import
+import re
+import logging
+
 # Soma import
 from soma.qt_gui.qt_backend import QtCore
+
+# Capsul import
 from Str import StrControlWidget
 
 
-class FloatControlWidget(StrControlWidget):
-    """ Control to enter a float.
+class IntControlWidget(StrControlWidget):
+    """ Control to enter an integer.
     """
 
     @staticmethod
@@ -27,12 +33,19 @@ class FloatControlWidget(StrControlWidget):
         ----------
         control_instance: QLineEdit (mandatory)
             the control widget we want to validate
+
+        Returns
+        -------
+        out: bool
+            True if the control value is valid,
+            False otherwise
         """
         # Get the current control palette
         control_palette = control_instance.palette()
 
-        # Get the control current value
-        control_value = control_instance.text().replace(".", "", 1)
+        # Get the control current value: format the int string
+        # Valid int strings are: +1, -1, 1
+        control_value = re.sub("^([-+])", "", control_instance.text(), count=1)
 
         # If the control value contains only digits, the control is valid and
         # the backgound color of the control is white
@@ -54,7 +67,8 @@ class FloatControlWidget(StrControlWidget):
         return is_valid
 
     @staticmethod
-    def update_controller(controller_widget, control_name, control_instance):
+    def update_controller(controller_widget, control_name, control_instance,
+                          *args, **kwargs):
         """ Update one element of the controller.
 
         At the end the controller trait value with the name 'control_name'
@@ -68,12 +82,22 @@ class FloatControlWidget(StrControlWidget):
         control_name: str(mandatory)
             the name of the controller widget control we want to synchronize
             with the controller
-        control_instance: FloatControlWidget (mandatory)
+        control_instance: QLineEdit (mandatory)
             the instance of the controller widget control we want to synchronize
             with the controller
         """
-        setattr(controller_widget.controller, control_name,
-                float(control_instance.text()))
+        # Update the controller only if the control is valid
+        if IntControlWidget.is_valid(control_instance):
+
+            # Get the control value
+            new_trait_value = int(control_instance.text())
+
+            # Set the control value to the controller associated trait
+            setattr(controller_widget.controller, control_name, new_trait_value)
+            logging.debug(
+                "'IntControlWidget' associated controller trait '{0}' has been "
+                "updated with value '{1}'.".format(
+                    control_name, new_trait_value))
 
     @staticmethod
     def update_controller_widget(controller_widget, control_name,
@@ -91,9 +115,15 @@ class FloatControlWidget(StrControlWidget):
         control_name: str(mandatory)
             the name of the controller widget control we want to synchronize
             with the controller
-        control_instance: FloatControlWidget (mandatory)
+        control_instance: QLineEdit (mandatory)
             the instance of the controller widget control we want to synchronize
             with the controller
         """
-        control_instance.setText(
-            unicode(getattr(controller_widget.controller, control_name, 0.0)))
+        # Get the trait value
+        new_controller_value = getattr(
+            controller_widget.controller, control_name, 0)
+
+        # Set the trait value to the int control
+        control_instance.setText(unicode(new_controller_value))
+        logging.debug("'IntControlWidget' has been updated with value "
+                      "'{0}'.".format(new_controller_value))

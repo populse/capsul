@@ -24,6 +24,16 @@ class EnumControlWidget(object):
     @staticmethod
     def is_valid(control_instance, *args, **kwargs):
         """ Method to check if the new control value is correct.
+
+        Parameters
+        ----------
+        control_instance: QComboBox (mandatory)
+            the control widget we want to validate
+
+        Returns
+        -------
+        out: bool
+            always True since the control value is always valid
         """
         return True
 
@@ -45,7 +55,7 @@ class EnumControlWidget(object):
         # Execute manually the first time the control check method
         widget_callback()
 
-        # When a qt 'textEdited' signal is emited, check if the new
+        # When a qt 'textChanged' signal is emited, check if the new
         # user value is correct
         control_instance.textChanged.connect(widget_callback)
 
@@ -97,7 +107,8 @@ class EnumControlWidget(object):
         return (widget, label)
 
     @staticmethod
-    def update_controller(controller_widget, control_name, control_instance):
+    def update_controller(controller_widget, control_name, control_instance,
+                           *args, **kwargs):
         """ Update one element of the controller.
 
         At the end the controller trait value with the name 'control_name'
@@ -115,8 +126,14 @@ class EnumControlWidget(object):
             the instance of the controller widget control we want to synchronize
             with the controller
         """
-        setattr(controller_widget.controller, control_name,
-                control_instance._choices[control_instance.currentIndex()])
+        if EnumControlWidget.is_valid(control_instance):
+            new_trait_value = control_instance._choices[
+                control_instance.currentIndex()]
+            setattr(controller_widget.controller, control_name, new_trait_value)
+            logging.debug(
+                "'EnumControlWidget' associated controller trait '{0}' has been "
+                "updated with value '{1}'.".format(
+                    control_name, new_trait_value))
 
     @staticmethod
     def update_controller_widget(controller_widget, control_name,
@@ -139,14 +156,16 @@ class EnumControlWidget(object):
             with the controller
         """
         # Get the controller trait value
-        controller_value = getattr(
+        new_controller_value = getattr(
             controller_widget.controller, control_name, None)
 
         # If the controller value is not empty, update the controller widget
         # associated control
-        if controller_value is not None:
+        if new_controller_value is not None:
             control_instance.setCurrentIndex(
-                control_instance._choices.index(controller_value))
+                control_instance._choices.index(new_controller_value))
+        logging.debug("'EnumControlWidget' has been updated with value "
+                      "'{0}'.".format(new_controller_value))
 
     @classmethod
     def connect(cls, controller_widget, control_name, control_instance):
@@ -174,9 +193,7 @@ class EnumControlWidget(object):
 
         # When a qt 'activated' signal is emited, update the 
         # 'control_name' controller trait value
-        control_instance.connect(
-            control_instance, QtCore.SIGNAL('activated( int )'),
-            widget_hook)
+        control_instance.activated.connect(widget_hook)
 
         # Update one element of the controller widget.
         # Hook: function that will be called to update the specific widget 
@@ -193,6 +210,8 @@ class EnumControlWidget(object):
         # Store the trait - control connection we just build
         control_instance._controller_connections = (
             widget_hook, controller_hook)
+        logging.debug("Add 'Enum' connection: {0}.".format(
+            control_instance._controller_connections))
         
 
     @staticmethod

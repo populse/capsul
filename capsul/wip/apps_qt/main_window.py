@@ -97,8 +97,6 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Set some tooltips
 
-
-
     def show(self):
         """ Shows the widget and its child widgets.
         """
