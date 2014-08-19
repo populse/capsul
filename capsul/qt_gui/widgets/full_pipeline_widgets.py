@@ -279,7 +279,93 @@ class NodeGWidget(QtGui.QGraphicsItem):
         gradient.setColorAt(0, color_2)
         self.title_brush = QtGui.QBrush(gradient)
 
+    def _create_parameter(self, param_name, pipeline_plug):
+        plug_width = 12
+        margin = 5
+        param_name_item = QtGui.QGraphicsTextItem(param_name, self)
+        plug_name = '%s:%s' % (self.name, param_name)
+        plug = Plug(plug_name, param_name_item.boundingRect().size().height(),
+                    plug_width, activated=pipeline_plug.activated,
+                    optional=pipeline_plug.optional, parent=self)
+        param_name_item.setZValue(2)
+        output = (not pipeline_plug.output if self.name in (
+            'inputs', 'outputs') else pipeline_plug.output)
+        if output:
+            plugs = self.out_plugs
+            params = self.out_params
+            params_size = len(params) + len(self.in_params)
+            # FIXME: sub-pipeline size
+            xpos = plug.boundingRect().size().width() + margin
+            pxpos = plug.boundingRect().size().width() + margin * 2 \
+                + param_name_item.boundingRect().size().width()
+        else:
+            plugs = self.in_plugs
+            params = self.in_params
+            params_size = len(params)
+            xpos = plug.boundingRect().size().width() + margin
+            pxpos = margin
+        pos = margin * 2 + self.title.boundingRect().size().height() \
+            + param_name_item.boundingRect().size().height() * params_size
+        param_name_item.setPos(xpos, pos)
+        plug.setPos(pxpos, pos)
+        param_name_item.setParentItem(self)
+        plug.setParentItem(self)
+        plugs[param_name] = plug
+        params[param_name] = param_name_item
+        if output:
+            self._shift_params()
+
+    def _shift_params(self):
+        margin = 5
+        if not self.in_params:
+            if not self.out_params:
+                return # nothing to do.
+            else:
+                param_item = self.out_params.values()[0]
+        else:
+            param_item = self.in_params.values()[0]
+        ni = 0
+        no = 0
+        for param_name, pipeline_plug in self.parameters.iteritems():
+            output = (not pipeline_plug.output if self.name in (
+                'inputs', 'outputs') else pipeline_plug.output)
+            if output:
+                params = self.out_params
+                plugs = self.out_plugs
+                npos = no + len(self.in_params)
+                no += 1
+            else:
+                params = self.in_params
+                plugs = self.in_plugs
+                npos = ni
+                ni += 1
+            pos = margin * 2 + self.title.boundingRect().size().height() \
+                + param_item.boundingRect().size().height() * npos
+            param_item = params[param_name]
+            plug = plugs[param_name]
+            ppos = param_item.pos()
+            param_item.setPos(ppos.x(), pos)
+            ppos = plug.pos()
+            plug.setPos(ppos.x(), pos)
+            pos += param_item.boundingRect().size().height()
+
+    def _remove_parameter(self, param_name):
+        if param_name in self.in_params:
+            params = self.in_params
+            plugs = self.in_plugs
+        else:
+            params = self.out_params
+            plugs = self.out_plugs
+        param_item = params[param_name]
+        self.scene().removeItem(param_item)
+        plug = plugs[param_name]
+        self.scene().removeItem(plug)
+        del params[param_name]
+        del plugs[param_name]
+        self._shift_params()
+
     def update_node(self):
+        # print 'update_node', self.name
         self._set_brush()
         self.box_title.setBrush(self.title_brush)
         self.box.setBrush(self.bg_brush)
@@ -287,10 +373,27 @@ class NodeGWidget(QtGui.QGraphicsItem):
             output = (not pipeline_plug.output if self.name in (
                 'inputs', 'outputs') else pipeline_plug.output)
             if output:
-                gplug = self.out_plugs[param]
+                gplug = self.out_plugs.get(param)
+                if gplug is None: # new parameter ?
+                    self._create_parameter(param, pipeline_plug)
+                    gplug = self.out_plugs.get(param)
             else:
-                gplug = self.in_plugs[param]
+                gplug = self.in_plugs.get(param)
+                if gplug is None: # new parameter ?
+                    self._create_parameter(param, pipeline_plug)
+                    gplug = self.in_plugs.get(param)
             gplug.update_plug(pipeline_plug.activated, pipeline_plug.optional)
+        # check removed params
+        to_remove = []
+        for param in self.in_params:
+            if param not in self.parameters:
+                to_remove.append(param)
+        for param in self.out_params:
+            if param not in self.parameters:
+                to_remove.append(param)
+        for param in to_remove:
+            self._remove_parameter(param)
+        self.box.setRect(self.boundingRect())
 
     def contentsRect(self):
         brect = QtCore.QRectF(0, 0, 0, 0)
@@ -516,10 +619,14 @@ class PipelineScene(QtGui.QGraphicsScene):
         source_gnode_name, source_param = source
         if not source_gnode_name:
             source_gnode_name = 'inputs'
-        source_gnode = self.gnodes[source_gnode_name]
         dest_gnode_name, dest_param = dest
         if not dest_gnode_name:
             dest_gnode_name = 'outputs'
+        source_dest = ((source_gnode_name, source_param),
+            (dest_gnode_name, dest_param))
+        if source_dest in self.glinks:
+            return # already done
+        source_gnode = self.gnodes[source_gnode_name]
         dest_gnode = self.gnodes.get(dest_gnode_name)
         if dest_gnode is not None:
             if dest_param in dest_gnode.in_plugs:
@@ -529,9 +636,26 @@ class PipelineScene(QtGui.QGraphicsScene):
                     dest_gnode.mapToScene(
                         dest_gnode.in_plugs[dest_param].get_plug_point()),
                     active, weak)
-                self.glinks[((source_gnode_name, source_param),
-                            (dest_gnode_name, dest_param))] = glink
+                self.glinks[source_dest] = glink
                 self.addItem(glink)
+
+    def _remove_link(self, source_dest):
+        source, dest = source_dest
+        source_gnode_name, source_param = source
+        if not source_gnode_name:
+            source_gnode_name = 'inputs'
+        source_gnode = self.gnodes[source_gnode_name]
+        dest_gnode_name, dest_param = dest
+        if not dest_gnode_name:
+            dest_gnode_name = 'outputs'
+        dest_gnode = self.gnodes.get(dest_gnode_name)
+        if dest_gnode is not None:
+            if dest_param in dest_gnode.in_plugs:
+                glink = self.glinks[((source_gnode_name, source_param),
+                    (dest_gnode_name, dest_param))]
+                self.removeItem(glink)
+                del self.glinks[((source_gnode_name, source_param),
+                    (dest_gnode_name, dest_param))]
 
     def update_paths(self):
         for i in self.items():
@@ -607,13 +731,28 @@ class PipelineScene(QtGui.QGraphicsScene):
                             weak=weak_link)
 
     def update_pipeline(self):
+        pipeline = self.pipeline
         for node_name, gnode in self.gnodes.iteritems():
             if node_name in ('inputs', 'outputs'):
-                node = self.pipeline.nodes['']
+                node = pipeline.nodes['']
+                # in case traits have been added/removed
+                if node_name == 'inputs':
+                    pipeline_inputs = SortedDictionary()
+                    for name, plug in node.plugs.iteritems():
+                        if not plug.output:
+                            pipeline_inputs[name] = plug
+                    gnode.parameters = pipeline_inputs
+                else:
+                    pipeline_outputs = SortedDictionary()
+                    for name, plug in node.plugs.iteritems():
+                        if plug.output:
+                            pipeline_outputs[name] = plug
+                    gnode.parameters = pipeline_outputs
             else:
-                node = self.pipeline.nodes[node_name]
+                node = pipeline.nodes[node_name]
             gnode.active = node.activated
             gnode.update_node()
+        to_remove = []
         for source_dest, glink in self.glinks.iteritems():
             source, dest = source_dest
             source_node_name, source_param = source
@@ -623,12 +762,39 @@ class PipelineScene(QtGui.QGraphicsScene):
             if dest_node_name == 'outputs':
                 dest_node_name = ''
             source_plug \
-                = self.pipeline.nodes[source_node_name].plugs[source_param]
-            dest_plug = self.pipeline.nodes[dest_node_name].plugs[dest_param]
-            active = source_plug.activated and dest_plug.activated
-            weak = [x[4] for x in source_plug.links_to \
-                if x[:2] == (dest_node_name, dest_param)][0]
-            glink.update_activation(active, weak)
+                = pipeline.nodes[source_node_name].plugs.get(source_param)
+            dest_plug = pipeline.nodes[dest_node_name].plugs.get(dest_param)
+            remove_glink = False
+            if source_plug is None or dest_plug is None:
+                # plug[s] removed
+                remove_glink = True
+            else:
+                active = source_plug.activated and dest_plug.activated
+                weak = [x[4] for x in source_plug.links_to \
+                    if x[:2] == (dest_node_name, dest_param)]
+                if len(weak) == 0:
+                    # link removed
+                    remove_glink = True
+                else:
+                    weak = weak[0]
+            if remove_glink:
+                to_remove.append(source_dest)
+            else:
+                glink.update_activation(active, weak)
+        for source_dest in to_remove:
+            self._remove_link(source_dest)
+        # check added links
+        for source_node_name, source_node in pipeline.nodes.iteritems():
+            for source_parameter, source_plug in source_node.plugs.iteritems():
+                for (dest_node_name, dest_parameter, dest_node, dest_plug,
+                     weak_link) in source_plug.links_to:
+                    if dest_node is pipeline.nodes.get(dest_node_name):
+                        self.add_link(
+                            (source_node_name, source_parameter),
+                            (dest_node_name, dest_parameter),
+                            active=source_plug.activated \
+                                and dest_plug.activated,
+                            weak=weak_link)
 
     def keyPressEvent(self, event):
         super(PipelineScene, self).keyPressEvent(event)
@@ -856,6 +1022,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             #self._set_pipeline(pipeline)
             self.scene.update_pipeline()
         pipeline.on_trait_change(reset_pipeline, 'selection_changed')
+        pipeline.on_trait_change(reset_pipeline, 'user_traits_changed')
 
     def zoom_in(self):
         self.scale(1.2, 1.2)
