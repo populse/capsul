@@ -86,7 +86,7 @@ class ListControlWidget(object):
         Parameters
         ----------
         cls: ListControlWidget (mandatory)
-            a StrControlWidget control
+            a ListControlWidget control
         control_instance: QFrame (mandatory)
             the control widget we want to validate
         """
@@ -486,7 +486,7 @@ class ListControlWidget(object):
 
         # Update the list controller
         control_instance._controller_connections[0]()
-        control_instance.controller_widget.update_controller_widget()
+        #control_instance.controller_widget.update_controller_widget()
         logging.debug("Add 'ListControlWidget' '{0}' new trait "
                       "callback.".format(trait_name))
 

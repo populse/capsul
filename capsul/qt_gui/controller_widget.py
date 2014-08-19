@@ -376,15 +376,17 @@ class ControllerWidget(QtGui.QWidget):
             # an error message. Note that the parameter will not be
             # accessible in the user interface.
             if control_class is None:
-                logging.error("No control defined for trait '{0}'. This "
-                              "parameter will not be accessible in the "
-                              "user interface.".format(trait_name))
+                logging.error(
+                    "No control defined for trait '{0}': {1}. This "
+                    "parameter will not be accessible in the "
+                    "user interface.".format(trait_name, trait_ids(trait)))
                 return
 
             # Create the control instance and associated label
             control_instance, control_label = control_class.create_widget(
                 self, trait_name, getattr(self.controller, trait_name),
                 trait)
+            control_class.is_valid(control_instance)
 
             # If the trait contains a description, insert a tool tip to the
             # control instance
