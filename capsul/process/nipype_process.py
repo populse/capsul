@@ -262,8 +262,10 @@ def nipype_factory(nipype_instance):
 
         # Normlize the description
         add_switch = False
+        # For the moment do not create Either struct since it is not considered
+        # in capuslview
         if "MultiPath" in str_description[0]:
-            add_switch = True
+            add_switch = False
         for old_str, new_str in trait_cvt_table.iteritems():
             for cnt in range(len(str_description)):
                 str_description[cnt] = str_description[cnt].replace(old_str,
@@ -368,7 +370,7 @@ def nipype_factory(nipype_instance):
         private_name = "_" + name
         process_instance.add_trait(private_name, process_trait)
         # Init output to undefined value
-        setattr(process_instance, private_name, _Undefined())
+        #setattr(process_instance, private_name, _Undefined())
         # TODO: fix this hack in Controller
         process_instance.trait(private_name).optional = not trait.mandatory
         process_instance.trait(private_name).desc = trait.desc
