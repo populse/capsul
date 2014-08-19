@@ -116,8 +116,8 @@ class ListControlWidget(object):
         # Get the inner trait: expect only one inner trait
         if len(trait.inner_traits) != 1:
             raise Exception(
-                "Expect only one inner trait in List control. Current "
-                "value is '{0}'.".format(trait.inner_traits))
+                "Expect only one inner trait in List control. Trait '{0}' "
+                "inner trait is '{1}'.".format(control_name, trait.inner_traits))
         inner_trait = trait.inner_traits[0]
 
         # Create the list widget: a frame
