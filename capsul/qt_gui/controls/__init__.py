@@ -25,6 +25,7 @@ controls = {}
 # Register all control class
 controls["Str"] = StrControlWidget
 controls["String"] = StrControlWidget
+controls["Any"] = StrControlWidget
 controls["Float"] = FloatControlWidget
 controls["Int"] = IntControlWidget
 controls["Enum"] = EnumControlWidget
