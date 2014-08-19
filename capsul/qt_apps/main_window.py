@@ -263,10 +263,7 @@ class CapsulMainWindow(MyQUiLoader):
         """
         # If no valid tab index has been passed
         if index < 0:
-            # Delete the controller widget in the dock widget
-            to_remove_widget = self.ui.dockWidgetParameters.widget()
-            to_remove_widget.close()
-            to_remove_widget.deleteLater()
+            pass
 
         # A new valid tab is selected
         else:
@@ -354,27 +351,37 @@ class CapsulMainWindow(MyQUiLoader):
         widget: a widget (mandatory)
             the widget we want to draw
         """
-        # add the widget if new
-        # otherwise, recreate the widget
+        # Search if the tab corresponding to the widget has already been created
         already_created = False
         index = 0
+
+        # Go through all the tabs
         for index in range(self.ui.display.count()):
+
+            # Check if we have a match: the tab name is equal to the current
+            #pipeline name
             if (self.ui.display.tabText(index) ==
                     self.pipeline.name):
                 already_created = True
                 break
+
+        # If no match found, add a new tab with the widget
         if not already_created:
             self.ui.display.addTab(
                 widget, unicode(self.pipeline.name))
             self.ui.display.setCurrentIndex(
                 self.ui.display.count() - 1)
+
+        # Otherwise, replace the widget from the match tab
         else:
-            pipeline = self.pipeline
+            # Delete the tab
             self.ui.display.removeTab(index)
-            self.pipeline = pipeline
+
+            # Insert the new tab
             self.ui.display.insertTab(
                 index, widget, unicode(self.pipeline.name))
-            self.ui.display.setCurrentIndex(index)
+
+
 
     def _is_active_pipeline_valid(self):
         """ Method to ceack that the active pipeline is valid
