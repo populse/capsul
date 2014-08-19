@@ -274,6 +274,9 @@
    </property>
   </action>
   <action name="actionRun">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="icones.qrc">
      <normaloff>:/icones/play</normaloff>:/icones/play</iconset>

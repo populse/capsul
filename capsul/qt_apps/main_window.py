@@ -131,9 +131,9 @@ class CapsulMainWindow(MyQUiLoader):
                     logging.error(error_message.format(
                         type(self.ui), control_name))
 
-    ###########
-    # Signals #
-    ###########
+    ###########################################################################
+    # Slots   
+    ###########################################################################
 
     def onBrowseClicked(self):
         """ Event to show / hide the browse dock widget.
@@ -193,6 +193,22 @@ class CapsulMainWindow(MyQUiLoader):
         else:
             self.ui.actionLoad.setEnabled(True)
 
+    def onRunStatus(self):
+        """ Event to refresh the run button status.
+
+        When all the controller widget controls are correctly filled, enable
+        the user to execute the pipeline.
+        """
+        # Get the controller widget
+        controller_widget = self.ui.dockWidgetParameters.widget().controller_widget
+
+        # Get the controller widget status
+        is_valid = controller_widget.is_valid()
+
+        # Depending on the controller widget status enable / disable
+        # the run button
+        self.ui.actionRun.setEnabled(is_valid)
+
     def onLoadClicked(self):
         """ Event to load and display a pipeline.
         """
@@ -205,6 +221,19 @@ class CapsulMainWindow(MyQUiLoader):
         # controller
         pipeline_widget = ScrollControllerWidget(self.pipeline, live=True)
         self.ui.dockWidgetParameters.setWidget(pipeline_widget)
+
+        # Add observer to refresh the run button
+        controller_widget = pipeline_widget.controller_widget
+        for control_name, control in controller_widget._controls.iteritems():
+
+            # Unpack the control item
+            trait, control_class, control_instance, control_label = control
+
+            # Add the new callback
+            control_class.add_callback(self.onRunStatus, control_instance)
+
+        # Refresh manually the run button status the first time
+        self.onRunStatus()
 
         # Store the pipeline documentation root path
         self.path_to_pipeline_doc[self.pipeline.id] = item.text(2)
@@ -263,7 +292,7 @@ class CapsulMainWindow(MyQUiLoader):
         """
         # If no valid tab index has been passed
         if index < 0:
-            pass
+            self.ui.actionRun.setEnabled(False)
 
         # A new valid tab is selected
         else:
@@ -274,6 +303,9 @@ class CapsulMainWindow(MyQUiLoader):
             # Set the controller widget associated to the pipeline
             # controller
             self.ui.dockWidgetParameters.setWidget(pipeline_widget)
+
+            # Refresh manually the run button status the first time
+            self.onRunStatus()
 
     def onHelpClicked(self):
         """ Event to display the documentation of the active pipeline.

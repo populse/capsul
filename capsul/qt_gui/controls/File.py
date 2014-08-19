@@ -87,6 +87,21 @@ class FileControlWidget(object):
         control_instance.path.textChanged.connect(widget_callback)
 
     @staticmethod
+    def add_callback(callback, control_instance):
+        """ Method to add a callback to the control instance when a 'textChanged'
+        signal is emited.
+
+        Parameters
+        ----------
+        callback: @function (mandatory)
+            the function that will be called when a 'textChanged' signal is
+            emited.
+        control_instance: QWidget (mandatory)
+            the control widget we want to validate
+        """
+        control_instance.path.textChanged.connect(callback)
+
+    @staticmethod
     def create_widget(parent, control_name, control_value, trait):
         """ Method to create the file widget.
 
