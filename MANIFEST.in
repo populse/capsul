@@ -6,3 +6,5 @@ recursive-exclude doc/source *.*~
 prune doc/source/*/generated
 # list of files to include in the distribution built by the sdist command
 recursive-include capsul/apps_qt/resources *.ui *.png *.txt *.qrc
+# remove the wip capsul module
+recursive-exclude capsul/wip *
