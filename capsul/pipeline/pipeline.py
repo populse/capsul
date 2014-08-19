@@ -101,14 +101,14 @@ class Pipeline(Process):
 
         self.workflow_repr = ""
         self.workflow_list = []
-        
+
         if autoexport_nodes_parameters:
             self.autoexport_nodes_parameters()
-            
+
         # Refresh pipeline activation
         self._disable_update_nodes_and_plugs_activation -= 1
         self.update_nodes_and_plugs_activation()
-        
+
     ##############
     # Methods    #
     ##############
@@ -213,7 +213,7 @@ class Pipeline(Process):
         else:
             node = ProcessNode(self, name, process)
         self.nodes[name] = node
-        
+
         # If a default value is given to a parameter, change the corresponding
         # plug so that it gets activated even if not linked
         for parameter_name in kwargs:
@@ -253,7 +253,7 @@ class Pipeline(Process):
         process: Process (mandatory)
             the process we want to add
         iterative_plugs: list of str (optional)
-            a list of plug names on which we want to iterate 
+            a list of plug names on which we want to iterate
         do_not_export: list of str (optional)
             a list of plug names that we do not want to export
         make_optional: list of str (optional)
@@ -269,8 +269,8 @@ class Pipeline(Process):
             # Check the unicity of the name we want to insert
             if name in self.nodes:
                 raise ValueError("Pipeline cannot have two nodes with the"
-                                 "same name : {0}".format(name)) 
-   
+                                 "same name : {0}".format(name))
+
             # Create the iterative pipeline node
             process = get_process_instance(process, **kwargs)
             node = IterativeNode(
@@ -405,7 +405,7 @@ class Pipeline(Process):
     def add_link(self, link, weak_link=False):
         """ Add a link between pipeline nodes.
 
-        If the destination node is a switch, force the source plug to be not 
+        If the destination node is a switch, force the source plug to be not
         optional.
 
         Parameters
@@ -431,7 +431,7 @@ class Pipeline(Process):
         if dest_plug.output and dest_node is not self.pipeline_node:
             raise ValueError("Cannot link to a pipeline output "
                              "plug: {0}".format(link))
-                
+
         # Propagate the plug value from source to destination
         value = source_node.get_plug_value(source_plug_name)
         if value is not None:
@@ -553,7 +553,7 @@ class Pipeline(Process):
         # Now add the parameter to the pipeline
         self.add_trait(pipeline_parameter, trait)
 
-        # If the plug value is None, replace it by the undefined 
+        # If the plug value is None, replace it by the undefined
         # trait value
         plug_value = node.get_plug_value(plug_name)
         if plug_value is None:
@@ -569,7 +569,7 @@ class Pipeline(Process):
         else:
             self.add_link("{0}->{1}.{2}".format(pipeline_parameter,
                                          node_name, plug_name), weak_link)
-        
+
     def _set_node_enabled(self, node_name, is_enabled):
         """ Method to enable or disabled a node
 
@@ -583,9 +583,9 @@ class Pipeline(Process):
         node = self.nodes.get(node_name)
         if node:
             node.enabled = is_enabled
-                                     
+
     def all_nodes(self):
-        '''Iterate over all pipeline nodes including sub-pipeline nodes.        
+        '''Iterate over all pipeline nodes including sub-pipeline nodes.
         Returns
         -------
         nodes: Generator of Node
@@ -597,16 +597,16 @@ class Pipeline(Process):
                 for sub_node in node.process.all_nodes():
                     if sub_node is not node:
                         yield sub_node
-        
+
     def _check_local_node_activation(self, node):
-        '''Try to activate a node and its plugs according to its 
+        '''Try to activate a node and its plugs according to its
         state and the state of its direct neighbouring nodes.
 
         Parameters
         ----------
         node: Node (mandatory)
             node to check
-        
+
         Returns
         -------
         plugs_activated: list
@@ -657,7 +657,7 @@ class Pipeline(Process):
                             plug.activated = True
                             plugs_activated.append((plug_name,plug))
         return plugs_activated
-        
+
     def _check_local_node_deactivation(self, node):
         '''Check plugs that have to be deactivated according to node
         activation state and to the state of its direct neighbouring nodes.
@@ -666,7 +666,7 @@ class Pipeline(Process):
         ----------
         node: Node (mandatory)
             node to check
-        
+
         Returns
         -------
         plugs_deactivated: list
@@ -699,7 +699,7 @@ class Pipeline(Process):
                 # they are used to define its activation state
                 plug_activated = weak_activation
             return plug_activated
-        
+
         plugs_deactivated = []
         # If node has already been  deactivated there is nothing to do
         if node.activated:
@@ -726,7 +726,7 @@ class Pipeline(Process):
                         else:
                             plug_activated = check_plug_activation(plug,
                                 plug.links_from)
-                    
+
                     # Plug must be deactivated, record it in result and check
                     # if this deactivation also deactivate the node
                     if not plug_activated:
@@ -780,16 +780,16 @@ class Pipeline(Process):
         if self._disable_update_nodes_and_plugs_activation:
             self._must_update_nodes_and_plugs_activation = True
             return
-        
+
         self._disable_update_nodes_and_plugs_activation += 1
-        
+
         #print '!'
         #print '!update_nodes_and_plugs_activation!', self.id, self, self._disable_update_nodes_and_plugs_activation
         debug = getattr(self, '_debug_activations', None)
         if debug:
             debug = open(debug,'w')
             print >> debug,self.id
-                
+
         # Remember all links that are inactive (i.e. at least one of the two
         # plugs is inactive) in order to execute a callback if they become
         # active (see at the end of this method)
@@ -809,7 +809,7 @@ class Pipeline(Process):
 
         # Forward activation : try to activate nodes (and their input plugs) and
         # propagate activations neighbours of activated plugs
-        
+
         # Starts iterations with all nodes
         nodes_to_check = set(self.all_nodes())
         iteration = 1
@@ -895,9 +895,9 @@ class Pipeline(Process):
         for node in self.all_nodes():
             if isinstance(node, PipelineNode):
                 node.process.selection_changed = True
-        
+
         self._disable_update_nodes_and_plugs_activation -= 1
-            
+
     def workflow_graph(self):
         """Generate a workflow graph
 
@@ -920,7 +920,7 @@ class Pipeline(Process):
                 # sub-pipeline or in the parent pipeline
                 if pipeline.nodes.get(dest_node_name) is not dest_node:
                     continue
-                
+
                 # Plug need to be activated
                 if dest_node.activated:
                     # If plug links to a switch, we need to address the switch
@@ -1149,8 +1149,8 @@ class Pipeline(Process):
 
     def pipeline_state(self):
         '''Return an object composed of basic Python objects that contains
-        the whole structure and state of the pipeline. This object can be 
-        given to compare_to_state method in order to get the differences with 
+        the whole structure and state of the pipeline. This object can be
+        given to compare_to_state method in order to get the differences with
         a previously stored state. This is typically used in tests scripts.
 
         Returns
@@ -1163,7 +1163,7 @@ class Pipeline(Process):
             node_dict = dict(name=node.name,
                              enabled=node.enabled,
                              activated=node.activated,
-                             plugs=plugs_list)                  
+                             plugs=plugs_list)
             result[node.full_name] = node_dict
             for plug_name, plug in node.plugs.iteritems():
                 links_to_dict = {}
@@ -1183,10 +1183,10 @@ class Pipeline(Process):
                     link_name = '%s:%s' % (n.full_name,pn)
                     links_from_dict[link_name] = weak_link
         return result
-    
+
     def compare_to_state(self, pipeline_state):
         '''Returns the differences between this pipeline and a previously recorded state.
-        
+
         Returns
         -------
         differences: list
@@ -1204,7 +1204,7 @@ class Pipeline(Process):
                         yield '%s = %s differs from %s' % (ref_key, repr(ref_value), repr(other_value))
             for other_key, other_value in other_dict.iteritems():
                 yield '%s=%s is new' % (other_key,repr(other_value))
-        
+
         pipeline_state = deepcopy(pipeline_state)
         for node in self.all_nodes():
             node_name = node.full_name
@@ -1224,12 +1224,12 @@ class Pipeline(Process):
                     if sorted(ref_plug_names) == sorted(other_plug_names):
                         result.append('in node "%s": plugs order = %s '
                                       'differs from %s' % \
-                                      (node_name, repr(ref_plug_names), 
+                                      (node_name, repr(ref_plug_names),
                                        repr(other_plug_names)))
                     else:
                         result.append('in node "%s": plugs list = %s '
                                       'differs from %s' % \
-                                      (node_name, repr(ref_plug_names), 
+                                      (node_name, repr(ref_plug_names),
                                        repr(other_plug_names)))
                         # go to next node
                         continue
@@ -1265,7 +1265,7 @@ class Pipeline(Process):
                                 result.append('in plug "%s:%s": link from %s is%sweak' % (node_name,plug_name,link_name,(' not' if weak_link else '')))
                     for link_name, weak_link in links_from_dict.iteritems():
                         result.append('in plug "%s:%s": %slink from %s is new' % (node_name,plug_name,(' weak' if weak_link else ''),link_name))
-                        
+
         for node_name in pipeline_state:
             result.append('node "%s" is new' % node_name)
         return result
