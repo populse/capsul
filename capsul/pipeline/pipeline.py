@@ -153,6 +153,30 @@ class Pipeline(Process):
             plug.on_trait_change(self.update_nodes_and_plugs_activation,
                                  'enabled')
 
+    def remove_trait(self, name):
+        """ Remove a trait to the pipeline
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the trait name
+        """
+        trait = self.traits()[name]
+
+        # If we remove a user trait, clear/remove the associated plug
+        if self.is_user_trait(trait):
+            plug = self.pipeline_node.plugs[name]
+            for link in plug.links_to:
+                dst = '%s.%s' % (link[0], link[1])
+                self.remove_link('%s->%s' % (name, dst))
+            for link in plug.links_from:
+                src = '%s.%s' % (link[0], link[1])
+                self.remove_link('%s->%s' % (src, name))
+            del self.pipeline_node.plugs[name]
+
+        # Remove the trait
+        super(Pipeline, self).remove_trait(name)
+
     def add_process(self, name, process, do_not_export=None,
                     make_optional=None, **kwargs):
         """ Add a new node in the pipeline
