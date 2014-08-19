@@ -307,6 +307,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 first = False
                 brect = item_rect
             else:
+                if child is self.embedded_subpipeline:
+                    margin = 5
+                    item_rect.setBottom(item_rect.bottom() + margin)
                 if item_rect.left() < brect.left():
                     brect.setLeft(item_rect.left())
                 if item_rect.top() < brect.top():
@@ -320,8 +323,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
     def boundingRect(self):
         margin = 0
         brect = self.contentsRect()
-        brect.setRight(brect.right() + margin * 2)
-        brect.setBottom(brect.bottom() + margin * 2)
+        if self.embedded_subpipeline and self.embedded_subpipeline.isVisible():
+            margin = 5
+        brect.setRight(brect.right())
+        brect.setBottom(brect.bottom() + margin)
         return brect
 
     def paint(self, painter, option, widget=None):
@@ -347,9 +352,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
         margin = 5
         param_width = self.in_params_width()
         pos = margin * 2 + self.title.boundingRect().size().height()
-        #self.embedded_subpipeline.setPos(param_width, pos)
         opos = param_width \
-            + self.embedded_subpipeline.boundingRect().width()
+            + self.embedded_subpipeline.boundingRect().width() # + margin ?
         for name, param in self.out_params.iteritems():
             param.setPos(opos, param.pos().y())
             plug = self.out_plugs[name]
@@ -362,10 +366,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
     def resize_subpipeline_on_hide(self):
         margin = 5
-        opos = self.in_params_width() \
-            + self.embedded_subpipeline.boundingRect().width()
-        self.embedded_subpipeline.setPos(self.in_params_width() + margin,
-            self.embedded_subpipeline.pos().y())
         for name, param in self.out_params.iteritems():
             plug = self.out_plugs[name]
             param.setPos(plug.boundingRect().width() + margin, param.pos().y())

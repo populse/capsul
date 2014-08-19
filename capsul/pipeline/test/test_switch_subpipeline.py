@@ -251,7 +251,7 @@ if __name__ == "__main__":
     view1.add_embedded_subpipeline('way1_1', scale=0.4)
     view1.add_embedded_subpipeline('way2_1', scale=0.4)
     view1.show()
-    view2 = PipelineUserView(pipeline)
+    #view2 = PipelineUserView(pipeline)
     #view2.show()
     app.exec_()
     del view1
