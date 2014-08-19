@@ -238,7 +238,9 @@ if __name__ == "__main__":
 
     import sys
     #from PySide import QtGui
-    from PyQt4 import QtGui
+    from soma.qt_gui import qt_backend
+    qt_backend.set_qt_backend('PyQt4')
+    from soma.qt_gui.qt_backend import QtGui
     from capsul.qt_gui.widgets import PipelineDevelopperView
     #from capsul.qt_gui.widgets import PipelineUserView
     from capsul.process import get_process_instance

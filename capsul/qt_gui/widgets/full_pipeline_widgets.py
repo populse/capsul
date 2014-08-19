@@ -640,30 +640,53 @@ class PipelineScene(QtGui.QGraphicsScene):
             pprint(posdict)
 
     def link_tooltip_text(self, source_dest):
-        node_name = source_dest[0][0]
-        if node_name in ('inputs', 'outputs'):
+        source_node_name = source_dest[0][0]
+        dest_node_name = source_dest[1][0]
+        if source_node_name in ('inputs', 'outputs'):
             proc = self.pipeline
+            source_node_name = ''
+            source_node = self.pipeline.nodes[source_node_name]
         else:
-            src = self.pipeline.nodes[node_name]
-            proc = src
-            if hasattr(src, 'process'):
-                proc = src.process
+            source_node = self.pipeline.nodes[source_node_name]
+            proc = source_node
+            if hasattr(source_node, 'process'):
+                proc = source_node.process
+        if dest_node_name in ('inputs', 'outputs'):
+            dest_node_name = ''
+        splug = source_node.plugs[source_dest[0][1]]
+        link = [l for l in splug.links_to \
+            if l[0] == dest_node_name and l[1] == source_dest[1][1]][0]
+        if splug.activated and link[3].activated:
+            active = '<font color="#ffa000">activated</font>'
+        else:
+            active = '<font color="#a0a0a0">inactive</font>'
+        if link[4]:
+            weak = '<font color="#e0c0c0">weak</font>'
+        else:
+            weak = '<b>strong</b>'
         name = source_dest[0][1]
         value = getattr(proc, name)
         #trait = proc.user_traits()[name]
         typestr = str(type(value)).replace('<', '').replace('>', '')
         msg = '''<h3>%s</h3>
+<table cellspacing="6">
+    <tr>
+      <td><b>Link:</b></td>
+      <td>%s</td>
+      <td>%s</td>
+    </tr>
+</table>
 <table>
   <tr>
-    <td>type:</td>
+    <td><b>type:</b></td>
     <td>%s</td>
   </tr>
   <tr>
-    <td>value:</td>
+    <td><b>value:</b></td>
     <td>%s</td>
   </tr>
 </table>''' \
-            % (source_dest[0][1], typestr, str(value))
+            % (source_dest[0][1], active, weak, typestr, str(value))
         return msg
 
     def plug_tooltip_text(self, node, name):
@@ -697,6 +720,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         msg = '''<h3>%s</h3>
 <table cellspacing="6">
     <tr>
+      <td><b>Plug:</b></td>
       <td>%s</td>
       <td>%s</td>
       <td>%s</td>
@@ -705,11 +729,11 @@ class PipelineScene(QtGui.QGraphicsScene):
 </table>
 <table>
     <tr>
-      <td>type:</td>
+      <td><b>type:</b></td>
       <td>%s</td>
     </tr>
     <tr>
-      <td>value:</td>
+      <td><b>value:</b></td>
       <td><b>%s</b></td>
     </tr>
 </table>''' \
