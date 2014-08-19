@@ -7,15 +7,17 @@
 # for details.
 ##########################################################################
 
+# System import
 from ez_setup import use_setuptools
-use_setuptools()
-
 import os
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
+# Get some information - parameters
+use_setuptools()
 release_info = {}
 execfile(os.path.join("capsul", "info.py"), release_info)
 
+# Build the setup
 setup(
     name=release_info["NAME"],
     description=release_info["DESCRIPTION"],
@@ -26,13 +28,14 @@ setup(
     author_email=release_info["AUTHOR_EMAIL"],
     version=release_info["VERSION"],
     url=release_info["URL"],
-    packages=find_packages(exclude="doc"),
-    package_data={"capsul": ["apps_qt/resources/*.ui",
-                              "apps_qt/resources/*.png",
-                              "apps_qt/resources/*.qrc",
-                              "apps_qt/resources/*.txt"]},
+    #package_dir = {"": "capsul"},
+    packages=find_packages(),
+    package_data={"capsul": ["qt_apps/resources/*.ui",
+                             "qt_apps/resources/*.png",
+                             "qt_apps/resources/*.qrc",
+                             "qt_apps/resources/*.txt"]},
     platforms=release_info["PLATFORMS"],
     extras_require=release_info["EXTRA_REQUIRES"],
     install_requires=release_info["REQUIRES"],
-    scripts=["capsul/apps_qt/capsulview", ]
+    scripts=["capsul/qt_apps/capsulview", ]
 )
