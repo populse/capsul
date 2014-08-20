@@ -31,13 +31,6 @@ except ImportError:
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-all_views = set()
-'''
-all_views is a global variable (set) which is filled with views opened by
-double clicks on sub-pipelines. It is needed to keep the life of such views.
-When such a view is closed, the reference is removed so the view can be deleted.
-'''
-
 BLUE_1 = QtGui.QColor.fromRgbF(0.7, 0.7, 0.9, 1)
 BLUE_2 = QtGui.QColor.fromRgbF(0.5, 0.5, 0.7, 1)
 LIGHT_BLUE_1 = QtGui.QColor.fromRgbF(0.95, 0.95, 1.0, 1)
@@ -1240,14 +1233,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             gnode.add_subpipeline_view(
                 sub_pipeline, self._allow_open_controller, scale=scale)
 
-    def closeEvent(self, event):
-        super(PipelineDevelopperView, self).closeEvent(event)
-        if event.isAccepted():
-            # remove self from global list, so that we can be deleted
-            global all_views
-            if self in all_views:
-                all_views.remove(self)
-
     def onLoadSubPipelineClicked(self, node_name, sub_pipeline, modifiers):
         """ Event to load a open a sub-pipeline view.
         If ctrl is pressed the new view will be embedded in its parent node box.
@@ -1263,13 +1248,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             sub_view = PipelineDevelopperView(sub_pipeline,
                 show_sub_pipelines=self._show_sub_pipelines,
                 allow_open_controller=self._allow_open_controller)
+            # set self as QObject parent (not QWidget parent) to prevent
+            # the sub_view to close/delete immediately
+            QtCore.QObject.setParent(sub_view, self)
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.setWindowTitle(node_name)
             sub_view.show()
-            # keep sub_view reference in a global variable so that it doesn't
-            # close/delete immediately
-            global all_views
-            all_views.add(sub_view)
 
     def onOpenProcessController(self, node_name, process):
         """ Event to open a sub-process/sub-pipeline controller
@@ -1283,8 +1267,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.setWindowTitle(node_name)
             sub_view.show()
-            # keep this variable to avoid destroying the scroll area right now.
-            # FIXME: in any case, ControllerWidget does never delete due to
-            # cyclic references or something.
-            # PipelineDevelopperView neither...
-            cwidget._parent_scroll = sub_view
+            # set self as QObject parent (not QWidget parent) to prevent
+            # the sub_view to close/delete immediately
+            QtCore.QObject.setParent(sub_view, self)
