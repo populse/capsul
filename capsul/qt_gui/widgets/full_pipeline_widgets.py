@@ -1062,6 +1062,27 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     Qt signals are emitted on a right click on a node box, and on a double 
     click on a sub-pipeline box, to allow handling at a higher level. Default
     behaviors can be enabled using constructor parameters.
+
+    Ctrl + double click opens sub-pipelines in embedded views inside their
+    parent box.
+
+    Attributes
+    ----------
+    subpipeline_clicked
+    node_right_clicked
+    plug_clicked
+    colored_parameters
+    scene
+
+    Methods
+    -------
+    __init__
+    set_pipeline
+    zoom_in
+    zoom_out
+    add_embedded_subpipeline
+    onLoadSubPipelineClicked
+    onOpenProcessController
     '''
     subpipeline_clicked = QtCore.Signal(str, Process,
                                         QtCore.Qt.KeyboardModifiers)
@@ -1070,10 +1091,26 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     '''Signal emitted when a node box is right-clicked'''
     plug_clicked = QtCore.Signal(str)
     '''Signal emitted when a plug is right-clicked'''
+    scene = None
+    '''
+    type: PipelineScene
+
+    the main scene.
+    '''
+    colored_parameters = True
+    '''
+    If enabled (default), parameters in nodes boxes are displayed with color
+    codes representing their state, and the state of their values: output
+    parameters, empty values, existing files, non-existing files...
+
+    When colored_parameters is set, however, callbacks have to be installed to
+    track changes in traits values, so this actually has an overhead.
+    '''
 
     def __init__(self, pipeline, parent=None, show_sub_pipelines=False,
             allow_open_controller=False):
-        '''
+        '''PipelineDevelopperView
+
         Parameters
         ----------
         pipeline:  Pipeline (mandatory)
@@ -1132,6 +1169,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
 
     def set_pipeline(self, pipeline):
+        '''
+        Assigns a new pipeline to the view.
+        '''
         self._set_pipeline(pipeline)
 
         # Setup callback to update view when pipeline state is modified
@@ -1143,9 +1183,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.update_pipeline()
 
     def zoom_in(self):
+        '''
+        Zoom the view in, applying a 1.2 zool factor
+        '''
         self.scale(1.2, 1.2)
 
     def zoom_out(self):
+        '''
+        Zoom the view out, applying a 1/1.2 zool factor
+        '''
         self.scale(1.0 / 1.2, 1.0 / 1.2)
 
     def wheelEvent(self, event):
@@ -1185,6 +1231,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             super(PipelineDevelopperView, self).mouseMoveEvent(event)
 
     def add_embedded_subpipeline(self, subpipeline_name, scale=None):
+        '''
+        Adds an embedded sub-pipeline inside its parent node.
+        '''
         gnode = self.scene.gnodes.get(str(subpipeline_name))
         sub_pipeline = self.scene.pipeline.nodes[str(subpipeline_name)].process
         if gnode is not None:
@@ -1200,7 +1249,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 all_views.remove(self)
 
     def onLoadSubPipelineClicked(self, node_name, sub_pipeline, modifiers):
-        """ Event to load a sub pipeline
+        """ Event to load a open a sub-pipeline view.
+        If ctrl is pressed the new view will be embedded in its parent node box.
         """
         if self._show_sub_pipelines:
             if modifiers & QtCore.Qt.ControlModifier:

@@ -33,13 +33,17 @@ Classes
 :mod:`capsul.apps_qt.base`: Base
 ================================
 
-.. automodule:: capsul.apps_qt.base
+.. automodule:: capsul.qt_gui
+   :no-members:
+   :no-inherited-members:
+
+.. automodule:: capsul.qt_apps
    :no-members:
    :no-inherited-members:
 
 **User guide:** See the :ref:`capsul_guide` section for further details.
 
-.. currentmodule:: capsul.apps_qt.base
+.. currentmodule:: capsul.qt_apps.utils
 
 Classes
 -------
@@ -59,16 +63,16 @@ Functions
     find_pipelines.find_pipelines
 
 
-:mod:`capsul.apps_qt.base.controller`: Controller
-=================================================
+:mod:`capsul.qt_gui.controller_widget`: Controller
+==================================================
 
-.. automodule:: capsul.apps_qt.base.controller
+.. automodule:: capsul.qt_gui.controller_widget
    :no-members:
    :no-inherited-members:
 
 **User guide:** See the :ref:`capsul_guide` section for further details.
 
-.. currentmodule:: capsul.apps_qt.base.controller
+.. currentmodule:: capsul.qt_gui.controller_widget
 
 Classes
 -------
@@ -97,16 +101,16 @@ Controls
     List.List
 
 
-:mod:`capsul.apps_qt.base.pipeline_widgets`: Pipeline Viewers
-=============================================================
+:mod:`capsul.qt_gui.widgets`: Pipeline Viewers
+==============================================
 
-.. automodule:: capsul.apps_qt.base.pipeline_widgets
+.. automodule:: capsul.qt_gui.widgets
    :no-members:
    :no-inherited-members:
 
 **User guide:** See the :ref:`capsul_guide` section for further details.
 
-.. currentmodule:: capsul.apps_qt.base.pipeline_widgets
+.. currentmodule:: capsul.qt_gui.widgets
 
 Classes
 -------
@@ -114,9 +118,8 @@ Classes
     :toctree: generated/capsul-apps-base-widget/
     :template: class.rst
 
-    full_pipeline_widgets.PipelineDevelopperView
-    pipeline_widgets.PipelineView
-    workflow_widget.PipelineUserView
+    PipelineDevelopperView
+    PipelineUserView
 
 
 :mod:`capsul.qt_gui`: Graphical elements and widgets for CAPSUL pipelines
