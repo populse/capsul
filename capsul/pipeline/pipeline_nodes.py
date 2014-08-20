@@ -166,10 +166,8 @@ class Node(Controller):
             return self.name    
     
     def _value_callback(self, source_plug_name, dest_node, dest_plug_name, value):
-        '''Spread the source plug value to the destination plug
-        '''
-        #if (value is not None and self.plugs[source_plug_name].activated
-                #and dest_node.plugs[dest_plug_name].activated):
+        """ Spread the source plug value to the destination plug.
+        """     
         dest_node.set_plug_value(dest_plug_name, value)
     
     def connect(self, source_plug_name, dest_node, dest_plug_name):
@@ -208,21 +206,17 @@ class Node(Controller):
                                         dest_plug_name))
         self.on_trait_change(callback, source_plug_name, remove=True)
 
-    
     def __getstate__(self):
-      '''Remove the callbacks from the default __getstate__ result because
-      they prevent Node instance from being used with pickle.
-      '''
-      state = super(Node,self).__getstate__()
-      state['_callbacks'] = state['_callbacks'].keys()
-    
-    
-    
+        '''Remove the callbacks from the default __getstate__ result because
+        they prevent Node instance from being used with pickle.
+        '''
+        state = super(Node,self).__getstate__()
+        state['_callbacks'] = state['_callbacks'].keys()
+     
     def __setstate__(self, state):
-      '''Restore the callbacks that have been removed by __getstate__.
-      '''
-      state['_callbacks'] = dict((i,SomaPartial(self._value_callback,*i)) for i in state['_callbacks'])
-    
+        '''Restore the callbacks that have been removed by __getstate__.
+        '''
+        state['_callbacks'] = dict((i,SomaPartial(self._value_callback,*i)) for i in state['_callbacks'])
     
     def set_callback_on_plug(self, plug_name, callback):
         """ Add an event when a plug change

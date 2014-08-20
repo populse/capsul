@@ -219,29 +219,44 @@ def nipype_factory(nipype_instance):
 
     def sync_process_output_traits(process_instance, name, value):
         """ Event handler function to update the process instance outputs
+
+        This callback is only called when an input process instance trait is
+        modified.
         """
-        try:
-            nipype_outputs = (process_instance.
-                              _nipype_interface._list_outputs())
-            # Synchronize traits and add an exists constrain for
-            # File
-            for out_name, out_value in nipype_outputs.iteritems():
-                # Get trait type
-                trait_type = trait_ids(
-                    process_instance._nipype_interface.output_spec().
-                    trait(out_name))
-                # Check if we synchronize the traits
-                if (trait_type[0] is not "File" or
-                   os.path.isfile(repr(out_value))):
-                               
-                    process_instance.set_parameter("_" + out_name, out_value)
-        except Exception as e:
-            ex_type, ex, tb = sys.exc_info()
-            logging.info("Something wrong in the nipype output "
-                          "trait synchronization:\n\n"
-                          "\tError: {0} - {1}\n\tTraceback:\n{2}".format(
-                          ex_type, ex, "".join(traceback.format_tb(tb))))
-            del tb
+        # Get the input traits list
+        input_traits = process_instance.traits(output=False)
+
+        # Try to update the output process instance traits values only if the
+        # modified process instance trait is an input.
+        if name in input_traits:
+
+            # Try to set all the process instance output traits values from
+            # the nipype autocompleted traits values
+            try:
+                nipype_outputs = (process_instance.
+                                  _nipype_interface._list_outputs())
+                # Synchronize traits and add an exists constrain for
+                # File
+                for out_name, out_value in nipype_outputs.iteritems():
+                    # Get trait type
+                    trait_type = trait_ids(
+                        process_instance._nipype_interface.output_spec().
+                        trait(out_name))
+                    # Check if we synchronize the traits
+                    if (trait_type[0] is not "File" or
+                       os.path.isfile(repr(out_value))):
+                                   
+                        process_instance.set_parameter("_" + out_name, out_value)
+
+            # If we can't update the output process instance traits values,
+            # raise an exception.
+            except Exception as e:
+                ex_type, ex, tb = sys.exc_info()
+                logging.info("Something wrong in the nipype output "
+                              "trait synchronization:\n\n"
+                              "\tError: {0} - {1}\n\tTraceback:\n{2}".format(
+                              ex_type, ex, "".join(traceback.format_tb(tb))))
+                del tb
 
     # Clone a nipype trait
     def clone_nipype_trait(nipype_trait):
@@ -347,8 +362,8 @@ def nipype_factory(nipype_instance):
 
         return process_trait
 
-    # Add nipype traits to the process instance
-    # inputs
+    # Add nipype traits to the process instance 
+    # > inputs
     for name, trait in nipype_instance.input_spec().items():
         # Check if trait name already allocated
         if name in dir(process_instance):
@@ -361,9 +376,12 @@ def nipype_factory(nipype_instance):
         process_instance.trait(name).output = False
         process_instance.get(name)
         process_instance.on_trait_change(sync_nypipe_traits, name=name)
-        process_instance.on_trait_change(sync_process_output_traits)
 
-    # outputs
+    # Add callback to synchronize output process instance traits with nipype
+    # autocompleted output traits
+    process_instance.on_trait_change(sync_process_output_traits)
+
+    # > outputs
     for name, trait in nipype_instance.output_spec().items():
         process_trait = clone_nipype_trait(trait)
         process_trait.output = True
