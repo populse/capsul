@@ -392,8 +392,7 @@ class CapsulMainWindow(MyQUiLoader):
 
             # Check if we have a match: the tab name is equal to the current
             #pipeline name
-            if (self.ui.display.tabText(index) ==
-                    self.pipeline.name):
+            if (self.ui.display.tabText(index) == self.pipeline.name):
                 already_created = True
                 break
 
