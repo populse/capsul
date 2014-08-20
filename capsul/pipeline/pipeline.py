@@ -697,7 +697,8 @@ class Pipeline(Process):
         plugs_deactivated = []
         # If node has already been  deactivated there is nothing to do
         if node.activated:
-            deactivate_node = bool(node.plugs)
+            deactivate_node = bool([plug for plug in node.plugs.itervalues()
+                                    if plug.output])
             for plug_name, plug in node.plugs.iteritems():
                 # Check all activated plugs
                 if plug.activated:
@@ -864,16 +865,16 @@ class Pipeline(Process):
         # Update processes to hide or show their traits according to the
         # corresponding plug activation
         for node in self.all_nodes():
-            if isinstance(node,ProcessNode):
+            if isinstance(node, ProcessNode):
                 traits_changed = False
                 for plug_name, plug in node.plugs.iteritems():
                     trait = node.process.trait(plug_name)
                     if plug.activated:
-                        if getattr(trait, 'hidden', False):
+                        if getattr(trait, "hidden", False):
                             trait.hidden = False
                             traits_changed = True
                     else:
-                        if not getattr(trait, 'hidden', False):
+                        if not getattr(trait, "hidden", False):
                             trait.hidden = True
                             traits_changed = True
                 if traits_changed:
