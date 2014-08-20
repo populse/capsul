@@ -187,6 +187,12 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidgetParameters">
+   <property name="minimumSize">
+    <size>
+     <width>56</width>
+     <height>200</height>
+    </size>
+   </property>
    <property name="features">
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
