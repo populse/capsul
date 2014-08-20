@@ -55,6 +55,17 @@ Workflow conversion
     pipeline_workflow.workflow_from_pipeline
     pipeline_workflow.local_workflow_run
 
+Nodes sorting (lower level)
++++++++++++++++++++++++++++
+Pipeline nodes sorting and workflow helper
+
+.. autosummary::
+    :toctree: generated/capsul-pipeline/
+    :template: class.rst
+
+    topological_sort.Graph
+    topological_sort.GraphNode
+
 Pipeline manipulation tools
 ---------------------------
 .. autosummary::
@@ -67,17 +78,6 @@ Pipeline manipulation tools
     pipeline_tools.reactivate_node
     pipeline_tools.reactivate_pipeline
     pipeline_tools.remove_temporary_exports
-
-Nodes sorting (lower level)
-+++++++++++++++++++++++++++
-Pipeline nodes sorting and workflow helper
-
-.. autosummary::
-    :toctree: generated/capsul-pipeline/
-    :template: class.rst
-
-    topological_sort.Graph
-    topological_sort.GraphNode
 
 
 :mod:`capsul.process`: Process
