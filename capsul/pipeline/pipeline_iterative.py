@@ -28,7 +28,7 @@ class IterativeManager(Process):
     """ Process to handle automatically the iterative input or output traits.
     """
     def __init__(self, process_name, iterative_traits, regular_traits,
-                 is_input_traits=True, node=None):
+                 is_input_traits=True):
         """ Initialize the IterativeManager class
 
         Parameters
@@ -44,9 +44,6 @@ class IterativeManager(Process):
         is_input_traits: bool (optional, default True)
             if True, the iterative traits are input traits
             otherwise, the iterative traits are output traits
-        node: Node instance (optional)
-            needed to synchronize the output manager outputs with the parent
-            process
         """
         # Inheritance
         super(IterativeManager, self).__init__()
@@ -57,7 +54,6 @@ class IterativeManager(Process):
         self.iterative_traits = iterative_traits
         self.regular_traits = regular_traits
         self.is_input_traits = is_input_traits
-        self.node = node
 
         # Go through all iterative traits
         for trait_name, trait_item in self.iterative_traits.iteritems():
@@ -146,13 +142,11 @@ class IterativeManager(Process):
                     setattr(self, unpack_trait_name, trait_value[cnt])
                 # Pack
                 else:
-                    packed_value.append(str(getattr(self, unpack_trait_name)))
+                    packed_value.append(getattr(self, unpack_trait_name))
 
             # Set the iterative output trait packed value
             if not self.is_input_traits:
                 setattr(self, trait_name, packed_value)
-                setattr(self.node, trait_name, packed_value)
-
 
     run = property(_run_process)
 

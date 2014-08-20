@@ -28,7 +28,7 @@ from capsul.utils.trait_utils import clone_trait
 from soma.controller import trait_ids
 from soma.controller import Controller
 from soma.sorted_dictionary import SortedDictionary
-from soma.functiontools import SomaPartial
+from soma.utils.functiontools import SomaPartial
 
 
 class Plug(Controller):
@@ -420,24 +420,44 @@ class IterativeNode(Node):
         self.make_optional = make_optional
         self.kwargs = kwargs
         self.process = None
+        self.dynamic_node_callbacks = {}
+        self.dynamic_process_callbacks = {}
 
         # Get the traits splited by type: input or output
+        # If an iterative trait is found add an extra trait List level.
+        # > inputs
         self.input_iterative_traits = {}
         self.input_traits = {}
         for trait_name in self.iterative_process.traits(output=False):
-            trait_description = trait_ids(self.iterative_process.trait(trait_name))
+
+            # Get the trait string description
+            trait_description = trait_ids(
+                self.iterative_process.trait(trait_name))
+
+            # An iterative trait is found add an extra trait List level.
             if trait_name in self.iterative_plugs:
                 self.input_iterative_traits[trait_name] = [
                     "List_" + x for x in trait_description]
+
+            # Otherwise just store the string trrait description
             else:
-                self.input_traits[trait_name] = trait_description 
+                self.input_traits[trait_name] = trait_description
+
+        # > onputs
         self.output_iterative_traits = {}
         self.output_traits = {}
         for trait_name in self.iterative_process.traits(output=True):
-            trait_description = trait_ids(self.iterative_process.trait(trait_name))
+
+            # Get the trait string description
+            trait_description = trait_ids(
+                self.iterative_process.trait(trait_name))
+
+            # An iterative trait is found add an extra trait List level.
             if trait_name in self.iterative_plugs:
                 self.output_iterative_traits[trait_name] = [
                     "List_" + x for x in trait_description]
+
+            # Otherwise just store the string trrait description
             else:
                 self.output_traits[trait_name] = trait_description
 
@@ -478,11 +498,6 @@ class IterativeNode(Node):
         # Generate / update the iterative pipeline
         self.update_iterative_pipeline(0)
 
-        # Synchronize the regular input trait default values
-        for trait_name, trait_description in self.input_traits.iteritems():
-            self._anytrait_changed(
-                trait_name, None, getattr(self.iterative_process, trait_name))
-
     def _anytrait_changed(self, name, old, new):
         """ Add an event that enables us to create process on the fly when an 
         iterative input trait value has changed.
@@ -520,14 +535,6 @@ class IterativeNode(Node):
             if is_valid:
                 self.update_iterative_pipeline(nb_of_inputs)
 
-        # If a regular trait is modified while the iterative process is created
-        # synchronized the trait value 
-        if (hasattr(self, "input_traits") and name in self.input_traits and
-            self.process is not None):
- 
-            # Synchronized the trait value
-            setattr(self.process, name, new)
-
     def update_iterative_pipeline(self, nb_of_inputs):
         """ Update the pipeline.
 
@@ -539,8 +546,19 @@ class IterativeNode(Node):
         # Local import
         from pipeline_iterative import IterativePipeline, IterativeManager
 
-        # Create the iterative pipeline
-        self.process = IterativePipeline()
+        # Create / recreate the iterative pipeline
+        # > disconnect the iterative process if already crerated
+        if self.process is not None:
+            
+            # Disconnect all iterative process traits and corresponding node
+            #traits
+            for trait_name, callback in self.dynamic_node_callbacks.iteritems():
+                self.on_trait_change(callback, trait_name, remove=True)
+            for trait_name, callback in self.dynamic_process_callbacks.iteritems():
+                self.process.on_trait_change(callback, trait_name, remove=True)
+           
+        # > create the iterative pipeline
+        self.process = IterativePipeline()       
 
         # Go through all input regular traits
         pipeline_node = self.process.nodes[""]
@@ -572,7 +590,7 @@ class IterativeNode(Node):
                 trait_description, [""] * nb_of_inputs)
         output_manager = IterativeManager(
             self.iterative_process.name, iterative_traits, None,
-            is_input_traits=False, node=self)
+            is_input_traits=False)
 
         # Add manager node to the pipeline
         self.process.add_process("input_manager", input_manager)
@@ -591,6 +609,43 @@ class IterativeNode(Node):
 
         # Auto export nodes parameters
         self.process.autoexport_nodes_parameters()
+
+        # Connect the iterative pipeline
+        # > For input traits, connect the node traits to the iterative pipeline
+        # traits
+        for trait_name, trait_description in self.input_traits.iteritems():
+            # Get the node trait
+            trait = self.trait(trait_name)
+
+            # Update the iterative process trait.
+            # Hook: function that will be called to update the iterative
+            # process trait when the 'trait_name' node trait is modified.
+            callback = SomaPartial(self.update_iterative_process, trait_name)
+
+            # When the 'trait_name' node trait value is modified,
+            # update the underlying corresponding iterative process trait
+            self.on_trait_change(callback, name=trait_name)
+
+            # Store the created callback
+            self.dynamic_node_callbacks[trait_name] = callback
+
+        # > For output traits, connect the iterative pipeline traits to the node 
+        # traits
+        for trait_name, trait_description in self.output_iterative_traits.iteritems():
+            # Get the iterative pipeline trait
+            trait = self.process.trait(trait_name)
+
+            # Update the node trait.
+            # Hook: function that will be called to update the node trait
+            # when the 'trait_name' iterative pipeline trait is modified.
+            callback = SomaPartial(self.update_node, trait_name)
+
+            # When the 'trait_name' iterative process trait value is modified,
+            # update the corresponding node trait
+            self.process.on_trait_change(callback, name=trait_name)
+
+            # Store the created callback
+            self.dynamic_process_callbacks[trait_name] = callback
 
         # Get the largest element size
         element_sizes = []
@@ -614,6 +669,32 @@ class IterativeNode(Node):
             self.process.node_position[node_name] = (
                 2 * fixed_width, (cnt - shift) * fixed_height)
 
+    def update_iterative_process(self, trait_name):
+        """ Method to update the iterative process 'trait_name' trait.
+
+        At the end the node and iterative process will have the same value in
+        their 'trait_name' trait.
+
+        Parameters
+        ----------
+        trait_name: str (mandatory)
+            the name of the trait to synchronized.
+        """
+        print "** process callback", trait_name, self, getattr(self, trait_name)
+        setattr(self.process, trait_name, getattr(self, trait_name))
+
+    def update_node(self, trait_name):
+        """ Method to update the node 'trait_name' trait.
+
+        At the end the node and iterative process will have the same value in
+        their 'trait_name' trait.
+
+        Parameters
+        ----------
+        trait_name: str (mandatory)
+            the name of the trait to synchronized.
+        """
+        setattr(self, trait_name, getattr(self.process, trait_name)) 
 
 class Switch(Node):
     """ Switch node to select a specific Process.

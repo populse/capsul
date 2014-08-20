@@ -38,7 +38,7 @@ class DummyProcess(Process):
         self.add_trait("output_image", String(optional=False, output=True))
 
         # Set default parameter
-        self.other_input = 5
+        self.other_input = 6
 
     def _run_process(self):
         """ Execute the process.
@@ -74,9 +74,9 @@ class TestPipeline(unittest.TestCase):
         self.pipeline = MyPipeline()
 
         # Set some input parameters
-        # self.pipeline.other_input = 5
         self.pipeline.input_image = ["toto", "tutu"]
         self.pipeline.dynamic_parameter = [3, 1]
+        self.pipeline.other_input = 5
 
     def test_iterative_pipeline_connection(self):
         """ Method to test if an iterative node and built in iterative
