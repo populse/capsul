@@ -31,6 +31,13 @@ except ImportError:
 # Globals and constants
 # -----------------------------------------------------------------------------
 
+all_views = set()
+'''
+all_views is a global variable (set) which is filled with views opened by
+double clicks on sub-pipelines. It is needed to keep the life of such views.
+When such a view is closed, the reference is removed so the view can be deleted.
+'''
+
 BLUE_1 = QtGui.QColor.fromRgbF(0.7, 0.7, 0.9, 1)
 BLUE_2 = QtGui.QColor.fromRgbF(0.5, 0.5, 0.7, 1)
 LIGHT_BLUE_1 = QtGui.QColor.fromRgbF(0.95, 0.95, 1.0, 1)
@@ -196,7 +203,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
     def __del__(self):
         if self.colored_parameters:
             self.process.on_trait_change(self._repaint_parameter, remove=True)
-        super(NodeGWidget, self).__del__()
+        #super(NodeGWidget, self).__del__()
 
     def get_title(self):
         if self.sub_pipeline is None:
@@ -1093,11 +1100,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def __del__(self):
         if self.scene.pipeline:
             pipeline = self.scene.pipeline
-            pipeline.on_trait_change(reset_pipeline, 'selection_changed',
-                                     remove=True)
-            pipeline.on_trait_change(reset_pipeline, 'user_traits_changed',
-                                     remove=True)
-        super(PipelineDevelopperView, self).__del__()
+            pipeline.on_trait_change(self._reset_pipeline,
+                                     'selection_changed', remove=True)
+            pipeline.on_trait_change(self._reset_pipeline,
+                                     'user_traits_changed', remove=True)
+        #super(PipelineDevelopperView, self).__del__()
 
     def _set_pipeline(self, pipeline):
         if self.scene:
@@ -1128,11 +1135,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self._set_pipeline(pipeline)
 
         # Setup callback to update view when pipeline state is modified
-        def reset_pipeline():
-            #self._set_pipeline(pipeline)
-            self.scene.update_pipeline()
-        pipeline.on_trait_change(reset_pipeline, 'selection_changed')
-        pipeline.on_trait_change(reset_pipeline, 'user_traits_changed')
+        pipeline.on_trait_change(self._reset_pipeline, 'selection_changed')
+        pipeline.on_trait_change(self._reset_pipeline, 'user_traits_changed')
+
+    def _reset_pipeline(self):
+        #self._set_pipeline(pipeline)
+        self.scene.update_pipeline()
 
     def zoom_in(self):
         self.scale(1.2, 1.2)
@@ -1183,6 +1191,14 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             gnode.add_subpipeline_view(
                 sub_pipeline, self._allow_open_controller, scale=scale)
 
+    def closeEvent(self, event):
+        super(PipelineDevelopperView, self).closeEvent(event)
+        if event.isAccepted():
+            # remove self from global list, so that we can be deleted
+            global all_views
+            if self in all_views:
+                all_views.remove(self)
+
     def onLoadSubPipelineClicked(self, node_name, sub_pipeline, modifiers):
         """ Event to load a sub pipeline
         """
@@ -1200,6 +1216,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.setWindowTitle(node_name)
             sub_view.show()
+            # keep sub_view reference in a global variable so that it doesn't
+            # close/delete immediately
+            global all_views
+            all_views.add(sub_view)
 
     def onOpenProcessController(self, node_name, process):
         """ Event to open a sub-process/sub-pipeline controller
