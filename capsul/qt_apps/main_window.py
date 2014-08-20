@@ -254,11 +254,11 @@ class CapsulMainWindow(MyQUiLoader):
         """ Event to load and display a sub pipeline.
         """
         # Store the pipeline instance in class parameters
-        self.pipeline = sub_pipeline
+        self.pipeline = self.pipeline.nodes[name].process
 
         # Create the controller widget associated to the sub pipeline
-        # controller
-        pipeline_widget = ScrollControllerWidget(self.pipeline)
+        # controller     
+        pipeline_widget = ScrollControllerWidget(self.pipeline, live=True)
         self.ui.dockWidgetParameters.setWidget(pipeline_widget)
 
         # Store the sub pipeline instance
@@ -297,7 +297,7 @@ class CapsulMainWindow(MyQUiLoader):
         # A new valid tab is selected
         else:
             # Get the selected pipeline widget
-            pipeline, pipeline_widget = self.pipelines[
+            self.pipeline, pipeline_widget = self.pipelines[
                 self.ui.display.tabText(index)]
 
             # Set the controller widget associated to the pipeline
@@ -412,6 +412,9 @@ class CapsulMainWindow(MyQUiLoader):
             # Insert the new tab
             self.ui.display.insertTab(
                 index, widget, unicode(self.pipeline.name))
+
+            # Set the corresponding index
+            self.ui.display.setCurrentIndex(index)
 
 
 
