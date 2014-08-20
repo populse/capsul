@@ -15,6 +15,8 @@ from capsul.pipeline import Pipeline, PipelineNode
 
 def disable_node_for_downhill_pipeline(pipeline, node_name):
     '''
+    Disable the selected node, and keep its downhill nodes active.
+
     Disable the selected node, and keep its downhill nodes active by
     exporting their inputs which come from this one on the main pipeline.
 
@@ -63,6 +65,8 @@ def disable_node_for_downhill_pipeline(pipeline, node_name):
 
 def disable_node_for_uphill_pipeline(pipeline, node_name):
     '''
+    Disable the selected node, and keep its uphill nodes active.
+
     Disable the selected node, and keep its uphill nodes active by
     exporting their outputs which go to this one on the main pipeline.
 
@@ -109,6 +113,8 @@ def disable_node_for_uphill_pipeline(pipeline, node_name):
 
 def remove_temporary_exports(pipeline, node_name):
     '''
+    Remove the temporary exports made from the selected node.
+
     Remove the temporary exports made from the selected node through
     disable_node_for_downhill_pipeline() or disable_node_for_uphill_pipeline().
 
@@ -141,6 +147,8 @@ def remove_temporary_exports(pipeline, node_name):
 
 def reactivate_node(pipeline, node_name, direction=3):
     '''
+    Re-activate the selected node.
+
     Re-activate the selected node after disable_node_for_downhill_pipeline() or
     disable_node_for_uphill_pipeline(), and remove the corresponding temporary
     exports in otehr nodes.
@@ -281,6 +289,8 @@ def disable_nodes_with_existing_outputs(pipeline):
 
 def reactivate_pipeline(pipeline):
     '''
+    Reactivate pipeline nodes and optional plugs.
+
     Reactivate pipeline nodes and optional plugs after
     disable_nodes_with_existing_outputs() have been used.
     Sub-pipelines will be processed recursively.
