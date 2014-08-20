@@ -37,6 +37,8 @@ Node Types
     pipeline_nodes.ProcessNode
     pipeline_nodes.PipelineNode
     pipeline_nodes.Switch
+    pipeline_nodes.Switch
+    pipeline_nodes.IterativeNode
 
 Plug
 -----
@@ -54,23 +56,6 @@ Workflow conversion
 
     pipeline_workflow.workflow_from_pipeline
     pipeline_workflow.local_workflow_run
-
-Nodes sorting (lower level)
-+++++++++++++++++++++++++++
-Pipeline nodes sorting and workflow helper
-
-.. autosummary::
-    :toctree: generated/capsul-pipeline/
-    :template: class.rst
-
-    topological_sort.Graph
-    topological_sort.GraphNode
-
-Pipeline manipulation tools
----------------------------
-.. autosummary::
-    :toctree: generated/capsul-pipeline/
-    :template: function.rst
 
     pipeline_tools.disable_node_for_downhill_pipeline
     pipeline_tools.disable_node_for_uphill_pipeline

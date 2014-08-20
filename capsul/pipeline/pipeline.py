@@ -579,12 +579,13 @@ class Pipeline(Process):
             node.enabled = is_enabled
 
     def all_nodes(self):
-        '''Iterate over all pipeline nodes including sub-pipeline nodes.
+        """ Iterate over all pipeline nodes including sub-pipeline nodes.
+
         Returns
         -------
         nodes: Generator of Node
             Iterates over all nodes
-        '''
+        """
         for node in self.nodes.itervalues():
             yield node
             if isinstance(node,PipelineNode) and node is not self.pipeline_node:
@@ -593,7 +594,7 @@ class Pipeline(Process):
                         yield sub_node
 
     def _check_local_node_activation(self, node):
-        '''Try to activate a node and its plugs according to its
+        """ Try to activate a node and its plugs according to its
         state and the state of its direct neighbouring nodes.
 
         Parameters
@@ -606,7 +607,7 @@ class Pipeline(Process):
         plugs_activated: list
             list of (plug_name,plug) containing all plugs that have been
             activated
-        '''
+        """
         plugs_activated = []
         # If a node is disabled, it will never be activated
         if node.enabled:
@@ -653,7 +654,7 @@ class Pipeline(Process):
         return plugs_activated
 
     def _check_local_node_deactivation(self, node):
-        '''Check plugs that have to be deactivated according to node
+        """ Check plugs that have to be deactivated according to node
         activation state and to the state of its direct neighbouring nodes.
 
         Parameters
@@ -666,7 +667,7 @@ class Pipeline(Process):
         plugs_deactivated: list
             list of (plug_name,plug) containing all plugs that have been
             deactivated
-        '''
+        """
         def check_plug_activation(plug,links):
             # After th next fo loop, plug_activated can have three
             # values:
@@ -761,10 +762,10 @@ class Pipeline(Process):
             self.update_nodes_and_plugs_activation()
 
     def update_nodes_and_plugs_activation(self):
-        '''Reset all nodes and plugs activations according to the current state
+        """ Reset all nodes and plugs activations according to the current state
         of the pipeline (i.e. switch selection, nodes disabled, etc.).
         Activations are set according to the following rules.
-        '''
+        """
         if not hasattr(self, 'parent_pipeline'):
             # self is being initialized (the call comes from self.__init__).
             return
@@ -1143,7 +1144,7 @@ class Pipeline(Process):
             enabled_links_count
 
     def pipeline_state(self):
-        '''Return an object composed of basic Python objects that contains
+        """ Return an object composed of basic Python objects that contains
         the whole structure and state of the pipeline. This object can be
         given to compare_to_state method in order to get the differences with
         a previously stored state. This is typically used in tests scripts.
@@ -1151,7 +1152,7 @@ class Pipeline(Process):
         Returns
         -------
         pipeline_state: dictionary
-        '''
+        """
         result = {}
         for node in self.all_nodes():
             plugs_list = []
@@ -1180,14 +1181,14 @@ class Pipeline(Process):
         return result
 
     def compare_to_state(self, pipeline_state):
-        '''Returns the differences between this pipeline and a previously recorded state.
+        """ Returns the differences between this pipeline and a previously recorded state.
 
         Returns
         -------
         differences: list
             each element is a human readable string explaining one difference
             (e.g. 'node "my_process" is missing')
-        '''
+        """
         result = []
         def compare_dict(ref_dict, other_dict):
             for ref_key, ref_value in ref_dict.iteritems():

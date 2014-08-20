@@ -9,16 +9,16 @@ the docstrings.
 
 .. _capsul_gui_ref:
 
-:mod:`capsul.apps_qt`: Application
+:mod:`capsul.qt_apps`: Application
 ==================================
 
-.. automodule:: capsul.apps_qt
+.. automodule:: capsul.qt_apps
    :no-members:
    :no-inherited-members:
 
 **User guide:** See the :ref:`capsul_guide` section for further details.
 
-.. currentmodule:: capsul.apps_qt
+.. currentmodule:: capsul.qt_apps
 
 Classes
 -------
@@ -26,14 +26,14 @@ Classes
     :toctree: generated/capsul-apps/
     :template: class.rst
 
-    main_window.MainWindow
+    main_window.CapsulMainWindow
     pipeline_viewer_app.PipelineViewerApp
 
 
-:mod:`capsul.apps_qt.base`: Base
-================================
+:mod:`capsul.qt_apps.utils`: Utils
+==================================
 
-.. automodule:: capsul.qt_gui
+.. automodule:: capsul.qt_apps.utils
    :no-members:
    :no-inherited-members:
 
@@ -48,57 +48,61 @@ Classes
 Classes
 -------
 .. autosummary::
-    :toctree: generated/capsul-apps-base/
+    :toctree: generated/capsul-apps-utils/
     :template: class.rst
 
     application.Application
     window.MyQUiLoader
 
+
 Functions
 ---------
 .. autosummary::
-    :toctree: generated/capsul-apps-base/
+    :toctree: generated/capsul-apps-utils/
     :template: function.rst
 
     find_pipelines.find_pipelines
+    fill_treectrl.fill_treectrl
+    fill_treectrl.add_tree_nodes
+    fill_treectrl.search_in_menu
 
 
-:mod:`capsul.qt_gui.controller_widget`: Controller
-==================================================
+:mod:`capsul.qt_gui`: Controller Widgets
+========================================
 
-.. automodule:: capsul.qt_gui.controller_widget
+.. automodule:: capsul.qt_gui
    :no-members:
    :no-inherited-members:
 
 **User guide:** See the :ref:`capsul_guide` section for further details.
 
-.. currentmodule:: capsul.qt_gui.controller_widget
+.. currentmodule:: capsul.qt_gui
 
 Classes
 -------
 .. autosummary::
-    :toctree: generated/capsul-apps-base-controller/
+    :toctree: generated/capsul-gui/
     :template: class.rst
 
-    controller_window.ControllerWindow
-    controller_gui_builder.ControllerGUIBuilder
+    controller_widget.ScrollControllerWidget
+    controller_widget.ControllerWidget    
 
-.. currentmodule:: capsul.apps_qt.base.controller.controls
+.. currentmodule:: capsul.qt_gui.controls
 
 Controls
 --------
 .. autosummary::
-    :toctree: generated/capsul-apps-base-controller/
+    :toctree: generated/capsul-gui-controls/
     :template: class.rst
 
-    String.String
-    File.File
-    Bool.Bool
-    Float.Float
-    Directory.Directory
-    Enum.Enum
-    Int.Int
-    List.List
+    Str.StrControlWidget
+    File.FileControlWidget
+    Bool.BoolControlWidget
+    Float.FloatControlWidget
+    Directory.DirectoryControlWidget
+    Enum.EnumControlWidget
+    Int.IntControlWidget
+    List.ListControlWidget
 
 
 :mod:`capsul.qt_gui.widgets`: Pipeline Viewers
@@ -115,32 +119,9 @@ Controls
 Classes
 -------
 .. autosummary::
-    :toctree: generated/capsul-apps-base-widget/
+    :toctree: generated/capsul-gui-widgets/
     :template: class.rst
 
-    PipelineDevelopperView
-    PipelineUserView
-
-
-:mod:`capsul.qt_gui`: Graphical elements and widgets for CAPSUL pipelines
-=========================================================================
-
-.. automodule:: capsul.qt_gui
-    :no-members:
-    :no-inherited-members:
-
-.. currentmodule:: capsul.qt_gui
-
-Classes
--------
-.. autosummary::
-    :toctree: generated/capsul-qt_gui/
-    :template: class.rst
-
-    pipeline.process_with_fom_widget.ProcessWithFomWidget
-    pipeline.study_window.StudyWindow
-    pipeline.process_database_widget.ProcessDatabaseWidget
-    pipeline.process_iteration_gui.ProcessIterationGui
-
-
+    full_pipeline_widgets.PipelineDevelopperView
+    workflow_widget.PipelineUserView
 

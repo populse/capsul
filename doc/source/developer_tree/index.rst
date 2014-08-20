@@ -21,6 +21,9 @@ Useful information for advanced users.
 
 Workflow Definition
 --------------------
+
+Pipeline nodes sorting and workflow helper
+
 .. autosummary::
     :toctree: generated/capsul-pipeline/
     :template: class.rst
@@ -28,25 +31,17 @@ Workflow Definition
     topological_sort.GraphNode
     topological_sort.Graph
 
+Nodes
+-----
 
-:mod:`capsul.controller`: Controller
-=====================================
+Iterative node building blocks.
 
-.. automodule:: capsul.controller
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: capsul.controller
-
-Controller Definition
----------------------
 .. autosummary::
-    :toctree: generated/capsul-controller/
+    :toctree: generated/capsul-pipeline/
     :template: class.rst
 
-    controller.Controller
-    controller.MetaController
-    controller.ControllerFactories
+    pipeline_iterative.IterativeManager
+    pipeline_iterative.IterativePipeline
 
 
 :mod:`capsul.process`: Process
@@ -87,17 +82,10 @@ Controller Definition
 
     config_utils.environment
     config_utils.find_spm
-    memory._run_process
-    memory._joblib_run_process
-    spm_memory_utils.local_map
-    spm_memory_utils.copy_resources
-    spm_memory_utils.last_timestamp
-    pipeline_workflow.workflow_from_pipeline
-    pipeline_workflow.local_workflow_run
-
-
-
-
-
-
+    run._run_process
+    run.set_output_dir
+    run_with_cache._joblib_run_process
+    spm_cache_utils.local_map
+    spm_cache_utils.copy_resources
+    spm_cache_utils.last_timestamp
 

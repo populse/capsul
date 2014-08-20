@@ -1,6 +1,5 @@
 :orphan:
 
-
 .. _capsul_guide:
 
 ###########
