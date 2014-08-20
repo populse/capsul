@@ -376,6 +376,9 @@ class Process(Controller):
     def set_parameter(self, name, value):
         """ Method to set the trait value of a process instance.
 
+        For File and Directory traits the None value is replaced by the special
+        _Undefined trait value.
+
         Parameters
         ----------
         name: str (mandatory)
@@ -383,6 +386,17 @@ class Process(Controller):
         value: object (mandatory)
             the trait value we want to set
         """
+        # Get the trait type
+        trait_type = trait_ids(self.trait(name))
+
+        # Detect File and Directory trait types
+        if (len(trait_type) == 1 and value is None and
+            trait_type[0] in ("File", "Directory")):
+
+            # The None trait value is _Undefined, do the replacement
+            value = _Undefined()   
+
+        # Set the new trait value
         setattr(self, name, value)
 
     def get_parameter(self, name):
