@@ -8,6 +8,7 @@
 ##########################################################################
 
 # System import
+import os
 from pprint import pprint
 
 # Capsul import
@@ -16,6 +17,10 @@ from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline import Switch
 from capsul.process import get_process_instance, Process
 from soma.controller import Controller
+try:
+    from traits import api as traits
+except ImportError:
+    from enthought.traits import api as traits
 try:
     from soma.gui.widget_controller_creation import ControllerWidget
 except ImportError:
@@ -161,7 +166,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
     }
 
     def __init__(self, name, parameters, active=True,
-                 style=None, parent=None, process=None, sub_pipeline=None):
+                 style=None, parent=None, process=None, sub_pipeline=None,
+                 colored_parameters=True):
         super(NodeGWidget, self).__init__(parent)
         if style is None:
             style = 'default'
@@ -177,18 +183,35 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.process = process
         self.sub_pipeline = sub_pipeline
         self.embedded_subpipeline = None
+        self.colored_parameters = colored_parameters
 
         self._set_brush()
         self.setAcceptedMouseButtons(
             QtCore.Qt.LeftButton|QtCore.Qt.RightButton|QtCore.Qt.MiddleButton)
 
         self._build()
+        if colored_parameters:
+            process.on_trait_change(self._repaint_parameter)
+
+    def __del__(self):
+        if self.colored_parameters:
+            self.process.on_trait_change(self._repaint_parameter, remove=True)
+        super(NodeGWidget, self).__del__()
 
     def get_title(self):
         if self.sub_pipeline is None:
             return self.name
         else:
             return "[{0}]".format(self.name)
+
+    def _repaint_parameter(self, param_name, new_value):
+        if param_name not in self.parameters:
+            return
+        param_text = self._parameter_text(param_name)
+        param_item = self.in_params.get(param_name)
+        if param_item is None:
+            param_item = self.out_params[param_name]
+        param_item.setHtml(param_text)
 
     def _build(self):
         margin = 5
@@ -207,7 +230,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 'inputs', 'outputs') else pipeline_plug.output)
             if output:
                 continue
-            param_name = QtGui.QGraphicsTextItem(in_param, self)
+            param_text = self._parameter_text(in_param)
+            param_name = QtGui.QGraphicsTextItem(self)
+            param_name.setHtml(param_text)
             plug_name = '%s:%s' % (self.name, in_param)
             plug = Plug(plug_name, param_name.boundingRect().size().height(),
                         plug_width, activated=pipeline_plug.activated,
@@ -226,7 +251,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 'inputs', 'outputs') else pipeline_plug.output)
             if not output:
                 continue
-            param_name = QtGui.QGraphicsTextItem(out_param, self)
+            param_text = self._parameter_text(out_param)
+            param_name = QtGui.QGraphicsTextItem(self)
+            param_name.setHtml(param_text)
             plug_name = '%s:%s' % (self.name, out_param)
             plug = Plug(plug_name, param_name.boundingRect().size().height(),
                         plug_width, activated=pipeline_plug.activated,
@@ -282,14 +309,16 @@ class NodeGWidget(QtGui.QGraphicsItem):
     def _create_parameter(self, param_name, pipeline_plug):
         plug_width = 12
         margin = 5
-        param_name_item = QtGui.QGraphicsTextItem(param_name, self)
+        output = (not pipeline_plug.output if self.name in (
+            'inputs', 'outputs') else pipeline_plug.output)
+        param_text = self._parameter_text(param_name)
+        param_name_item = QtGui.QGraphicsTextItem(self)
+        param_name_item.setHtml(param_text)
         plug_name = '%s:%s' % (self.name, param_name)
         plug = Plug(plug_name, param_name_item.boundingRect().size().height(),
                     plug_width, activated=pipeline_plug.activated,
                     optional=pipeline_plug.optional, parent=self)
         param_name_item.setZValue(2)
-        output = (not pipeline_plug.output if self.name in (
-            'inputs', 'outputs') else pipeline_plug.output)
         if output:
             plugs = self.out_plugs
             params = self.out_params
@@ -364,6 +393,27 @@ class NodeGWidget(QtGui.QGraphicsItem):
         del plugs[param_name]
         self._shift_params()
 
+    def _parameter_text(self, param_name):
+        pipeline_plug = self.parameters[param_name]
+        #output = (not pipeline_plug.output if self.name in (
+            #'inputs', 'outputs') else pipeline_plug.output)
+        output = pipeline_plug.output
+        if output:
+            param_text = '<font color="#400000">%s</font>' % param_name
+        else:
+            param_text = param_name
+        value = getattr(self.process, param_name)
+        if value is None or value is traits.Undefined or value == '':
+            param_text = '<em>%s</em>' % param_text
+        else:
+            trait = self.process.user_traits()[param_name]
+            if isinstance(trait.trait_type, traits.File) \
+                    or isinstance(trait.trait_type, traits.Directory) \
+                    or isinstance(trait.trait_type, traits.Any):
+                if os.path.exists(value):
+                    param_text = '<b>%s</b>' % param_text
+        return param_text
+
     def update_node(self):
         # print 'update_node', self.name
         self._set_brush()
@@ -373,16 +423,18 @@ class NodeGWidget(QtGui.QGraphicsItem):
             output = (not pipeline_plug.output if self.name in (
                 'inputs', 'outputs') else pipeline_plug.output)
             if output:
-                gplug = self.out_plugs.get(param)
-                if gplug is None: # new parameter ?
-                    self._create_parameter(param, pipeline_plug)
-                    gplug = self.out_plugs.get(param)
+                plugs = self.out_plugs
+                params = self.out_params
             else:
-                gplug = self.in_plugs.get(param)
-                if gplug is None: # new parameter ?
-                    self._create_parameter(param, pipeline_plug)
-                    gplug = self.in_plugs.get(param)
+                plugs = self.in_plugs
+                params = self.in_params
+            gplug = plugs.get(param)
+            if gplug is None: # new parameter ?
+                self._create_parameter(param, pipeline_plug)
+                gplug = plugs.get(param)
             gplug.update_plug(pipeline_plug.activated, pipeline_plug.optional)
+            params[param].setHtml(self._parameter_text(param))
+
         # check removed params
         to_remove = []
         for param in self.in_params:
@@ -602,6 +654,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.glinks = {}
         self._pos = 50
         self.pos = {}
+        self.colored_parameters = True
 
         self.changed.connect(self.update_paths)
 
@@ -686,7 +739,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             self.add_node(
                 'inputs', NodeGWidget('inputs', pipeline_inputs,
                     active=pipeline.pipeline_node.activated,
-                    process=pipeline))
+                    process=pipeline,
+                    colored_parameters=self.colored_parameters))
         for node_name, node in pipeline.nodes.iteritems():
             if not node_name:
                 continue
@@ -711,12 +765,15 @@ class PipelineScene(QtGui.QGraphicsScene):
                 style = 'pipeline'
             self.add_node(node_name, NodeGWidget(
                 node_name, node.plugs, active=node.activated, style=style,
-                sub_pipeline=sub_pipeline, process=process))
+                sub_pipeline=sub_pipeline, process=process,
+                colored_parameters=self.colored_parameters))
         if pipeline_outputs:
             self.add_node(
-                'outputs', NodeGWidget('outputs', pipeline_outputs,
-                                       active=pipeline.pipeline_node.activated,
-                                       process=pipeline))
+                'outputs', NodeGWidget(
+                    'outputs', pipeline_outputs,
+                    active=pipeline.pipeline_node.activated,
+                    process=pipeline,
+                    colored_parameters=self.colored_parameters))
 
         for source_node_name, source_node in pipeline.nodes.iteritems():
             for source_parameter, source_plug in source_node.plugs.iteritems():
@@ -833,7 +890,12 @@ class PipelineScene(QtGui.QGraphicsScene):
         name = source_dest[0][1]
         value = getattr(proc, name)
         #trait = proc.user_traits()[name]
-        typestr = str(type(value)).replace('<', '').replace('>', '')
+        trait_type = proc.user_traits()[name].trait_type
+        trait_type_str = str(trait_type)
+        trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
+        trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
+        typestr = ('%s (%s)' % (str(type(value)), trait_type_str)).replace(
+            '<', '').replace('>', '')
         msg = '''<h3>%s</h3>
 <table cellspacing="6">
     <tr>
@@ -851,8 +913,24 @@ class PipelineScene(QtGui.QGraphicsScene):
     <td><b>value:</b></td>
     <td>%s</td>
   </tr>
-</table>''' \
+''' \
             % (source_dest[0][1], active, weak, typestr, str(value))
+        if isinstance(trait_type, traits.File) \
+                or isinstance(trait_type, traits.Directory) \
+                or isinstance(trait_type, traits.Any):
+            if value not in (None, traits.Undefined) and os.path.exists(value):
+                msg += '''    <tr>
+      <td></td>
+      <td>existing path</td>
+    </tr>
+'''
+            elif not isinstance(trait_type, traits.Any):
+                msg +=  '''    <tr>
+      <td></td>
+      <td><font color="#a0a0a0">non-existing path</font></td>
+    </tr>
+'''
+        msg += '</table>'
         return msg
 
     def plug_tooltip_text(self, node, name):
@@ -882,7 +960,12 @@ class PipelineScene(QtGui.QGraphicsScene):
         else:
             optional = 'mandatory'
         value = getattr(proc, name)
-        typestr = str(type(value)).replace('<', '').replace('>', '')
+        trait_type = proc.user_traits()[name].trait_type
+        trait_type_str = str(trait_type)
+        trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
+        trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
+        typestr = ('%s (%s)' % (str(type(value)), trait_type_str)).replace(
+            '<', '').replace('>', '')
         msg = '''<h3>%s</h3>
 <table cellspacing="6">
     <tr>
@@ -900,10 +983,26 @@ class PipelineScene(QtGui.QGraphicsScene):
     </tr>
     <tr>
       <td><b>value:</b></td>
-      <td><b>%s</b></td>
+      <td>%s</td>
     </tr>
-</table>''' \
+''' \
             % (name, output, optional, enabled, activated, typestr, str(value))
+        if isinstance(trait_type, traits.File) \
+                or isinstance(trait_type, traits.Directory) \
+                or isinstance(trait_type, traits.Any):
+            if value not in (None, traits.Undefined) and os.path.exists(value):
+                msg += '''    <tr>
+      <td></td>
+      <td>existing path</td>
+    </tr>
+'''
+            elif not isinstance(trait_type, traits.Any):
+                msg +=  '''    <tr>
+      <td></td>
+      <td><font color="#a0a0a0">non-existing path</font></td>
+    </tr>
+'''
+        msg += '</table>'
         return msg
 
 
@@ -985,10 +1084,20 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         '''
         super(PipelineDevelopperView, self).__init__(parent)
         self.scene = None
+        self.colored_parameters = True
         self._show_sub_pipelines = show_sub_pipelines
         self._allow_open_controller = allow_open_controller
         self.set_pipeline(pipeline)
         self._grab = False
+
+    def __del__(self):
+        if self.scene.pipeline:
+            pipeline = self.scene.pipeline
+            pipeline.on_trait_change(reset_pipeline, 'selection_changed',
+                                     remove=True)
+            pipeline.on_trait_change(reset_pipeline, 'user_traits_changed',
+                                     remove=True)
+        super(PipelineDevelopperView, self).__del__()
 
     def _set_pipeline(self, pipeline):
         if self.scene:
@@ -998,6 +1107,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             pos = dict((i, QtCore.QPointF(*j))
                        for i, j in pipeline.node_position.iteritems())
         self.scene = PipelineScene(self)
+        self.scene.colored_parameters = self.colored_parameters
         self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
         self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
         self.scene.node_right_clicked.connect(self.node_right_clicked)
