@@ -19,6 +19,7 @@ from capsul.qt_apps.utils.window import MyQUiLoader
 from capsul.qt_apps.utils.fill_treectrl import fill_treectrl
 from capsul.qt_gui.widgets import (PipelineDevelopperView, PipelineUserView)
 from capsul.qt_gui.controller_widget import ScrollControllerWidget
+from capsul.qt_gui.board_widget import BoardWidget
 from capsul.process import get_process_instance
 from capsul.pipeline.pipeline_iterative import IterativePipeline
 from capsul.study_config import StudyConfig
@@ -57,9 +58,9 @@ class CapsulMainWindow(MyQUiLoader):
                             "actionStudyConfig", "actionQualityControl"],
             QtGui.QTabWidget: ["display", ],
             QtGui.QDockWidget: ["dockWidgetBrowse", "dockWidgetParameters",
-                                "dockWidgetStudyConfig"],
+                                "dockWidgetStudyConfig", "dockWidgetBoard"],
             QtGui.QWidget: ["dock_browse", "dock_parameters",
-                            "dock_study_config"],
+                            "dock_study_config", "dock_board"],
             QtGui.QTreeWidget: ["menu_treectrl", ],
             QtGui.QLineEdit: ["search", ],
         }
@@ -93,6 +94,13 @@ class CapsulMainWindow(MyQUiLoader):
         self.ui.actionBrowse.triggered.connect(self.onBrowseClicked)
         self.ui.actionParameters.triggered.connect(self.onParametersClicked)
         self.ui.actionStudyConfig.triggered.connect(self.onStudyConfigClicked)
+        self.ui.actionQualityControl.triggered.connect(self.onQualityControlClicked)
+
+        # Initialize properly the visibility of each dock widget
+        self.onBrowseClicked()
+        self.onParametersClicked()
+        self.onStudyConfigClicked()
+        self.onQualityControlClicked()
 
         # Signal for the pipeline creation
         self.ui.search.textChanged.connect(self.onSearchClicked)
@@ -168,6 +176,17 @@ class CapsulMainWindow(MyQUiLoader):
         # Hide browse dock widget
         else:
             self.ui.dockWidgetStudyConfig.hide()
+
+    def onQualityControlClicked(self):
+        """ Event to show / hide the board dock widget.
+        """
+        # Show board dock widget
+        if self.ui.actionQualityControl.isChecked():
+            self.ui.dockWidgetBoard.show()
+
+        # Hide board dock widget
+        else:
+            self.ui.dockWidgetBoard.hide()
 
     def onSearchClicked(self):
         """ Event to refresh the menu tree control that contains the pipeline

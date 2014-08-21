@@ -210,6 +210,18 @@
    </attribute>
    <widget class="QWidget" name="dock_study_config"/>
   </widget>
+  <widget class="QDockWidget" name="dockWidgetBoard">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>4</number>
+   </attribute>
+   <widget class="QWidget" name="dock_board"/>
+  </widget>
   <action name="actionHelp">
    <property name="icon">
     <iconset resource="icones.qrc">
@@ -266,7 +278,7 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="icones.qrc">
@@ -280,6 +292,12 @@
    </property>
   </action>
   <action name="actionRun">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -295,6 +313,12 @@
    </property>
   </action>
   <action name="actionQualityControl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="icones.qrc">
      <normaloff>:/icones/view</normaloff>:/icones/view</iconset>
