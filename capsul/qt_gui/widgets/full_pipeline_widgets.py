@@ -15,7 +15,7 @@ import weakref
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui
 from soma.sorted_dictionary import SortedDictionary
-from capsul.pipeline.pipeline import Switch
+from capsul.pipeline.pipeline import Switch, PipelineNode, IterativeNode
 from capsul.process import get_process_instance, Process
 from soma.controller import Controller
 try:
@@ -754,10 +754,9 @@ class PipelineScene(QtGui.QGraphicsScene):
                 style = None
             if hasattr(node, 'process'):
                 process = node.process
-            if hasattr(node, 'process') and hasattr(node.process, 'nodes'):
+            if isinstance(node, PipelineNode) \
+                    or isinstance(node, IterativeNode):
                 sub_pipeline = node.process
-            elif hasattr(node, 'nodes'):
-                sub_pipeline = node
             else:
                 sub_pipeline = None
             if sub_pipeline and self.parent() is not None \
