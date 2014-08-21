@@ -23,7 +23,8 @@ class ScrollControllerWidget(QtGui.QScrollArea):
     """
 
     def __init__(self, controller, parent=None, name=None, live=False,
-                 hide_labels=False):
+                 hide_labels=False, filter_controls=False,
+                 disable_controller_widget=False):
         """ Method to initilaize the ScrollControllerWidget class.
 
         Parameters
@@ -42,6 +43,11 @@ class ScrollControllerWidget(QtGui.QScrollArea):
             controller values.
         hide_labels: bool (optional, default False)
             if True, don't show the labels associated with the controls
+        filter_controls: bool (optional, default False)
+            if True filter the controls by trait output type (ie, an input
+            control or an output control)
+        disable_controller_widget: bool (optional, default False)
+            if True disable the controller widget.
         """
         # Inheritance
         super(ScrollControllerWidget, self).__init__(parent)
@@ -53,8 +59,15 @@ class ScrollControllerWidget(QtGui.QScrollArea):
         self.setFrameShape(QtGui.QFrame.StyledPanel)
 
         # Create the controller widget
-        self.controller_widget = ControllerWidget(controller, parent, name,
-                                                  live, hide_labels)
+        if not filter_controls:
+            self.controller_widget = ControllerWidget(
+                controller, parent, name, live, hide_labels, None)
+        else:
+            self.controller_widget = ControllerWidget(
+                controller, parent, name, live, hide_labels, "inputs")
+
+        # Enable / disabled the controller widget
+        self.controller_widget.setEnabled(not disable_controller_widget)
 
         # Set the controller widget in the scroll area
         self.setWidget(self.controller_widget)
@@ -69,7 +82,7 @@ class ControllerWidget(QtGui.QWidget):
     _defined_controls = {}
 
     def __init__(self, controller, parent=None, name=None, live=False,
-                 hide_labels=False):
+                 hide_labels=False, select_controls=None):
         """ Method to initilaize the ControllerWidget class.
 
         Parameters
@@ -88,6 +101,9 @@ class ControllerWidget(QtGui.QWidget):
             controller values.
         hide_labels: bool (optional, default False)
             if True, don't show the labels associated with the controls
+        select_controls: str (optional, default None)
+            parameter to select specific conrtoller traits. Authorized options
+            are 'inputs' or 'outputs'.
         """
         # Inheritance
         super(ControllerWidget, self).__init__(parent)
@@ -96,6 +112,7 @@ class ControllerWidget(QtGui.QWidget):
         self.controller = controller
         self.live = live
         self.hide_labels = hide_labels
+        self.select_controls = select_controls
         # Parameter to store the connection status between the
         # controller widget and the controller
         self.connected = False
@@ -345,8 +362,27 @@ class ControllerWidget(QtGui.QWidget):
         Controller trait parameters that cannot be maped to controls
         will not appear in the user interface.
         """
+        # Select only the controller traits of interest
+        all_traits = self.controller.user_traits()
+        if self.select_controls is None:
+            slected_traits = all_traits
+        elif self.select_controls == "inputs":
+            slected_traits = dict(
+                (trait_name, trait)
+                for trait_name, trait in all_traits.iteritems()
+                if trait.output ==  False)
+        elif self.select_controls == "outputs":
+            slected_traits = dict(
+                (trait_name, trait)
+                for trait_name, trait in all_traits.iteritems()
+                if trait.output ==  True)
+        else:
+            raise Exception(
+                "Unrecognized 'select_controls' option '{0}'. Valid "
+                "options are 'inputs' or 'outputs'.".format(self.select_controls))
+
         # Go through all the controller user traits
-        for trait_name, trait in self.controller.user_traits().iteritems():
+        for trait_name, trait in slected_traits.iteritems():
 
             # Create the widget
             self.create_control(trait_name, trait)

@@ -16,11 +16,12 @@ from soma.qt_gui.qt_backend import QtCore, QtGui, QtWebKit
 
 # Capsul import
 from capsul.qt_apps.utils.window import MyQUiLoader
-from capsul.qt_gui.widgets import (PipelineDevelopperView, PipelineUserView)
-from capsul.process import get_process_instance
-from capsul.study_config import StudyConfig
 from capsul.qt_apps.utils.fill_treectrl import fill_treectrl
+from capsul.qt_gui.widgets import (PipelineDevelopperView, PipelineUserView)
 from capsul.qt_gui.controller_widget import ScrollControllerWidget
+from capsul.process import get_process_instance
+from capsul.pipeline.pipeline_iterative import IterativePipeline
+from capsul.study_config import StudyConfig
 
 
 class CapsulMainWindow(MyQUiLoader):
@@ -219,7 +220,8 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Create the controller widget associated to the pipeline
         # controller
-        pipeline_widget = ScrollControllerWidget(self.pipeline, live=True)
+        pipeline_widget = ScrollControllerWidget(
+            self.pipeline, live=True, filter_controls=True)
         self.ui.dockWidgetParameters.setWidget(pipeline_widget)
 
         # Add observer to refresh the run button
@@ -257,8 +259,16 @@ class CapsulMainWindow(MyQUiLoader):
         self.pipeline = self.pipeline.nodes[name].process
 
         # Create the controller widget associated to the sub pipeline
-        # controller     
-        pipeline_widget = ScrollControllerWidget(self.pipeline, live=True)
+        # controller: if the sub pipeline is an IterativePipeline, disable
+        # the correspondind controller widget since this pipeline is generated
+        # on the fly an is not directly synchronized with the rest of the
+        # pipeline.
+        is_iterative_pipeline = False
+        if isinstance(self.pipeline, IterativePipeline):
+            is_iterative_pipeline = True
+        pipeline_widget = ScrollControllerWidget(
+            self.pipeline, live=True, filter_controls=True,
+            disable_controller_widget=is_iterative_pipeline)
         self.ui.dockWidgetParameters.setWidget(pipeline_widget)
 
         # Store the sub pipeline instance
