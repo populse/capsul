@@ -10,6 +10,7 @@
 # System import
 import os
 from pprint import pprint
+import weakref
 
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui
@@ -569,6 +570,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             if scale is not None:
                 sub_view.scale(scale, scale)
             pwid = EmbeddedSubPipelineItem(sub_view)
+            sub_view._graphics_item = weakref.proxy(pwid)
             margin = 5
             pos = margin * 2 + self.title.boundingRect().size().height()
             pwid.setParentItem(self)
@@ -1248,12 +1250,26 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             sub_view = PipelineDevelopperView(sub_pipeline,
                 show_sub_pipelines=self._show_sub_pipelines,
                 allow_open_controller=self._allow_open_controller)
-            # set self as QObject parent (not QWidget parent) to prevent
-            # the sub_view to close/delete immediately
-            QtCore.QObject.setParent(sub_view, self)
+            # set self.window() as QObject parent (not QWidget parent) to
+            # prevent the sub_view to close/delete immediately
+            QtCore.QObject.setParent(sub_view, self.window())
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.setWindowTitle(node_name)
             sub_view.show()
+
+    def window(self):
+        '''
+        window() is overloaded from QWidget.window() to handle embedded views
+        cases.
+        A PipelineDevelopperView may be displayed inside a NodeGWidget.
+        In this case, we want to go up to the parent scene's window to the
+        "real" top window, where QWidget.window() will end in the current
+        graphics scene.
+        '''
+        if hasattr(self, '_graphics_item'):
+            return self._graphics_item.scene().views()[0].window()
+        else:
+            return super(PipelineDevelopperView, self).window()
 
     def onOpenProcessController(self, node_name, process):
         """ Event to open a sub-process/sub-pipeline controller
@@ -1267,6 +1283,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.setWindowTitle(node_name)
             sub_view.show()
-            # set self as QObject parent (not QWidget parent) to prevent
-            # the sub_view to close/delete immediately
-            QtCore.QObject.setParent(sub_view, self)
+            # set self.window() as QObject parent (not QWidget parent) to
+            # prevent the sub_view to close/delete immediately
+            QtCore.QObject.setParent(sub_view, self.window())
