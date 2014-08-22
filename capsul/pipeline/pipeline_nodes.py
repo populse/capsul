@@ -430,20 +430,20 @@ class IterativeNode(Node):
         self.input_traits = {}
         for trait_name in self.iterative_process.traits(output=False):
 
-            # Get the trait string description
-            trait_description = trait_ids(
-                self.iterative_process.trait(trait_name))
+                # Get the trait string description
+                trait_description = trait_ids(
+                    self.iterative_process.trait(trait_name))
 
-            # An iterative trait is found add an extra trait List level.
-            if trait_name in self.iterative_plugs:
-                self.input_iterative_traits[trait_name] = [
-                    "List_" + x for x in trait_description]
+                # An iterative trait is found add an extra trait List level.
+                if trait_name in self.iterative_plugs:
+                    self.input_iterative_traits[trait_name] = [
+                        "List_" + x for x in trait_description]
 
-            # Otherwise just store the string trrait description
-            else:
-                self.input_traits[trait_name] = trait_description
+                # Otherwise just store the string trrait description
+                else:
+                    self.input_traits[trait_name] = trait_description
 
-        # > onputs
+        # > outputs
         self.output_iterative_traits = {}
         self.output_traits = {}
         for trait_name in self.iterative_process.traits(output=True):
@@ -598,8 +598,9 @@ class IterativeNode(Node):
 
         # Add processing nodes to the pipeline: only attached to input manager
         for node_name in input_manager.nodes:
-            self.process.add_process(node_name, self.iterative_process.id,
-            self.do_not_export, self.make_optional, **self.kwargs)
+            self.process.add_process(
+                node_name, self.iterative_process.id,
+                self.do_not_export, self.make_optional, **self.kwargs)
 
         # Add link to manager
         for link in input_manager.links:

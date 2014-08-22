@@ -36,6 +36,8 @@ def clone_trait(trait):
         expression = ""
         for trait_item in trait_spec:
             expression += "traits.{0}(".format(trait_item)
+            if trait_item == "Enum":
+                expression += "'stream'"
         expression += ")" * len(trait_spec)
         trait_expression.append(expression)
 
