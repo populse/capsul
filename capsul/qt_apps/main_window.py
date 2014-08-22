@@ -158,30 +158,41 @@ class CapsulMainWindow(MyQUiLoader):
     def onParametersClicked(self):
         """ Event to show / hide the parameters dock widget.
         """
-        # Show browse dock widget
+        # Show parameters dock widget
         if self.ui.actionParameters.isChecked():
             self.ui.dockWidgetParameters.show()
 
-        # Hide browse dock widget
+        # Hide parameters dock widget
         else:
             self.ui.dockWidgetParameters.hide()
 
     def onStudyConfigClicked(self):
         """ Event to show / hide the study config dock widget.
         """
-        # Show browse dock widget
+        # Show study configuration dock widget
         if self.ui.actionStudyConfig.isChecked():
             self.ui.dockWidgetStudyConfig.show()
 
-        # Hide browse dock widget
+        # Hide study configuration dock widget
         else:
             self.ui.dockWidgetStudyConfig.hide()
 
     def onQualityControlClicked(self):
         """ Event to show / hide the board dock widget.
         """
-        # Show board dock widget
+        # Create and show board dock widget
         if self.ui.actionQualityControl.isChecked():
+
+            # Create the board widget associated to the pipeline controller
+            # Create on the fly in order to get the last status
+            # ToDo: add callbacks
+            if self.pipeline is not None:
+                board_widget = BoardWidget(
+                    self.pipeline, parent=self.ui.dockWidgetParameters,
+                    name="board")
+                self.ui.dockWidgetBoard.setWidget(board_widget)
+
+            # Show the board widget
             self.ui.dockWidgetBoard.show()
 
         # Hide board dock widget

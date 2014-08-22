@@ -14,8 +14,8 @@ import logging
 # Trait import
 from traits.api import *
 
-# Qt import
-from PySide.QtGui import QApplication
+# Soma import
+from soma.qt_gui.qt_backend import QtGui, QtCore
 
 # Capsul import
 from capsul.qt_gui.controller_widget import (
@@ -63,7 +63,7 @@ class TestControls(Controller):
 logging.basicConfig(level=logging.INFO)
 
 # Create a qt applicaction
-app = QApplication(sys.argv)
+app = QtGui.QApplication(sys.argv)
 
 # Create the controller we want to parametrized
 controller = TestControls()
