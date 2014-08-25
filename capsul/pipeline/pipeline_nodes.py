@@ -428,38 +428,38 @@ class IterativeNode(Node):
         # > inputs
         self.input_iterative_traits = {}
         self.input_traits = {}
-        for trait_name in self.iterative_process.traits(output=False):
+        for (trait_name,
+             trait) in self.iterative_process.traits(output=False).iteritems():
 
                 # Get the trait string description
-                trait_description = trait_ids(
-                    self.iterative_process.trait(trait_name))
+                trait_description = trait_ids(trait)
 
                 # An iterative trait is found add an extra trait List level.
                 if trait_name in self.iterative_plugs:
-                    self.input_iterative_traits[trait_name] = [
-                        "List_" + x for x in trait_description]
+                    self.input_iterative_traits[trait_name] = ([
+                        "List_" + x for x in trait_description], trait)
 
                 # Otherwise just store the string trrait description
                 else:
-                    self.input_traits[trait_name] = trait_description
+                    self.input_traits[trait_name] = (trait_description, trait)
 
         # > outputs
         self.output_iterative_traits = {}
         self.output_traits = {}
-        for trait_name in self.iterative_process.traits(output=True):
+        for (trait_name,
+             trait) in self.iterative_process.traits(output=True).iteritems():
 
             # Get the trait string description
-            trait_description = trait_ids(
-                self.iterative_process.trait(trait_name))
+            trait_description = trait_ids(trait)
 
             # An iterative trait is found add an extra trait List level.
             if trait_name in self.iterative_plugs:
-                self.output_iterative_traits[trait_name] = [
-                    "List_" + x for x in trait_description]
+                self.output_iterative_traits[trait_name] = ([
+                    "List_" + x for x in trait_description], trait)
 
             # Otherwise just store the string trrait description
             else:
-                self.output_traits[trait_name] = trait_description
+                self.output_traits[trait_name] = (trait_description, trait)
 
         # No regular output traits accepted in an iterative node
         if self.output_traits:
@@ -478,19 +478,22 @@ class IterativeNode(Node):
             pipeline, name, input_traits, output_traits)
 
         # Add a trait for each input and each output
-        for trait_name, trait_description in self.input_iterative_traits.iteritems():
-            trait = clone_trait(trait_description)
+        for trait_name, trait_item in self.input_iterative_traits.iteritems():
+            trait_description, trait = trait_item
+            trait = clone_trait(trait_description, trait.handler.values)
             self.add_trait(trait_name, trait)
             self.trait(trait_name).output = False
-        for trait_name, trait_description in self.input_traits.iteritems():
-            trait = clone_trait(trait_description)
+        for trait_name, trait_item in self.input_traits.iteritems():
+            trait_description, trait = trait_item
+            trait = clone_trait(trait_description, trait.handler.values)
             self.add_trait(trait_name, trait)
             self.trait(trait_name).output = False
             setattr(
                 self, trait_name, getattr(self.iterative_process, trait_name))
             self._anytrait_changed(
                 trait_name, None, getattr(self.iterative_process, trait_name))
-        for trait_name, trait_description in self.output_iterative_traits.iteritems():
+        for trait_name, trait_item in self.output_iterative_traits.iteritems():
+            trait_description, trait = trait_item
             trait = clone_trait(trait_description)
             self.add_trait(trait_name, trait)
             self.trait(trait_name).output = True
@@ -562,8 +565,9 @@ class IterativeNode(Node):
 
         # Go through all input regular traits
         pipeline_node = self.process.nodes[""]
-        for trait_name, trait_description in self.input_traits.iteritems():
-            trait = clone_trait(trait_description)
+        for trait_name, trait_item in self.input_traits.iteritems():
+            trait_description, trait = trait_item
+            trait = clone_trait(trait_description, trait.handler.values)
             pipeline_node.process.add_trait(trait_name, trait)
             pipeline_node.process.trait(trait_name).optional = False
             pipeline_node.process.trait(trait_name).output = False
@@ -574,18 +578,21 @@ class IterativeNode(Node):
 
         # Create the dynamic input output iterative traits manager subpipelines
         iterative_traits = {}
-        for trait_name, trait_description in self.input_iterative_traits.iteritems():
+        for trait_name, trait_item in self.input_iterative_traits.iteritems():
+            trait_description, trait = trait_item
             iterative_traits[trait_name] = (
                 trait_description, getattr(self, trait_name))
         regular_traits = {}
-        for trait_name, trait_description in self.input_traits.iteritems():
+        for trait_name, trait_item in self.input_traits.iteritems():
+            trait_description, trait = trait_item
             regular_traits[trait_name] = (
                 trait_description, getattr(self, trait_name))
         input_manager = IterativeManager(
             self.iterative_process.name, iterative_traits,
             regular_traits, is_input_traits=True)
         iterative_traits = {}
-        for trait_name, trait_description in self.output_iterative_traits.iteritems():
+        for trait_name, trait_item in self.output_iterative_traits.iteritems():
+            trait_description, trait = trait_item
             iterative_traits[trait_name] = (
                 trait_description, [""] * nb_of_inputs)
         output_manager = IterativeManager(
@@ -614,9 +621,10 @@ class IterativeNode(Node):
         # Connect the iterative pipeline
         # > For input traits, connect the node traits to the iterative pipeline
         # traits
-        for trait_name, trait_description in self.input_traits.iteritems():
-            # Get the node trait
-            trait = self.trait(trait_name)
+        for trait_name, trait_item in self.input_traits.iteritems():
+
+            # Unpack the trait item
+            trait_description, trait = trait_item
 
             # Update the iterative process trait.
             # Hook: function that will be called to update the iterative
@@ -632,9 +640,10 @@ class IterativeNode(Node):
 
         # > For output traits, connect the iterative pipeline traits to the node 
         # traits
-        for trait_name, trait_description in self.output_iterative_traits.iteritems():
-            # Get the iterative pipeline trait
-            trait = self.process.trait(trait_name)
+        for trait_name, trait_item in self.output_iterative_traits.iteritems():
+
+            # Unpack the trait item
+            trait_description, trait = trait_item
 
             # Update the node trait.
             # Hook: function that will be called to update the node trait
