@@ -771,15 +771,15 @@ class Switch(Node):
         # inherit from Node class
         super(Switch, self).__init__(pipeline, name, node_inputs,
                                      node_outputs)
-        for i in node_inputs[1:]:
-            self.plugs[i['name']].enabled = False
+        for node in node_inputs[1:]:
+            self.plugs[node["name"]].enabled = False
 
         # add switch enum trait to select the process
-        self.add_trait('switch', Enum(*inputs))
+        self.add_trait("switch", Enum(output=False, *inputs))
         
         # add a trait for each input and each output
         for i in flat_inputs:
-            self.add_trait(i, Any())
+            self.add_trait(i, Any(output=False))
         for i in outputs:
             self.add_trait(i, Any(output=True))
 
