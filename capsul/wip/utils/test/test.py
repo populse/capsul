@@ -7,9 +7,49 @@
 # for details.
 ##########################################################################
 
+# System import
+import sys
+import unittest
+import os
+
+# Capsul import
 from capsul.wip.utils.test.process import AFunctionToWrap
 
 
-process = AFunctionToWrap()
-process()
-print process.get_outputs()
+class TestProcessWrap(unittest.TestCase):
+    """ Class to test the function used to wrap a function to a process
+    """
+    def setUp(self):
+        """ In the setup construct set some process input parameters.
+        """
+        # Get the wraped test process process
+        self.process = AFunctionToWrap()
+
+        # Set some input parameters
+        self.process.fname = "fname"
+        self.process.directory = "directory"
+        self.process.value = 1.2
+        self.process.list_of_str = ["a_string"]
+
+    def test_process_wrap(self):
+        """ Method to test if the process has been wraped properly.
+        """
+
+        # Execute the process
+        self.process()
+        self.assertEqual(getattr(self.process, "reference"), ["27"])
+        self.assertEqual(
+            getattr(self.process, "string"),
+            "ALL FUNCTION PARAMETERS::\n\nfnamedirectory1.2choice1['a_string']")
+
+
+def test():
+    """ Function to execute unitest
+    """
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestProcessWrap)
+    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
+    return runtime.wasSuccessful()
+
+
+if __name__ == "__main__":
+    test()
