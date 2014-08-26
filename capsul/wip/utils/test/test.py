@@ -34,7 +34,6 @@ class TestProcessWrap(unittest.TestCase):
     def test_process_wrap(self):
         """ Method to test if the process has been wraped properly.
         """
-
         # Execute the process
         self.process()
         self.assertEqual(getattr(self.process, "reference"), ["27"])

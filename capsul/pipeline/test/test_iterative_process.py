@@ -7,7 +7,6 @@
 # for details.
 ##########################################################################
 
-
 # System import
 import sys
 import unittest
