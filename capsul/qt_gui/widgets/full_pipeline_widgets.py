@@ -409,8 +409,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         else:
             trait = self.process.user_traits()[param_name]
             if isinstance(trait.trait_type, traits.File) \
-                    or isinstance(trait.trait_type, traits.Directory) \
-                    or isinstance(trait.trait_type, traits.Any):
+                    or isinstance(trait.trait_type, traits.Directory):
                 if os.path.exists(value):
                     param_text = '<b>%s</b>' % param_text
         return param_text
