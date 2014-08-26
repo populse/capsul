@@ -12,6 +12,7 @@ import os
 import sys
 import xml.dom.minidom
 import inspect
+import re
 
 # Capsul import
 from capsul.utils.trait_utils import clone_trait
@@ -187,9 +188,17 @@ def class_factory(func, destination_module_globals):
         # Store the created trait
         process_traits[trait_item["name"]] = trait
 
+    # Clean the docstring
+    docstring = func.__doc__
+    # python 2.7 only (not working on Centos 6.4)
+    # docstring = re.sub(r"<capsul>.*</capsul>", "", docstring, flags=re.DOTALL)
+    res = re.search(r"<capsul>.*</capsul>.*", docstring, flags=re.DOTALL)
+    if res:
+        docstring = docstring.replace(docstring[res.start():res.end()],"")
+
     # Define the process class parameters
     class_parameters = {
-        "__doc__": func.__doc__,
+        "__doc__": docstring,
         "__module__": destination_module_globals["__name__"],
         "_id":  destination_module_globals["__name__"] + "." + class_name,
         "_func_name": func.__name__,
