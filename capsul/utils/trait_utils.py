@@ -14,13 +14,13 @@ from textwrap import wrap
 import re
 
 # Trait import
-try:
-    import traits.api as traits
-except ImportError:
-    import enthought.traits.api as traits
+import traits.api as traits
+
+# Soma import
+from soma.controller import trait_ids
 
 
-def get_trait_desc(name, spec, def_val=None):
+def get_trait_desc(trait_name, trait, def_val=None):
     """ Generate a trait description [parameter name: type (default) \n
     string help (description)]
 
@@ -28,8 +28,8 @@ def get_trait_desc(name, spec, def_val=None):
     ----------
     name: string (mandatory)
         the trait name
-    spec: trait spec (mandatory)
-        the trait specification
+    trait: a trait instance (mandatory)
+        a trait instance
     def_val: object (optional)
         the trait default value
         If not in ['', None] add the default string description
@@ -40,10 +40,13 @@ def get_trait_desc(name, spec, def_val=None):
         the trait description
     """
     # Get the trait description
-    desc = spec.desc
+    desc = trait.desc
+
+    # Get the trait type
+    trait_id = trait_ids(trait)
 
     # Add the trait name (bold)
-    manhelpstr = ["**{0}**".format(name)]
+    manhelpstr = ["{0}".format(trait_name)]
 
     # Get the default value string representation
     if def_val not in ["", None]:
@@ -52,16 +55,16 @@ def get_trait_desc(name, spec, def_val=None):
         def_val = ""
 
     # Get the paramter type (optional or mandatory)
-    if spec.optional:
+    if trait.optional:
         dtype = "optional"
     else:
         dtype = "mandatory"
 
     # Get the default parameter representation: trait type of default
     # value if specified
-    line = "{0}".format(spec.info())
-    if not spec.output:
-        line += " ({0}{1})".format(dtype, def_val)
+    line = "{0}".format(trait.info())
+    if not trait.output:
+        line += " ({0} - {1}{2})".format(trait_id, dtype, def_val)
 
     # Wrap the string properly
     manhelpstr = wrap(line, 70,

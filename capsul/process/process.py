@@ -37,6 +37,48 @@ except:
     InterfaceResult = type("InterfaceResult", (object, ), {})
 
 
+class CompleteDocstring(Controller.__metaclass__):
+    """ Class used to complete a process docstring
+
+    Use a class and not a function for inheritance.
+    """
+    def __new__(mcls, name, bases, attrs):
+        """ Method to print the full help.
+
+        Parameters
+        ----------
+        mcls: meta class (mandatory)
+            a meta class.
+        name: str (mandatory)
+            the process class name.
+        bases: tuple (mandatory)
+            the direct base classes.
+        attrs: dict (mandatory)
+            a dictionnary with the class attributes.
+        """
+        # Get the process docstring
+        docstring = attrs.get("__doc__", "").split("\n")
+
+        # Complete the docstring
+        docstring += [
+            "",
+            "Type '{0}.help()' for a full description of "
+            "this process parameters.".format(name),
+            "",
+            "Type '<{0}>.get_input_spec()' for a full description of "
+            "this process input trait types.".format(name),
+            "",
+            "Type '<{0}>.get_output_spec()' for a full description of "
+            "this process output trait types.".format(name),
+        ]
+
+        # Update the class docstring with the full process help
+        attrs["__doc__"] = "\n".join(docstring)
+
+        return super(CompleteDocstring, mcls).__new__(
+            mcls, name, bases, attrs)
+
+
 class Process(Controller):
     """ A prosess is an atomic component that contains a processing.
 
@@ -69,6 +111,9 @@ class Process(Controller):
     set_parameter
     get_parameter
     """
+    # Meta class used to complete the class docstring
+    __metaclass__ = CompleteDocstring
+
     def __init__(self):
         """ Initialize the Process class.
         """
@@ -382,10 +427,9 @@ class Process(Controller):
             a string representation of all the input trait specifications.
         """
         output = "\nINPUT SPECIFICATIONS\n\n"
-        for trait_name, trait in self.user_traits().iteritems():
-            if not trait.output:
-                output += "{0}: {1}\n".format(
-                    trait_name, trait_ids(self.trait(trait_name)))
+        for trait_name, trait in self.traits(output=False).iteritems():
+            output += "{0}: {1}\n".format(
+                trait_name, trait_ids(self.trait(trait_name)))
         return output
 
     def get_output_spec(self):
@@ -397,10 +441,9 @@ class Process(Controller):
             a string representation of all the output trait specifications.
         """
         output = "\nOUTPUT SPECIFICATIONS\n\n"
-        for trait_name, trait in self.user_traits().iteritems():
-            if trait.output:
-                output += "{0}: {1}\n".format(
-                    trait_name, trait_ids(self.trait(trait_name)))
+        for trait_name, trait in self.traits(output=True).iteritems():
+            output += "{0}: {1}\n".format(
+                trait_name, trait_ids(self.trait(trait_name)))
         return output
 
     def get_inputs(self):
@@ -412,9 +455,8 @@ class Process(Controller):
             a dictionary with all the input trait names and values.
         """
         output = {}
-        for trait_name, trait in self.user_traits().iteritems():
-            if not trait.output:
-                output[trait_name] = getattr(self, trait_name)
+        for trait_name, trait in self.traits(output=False).iteritems():
+            output[trait_name] = getattr(self, trait_name)
         return output
 
     def get_outputs(self):
@@ -426,9 +468,8 @@ class Process(Controller):
             a dictionary with all the output trait names and values.
         """
         output = {}
-        for trait_name, trait in self.user_traits().iteritems():
-            if trait.output:
-                output[trait_name] = getattr(self, trait_name)
+        for trait_name, trait in self.traits(output=True).iteritems():
+            output[trait_name] = getattr(self, trait_name)
         return output
 
     @classmethod
@@ -445,13 +486,11 @@ class Process(Controller):
         helpstr: str
             the class input traits help
         """
-        print cls
-
         # Generate an input section
         helpstr = ["Inputs", "~" * 6, ""]
 
         # Markup to separate mandatory inputs
-        manhelpstr = ["", "[Mandatory]", ""]
+        manhelpstr = ["[Mandatory]", ""]
 
         # Get all the mandatory input traits
         mandatory_items = cls().traits(output=False, optional=False)
@@ -459,9 +498,9 @@ class Process(Controller):
         # If we have mandatory inputs, get the corresponding string
         # descriptions
         if mandatory_items:
-            for trait_name, trait_spec in mandatory_items.iteritems():
+            for trait_name, trait in mandatory_items.iteritems():
                 manhelpstr.extend(
-                    get_trait_desc(trait_name, trait_spec))
+                    get_trait_desc(trait_name, trait))
 
         # Markup to separate optional inputs
         opthelpstr = ["", "[Optional]", ""]
@@ -472,9 +511,9 @@ class Process(Controller):
         # If we have optional inputs, get the corresponding string
         # descriptions
         if optional_items:
-            for trait_name, trait_spec in optional_items.iteritems():
+            for trait_name, trait in optional_items.iteritems():
                 opthelpstr.extend(
-                    get_trait_desc(trait_name, trait_spec))
+                    get_trait_desc(trait_name, trait))
 
         # Add the mandatry and optional input string description if necessary
         if mandatory_items:
@@ -510,9 +549,9 @@ class Process(Controller):
 
         # If we have some outputs, get the corresponding string
         # descriptions
-        for trait_name, trait_spec in items.iteritems():
+        for trait_name, trait in items.iteritems():
             helpstr.extend(
-                get_trait_desc(trait_name, trait_spec))
+                get_trait_desc(trait_name, trait))
 
         return helpstr
 
