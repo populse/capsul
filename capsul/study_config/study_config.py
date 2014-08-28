@@ -306,7 +306,7 @@ class StudyConfig(Controller):
     # Methods    #
     ##############
 
-    def run(self, process_or_pipeline):
+    def run(self, process_or_pipeline, executer_qc_nodes=False):
         """ Function to execute a process or a pipline with the Study
         configuration
 
@@ -314,14 +314,20 @@ class StudyConfig(Controller):
         ----------
         process_or_pipeline: Process or Pipeline (mandatory)
             the process or pipeline we want to execute
+        execute_qc_nodes: bool (optional, default False)
+            if True execute process nodes that are taged as qualtity control
+            process nodes.
         """
-
-        # Use soma worflow
+        # Use soma worflow to execute the pipeline or porcess
         if self.get_trait_value("use_soma_workflow"):
+
             # Create soma workflow pipeline
             workflow = workflow_from_pipeline(process_or_pipeline)
             local_workflow_run(process_or_pipeline.id, workflow)
+
+        # Use the local machine to execute the pipeline or process
         else:
+
             # Generate ordered execution list
             execution_list = []
             if isinstance(process_or_pipeline, Pipeline):
@@ -334,8 +340,16 @@ class StudyConfig(Controller):
                     "and expect Process or Pipeline"
                     "instances".format(process_or_pipeline.__module__.name__))
 
-            # Execute each element
-            for process_instance in execution_list:
+            # Filter process nodes if necessary
+            if not executer_qc_nodes:
+                execution_list = [node for node in execution_list
+                                  if node.node_type != "view_node"]
+
+            # Execute each process node element
+            for process_node in execution_list:
+
+                # Get the process instance
+                process_instance = process_node.process
 
                 # Message
                 logging.info("Study Config: executing process "
