@@ -910,8 +910,9 @@ class Pipeline(Process):
             """
 
             # Main loop
-            for dest_node_name, dest_plug_name, dest_node, dest_plug, \
-                  weak_link in plug.links_to:
+            for (dest_node_name, dest_plug_name, dest_node, dest_plug,
+                  weak_link) in plug.links_to:
+
                 # Ignore the link if it is pointing to a node in a
                 # sub-pipeline or in the parent pipeline
                 if pipeline.nodes.get(dest_node_name) is not dest_node:
@@ -919,6 +920,7 @@ class Pipeline(Process):
 
                 # Plug need to be activated
                 if dest_node.activated:
+
                     # If plug links to a switch, we need to address the switch
                     # plugs
                     if not isinstance(dest_node, Switch):
@@ -934,21 +936,28 @@ class Pipeline(Process):
 
         # Add activated Process nodes in the graph
         for node_name, node in self.nodes.iteritems():
-            if not node_name:
+
+            # Do not consider the pipeline node
+            if node_name == "":
                 continue
-            # Select only Process nodes
+
+            # Select only active Process nodes
             if node.activated and not isinstance(node, Switch):
-                # If Pipeline: meta in node is the workflow (list of
-                # Process)
+
+                # If a Pipeline is found: the meta graph node parameter contains
+                # a sub Graph
                 if isinstance(node.process, Pipeline):
-                    graph.add_node(GraphNode(node_name,
-                                             node.process.workflow_graph()))
-                # If Process: meta in node is a list with one Process
+                    graph.add_node(
+                        GraphNode(node_name, node.process.workflow_graph()))
+                # If a Process is found: the meta graph node parameter contains
+                # a list with one process node
                 else:
-                    graph.add_node(GraphNode(node_name, [node.process]))
+                    graph.add_node(GraphNode(node_name, [node]))
 
                 # Add node edges
                 for plug_name, plug in node.plugs.iteritems():
+
+                    # Consider only active pipeline node plugs
                     if plug.activated:
                         insert(self, node_name, plug, dependencies)
 
@@ -969,41 +978,58 @@ class Pipeline(Process):
         """
         # Create a graph and a list of graph node edges
         graph = self.workflow_graph()
+
         # Start the topologival sort
         ordered_list = graph.topological_sort()
 
-        def walk_wokflow(wokflow, workflow_list):
+        def walk_workflow(wokflow, workflow_list):
             """ Recursive fonction to go through pipelines' graphs
             """
+            # Go through all the workflows
             for sub_workflow in wokflow:
+
+                # If we have already a flatten graph structure just add it
                 if isinstance(sub_workflow[1], list):
                     workflow_list.extend(sub_workflow[1])
-                else:
-                    tmp = sub_workflow[1].topological_sort()
-                    walk_wokflow(tmp, workflow_list)
 
-        # Generate the output
+                # Otherwise we need to call the topological sort in order to
+                # sort the graph and than flat the graph structure
+                else:
+                    flat_structure = sub_workflow[1].topological_sort()
+                    walk_workflow(flat_structure, workflow_list)
+
+        # Generate the output workflow representation
         self.workflow_repr = "->".join([x[0] for x in ordered_list])
         logging.debug("Workflow: {0}". format(self.workflow_repr))
+
+        # Generate the final workflow by flattenin graphs structures
         workflow_list = []
-        walk_wokflow(ordered_list, workflow_list)
+        walk_workflow(ordered_list, workflow_list)
 
         return workflow_list
 
     def _run_process(self):
-        """ Execution of the pipeline, in a sequential,
-        single-processor mode.
+        """ Execution of the pipeline.
+
+        Since  no study configuration are set, execute the pipeline in a 
+        sequential order, single-processor mode.
 
         Returns
         -------
         returned: list
             the execution return results of each node in the worflow
         """
+        # Get all the process nodes to execute
         nodes_list = self.workflow_ordered_nodes()
+        
+        # Go through all process nodes
         returned = []
         for node in nodes_list:
-            node_ret = node()  # execute node
+        
+            # Execute the process contained in the node
+            node_ret = node.process()
             returned.append(node_ret)
+
         return returned
 
     def find_empty_parameters(self):

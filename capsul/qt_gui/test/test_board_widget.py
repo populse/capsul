@@ -102,20 +102,22 @@ class MyPipeline(Pipeline):
         self.export_parameter("process", "output")
 
 
-# Create a qt applicaction
-app = QtGui.QApplication.instance()
-if app is None:
-    app = QtGui.QApplication(sys.argv)
+if __name__ == "__main__":
 
-# Create the pipeline
-pipeline = MyPipeline()
+    # Create a qt applicaction
+    app = QtGui.QApplication.instance()
+    if app is None:
+        app = QtGui.QApplication(sys.argv)
 
-# Create to board widget
-widget = BoardWidget(pipeline, name="test")
-widget.show()
+    # Create the pipeline
+    pipeline = MyPipeline()
 
-# Start the qt loop
-app.exec_()
+    # Create to board widget
+    widget = BoardWidget(pipeline, name="test")
+    widget.show()
+
+    # Start the qt loop
+    app.exec_()
 
 
 

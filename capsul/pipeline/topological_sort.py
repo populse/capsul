@@ -198,8 +198,8 @@ class Graph(object):
         Returns
         -------
         output: list of tuple
-        a list of ordered nodes with a tuple element containing the node
-        name and the node meta element.
+            a list of ordered nodes with a tuple element containing the node
+            name and the node meta element.
         """
         ordered_nodes = []
 

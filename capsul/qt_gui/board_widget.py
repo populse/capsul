@@ -61,9 +61,9 @@ class BoardWidget(QtGui.QWidget):
         self.create_board_tree()
 
         # Fill the grid layout
-        self._grid_layout.addWidget(self.viewer_tree, 0, 0, 1, 1)
-        self._grid_layout.addWidget(self.board_tree, 1, 0, 1, 1)
-        self._grid_layout.addWidget(self.output_controller_widget, 2, 0, 1, 1)
+        self._grid_layout.addWidget(self.board_tree, 0, 0, 1, 2)
+        self._grid_layout.addWidget(self.output_controller_widget, 1, 0, 1, 1)
+        self._grid_layout.addWidget(self.viewer_tree, 1, 1, 1, 1)
 
         # Create the board
         self._fill_trees()
@@ -136,7 +136,7 @@ class BoardWidget(QtGui.QWidget):
         # Generate structures that contain all viewers and all processings
         # status - metainforamtion
         viewers_struct = {}
-        processings_struct = {}
+        processings_struct = []
     
         # Go through all the controller (pipeline) nodes.
         for node_name, node in self.controller.nodes.iteritems():
@@ -155,6 +155,12 @@ class BoardWidget(QtGui.QWidget):
                 #    widget = LogWidget(process_node)
                 #    widget.setParent(root.treeWidget())
                 #    child.treeWidget().setItemWidget(child, 3, widget)
+
+                # Fill the processing structure
+                for processing_node in process_nodes:
+                    processings_struct.append({
+                        "name": processing_node.name,
+                        "log": processing_node.process.log_file or "No log"})
 
                 # Fill the viewer structure
                 for viewer_node, pipeline in view_nodes:
@@ -207,6 +213,15 @@ class BoardWidget(QtGui.QWidget):
             widget.setLayout(widget_layout)
             viewer_child.treeWidget().setItemWidget(viewer_child, 1, widget)
 
+        # Fill the pboard tree widget
+        board_parent = self.board_tree.invisibleRootItem()
+        for process_info in processings_struct:
+
+            # Create a new tree item
+            board_child = QtGui.QTreeWidgetItem(board_parent)
+            board_child.setText(0, process_info["name"])
+            board_child.setText(4, process_info["log"])
+
     def browse_node(self, node, process_nodes, view_nodes, parent_pipeline):
         """ Find view_node and leaf nodes, ie. Process nodes
 
@@ -216,8 +231,9 @@ class BoardWidget(QtGui.QWidget):
             a capsul node
         process_nodes: Node
             node of type processing_node
-        view_nodes: Node
-            node of type view_node
+        view_nodes: 2-uplet
+            contains the node of type view_node and the pipeline where this node
+            is defined
         """
         # Skip Switch nodes
         if not isinstance(node, Switch):

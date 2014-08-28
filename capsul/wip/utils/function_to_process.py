@@ -89,6 +89,7 @@ class AutoProcess(Process):
             self.add_trait(trait_name, trait)
             self.trait(trait_name).output = trait.output
             self.trait(trait_name).desc = trait.desc
+            self.trait(trait_name).optional = trait.optional
 
         # Redifine process identifier
         if hasattr(self, "_id"):
@@ -183,7 +184,8 @@ def class_factory(func, destination_module_globals):
         if trait_item.get("role", "") in ["return", "output"]:
             trait.output = True
         else:
-            trait.output = False        
+            trait.output = False
+        trait.optional = False        
 
         # Store the created trait
         process_traits[trait_item["name"]] = trait

@@ -38,13 +38,13 @@ class MyPipeline(Pipeline):
 
         # Create processes
         self.add_process("way11",
-            DummyProcess)
+            "capsul.pipeline.test.test_activation.DummyProcess")
         self.add_process("way12",
-            DummyProcess)
+            "capsul.pipeline.test.test_activation.DummyProcess")
         self.add_process("way21",
-            DummyProcess)
+            "capsul.pipeline.test.test_activation.DummyProcess")
         self.add_process("way22",
-            DummyProcess,
+            "capsul.pipeline.test.test_activation.DummyProcess",
             do_not_export=['output_image' ],
             make_optional=['output_image'])
 

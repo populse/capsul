@@ -40,7 +40,8 @@ class Process_1(EchoProcess):
         self.add_trait("output_image", File(optional=True, output=True))
 
     def get_commandline(self):
-        return super(Process_1, self).get_commandline()
+        cmdline = super(Process_1, self).get_commandline()
+        return cmdline
 
 
 class Process_2(EchoProcess):
@@ -54,7 +55,8 @@ class Process_2(EchoProcess):
         self.add_trait("output_image", File(optional=True, output=True))
 
     def get_commandline(self):
-        return super(Process_2, self).get_commandline()
+        cmdline = super(Process_2, self).get_commandline()
+        return cmdline
 
 
 class Process_3(EchoProcess):
@@ -68,7 +70,8 @@ class Process_3(EchoProcess):
         self.add_trait("output_image", File(optional=True, output=True))
 
     def get_commandline(self):
-        return super(Process_3, self).get_commandline()
+        cmdline = super(Process_3, self).get_commandline()
+        return cmdline
 
 
 class Process_4(EchoProcess):
@@ -198,7 +201,7 @@ def test():
 
 
 if __name__ == "__main__":
-    #print("RETURNCODE: ", test())
+    print("RETURNCODE: ", test())
 
     import sys
     from soma.qt_gui import qt_backend

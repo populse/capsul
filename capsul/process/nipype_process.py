@@ -15,16 +15,9 @@ import logging
 import traceback
 
 # Trait import
-try:
-    import traits.api as traits
-    from traits.trait_base import _Undefined
-    from traits.api import (ListStr, HasTraits, File, Float, Instance,
-                            Enum, Str, Directory, CTrait)
-except ImportError:
-    import enthought.traits.api as traits
-    from enthought.traits.trait_base import _Undefined
-    from enthought.traits.api import (ListStr, HasTraits, File, Float,
-                                      Instance, Enum, Str,CTrait)
+import traits.api as traits
+from traits.trait_base import _Undefined
+from traits.api import Directory, CTrait
 
 # Capsul import
 from soma.controller import trait_ids

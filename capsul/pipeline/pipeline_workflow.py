@@ -183,7 +183,8 @@ def workflow_from_pipeline(pipeline):
             # Otherwise convert all the processes in meta as jobs
             else:
                 sub_jobs = {}
-                for process in node.meta:
+                for pipeline_node in node.meta:
+                    process = pipeline_node.process
                     if (not isinstance(process, Pipeline) and
                             isinstance(process, Process)):
                         job = build_job(process, temp_map)
@@ -208,14 +209,14 @@ def workflow_from_pipeline(pipeline):
         # Add dependencies between a source job and destination jobs
         for node_name, node in graph._nodes.iteritems():
             # Source job
-            if isinstance(node.meta, list) and node.meta[0] in jobs:
-                sjob = jobs[node.meta[0]]
+            if isinstance(node.meta, list) and node.meta[0].process in jobs:
+                sjob = jobs[node.meta[0].process]
             else:
                 sjob = groups[node.meta]
             # Destination jobs
             for dnode in node.links_to:
-                if isinstance(dnode.meta, list) and dnode.meta[0] in jobs:
-                    djob = jobs[dnode.meta[0]]
+                if isinstance(dnode.meta, list) and dnode.meta[0].process in jobs:
+                    djob = jobs[dnode.meta[0].process]
                 else:
                     djob = groups[dnode.meta]
                 dependencies.add((sjob, djob))

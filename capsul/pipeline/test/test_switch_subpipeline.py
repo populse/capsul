@@ -92,9 +92,9 @@ class SwitchPipeline(Pipeline):
 
         # Create processes
         self.add_process("way1",
-            DummyProcess)
+            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess")
         self.add_process("way2",
-            DummyProcess)
+            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess")
 
         # Create Switch
         self.add_switch("switch", ["one", "two"],
@@ -135,16 +135,16 @@ class MultipleConnectionsPipeline(Pipeline):
 
         # Create processes
         self.add_process("process1",
-            DummyProcess1_1)
+            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess1_1")
         self.export_parameter('process1', 'input', 'input1')
         self.add_process("process2",
-            DummyProcess1_1)
+            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess1_1")
         self.add_link('input1->process2.input')
         self.add_process("process3",
-            DummyProcess1_1)
+            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess1_1")
         self.add_link('input1->process3.input')
         self.add_process("process4",
-            DummyProcess4_1)
+            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess4_1")
         self.add_link('process1.output->process4.input1')
         self.add_link('process2.output->process4.input2')
         self.add_link('process3.output->process4.input3')
@@ -160,15 +160,20 @@ class MultipleConnectionsPipeline(Pipeline):
 
 class MainTestPipeline(Pipeline):
     def pipeline_definition(self):
-        self.add_process('switch_pipeline',SwitchPipeline)
+        self.add_process('switch_pipeline',
+            "capsul.pipeline.test.test_switch_subpipeline.SwitchPipeline")
         # Export may be omited here but it is necessary to force parameters
         # order.
         self.export_parameter('switch_pipeline', 'input_image')
         self.export_parameter('switch_pipeline', 'switch', 'which_way')
-        self.add_process('way1_1',MultipleConnectionsPipeline)
-        self.add_process('way1_2',DummyProcess1_1)
-        self.add_process('way2_1',MultipleConnectionsPipeline)
-        self.add_process('way2_2',DummyProcess1_1)
+        self.add_process('way1_1',
+            "capsul.pipeline.test.test_switch_subpipeline.MultipleConnectionsPipeline")
+        self.add_process('way1_2',
+            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess1_1")
+        self.add_process('way2_1',
+            "capsul.pipeline.test.test_switch_subpipeline.MultipleConnectionsPipeline")
+        self.add_process('way2_2',
+            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess1_1")
         self.add_link('switch_pipeline.weak_output_1->way1_1.input1')
         self.add_link('switch_pipeline.result_image->way1_1.input2')
         self.add_link('way1_1.output->way1_2.input')
