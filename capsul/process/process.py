@@ -328,13 +328,12 @@ class Process(Controller):
             self.log_file = os.path.join(exec_info["cwd"], "log.json")
 
         # Dump the log
-        json_struct = unicode(json.dumps(exec_info, sort_keys=True,
-                                         check_circular=True, indent=4))
+        json_struct = json.dumps(exec_info, sort_keys=True,
+                                 check_circular=True, indent=4)
 
         # Save the json structure
-        f = open(self.log_file, "w")
-        print >> f, json_struct
-        f.close()
+        with open(self.log_file, "w") as f:
+            f.write(unicode(json_struct))
 
     @classmethod
     def help(cls):
