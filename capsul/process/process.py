@@ -37,7 +37,7 @@ except:
     InterfaceResult = type("InterfaceResult", (object, ), {})
 
 
-class CompleteDocstring(Controller.__metaclass__):
+class ProcessMeta(Controller.__metaclass__):
     """ Class used to complete a process docstring
 
     Use a class and not a function for inheritance.
@@ -75,7 +75,7 @@ class CompleteDocstring(Controller.__metaclass__):
         # Update the class docstring with the full process help
         attrs["__doc__"] = "\n".join(docstring)
 
-        return super(CompleteDocstring, mcls).__new__(
+        return super(ProcessMeta, mcls).__new__(
             mcls, name, bases, attrs)
 
 
@@ -112,7 +112,7 @@ class Process(Controller):
     get_parameter
     """
     # Meta class used to complete the class docstring
-    __metaclass__ = CompleteDocstring
+    __metaclass__ = ProcessMeta
 
     def __init__(self):
         """ Initialize the Process class.
