@@ -29,13 +29,6 @@ from capsul.utils import get_tool_version
 from capsul.utils.trait_utils import (
     is_trait_value_defined, is_trait_pathname, get_trait_desc)
 
-# Nipype import
-try:
-    from nipype.interfaces.base import InterfaceResult
-# If nipype is not found create a dummy InterfaceResult class
-except:
-    InterfaceResult = type("InterfaceResult", (object, ), {})
-
 
 class ProcessMeta(Controller.__metaclass__):
     """ Class used to complete a process docstring
@@ -193,33 +186,11 @@ class Process(Controller):
         versions = {
             "capsul": get_tool_version("capsul"),
         }
-        if hasattr(self, "_nipype_interface"):
-            versions["nipype"] = get_tool_version("nipype")
-            interface_name = self._nipype_interface.__module__.split(".")[2]
-            versions[interface_name] = self._nipype_interface.version
         runtime["versions"] = versions
-
-        # If a Nipype process has ran, set additional information in
-        # the execution report and the the outputs
-        if isinstance(returncode, InterfaceResult):
-            process = returncode.interface
-            if hasattr(returncode.runtime, "cmd_line"):
-                runtime["cmd_line"] = returncode.runtime.cmdline
-            runtime["stderr"] = returncode.runtime.stderr
-            runtime["stdout"] = returncode.runtime.stdout
-            runtime["cwd"] = returncode.runtime.cwd
-            runtime["returncode"] = returncode.runtime.returncode
-            outputs = dict(
-                ("_" + x[0], self._nipype_interface._list_outputs()[x[0]])
-                for x in returncode.outputs.get().iteritems())
-
-        # Otherwise just get the outputs
-        else:
-            outputs = self.get_outputs()
 
         # Generate a process result that is returned
         results = ProcessResult(
-            process, runtime, self.get_inputs(), outputs)
+            process, runtime, returncode, self.get_inputs(), self.get_outputs())
 
         return results
 
@@ -666,6 +637,61 @@ class NipypeProcess(Process):
 
             self._nipype_interface.inputs.dimension = "t"
 
+    def __call__(self, **kwargs):
+        """ Method to execute the NipypeProcess.
+
+        Keyword arguments may be passed to set process parameters.
+        This in turn will allow calling the process like a standard
+        python function.
+        In such case keyword arguments are set in the process in
+        addition to those already set before the call.
+
+        Raise a TypeError if a keyword argument do not match with a
+        process trait name.
+
+        .. note:
+
+            This method must not modified the class attributes in order
+            to be able to perform smart caching.
+
+        Parameters
+        ----------
+        kwargs: dict (optional)
+            should correspond to the declared parameter traits.
+
+        Returns
+        -------
+        results:  ProcessResult object
+            contains all execution information
+        """
+        # Inheritance
+        results = super(NipypeProcess, self).__call__(**kwargs)
+
+        # Set the nipype and nipype interface versions
+        interface_name = self._nipype_interface.__module__.split(".")[2]
+        results.runtime["versions"].update({
+            "nipype": get_tool_version("nipype"),
+            interface_name: self._nipype_interface.version
+        })
+
+        # Set additional information in the execution report
+        returncode = results.returncode
+        #if isinstance(returncode, InterfaceResult):
+        if hasattr(returncode.runtime, "cmd_line"):
+            results.runtime["cmd_line"] = returncode.runtime.cmdline
+        results.runtime["stderr"] = returncode.runtime.stderr
+        results.runtime["stdout"] = returncode.runtime.stdout
+        results.runtime["cwd"] = returncode.runtime.cwd
+        results.runtime["returncode"] = returncode.runtime.returncode
+
+        # Set the nipype outputs to the execution report
+        outputs = dict(
+            ("_" + x[0], self._nipype_interface._list_outputs()[x[0]])
+            for x in returncode.outputs.get().iteritems())
+        results.outputs = outputs
+
+        return results
+
     def set_output_directory(self, out_dir):
         """ Set the process output directory.
 
@@ -699,16 +725,19 @@ class ProcessResult(object):
         A copy of the `Process` class that was called.
     runtime : dict (mandatory)
         Execution attributes.
+    returncode: dict (mandatory)
+        Execution raw attributes
     inputs :  dict (optional)
         Representation of the process inputs.
     outputs : dict (optional)
         Representation of the process outputs.
     """
 
-    def __init__(self, process, runtime, inputs=None, outputs=None):
+    def __init__(self, process, runtime, returncode, inputs=None, outputs=None):
         """ Initialize the ProcessResult class.
         """
         self.process = process
         self.runtime = runtime
+        self.returncode = returncode
         self.inputs = inputs
         self.outputs = outputs
