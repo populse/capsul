@@ -317,10 +317,10 @@ def nipype_factory(nipype_instance):
                             "_" + out_name, out_value)
 
             # If we can't update the output process instance traits values,
-            # raise an exception.
+            # print a logging debug message.
             except Exception:
                 ex_type, ex, tb = sys.exc_info()
-                logging.error(
+                logging.debug(
                     "Something wrong in the nipype output trait "
                     "synchronization:\n\n\tError: {0} - {1}\n"
                     "\tTraceback:\n{2}".format(
