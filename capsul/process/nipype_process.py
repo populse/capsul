@@ -475,9 +475,11 @@ def nipype_factory(nipype_instance):
     # > input traits
     for trait_name, trait in nipype_instance.input_spec().items():
 
-        # Check if trait name already created: never happend
-        #if hasattr(process_instance, trait_name):
-        #    trait_name = "nipype_" + trait_name
+        # Check if trait name already used in calss attributes:
+        # For instance nipype.interfaces.fsl.FLIRT has a save_log bool input
+        # trait.
+        if hasattr(process_instance, trait_name):
+            trait_name = "nipype_" + trait_name
 
         # Clone the nipype trait
         process_trait = clone_nipype_trait(trait)
