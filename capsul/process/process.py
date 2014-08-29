@@ -363,7 +363,7 @@ class Process(Controller):
             "python",
             "-c",
             ("import sys; from {0} import {1}; kwargs={2}; "
-             "kwargs.update(dict(sys.argv[i * 2 + 1]: sys.argv[i * 2 + 2] "
+             "kwargs.update(dict((sys.argv[i * 2 + 1], sys.argv[i * 2 + 2]) "
              "for i in range((len(sys.argv) - 1) / 2))); "
              "{1}()(**kwargs)").format(module_name, class_name, repr(argsdict))
         ] + sum([list(x) for x in pathsdict.items()], [])
