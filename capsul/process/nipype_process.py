@@ -259,16 +259,9 @@ def nipype_factory(nipype_instance):
         new: type (manndatory)
             the new trait value
         """
-        # If the old and new values are different start the synchronization
-        if old != value:
-
-            # Relax exists constrain
-            trait = process_instance._nipype_interface.inputs.trait(name)
-            relax_exists_constrain(trait)
-
-            # Set the new nypipe interface value
-            setattr(process_instance._nipype_interface.inputs, name,
-                    value)
+        # Set the new nypipe interface value
+        setattr(process_instance._nipype_interface.inputs, name,
+                value)
 
     def sync_process_output_traits(process_instance, name, value):
         """ Event handler function to update the process instance outputs
@@ -480,6 +473,9 @@ def nipype_factory(nipype_instance):
         # trait.
         if hasattr(process_instance, trait_name):
             trait_name = "nipype_" + trait_name
+
+        # Relax nipye exists trait contrain
+        relax_exists_constrain(trait)
 
         # Clone the nipype trait
         process_trait = clone_nipype_trait(trait)

@@ -16,6 +16,7 @@ import json
 import subprocess
 
 # Trait import
+import traits.trait_types as trait_types
 from traits.trait_base import _Undefined
 from traits.api import Directory, Undefined
 
@@ -539,7 +540,7 @@ class Process(Controller):
             the trait value we want to set
         """
         # Detect File and Directory trait types with None value
-        if value is None and is_trait_pathname(self.trait(name)):
+        if not value and is_trait_pathname(self.trait(name)):
 
             # The None trait value is _Undefined, do the replacement
             value = _Undefined()
