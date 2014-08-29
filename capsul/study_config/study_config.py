@@ -406,7 +406,7 @@ class StudyConfig(Controller):
 
             # If the smart caching caller is not defined defined, raise
             # an Exception
-            if _joblib_run_process is not None:
+            if _joblib_run_process is None:
                 raise Exception("The smart cahing caller is not defined, "
                                 "please investigate.")
             self._caller = _joblib_run_process
