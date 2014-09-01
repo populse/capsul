@@ -23,7 +23,6 @@ except ImportError:
 # Capsul import
 from capsul.process import get_process_instance
 from capsul.utils.trait_utils import clone_trait
-from capsul.pipeline.pipeline_iterative import IterativePipeline, IterativeManager
 
 # Soma import
 from soma.controller import trait_ids
@@ -547,6 +546,9 @@ class IterativeNode(Node):
         nb_of_inputs: int (mandatory)
             the number of input iterative trait items
         """
+        # Local import
+        from pipeline_iterative import IterativePipeline, IterativeManager
+
         # Create / recreate the iterative pipeline
         # > disconnect the iterative process if already crerated
         if self.process is not None:
