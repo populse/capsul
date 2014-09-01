@@ -23,6 +23,7 @@ except ImportError:
 # Capsul import
 from capsul.process import get_process_instance
 from capsul.utils.trait_utils import clone_trait
+from capsul.pipeline.pipeline_iterative import IterativePipeline, IterativeManager
 
 # Soma import
 from soma.controller import trait_ids
@@ -532,7 +533,7 @@ class IterativeNode(Node):
                 is_valid = (input_size == nb_of_inputs).all()
             else:
                 nb_of_inputs = 0
-                is_valid = True            
+                is_valid = True        
 
             # Generate / update the iterative pipeline
             if is_valid:
@@ -546,9 +547,6 @@ class IterativeNode(Node):
         nb_of_inputs: int (mandatory)
             the number of input iterative trait items
         """
-        # Local import
-        from pipeline_iterative import IterativePipeline, IterativeManager
-
         # Create / recreate the iterative pipeline
         # > disconnect the iterative process if already crerated
         if self.process is not None:
@@ -690,7 +688,6 @@ class IterativeNode(Node):
         trait_name: str (mandatory)
             the name of the trait to synchronized.
         """
-        print "** process callback", trait_name, self, getattr(self, trait_name)
         setattr(self.process, trait_name, getattr(self, trait_name))
 
     def update_node(self, trait_name):

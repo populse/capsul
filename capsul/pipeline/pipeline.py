@@ -946,11 +946,15 @@ class Pipeline(Process):
 
                 # If a Pipeline is found: the meta graph node parameter contains
                 # a sub Graph
-                if isinstance(node.process, Pipeline):
-                    graph.add_node(
-                        GraphNode(node_name, node.process.workflow_graph()))
-                # If a Process is found: the meta graph node parameter contains
-                # a list with one process node
+                if (isinstance(node.process, Pipeline) and
+                    not isinstance(node, IterativeNode)):
+
+                    graph.add_node(GraphNode(
+                        node_name, node.process.workflow_graph()))
+
+                # If a Process or an iterative node is found: the meta graph 
+                # node parameter contains a list with one process node or
+                # a dynamic structure that cannot be processed yet.
                 else:
                     graph.add_node(GraphNode(node_name, [node]))
 

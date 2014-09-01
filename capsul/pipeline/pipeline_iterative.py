@@ -66,15 +66,20 @@ class IterativeManager(Process):
             self.add_trait(trait_name, process_trait)
             self.trait(trait_name).optional = False
             self.trait(trait_name).output = not is_input_traits
-            self.trait(trait_name).desc = "an iterative trait that need to be unpack"
+            self.trait(trait_name).desc = (
+                "an iterative trait that need to be unpack")
 
             # Pass the input trait values to the iterative pipeline
             if is_input_traits:
                 setattr(self, trait_name, trait_value)
 
-            # Unpack the iterative traits
+            # Unpack the iterative trait
+
+            # > get the unpack trait description
             trait_description = [
                 re.sub("^List_*", "", x) for x in trait_description]
+
+            # > create the trait and corresponding processing name
             for cnt, item in enumerate(trait_value):
 
                 # Create one unpack trait
@@ -91,7 +96,7 @@ class IterativeManager(Process):
 
                 # Add the processing node attached with each unpack input
                 if is_input_traits:
-    
+   
                     # Add the processing node
                     if not node_name in self.nodes:
                         self.nodes.append(node_name)
