@@ -35,6 +35,7 @@ class DummyProcess(Process):
         
         # Outputs
         self.add_trait("output_image", String(optional=False, output=True))
+        self.add_trait("other_output", Float(optional=False, output=True))
 
         # Set default parameter
         self.other_input = 6
@@ -46,6 +47,7 @@ class DummyProcess(Process):
         value = "{0}:{1}:{2}".format(
             self.input_image, self.other_input, self.dynamic_parameter)
         self.output_image = value
+        self.other_output = self.other_input
 
 
 class MyPipeline(Pipeline):
@@ -57,7 +59,9 @@ class MyPipeline(Pipeline):
         # Create an iterative processe
         self.add_iterative_process(
             "iterative", "capsul.pipeline.test.test_iterative_process.DummyProcess",
-            iterative_plugs=["input_image", "output_image", "dynamic_parameter"])
+            iterative_plugs=[
+                "input_image", "output_image", "dynamic_parameter",
+                "other_output"])
 
         # Set the pipeline view scale factor
         self.scene_scale_factor = 1.0
@@ -102,7 +106,9 @@ class TestPipeline(unittest.TestCase):
             self.assertTrue("toto:5.0:3.0" in iterative_pipeline.output_image)
             self.assertTrue("tutu:5.0:1.0" in iterative_pipeline.output_image)
         self.assertEqual(
-            self.pipeline.output_image,iterative_pipeline.output_image)
+            self.pipeline.output_image, iterative_pipeline.output_image)
+        self.assertEqual(self.pipeline.other_output, 
+                         [self.pipeline.other_input, self.pipeline.other_input])
 
 
 def test():

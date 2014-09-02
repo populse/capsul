@@ -520,7 +520,8 @@ class IterativeNode(Node):
             the new value
         """
         # If an iterative plug has changed
-        if hasattr(self, "iterative_plugs") and name in self.iterative_plugs:
+        if (hasattr(self, "input_iterative_traits") and
+            name in self.input_iterative_traits):
 
             # To refresh the iterative pipeline, need to have the same number
             # of items in iterative traits
@@ -629,7 +630,7 @@ class IterativeNode(Node):
             # Update the iterative process trait.
             # Hook: function that will be called to update the iterative
             # process trait when the 'trait_name' node trait is modified.
-            callback = SomaPartial(self.update_iterative_process, trait_name)
+            callback = SomaPartial(IterativeNode.update_iterative_process, self)
 
             # When the 'trait_name' node trait value is modified,
             # update the underlying corresponding iterative process trait
@@ -648,7 +649,7 @@ class IterativeNode(Node):
             # Update the node trait.
             # Hook: function that will be called to update the node trait
             # when the 'trait_name' iterative pipeline trait is modified.
-            callback = SomaPartial(self.update_node, trait_name)
+            callback = SomaPartial(IterativeNode.update_node, self)
 
             # When the 'trait_name' iterative process trait value is modified,
             # update the corresponding node trait
@@ -679,7 +680,8 @@ class IterativeNode(Node):
             self.process.node_position[node_name] = (
                 2 * fixed_width, (cnt - shift) * fixed_height)
 
-    def update_iterative_process(self, trait_name):
+    @staticmethod
+    def update_iterative_process(iterative_node, parent, trait_name, old, new):
         """ Method to update the iterative process 'trait_name' trait.
 
         At the end the node and iterative process will have the same value in
@@ -690,9 +692,11 @@ class IterativeNode(Node):
         trait_name: str (mandatory)
             the name of the trait to synchronized.
         """
-        setattr(self.process, trait_name, getattr(self, trait_name))
+        setattr(iterative_node.process, trait_name, 
+                getattr(iterative_node, trait_name))
 
-    def update_node(self, trait_name):
+    @staticmethod
+    def update_node(iterative_node, parent, trait_name, old, new):
         """ Method to update the node 'trait_name' trait.
 
         At the end the node and iterative process will have the same value in
@@ -703,7 +707,8 @@ class IterativeNode(Node):
         trait_name: str (mandatory)
             the name of the trait to synchronized.
         """
-        setattr(self, trait_name, getattr(self.process, trait_name)) 
+        setattr(iterative_node, trait_name,
+                getattr(iterative_node.process, trait_name)) 
 
 class Switch(Node):
     """ Switch node to select a specific Process.
