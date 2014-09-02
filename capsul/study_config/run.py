@@ -28,7 +28,7 @@ def set_output_dir(subj_output_dir, process_instance, spm_dir):
                     "ver,", "try,", "addpath('{0}');".format(spm_dir),
                     "cd('{0}');".format(subj_output_dir)]
             elif process_instance._nipype_interface_name == "dcm2nii":
-                process_instance.output_dir = subj_output_dir
+                # process_instance.output_dir = subj_output_dir
                 trait = process_instance._nipype_interface.inputs.trait(
                     "output_dir")
                 trait.genfile = False
