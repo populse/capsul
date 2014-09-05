@@ -11,6 +11,9 @@
 import logging
 from functools import partial
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.utils.functiontools import SomaPartial
@@ -240,7 +243,7 @@ class ListControlWidget(object):
         # Update the 'control_name' parent controller value
         setattr(controller_widget.controller, control_name,
                 new_trait_value)
-        logging.debug(
+        logger.debug(
             "'ListControlWidget' associated controller trait '{0}' has "
             "been updated with value '{1}'.".format(
                 control_name, new_trait_value))
@@ -322,7 +325,7 @@ class ListControlWidget(object):
             if user_traits_changed:
                 control_instance.controller.user_traits_changed = True
 
-                logging.debug(
+                logger.debug(
                     "'ListControlWidget' inner controller has been updated:"
                     "old size '{0}', new size '{1}'.".format(
                         len_widget, len(trait_value)))
@@ -332,10 +335,10 @@ class ListControlWidget(object):
                 cls.connect(controller_widget, control_name, control_instance)
 
         else:
-            print "oups"
-            print cls, controller_widget, control_name, control_instance
-            print control_instance.controller
-            print control_instance.controller.user_traits()
+            logger.error("oups")
+            #print cls, controller_widget, control_name, control_instance
+            #print control_instance.controller
+            #print control_instance.controller.user_traits()
 
     @classmethod
     def connect(cls, controller_widget, control_name, control_instance):
@@ -373,7 +376,7 @@ class ListControlWidget(object):
                 # And add the callback on each user trait
                 control_instance.controller.on_trait_change(
                     list_controller_hook, trait_name)
-                logging.debug("Item '{0}' of a 'ListControlWidget', add "
+                logger.debug("Item '{0}' of a 'ListControlWidget', add "
                               "a callback on inner controller trait "
                               "'{0}'.".format(control_name, trait_name))
 
@@ -392,7 +395,7 @@ class ListControlWidget(object):
             # Update the list connection status
             control_instance._controller_connections = (
                 list_controller_hook, controller_hook)
-            logging.debug("Add 'List' connection: {0}.".format(
+            logger.debug("Add 'List' connection: {0}.".format(
                 control_instance._controller_connections))
 
             # Connect also all list items
@@ -502,7 +505,7 @@ class ListControlWidget(object):
         # Update the list controller
         control_instance._controller_connections[0]()
         #control_instance.controller_widget.update_controller_widget()
-        logging.debug("Add 'ListControlWidget' '{0}' new trait "
+        logger.debug("Add 'ListControlWidget' '{0}' new trait "
                       "callback.".format(trait_name))
 
     @staticmethod
@@ -616,7 +619,7 @@ class ListControlWidget(object):
 
         # No more control to delete
         else:
-            logging.debug(
+            logger.debug(
                 "No more control to delete in '{0}'.".format(control_instance))
 
         # If one list control item has been deleted
@@ -643,7 +646,7 @@ class ListControlWidget(object):
 
             # Update the list controller
             control_instance._controller_connections[0]()
-            logging.debug("Remove 'ListControlWidget' '{0}' controller and "
+            logger.debug("Remove 'ListControlWidget' '{0}' controller and "
                           "trait item.".format(trait_name))
 
         control_instance.controller_widget._grid_layout.update()

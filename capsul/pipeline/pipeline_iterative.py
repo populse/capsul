@@ -10,6 +10,10 @@
 # System import
 import os
 import re
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 # Capsul import
 from capsul.pipeline import Pipeline

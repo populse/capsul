@@ -7,6 +7,12 @@
 # for details.
 ##########################################################################
 
+# System import
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Caspul import
 from process import Process
 from nipype_process import nipype_factory

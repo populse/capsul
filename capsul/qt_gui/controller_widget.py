@@ -10,6 +10,9 @@
 # System import
 import logging
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.controller import trait_ids
@@ -235,7 +238,7 @@ class ControllerWidget(QtGui.QWidget):
                 trait, control_class, control_instance, control_label = control
 
                 # Call the current control specific connection method
-                logging.debug("Connecting control '{0}: {1}'...".format(
+                logger.debug("Connecting control '{0}: {1}'...".format(
                     control_name, control_instance))
                 control_class.connect(self, control_name, control_instance)
 
@@ -292,7 +295,7 @@ class ControllerWidget(QtGui.QWidget):
         for control_name, control in self._controls.iteritems():
 
             # Message
-            logging.debug(
+            logger.debug(
                 "Check if we need to update '{0}': trait in '{1}' "
                 "different from '{2}'?".format(
                     control_name, control, user_traits.get(control_name)))
@@ -322,7 +325,7 @@ class ControllerWidget(QtGui.QWidget):
 
         # Delete all dead controls from the class '_controls' intern parameter
         for control_name in to_remove_controls:
-            logging.debug("Delete control '{0}'.".format(control_name))
+            logger.debug("Delete control '{0}'.".format(control_name))
             del self._controls[control_name]
 
         # Recreate all the layout controls associated with the controller
@@ -412,7 +415,7 @@ class ControllerWidget(QtGui.QWidget):
             # an error message. Note that the parameter will not be
             # accessible in the user interface.
             if control_class is None:
-                logging.error(
+                logger.error(
                     "No control defined for trait '{0}': {1}. This "
                     "parameter will not be accessible in the "
                     "user interface.".format(trait_name, trait_ids(trait)))
@@ -462,7 +465,7 @@ class ControllerWidget(QtGui.QWidget):
                 # We actually consider only the two first labels and skip the
                 # others
                 if nb_of_labels > 2:
-                    logging.error("To many labels associated with control "
+                    logger.error("To many labels associated with control "
                                   "'{0}': {1}. Only consider the two first "
                                   "labels and skip the others".format(
                                       trait_name, control_label))

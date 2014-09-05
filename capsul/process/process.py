@@ -14,6 +14,10 @@ from datetime import datetime as datetime
 from copy import deepcopy
 import json
 import subprocess
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 # Trait import
 import traits.trait_types as trait_types

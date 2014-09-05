@@ -10,6 +10,10 @@
 # python system modules
 import os
 import shutil
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 # traits
 from traits.trait_base import _Undefined

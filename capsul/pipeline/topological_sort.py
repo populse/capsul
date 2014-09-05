@@ -10,6 +10,9 @@
 # System import
 import logging
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 
 class GraphNode(object):
     """ Simple Graph Node Structure

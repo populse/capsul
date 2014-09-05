@@ -14,6 +14,9 @@ import types
 import logging
 import traceback
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Trait import
 import traits.api as traits
 from traits.trait_base import _Undefined
@@ -313,7 +316,7 @@ def nipype_factory(nipype_instance):
             # print a logging debug message.
             except Exception:
                 ex_type, ex, tb = sys.exc_info()
-                logging.debug(
+                logger.debug(
                     "Something wrong in the nipype output trait "
                     "synchronization:\n\n\tError: {0} - {1}\n"
                     "\tTraceback:\n{2}".format(

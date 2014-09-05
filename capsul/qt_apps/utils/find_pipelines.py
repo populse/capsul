@@ -15,6 +15,9 @@ import sys
 from setuptools import find_packages
 from inspect import isclass
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 
 def find_pipelines(module_name, url=None, allowed_instance="Pipeline"):
     """ Function that return all the Pipeline class of a module.
@@ -43,7 +46,7 @@ def find_pipelines(module_name, url=None, allowed_instance="Pipeline"):
     try:
         __import__(module_name)
     except:
-        logging.error("Can't load module {0}".format(module_name))
+        logger.error("Can't load module {0}".format(module_name))
         return {}, []
 
     # Get the module path
@@ -77,8 +80,8 @@ def find_pipelines(module_name, url=None, allowed_instance="Pipeline"):
                 __import__(sub_sub_module_name)
             except:
                 exc_info = sys.exc_info()
-                logging.error("".join(traceback.format_exception(*exc_info)))
-                logging.error("Can't load module "
+                logger.error("".join(traceback.format_exception(*exc_info)))
+                logger.error("Can't load module "
                               "{0}".format(sub_sub_module_name))
                 continue
 

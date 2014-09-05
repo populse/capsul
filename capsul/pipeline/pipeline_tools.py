@@ -6,12 +6,22 @@
 # for details.
 ##########################################################################
 
+# System import
 import os
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
+
+# Trait import
 try:
     from traits import api as traits
 except ImportError:
     from enthought.traits import api as traits
+
+# Capsul import
 from capsul.pipeline import Pipeline, PipelineNode
+
 
 def disable_node_for_downhill_pipeline(pipeline, node_name):
     '''

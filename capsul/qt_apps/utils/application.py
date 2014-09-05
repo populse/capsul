@@ -85,6 +85,13 @@ class Application(QtGui.QApplication):
                           "%(levelname)s - %(message)s")
         date_format = "%Y-%m-%d %H:%M:%S"
 
+        # If someone tried to log something before basicConfig is called,
+        # Python creates a default handler that goes to the console and
+        # will ignore further basicConfig calls: we need to remove the
+        # handlers if there is one.
+        while len(logging.root.handlers) > 0:
+            logging.root.removeHandler(logging.root.handlers[-1])
+
         # If the logging level is specified
         if self.options.debug is not None:
 
@@ -98,7 +105,7 @@ class Application(QtGui.QApplication):
 
             # Configure the logging module
             logging.basicConfig(level=level, format=logging_format,
-                                datefmt=date_format)
+                                datefmt=date_format)           
 
             # Disable deprecation warnings if we are not in the debug mode
             if level != logging.DEBUG:

@@ -11,6 +11,9 @@
 import logging
 from functools import partial
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.utils.functiontools import SomaPartial
@@ -145,7 +148,7 @@ class EnumControlWidget(object):
                 control_instance.currentIndex()]
             setattr(controller_widget.controller, control_name,
                     new_trait_value)
-            logging.debug(
+            logger.debug(
                 "'EnumControlWidget' associated controller trait '{0}' "
                 " has been updated with value '{1}'.".format(
                     control_name, new_trait_value))
@@ -179,7 +182,7 @@ class EnumControlWidget(object):
         if new_controller_value is not None:
             control_instance.setCurrentIndex(
                 control_instance._choices.index(new_controller_value))
-        logging.debug("'EnumControlWidget' has been updated with value "
+        logger.debug("'EnumControlWidget' has been updated with value "
                       "'{0}'.".format(new_controller_value))
 
     @classmethod
@@ -225,7 +228,7 @@ class EnumControlWidget(object):
         # Store the trait - control connection we just build
         control_instance._controller_connections = (
             widget_hook, controller_hook)
-        logging.debug("Add 'Enum' connection: {0}.".format(
+        logger.debug("Add 'Enum' connection: {0}.".format(
             control_instance._controller_connections))
 
     @staticmethod

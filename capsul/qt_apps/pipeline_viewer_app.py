@@ -9,6 +9,10 @@
 
 # System import
 import os
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 # Capsul import
 from capsul.qt_apps.utils.application import Application

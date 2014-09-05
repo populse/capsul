@@ -11,6 +11,9 @@
 import logging
 from functools import partial
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Soma import
 from soma.qt_gui.qt_backend import QtGui
 from soma.utils.functiontools import SomaPartial
@@ -139,7 +142,7 @@ class BoolControlWidget(object):
             # Set the control value to the controller associated trait
             setattr(controller_widget.controller, control_name,
                     new_trait_value)
-            logging.debug(
+            logger.debug(
                 "'BoolControlWidget' associated controller trait '{0}' has "
                 "been updated with value '{1}'.".format(
                     control_name, new_trait_value))
@@ -170,7 +173,7 @@ class BoolControlWidget(object):
 
         # Set the trait value to the bool control
         control_instance.setChecked(new_controller_value)
-        logging.debug("'BoolControlWidget' has been updated with value "
+        logger.debug("'BoolControlWidget' has been updated with value "
                       "'{0}'.".format(new_controller_value))
 
     @classmethod
@@ -219,7 +222,7 @@ class BoolControlWidget(object):
             # Store the trait - control connection we just build
             control_instance._controller_connections = (
                 widget_hook, controller_hook)
-            logging.debug("Add 'String' connection: {0}.".format(
+            logger.debug("Add 'String' connection: {0}.".format(
                 control_instance._controller_connections))
 
             # Update the control connection status

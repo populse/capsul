@@ -11,6 +11,10 @@
 import os
 import re
 import subprocess
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 
 def environment(sh_file=None):

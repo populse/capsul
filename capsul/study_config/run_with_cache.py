@@ -11,6 +11,10 @@
 import os
 import shutil
 import string
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 # spm copy tools
 from spm_cache_utils import local_map, last_timestamp

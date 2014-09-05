@@ -10,6 +10,10 @@
 # system modules
 import os
 import shutil
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 
 def local_map(inputs, root, copy=False):

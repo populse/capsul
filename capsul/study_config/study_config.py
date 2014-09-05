@@ -13,6 +13,9 @@ import logging
 import collections
 import json
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Trait import
 from traits.trait_base import _Undefined
 from traits.api import Directory, File, Bool
@@ -268,7 +271,7 @@ class StudyConfig(Controller):
             the process we want to execute
         """
         # Message
-        logging.info("Study Config: executing process "
+        logger.info("Study Config: executing process "
                      "'{0}'...".format(process_instance.id))
 
         # Run
@@ -363,7 +366,7 @@ class StudyConfig(Controller):
             try:
                 self.set_trait_value(trait_name, trait_value)
             except:
-                logging.error(
+                logger.error(
                     "Could not set value for config variable {0}: "
                     "{1}".format(trait_name, repr(trait_value)))
 

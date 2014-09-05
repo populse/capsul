@@ -12,6 +12,9 @@ import logging
 from copy import deepcopy
 import types
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Trait import
 try:
     import traits.api as traits
@@ -1004,7 +1007,7 @@ class Pipeline(Process):
 
         # Generate the output workflow representation
         self.workflow_repr = "->".join([x[0] for x in ordered_list])
-        logging.debug("Workflow: {0}". format(self.workflow_repr))
+        logger.debug("Workflow: {0}". format(self.workflow_repr))
 
         # Generate the final workflow by flattenin graphs structures
         workflow_list = []

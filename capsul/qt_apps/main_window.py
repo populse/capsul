@@ -11,6 +11,9 @@
 import os
 import logging
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Soma import
 from soma.qt_gui.qt_backend import QtCore, QtGui, QtWebKit
 
@@ -133,11 +136,11 @@ class CapsulMainWindow(MyQUiLoader):
                 try:
                     value = self.ui.findChild(control_type, control_name)
                     if value is None:
-                        logging.error(error_message.format(
+                        logger.error(error_message.format(
                             type(self.ui), control_name))
                     setattr(self.ui, control_name, value)
                 except:
-                    logging.error(error_message.format(
+                    logger.error(error_message.format(
                         type(self.ui), control_name))
 
     ###########################################################################
@@ -407,7 +410,7 @@ class CapsulMainWindow(MyQUiLoader):
 
         # No pipeline loaded error
         else:
-            logging.error("No active pipeline selected. "
+            logger.error("No active pipeline selected. "
                           "Have you forgotten to click the load pipeline "
                           "button?")
 

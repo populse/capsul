@@ -7,8 +7,13 @@
 # for details.
 ##########################################################################
 
+# System import
 import string
 import sys
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 
 def load_objects(module_name, object_name=None, allowed_instances=None):

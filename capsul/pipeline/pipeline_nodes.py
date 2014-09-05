@@ -9,6 +9,10 @@
 
 # System import
 import numpy
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 # Trait import
 try:

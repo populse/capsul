@@ -11,6 +11,9 @@
 import logging
 import re
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Soma import
 from soma.qt_gui.qt_backend import QtCore
 
@@ -96,7 +99,7 @@ class FloatControlWidget(StrControlWidget):
             # Set the control value to the controller associated trait
             setattr(controller_widget.controller, control_name,
                     new_trait_value)
-            logging.debug(
+            logger.debug(
                 "'FloatControlWidget' associated controller trait '{0}' has "
                 "been updated with value '{1}'.".format(
                     control_name, new_trait_value))
@@ -127,5 +130,5 @@ class FloatControlWidget(StrControlWidget):
 
         # Set the trait value to the float control
         control_instance.setText(unicode(new_controller_value))
-        logging.debug("'FloatControlWidget' has been updated with value "
+        logger.debug("'FloatControlWidget' has been updated with value "
                       "'{0}'.".format(new_controller_value))

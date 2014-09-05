@@ -12,6 +12,10 @@ import sys
 import types
 from textwrap import wrap
 import re
+import logging
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 # Trait import
 import traits.api as traits

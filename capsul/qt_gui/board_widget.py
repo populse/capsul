@@ -10,6 +10,9 @@
 # System import
 import logging
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
 

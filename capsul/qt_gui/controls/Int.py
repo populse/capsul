@@ -11,6 +11,9 @@
 import re
 import logging
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 # Soma import
 from soma.qt_gui.qt_backend import QtCore
 
@@ -95,7 +98,7 @@ class IntControlWidget(StrControlWidget):
             # Set the control value to the controller associated trait
             setattr(controller_widget.controller, control_name,
                     new_trait_value)
-            logging.debug(
+            logger.debug(
                 "'IntControlWidget' associated controller trait '{0}' "
                 "has been updated with value '{1}'.".format(
                     control_name, new_trait_value))
@@ -126,5 +129,5 @@ class IntControlWidget(StrControlWidget):
 
         # Set the trait value to the int control
         control_instance.setText(unicode(new_controller_value))
-        logging.debug("'IntControlWidget' has been updated with value "
+        logger.debug("'IntControlWidget' has been updated with value "
                       "'{0}'.".format(new_controller_value))
