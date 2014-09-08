@@ -22,11 +22,8 @@ try:
     from traits import api as traits
 except ImportError:
     from enthought.traits import api as traits
-try:
-    from soma.gui.widget_controller_creation import ControllerWidget
-except ImportError:
-    # soma-base not available
-    pass
+
+from capsul.qt_gui.controller_widget import ScrollControllerWidget
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -1274,7 +1271,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         """
         if self._allow_open_controller:
             sub_view = QtGui.QScrollArea()
-            cwidget = ControllerWidget(process, live=True)
+            cwidget = ScrollControllerWidget(process, live=True)
             cwidget.setParent(sub_view)
             sub_view.setWidget(cwidget)
             sub_view.setWidgetResizable(True)

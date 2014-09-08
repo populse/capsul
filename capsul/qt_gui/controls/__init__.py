@@ -16,7 +16,7 @@ from List import ListControlWidget
 from Bool import BoolControlWidget
 from File import FileControlWidget
 from Directory import DirectoryControlWidget
-
+from Controller import ControllerControlWidget
 
 # Define a structure that will contain the mapping between the string trait
 # descriptions and the associated control classes
@@ -33,3 +33,4 @@ controls["Bool"] = BoolControlWidget
 controls["File"] = FileControlWidget
 controls["Directory"] = DirectoryControlWidget
 controls["List"] = ListControlWidget
+controls["Instance"] = ControllerControlWidget
