@@ -105,7 +105,7 @@ class EnumControlWidget(object):
 
         # Set the enum list items to the widget
         for item in widget._choices:
-            widget.addItem(item)
+            widget.addItem(unicode(item))
 
         # Select the default value
         # If the default value is not in the enum list, pick the first item
