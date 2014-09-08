@@ -74,6 +74,10 @@ class Pipeline(Process):
     #
     selection_changed = Event()
 
+    # By default nodes_activation trait is hidden in user interface. Changing
+    # this value to False will make it visible.
+    hide_nodes_activation = True
+    
     def __init__(self, autoexport_nodes_parameters=True, **kwargs):
         """ Initialize the Pipeline class
 
@@ -86,7 +90,8 @@ class Pipeline(Process):
         # Inheritance
         super(Pipeline, self).__init__(**kwargs)
         super(Pipeline, self).add_trait('nodes_activation',
-                                        Instance(Controller))
+                            Instance(Controller,
+                                     hidden=self.hide_nodes_activation))
 
         # Class attributes
         self.list_process_in_pipeline = []
