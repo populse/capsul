@@ -97,4 +97,3 @@ def insert_tool(tools, tool, allowed_instances):
             if issubclass(tool, check_instance):
                 tools.append(tool)
                 break
-

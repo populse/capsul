@@ -240,7 +240,7 @@ class StudyConfig(Controller):
                 # Special case: an iterative node
                 # Execute each element of the iterative pipeline
                 if isinstance(process_node, IterativeNode):
-            
+
                     # Get the iterative pipeline
                     iterative_pipeline = process_node.process
 
@@ -272,7 +272,7 @@ class StudyConfig(Controller):
         """
         # Message
         logger.info("Study Config: executing process "
-                     "'{0}'...".format(process_instance.id))
+                    "'{0}'...".format(process_instance.id))
 
         # Run
         returncode, log_file = self._caller(
