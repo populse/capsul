@@ -7,8 +7,13 @@
 # for details.
 ##########################################################################
 
+# System import
+import unittest
 
+# Capsul import
 from capsul.process import Process
+
+# Trait import
 from traits.api import Float
 
 
@@ -20,16 +25,41 @@ class DummyProcess(Process):
         self.add_trait("ff", Float(output=False))
 
 
+class TestProcessUserTrait(unittest.TestCase):
+    """ Class to test that process user traits are independant between
+    instances.
+    """
+    def setUp(self):
+        """ In the setup construct two processes with class and instance
+        user parameters.
+        """
+        # Construct the processes
+        self.p1 = DummyProcess()
+        self.p2 = DummyProcess()
+
+    def test_class_user_parameters(self):
+        """ Method to test if class user parameters are not shared at
+        the instane level.
+        """
+        # Go through all traits
+        for trait_name, trait in self.p1.__base_traits__.iteritems():
+
+            # Select user parameters
+            if self.p1.is_user_trait(trait):
+
+                # Check that the current parameters are not the same
+                # between instances
+                self.assertFalse(
+                    self.p1.trait(trait_name) is self.p2.trait(trait_name))
+
+
+def test():
+    """ Function to execute unitest
+    """
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestProcessUserTrait)
+    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
+    return runtime.wasSuccessful()
+
+
 if __name__ == "__main__":
-
-    di_1 = DummyProcess()
-    di_2 = DummyProcess()
-
-    print DummyProcess.__base_traits__
-
-    print di_1.user_traits()
-    print di_2.user_traits()
-
-    di_1.trait("f").output = True
-    print di_1.trait("f").output, di_2.trait("f").output
-    print di_1.trait("f") is di_2.trait("f")
+    test()

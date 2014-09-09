@@ -25,7 +25,7 @@ from traits.trait_base import _Undefined
 from traits.api import Directory, Undefined
 
 # Soma import
-from soma.controller import Controller
+from capsul.controller import Controller
 from soma.controller import trait_ids
 from soma.utils import LateBindingProperty
 
@@ -195,7 +195,8 @@ class Process(Controller):
 
         # Generate a process result that is returned
         results = ProcessResult(
-            process, runtime, returncode, self.get_inputs(), self.get_outputs())
+            process, runtime, returncode, self.get_inputs(),
+            self.get_outputs())
 
         return results
 
@@ -264,26 +265,6 @@ class Process(Controller):
     ####################################################################
     # Public methods
     ####################################################################
-
-    def add_trait(self, name, *trait):
-        """ Add a new trait.
-
-        Parameters
-        ----------
-        name: str (mandatory)
-            the trait name.
-        trait: traits.api (mandatory)
-            a valid trait.
-        """
-        # Call the controller add_trait method
-        super(Process, self).add_trait(name, *trait)
-
-        # Get the trait instance and if it is a user trait load the traits
-        # to get it in the traits accessor method that can select traits from
-        # trait attributes
-        trait_instance = self.trait(name)
-        if self.is_user_trait(trait_instance):
-            self.get(name)
 
     def save_log(self, returncode):
         """ Method to save process execution informations in json format.
@@ -738,7 +719,8 @@ class ProcessResult(object):
         Representation of the process outputs.
     """
 
-    def __init__(self, process, runtime, returncode, inputs=None, outputs=None):
+    def __init__(self, process, runtime, returncode, inputs=None,
+                 outputs=None):
         """ Initialize the ProcessResult class.
         """
         self.process = process
