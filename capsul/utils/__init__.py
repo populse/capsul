@@ -8,4 +8,4 @@
 ##########################################################################
 
 from loader import load_objects
-from utils import get_tool_version, get_nipype_interfaces_versions
+from version_utils import get_tool_version, get_nipype_interfaces_versions
