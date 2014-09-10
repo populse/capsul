@@ -366,7 +366,7 @@ class StudyConfig(Controller):
             try:
                 self.set_trait_value(trait_name, trait_value)
             except:
-                logger.error(
+                logger.debug(
                     "Could not set value for config variable {0}: "
                     "{1}".format(trait_name, repr(trait_value)))
 
