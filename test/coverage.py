@@ -64,10 +64,14 @@ def clean_coverage_report(nose_coverage):
     tcount = None
     total = [0, 0]
     for line in lines:
-        if (line.startswith("capsul.pipeline.") or
-                line.startswith("capsul.process.") or
-                line.startswith("soma.controller.") or
-                line.startswith("capsul.study_config.")):
+
+        # Select modules
+        if ((line.startswith("capsul.pipeline.") or
+           line.startswith("capsul.process.") or
+           line.startswith("capsul.controller.") or
+           line.startswith("capsul.study_config.") or
+           line.startswith("capsul.utils")) and header is not None):
+
             # Remove the Missing lines
             percent_index = line.find("%")
             coverage_report.append(line[:percent_index + 1])
