@@ -40,6 +40,9 @@ def get_tool_version(tool):
     except:
         pass
 
+    # Debug message
+    logger.debug("Module '{0}' version is {1}".format(tool, version))
+
     return version
 
 
@@ -77,5 +80,8 @@ def get_nipype_interfaces_versions():
                 pass
     except:
         pass
+
+    # Debug message
+    logger.debug("Nipype interfaceversions are {0}".format(versions))
 
     return versions
