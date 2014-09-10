@@ -25,8 +25,9 @@ from soma.controller import trait_ids
 
 
 def get_trait_desc(trait_name, trait, def_val=None):
-    """ Generate a trait description [parameter name: type (default) \n
-    string help (description)]
+    """ Generate a trait string description of the form:
+
+    [parameter name: type (default trait value) string help (description)]
 
     Parameters
     ----------
@@ -36,12 +37,13 @@ def get_trait_desc(trait_name, trait, def_val=None):
         a trait instance
     def_val: object (optional)
         the trait default value
-        If not in ['', None] add the default string description
+        If not in ['', None] add the default trait value to the trait
+        string description.
 
     Returns
     -------
     manhelpstr: str
-        the trait description
+        the trait description.
     """
     # Get the trait description
     desc = trait.desc
@@ -100,16 +102,20 @@ def is_trait_value_defined(value):
         True if the value is valid,
         False otherwise.
     """
+    # Initialize the default value
+    is_valid = True
+
+    # Check if the trait value is not valid
     if (value is None or value is traits.Undefined or
        (type(value) in types.StringTypes and value == "")):
 
-        return False
+        is_valid = False
 
-    return True
+    return is_valid
 
 
 def is_trait_pathname(trait):
-    """ Check if the trait is a file or a directory
+    """ Check if the trait is a file or a directory.
 
     Parameters
     ----------
@@ -130,7 +136,7 @@ def clone_trait(trait_description, trait_values=None):
     """ Clone a trait from its string description.
 
     In the case of Enum trait, we need to initilaize the object with all its
-    trait values
+    'trait_values'.
 
     Parameters
     ----------
@@ -140,12 +146,6 @@ def clone_trait(trait_description, trait_values=None):
     trait_values: object (optional, default None)
         the new trait initiale values.
     """
-    # Get the trait string descriptions
-    #if isinstance(trait, list):
-    #    trait_description = trait
-    #else:
-    #    trait_description = trait_ids(trait)
-
     # Build the new trait expression
     trait_expression = []
 

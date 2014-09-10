@@ -20,7 +20,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Trait import
-import traits.trait_types as trait_types
 from traits.trait_base import _Undefined
 from traits.api import Directory, Undefined
 
