@@ -49,6 +49,9 @@ def get_tool_version(tool):
 def get_nipype_interfaces_versions():
     """ Get the versions of the nipype interfaces.
 
+    If nipype is not found, return None.
+    If no interfaces are configured, returned an empty dictionary.
+
     Returns
     -------
     versions: dict
@@ -79,7 +82,7 @@ def get_nipype_interfaces_versions():
             except:
                 pass
     except:
-        pass
+        versions = None
 
     # Debug message
     logger.debug("Nipype interfaceversions are {0}".format(versions))
