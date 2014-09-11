@@ -119,7 +119,7 @@ def is_trait_pathname(trait):
 
     Parameters
     ----------
-    trait: a trait (mandatory)
+    trait: CTrait (mandatory)
         the trait instance we want to test.
 
     Returns

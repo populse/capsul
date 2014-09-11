@@ -11,12 +11,19 @@
 import unittest
 
 # Trait import
-from traits.api import Float, CTrait
+from traits.api import Float, CTrait, File, Directory
+from traits.trait_base import _Undefined
+
+# Soma import
+from soma.controller import trait_ids
 
 # Capsul import
 import capsul
 from capsul.utils import get_tool_version, get_nipype_interfaces_versions
-from capsul.utils.trait_utils import get_trait_desc
+from capsul.utils.trait_utils import (
+    get_trait_desc, is_trait_value_defined, is_trait_pathname,
+    clone_trait)
+from capsul.utils.loader import load_objects
 
 
 class TestUtils(unittest.TestCase):
@@ -41,12 +48,49 @@ class TestUtils(unittest.TestCase):
         trait = CTrait(0)
         trait.handler = Float()
         trait.ouptut = False
+        trait.optional = True
         trait.desc = "bla"
         manhelp = get_trait_desc("float_trait", trait, 5)
         self.assertEqual(
             manhelp[0],
-            "float_trait: a float (['Float'] - mandatory, default value: 5)")
+            "float_trait: a float (['Float'] - optional, default value: 5)")
         self.assertEqual(manhelp[1], "    bla")
+
+    def test_trait(self):
+        """ Method to test trait characterisitics: value, type.
+        """
+        self.assertTrue(is_trait_value_defined(5))
+        self.assertFalse(is_trait_value_defined(""))
+        self.assertFalse(is_trait_value_defined(None))
+        self.assertFalse(is_trait_value_defined(_Undefined()))
+
+        trait = CTrait(0)
+        trait.handler = Float()
+        self.assertFalse(is_trait_pathname(trait))
+        for handler in [File(), Directory()]:
+            trait.handler = handler
+            self.assertTrue(is_trait_pathname(trait))
+
+    def test_clone_trait(self):
+        """ Method to test trait clone from string description.
+        """
+        trait_description = ["Float", "Int"]
+        handler = clone_trait(trait_description)
+        trait = CTrait(0)
+        trait.handler = handler
+        #self.assertEqual(trait_description, trait_ids(trait))
+
+    def test_load_module_objects(self):
+        """ Method to test module objects import from string description.
+        """
+        from capsul.pipeline.pipeline_nodes import Node
+        node_sub_class = load_objects(
+            "capsul.pipeline.pipeline_nodes", allowed_instances=[Node])
+        for sub_class in node_sub_class:
+            self.assertTrue(issubclass(sub_class, Node))
+        node_class = load_objects(
+            "capsul.pipeline.pipeline_nodes", object_name="Node")[0]
+        self.assertEqual(node_class, Node)
 
 
 def test():
