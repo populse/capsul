@@ -238,7 +238,7 @@ def nipype_factory(nipype_instance):
         # If we have a selector, call the 'relax_exists_constrain' on each
         # selector inner components.
         main_id = trait.handler.__class__.__name__
-        if main_id == 'TraitCompound':
+        if main_id == "TraitCompound":
             for sub_trait in trait.handler.handlers:
                 sub_c_trait = CTrait(0)
                 sub_c_trait.handler = sub_trait
@@ -295,7 +295,7 @@ def nipype_factory(nipype_instance):
                 nipype_outputs = (process_instance.
                                   _nipype_interface._list_outputs())
 
-                # Synchronize traits: check if file existance
+                # Synchronize traits: check file existance
                 for out_name, out_value in nipype_outputs.iteritems():
 
                     # Get trait type

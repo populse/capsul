@@ -7,5 +7,5 @@
 # for details.
 ##########################################################################
 
-from process import Process, ProcessResult
+from process import Process, NipypeProcess, ProcessResult
 from loader import get_process_instance
