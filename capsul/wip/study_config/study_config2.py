@@ -10,7 +10,11 @@
 # System import
 import logging
 import json
-import collections
+import sys
+if sys.version_info[:2] >= [2, 7]:
+    from collections import OrderedDict
+else:
+    from soma.sorted_dictionary import SortedDictionary as OrderedDict
 
 # Trait import
 try:
@@ -92,7 +96,7 @@ class StudyConfig(Controller):
 
     def save(self, json_filename):
         """ Save study config as json file """
-        dico = collections.OrderedDict([
+        dico = OrderedDict([
             ('input_directory', self.input_directory),
             ('input_fom', self.input_fom),
             ('output_directory', self.output_directory),
@@ -110,7 +114,7 @@ class StudyConfig(Controller):
         """ Load study config from json file """
         with open(json_filename, 'r') as json_data:
             loaded_dict = json.load(
-                json_data, object_pairs_hook=collections.OrderedDict)
+                json_data, object_pairs_hook=OrderedDict)
         for element, value in loaded_dict.iteritems():
             setattr(self, element, value)
 

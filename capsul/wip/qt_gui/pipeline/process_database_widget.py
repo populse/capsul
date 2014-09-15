@@ -3,7 +3,11 @@ from capsul.study_config.study_config2 import StudyConfig
 import glob
 import json
 import os
-import collections
+import sys
+if sys.version_info[:2] >= [2, 7]:
+    from collections import OrderedDict
+else:
+    from soma.sorted_dictionary import SortedDictionary as OrderedDict
 from soma.gui.file_selection import FileAttributeSelection
 try:
     from traits.api import HasTraits,File
@@ -21,7 +25,7 @@ class ProcessDatabaseWidget(QtGui.QDialog):
         self.vbox.addWidget(self.table)
         self.study_config = study_config
         self.setLayout(self.vbox)
-        self.sub = collections.OrderedDict()
+        self.sub = OrderedDict()
         self.list_subjects = []
         self.dico_btn_launch_json = {}
         self.first_subject = 0
@@ -139,10 +143,10 @@ class ProcessDatabaseWidget(QtGui.QDialog):
         try:
             with open(json_file, 'r') as json_data:
                 data = json.load(
-                    json_data,object_pairs_hook=collections.OrderedDict)
+                    json_data,object_pairs_hook=OrderedDict)
                 #print data['run']['attributes']['subject']
                 self.sub[data['run']['attributes']['subject']] \
-                    = collections.OrderedDict()
+                    = OrderedDict()
                 self.sub[data['run']['attributes']['subject']]['output'] \
                     = data['run']['output']
                 self.sub[data['run']['attributes']['subject']]['jsonfile'] \

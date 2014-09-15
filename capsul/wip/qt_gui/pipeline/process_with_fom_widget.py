@@ -1,7 +1,11 @@
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.application import Application
 from soma.gui.widget_controller_creation import ControllerWidget
-import collections
+#import sys
+#if sys.version_info[:2] >= [2, 7]:
+    #from collections import OrderedDict
+#else:
+    #from soma.sorted_dictionary import SortedDictionary as OrderedDict
 from soma.gui.icon_factory import IconFactory
 from soma.qt_gui.widgets.file_selection_widget import FileSelectionWidget
 from soma.qt4gui.api import TimeredQLineEdit
@@ -102,7 +106,7 @@ class ProcessWithFomWidget(QtGui.QWidget):
         #else:
             #number=len(self.Study.runs.keys())+1
             #name_run='run'+str(number)
-        #self.Study.runs[name_run]=collections.OrderedDict()
+        #self.Study.runs[name_run]=OrderedDict()
         #self.Study.runs[name_run]['process_name']='morphologistSimp.SimplifiedMorphologist'
         #self.Study.inc_nb_run_process('morphologistSimp.SimplifiedMorphologist' )
         #self.Study.runs[name_run]['fom_name']=self.object_attribute.fom_name

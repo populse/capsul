@@ -10,8 +10,12 @@
 # System import
 import os
 import logging
-import collections
 import json
+import sys
+if sys.version_info[:2] >= [2, 7]:
+    from collections import OrderedDict
+else:
+    from soma.sorted_dictionary import SortedDictionary as OrderedDict
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -45,7 +49,7 @@ except ImportError:
     _joblib_run_process = None
 
 
-default_config = collections.OrderedDict([
+default_config = OrderedDict([
     ("spm_directory", "/i2bm/local/spm8"),
     ("matlab_exec", "/neurospin/local/bin/matlab"),
     ("fsl_config", "/etc/fsl/4.1/fsl.sh"),
@@ -318,7 +322,7 @@ class StudyConfig(Controller):
         # Load the json file
         with open(json_fname, "r") as json_data:
             new_config = json.load(
-                json_data, object_pairs_hook=collections.OrderedDict)
+                json_data, object_pairs_hook=OrderedDict)
 
         # Update the study configuration
         self.set_study_configuration(new_config)
@@ -561,7 +565,7 @@ if __name__ == "__main__":
     print "Standard configuration done in  {0} s.".format(toc - tic)
 
     # Empty configuration
-    empty_config = collections.OrderedDict([])
+    empty_config = OrderedDict([])
     tic = timeit.default_timer()
     study = StudyConfig(empty_config)
     toc = timeit.default_timer()
