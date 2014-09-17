@@ -22,13 +22,16 @@ from capsul.pipeline.topological_sort import Graph
 from traits.api import Directory, Undefined
 
 
-def workflow_from_pipeline(pipeline):
+def workflow_from_pipeline(pipeline, study_config={}):
     """ Create a soma-workflow workflow from a Capsul Pipeline
 
     Parameters
     ----------
     pipeline: Pipeline (mandatory)
         a CAPSUL pipeline
+    study_config: StudyConfig (optional), or dict
+        holds information about file transfers and shared resource paths.
+        If not specified, no translation/transfers will be used.
 
     Returns
     -------
@@ -41,7 +44,7 @@ def workflow_from_pipeline(pipeline):
         # must inerit a string type since it is used as a trait value
         pass
 
-    def build_job(process, temp_map={}):
+    def build_job(process, temp_map={}, transfer_map={}, study_config={}):
         """ Create a soma-workflow Job from a Capsul Process
 
         Parameters
@@ -49,7 +52,13 @@ def workflow_from_pipeline(pipeline):
         process: Process (mandatory)
             a CAPSUL process instance
         temp_map: dict (optional)
-            temporary paths map
+            temporary paths map.
+        transfer_map: dict (optional)
+            file transders and shared translated paths.
+            This dict is updated when needed during the process.
+        study_config: StudyConfig (optional), or dict
+            holds information about file transfers and shared resource paths.
+            If not specified, no translation/transfers will be used.
 
         Returns
         -------
@@ -65,28 +74,42 @@ def workflow_from_pipeline(pipeline):
                     _replace_in_list(deeperlist, temp_map)
                     rlist[i] = deeperlist
 
+        def _translated_path(path, trait, transfer_map, study_config):
+            # TODO
+            return None
+
         # Get the process command line
         process_cmdline = process.get_commandline()
 
-        # check for temporary paths in parameters
-        input_temp_paths = []
-        output_temp_paths = []
+        # check for special modified paths in parameters
+        input_replaced_paths = []
+        output_replaced_paths = []
         for param_name, parameter in process.user_traits().iteritems():
             if param_name not in ('nodes_activation', 'selection_changed'):
                 value = getattr(process, param_name)
                 if isinstance(value, TempFile):
                     if parameter.output:
-                        output_temp_paths.append(temp_map[value])
+                        output_replaced_paths.append(temp_map[value])
                     else:
-                        input_temp_paths.append(temp_map[value])
+                        input_replaced_paths.append(temp_map[value])
+                else:
+                    translated_path = _translated_path(
+                        value, parameter, transfer_map, study_config)
+                    if translated_path is not None:
+                        if parameter.output:
+                        output_replaced_paths.append(translated_path)
+                    else:
+                        input_replaced_paths.append(translated_path)
+
         # and replace in commandline
         _replace_in_list(process_cmdline, temp_map)
+        _replace_in_list(process_cmdline, transfer_map)
 
         # Return the soma-workflow job
         return swclient.Job(name=process.name,
             command=process_cmdline,
-            referenced_input_files=input_temp_paths,
-            referenced_output_files=output_temp_paths)
+            referenced_input_files=input_replaced_paths,
+            referenced_output_files=output_replaced_paths)
 
     def build_group(name, jobs):
         """ Create a group of jobs
@@ -153,7 +176,8 @@ def workflow_from_pipeline(pipeline):
               process = node
           setattr(process, plug_name, Undefined)
 
-    def workflow_from_graph(graph, temp_map={}):
+    def workflow_from_graph(graph, temp_map={}, transfer_map={},
+                            study_config={}):
         """ Convert a CAPSUL graph to a soma-workflow workflow
 
         Parameters
@@ -162,6 +186,9 @@ def workflow_from_pipeline(pipeline):
             a CAPSUL graph
         temp_map: dict (optional)
             temporary files to replace by soma_workflow TemporaryPath objects
+        transfer_map: dict (optional)
+            file transders and shared translated paths.
+            This dict is updated when needed during the process.
 
         Returns
         -------
@@ -187,7 +214,8 @@ def workflow_from_pipeline(pipeline):
                     process = pipeline_node.process
                     if (not isinstance(process, Pipeline) and
                             isinstance(process, Process)):
-                        job = build_job(process, temp_map)
+                        job = build_job(process, temp_map, transfer_map,
+                                        study_config)
                         sub_jobs[process] = job
                         root_jobs[process] = job
                        #node.job = job
@@ -197,7 +225,8 @@ def workflow_from_pipeline(pipeline):
         for node_name, node in group_nodes.iteritems():
             wf_graph = node.meta
             (sub_jobs, sub_deps, sub_groups, sub_root_groups,
-                       sub_root_jobs) = workflow_from_graph(wf_graph, temp_map)
+                       sub_root_jobs) = workflow_from_graph(
+                          wf_graph, temp_map, transfer_map, study_config)
             group = build_group(node_name,
                 sub_root_groups.values() + sub_root_jobs.values())
             groups[node.meta] = group
@@ -226,11 +255,13 @@ def workflow_from_pipeline(pipeline):
     temp_map = assign_temporary_filenames(pipeline)
     temp_subst_list = [(x1, x2[0]) for x1, x2 in temp_map.iteritems()]
     temp_subst_map = dict(temp_subst_list)
+    transfer_map = {}
 
     # Get a graph
     graph = pipeline.workflow_graph()
     (jobs, dependencies, groups, root_groups,
-           root_jobs) = workflow_from_graph(graph, temp_subst_map)
+           root_jobs) = workflow_from_graph(graph, temp_subst_map,
+                                            transfer_map, study_config)
 
     restore_empty_filenames(temp_map)
 
