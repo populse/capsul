@@ -12,6 +12,7 @@
 A single available function:
 workflow = workflow_from_pipeline(pipeline)
 """
+import os
 from socket import getfqdn
 
 import soma_workflow.client as swclient
@@ -19,7 +20,7 @@ import soma_workflow.client as swclient
 from capsul.pipeline import Pipeline
 from capsul.process import Process
 from capsul.pipeline.topological_sort import Graph
-from traits.api import Directory, Undefined
+from traits.api import Directory, Undefined, File, Str
 
 
 def workflow_from_pipeline(pipeline, study_config={}):
@@ -44,7 +45,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
         # must inerit a string type since it is used as a trait value
         pass
 
-    def build_job(process, temp_map={}, transfer_map={}, study_config={}):
+    def build_job(process, temp_map={}, transfer_map={}, swf_paths=([], {})):
         """ Create a soma-workflow Job from a Capsul Process
 
         Parameters
@@ -56,7 +57,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
         transfer_map: dict (optional)
             file transders and shared translated paths.
             This dict is updated when needed during the process.
-        study_config: StudyConfig (optional), or dict
+        swf_paths: tuple of 2 items (optional)
             holds information about file transfers and shared resource paths.
             If not specified, no translation/transfers will be used.
 
@@ -68,14 +69,65 @@ def workflow_from_pipeline(pipeline, study_config={}):
         def _replace_in_list(rlist, temp_map):
             for i, item in enumerate(rlist):
                 if item in temp_map:
-                    process_cmdline[i] = temp_map[item]
+                    value = temp_map[item]
+                    if isinstance(value, list):
+                        # FileTransfer can have 2 values: input, output
+                        if value[0] is None:
+                            value = value[1]
+                        else:
+                            value = value[0]
+                    rlist[i] = value
                 elif isinstance(item, list) or isinstance(item, tuple):
                     deeperlist = list(item)
                     _replace_in_list(deeperlist, temp_map)
                     rlist[i] = deeperlist
 
-        def _translated_path(path, trait, transfer_map, study_config):
-            # TODO
+        def _files_group(path):
+            # TODO: handle formats
+            return [path]
+
+        def _translated_path(path, trait, transfer_map, swf_paths):
+            if path is None or path is Undefined \
+                    or (not swf_paths[0] and not swf_paths[1]) \
+                    or (not isinstance(trait.trait_type, File) \
+                    and not isinstance(trait.trait_type, Directory)):
+                return None # not a path
+            item = transfer_map.get(path)
+            output = not not trait.output # trait.output can be None
+            if item is not None:
+                # already in map
+                if isinstance(item, list):
+                    # FileTransfer, list for I / O
+                    item2 = item[output]
+                    if item2 is not None:
+                        return item2
+                    # must make an opposite I/O
+                    item2 = item[not output]
+                    item3 = item2.__class__(
+                        not output, path, item2.client_paths)
+                    item[output] = item3
+                    return item3
+                # SharedResourcePath in map
+                return item
+
+            transfer_paths, tranlate_paths = swf_paths
+            for base_dir in transfer_paths:
+                if path.startswith(base_dir + os.sep):
+                    item = swclient.FileTransfer(
+                        not output, path, _files_group(path))
+                    #print 'insert item:', path, item
+                    transfer_map.setdefault(path, [None, None])[output] \
+                        = item
+                    return item
+            for namespace, base_dir in tranlate_paths:
+                if path.startswith(base_dir + os.sep):
+                    rel_path = path[len(base_dir)+1:]
+                    uuid = path
+                    item = swclient.SharedResourcePath(
+                        rel_path, namespace, uuid=uuid)
+                    #print 'insert item:', path, item
+                    transfer_map[path] = item
+                    return item
             return None
 
         # Get the process command line
@@ -94,12 +146,12 @@ def workflow_from_pipeline(pipeline, study_config={}):
                         input_replaced_paths.append(temp_map[value])
                 else:
                     translated_path = _translated_path(
-                        value, parameter, transfer_map, study_config)
-                    if translated_path is not None:
+                        value, parameter, transfer_map, swf_paths)
+                    if isinstance(translated_path, swclient.FileTransfer):
                         if parameter.output:
-                        output_replaced_paths.append(translated_path)
-                    else:
-                        input_replaced_paths.append(translated_path)
+                            output_replaced_paths.append(translated_path)
+                        else:
+                            input_replaced_paths.append(translated_path)
 
         # and replace in commandline
         _replace_in_list(process_cmdline, temp_map)
@@ -176,8 +228,24 @@ def workflow_from_pipeline(pipeline, study_config={}):
               process = node
           setattr(process, plug_name, Undefined)
 
+    def _get_swf_paths(study_config):
+        computing_resource = getattr(
+            study_config, 'computing_resource', None)
+        if computing_resource is None:
+            return {}, {}
+        resources_conf = getattr(
+            study_config, 'computing_resources_config', None)
+        if resources_conf is None:
+            return {}, {}
+        resource_conf = getattr(resources_conf, computing_resource, None)
+        if resource_conf is None:
+            return {}, {}
+        return (
+            getattr(resource_conf, 'transfer_paths', {}),
+            getattr(resource_conf, 'path_translations', {}))
+
     def workflow_from_graph(graph, temp_map={}, transfer_map={},
-                            study_config={}):
+                            swf_paths=([], {})):
         """ Convert a CAPSUL graph to a soma-workflow workflow
 
         Parameters
@@ -189,6 +257,9 @@ def workflow_from_pipeline(pipeline, study_config={}):
         transfer_map: dict (optional)
             file transders and shared translated paths.
             This dict is updated when needed during the process.
+        swf_paths: tuple of 2 items (optional)
+            holds information about file transfers and shared resource paths.
+            If not specified, no translation/transfers will be used.
 
         Returns
         -------
@@ -215,7 +286,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
                     if (not isinstance(process, Pipeline) and
                             isinstance(process, Process)):
                         job = build_job(process, temp_map, transfer_map,
-                                        study_config)
+                                        swf_paths)
                         sub_jobs[process] = job
                         root_jobs[process] = job
                        #node.job = job
@@ -226,7 +297,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
             wf_graph = node.meta
             (sub_jobs, sub_deps, sub_groups, sub_root_groups,
                        sub_root_jobs) = workflow_from_graph(
-                          wf_graph, temp_map, transfer_map, study_config)
+                          wf_graph, temp_map, transfer_map, swf_paths)
             group = build_group(node_name,
                 sub_root_groups.values() + sub_root_jobs.values())
             groups[node.meta] = group
@@ -256,12 +327,13 @@ def workflow_from_pipeline(pipeline, study_config={}):
     temp_subst_list = [(x1, x2[0]) for x1, x2 in temp_map.iteritems()]
     temp_subst_map = dict(temp_subst_list)
     transfer_map = {}
+    swf_paths = _get_swf_paths(study_config)
 
     # Get a graph
     graph = pipeline.workflow_graph()
     (jobs, dependencies, groups, root_groups,
            root_jobs) = workflow_from_graph(graph, temp_subst_map,
-                                            transfer_map, study_config)
+                                            transfer_map, swf_paths)
 
     restore_empty_filenames(temp_map)
 
