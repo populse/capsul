@@ -115,17 +115,15 @@ def workflow_from_pipeline(pipeline, study_config={}):
                 if path.startswith(base_dir + os.sep):
                     item = swclient.FileTransfer(
                         not output, path, _files_group(path))
-                    #print 'insert item:', path, item
                     transfer_map.setdefault(path, [None, None])[output] \
                         = item
                     return item
-            for namespace, base_dir in tranlate_paths:
+            for namespace, base_dir in tranlate_paths.iteritems():
                 if path.startswith(base_dir + os.sep):
                     rel_path = path[len(base_dir)+1:]
                     uuid = path
                     item = swclient.SharedResourcePath(
                         rel_path, namespace, uuid=uuid)
-                    #print 'insert item:', path, item
                     transfer_map[path] = item
                     return item
             return None
@@ -232,16 +230,16 @@ def workflow_from_pipeline(pipeline, study_config={}):
         computing_resource = getattr(
             study_config, 'computing_resource', None)
         if computing_resource is None:
-            return {}, {}
+            return [], {}
         resources_conf = getattr(
             study_config, 'computing_resources_config', None)
         if resources_conf is None:
-            return {}, {}
+            return [], {}
         resource_conf = getattr(resources_conf, computing_resource, None)
         if resource_conf is None:
-            return {}, {}
+            return [], {}
         return (
-            getattr(resource_conf, 'transfer_paths', {}),
+            getattr(resource_conf, 'transfer_paths', []),
             getattr(resource_conf, 'path_translations', {}))
 
     def workflow_from_graph(graph, temp_map={}, transfer_map={},
