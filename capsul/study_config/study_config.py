@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 ##########################################################################
 # CAPSUL - Copyright (C) CEA, 2013
 # Distributed under the terms of the CeCILL-B license, as published by
@@ -21,32 +20,27 @@ else:
 logger = logging.getLogger(__name__)
 
 # Trait import
-from traits.trait_base import _Undefined
-from traits.api import Directory, File, Bool
-
-# Nipype import
-try:
-    import nipype.interfaces.matlab as matlab
-    from nipype.interfaces import spm
-except ImportError:
-    spm = None
-    matlab = None
+from traits.api import Directory, File, Bool, Instance
 
 # Soma import
 from soma.controller import Controller
+from soma.undefined import undefined
 
 # Capsul import
-from config_utils import find_spm, environment
 from capsul.pipeline import Pipeline
 from capsul.process import Process
 from run import _run_process
 from capsul.pipeline.pipeline_workflow import (
     workflow_from_pipeline, local_workflow_run)
 from capsul.pipeline.pipeline_nodes import IterativeNode
-try:
-    from run_with_cache import _joblib_run_process
-except ImportError:
-    _joblib_run_process = None
+
+# Import built-in configuration modules
+from config_modules.brainvisa_config import BrainVISAConfig
+from config_modules.fsl_config import FSLConfig
+from config_modules.matlab_config import MatlabConfig
+from config_modules.smartcaching_config import SmartCachingConfig
+from config_modules.somaworkflow_config import SomaWorkflowConfig
+from config_modules.spm_config import SPMConfig
 
 
 default_config = OrderedDict([
@@ -107,91 +101,55 @@ class StudyConfig(Controller):
     _use_fsl_changed
     """
 
-    def __init__(self, init_config=None):
+    default_modules = [BrainVISAConfig, FSLConfig, MatlabConfig, SmartCachingConfig, SomaWorkflowConfig, SPMConfig]
+    
+    input_directory = Directory(
+        undefined,
+        output=False,
+        desc="Parameter to set the study input directory")
+    
+    output_directory = Directory(
+        undefined,
+        desc="Parameter to set the study output directory",
+        output=False,
+        exists=True)
+    
+    generate_logging = Bool(
+        False,
+        output=False,
+        desc="Parameter to control the log generation")
+    
+    def __init__(self, init_config=None, modules=None):
         """ Initilize the StudyConfig class
 
         Parameters
         ----------
-        init_config: ordered dict (default None)
-            the structure that contain the default study configuration:
-            see the class attributes to build this structure.
+        modules: list of classes (default self.default_modules).
+            the configuration module classes that will be included in this 
+            study configuration.
         """
-        # Intern identifier
-        self.name = self.__class__.__name__
-
-        # If no configuration are passed as argument, used the default one
-        if init_config is None:
-            init_config = default_config
-
+        
         # Inheritance
         super(StudyConfig, self).__init__()
+        
+        # Create modules
+        if modules is None:
+            modules = self.default_modules
+        self.modules = tuple(config_class(self) for config_class in modules)
+        
+        # Intern identifier
+        self.name = self.__class__.__name__
 
         # Parameter that is incremented at each process execution
         self.process_counter = 1
 
-        # Add the study parameters
-        self.add_trait("input_directory", Directory(
-            _Undefined(),
-            output=False,
-            desc="Parameter to set the study input directory"))
-        self.add_trait("output_directory", Directory(
-            _Undefined(),
-            desc="Parameter to set the study output directory",
-            output=False,
-            exists=True))
-        self.add_trait("shared_directory", Directory(
-            _Undefined(),
-            output=False,
-            desc="Parameter to set the study shared directory",
-            exists=True))
-        self.add_trait("generate_logging", Bool(
-            False,
-            output=False,
-            desc="Parameter to control the log generation"))
-
-        # Add some dependencie parameters
-        self.add_trait("spm_directory", Directory(
-            _Undefined(),
-            output=False,
-            desc="Parameter to set the SPM directory",
-            exists=True))
-        self.add_trait("matlab_exec", File(
-            _Undefined(),
-            output=False,
-            desc="Parameter to set the Matlab command path",
-            exists=True))
-        self.add_trait("fsl_config", File(
-            _Undefined(),
-            output=False,
-            desc="Parameter to specify the fsl.sh path",
-            exists=True))
-        self.add_trait("spm_exec_cmd", File(
-            _Undefined(),
-            output=False,
-            desc="parameter to set the SPM standalone (MCR) command path",
-            exists=True))
-        self.add_trait("use_spm_mcr", Bool(
-            _Undefined(),
-            output=False,
-            desc=("Parameter to select way we execute SPM: the standalone "
-                  "or matlab version")))
-        self.add_trait("use_fsl", Bool(
-            _Undefined(),
-            output=False,
-            desc="Parameter to tell that we need to configure FSL"))
-
         # Set the caller
-        self.add_trait("use_soma_workflow", Bool(
-            False,
-            output=False,
-            desc="Parameter to choose soma woklow for the execution"))
-        self.add_trait("use_smart_caching", Bool(
-            False,
-            output=False,
-            desc="Parameter to use smart-caching during the execution"))
         self._caller = _run_process
 
         # Set the study configuration
+        # If no configuration are passed as argument, use the default one
+        if init_config is None:
+            init_config = default_config
         self.set_study_configuration(init_config)
 
     ####################################################################
@@ -432,129 +390,8 @@ class StudyConfig(Controller):
         else:
             return None
 
-    ####################################################################
-    # Trait callbacks
-    ####################################################################
 
-    def _use_smart_caching_changed(self, old_trait_value, new_trait_value):
-        """ Event to setup the apropriate caller.
-        """
-        # Try to set the smart caching caller
-        if new_trait_value:
-
-            # If the smart caching caller is not defined defined, raise
-            # an Exception
-            if _joblib_run_process is None:
-                raise Exception("The smart cahing caller is not defined, "
-                                "please investigate.")
-            self._caller = _joblib_run_process
-
-        # Set the standard caller
-        else:
-            self._caller = _run_process
-
-    def _use_spm_mcr_changed(self, old_trait_value, new_trait_value):
-        """ Event to setup SPM environment
-
-        We interact with spm through nipype. If the nipype spm interface
-        has not been imported properly, do nothing.
-
-        .. note :
-
-            If the path to the spm standalone binaries are not specified,
-            raise an exception.
-        """
-        # Set up standalone SPM version
-        if new_trait_value:
-
-            # To set up standalone SPM version, need the path to the
-            # binaries
-            if not isinstance(self.spm_exec_cmd, _Undefined):
-
-                # We interact with spm through nipype. If the spm
-                # interface has been imported properly, configure this
-                # interface
-                if spm is not None:
-                    spm.SPMCommand.set_mlab_paths(
-                        matlab_cmd=self.spm_exec_cmd + " run script",
-                        use_mcr=True)
-
-            # Otherwise raise an exception
-            else:
-                raise Exception(
-                    "No SPM execution command specified. "
-                    "It is impossible to configure spm stanalone version.")
-
-        # Setup the classical matlab spm version
-        else:
-
-            # We interact with spm through nipype. If the spm
-            # interface has been imported properly, configure this
-            # interface
-            if spm is not None:
-                spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)
-
-            # Need to set up the matlab path
-            if not isinstance(self.matlab_exec, _Undefined):
-
-                # If the smatlab interface has been imported properly,
-                # configure this interface
-                if matlab is not None:
-                    matlab.MatlabCommand.set_default_matlab_cmd(
-                        self.matlab_exec + " -nodesktop -nosplash")
-
-            # Otherwise raise an exception
-            else:
-                raise Exception(
-                    "No MATLAB binary specified. "
-                    "It is impossible to configure the matlab spm version.")
-
-            # Need to set up the spm path
-            # If the spm directory is not specified, try to find it
-            # automatically
-            if isinstance(self.spm_directory, _Undefined):
-                self.spm_directory = find_spm(self.matlab_exec)
-
-            # If the smatlab interface has been imported properly,
-            # configure this interface
-            if matlab is not None:
-                matlab.MatlabCommand.set_default_paths(self.spm_directory)
-
-    def _use_fsl_changed(self, new_trait_value):
-        """ Event tp setup FSL environment
-        """
-        # If the option is True
-        if new_trait_value:
-
-            # Get the fsl.sh path from the study configuration elements
-            fsl_config_file = self.get_trait_value("fsl_config")
-
-            # If the fsl.sh path has been defined
-            if not isinstance(fsl_config_file, _Undefined):
-
-                # Parse the fsl environment
-                envfsl = environment(fsl_config_file)
-                if (not envfsl["LD_LIBRARY_PATH"] in
-                   os.environ.get("LD_LIBRARY_PATH", [])):
-
-                    # Set the fsl environment
-                    for envname, envval in envfsl.iteritems():
-                        if envname in os.environ:
-                            if envname.startswith("FSL"):
-                                os.environ[envname] = envval
-                            else:
-                                os.environ[envname] += ":" + envval
-                        else:
-                            os.environ[envname] = envval
-
-            # Otherwise raise an exception
-            else:
-                raise Exception("No FSL configuration file specified. "
-                                "It is impossible to configure FSL.")
-
-
-if __name__ == "__main__":
-
+if __name__ == '__main__':
     # Test the configuration time
     import timeit
 
@@ -570,3 +407,4 @@ if __name__ == "__main__":
     study = StudyConfig(empty_config)
     toc = timeit.default_timer()
     print "Empty configuration done in  {0} s.".format(toc - tic)
+
