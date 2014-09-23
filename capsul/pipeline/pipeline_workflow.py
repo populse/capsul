@@ -17,7 +17,7 @@ from socket import getfqdn
 
 import soma_workflow.client as swclient
 
-from capsul.pipeline import Pipeline
+from capsul.pipeline import Pipeline, Switch
 from capsul.process import Process
 from capsul.pipeline.topological_sort import Graph
 from traits.api import Directory, Undefined, File, Str
@@ -44,6 +44,10 @@ def workflow_from_pipeline(pipeline, study_config={}):
         # class needed temporary to identify temporary paths in the pipeline.
         # must inerit a string type since it is used as a trait value
         pass
+
+    def _files_group(path):
+        # TODO: handle formats
+        return [path]
 
     def build_job(process, temp_map={}, transfer_map={}, swf_paths=([], {})):
         """ Create a soma-workflow Job from a Capsul Process
@@ -81,10 +85,6 @@ def workflow_from_pipeline(pipeline, study_config={}):
                     deeperlist = list(item)
                     _replace_in_list(deeperlist, temp_map)
                     rlist[i] = deeperlist
-
-        def _files_group(path):
-            # TODO: handle formats
-            return [path]
 
         def _translated_path(path, trait, transfer_map, swf_paths):
             if path is None or path is Undefined \
@@ -228,19 +228,77 @@ def workflow_from_pipeline(pipeline, study_config={}):
 
     def _get_swf_paths(study_config):
         computing_resource = getattr(
-            study_config, 'computing_resource', None)
+            study_config, 'somaworkflow_computing_resource', None)
         if computing_resource is None:
             return [], {}
         resources_conf = getattr(
-            study_config, 'computing_resources_config', None)
+            study_config, 'somaworkflow_computing_resources_config', None)
         if resources_conf is None:
             return [], {}
-        resource_conf = getattr(resources_conf, computing_resource, None)
+        resource_conf = resources_conf.get(computing_resource)
         if resource_conf is None:
             return [], {}
         return (
-            getattr(resource_conf, 'transfer_paths', []),
-            getattr(resource_conf, 'path_translations', {}))
+            resource_conf.get('transfer_paths', []),
+            resource_conf.get('path_translations', {}))
+
+    def _propagate_transfer(node, param, path, output, transfers,
+                            transfer_item):
+        plug = None
+        if isinstance(node, Switch):
+            if output:
+                # propagate to active input
+                input_param = node.switch + '_switch_' + param
+                plug = node.plugs[input_param]
+            else:
+                output_param = param[len(node.switch + '_switch_'):]
+                plug = node.plugs[output_param]
+        else:
+            process = node.process
+            if hasattr(process, 'nodes'):
+                # pipeline
+                plug = process.nodes[''].plugs.get(param)
+            else:
+                transfers[output].setdefault(process, {})[path] \
+                    = transfer_item
+                return
+
+        if plug is None or not plug.enabled or not plug.activated:
+            return
+        if output:
+            links = plug.links_from
+        else:
+            links = plug.links_to
+        for proc_name, param_name, node, plug, act in links:
+            if not node.activated or not node.enabled or not plug.activated \
+                    or not plug.enabled:
+                continue
+            _propagate_transfer(node, param_name, path, output, transfers,
+                                transfer_item)
+
+    def _get_transfers(pipeline, swf_paths):
+        in_transfers = {}
+        out_transfers = {}
+        transfers = [in_transfers, out_transfers]
+        for param, trait in pipeline.user_traits().iteritems():
+            if isinstance(trait.trait_type, File) \
+                    or isinstance(trait.trait_type, Directory):
+                # is value in paths
+                path = getattr(pipeline, param)
+                if path is None or path is Undefined:
+                    continue
+                for tpath in swf_paths[0]:
+                    output = bool(trait.output)
+                    if path.startswith(os.path.join(tpath, '')):
+                        transfer_item = swclient.FileTransfer(
+                            not output, path, _files_group(path))
+                        transfers[output].setdefault(pipeline, {})[path] \
+                            = transfer_item
+                        _propagate_transfer(pipeline.pipeline_node, param,
+                                            path, output, transfers,
+                                            transfer_item)
+                        break
+        return transfers
 
     def workflow_from_graph(graph, temp_map={}, transfer_map={},
                             swf_paths=([], {})):
@@ -326,6 +384,10 @@ def workflow_from_pipeline(pipeline, study_config={}):
     temp_subst_map = dict(temp_subst_list)
     transfer_map = {}
     swf_paths = _get_swf_paths(study_config)
+    #print 'swf_paths:', swf_paths
+
+    #transfers = _get_transfers(pipeline, swf_paths)
+    #print 'transfers:', transfers
 
     # Get a graph
     graph = pipeline.workflow_graph()
