@@ -7,7 +7,6 @@
 # for details.
 ##########################################################################
 
-from capsul.study_config.study_config2 import StudyConfig
 from soma.fom import AttributesToPaths, PathToAttributes
 from soma.application import Application
 
@@ -15,12 +14,12 @@ class StudyConfigFomManager(object):
 
     @staticmethod
     def check_and_update_foms(study_config):
-        study_config.internal_data.foms = {}
+        study_config.modules_data.foms = {}
         foms = (('input', study_config.input_fom),
             ('output', study_config.output_fom))
         for fom_type, fom_filename in foms:
             fom = Application().fom_manager.load_foms(fom_filename)
-            study_config.internal_data.foms[fom_type] = fom
+            study_config.modules_data.foms[fom_type] = fom
 
         StudyConfigFomManager.create_attributes_with_fom(study_config)
 
@@ -36,16 +35,16 @@ class StudyConfigFomManager(object):
         directories['input'] = study_config.input_directory
         directories['output'] = study_config.output_directory
 
-        study_config.internal_data.atp = {}
-        study_config.internal_data.pta = {}
+        study_config.modules_data.fom_atp = {}
+        study_config.modules_data.fom_pta = {}
 
-        for fom_type, fom in study_config.internal_data.foms.iteritems():
+        for fom_type, fom in study_config.modules_data.foms.iteritems():
             atp = AttributesToPaths(
                 fom,
                 selection={},
                 directories=directories,
                 prefered_formats=set((formats)))
-            study_config.internal_data.atp[fom_type] = atp
+            study_config.modules_data.fom_atp[fom_type] = atp
             pta = PathToAttributes(fom, selection={})
-            study_config.internal_data.pta[fom_type] = pta
+            study_config.modules_data.fom_pta[fom_type] = pta
 

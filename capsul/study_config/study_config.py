@@ -151,6 +151,10 @@ class StudyConfig(Controller):
         if init_config is None:
             init_config = default_config
         self.set_study_configuration(init_config)
+        # modules_data is a container for modules-specific internal data
+        # each module is encouraged to prefix its variables there by its
+        # module name
+        self.modules_data = Controller()
 
     ####################################################################
     # Methods

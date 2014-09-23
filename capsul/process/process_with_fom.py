@@ -10,7 +10,7 @@ from capsul.pipeline import Pipeline
 from soma.application import Application
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
-from capsul.study_config.study_config2 import StudyConfig
+from capsul.study_config.study_config import StudyConfig
 
 
 class ProcessWithFom(Controller):
@@ -103,10 +103,10 @@ class ProcessWithFom(Controller):
     def create_attributes_with_fom(self):
         """To get useful attributes by the fom"""
 
-        input_atp = self.study_config.internal_data.atp['input']
-        output_atp = self.study_config.internal_data.atp['output']
-        input_fom = self.study_config.internal_data.foms['input']
-        output_fom = self.study_config.internal_data.foms['output']
+        input_atp = self.study_config.modules_data.fom_atp['input']
+        output_atp = self.study_config.modules_data.fom_atp['output']
+        input_fom = self.study_config.modules_data.foms['input']
+        output_fom = self.study_config.modules_data.foms['output']
 
         #Get attributes in input fom
         process_attributes = set()
@@ -158,7 +158,7 @@ class ProcessWithFom(Controller):
     def find_attributes(self, value):
         """By the path, find value of attributes"""
 
-        pta = self.study_config.internal_data.pta['input']
+        pta = self.study_config.modules_data.fom_pta['input']
 
         # Extract the attributes from the first result returned by
         # parse_directory
@@ -218,10 +218,10 @@ class ProcessWithFom(Controller):
         if name is None:
             name = self.name
 
-        #input_fom = self.study_config.internal_data.foms['input']
-        output_fom = self.study_config.internal_data.foms['output']
-        input_atp = self.study_config.internal_data.atp['input']
-        output_atp = self.study_config.internal_data.atp['output']
+        #input_fom = self.study_config.modules_data.foms['input']
+        output_fom = self.study_config.modules_data.foms['output']
+        input_atp = self.study_config.modules_data.fom_atp['input']
+        output_atp = self.study_config.modules_data.fom_atp['output']
 
         # if process is a pipeline, create completions for its nodes and
         # sub-pipelines.
