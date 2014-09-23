@@ -49,7 +49,8 @@ def workflow_from_pipeline(pipeline, study_config={}):
         # TODO: handle formats
         return [path]
 
-    def build_job(process, temp_map={}, transfer_map={}, swf_paths=([], {})):
+    def build_job(process, temp_map={}, transfer_map={}, transfers=[{}, {}],
+                  swf_paths=([], {})):
         """ Create a soma-workflow Job from a Capsul Process
 
         Parameters
@@ -59,7 +60,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
         temp_map: dict (optional)
             temporary paths map.
         transfer_map: dict (optional)
-            file transders and shared translated paths.
+            file transfers and shared translated paths.
             This dict is updated when needed during the process.
         swf_paths: tuple of 2 items (optional)
             holds information about file transfers and shared resource paths.
@@ -110,7 +111,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
                 # SharedResourcePath in map
                 return item
 
-            transfer_paths, tranlate_paths = swf_paths
+            transfer_paths, tranlate_paths = [], swf_paths[1] # FIXME
             for base_dir in transfer_paths:
                 if path.startswith(base_dir + os.sep):
                     item = swclient.FileTransfer(
@@ -152,14 +153,19 @@ def workflow_from_pipeline(pipeline, study_config={}):
                             input_replaced_paths.append(translated_path)
 
         # and replace in commandline
+        iproc_transfers = transfers[0].get(process, {})
+        oproc_transfers = transfers[1].get(process, {})
+        proc_transfers = dict(iproc_transfers)
+        proc_transfers.update(oproc_transfers)
         _replace_in_list(process_cmdline, temp_map)
         _replace_in_list(process_cmdline, transfer_map)
+        _replace_in_list(process_cmdline, proc_transfers)
 
         # Return the soma-workflow job
         return swclient.Job(name=process.name,
             command=process_cmdline,
-            referenced_input_files=input_replaced_paths,
-            referenced_output_files=output_replaced_paths)
+            referenced_input_files=input_replaced_paths + iproc_transfers.values(),
+            referenced_output_files=output_replaced_paths + oproc_transfers.values())
 
     def build_group(name, jobs):
         """ Create a group of jobs
@@ -301,7 +307,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
         return transfers
 
     def workflow_from_graph(graph, temp_map={}, transfer_map={},
-                            swf_paths=([], {})):
+                            transfers=[{}, {}], swf_paths=([], {})):
         """ Convert a CAPSUL graph to a soma-workflow workflow
 
         Parameters
@@ -311,7 +317,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
         temp_map: dict (optional)
             temporary files to replace by soma_workflow TemporaryPath objects
         transfer_map: dict (optional)
-            file transders and shared translated paths.
+            file transfers and shared translated paths.
             This dict is updated when needed during the process.
         swf_paths: tuple of 2 items (optional)
             holds information about file transfers and shared resource paths.
@@ -342,7 +348,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
                     if (not isinstance(process, Pipeline) and
                             isinstance(process, Process)):
                         job = build_job(process, temp_map, transfer_map,
-                                        swf_paths)
+                                        transfers, swf_paths)
                         sub_jobs[process] = job
                         root_jobs[process] = job
                        #node.job = job
@@ -353,7 +359,8 @@ def workflow_from_pipeline(pipeline, study_config={}):
             wf_graph = node.meta
             (sub_jobs, sub_deps, sub_groups, sub_root_groups,
                        sub_root_jobs) = workflow_from_graph(
-                          wf_graph, temp_map, transfer_map, swf_paths)
+                          wf_graph, temp_map, transfer_map, transfers,
+                          swf_paths)
             group = build_group(node_name,
                 sub_root_groups.values() + sub_root_jobs.values())
             groups[node.meta] = group
@@ -384,16 +391,13 @@ def workflow_from_pipeline(pipeline, study_config={}):
     temp_subst_map = dict(temp_subst_list)
     transfer_map = {}
     swf_paths = _get_swf_paths(study_config)
-    #print 'swf_paths:', swf_paths
-
-    #transfers = _get_transfers(pipeline, swf_paths)
-    #print 'transfers:', transfers
+    transfers = _get_transfers(pipeline, swf_paths)
 
     # Get a graph
     graph = pipeline.workflow_graph()
     (jobs, dependencies, groups, root_groups,
            root_jobs) = workflow_from_graph(graph, temp_subst_map,
-                                            transfer_map, swf_paths)
+                                            transfer_map, transfers, swf_paths)
 
     restore_empty_filenames(temp_map)
 
