@@ -255,6 +255,23 @@ def workflow_from_pipeline(pipeline, study_config={}):
                                 transfer_item)
 
     def _get_transfers(pipeline, transfer_paths):
+        """ Create and list FileTransfer objects needed in the pipeline.
+
+        Parameters
+        ----------
+        pipeline: Pipeline
+            pipeline to build workflow for
+        transfer_paths: list
+            paths basedirs for translations from soma-worflow config
+
+        Return
+        ------
+            [in_transfers, out_transfers]
+            each of which is a dict: { Process: proc_dict }
+                proc_dict is a dict: { file_path : FileTransfer object }
+            FileTransfer objects are reused when referring to the same path used
+            from different processes within the pipeline.
+        """
         in_transfers = {}
         out_transfers = {}
         transfers = [in_transfers, out_transfers]
@@ -295,7 +312,8 @@ def workflow_from_pipeline(pipeline, study_config={}):
             File transfers dicts (input / ouput), indexed by process, then by
             file path.
         shared_paths: dict (optional)
-            holds information about shared resource paths.
+            holds information about shared resource paths from soma-worflow
+            section in study config.
             If not specified, no translation will be used.
 
         Returns
