@@ -6,7 +6,7 @@
 # for details.
 ##########################################################################
 
-from traits.api import Bool, Str
+from traits.api import Bool, Str, Undefined
 
 class FomConfig(object):
     def __init__(self, study_config):
@@ -14,7 +14,7 @@ class FomConfig(object):
             False,
             output=False,
             desc='Use File Organization Models for file parameters completion'))
-        study_config.add_trait('input_fom', Str(False, output=False,
+        study_config.add_trait('input_fom', Str(Undefined, output=False,
             desc='input FOM'))
-        study_config.add_trait('output_fom', Str(False, output=False,
+        study_config.add_trait('output_fom', Str(Undefined, output=False,
             desc='output FOM'))
