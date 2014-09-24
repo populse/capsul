@@ -5,7 +5,7 @@ from soma.gui.file_selection import FileAttributeSelection
 from soma.controller import trait_ids
 from capsul.process import get_process_instance
 from capsul.process.process_with_fom import ProcessWithFom
-from capsul.study_config.study_config2 import StudyConfig
+from capsul.study_config.study_config import StudyConfig
 from soma.gui.widget_controller_creation import ControllerWidget
 from functools import partial
 import os

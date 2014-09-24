@@ -31,7 +31,7 @@ class ProcessWithFom(Controller):
 
     ::
 
-        from capsul.study_config.study_config2 import StudyConfig
+        from capsul.study_config.study_config import StudyConfig
         from capsul.study_config.study_config_fom import StudyConfigFomManager
         study_config = StudyConfig()
         study_config.load('study_config.json')
@@ -49,7 +49,7 @@ class ProcessWithFom(Controller):
     process: Process instance (mandatory)
         the process (or piprline) to be associated with FOMS
     study_config: StudyConfig (mandatory)
-        config needed for FOMs, see capsul.study_config.study_config2
+        config needed for FOMs, see capsul.study_config.study_config
     name: string (optional)
         name of the process in the FOM dictionary. By default the
         process.name variable will be used.

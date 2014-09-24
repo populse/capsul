@@ -1,5 +1,5 @@
 from soma.qt_gui.qt_backend import QtGui, QtCore
-from capsul.study_config.study_config2 import StudyConfig
+from capsul.study_config.study_config import StudyConfig
 import glob
 import json
 import os

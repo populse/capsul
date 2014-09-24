@@ -7,7 +7,7 @@ from soma.gui.widget_controller_creation import ControllerWidget
 from capsul.qt_gui.pipeline.process_database_widget \
     import ProcessDatabaseWidget
 from soma.application import Application 
-from capsul.study_config.study_config2 import StudyConfig
+from capsul.study_config.study_config import StudyConfig
 from capsul.study_config.study_config_fom import StudyConfigFomManager
 from capsul.qt_gui.pipeline.process_with_fom_widget import ProcessWithFomWidget
 from capsul.qt_gui.pipeline.process_iteration_gui \
