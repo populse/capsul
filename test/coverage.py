@@ -68,7 +68,7 @@ def clean_coverage_report(nose_coverage):
         # Select modules
         if ((line.startswith("capsul.pipeline.") or
            line.startswith("capsul.process.") or
-           line.startswith("capsul.controller.") or
+           line.startswith("soma.controller.") or
            line.startswith("capsul.study_config.") or
            line.startswith("capsul.utils")) and header is not None):
 

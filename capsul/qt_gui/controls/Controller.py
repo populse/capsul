@@ -10,6 +10,7 @@
 # System import
 import logging
 import sys
+import os
 
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
@@ -23,6 +24,9 @@ try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
+QtCore.QResource.registerResource(os.path.join(os.path.dirname(
+    os.path.dirname(__file__)), 'resources', 'widgets_icons.rcc'))
 
 
 class ControllerControlWidget(object):
@@ -134,8 +138,9 @@ class ControllerControlWidget(object):
         layout.addWidget(resize_button)
         # Set the tool icons
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/nav_down")),
-                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(
+            _fromUtf8(":/capsul_widgets_icons/nav_down")),
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
         resize_button.setIcon(icon)
 
         # Create the associated controller widget
@@ -278,14 +283,16 @@ class ControllerControlWidget(object):
         # Hide the control
         if control_instance.isVisible():
             control_instance.hide()
-            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/nav_right")),
-                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            icon.addPixmap(
+                QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_right")),
+                QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         # Show the control
         else:
             control_instance.show()
-            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/nav_down")),
-                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            icon.addPixmap(
+                QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_down")),
+                QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         # Set the new button icon
         resize_button.setIcon(icon)

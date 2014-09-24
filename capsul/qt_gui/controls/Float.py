@@ -48,7 +48,11 @@ class FloatControlWidget(StrControlWidget):
 
         # Get the control current value: format the float string
         # Valid float strings are: +1, -1, 1, 1.1
-        control_value = control_instance.text().replace(".", "", 1)
+        control_text = control_instance.text()
+        if type(control_text) not in (str, unicode):
+            # old QString with PyQt API v1
+            control_text = unicode(control_text)
+        control_value = control_text.replace(".", "", 1)
         control_value = re.sub("^([-+])", "", control_value, count=1)
 
         # If the control value contains only digits, the control is valid and

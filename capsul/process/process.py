@@ -24,7 +24,7 @@ from traits.trait_base import _Undefined
 from traits.api import Directory, Undefined
 
 # Soma import
-from capsul.controller import Controller
+from soma.controller import Controller
 from soma.controller import trait_ids
 from soma.utils import LateBindingProperty
 

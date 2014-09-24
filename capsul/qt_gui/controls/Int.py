@@ -48,7 +48,11 @@ class IntControlWidget(StrControlWidget):
 
         # Get the control current value: format the int string
         # Valid int strings are: +1, -1, 1
-        control_value = re.sub("^([-+])", "", control_instance.text(), count=1)
+        control_text = control_instance.text()
+        if type(control_text) not in (str, unicode):
+            # old QString with PyQt API v1
+            control_text = unicode(control_text)
+        control_value = re.sub("^([-+])", "", control_text, count=1)
 
         # If the control value contains only digits, the control is valid and
         # the backgound color of the control is white

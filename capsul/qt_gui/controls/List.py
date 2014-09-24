@@ -8,6 +8,7 @@
 ##########################################################################
 
 # System import
+import os
 import logging
 from functools import partial
 
@@ -22,7 +23,6 @@ from soma.controller import Controller
 
 # Capsul import
 from capsul.qt_gui.controller_widget import ControllerWidget
-from capsul.qt_apps.resources import icones
 
 # Qt import
 try:
@@ -30,6 +30,8 @@ try:
 except AttributeError:
     _fromUtf8 = lambda s: s
 
+QtCore.QResource.registerResource(os.path.join(os.path.dirname(
+    os.path.dirname(__file__)), 'resources', 'widgets_icons.rcc'))
 
 class ListController(Controller):
     """ Dummy list controller to simplify the creation of a list widget
@@ -157,15 +159,15 @@ class ListControlWidget(object):
         layout.addWidget(delete_button)
         # Set the tool icons
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/add")),
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/add")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         add_button.setIcon(icon)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/delete")),
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/delete")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         delete_button.setIcon(icon)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/nav_down")),
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_down")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         resize_button.setIcon(icon)
 
@@ -668,13 +670,13 @@ class ListControlWidget(object):
         # Hide the control
         if control_instance.isVisible():
             control_instance.hide()
-            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/nav_right")),
+            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_right")),
                            QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         # Show the control
         else:
             control_instance.show()
-            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/nav_down")),
+            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_down")),
                            QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         # Set the new button icon
