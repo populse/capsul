@@ -20,7 +20,7 @@ import soma_workflow.client as swclient
 from capsul.pipeline import Pipeline, Switch
 from capsul.process import Process
 from capsul.pipeline.topological_sort import Graph
-from traits.api import Directory, Undefined, File, Str
+from traits.api import Directory, Undefined, File, Str, Any
 
 
 def workflow_from_pipeline(pipeline, study_config={}):
@@ -82,6 +82,29 @@ def workflow_from_pipeline(pipeline, study_config={}):
                     _replace_in_list(deeperlist, temp_map)
                     rlist[i] = deeperlist
 
+        def _replace_transfers(rlist, process, itransfers, otransfers):
+            param_name = None
+            i = 3
+            for item in rlist[3:]:
+                if param_name is None:
+                    param_name = item
+                else:
+                    transfer = itransfers.get(param_name)
+                    if transfer is None:
+                        transfer = otransfers.get(param_name)
+                    if transfer is not None:
+                        value = transfer[0]
+                        if isinstance(item, list) or isinstance(item, tuple):
+                            # TODO: handle lists of files [transfers]
+                            #deeperlist = list(item)
+                            #_replace_in_list(deeperlist, transfers)
+                            #rlist[i] = deeperlist
+                            print '*** LIST! ***'
+                        else:
+                            rlist[i] = value
+                    param_name = None
+                i += 1
+
         def _translated_path(path, trait, shared_map, shared_paths):
             if path is None or path is Undefined \
                     or not shared_paths \
@@ -124,19 +147,22 @@ def workflow_from_pipeline(pipeline, study_config={}):
         # and replace in commandline
         iproc_transfers = transfers[0].get(process, {})
         oproc_transfers = transfers[1].get(process, {})
-        proc_transfers = dict(iproc_transfers)
-        proc_transfers.update(oproc_transfers)
+        #proc_transfers = dict(iproc_transfers)
+        #proc_transfers.update(oproc_transfers)
         _replace_in_list(process_cmdline, temp_map)
         _replace_in_list(process_cmdline, shared_map)
-        _replace_in_list(process_cmdline, proc_transfers)
+        _replace_transfers(
+            process_cmdline, process, iproc_transfers, oproc_transfers)
 
         # Return the soma-workflow job
         return swclient.Job(name=process.name,
             command=process_cmdline,
             referenced_input_files
-                =input_replaced_paths + iproc_transfers.values(),
+                =input_replaced_paths \
+                    + [x[0] for x in iproc_transfers.values()],
             referenced_output_files
-                =output_replaced_paths + oproc_transfers.values())
+                =output_replaced_paths \
+                    + [x[0] for x in oproc_transfers.values()])
 
     def build_group(name, jobs):
         """ Create a group of jobs
@@ -221,37 +247,66 @@ def workflow_from_pipeline(pipeline, study_config={}):
 
     def _propagate_transfer(node, param, path, output, transfers,
                             transfer_item):
-        plug = None
-        if isinstance(node, Switch):
-            if output:
-                # propagate to active input
-                input_param = node.switch + '_switch_' + param
-                plug = node.plugs[input_param]
-            else:
-                output_param = param[len(node.switch + '_switch_'):]
-                plug = node.plugs[output_param]
-        else:
-            process = node.process
-            if hasattr(process, 'nodes'):
-                # pipeline
-                plug = process.nodes[''].plugs.get(param)
-            else:
-                transfers[output].setdefault(process, {})[path] \
-                    = transfer_item
-                return
-
-        if plug is None or not plug.enabled or not plug.activated:
-            return
-        if output:
-            links = plug.links_from
-        else:
-            links = plug.links_to
-        for proc_name, param_name, node, plug, act in links:
-            if not node.activated or not node.enabled or not plug.activated \
-                    or not plug.enabled:
+        todo_plugs = [(node, param, output)]
+        done_plugs = set()
+        while todo_plugs:
+            node, param, output = todo_plugs.pop()
+            plug = node.plugs[param]
+            is_pipeline = False
+            if plug is None or not plug.enabled or not plug.activated \
+                    or plug in done_plugs:
                 continue
-            _propagate_transfer(node, param_name, path, output, transfers,
-                                transfer_item)
+            done_plugs.add(plug)
+            if isinstance(node, Switch):
+                if output:
+                    # propagate to active input
+                    other_param = node.switch + '_switch_' + param
+                    #plug = node.plugs[input_param]
+                else:
+                    other_param = param[len(node.switch + '_switch_'):]
+                    #other_plug = node.plugs[other_param]
+                todo_plugs.append((node, other_param, not output))
+            else:
+                process = node.process
+                if hasattr(process, 'nodes'):
+                    is_pipeline = True
+                    #plug = process.nodes[''].plugs.get(param)
+                else:
+                    # process: replace its param
+                    # check trait type (must be File or Directory, not Any)
+                    trait = process.user_traits()[param]
+                    #plug = node.plugs[param]
+                    if isinstance(trait.trait_type, File) \
+                            or isinstance(trait.trait_type, Directory):
+                        transfers[bool(trait.output)].setdefault(process, {})[
+                            param] = (transfer_item, path)
+                    #output = not output # invert IO status
+
+            #if plug is None or not plug.enabled or not plug.activated \
+                    #or plug in done_plugs:
+                #continue
+            if output:
+                links = plug.links_to
+            else:
+                links = plug.links_from
+            for proc_name, param_name, node, other_plug, act in links:
+                if not node.activated or not node.enabled \
+                        or not other_plug.activated or not other_plug.enabled \
+                        or other_plug in done_plugs:
+                    continue
+                todo_plugs.append((node, param_name, not output))
+            if is_pipeline:
+                # in a pipeline node, go both directions
+                if output:
+                    links = plug.links_from
+                else:
+                    links = plug.links_to
+                for proc_name, param_name, node, plug, act in links:
+                    if not node.activated or not node.enabled \
+                            or not plug.activated or not plug.enabled \
+                            or plug in done_plugs:
+                        continue
+                    todo_plugs.append((node, param_name, output))
 
     def _get_transfers(pipeline, transfer_paths):
         """ Create and list FileTransfer objects needed in the pipeline.
@@ -276,7 +331,8 @@ def workflow_from_pipeline(pipeline, study_config={}):
         transfers = [in_transfers, out_transfers]
         for param, trait in pipeline.user_traits().iteritems():
             if isinstance(trait.trait_type, File) \
-                    or isinstance(trait.trait_type, Directory):
+                    or isinstance(trait.trait_type, Directory) \
+                    or type(trait.trait_type) is Any:
                 # is value in paths
                 path = getattr(pipeline, param)
                 if path is None or path is Undefined:
@@ -286,10 +342,10 @@ def workflow_from_pipeline(pipeline, study_config={}):
                     if path.startswith(os.path.join(tpath, '')):
                         transfer_item = swclient.FileTransfer(
                             not output, path, _files_group(path))
-                        transfers[output].setdefault(pipeline, {})[path] \
-                            = transfer_item
+                        #transfers[output].setdefault(pipeline, {})[path] \
+                            #= transfer_item
                         _propagate_transfer(pipeline.pipeline_node, param,
-                                            path, output, transfers,
+                                            path, not output, transfers,
                                             transfer_item)
                         break
         return transfers
