@@ -94,11 +94,10 @@ def workflow_from_pipeline(pipeline, study_config={}):
                 # already in map
                 return item
 
-            shared_paths
-            for namespace, base_dir in shared_paths.iteritems():
+            for base_dir, (namespace, uuid) in shared_paths.iteritems():
                 if path.startswith(base_dir + os.sep):
                     rel_path = path[len(base_dir)+1:]
-                    uuid = path
+                    #uuid = path
                     item = swclient.SharedResourcePath(
                         rel_path, namespace, uuid=uuid)
                     shared_map[path] = item
