@@ -45,9 +45,26 @@ def workflow_from_pipeline(pipeline, study_config={}):
         # must inerit a string type since it is used as a trait value
         pass
 
-    def _files_group(path):
-        # TODO: handle formats
-        return [path]
+    def _files_group(path, merged_formats):
+        for format, values in formats.iteritems():
+            merged_formats.update( values )
+        bname = os.path.basename(path)
+        l0 = len(path) - len(bname)
+        p0 = 0
+        paths = [path]
+        while True:
+            p = bname.find('.', p0)
+            if p < 0:
+                break
+            ext = bname[p:]
+            p0 = p + 1
+            format_def = merged_formats.get(ext)
+            if format_def:
+                path0 = path[:l0 + p]
+                paths += [path0 + e[0] for e in format_def]
+                break
+        paths.append(path + '.minf')
+        return paths
 
     def build_job(process, temp_map={}, shared_map={}, transfers=[{}, {}],
                   shared_paths={}):
@@ -308,7 +325,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
                         continue
                     todo_plugs.append((node, param_name, output))
 
-    def _get_transfers(pipeline, transfer_paths):
+    def _get_transfers(pipeline, transfer_paths, merged_formats):
         """ Create and list FileTransfer objects needed in the pipeline.
 
         Parameters
@@ -341,9 +358,9 @@ def workflow_from_pipeline(pipeline, study_config={}):
                     output = bool(trait.output)
                     if path.startswith(os.path.join(tpath, '')):
                         transfer_item = swclient.FileTransfer(
-                            not output, path, _files_group(path))
-                        #transfers[output].setdefault(pipeline, {})[path] \
-                            #= transfer_item
+                            is_input=not output,
+                            client_path=path,
+                            client_paths=_files_group(path, merged_formats))
                         _propagate_transfer(pipeline.pipeline_node, param,
                                             path, not output, transfers,
                                             transfer_item)
@@ -434,12 +451,25 @@ def workflow_from_pipeline(pipeline, study_config={}):
 
         return jobs, dependencies, groups, root_groups, root_jobs
 
+    # TODO: handle formats in a separate, centralized place
+    # formats: { name: ext_props }
+    #     ext_props: { ext: [dependent_exts] }
+    #     dependent_exts: (ext, mandatory)
+    formats = {
+        'NIFTI-1': {'.nii': [], '.img': [('.hdr', True)], '.nii.gz': []},
+        'GIS': {'.ima': [('.dim', True)]},
+        'GIFTI': {'.gii': []},
+        'MESH': {'.mesh': []},
+        'ARG': {'.arg': [('.data', False)]},
+    }
+    merged_formats = {}
+
     temp_map = assign_temporary_filenames(pipeline)
     temp_subst_list = [(x1, x2[0]) for x1, x2 in temp_map.iteritems()]
     temp_subst_map = dict(temp_subst_list)
     shared_map = {}
     swf_paths = _get_swf_paths(study_config)
-    transfers = _get_transfers(pipeline, swf_paths[0])
+    transfers = _get_transfers(pipeline, swf_paths[0], merged_formats)
 
     # Get a graph
     graph = pipeline.workflow_graph()
