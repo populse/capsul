@@ -75,6 +75,10 @@ class ScrollControllerWidget(QtGui.QScrollArea):
         # Set the controller widget in the scroll area
         self.setWidget(self.controller_widget)
 
+    def __del__(self):
+        # disconnect underlying ControllerWidget so that it can be deleted.
+        self.controller_widget.disconnect()
+
 
 class ControllerWidget(QtGui.QWidget):
     """ Class that create a widget to set the controller parameters.
