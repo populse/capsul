@@ -56,7 +56,29 @@ default_config = OrderedDict([
 class StudyConfig(Controller):
     """ Class to store the study parameters and processing options.
 
-    This in turn is used to evaluate a Process instance or a Pipeline
+    This in turn is used to evaluate a Process instance or a Pipeline.
+
+    StudyConfig has modules (see BrainVISAConfig, FSLConfig, MatlabConfig,
+    SmartCachingConfig, SomaWorkflowConfig, SPMConfig, FOMConfig).
+    Modules are initialized in the constructor, so their list has to be setup
+    before instantiating StudyConfig.
+
+    A default modules list is used when no modules are specified:
+    StudyConfig.default_modules
+
+    ::
+
+      from capsul.study_config import StudyConfig
+      from capsul.study_config.config_modules.fom_config import SPMConfig
+      from capsul.study_config.config_modules.fom_config import FomConfig
+
+      study_config = StudyConfig(modules=[SPMConfig, FomConfig])
+      # or:
+      study_config = StudyConfig(modules=StudyConfig.default_modules + [FomConfig])
+
+      study_file = '/home/bob/study_config.json'
+      study_config.update_study_configuration(study_file)
+
 
     Attributes
     ----------
@@ -96,9 +118,6 @@ class StudyConfig(Controller):
     set_trait_value
     get_trait
     get_trait_value
-    _use_smart_caching_changed
-    _use_spm_mcr_changed
-    _use_fsl_changed
     """
 
     default_modules = [BrainVISAConfig, FSLConfig, MatlabConfig, SmartCachingConfig, SomaWorkflowConfig, SPMConfig]
