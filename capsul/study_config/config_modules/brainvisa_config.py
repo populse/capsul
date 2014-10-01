@@ -6,8 +6,10 @@
 # for details.
 ##########################################################################
 
+import os
 from soma.undefined import undefined
 from traits.api import Directory
+from soma import config as soma_config
 
 class BrainVISAConfig(object):
     def __init__(self, study_config):
@@ -15,3 +17,7 @@ class BrainVISAConfig(object):
             undefined,
             output=False,
             desc='Study shared directory'))
+
+        study_config.shared_directory = os.path.join(
+            soma_config.BRAINVISA_SHARE, 'brainvisa-share-%s' \
+                % soma_config.short_version)
