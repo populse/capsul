@@ -203,7 +203,7 @@ class ProcessWithFom(Controller):
         self.process_completion(self.process, self.name)
 
 
-    def process_completion(self, process, name=None):
+    def process_completion(self, process, name=None, verbose=False):
         '''Completes the given process parameters according to the attributes
         set.
 
@@ -212,9 +212,12 @@ class ProcessWithFom(Controller):
         process: Process / Pipeline: (mandatory)
             process on which perform completion
         name: string (optional)
-            name under which the process will be sear'ched in the FOM. This
+            name under which the process will be searched in the FOM. This
             enables specialized used of otherwise generic processes in the
             context of a given pipeline
+        verbose: bool (optional)
+            issue warnings when a process cannot be found in the FOM list.
+            Default: False
         '''
         if name is None:
             name = self.name
@@ -245,9 +248,10 @@ class ProcessWithFom(Controller):
                         pname = '.'.join([name, node_name])
                         self.process_completion(subprocess, pname)
                     except Exception, e:
-                        print 'warning, node %s could not complete FOM' \
-                            % node_name
-                        print e
+                        if verbose:
+                            print 'warning, node %s could not complete FOM' \
+                                % node_name
+                            print e
 
         #Create completion
         names_search_list = (name, process.id, process.name)
