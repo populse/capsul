@@ -118,5 +118,12 @@ Functions
 
     study_config.StudyConfig
 
+:doc:`pipeline_tools`
+=====================
+
+.. autosummary::
+    :toctree: generated/capsul-pipeline_tools/
+    :template: function.rst
+
 
 

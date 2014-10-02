@@ -27,15 +27,16 @@ class ProcessWithFom(Controller):
         soma_app.plugin_modules.append( 'soma.fom' )
         soma_app.initialize()
 
-    * A StudyConfig also needs to be configured with selected FOMS and directories:
+    * A capsul.study_config.StudyConfig also needs to be configured with FOM module, and
+      selected FOMS and directories:
 
     ::
 
-        from capsul.study_config.study_config import StudyConfig
-        from capsul.study_config.study_config_fom import StudyConfigFomManager
-        study_config = StudyConfig()
-        study_config.load('study_config.json')
-        StudyConfigFomManager.check_and_update_foms(study_config)
+        from capsul.study_config import StudyConfig
+        from capsul.study_config.config_modules.fom_config import FomConfig
+        study_config = StudyConfig(modules=StudyConfig.default_modules + [FomConfig])
+        study_config.update_study_configuration('study_config.json')
+        FomConfig.check_and_update_foms(study_config)
 
     * Only then a ProcessWithFom can be created:
 
@@ -56,8 +57,8 @@ class ProcessWithFom(Controller):
 
     Methods
     -------
-    create_completion()
-    create_attributes_with_fom()
+    create_completion
+    create_attributes_with_fom
     """
     def __init__(self, process, study_config, name=None):
         super(ProcessWithFom, self).__init__()

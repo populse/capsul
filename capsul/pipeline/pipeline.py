@@ -40,16 +40,15 @@ from soma.sorted_dictionary import SortedDictionary
 
 
 class Pipeline(Process):
-    """ Pipeline containing Process nodes, and links between node
-    parameters.
+    """ Pipeline containing Process nodes, and links between node parameters.
 
     Attributes
     ----------
-    nodes : dict {node_name: node}
+    `nodes` : dict {node_name: node}
         a dictionary containing the pipline nodes and where the pipeline node name is ''
-    workflow_list : list
+    `workflow_list` : list
         a list of odered nodes that can be executed
-    workflow_repr : str
+    `workflow_repr` : str
         a string representation of the workflow list `<node_i>-><node_i+1>`
 
     Methods
@@ -67,11 +66,8 @@ class Pipeline(Process):
     parse_parameter
     find_empty_parameters
     count_items
-    _set_node_enabled
-    _run_process
     """
 
-    #
     selection_changed = Event()
 
     # By default nodes_activation trait is hidden in user interface. Changing
