@@ -24,6 +24,10 @@ class FomConfig(object):
             desc='output FOM'))
         study_config.add_trait('shared_fom', Str(Undefined, output=False,
             desc='shared data FOM'))
+        study_config.add_trait('volumes_format', Str(Undefined, output=False,
+            desc='Format used for volumes'))
+        study_config.add_trait('meshes_format', Str(Undefined, output=False,
+            desc='Format used for meshes'))
 
         # defaults
         study_config.input_fom = 'morphologist-auto-1.0'
@@ -50,7 +54,9 @@ class FomConfig(object):
         '''Create FOM completion data in study_config.modules_data
         '''
         formats = tuple(getattr(study_config, key) \
-            for key in study_config.user_traits() if key.startswith('format'))
+            for key in study_config.user_traits() \
+            if key.endswith('_format') \
+                and getattr(study_config, key) is not Undefined)
 
         directories = {}
         directories['spm'] = study_config.spm_directory
