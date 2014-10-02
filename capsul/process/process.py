@@ -59,14 +59,15 @@ class ProcessMeta(Controller.__metaclass__):
         # Complete the docstring
         docstring += [
             "",
-            "Type '{0}.help()' for a full description of "
+            "    Type '{0}.help()' for a full description of "
             "this process parameters.".format(name),
             "",
-            "Type '<{0}>.get_input_spec()' for a full description of "
+            "    Type '<{0}>.get_input_spec()' for a full description of "
             "this process input trait types.".format(name),
             "",
-            "Type '<{0}>.get_output_spec()' for a full description of "
+            "    Type '<{0}>.get_output_spec()' for a full description of "
             "this process output trait types.".format(name),
+            ""
         ]
 
         # Update the class docstring with the full process help
@@ -77,7 +78,8 @@ class ProcessMeta(Controller.__metaclass__):
 
 
 class Process(Controller):
-    """ A prosess is an atomic component that contains a processing.
+    """
+    A prosess is an atomic component that contains a processing.
 
     Attributes
     ----------
