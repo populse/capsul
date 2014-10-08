@@ -216,12 +216,16 @@ class Node(Controller):
         '''
         state = super(Node,self).__getstate__()
         state['_callbacks'] = state['_callbacks'].keys()
+        return state
      
     def __setstate__(self, state):
         '''Restore the callbacks that have been removed by __getstate__.
         '''
         state['_callbacks'] = dict((i,SomaPartial(self._value_callback,*i)) for i in state['_callbacks'])
-    
+        super(Node, self).__setstate__(state)
+        for callback_key, value_callback in self._callbacks.iteritems():
+            self.set_callback_on_plug(callback_key[0], value_callback)
+
     def set_callback_on_plug(self, plug_name, callback):
         """ Add an event when a plug change
 
@@ -863,3 +867,8 @@ class Switch(Node):
             self.__block_output_propagation = True
             setattr(self, output_plug_name, new)
             self.__block_output_propagation = False
+
+    def __setstate__(self, state):
+        self.__block_output_propagation = True
+        super(Switch, self).__setstate__(state)
+
