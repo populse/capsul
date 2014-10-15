@@ -16,6 +16,7 @@ import weakref
 from soma.qt_gui.qt_backend import QtCore, QtGui
 from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline import Switch, PipelineNode, IterativeNode
+from capsul.pipeline import pipeline_tools
 from capsul.process import get_process_instance, Process
 from soma.controller import Controller
 try:
@@ -1270,14 +1271,75 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         """ Event to open a sub-process/sub-pipeline controller
         """
         if self._allow_open_controller:
-            sub_view = QtGui.QScrollArea()
-            cwidget = ScrollControllerWidget(process, live=True)
-            cwidget.setParent(sub_view)
-            sub_view.setWidget(cwidget)
-            sub_view.setWidgetResizable(True)
-            sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            sub_view.setWindowTitle(node_name)
-            sub_view.show()
-            # set self.window() as QObject parent (not QWidget parent) to
-            # prevent the sub_view to close/delete immediately
-            QtCore.QObject.setParent(sub_view, self.window())
+            self.openPopupMenu(node_name, process)
+
+    def openProcessController(self):
+        sub_view = QtGui.QScrollArea()
+        process = self.scene.pipeline.nodes[self.current_node_name]
+        cwidget = ScrollControllerWidget(process, live=True)
+        cwidget.setParent(sub_view)
+        sub_view.setWidget(cwidget)
+        sub_view.setWidgetResizable(True)
+        sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        sub_view.setWindowTitle(self.current_node_name)
+        sub_view.show()
+        # set self.window() as QObject parent (not QWidget parent) to
+        # prevent the sub_view to close/delete immediately
+        QtCore.QObject.setParent(sub_view, self.window())
+
+    def openPopupMenu(self, node_name, process):
+        """ right-click popup menu for nodes
+        """
+        menu = QtGui.QMenu('Nodes handling', None)
+        node_name = unicode(node_name) # in case it is a QString
+        self.current_node_name = node_name
+        self.current_process = process
+        node = self.scene.pipeline.nodes[node_name]
+        controller_action = QtGui.QAction('open node controller', menu)
+        controller_action.triggered.connect(self.openProcessController)
+        menu.addAction(controller_action)
+
+        disable_action = QtGui.QAction('Enable/disable node', menu)
+        disable_action.setCheckable(True)
+        disable_action.setChecked(node.enabled)
+        disable_action.toggled.connect(self.enableNode)
+
+        disable_down_action = menu.addAction('Disable for downhill processing')
+        disable_down_action.triggered.connect(self.disable_downhill)
+
+        disable_up_action = menu.addAction('Disable for uphill processing')
+        disable_up_action.triggered.connect(self.disable_uphill)
+
+        disable_done_action = menu.addAction('Disable nodes with existing outputs')
+        disable_done_action.triggered.connect(self.disable_done_outputs)
+
+        reactivate_pipeline_action = menu.addAction('Reactivate disabed pipeline nodes')
+        reactivate_pipeline_action.triggered.connect(self.reactivate_pipeline)
+
+        reactivate_node_action = menu.addAction('Reactivate disabed pipeline node')
+        reactivate_node_action.triggered.connect(self.reactivate_node)
+
+        menu.addAction(disable_action)
+        menu.exec_(QtGui.QCursor.pos())
+        del self.current_node_name
+        del self.current_process
+
+    def enableNode(self, checked):
+        self.scene.pipeline.nodes[self.current_node_name].enabled = checked
+
+    def disable_downhill(self):
+        pipeline = self.scene.pipeline
+        pipeline_tools.disable_node_for_downhill_pipeline(pipeline, self.current_node_name)
+
+    def disable_uphill(self):
+        pipeline = self.scene.pipeline
+        pipeline_tools.disable_node_for_uphill_pipeline(pipeline, self.current_node_name)
+
+    def disable_done_outputs(self):
+        pipeline_tools.disable_nodes_with_existing_outputs(self.scene.pipeline)
+
+    def reactivate_pipeline(self):
+        pipeline_tools.reactivate_pipeline(self.scene.pipeline)
+
+    def reactivate_node(self):
+        pipeline_tools.reactivate_node(self.scene.pipeline, self.current_node_name)
