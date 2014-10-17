@@ -2,7 +2,7 @@ from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.application import Application
 from soma.gui.widget_controller_creation import ControllerWidget
 #import sys
-#if sys.version_info[:2] >= [2, 7]:
+#if sys.version_info[:2] >= (2, 7):
     #from collections import OrderedDict
 #else:
     #from soma.sorted_dictionary import SortedDictionary as OrderedDict
