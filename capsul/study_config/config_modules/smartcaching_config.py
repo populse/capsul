@@ -8,7 +8,7 @@
 
 from traits.api import Bool
 try:
-    from run_with_cache import _joblib_run_process
+    from capsul.study_config.run_with_cache import _joblib_run_process
 except ImportError:
     _joblib_run_process = None
 
