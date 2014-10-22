@@ -6,10 +6,7 @@
 # for details.
 ##########################################################################
 
-from traits.api import Directory, File, Bool
-
-from soma.undefined import undefined
-
+from traits.api import Directory, File, Bool, Undefined
 from capsul.study_config.config_utils import find_spm
 
 try:
@@ -22,17 +19,17 @@ except ImportError:
 class SPMConfig(object):
     def __init__(self, study_config):
         study_config.add_trait('spm_directory', Directory(
-            undefined,
+            Undefined,
             output=False,
             desc='Parameter to set the SPM directory',
             exists=True))
         study_config.add_trait('spm_exec_cmd', File(
-            undefined,
+            Undefined,
             output=False,
             desc='parameter to set the SPM standalone (MCR) command path',
             exists=True))
         study_config.add_trait('use_spm_mcr', Bool(
-            undefined,
+            Undefined,
             output=False,
             desc=('Parameter to select way we execute SPM: the standalone '
                   'or matlab version')))

@@ -20,11 +20,10 @@ else:
 logger = logging.getLogger(__name__)
 
 # Trait import
-from traits.api import Directory, File, Bool, Instance
+from traits.api import Directory, File, Bool, Instance, Undefined
 
 # Soma import
 from soma.controller import Controller
-from soma.undefined import undefined
 
 # Capsul import
 from capsul.pipeline import Pipeline
@@ -120,15 +119,16 @@ class StudyConfig(Controller):
     get_trait_value
     """
 
-    default_modules = [BrainVISAConfig, FSLConfig, MatlabConfig, SmartCachingConfig, SomaWorkflowConfig, SPMConfig]
+    default_modules = [FSLConfig, MatlabConfig, SmartCachingConfig,
+                       SomaWorkflowConfig, SPMConfig]
     
     input_directory = Directory(
-        undefined,
+        Undefined,
         output=False,
         desc="Parameter to set the study input directory")
     
     output_directory = Directory(
-        undefined,
+        Undefined,
         desc="Parameter to set the study output directory",
         output=False,
         exists=True)

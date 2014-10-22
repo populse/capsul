@@ -10,6 +10,7 @@ from traits.api import Bool, Str, Undefined
 from soma.fom import AttributesToPaths, PathToAttributes
 from soma.application import Application
 
+
 class FomConfig(object):
     '''FOM (File Organization Model) configuration module for StudyConfig
     '''

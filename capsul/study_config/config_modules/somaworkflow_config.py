@@ -8,6 +8,7 @@
 
 from traits.api import Bool, Str, Undefined, DictStrAny
 
+
 class SomaWorkflowConfig(object):
     def __init__(self, study_config):
         study_config.add_trait('use_soma_workflow', Bool(

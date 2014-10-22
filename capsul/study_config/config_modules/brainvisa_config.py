@@ -7,14 +7,16 @@
 ##########################################################################
 
 import os
-from soma.undefined import undefined
-from traits.api import Directory
-from soma import config as soma_config
+from traits.api import Directory, Undefined
+try:
+    from soma import config as soma_config
+except:
+    pass
 
 class BrainVISAConfig(object):
     def __init__(self, study_config):
         study_config.add_trait('shared_directory',Directory(
-            undefined,
+            Undefined,
             output=False,
             desc='Study shared directory'))
 

@@ -7,19 +7,19 @@
 ##########################################################################
 
 import os
-from traits.api import File, Bool
-from soma.undefined import undefined
+from traits.api import File, Bool, Undefined
 from capsul.study_config.config_utils import environment
+
 
 class FSLConfig(object):
     def __init__(self, study_config):
         study_config.add_trait('fsl_config', File(
-            undefined,
+            Undefined,
             output=False,
             desc='Parameter to specify the fsl.sh path',
             exists=True))
         study_config.add_trait('use_fsl', Bool(
-            undefined,
+            Undefined,
             output=False,
             desc='Parameter to tell that we need to configure FSL'))
 

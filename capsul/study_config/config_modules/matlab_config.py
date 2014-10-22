@@ -6,13 +6,13 @@
 # for details.
 ##########################################################################
 
-from soma.undefined import undefined
-from traits.api import File
+from traits.api import File, Undefined
+
 
 class MatlabConfig(object):
     def __init__(self, study_config):
         study_config.add_trait('matlab_exec', File(
-            undefined,
+            Undefined,
             output=False,
             desc='Matlab command path',
             exists=True))
