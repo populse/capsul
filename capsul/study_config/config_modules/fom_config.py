@@ -13,6 +13,8 @@ from soma.application import Application
 
 class FomConfig(object):
     '''FOM (File Organization Model) configuration module for StudyConfig
+
+    Note: FomConfig needs BrainVISAConfig to be part of StudyConfig modules.
     '''
     def __init__(self, study_config):
         study_config.add_trait('use_fom', Bool(

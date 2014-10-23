@@ -34,7 +34,6 @@ from capsul.pipeline.pipeline_workflow import (
 from capsul.pipeline.pipeline_nodes import IterativeNode
 
 # Import built-in configuration modules
-from config_modules.brainvisa_config import BrainVISAConfig
 from config_modules.fsl_config import FSLConfig
 from config_modules.matlab_config import MatlabConfig
 from config_modules.smartcaching_config import SmartCachingConfig

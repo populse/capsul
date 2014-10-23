@@ -3,6 +3,7 @@
 import unittest
 from capsul.study_config.study_config import StudyConfig
 from capsul.study_config.config_modules.fom_config import FomConfig
+from capsul.study_config.config_modules.brainvisa_config import BrainVISAConfig
 from soma.application import Application
 
 class TestStudyConfigFOM(unittest.TestCase):
@@ -26,7 +27,7 @@ class TestStudyConfigFOM(unittest.TestCase):
         soma_app.plugin_modules.append('soma.fom')
         soma_app.initialize()
         study_config = StudyConfig(
-            modules=StudyConfig.default_modules + [FomConfig])
+            modules=StudyConfig.default_modules + [BrainVISAConfig, FomConfig])
         study_config.set_study_configuration(initial_config)
         FomConfig.check_and_update_foms(study_config)
         self.assertTrue(hasattr(study_config.modules_data, 'foms'))

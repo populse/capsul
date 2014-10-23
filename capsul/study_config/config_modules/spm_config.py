@@ -54,7 +54,7 @@ class SPMConfig(object):
 
             # To set up standalone SPM version, need the path to the
             # binaries
-            if not self.study_config.spm_exec_cmd is not undefined:
+            if not self.study_config.spm_exec_cmd is not Undefined:
 
                 # We interact with spm through nipype. If the spm
                 # interface has been imported properly, configure this
@@ -80,7 +80,7 @@ class SPMConfig(object):
                 spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)
 
             # Need to set up the matlab path
-            if self.study_config.matlab_exec is not undefined:
+            if self.study_config.matlab_exec is not Undefined:
 
                 # If the smatlab interface has been imported properly,
                 # configure this interface
@@ -97,7 +97,7 @@ class SPMConfig(object):
             # Need to set up the spm path
             # If the spm directory is not specified, try to find it
             # automatically
-            if self.study_config.spm_directory is undefined:
+            if self.study_config.spm_directory is Undefined:
                 self.study_config.spm_directory = find_spm(self.study_config.matlab_exec)
 
             # If the smatlab interface has been imported properly,

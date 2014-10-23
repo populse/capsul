@@ -37,7 +37,7 @@ class FSLConfig(object):
             fsl_config_file = self.study_config.get_trait_value("fsl_config")
 
             # If the fsl.sh path has been defined
-            if fsl_config_file is not undefined:
+            if fsl_config_file is not Undefined:
 
                 # Parse the fsl environment
                 envfsl = environment(fsl_config_file)
