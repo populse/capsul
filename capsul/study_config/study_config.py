@@ -129,8 +129,7 @@ class StudyConfig(Controller):
     output_directory = Directory(
         Undefined,
         desc="Parameter to set the study output directory",
-        output=False,
-        exists=True)
+        output=False)
     
     generate_logging = Bool(
         False,
@@ -196,7 +195,26 @@ class StudyConfig(Controller):
 
             # Create soma workflow pipeline
             workflow = workflow_from_pipeline(process_or_pipeline)
-            local_workflow_run(process_or_pipeline.id, workflow)
+            controller, wf_id = local_workflow_run(process_or_pipeline.id,
+                                                   workflow)
+            workflow_status = controller.workflow_status(wf_id)
+            elements_status = controller.workflow_elements_status(wf_id)
+            # FIXME: it would be better if study_config does not require
+            # soma_workflow modules.
+            from soma_workflow import constants as swconstants
+            self.failed_jobs = [element for element in elements_status[0] \
+                if element[1] != swconstants.DONE \
+                    or element[3][0] != swconstants.FINISHED_REGULARLY]
+            # if execution was OK, delete the workflow
+            if workflow_status == swconstants.WORKFLOW_DONE \
+                    and len(self.failed_jobs) == 0:
+                controller.delete_workflow(wf_id)
+            else:
+                # something went wrong: return the controller and workflow id
+                # so that one can handle them if needed
+                # WARNING: return values not very consistent. We should find
+                # a better way to return the status.
+                return controller, wf_id
 
         # Use the local machine to execute the pipeline or process
         else:

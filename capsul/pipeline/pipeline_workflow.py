@@ -503,3 +503,4 @@ def local_workflow_run(workflow_name, workflow):
     controller = swclient.WorkflowController(localhost)
     wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name)
     swclient.Helper.wait_workflow(wf_id, controller)
+    return controller, wf_id
