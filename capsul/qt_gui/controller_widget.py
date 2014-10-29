@@ -26,7 +26,7 @@ class ScrollControllerWidget(QtGui.QScrollArea):
     """
 
     def __init__(self, controller, parent=None, name=None, live=False,
-                 hide_labels=False, filter_controls=False,
+                 hide_labels=False, select_controls=None,
                  disable_controller_widget=False):
         """ Method to initilaize the ScrollControllerWidget class.
 
@@ -46,9 +46,9 @@ class ScrollControllerWidget(QtGui.QScrollArea):
             controller values.
         hide_labels: bool (optional, default False)
             if True, don't show the labels associated with the controls
-        filter_controls: bool (optional, default False)
-            if True filter the controls by trait output type (ie, an input
-            control or an output control)
+        select_controls: str (optional, default None)
+            parameter to select specific conrtoller traits. Authorized options
+            are 'inputs' or 'outputs'.
         disable_controller_widget: bool (optional, default False)
             if True disable the controller widget.
         """
@@ -62,12 +62,8 @@ class ScrollControllerWidget(QtGui.QScrollArea):
         self.setFrameShape(QtGui.QFrame.StyledPanel)
 
         # Create the controller widget
-        if not filter_controls:
-            self.controller_widget = ControllerWidget(
-                controller, parent, name, live, hide_labels, None)
-        else:
-            self.controller_widget = ControllerWidget(
-                controller, parent, name, live, hide_labels, "inputs")
+        self.controller_widget = ControllerWidget(
+            controller, parent, name, live, hide_labels, select_controls)
 
         # Enable / disabled the controller widget
         self.controller_widget.setEnabled(not disable_controller_widget)

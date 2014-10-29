@@ -190,9 +190,14 @@ class CapsulMainWindow(MyQUiLoader):
             # Create on the fly in order to get the last status
             # ToDo: add callbacks
             if self.pipeline is not None:
-                board_widget = BoardWidget(
-                    self.pipeline, parent=self.ui.dockWidgetParameters,
-                    name="board")
+                # board_widget = BoardWidget(
+                #     self.pipeline, parent=self.ui.dockWidgetParameters,
+                #     name="board")
+                board_widget = ScrollControllerWidget(
+                    self.pipeline, name="outputs", live=True,
+                    hide_labels=False, select_controls="outputs",
+                    disable_controller_widget=True)
+                #board_widget.setEnabled(False)
                 self.ui.dockWidgetBoard.setWidget(board_widget)
 
             # Show the board widget
@@ -254,7 +259,7 @@ class CapsulMainWindow(MyQUiLoader):
         # Create the controller widget associated to the pipeline
         # controller
         pipeline_widget = ScrollControllerWidget(
-            self.pipeline, live=True, filter_controls=True)
+            self.pipeline, live=True, select_controls="inputs")
         self.ui.dockWidgetParameters.setWidget(pipeline_widget)
 
         # Add observer to refresh the run button
@@ -300,7 +305,7 @@ class CapsulMainWindow(MyQUiLoader):
         if isinstance(self.pipeline, IterativePipeline):
             is_iterative_pipeline = True
         pipeline_widget = ScrollControllerWidget(
-            self.pipeline, live=True, filter_controls=True,
+            self.pipeline, live=True, select_controls="inputs",
             disable_controller_widget=is_iterative_pipeline)
         self.ui.dockWidgetParameters.setWidget(pipeline_widget)
 
