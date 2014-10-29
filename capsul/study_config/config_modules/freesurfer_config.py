@@ -75,7 +75,7 @@ class FreeSurferConfig(object):
                 # Set the fs environment
                 for envname, envval in envfs.iteritems():
                     if envname in os.environ:
-                        if envname.startswith("FS"):
+                        if envname.startswith(("FS", "FREESURFER")):
                             os.environ[envname] = envval
                         else:
                             os.environ[envname] += ":" + envval
