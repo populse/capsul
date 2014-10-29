@@ -8,14 +8,20 @@
 ##########################################################################
 
 from __future__ import print_function
+import os
 import sys
 import unittest
+import socket
+import shutil
+import tempfile
+import StringIO
 from traits.api import File
 from capsul.study_config import StudyConfig
 from capsul.process import Process
 from capsul.pipeline import Pipeline
 from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline_workflow import workflow_from_pipeline
+from soma_workflow import configuration as swconfig
 
 
 class EchoProcess(Process):
@@ -147,9 +153,23 @@ class TestSomaWorkflow(unittest.TestCase):
         default_config = SortedDictionary(
             ("use_soma_workflow", True)
         )
+        # use a custom temporary soma-workflow dir to avoid concurrent
+        # access problems
+        tmpdb = tempfile.mkstemp('', prefix='soma_workflow')
+        os.close(tmpdb[0])
+        os.unlink(tmpdb[1])
+        self.soma_workflow_temp_dir = tmpdb[1]
+        os.mkdir(self.soma_workflow_temp_dir)
+        swf_conf = StringIO.StringIO('[%s]\nSOMA_WORKFLOW_DIR = %s\n' \
+            % (socket.gethostname(), tmpdb[1]))
+        swconfig.Configuration.search_config_path \
+            = staticmethod(lambda : swf_conf)
         self.study_config = StudyConfig(default_config)
         self.atomic_pipeline = MyAtomicPipeline()
         self.composite_pipeline = MyCompositePipeline()
+
+    def tearDown(self):
+        shutil.rmtree(self.soma_workflow_temp_dir)
 
     def test_atomic_dependencies(self):
         workflow = workflow_from_pipeline(self.atomic_pipeline)
