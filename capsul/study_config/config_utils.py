@@ -17,9 +17,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def environment(sh_file=None):
+def environment(sh_file=None, env={}):
     """ Function that return a dictionary containing the environment
-    needed a program (for instance FSL).
+    needed by a program (for instance FSL or FreeSurfer).
 
     In the configuration file, the variable are expected to be defined
     as 'VARIABLE_NAME=value'.
@@ -28,6 +28,8 @@ def environment(sh_file=None):
     ----------
     sh_file: str (mandatory)
         the path to the *.sh script used to set up the environment.
+    env: dict (optional, default empty)
+        the default environment used to parse the configuration sh file.
 
     Returns
     -------
@@ -37,8 +39,8 @@ def environment(sh_file=None):
     # Use sh commands and a string instead of a list since
     # we're using shell=True
     # Pass empty environment to get only the prgram variables
-    command = ". {0} ; /usr/bin/printenv".format(sh_file)
-    process = subprocess.Popen(command, shell=True, env={},
+    command = ["bash", "-c", ". '{0}' ; /usr/bin/printenv".format(sh_file)]
+    process = subprocess.Popen(command, env=env,
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
     if process.returncode != 0:

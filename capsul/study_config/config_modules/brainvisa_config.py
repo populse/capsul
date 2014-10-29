@@ -13,6 +13,7 @@ try:
 except:
     pass
 
+
 class BrainVISAConfig(object):
     def __init__(self, study_config):
         study_config.add_trait('shared_directory',Directory(

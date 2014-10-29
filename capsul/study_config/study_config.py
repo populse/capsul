@@ -45,6 +45,7 @@ default_config = OrderedDict([
     ("spm_directory", "/i2bm/local/spm8"),
     ("matlab_exec", "/neurospin/local/bin/matlab"),
     ("fsl_config", "/etc/fsl/4.1/fsl.sh"),
+    ("fs_config", "/i2bm/local/freesurfer/SetUpFreeSurfer.sh"),
     ("spm_exec_cmd", "/i2bm/local/bin/spm8"),
     ("use_spm_mcr", False),
     ("use_fsl", True)
@@ -168,7 +169,8 @@ class StudyConfig(Controller):
         if init_config is None:
             init_config = default_config
         self.set_study_configuration(init_config)
-        # modules_data is a container for modules-specific internal data
+
+        # 'modules_data' is a container for modules-specific internal data
         # each module is encouraged to prefix its variables there by its
         # module name
         self.modules_data = Controller()
