@@ -10,6 +10,8 @@
 # System import
 import os
 import unittest
+import sys
+from traits.api import Undefined
 
 # Capsul import
 from capsul.study_config.study_config import StudyConfig
@@ -25,6 +27,11 @@ class TestStudyConfigFsFsl(unittest.TestCase):
     def test_study_config_fs(self):
         study_config = StudyConfig(modules=[FreeSurferConfig])
         study_config.fs_config = "/i2bm/local/freesurfer/SetUpFreeSurfer.sh"
+        if not os.path.exists(study_config.fs_config) \
+                or not sys.platform.startswith('linux'):
+            # skip this test if FS is not available, or not running
+            # on linux (other systems may see this directory but cannot use it)
+            return
         study_config.use_fs = True
         for varname in ["FREESURFER_HOME", "FSF_OUTPUT_FORMAT", "MNI_DIR",
                         "FSFAST_HOME", "FMRI_ANALYSIS_DIR", "FUNCTIONALS_DIR",
@@ -34,6 +41,8 @@ class TestStudyConfigFsFsl(unittest.TestCase):
     def test_study_config_fsl(self):
         study_config = StudyConfig(modules=[FSLConfig])
         study_config.fsl_config = "/etc/fsl/4.1/fsl.sh"
+        if study_config.fsl_config is Undefined:
+            return # skip this test if FSL is not available
         study_config.use_fsl = True
         for varname in ["FSLDIR", "FSLOUTPUTTYPE", "FSLTCLSH", "FSLWISH",
                         "FSLREMOTECALL", "FSLLOCKDIR", "FSLMACHINELIST",
