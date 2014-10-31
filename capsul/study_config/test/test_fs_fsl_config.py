@@ -41,9 +41,9 @@ class TestStudyConfigFsFsl(unittest.TestCase):
     def test_study_config_fsl(self):
         study_config = StudyConfig(modules=[FSLConfig])
         study_config.fsl_config = "/etc/fsl/4.1/fsl.sh"
-        if study_config.fsl_config is Undefined:
-            return # skip this test if FSL is not available
         study_config.use_fsl = True
+        if not study_config.use_fsl:
+            return # skip this test if FSL is not available
         for varname in ["FSLDIR", "FSLOUTPUTTYPE", "FSLTCLSH", "FSLWISH",
                         "FSLREMOTECALL", "FSLLOCKDIR", "FSLMACHINELIST",
                         "FSLBROWSER"]:
