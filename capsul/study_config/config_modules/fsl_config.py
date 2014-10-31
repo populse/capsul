@@ -16,8 +16,7 @@ class FSLConfig(object):
         study_config.add_trait('fsl_config', File(
             Undefined,
             output=False,
-            desc='Parameter to specify the fsl.sh path',
-            exists=True))
+            desc='Parameter to specify the fsl.sh path'))
         study_config.add_trait('use_fsl', Bool(
             Undefined,
             output=False,
@@ -25,10 +24,18 @@ class FSLConfig(object):
 
         self.study_config = study_config
         self.study_config.on_trait_change(self._use_fsl_changed, 'use_fsl')
+        self.study_config.on_trait_change(self._fsl_config_changed,
+                                          'fsl_config')
 
-    
+    def _fsl_config_changed(self, new_trait_value):
+        """ Event to setup FSL environment
+        """
+        if new_trait_value is not Undefined:
+            if not os.path.exists(new_trait_value):
+                self.study_config.use_fsl = False
+
     def _use_fsl_changed(self, new_trait_value):
-        """ Event tp setup FSL environment
+        """ Event to setup FSL environment
         """
         # If the option is True
         if new_trait_value:
@@ -37,7 +44,8 @@ class FSLConfig(object):
             fsl_config_file = self.study_config.get_trait_value("fsl_config")
 
             # If the fsl.sh path has been defined
-            if fsl_config_file is not Undefined:
+            if fsl_config_file is not Undefined \
+                    and os.path.exists(fsl_config_file):
 
                 # Parse the fsl environment
                 envfsl = environment(fsl_config_file)
@@ -56,5 +64,6 @@ class FSLConfig(object):
 
             # Otherwise raise an exception
             else:
-                raise Exception("No FSL configuration file specified. "
+                self.study_config.use_fsl = False
+                raise Exception("No valid FSL configuration file specified. "
                                 "It is impossible to configure FSL.")
