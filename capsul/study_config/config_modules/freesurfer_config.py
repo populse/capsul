@@ -35,8 +35,7 @@ class FreeSurferConfig(object):
         study_config.add_trait("fs_config", File(
             Undefined,
             output=False,
-            desc="Parameter to specify the 'SetUpFreeSurfer.sh' path",
-            exists=True))
+            desc="Parameter to specify the 'SetUpFreeSurfer.sh' path"))
         study_config.add_trait("use_fs", Bool(
             Undefined,
             output=False,
@@ -61,7 +60,8 @@ class FreeSurferConfig(object):
             fs_config_file = self.study_config.get_trait_value("fs_config")
 
             # If the 'SetUpFreeSurfer.sh' path has been defined
-            if fs_config_file is not Undefined:
+            if fs_config_file is not Undefined \
+                    and os.path.exists(fs_config_file):
 
                 # Parse the fs environment: check if the 'FREESURFER_HOME'
                 # environment varibale is already set and use it to configure
