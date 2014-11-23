@@ -216,13 +216,15 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Build the new filtered tree control
         fill_treectrl(self.ui.menu_treectrl, self.pipeline_menu,
-                      self.ui.search.text().lower())
+                      self.ui.search.text())
 
     def onTreeSelectionChanged(self):
         """ Event to refresh the pipeline load button status.
         """
         # Get the cuurent item
         item = self.ui.menu_treectrl.currentItem()
+        if item is None:
+            return
 
         # Check if we have selected a pipeline in the tree and enable / disable
         # the load button
@@ -253,7 +255,9 @@ class CapsulMainWindow(MyQUiLoader):
         """
         # Get the pipeline instance from its string description
         item = self.ui.menu_treectrl.currentItem()
-        process_description = str(item.text(1) + "." + item.text(0))
+        description_list = [str(x) for x in [item.text(1), item.text(0)] \
+            if x!='']
+        process_description = '.'.join(description_list)
         self.pipeline = get_process_instance(process_description)
 
         # Create the controller widget associated to the pipeline

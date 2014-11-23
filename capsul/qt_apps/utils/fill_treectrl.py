@@ -54,10 +54,12 @@ def add_tree_nodes(parent_item, menu, match, parent_module=""):
         the parent module string description ('module.sub_module')
     """
     # Go through the current module sub modules
+    if match and match not in menu:
+        menu = {match: [match]}
     for module_name, child_modules in menu.iteritems():
 
         # Filtering: check if we need to add this module in the tree
-        if (match == "" or match in module_name.lower() or
+        if (match == "" or match in module_name or
            search_in_menu(child_modules, match)):
 
             # Add the module name to the tree control
@@ -104,11 +106,11 @@ def search_in_menu(menu, match):
 
         # Stop criteria
         if isinstance(child_modules, list):
-            return is_included or match in module_name.lower()
+            return is_included or match in module_name
 
         # Recursive search
         is_included = (
-            is_included or match in module_name.lower() or
+            is_included or match in module_name or
             search_in_menu(child_modules, match))
 
         # Stop criteria
