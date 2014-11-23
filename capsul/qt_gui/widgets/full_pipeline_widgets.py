@@ -916,7 +916,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         if isinstance(trait_type, traits.File) \
                 or isinstance(trait_type, traits.Directory) \
                 or isinstance(trait_type, traits.Any):
-            if value not in (None, traits.Undefined) and os.path.exists(value):
+            if self.is_existing_path(value):
                 msg += '''    <tr>
       <td></td>
       <td>existing path</td>
@@ -930,6 +930,13 @@ class PipelineScene(QtGui.QGraphicsScene):
 '''
         msg += '</table>'
         return msg
+
+    @staticmethod
+    def is_existing_path(value):
+        if value not in (None, traits.Undefined) \
+                and type(value) in (str, unicode) and os.path.exists(value):
+            return True
+        return False
 
     def plug_tooltip_text(self, node, name):
         if node.name in ('inputs', 'outputs'):
@@ -988,7 +995,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         if isinstance(trait_type, traits.File) \
                 or isinstance(trait_type, traits.Directory) \
                 or isinstance(trait_type, traits.Any):
-            if value not in (None, traits.Undefined) and os.path.exists(value):
+            if self.is_existing_path(value):
                 msg += '''    <tr>
       <td></td>
       <td>existing path</td>
@@ -1275,7 +1282,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     def openProcessController(self):
         sub_view = QtGui.QScrollArea()
-        process = self.scene.pipeline.nodes[self.current_node_name]
+        node_name = self.current_node_name
+        if node_name in ('inputs', 'outputs'):
+            node_name = ''
+        process = self.scene.pipeline.nodes[node_name]
+        if hasattr(process, 'process'):
+            process = process.process
         cwidget = ScrollControllerWidget(process, live=True)
         cwidget.setParent(sub_view)
         sub_view.setWidget(cwidget)
@@ -1294,6 +1306,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         node_name = unicode(node_name) # in case it is a QString
         self.current_node_name = node_name
         self.current_process = process
+        if node_name in ('inputs', 'outputs'):
+            node_name = ''
         node = self.scene.pipeline.nodes[node_name]
         controller_action = QtGui.QAction('open node controller', menu)
         controller_action.triggered.connect(self.openProcessController)
