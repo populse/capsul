@@ -164,7 +164,7 @@ class TestSomaWorkflow(unittest.TestCase):
             % (socket.gethostname(), tmpdb[1]))
         swconfig.Configuration.search_config_path \
             = staticmethod(lambda : swf_conf)
-        self.study_config = StudyConfig(default_config)
+        self.study_config = StudyConfig(init_config=default_config)
         self.atomic_pipeline = MyAtomicPipeline()
         self.composite_pipeline = MyCompositePipeline()
 

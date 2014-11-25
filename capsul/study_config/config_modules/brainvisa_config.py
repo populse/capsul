@@ -12,10 +12,11 @@ try:
     from soma import config as soma_config
 except:
     pass
+from capsul.study_config.study_config import StudyConfigModule
 
 
-class BrainVISAConfig(object):
-    def __init__(self, study_config):
+class BrainVISAConfig(StudyConfigModule):
+    def __init__(self, study_config, configuration):
         study_config.add_trait('shared_directory',Directory(
             Undefined,
             output=False,

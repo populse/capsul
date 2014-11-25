@@ -7,12 +7,13 @@
 ##########################################################################
 
 from traits.api import Bool, Str, Undefined, DictStrAny
+from capsul.study_config.study_config import StudyConfigModule
 
 
-class SomaWorkflowConfig(object):
-    def __init__(self, study_config):
+class SomaWorkflowConfig(StudyConfigModule):
+    def __init__(self, study_config, configuration):
         study_config.add_trait('use_soma_workflow', Bool(
-            False,
+            Undefined,
             output=False,
             desc='Use soma woklow for the execution'))
         study_config.add_trait('somaworkflow_computing_resource', Str(
@@ -22,6 +23,6 @@ class SomaWorkflowConfig(object):
         study_config.add_trait(
             'somaworkflow_computing_resources_config',
             DictStrAny(
-                {},
+                Undefined,
                 output=False,
                 desc='Soma-woklow computing resources configs'))

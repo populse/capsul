@@ -6,17 +6,18 @@
 # for details.
 ##########################################################################
 
-from traits.api import Bool
+from traits.api import Bool, Undefined
 try:
     from capsul.study_config.run_with_cache import _joblib_run_process
 except ImportError:
     _joblib_run_process = None
+from capsul.study_config.study_config import StudyConfigModule
 
 
-class SmartCachingConfig(object):
-    def __init__(self, study_config):
+class SmartCachingConfig(StudyConfigModule):
+    def __init__(self, study_config, configuration):
         study_config.add_trait('use_smart_caching', Bool(
-            False,
+            Undefined,
             output=False,
             desc='Use smart-caching during the execution'))
         self.study_config = study_config

@@ -20,7 +20,7 @@ else:
 logger = logging.getLogger(__name__)
 
 # Trait import
-from traits.api import Directory, File, Bool, Instance, Undefined
+from traits.api import Directory, File, Bool, Instance, String, Undefined
 
 # Soma import
 from soma.controller import Controller
@@ -33,23 +33,6 @@ from capsul.pipeline.pipeline_workflow import (
     workflow_from_pipeline, local_workflow_run)
 from capsul.pipeline.pipeline_nodes import IterativeNode
 
-# Import built-in configuration modules
-from config_modules.fsl_config import FSLConfig
-from config_modules.matlab_config import MatlabConfig
-from config_modules.smartcaching_config import SmartCachingConfig
-from config_modules.somaworkflow_config import SomaWorkflowConfig
-from config_modules.spm_config import SPMConfig
-
-
-default_config = OrderedDict([
-    ("spm_directory", "/i2bm/local/spm8"),
-    ("matlab_exec", "/neurospin/local/bin/matlab"),
-    ("fsl_config", "/etc/fsl/4.1/fsl.sh"),
-    ("fs_config", "/i2bm/local/freesurfer/SetUpFreeSurfer.sh"),
-    ("spm_exec_cmd", "/i2bm/local/bin/spm8"),
-    ("use_spm_mcr", False),
-    ("use_fsl", True)
-])
 
 
 class StudyConfig(Controller):
@@ -60,23 +43,23 @@ class StudyConfig(Controller):
     StudyConfig has modules (see BrainVISAConfig, FSLConfig, MatlabConfig,
     SmartCachingConfig, SomaWorkflowConfig, SPMConfig, FOMConfig).
     Modules are initialized in the constructor, so their list has to be setup
-    before instantiating StudyConfig.
+    before instantiating StudyConfig. A default modules list is used when no 
+    modules are specified: StudyConfig.default_modules
 
-    A default modules list is used when no modules are specified:
-    StudyConfig.default_modules
-
+    StudyConfig configuration is loaded from a global file and then from a
+    study specific file (based on study_name parameter). The global
+    configuration file name is either in os.environ['CAPSUL_CONFIG'] or
+    in "~/.config/capsul/config.json". The study specific configuration
+    file name is either defined in the global configuration or in
+    "~/.config/capsul/<study_name>/config.json".
     ::
 
       from capsul.study_config import StudyConfig
-      from capsul.study_config.config_modules.fom_config import SPMConfig
-      from capsul.study_config.config_modules.fom_config import FomConfig
 
-      study_config = StudyConfig(modules=[SPMConfig, FomConfig])
+      study_config = StudyConfig(modules=['SPMConfig', 'FomConfig'])
       # or:
-      study_config = StudyConfig(modules=StudyConfig.default_modules + [FomConfig])
+      study_config = StudyConfig(modules=StudyConfig.default_modules + ['FomConfig'])
 
-      study_file = '/home/bob/study_config.json'
-      study_config.update_study_configuration(study_file)
 
 
     Attributes
@@ -85,27 +68,8 @@ class StudyConfig(Controller):
         parameter to set the study input directory
     `output_directory` : str
         parameter to set the study output directory
-    `shared_directory` : dict (default None)
-        parameter to set the study shared directory
     `generate_logging` : bool (default False)
         parameter to control the log generation
-    `spm_directory` : str
-        parameter to set the SPM directory
-    `matlab_exec` : str
-        parameter to set the Matlab command path
-    `fsl_config` : str
-        parameter to specify the fsl.sh path
-    `spm_exec_cmd` : bool (default False)
-        parameter to set the SPM standalone (MCR) command path
-    `use_spm_mcr` : bool
-        parameter to select way we execute SPM: the standalone or matlab
-        version
-    `use_fsl` : bool
-        parameter to tell that we need to configure FSL
-    `use_smart_caching` : bool (default False)
-        parameter to use smart-caching during the execution
-    `use_soma_workflow` : bool (default False)
-        parameter to choose soma woklow for the execution
 
     Methods
     -------
@@ -119,42 +83,120 @@ class StudyConfig(Controller):
     get_trait_value
     """
 
-    default_modules = [FSLConfig, MatlabConfig, SmartCachingConfig,
-                       SomaWorkflowConfig, SPMConfig]
+    default_modules = ['FSLConfig', 'MatlabConfig', 'SmartCachingConfig',
+                       'SomaWorkflowConfig', 'SPMConfig']
+    _user_config_directory = "~/.config/capsul"
     
+    study_name = String(
+        None,
+        desc="Name of the study to configure",
+        # traits with transient=True will not be saved in configuration
+        # see  http://code.enthought.com/projects/traits/docs/html/traits_user_manual/advanced.html#pickling-hastraits-objects
+        transient=True)
+
     input_directory = Directory(
         Undefined,
-        output=False,
         desc="Parameter to set the study input directory")
     
     output_directory = Directory(
         Undefined,
-        desc="Parameter to set the study output directory",
-        output=False)
+        desc="Parameter to set the study output directory")
     
     generate_logging = Bool(
         False,
-        output=False,
         desc="Parameter to control the log generation")
     
-    def __init__(self, init_config=None, modules=None):
+    automatic_configuration = Bool(
+        False,
+        desc="If True, tries to automatically setup configuration on startup")
+
+    def __init__(self, study_name=None, init_config=None, modules=None, **override_config):
         """ Initilize the StudyConfig class
 
         Parameters
         ----------
-        modules: list of classes (default self.default_modules).
-            the configuration module classes that will be included in this 
+        study_name: Name of the study to configure. This name is used to
+            identify specific configuration for a study.
+        init_config: if not None, must contain a dictionary that will be used
+            to configure this StudyConfig (instead of reading configuration
+            from configuration files).
+        modules: list of string (default self.default_modules).
+            the names of configuration module classes that will be included in this 
             study configuration.
+        override_config: dictionary
+            The content of these keyword parameters will be set on the 
+            configuration after it has been initialized from configuration 
+            files (or from init_config).
         """
         
         # Inheritance
         super(StudyConfig, self).__init__()
         
+        if study_name:
+            self.study_name = study_name
+        
+        # Read the configuration for the given study
+        if init_config is None:
+            config = self.read_configuration()
+            config.update(override_config)
+        else:
+            self.global_config_file = None
+            self.study_config_file = None
+            if override_config:
+                config = init_config.copy()
+                config.update(override_config)
+            else:
+                config = init_config
+        
         # Create modules
         if modules is None:
-            modules = self.default_modules
-        self.modules = tuple(config_class(self) for config_class in modules)
+            # Make it possible for a study to define its own set of modules
+            modules = config.pop('config_modules', self.default_modules)
+            
+        # 'modules_data' is a container for modules-specific internal data
+        # each module is encouraged to prefix its variables there by its
+        # module name
+        self.modules_data = Controller()
         
+        self.modules = {}
+        for module in modules:
+            self.load_module(module, config)
+        
+        # Set self attributes according to configuration values
+        for k, v in config.iteritems():
+            setattr(self, k, v)
+        self.initialize_modules()
+        
+        
+    def initialize_modules(self):
+        """
+        Modules initialization, calls initialize_module on each config module.
+        This is not done during module instanciation to allow interactions
+        between modules (e.g. Matlab configuration can influence Nipype
+        configuration). Modules dependencies are taken into account in 
+        initialization.
+        """
+        already_initialized = set()
+        # Use a stack to allow to manage module dependencies
+        stack = self.modules.keys()
+        while stack:
+            module_name = stack.pop(0)
+            if module_name in already_initialized:
+                continue
+            module = self.modules.get(module_name)
+            if not module:
+                raise EnvironmentError('Required StudyConfig module %s is '
+                                       'missing' % module_name)
+            # Check if there are dependent modules that must be initilaized
+            # before the current one
+            initialize_first = [m for m in module.dependencies if m not in already_initialized]
+            if initialize_first:
+                stack = initialize_first + [module_name] + stack
+                continue
+            # Intitialize a module
+            module.initialize_module(self)
+            already_initialized.add(module_name)
+
         # Intern identifier
         self.name = self.__class__.__name__
 
@@ -164,21 +206,30 @@ class StudyConfig(Controller):
         # Set the caller
         self._caller = _run_process
 
-        # Set the study configuration
-        # If no configuration are passed as argument, use the default one
-        if init_config is None:
-            init_config = default_config
-        self.set_study_configuration(init_config)
 
-        # 'modules_data' is a container for modules-specific internal data
-        # each module is encouraged to prefix its variables there by its
-        # module name
-        self.modules_data = Controller()
 
     ####################################################################
     # Methods
     ####################################################################
 
+    def load_module(self, config_module_name, config):
+        """
+        Load an optional StudyConfig module.
+        
+        Parameters
+        ----------
+        config_module_name: Name of the module to load (e.g. "FSLConfig").
+        config: dictionary containing the configuration of the study.
+        """
+        if config_module_name not in self.modules:
+            python_module = 'capsul.study_config.config_modules.%s_config' % \
+                        config_module_name[:-6].lower()
+            python_module = __import__(python_module, fromlist=[config_module_name])
+            config_module_class = getattr(python_module, config_module_name)
+            module = config_module_class(self, config)
+            self.modules[config_module_name] = module
+            return module
+    
     def run(self, process_or_pipeline, executer_qc_nodes=False):
         """ Method to execute a process or a pipline in a study
         configuration environment.
@@ -295,21 +346,99 @@ class StudyConfig(Controller):
         """
         self.process_counter = 1
 
-    def save_study_configuration(self, json_fname):
+    def read_configuration(self):
+        """Find the configuration for the current study (whose name is defined 
+        in self study_name) and returns a dictionary that is a merge between
+        global options and study specific options.
+        
+        Global option are taken from environment variable CAPSUL_CONFIG if
+        it is defined, otherwise from "~/.config/capsul/config.json" if it
+        exists.
+        
+        The configuration for a study can be defined the global configuration
+        if it contains a dictionary in it "studies_config" option and if there
+        is a key corresponding to self.study_name in this dictionary. If the
+        corresponding value is a string, it must be a valid json configuration
+        file name (either absolute or relative to the global configuration
+        file). Otherwise, the corresponding value must be a dictionary
+        containing study specific configuration values.
+        If no study configuration is found from global configuration, then
+        a file named "~/.config/capsul/%s/config.json" (where %s is 
+        self.study_name) is used if it exists.
+        """
+        
+        # First read global options
+        global_config_file = os.environ.get("CAPSUL_CONFIG")
+        if global_config_file:
+            config = json.load(open(global_config_file))
+            self.global_config_file = global_config_file
+        else:
+            global_config_file = \
+                os.path.expanduser(os.path.join(self._user_config_directory,
+                                                "config.json"))
+            if os.path.exists(global_config_file):
+                config = json.load(open(global_config_file))
+                self.global_config_file = global_config_file
+            else:
+                config = {}
+                self.global_config_file = None
+        
+        # Look for study specific configuration file
+        study_config = \
+            config.pop('studies_config', {}).get(self.study_name)
+        if isinstance(study_config, basestring):
+            if self.global_config_file:
+                study_config = \
+                    os.path.join(os.path.dirname(self.global_config_file),
+                                 study_config)
+            self.study_config_file = study_config
+            study_config = json.load(open(study_config))
+        elif study_config is None:
+            study_config_file = \
+                os.path.expanduser(os.path.join(self._user_config_directory,
+                "%s/config.json") % str(self.study_name))
+            if os.path.exists(study_config_file):
+                study_config = json.load(open(study_config_file))
+                self.study_config_file = study_config_file
+            else:
+                study_config = {}
+                self.study_config_file = None
+        else:
+                self.study_config_file = self.global_config_file
+                    
+        # Merge study configuration file with global configuration
+        config.update(study_config)
+        
+        return config
+        
+    def get_configuration_dict(self):
+        """ Returns a json compatible dictionary containing current
+        configuration.
+        """
+        config = {}
+        for attribute, trait in self.user_traits().iteritems():
+            if trait.transient:
+                continue
+            value = getattr(self, attribute)
+            if value is Undefined:
+                continue
+            config[attribute] = value
+        return config
+
+    def save_configuration(self, file):
         """ Save study configuration as json file.
 
         Parameters
         ----------
-        json_fname: str (mandatory)
-            the path to the output json file.
+        file: file or str (mandatory)
+            either a writable opened file or the path to the output json file.
         """
         # Dump the study configuration elements
-        json_string = json.dumps(
-            self.user_traits(), indent=4, separators=(",", ": "))
-
-        # Write the dumped the study configuration elements
-        with open(json_fname, "w") as f:
-            f.write(unicode(json_string))
+        config = self.get_configuration_dict()
+        if isinstance(file, basestring):
+            file = open(file, "w")
+        json.dump(config, file,
+                  indent=4, separators=(",", ": "))
 
     def update_study_configuration(self, json_fname):
         """ Update the study configuration from a json file.
@@ -431,6 +560,24 @@ class StudyConfig(Controller):
             return getattr(self, trait_name)
         else:
             return None
+
+            
+class StudyConfigModule(object):
+    @property
+    def name(self):
+        """The name of a module that can be used in configuration to select 
+        modules to load.
+        """
+        return self.__class__.__name__
+    
+    # List of modules that must be initialized before this one. It can be 
+    # overrriden be derived module classes.
+    dependencies = []
+    
+    def initialize_module(self, study_config):
+        """Method called to initialize selected study configuration modules
+        on startup. This method does nothing but can be overriden by modules.
+        """
 
 
 if __name__ == '__main__':

@@ -15,8 +15,6 @@ from traits.api import Undefined
 
 # Capsul import
 from capsul.study_config.study_config import StudyConfig
-from capsul.study_config.config_modules.freesurfer_config import FreeSurferConfig
-from capsul.study_config.config_modules.fsl_config import FSLConfig
 
 
 class TestStudyConfigFsFsl(unittest.TestCase):
@@ -25,13 +23,14 @@ class TestStudyConfigFsFsl(unittest.TestCase):
         pass
 
     def test_study_config_fs(self):
-        study_config = StudyConfig(modules=[FreeSurferConfig])
-        study_config.fs_config = "/i2bm/local/freesurfer/SetUpFreeSurfer.sh"
-        if not os.path.exists(study_config.fs_config) \
+        freesurfer_config = "/i2bm/local/freesurfer/SetUpFreeSurfer.sh"
+        if not os.path.exists(freesurfer_config) \
                 or not sys.platform.startswith('linux'):
             # skip this test if FS is not available, or not running
             # on linux (other systems may see this directory but cannot use it)
             return
+        study_config = StudyConfig(modules=['FreeSurferConfig'])
+        study_config.freesurfer_config = freesurfer_config
         study_config.use_fs = True
         for varname in ["FREESURFER_HOME", "FSF_OUTPUT_FORMAT", "MNI_DIR",
                         "FSFAST_HOME", "FMRI_ANALYSIS_DIR", "FUNCTIONALS_DIR",
@@ -39,15 +38,17 @@ class TestStudyConfigFsFsl(unittest.TestCase):
             self.assertTrue(os.environ.get(varname) is not None)
 
     def test_study_config_fsl(self):
-        study_config = StudyConfig(modules=[FSLConfig])
-        study_config.fsl_config = "/etc/fsl/4.1/fsl.sh"
-        study_config.use_fsl = True
-        if not study_config.use_fsl:
-            return # skip this test if FSL is not available
-        for varname in ["FSLDIR", "FSLOUTPUTTYPE", "FSLTCLSH", "FSLWISH",
-                        "FSLREMOTECALL", "FSLLOCKDIR", "FSLMACHINELIST",
-                        "FSLBROWSER"]:
-            self.assertTrue(os.environ.get(varname) is not None)
+        fsl_h = "/etc/fsl/4.1/fsl.sh"
+        if os.path.exists(fsl_h):
+            study_config = StudyConfig(modules=['FSLConfig'],
+                fsl_config = fsl_h)
+            if not study_config.use_fsl:
+                return # skip this test if FSL is not available
+            for varname in ["FSLDIR", "FSLOUTPUTTYPE", "FSLTCLSH", "FSLWISH",
+                            "FSLREMOTECALL", "FSLLOCKDIR", "FSLMACHINELIST",
+                            "FSLBROWSER"]:
+                self.assertTrue(os.environ.get(varname) is not None, 
+                                 '%s environment variable not set' % varname)
 
 
 def test():

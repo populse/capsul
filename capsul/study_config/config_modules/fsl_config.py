@@ -9,10 +9,11 @@
 import os
 from traits.api import File, Bool, Undefined
 from capsul.study_config.config_utils import environment
+from capsul.study_config.study_config import StudyConfigModule
 
 
-class FSLConfig(object):
-    def __init__(self, study_config):
+class FSLConfig(StudyConfigModule):
+    def __init__(self, study_config, configuration):
         study_config.add_trait('fsl_config', File(
             Undefined,
             output=False,
@@ -22,48 +23,51 @@ class FSLConfig(object):
             output=False,
             desc='Parameter to tell that we need to configure FSL'))
 
-        self.study_config = study_config
-        self.study_config.on_trait_change(self._use_fsl_changed, 'use_fsl')
-        self.study_config.on_trait_change(self._fsl_config_changed,
-                                          'fsl_config')
 
-    def _fsl_config_changed(self, new_trait_value):
-        """ Event to setup FSL environment
+    def initialize_module(self, study_config):
+        """ Set up FSL environment variables according to current
+        configuration.
         """
-        if new_trait_value is not Undefined:
-            if not os.path.exists(new_trait_value):
-                self.study_config.use_fsl = False
+        if study_config.use_fsl is False:
+            # Configuration is explicitely asking not to use FSL
+            return
+        if study_config.use_fsl is Undefined:
+            # If use_fsl is not defined, FSL configuration will
+            # be done if possible but there will be no error if it cannot be
+            # done.
+            force_configuration = False
+        else:
+            # If use_fsl is True configuration must be valid otherwise
+            # an EnvironmentError is raised
+            force_configuration = True
+        
+        # Get the fsl.sh path from the study configuration elements
+        fsl_config_file = study_config.fsl_config
 
-    def _use_fsl_changed(self, new_trait_value):
-        """ Event to setup FSL environment
-        """
-        # If the option is True
-        if new_trait_value:
-
-            # Get the fsl.sh path from the study configuration elements
-            fsl_config_file = self.study_config.get_trait_value("fsl_config")
-
-            # If the fsl.sh path has been defined
-            if fsl_config_file is not Undefined \
-                    and os.path.exists(fsl_config_file):
-
-                # Parse the fsl environment
-                envfsl = environment(fsl_config_file)
-                if (not envfsl["LD_LIBRARY_PATH"] in
-                   os.environ.get("LD_LIBRARY_PATH", [])):
-
-                    # Set the fsl environment
-                    for envname, envval in envfsl.iteritems():
-                        if envname in os.environ:
-                            if envname.startswith("FSL"):
-                                os.environ[envname] = envval
-                            else:
-                                os.environ[envname] += ":" + envval
-                        else:
+        # If the fsl.sh path has been defined
+        if fsl_config_file is not Undefined and \
+           os.path.exists(fsl_config_file):
+            # Parse the fsl environment
+            envfsl = environment(fsl_config_file)
+            if (not envfsl["LD_LIBRARY_PATH"] in
+                os.environ.get("LD_LIBRARY_PATH", [])):
+                # Set the fsl environment
+                for envname, envval in envfsl.iteritems():
+                    if envname in os.environ:
+                        if envname.startswith("FSL"):
                             os.environ[envname] = envval
-
-            # Otherwise raise an exception
-            else:
-                self.study_config.use_fsl = False
-                raise Exception("No valid FSL configuration file specified. "
-                                "It is impossible to configure FSL.")
+                        else:
+                            os.environ[envname] += ":" + envval
+                    else:
+                        os.environ[envname] = envval
+                
+                # No error detected in configuration, set use_fsl to
+                # True
+                study_config.use_fsl = True
+        elif force_configuration:
+            raise EnvironmentError("No valid FSL configuration file "
+                                   "specified. It is impossible to configure "
+                                   "FSL.")
+        else:
+            # Error in configuration, do not let use_fsl = Undefined
+            study_config.use_fsl = False

@@ -7,10 +7,11 @@
 ##########################################################################
 
 from traits.api import File, Undefined
+from capsul.study_config.study_config import StudyConfigModule
 
 
-class MatlabConfig(object):
-    def __init__(self, study_config):
+class MatlabConfig(StudyConfigModule):
+    def __init__(self, study_config, configuration):
         study_config.add_trait('matlab_exec', File(
             Undefined,
             output=False,

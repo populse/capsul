@@ -9,14 +9,18 @@
 from traits.api import Bool, Str, Undefined
 from soma.fom import AttributesToPaths, PathToAttributes
 from soma.application import Application
+from capsul.study_config.study_config import StudyConfigModule
 
 
-class FomConfig(object):
+class FomConfig(StudyConfigModule):
     '''FOM (File Organization Model) configuration module for StudyConfig
 
     Note: FomConfig needs BrainVISAConfig to be part of StudyConfig modules.
     '''
-    def __init__(self, study_config):
+
+    dependencies = ['BrainVISAConfig', 'SPMConfig']
+
+    def __init__(self, study_config, configuration):
         study_config.add_trait('use_fom', Bool(
             False,
             output=False,
@@ -37,25 +41,21 @@ class FomConfig(object):
         study_config.output_fom = 'morphologist-auto-1.0'
         study_config.shared_fom = 'shared-brainvisa-1.0'
 
-    @staticmethod
-    def check_and_update_foms(study_config):
+    def initialize_module(self, study_config):
         '''Load configured FOMs and create FOM completion data in
         study_config.modules_data
         '''
+        soma_app = Application('capsul', plugin_modules=['soma.fom'])
+        soma_app.initialize()
         study_config.modules_data.foms = {}
         foms = (('input', study_config.input_fom),
             ('output', study_config.output_fom),
             ('shared', study_config.shared_fom))
         for fom_type, fom_filename in foms:
-            fom = Application().fom_manager.load_foms(fom_filename)
+            fom = soma_app.fom_manager.load_foms(fom_filename)
             study_config.modules_data.foms[fom_type] = fom
 
-        FomConfig.create_attributes_with_fom(study_config)
-
-    @staticmethod
-    def create_attributes_with_fom(study_config):
-        '''Create FOM completion data in study_config.modules_data
-        '''
+        # Create FOM completion data in study_config.modules_data
         formats = tuple(getattr(study_config, key) \
             for key in study_config.user_traits() \
             if key.endswith('_format') \
