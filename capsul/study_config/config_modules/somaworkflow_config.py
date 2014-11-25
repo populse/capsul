@@ -23,6 +23,6 @@ class SomaWorkflowConfig(StudyConfigModule):
         study_config.add_trait(
             'somaworkflow_computing_resources_config',
             DictStrAny(
-                Undefined,
+                {},
                 output=False,
                 desc='Soma-woklow computing resources configs'))
