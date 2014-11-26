@@ -23,7 +23,7 @@ class FomConfig(StudyConfigModule):
     def __init__(self, study_config, configuration):
         super(FomConfig, self).__init__(study_config, configuration)
         self.study_config.add_trait('use_fom', Bool(
-            False,
+            Undefined,
             output=False,
             desc='Use File Organization Models for file parameters completion'))
         self.study_config.add_trait('input_fom', Str(Undefined, output=False,
@@ -84,7 +84,8 @@ class FomConfig(StudyConfigModule):
             self.study_config.modules_data.fom_atp[fom_type] = atp
             pta = PathToAttributes(fom, selection={})
             self.study_config.modules_data.fom_pta[fom_type] = pta
-
+        self.study_config.use_fom = True
+    
     def initialize_callbacks(self):
         self.study_config.on_trait_change(self.initialize_module, 'use_fom')
     

@@ -127,7 +127,7 @@ tests_standard_files = [
  
 # Test StudyConfig('my_study')
 [[('my_study',), {}],[
-    {   'use_fom': False, 
+    {   'use_fom': True, 
         'shared_fom': 'shared-brainvisa-1.0',
         'input_fom': 'morphologist-auto-1.0',
         'somaworkflow_computing_resources_config': {},
@@ -201,7 +201,7 @@ tests_custom_files = [
  
 # Test StudyConfig('my_study')
 [[('my_study',), {}],[
-    {   'use_fom': False, 
+    {   'use_fom': True, 
         'shared_fom': 'shared-brainvisa-1.0',
         'input_fom': 'morphologist-auto-1.0',
         'somaworkflow_computing_resources_config': {},
