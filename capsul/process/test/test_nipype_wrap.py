@@ -20,6 +20,16 @@ class TestNipypeWrap(unittest.TestCase):
     """ Class to test the nipype interfaces wrapping.
     """
 
+    def setUp(self):
+        # output format and extensions depends on FSL config variables
+        # so may change if FSL has been setup in a StudyConfig.
+        fsl_output_format = os.environ.get('FSLOUTPUTTYPE', '')
+        if fsl_output_format == 'NIFTI_GZ':
+            self.output_extension = '.nii.gz'
+        else:
+            # default is nifti
+            self.output_extension = '.nii'
+
     def test_nipype_automatic_wrap(self):
         """ Method to test if the automatic nipype interfaces wrap work
         properly.
@@ -37,11 +47,13 @@ class TestNipypeWrap(unittest.TestCase):
         nipype_process.in_file = os.path.abspath(__file__)
         self.assertEqual(
             nipype_process._nipype_interface._list_outputs()["out_file"],
-            os.path.join(os.getcwd(), "test_nipype_wrap_brain.nii"))
+            os.path.join(os.getcwd(),
+                         "test_nipype_wrap_brain%s" % self.output_extension))
         nipype_process.set_output_directory("/home")
         self.assertEqual(
             nipype_process._nipype_interface._list_outputs()["out_file"],
-            os.path.join("/home", "test_nipype_wrap_brain.nii"))
+            os.path.join("/home",
+                         "test_nipype_wrap_brain%s" % self.output_extension))
 
 
 def test():

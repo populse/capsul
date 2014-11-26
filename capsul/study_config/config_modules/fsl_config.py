@@ -49,8 +49,7 @@ class FSLConfig(StudyConfigModule):
            os.path.exists(fsl_config_file):
             # Parse the fsl environment
             envfsl = environment(fsl_config_file)
-            if (not envfsl["LD_LIBRARY_PATH"] in
-                os.environ.get("LD_LIBRARY_PATH", [])):
+            if (envfsl["FSLDIR"] != os.environ.get("FSLDIR", "")):
                 # Set the fsl environment
                 for envname, envval in envfsl.iteritems():
                     if envname in os.environ:
