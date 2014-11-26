@@ -47,6 +47,11 @@ class TestNipypeWrap(unittest.TestCase):
 def test():
     """ Function to execute unitest
     """
+    try:
+        import nipype
+    except ImportError:
+        # if nipype is not installed, skip this test (without failure)
+        return True
     suite = unittest.TestLoader().loadTestsFromTestCase(TestNipypeWrap)
     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
     return runtime.wasSuccessful()
