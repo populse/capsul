@@ -10,13 +10,6 @@ import logging
 from traits.api import Directory, File, Bool, Enum, Undefined
 from capsul.study_config.study_config import StudyConfigModule
 
-try:
-    import nipype.interfaces.matlab as matlab
-    from nipype.interfaces import spm
-except ImportError:
-    matlab = None
-    spm = None
-
 # Define the logger
 logger = logging.getLogger(__name__)
 
