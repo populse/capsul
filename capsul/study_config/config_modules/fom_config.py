@@ -21,62 +21,70 @@ class FomConfig(StudyConfigModule):
     dependencies = ['BrainVISAConfig', 'SPMConfig']
 
     def __init__(self, study_config, configuration):
-        study_config.add_trait('use_fom', Bool(
+        super(FomConfig, self).__init__(study_config, configuration)
+        self.study_config.add_trait('use_fom', Bool(
             False,
             output=False,
             desc='Use File Organization Models for file parameters completion'))
-        study_config.add_trait('input_fom', Str(Undefined, output=False,
+        self.study_config.add_trait('input_fom', Str(Undefined, output=False,
             desc='input FOM'))
-        study_config.add_trait('output_fom', Str(Undefined, output=False,
+        self.study_config.add_trait('output_fom', Str(Undefined, output=False,
             desc='output FOM'))
-        study_config.add_trait('shared_fom', Str(Undefined, output=False,
+        self.study_config.add_trait('shared_fom', Str(Undefined, output=False,
             desc='shared data FOM'))
-        study_config.add_trait('volumes_format', Str(Undefined, output=False,
+        self.study_config.add_trait('volumes_format', Str(Undefined, output=False,
             desc='Format used for volumes'))
-        study_config.add_trait('meshes_format', Str(Undefined, output=False,
+        self.study_config.add_trait('meshes_format', Str(Undefined, output=False,
             desc='Format used for meshes'))
 
         # defaults
-        study_config.input_fom = 'morphologist-auto-1.0'
-        study_config.output_fom = 'morphologist-auto-1.0'
-        study_config.shared_fom = 'shared-brainvisa-1.0'
-
-    def initialize_module(self, study_config):
+        self.study_config.input_fom = 'morphologist-auto-1.0'
+        self.study_config.output_fom = 'morphologist-auto-1.0'
+        self.study_config.shared_fom = 'shared-brainvisa-1.0'
+        
+            
+    def initialize_module(self):
         '''Load configured FOMs and create FOM completion data in
-        study_config.modules_data
+        self.study_config.modules_data
         '''
+        if self.study_config.use_fom is False:
+            return
+        
         soma_app = Application('capsul', plugin_modules=['soma.fom'])
         soma_app.initialize()
-        study_config.modules_data.foms = {}
-        foms = (('input', study_config.input_fom),
-            ('output', study_config.output_fom),
-            ('shared', study_config.shared_fom))
+        self.study_config.modules_data.foms = {}
+        foms = (('input', self.study_config.input_fom),
+            ('output', self.study_config.output_fom),
+            ('shared', self.study_config.shared_fom))
         for fom_type, fom_filename in foms:
             fom = soma_app.fom_manager.load_foms(fom_filename)
-            study_config.modules_data.foms[fom_type] = fom
+            self.study_config.modules_data.foms[fom_type] = fom
 
-        # Create FOM completion data in study_config.modules_data
-        formats = tuple(getattr(study_config, key) \
-            for key in study_config.user_traits() \
+        # Create FOM completion data in self.study_config.modules_data
+        formats = tuple(getattr(self.study_config, key) \
+            for key in self.study_config.user_traits() \
             if key.endswith('_format') \
-                and getattr(study_config, key) is not Undefined)
+                and getattr(self.study_config, key) is not Undefined)
 
         directories = {}
-        directories['spm'] = study_config.spm_directory
-        directories['shared'] = study_config.shared_directory
-        directories['input'] = study_config.input_directory
-        directories['output'] = study_config.output_directory
+        directories['spm'] = self.study_config.spm_directory
+        directories['shared'] = self.study_config.shared_directory
+        directories['input'] = self.study_config.input_directory
+        directories['output'] = self.study_config.output_directory
 
-        study_config.modules_data.fom_atp = {}
-        study_config.modules_data.fom_pta = {}
+        self.study_config.modules_data.fom_atp = {}
+        self.study_config.modules_data.fom_pta = {}
 
-        for fom_type, fom in study_config.modules_data.foms.iteritems():
+        for fom_type, fom in self.study_config.modules_data.foms.iteritems():
             atp = AttributesToPaths(
                 fom,
                 selection={},
                 directories=directories,
                 prefered_formats=set((formats)))
-            study_config.modules_data.fom_atp[fom_type] = atp
+            self.study_config.modules_data.fom_atp[fom_type] = atp
             pta = PathToAttributes(fom, selection={})
-            study_config.modules_data.fom_pta[fom_type] = pta
+            self.study_config.modules_data.fom_pta[fom_type] = pta
 
+    def initialize_callbacks(self):
+        self.study_config.on_trait_change(self.initialize_module, 'use_fom')
+    

@@ -17,6 +17,7 @@ from capsul.study_config.study_config import StudyConfigModule
 
 class BrainVISAConfig(StudyConfigModule):
     def __init__(self, study_config, configuration):
+        super(BrainVISAConfig, self).__init__(study_config, configuration)
         study_config.add_trait('shared_directory',Directory(
             Undefined,
             output=False,

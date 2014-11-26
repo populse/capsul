@@ -12,6 +12,7 @@ from capsul.study_config.study_config import StudyConfigModule
 
 class SomaWorkflowConfig(StudyConfigModule):
     def __init__(self, study_config, configuration):
+        super(SomaWorkflowConfig, self).__init__(study_config, configuration)
         study_config.add_trait('use_soma_workflow', Bool(
             Undefined,
             output=False,
@@ -26,3 +27,6 @@ class SomaWorkflowConfig(StudyConfigModule):
                 {},
                 output=False,
                 desc='Soma-woklow computing resources configs'))
+
+    def initialize_callbacks(self):
+        self.study_config.on_trait_change(self.initialize_module, 'use_soma_workflow')

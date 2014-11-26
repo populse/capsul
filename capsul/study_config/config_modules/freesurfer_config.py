@@ -33,21 +33,22 @@ class FreeSurferConfig(StudyConfigModule):
             the study configuration we want to update in order to deal with 
             freesurfer functions.
         """
-        study_config.add_trait("freesurfer_config", File(
+        super(FreeSurferConfig, self).__init__(study_config, configuration)
+        self.study_config.add_trait("freesurfer_config", File(
             Undefined,
             desc="Path to 'SetUpFreeSurfer.sh'"))
-        study_config.add_trait("use_freesurfer", Bool(
+        self.study_config.add_trait("use_freesurfer", Bool(
             Undefined,
             desc="If True, FreeSurfer configuration is set up on startup"))
 
-    def initialize_module(self, study_config):
+    def initialize_module(self):
         """ Set up Freesurfer environment variables according to current
         configuration.
         """
-        if study_config.use_freesurfer is False:
+        if self.study_config.use_freesurfer is False:
             # Configuration is explicitely asking not to use FreeSurfer
             return
-        if study_config.use_freesurfer is Undefined:
+        if self.study_config.use_freesurfer is Undefined:
             # If use_freesurfer is not defined, FreeSurfer configuration will
             # be done if possible but there will be no error if it cannot be
             # done.
@@ -59,7 +60,7 @@ class FreeSurferConfig(StudyConfigModule):
         
         # Get the 'SetUpFreeSurfer.sh' path from the study configuration
         # elements
-        fs_config_file = study_config.freesurfer_config
+        fs_config_file = self.study_config.freesurfer_config
 
         # If the 'SetUpFreeSurfer.sh' path has been defined
         if fs_config_file is not Undefined:
@@ -85,7 +86,7 @@ class FreeSurferConfig(StudyConfigModule):
                 
                 # No error detected in configuration, set use_freesurfer to
                 # True
-                study_config.use_freesurfer = True
+                self.study_config.use_freesurfer = True
             elif force_configuration:
                 raise EnvironmentError("FreeSurfer configuration file (%s) "
                                        "does not exists. It is impossible to "
@@ -93,11 +94,14 @@ class FreeSurferConfig(StudyConfigModule):
                                        fs_config_file)
             else:
                 #Error in configuration, do not let use_freesurfer = Undefined
-                study_config.use_freesurfer = False
+                self.study_config.use_freesurfer = False
         elif force_configuration:
             raise EnvironmentError("No FreeSurfer configuration file "
                                    "specified. It is impossible to configure "
                                    "FreeSurfer.")
         else:
             # Error in configuration, do not let use_freesurfer = Undefined
-            study_config.use_freesurfer = False
+            self.study_config.use_freesurfer = False
+
+    def initialize_callbacks(self):
+        self.study_config.on_trait_change(self.initialize_module, 'use_freesurfer')

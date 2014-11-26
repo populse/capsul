@@ -16,6 +16,7 @@ from capsul.study_config.study_config import StudyConfigModule
 
 class SmartCachingConfig(StudyConfigModule):
     def __init__(self, study_config, configuration):
+        super(SmartCachingConfig, self).__init__(study_config, configuration)
         study_config.add_trait('use_smart_caching', Bool(
             Undefined,
             output=False,

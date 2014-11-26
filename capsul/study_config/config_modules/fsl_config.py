@@ -14,24 +14,25 @@ from capsul.study_config.study_config import StudyConfigModule
 
 class FSLConfig(StudyConfigModule):
     def __init__(self, study_config, configuration):
-        study_config.add_trait('fsl_config', File(
+        super(FSLConfig, self).__init__(study_config, configuration)
+        self.study_config.add_trait('fsl_config', File(
             Undefined,
             output=False,
             desc='Parameter to specify the fsl.sh path'))
-        study_config.add_trait('use_fsl', Bool(
+        self.study_config.add_trait('use_fsl', Bool(
             Undefined,
             output=False,
             desc='Parameter to tell that we need to configure FSL'))
 
 
-    def initialize_module(self, study_config):
+    def initialize_module(self):
         """ Set up FSL environment variables according to current
         configuration.
         """
-        if study_config.use_fsl is False:
+        if self.study_config.use_fsl is False:
             # Configuration is explicitely asking not to use FSL
             return
-        if study_config.use_fsl is Undefined:
+        if self.study_config.use_fsl is Undefined:
             # If use_fsl is not defined, FSL configuration will
             # be done if possible but there will be no error if it cannot be
             # done.
@@ -42,7 +43,7 @@ class FSLConfig(StudyConfigModule):
             force_configuration = True
         
         # Get the fsl.sh path from the study configuration elements
-        fsl_config_file = study_config.fsl_config
+        fsl_config_file = self.study_config.fsl_config
 
         # If the fsl.sh path has been defined
         if fsl_config_file is not Undefined and \
@@ -62,11 +63,14 @@ class FSLConfig(StudyConfigModule):
                 
                 # No error detected in configuration, set use_fsl to
                 # True
-                study_config.use_fsl = True
+                self.study_config.use_fsl = True
         elif force_configuration:
             raise EnvironmentError("No valid FSL configuration file "
                                    "specified. It is impossible to configure "
                                    "FSL.")
         else:
             # Error in configuration, do not let use_fsl = Undefined
-            study_config.use_fsl = False
+            self.study_config.use_fsl = False
+
+    def initialize_callbacks(self):
+        self.study_config.on_trait_change(self.initialize_module, 'use_fsl')

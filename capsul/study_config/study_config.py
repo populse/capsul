@@ -194,7 +194,8 @@ class StudyConfig(Controller):
                 stack = initialize_first + [module_name] + stack
                 continue
             # Intitialize a module
-            module.initialize_module(self)
+            module.initialize_module()
+            module.initialize_callbacks()
             already_initialized.add(module_name)
 
         # Intern identifier
@@ -574,9 +575,17 @@ class StudyConfigModule(object):
     # overrriden be derived module classes.
     dependencies = []
     
-    def initialize_module(self, study_config):
+    def __init__(self, study_config, configuration):
+        self.study_config = study_config
+   
+   
+    def initialize_module(self):
         """Method called to initialize selected study configuration modules
         on startup. This method does nothing but can be overriden by modules.
+        """
+
+    def initialize_callbacks(self):
+        """Method called just after the first call to initialize_modules.
         """
 
 
