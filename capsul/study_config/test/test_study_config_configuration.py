@@ -10,7 +10,7 @@ import soma.config
 from capsul.study_config.study_config import StudyConfig
 
 # The following variables contains a series of (p,v) where p contains
-# parameters to pass to StudyConfig constructor (args and **kwargs) and v
+# parameters to pass to StudyConfig constructor (*args and **kwargs) and v
 # contains some expected values on the StudyConfig object. Each series
 # of test is executed with a different context (i.e. configuration files and
 # CAPSUL_CONFIG environment variable).
@@ -26,7 +26,9 @@ tests_no_files = [
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
         "use_fsl": False,
+        'use_matlab': False,
         'use_spm': False,
+        'automatic_configuration': False,
     },
     ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
         'SomaWorkflowConfig'],
@@ -39,7 +41,9 @@ tests_no_files = [
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
         "use_fsl": False,
+        'use_matlab': False,
         'use_spm': False,
+        'automatic_configuration': False,
     },
     ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
         'SomaWorkflowConfig'],
@@ -52,7 +56,9 @@ tests_no_files = [
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
         "use_fsl": False,
+        'use_matlab': False,
         'use_spm': False,
+        'automatic_configuration': False,
     },
     ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
         'SomaWorkflowConfig'],
@@ -63,6 +69,7 @@ tests_no_files = [
 [[(),dict(init_config={'config_modules':[]})], [
     {
         "generate_logging": False,
+        'automatic_configuration': False,
     },
     [], None, None]],
     
@@ -71,6 +78,7 @@ tests_no_files = [
     {
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
+        'automatic_configuration': False,
     },
     ['SomaWorkflowConfig'], None, None]],
 
@@ -81,11 +89,13 @@ tests_no_files = [
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
         "use_fsl": False,
+        'use_matlab': False,
         'use_spm': False,
         "use_freesurfer": False,
         "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
                                          'brainvisa-share-%s' % \
                                          soma.config.short_version),
+        'automatic_configuration': False,
     },
     ['BrainVISAConfig', 'FSLConfig', 'FreeSurferConfig', 'MatlabConfig', 
      'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
@@ -106,7 +116,9 @@ tests_standard_files = [
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
         "use_fsl": False,
+        'use_matlab': False,
         'use_spm': False,
+        'automatic_configuration': False,
     },
     ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
         'SomaWorkflowConfig'],
@@ -123,8 +135,12 @@ tests_standard_files = [
         "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
                                          'brainvisa-share-%s' % \
                                          soma.config.short_version),
-        'output_fom': 'morphologist-auto-1.0'},
-    ['BrainVISAConfig', 'FomConfig', 'SPMConfig', 'SomaWorkflowConfig'],
+        'output_fom': 'morphologist-auto-1.0',
+        'automatic_configuration': False,
+        'use_matlab': False,
+        'use_spm': False,
+    },
+    ['BrainVISAConfig', 'FomConfig', 'MatlabConfig', 'SPMConfig', 'SomaWorkflowConfig'],
     'config.json',
     os.path.join('my_study', 'config.json')]],
 
@@ -134,7 +150,9 @@ tests_standard_files = [
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
         'use_fsl': False,
+        'use_matlab': False,
         'use_spm': False,
+        'automatic_configuration': False,
     },
     ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
         'SomaWorkflowConfig'],
@@ -145,6 +163,7 @@ tests_standard_files = [
 [[(),dict(init_config={'config_modules':[]})], [
     {
         "generate_logging": False,
+        'automatic_configuration': False,
     },
     [],
     None,
@@ -155,6 +174,7 @@ tests_standard_files = [
     {
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
+        'automatic_configuration': False,
     },
     ['SomaWorkflowConfig'],
     'config.json',
@@ -171,7 +191,9 @@ tests_custom_files = [
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
         'use_fsl': False,
+        'use_matlab': False,
         'use_spm': False,
+        'automatic_configuration': False,
     },
     ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     os.path.join('somewhere', 'config.json'),
@@ -187,8 +209,12 @@ tests_custom_files = [
         "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
                                          'brainvisa-share-%s' % \
                                          soma.config.short_version),
-        'output_fom': 'morphologist-auto-1.0'},
-    ['BrainVISAConfig', 'FomConfig', 'SPMConfig', 'SomaWorkflowConfig'],
+        'output_fom': 'morphologist-auto-1.0',
+        'automatic_configuration': False,
+        'use_matlab': False,
+        'use_spm': False,
+    },
+    ['BrainVISAConfig', 'FomConfig', 'MatlabConfig', 'SPMConfig', 'SomaWorkflowConfig'],
     os.path.join('somewhere', 'config.json'),
     os.path.join('my_study', 'config.json')]],
 
@@ -198,7 +224,9 @@ tests_custom_files = [
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
         'use_fsl': False,
+        'use_matlab': False,
         'use_spm': False,
+        'automatic_configuration': False,
     },
     ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     os.path.join('somewhere', 'config.json'),
@@ -208,6 +236,7 @@ tests_custom_files = [
 [[(),dict(init_config={'config_modules':[]})], [
     {
         "generate_logging": False,
+        'automatic_configuration': False,
     },
     [],
     None,
@@ -218,6 +247,7 @@ tests_custom_files = [
     {
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
+        'automatic_configuration': False,
     },
     ['SomaWorkflowConfig'],
     os.path.join('somewhere', 'config.json'),
@@ -228,7 +258,7 @@ user_config = {}
 
 my_study_config = {
     'config_modules': ['BrainVISAConfig', 'SomaWorkflowConfig', 'FomConfig',
-                       'SPMConfig']
+                       'MatlabConfig', 'SPMConfig']
 }
 
 other_config = {

@@ -92,23 +92,7 @@ class SPMConfig(StudyConfigModule):
             output=False,
             desc='SPM standalone (MCR) command path'))
 
-        self.study_config = study_config
-        study_config.on_trait_change(self.use_spm_changed,'use_spm')
-    
-    def use_spm_changed(self, old_value, new_value):
-        """Event to setup SPM environment"""
-        if new_value == 'standalone':
-            if self.study_config.spm_exec is undefined:
-                raise EnvironmentError('smp_exec must be defined in order to use SPM standalone')
-            if not os.path.exists(self.study_config.spm_exec_cmd):
-                raise EnvironmentError('"%s" is not a valid executable for SPM standalone' % self.study_config.spm_exec_cmd)
-        if new_value in ('standalone', 'matlab'):
-            if 'matlab_exec' not in self.study_config.user_traits():
-                raise SystemError('Matlab configuration module is not included. Cannot use SPM via Matlab.')
-            if self.study_config.spm_directory is undefined:
-                raise EnvironmentError('smp_directory must be defined in order to use SPM')
-            if not os.path.isdir(self.study_config.spm_exec_cmd):
-                raise EnvironmentError('"%s" is not a valid directory for SPM' % self.study_config.spm_directory)
+        self.study_config = study_config    
         
 
     def initialize_module(self, study_config):

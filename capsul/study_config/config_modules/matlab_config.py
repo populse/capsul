@@ -6,14 +6,53 @@
 # for details.
 ##########################################################################
 
-from traits.api import File, Undefined
+import os
+from traits.api import File, Undefined, Bool
 from capsul.study_config.study_config import StudyConfigModule
 
 
 class MatlabConfig(StudyConfigModule):
     def __init__(self, study_config, configuration):
+        study_config.add_trait("use_matlab", Bool(
+            Undefined,
+            desc="If True, Matlab configuration is set up on startup"))
         study_config.add_trait('matlab_exec', File(
             Undefined,
             output=False,
             desc='Matlab command path',
             exists=True))
+
+    def initialize_module(self, study_config):
+        """ Set up Matlab environment according to current
+        configuration.
+        """
+        if study_config.use_matlab is False:
+            # Configuration is explicitely asking not to use SPM
+            return
+        
+        if study_config.use_matlab is Undefined:
+            # If use_matlab is not defined, Matlab configuration will
+            # be done if possible but there will be no error if it cannot be
+            # done.
+            force_configuration = False            
+        else:
+            # If use_matlab is True configuration must be valid otherwise
+            # an EnvironmentError is raised
+            force_configuration = True
+        
+        if study_config.matlab_exec is Undefined:
+            # matlab_exec is not set, it will not be possible to activate
+            #Matlab
+            if force_configuration:
+                raise EnvironmentError('matlab_exec must be defined in order '
+                                       'to use Matlab')
+            study_config.use_matlab = False
+            return
+        
+        if not os.path.exists(study_config.matlab_exec):
+            if force_configuration:
+                raise EnvironmentError('"%s" does not exists. Matlab '
+                                       'configuration is not valid.' % \
+                                       study_config.matlab_exec)
+            study_config.use_matlab = False
+            return
