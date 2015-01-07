@@ -123,6 +123,11 @@ class Process(Controller):
         self.name = self.__class__.__name__
         self.id = self.__class__.__module__ + "." + self.name
 
+        # Parameter to store which tools will be used dusring the processing
+        self.versions = {
+            "capsul": get_tool_version("capsul")
+        }
+
         # Initialize the log file name
         self.log_file = None
 
@@ -189,10 +194,7 @@ class Process(Controller):
         runtime["end_time"] = datetime.isoformat(datetime.utcnow())
 
         # Set the dependencies versions in the execution report
-        versions = {
-            "capsul": get_tool_version("capsul"),
-        }
-        runtime["versions"] = versions
+        runtime["versions"] = self.versions
 
         # Generate a process result that is returned
         results = ProcessResult(
@@ -294,13 +296,16 @@ class Process(Controller):
             f.write(unicode(json_struct))
 
     @classmethod
-    def help(cls):
+    def help(cls, returnhelp=False):
         """ Method to print the full help.
 
         Parameters
         ----------
         cls: process class (mandatory)
             a process class
+        returnhelp: bool (optional, default False)
+            if True return the help string message,
+            otherwise display it on the console.
         """
         # Get the process class docstring
         if cls.__doc__:
@@ -311,9 +316,14 @@ class Process(Controller):
         # Append the input and output traits help
         full_help = (doctring + cls.get_input_help() + [""] +
                      cls.get_output_help() + [""])
+        full_help = "\n".join(full_help)
 
+        # Return the full process help
+        if returnhelp:
+            return full_help
         # Print the full process help
-        print("\n".join(full_help))
+        else:
+            print(full_help)
 
     ####################################################################
     # Accessors
@@ -450,7 +460,9 @@ class Process(Controller):
         manhelpstr = ["[Mandatory]", ""]
 
         # Get all the mandatory input traits
-        mandatory_items = cls().traits(output=False, optional=False)
+        cls_instance = cls()
+        cls_instance.get("res")
+        mandatory_items = cls_instance.traits(output=False, optional=False)
 
         # If we have mandatory inputs, get the corresponding string
         # descriptions
@@ -463,7 +475,7 @@ class Process(Controller):
         opthelpstr = ["", "[Optional]", ""]
 
         # Get all optional input traits
-        optional_items = cls().traits(output=False, optional=True)
+        optional_items = cls_instance.traits(output=False, optional=True)
 
         # If we have optional inputs, get the corresponding string
         # descriptions
@@ -594,6 +606,13 @@ class NipypeProcess(Process):
         self.id = ".".join([self._nipype_module, self._nipype_class])
         self.name = self._nipype_interface.__class__.__name__
 
+        # Set the nipype and nipype interface versions
+        interface_name = self._nipype_interface.__module__.split(".")[2]
+        self.versions.update({
+            "nipype": get_tool_version("nipype"),
+            interface_name: self._nipype_interface.version
+        })
+
         # Add a new trait to store the processing output directory
         super(Process, self).add_trait(
             "output_directory", Directory(Undefined, exists=True,
@@ -653,13 +672,6 @@ class NipypeProcess(Process):
         """
         # Inheritance
         results = super(NipypeProcess, self).__call__(**kwargs)
-
-        # Set the nipype and nipype interface versions
-        interface_name = self._nipype_interface.__module__.split(".")[2]
-        results.runtime["versions"].update({
-            "nipype": get_tool_version("nipype"),
-            interface_name: self._nipype_interface.version
-        })
 
         # Set additional information in the execution report
         returncode = results.returncode
