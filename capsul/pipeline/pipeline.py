@@ -44,11 +44,11 @@ class Pipeline(Process):
 
     Attributes
     ----------
-    `nodes` : dict {node_name: node}
+    `nodes`: dict {node_name: node}
         a dictionary containing the pipline nodes and where the pipeline node name is ''
-    `workflow_list` : list
+    `workflow_list`: list
         a list of odered nodes that can be executed
-    `workflow_repr` : str
+    `workflow_repr`: str
         a string representation of the workflow list `<node_i>-><node_i+1>`
 
     Methods
@@ -463,15 +463,14 @@ class Pipeline(Process):
         self.update_nodes_and_plugs_activation()
 
     def remove_link(self, link):
-        '''Remove a link between pipeline nodes
+        """ Remove a link between pipeline nodes
 
         Parameters
         ----------
         link: str
-          link description. Its shape should be:
-          "node.output->other_node.input".
+          link description. Its shape should be: "node.output->other_node.input".
           If no node is specified, the pipeline itself is assumed.
-        '''
+        """
         # Parse the link
         (source_node_name, source_plug_name, source_node,
          source_plug, dest_node_name, dest_plug_name, dest_node,
