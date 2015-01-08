@@ -6,23 +6,33 @@
 # for details.
 ##########################################################################
 
-from soma.undefined import undefined
-from traits.api import File
+# TRAITS import
+from traits.api import Bool, Undefined
 
+# NIPYPE import
 import nipype.interfaces.matlab as matlab
 from nipype.interfaces import spm
 
+# CAPSUL import
 from capsul.study_config.study_config import StudyConfigModule
 
+
 class NipypeConfig(StudyConfigModule):
+    """ Nipype configuration.
+
+    In order to use nipype spm, fsl and freesurfer interfaces, we need to
+    configure the nipype module.
+    """
     
-    dependencies = ['MatlabConfig', 'SpmConfig']
+    dependencies = ["MatlabConfig", "SPMConfig", "FSLConfig", "FreeSurferConfig"]
     
     def __init__(self, study_config, configuration):
+        """ Initialize the NipypeConfig class.
+        """
         super(NipypeConfig, self).__init__(study_config, configuration)
         study_config.add_trait("use_nipype", Bool(
             Undefined,
-            desc="If True, Nipype configuration is set up on startup"))
+            desc="If True, Nipype configuration is set up on startup."))
     
     def initialize_module(self):
         """ Set up Nipype environment variables according to current
@@ -31,30 +41,39 @@ class NipypeConfig(StudyConfigModule):
         if self.study_config.use_nipype is False:
             # Configuration is explicitely asking not to use Nipype
             return
-        if self.study_config.use_nipype is Undefined:
+        elif self.study_config.use_nipype is True:
+            # If use_nipype is True configuration must be valid otherwise
+            # an EnvironmentError is raised
+            force_configuration = True
+        else:
             # If use_nipype is not defined, Nipype configuration will
             # be done if possible but there will be no error if it cannot be
             # done.
             force_configuration = False
-        else:
-            # If use_nipype is True configuration must be valid otherwise
-            # an EnvironmentError is raised
-            force_configuration = True
-        
+
+        # Configure matlab for nipype
         if self.study_config.use_matlab:
             matlab.MatlabCommand.set_default_matlab_cmd(
                 self.study_config.matlab_exec + " -nodesktop -nosplash")
-        if self.study_config.use_spm == 'matlab':
-            matlab.MatlabCommand.set_default_paths(self.study_config.spm_directory)
-            spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)           
-        elif self.study_config.use_spm == 'standalone':
-            # If the spm interface has been imported properly, configure this
-            # interface
-            spm.SPMCommand.set_mlab_paths(
-                matlab_cmd=self.study_config.spm_exec + " run script",
-                use_mcr=True)
-        
+
+        # Configure spm for nipype
+        if self.study_config.use_spm is True:
+
+            # Standalone spm version
+            if self.study_config.spm_standalone is True:
+                spm.SPMCommand.set_mlab_paths(
+                    matlab_cmd=self.study_config.spm_exec + " run script",
+                    use_mcr=True)
+            # Matlab spm version
+            else:
+                matlab.MatlabCommand.set_default_paths(
+                    self.study_config.spm_directory)
+                spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)           
+
         self.study_config.use_nipype = True
 
     def initialize_callbacks(self):
-        self.study_config.on_trait_change(self.initialize_module, 'use_nipype')
+        """ When the 'use_nipype' trait changes, configure nipypr with the new
+        setting.
+        """
+        self.study_config.on_trait_change(self.initialize_module, "use_nipype")

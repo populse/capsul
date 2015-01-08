@@ -6,8 +6,14 @@
 # for details.
 ##########################################################################
 
+# System import
+import os
 import logging
+
+# TRAITS import
 from traits.api import Directory, File, Bool, Enum, Undefined
+
+# CAPSUL import
 from capsul.study_config.study_config import StudyConfigModule
 
 # Define the logger
@@ -66,87 +72,99 @@ def find_spm(matlab=None, matlab_path=None):
 
 
 class SPMConfig(StudyConfigModule):
+    """ SPM configuration.
+
+    There is two ways to configure SPM:
+        * the first one requires to configure matlab and then to set the spm
+          directory.
+        * the second one is based on a standalone version of spm and requires
+          to set the spm executable directory.
+    """
     
-    dependencies = ['MatlabConfig']
+    dependencies = ["MatlabConfig"]
     
     def __init__(self, study_config, configuration):
+        """ Initialize the SPMConfig class.
+        """
         super(SPMConfig, self).__init__(study_config, configuration)
         self.study_config.add_trait("use_spm", Bool(
             Undefined,
-            desc="If True, SPM configuration is set up on startup"))
+            desc="If True, SPM configuration is set up on startup."))
         self.study_config.add_trait("spm_standalone", Bool(
             Undefined,
-            desc="If True, use the standalone version of SPM"))
-        self.study_config.add_trait('spm_directory', Directory(
+            desc="If True, use the standalone version of SPM."))
+        self.study_config.add_trait("spm_directory", Directory(
             Undefined,
             output=False,
-            desc='Directory containing SPM'))
-        self.study_config.add_trait('spm_exec', File(
+            desc="Directory containing SPM."))
+        self.study_config.add_trait("spm_exec", File(
             Undefined,
             output=False,
-            desc='SPM standalone (MCR) command path'))        
+            desc="SPM standalone (MCR) command path."))        
 
     def initialize_module(self):
-        """ Set up SPM environment according to current
-        configuration.
+        """ Set up SPM environment according to current configuration.
         """
         if self.study_config.use_spm is False:
             # Configuration is explicitely asking not to use SPM
             return
-        
-        if self.study_config.use_spm is Undefined:
+        elif self.study_config.use_spm is True:
+            # If use_spm is True configuration must be valid otherwise
+            # an EnvironmentError is raised
+            force_configuration = True  
+        else:
             # If use_spm is not defined, SPM configuration will
             # be done if possible but there will be no error if it cannot be
             # done.
-            force_configuration = False            
-        else:
-            # If use_spm is True configuration must be valid otherwise
-            # an EnvironmentError is raised
-            force_configuration = True
-        
-        if self.study_config.spm_exec is Undefined:
-            # spm_exec is not set, it will not be possible to activate SPM
-            if force_configuration:
-                raise EnvironmentError('smp_exec must be defined in order to '
-                                       'use SPM')
-            self.study_config.use_spm = False
-            return
-        
-        if self.study_config.spm_standalone is Undefined:
-            # Try to guess if the configuration is for a standalone version
-            if 'spm' in self.study_config.spm_exec:
-                standalone = True
-            else:
-                standalone = False
-        else:
-             standalone = self.study_config.spm_standalone
-        
+            force_configuration = False   
 
-        # If not standalone, check that Matlab is activated
-        if not standalone and not self.study_config.use_matlab:
-            if force_configuration:
-                raise EnvironmentError('Matlab is disabled. Cannot use SPM '
-                                       'via Matlab')
+        # If we need to check spm configuration
+        if self.study_config.use_spm is True:
+
+            # If standalone
+            if self.study_config.spm_standalone is True:
+
+                # Check that a valid file has been set for the stanalone
+                # version of spm
+                if (self.study_config.spm_exec is Undefined or 
+                        not os.path.isfile(self.study_config.spm_exec)):
+                    if force_configuration:
+                        raise EnvironmentError("'smp_exec' must be defined in "
+                                               "order to use SPM-standalone.")
+                    else:
+                        self.study_config.use_spm = False
+                        return 
+
+            # If not standalone
             else:
-                self.study_config.use_spm = False
-        
-        if not standalone and \
-           self.study_config.spm_directory is Undefined and \
-           self.study_config.automatic_configuration:
-                self.study_config.spm_directory = find_spm(self.study_config.matlab_exec)
-        
-        if self.study_config.spm_directory is Undefined:
-            if force_configuration:
-                raise EnvironmentError('smp_directory must be defined in order to use SPM')
-            else:
-                self.study_config.use_spm = False
-        elif not os.path.isdir(self.study_config.spm_directory):
-            if force_configuration:
-                raise EnvironmentError('"%s" is not a valid SPM directory' % \
-                                       self.study_config.spm_directory)
-            else:
-                self.study_config.use_spm = False
+
+                # Check that Matlab is activated
+                if not self.study_config.use_matlab:
+                    if force_configuration:
+                        raise EnvironmentError("Matlab is disabled. Cannot use "
+                                               "SPM via Matlab.")
+                    else:
+                        self.study_config.use_spm = False
+                        return
+
+                # If the spm sources are not set, try to find them automaticaly
+                if self.study_config.spm_directory is Undefined:
+                    self.study_config.spm_directory = find_spm(
+                        self.study_config.matlab_exec)
+
+                # Check that a valid directory has been set for spm sources
+                if not os.path.isdir(self.study_config.spm_directory):
+                    if force_configuration:
+                        raise EnvironmentError(
+                            "'{0}' is not a valid SPM directory.".format(
+                                self.study_config.spm_directory))
+                    else:
+                        self.study_config.use_spm = False
+                        return
 
     def initialize_callbacks(self):
-        self.study_config.on_trait_change(self.initialize_module, 'use_spm')
+        """ When the 'use_spm' trait changes, configure spm with the new
+        setting.
+        """
+        self.study_config.on_trait_change(self.initialize_module, "use_spm")
    

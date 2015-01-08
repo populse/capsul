@@ -46,12 +46,13 @@ print dec_instance
 print dec_instance.__doc__
 
 # Clear all the cache
-mem.clear()
+#mem.clear()
 
 # Test the cache mechanism
 for param in [(1., 2.3), (2., 2.), (1., 2.3)]:
     result = dec_instance(f=param[0], ff=param[1])
     print dec_instance.res
+
 
 
 # Configure the environment
@@ -73,11 +74,43 @@ dec_instance.dimension = "t"
 dec_instance.output_type = "NIFTI_GZ"
 dec_instance.set_output_directory("/home/ag239446/tmp/")
 
-
 # Test the cache mechanism
 result = dec_instance()
 print dec_instance._merged_file
 result = dec_instance(in_files=[ifname, ifname], dimension="t")
 print dec_instance._merged_file
+
+
+
+# Configure the environment
+study_config = StudyConfig(modules=["MatlabConfig", "SPMConfig", "NipypeConfig",
+                                    "FSLConfig", "FreeSurferConfig"],
+                           matlab_exec="/neurospin/local/bin/matlab",
+                           spm_directory="/i2bm/local/spm8-5236",
+                           use_matlab=True,
+                           use_spm=True,
+                           use_nipype=True)
+
+# Create a process instance
+ifname = "/home/ag239446/.local/share/nsap/t1_localizer.nii"
+instance = get_process_instance("nipype.interfaces.spm.Smooth")
+
+# Create a decorated instance
+dec_instance = mem.cache(instance)
+print dec_instance
+print dec_instance.__doc__
+
+# Set parameters
+dec_instance.in_files = [ifname]
+dec_instance.fwhm = [4, 4, 4]
+dec_instance.set_output_directory("/home/ag239446/tmp/")
+dec_instance._nipype_interface.mlab.inputs.prescript = [
+    "ver,", "try,", "addpath('{0}');".format("/i2bm/local/spm8-5236"),
+    "cd('{0}');".format("/home/ag239446/tmp/")
+]
+
+# Test the cache mechanism
+result = dec_instance()
+print dec_instance._smoothed_files
 
 
