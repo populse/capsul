@@ -20,7 +20,9 @@ import json
 # CAPSUL import
 from capsul.process import Process
 from capsul.process import ProcessResult
-from capsul.process import NipypeProcess
+
+# NIPYPE import
+from nipype.interfaces.base import InterfaceResult
 
 # TRAITS import
 from traits.api import Undefined
@@ -78,11 +80,7 @@ class MemorizedProcess(object):
         self.timestamp = timestamp
 
         # Set the documentation of the class
-        if isinstance(self.process, NipypeProcess):
-            self.__doc__ = self.process.help(
-                self.process._nipype_interface, returnhelp=True)
-        else:
-            self.__doc__ = self.process_class.help(returnhelp=True)
+        self.__doc__ = self.process.get_help(returnhelp=True)
 
         # Store if some messages have to be displayed
         self.verbose = verbose
@@ -122,7 +120,10 @@ class MemorizedProcess(object):
             # Try to execute the process and if an error occured remove the
             # cache folder
             try:
+                # Run and update the process output traits
                 result = self._call_process(process_dir, input_parameters)
+                for name, value in result.outputs.iteritems():
+                    self.process.set_parameter(name, value)
             except:
                 shutil.rmtree(process_dir)
                 raise
@@ -350,10 +351,32 @@ class MemorizedProcess(object):
             super(MemorizedProcess, self).__getattr__(name)
         elif name in self.process.user_traits():
             return self.process.get_parameter(name)
+        elif name in dir(self.process):
+            return getattr(self.process, name)
         else:
             raise AttributeError(
                 "'MemorizedProcess' and 'Process' objects have no attribute "
                 "'{0}'".format(name))
+
+    def __setattr__(self, name, value):
+        """ Define behavior for when a user attempts to set an attribute
+        of a MemorizedProcess instance.
+
+        First check the MemorizedProcess object and then the Process object.
+
+        Parameters
+        ----------
+        name: string
+            the name of the parameter we want to set.
+        value: object
+            the parameter value.
+        """ 
+        if ("process" in self.__dict__ and 
+                name in self.__dict__["process"].__dict__):
+            super(self.__dict__["process_class"],
+                  self.__dict__["process"]).__setattr__(name, value)
+        else:
+            super(MemorizedProcess, self).__setattr__(name, value)
 
 
 def has_attribute(trait, attribute_name, attribute_value=None,
@@ -390,7 +413,7 @@ def has_attribute(trait, attribute_name, attribute_value=None,
     # Check the inner traits
     if recursive:
         if len(trait.inner_traits) > 0:
-            for inner_trait in trait.inner_traits():
+            for inner_trait in trait.inner_traits:
                 count += has_attribute(inner_trait, attribute_name,
                                        attribute_value, recursive)
 
@@ -448,6 +471,14 @@ class CapsulResultEncoder(json.JSONEncoder):
                          "outputs"]:
                 result_dict[name] = getattr(obj, name)
             return result_dict
+            
+        # Undefined parameter special case
+        if isinstance(obj, Undefined.__class__):
+            return "<undefined_trait_value>"
+            
+        # InterfaceResult special case
+        if isinstance(obj, InterfaceResult):
+            return "<skip_nipype_interface_result>"
 
         # Call the base class default method
         return json.JSONEncoder.default(self, obj)
