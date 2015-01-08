@@ -307,23 +307,8 @@ class Process(Controller):
             if True return the help string message,
             otherwise display it on the console.
         """
-        # Get the process class docstring
-        if cls.__doc__:
-            doctring = cls.__doc__.split("\n") + [""]
-        else:
-            doctring = [""]
-
-        # Append the input and output traits help
-        full_help = (doctring + cls.get_input_help() + [""] +
-                     cls.get_output_help() + [""])
-        full_help = "\n".join(full_help)
-
-        # Return the full process help
-        if returnhelp:
-            return full_help
-        # Print the full process help
-        else:
-            print(full_help)
+        cls_instance = cls()
+        return cls_instance.get_help(returnhelp)
 
     ####################################################################
     # Accessors
@@ -439,14 +424,35 @@ class Process(Controller):
             output[trait_name] = getattr(self, trait_name)
         return output
 
-    @classmethod
-    def get_input_help(cls):
-        """ Generate description for process input parameters
+    def get_help(self, returnhelp=False):
+        """ Generate description of a process parameters.
 
         Parameters
         ----------
-        cls: process class (mandatory)
-            a process class
+        returnhelp: bool (optional, default False)
+            if True return the help string message,
+            otherwise display it on the console.
+        """
+        # Get the process docstring
+        if self.__doc__:
+            doctring = self.__doc__.split("\n") + [""]
+        else:
+            doctring = [""]
+
+        # Append the input and output traits help
+        full_help = (doctring + self.get_input_help() + [""] +
+                     self.get_output_help() + [""])
+        full_help = "\n".join(full_help)
+
+        # Return the full process help
+        if returnhelp:
+            return full_help
+        # Print the full process help
+        else:
+            print(full_help)
+
+    def get_input_help(self):
+        """ Generate description for process input parameters.
 
         Returns
         -------
@@ -460,9 +466,7 @@ class Process(Controller):
         manhelpstr = ["[Mandatory]", ""]
 
         # Get all the mandatory input traits
-        cls_instance = cls()
-        cls_instance.get("res")
-        mandatory_items = cls_instance.traits(output=False, optional=False)
+        mandatory_items = self.traits(output=False, optional=False)
 
         # If we have mandatory inputs, get the corresponding string
         # descriptions
@@ -475,7 +479,7 @@ class Process(Controller):
         opthelpstr = ["", "[Optional]", ""]
 
         # Get all optional input traits
-        optional_items = cls_instance.traits(output=False, optional=True)
+        optional_items = self.traits(output=False, optional=True)
 
         # If we have optional inputs, get the corresponding string
         # descriptions
@@ -492,14 +496,8 @@ class Process(Controller):
 
         return helpstr
 
-    @classmethod
-    def get_output_help(cls):
-        """ Generate description for process output parameters
-
-        Parameters
-        ----------
-        cls: process class (mandatory)
-            a process class
+    def get_output_help(self):
+        """ Generate description for process output parameters.
 
         Returns
         -------
@@ -510,7 +508,7 @@ class Process(Controller):
         helpstr = ["Outputs", "~" * 7, ""]
 
         # Get all the process output traits
-        items = cls().traits(output=True)
+        items = self.traits(output=True)
 
         # If we have no output trait, return no string description
         if not items:
@@ -711,6 +709,24 @@ class NipypeProcess(Process):
             object containing the running results
         """
         return self._nipype_interface.run()
+
+    @classmethod
+    def help(cls, nipype_interface, returnhelp=False):
+        """ Method to print the full wraped nipype interface help.
+
+        Parameters
+        ----------
+        cls: process class (mandatory)
+            a nipype process class
+        nipype_instance: nipype interface (mandatory)
+            a nipype interface object that will be documented.
+        returnhelp: bool (optional, default False)
+            if True return the help string message,
+            otherwise display it on the console.
+        """
+        from .nipype_process import nipype_factory
+        cls_instance = nipype_factory(nipype_interface)
+        return cls_instance.get_help(returnhelp)
 
     run = property(_run_process)
 

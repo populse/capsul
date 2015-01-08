@@ -20,6 +20,7 @@ import json
 # CAPSUL import
 from capsul.process import Process
 from capsul.process import ProcessResult
+from capsul.process import NipypeProcess
 
 # TRAITS import
 from traits.api import Undefined
@@ -77,7 +78,11 @@ class MemorizedProcess(object):
         self.timestamp = timestamp
 
         # Set the documentation of the class
-        self.__doc__ = self.process_class.help(returnhelp=True)
+        if isinstance(self.process, NipypeProcess):
+            self.__doc__ = self.process.help(
+                self.process._nipype_interface, returnhelp=True)
+        else:
+            self.__doc__ = self.process_class.help(returnhelp=True)
 
         # Store if some messages have to be displayed
         self.verbose = verbose
