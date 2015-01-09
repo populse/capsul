@@ -8,7 +8,6 @@
 ##########################################################################
 
 # System import
-import os
 import sys
 import xml.dom.minidom
 import inspect
@@ -36,21 +35,23 @@ def title_for(title):
 
 
 def parse_docstring(docstring):
-    """ Parse the given docstring to get the <capsul> xml-like structure.
+    """ Parse the given docstring to get the <process> xml-like structure.
 
     Parameters
     ----------
     docstring: str (mandatory)
-        a string where we will try to found the <capsul> xml-like structure.
+        a string where we will try to found the <process> xml-like structure.
 
     Returns
     -------
-
+    parameters: dict
+        the process trait descriptions.
     """
-    # Find the <capsul> xml-like structure in the docstring
-    capsul_start = docstring.rfind("<capsul>")
-    capsul_end = docstring.rfind("</capsul>")
-    capsul_description = docstring[capsul_start: capsul_end + len("</capsul>")]
+    # Find the <process> xml-like structure in the docstring
+    capsul_start = docstring.rfind("<process>")
+    capsul_end = docstring.rfind("</process>")
+    capsul_description = docstring[
+        capsul_start: capsul_end + len("</process>")]
 
     # Parse the xml structure and put each xml dictionnary formated item in a
     # list
@@ -61,16 +62,18 @@ def parse_docstring(docstring):
     if not capsul_description:
         return parameters
 
-    # Find all the xml 'item' tag elements
+    # Find all the xml 'input', 'output' and 'return' tag elements
     document = xml.dom.minidom.parseString(capsul_description)
     for node in document.childNodes[0].childNodes:
 
         # Assert we have an 'item' node
-        if node.nodeType != node.ELEMENT_NODE or node.tagName != "item":
+        if (node.nodeType != node.ELEMENT_NODE or
+                node.tagName not in ["input", "output", "return"]):
             continue
-        
-        # Set each xml 'item' tag element in the paramter list
-        parameters.append(dict(node.attributes.items()))
+
+        # Set each xml 'item' tag element in the parameter list
+        parameters.append(
+            dict(node.attributes.items() + [("role", node.tagName)]))
 
     return parameters
 
@@ -103,7 +106,7 @@ class AutoProcess(Process):
 
         # Execute it
         def f():
-            exec expression in namespace  
+            exec expression in namespace
         f()
 
         # Update the user trait values
@@ -112,7 +115,7 @@ class AutoProcess(Process):
                 self.set_parameter(
                     parameter["name"], namespace[parameter["name"]])
 
-    def _build_expression(self) :
+    def _build_expression(self):
         """ Build the expression and corresponding namespace to execute
         properly the function attached to this process.
         """
@@ -123,28 +126,28 @@ class AutoProcess(Process):
 
         # Build the expression namespace
         namespace = {"function": function}
-        for parameter in self._parameters :
+        for parameter in self._parameters:
             if parameter.get("role", "") == "return":
                 namespace[parameter["name"]] = None
-            else :
+            else:
                 namespace[parameter["name"]] = self.get_parameter(
                     parameter["name"])
-       
+
         # Build the expression
         # Start spliting input and output function parameters
         args = []
         return_values = []
-        for parameter in self._parameters :
+        for parameter in self._parameters:
             if parameter.get("role", "") == "return":
                 return_values.append(parameter["name"])
-            else :
+            else:
                 args.append("{0}={0}".format(parameter["name"]))
 
         # Build the expression to evaluate
         expression = "function({0})".format(", ".join(args))
 
         # If we have some return values, update the expression accordingly
-        if return_values: 
+        if return_values:
             return_expression = ", ".join(return_values)
             expression = "{0} = {1}".format(return_expression, expression)
 
@@ -174,8 +177,6 @@ def class_factory(func, destination_module_globals):
 
         # Create the trait
         trait_desc = trait_item["type"]
-        if "content" in trait_item:
-             trait_desc += "_" + trait_item["content"]
         trait_values = trait_item.get("initializer", None)
         trait = clone_trait([trait_desc], trait_values)
 
@@ -185,7 +186,10 @@ def class_factory(func, destination_module_globals):
             trait.output = True
         else:
             trait.output = False
-        trait.optional = False        
+        if trait_item.get("optional", "False") == "True":
+            trait.optional = True
+        else:
+            trait.optional = False
 
         # Store the created trait
         process_traits[trait_item["name"]] = trait
@@ -193,10 +197,11 @@ def class_factory(func, destination_module_globals):
     # Clean the docstring
     docstring = func.__doc__
     # python 2.7 only (not working on Centos 6.4)
-    # docstring = re.sub(r"<capsul>.*</capsul>", "", docstring, flags=re.DOTALL)
-    res = re.search(r"<capsul>.*</capsul>.*", docstring, flags=re.DOTALL)
+    # docstring = re.sub(r"<process>.*</process>", "", docstring,
+    #                     flags=re.DOTALL)
+    res = re.search(r"<process>.*</process>.*", docstring, flags=re.DOTALL)
     if res:
-        docstring = docstring.replace(docstring[res.start():res.end()],"")
+        docstring = docstring.replace(docstring[res.start():res.end()], "")
 
     # Define the process class parameters
     class_parameters = {

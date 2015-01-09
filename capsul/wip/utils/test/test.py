@@ -8,9 +8,7 @@
 ##########################################################################
 
 # System import
-import sys
 import unittest
-import os
 
 # Capsul import
 from capsul.wip.utils.test.process import AFunctionToWrap

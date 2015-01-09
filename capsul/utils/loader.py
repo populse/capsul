@@ -100,7 +100,7 @@ def cleanup(attribute):
     """
     cleanup_table = string.maketrans('(){} \t\r\n\0', '         ')
 
-    attribute = attribute.translate(cleanup_table)
+    attribute = str(attribute).translate(cleanup_table)
     attribute = attribute.replace(" ", "")
 
     return attribute

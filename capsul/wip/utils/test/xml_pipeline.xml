@@ -1,0 +1,38 @@
+<pipeline>
+    <docstring>
+        Auto Generated Pipeline Test
+    </docstring>
+    <processes>
+        <standard name="p1">
+            <module>capsul.wip.utils.test.process.AFunctionToWrap</module>
+            <force name="reference" value=""/>
+        </standard>
+        <standard name="p2">
+            <module>capsul.wip.utils.test.process.AFunctionToWrap</module>
+        </standard>
+    </processes>
+    <links>
+        <link src="p1.string" dest="p2.fname"/>
+        <link src="pdirectory" dest="p2.directory"/>
+        <link src="value" dest="p2.value"/>
+        <link src="enum" dest="p2.enum"/>
+        <link src="list_of_str" dest="p2.list_of_str"/>
+    </links>
+    <inputs>
+        <input name="value" dest="p1.value"/>
+        <input name="enum" dest="p1.enum"/>
+        <input name="list_of_str" dest="p1.list_of_str"/>
+        <input name="pdirectory" dest="p1.directory"/>
+    </inputs>
+    <outputs>
+        <output name="out1" src="p2.string"/>
+        <output name="out2" src="p2.reference"/>
+    </outputs>
+    <positions>
+        <position process="inputs" x="0" y="0"/>
+        <position process="p1" x="200" y="200"/>
+        <position process="p2" x="400" y="-200"/>
+        <position process="outputs" x="600" y="0"/>
+    </positions>
+    <scale factor="1"/> 
+</pipeline>

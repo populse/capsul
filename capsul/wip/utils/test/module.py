@@ -7,18 +7,19 @@
 # for details.
 ##########################################################################
 
+
 def a_function_to_wrap(fname, directory, value, enum, list_of_str, reference):
     """ A dummy fucntion that just print all its parameters.
 
-    <capsul>
-        <item name="fname" type="File" desc="test" />
-        <item name="directory" type="Directory" desc="test" />
-        <item name="value" type="Float" desc="test" />
-        <item name="enum" type="Enum" initializer="('choice1','choice2')" desc="test" />
-        <item name="list_of_str" type="List" content="Str" desc="test" />
-        <item name="reference" type="List" content="Str" role="output" desc="test" />
-        <item name="string" type="Str" role="return" desc="test" />
-    </capsul>
+    <process>
+        <return name="string" type="Str" desc="test" />
+        <input name="fname" type="File" desc="test" />
+        <input name="directory" type="Directory" desc="test" />
+        <input name="value" type="Float" desc="test" />
+        <input name="enum" type="Enum" initializer="('choice1','choice2')" desc="test" />
+        <input name="list_of_str" type="List_Str" desc="test" />
+        <output name="reference" type="List_Str" desc="test" />
+    </process>
     """
     string = "ALL FUNCTION PARAMETERS::\n\n"
     for input_parameter in (fname, directory, value, enum, list_of_str):
