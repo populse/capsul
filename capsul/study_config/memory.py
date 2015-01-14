@@ -29,11 +29,146 @@ from traits.api import Undefined
 
 
 ###########################################################################
-# ProcessFunc object: callable process to capsul.process objects
+# Proxy process objects
 ###########################################################################
 
+class UnMemorizedProcess(object):
+    """ This class replaces MemorizedProcess when there is no cache.
+    It provides an identical API but does not write anything on disk.
+    """
+    def __init__(self, process, verbose=1):
+        """ Initialize the UnMemorizedProcess class.
+
+        Parameters
+        ----------
+        process: capsul process
+            the process instance to wrap.
+        verbose: int
+            if different from zero, print console messages.
+        """
+        self.process = process
+        self.verbose = verbose
+
+    def __call__(self, **kwargs):
+        """ Call the process.
+
+        .. note::
+            matlab process input image headers are saved since matlab
+            tools may modify image headers.
+
+        Parameters
+        ----------
+        kwargs: dict (optional)
+            should correspond to the declared process parameters.
+        """
+        # Set the process inputs early to get some argument checking
+        for name, value in kwargs.iteritems():
+            self.process.set_parameter(name, value)
+        input_parameters = self._get_process_arguments()
+
+        # Information message
+        if self.verbose != 0:
+            print("{0}\n[Process] Calling {1}...\n{2}".format(
+                80 * "_", self.process.id,
+                get_process_signature(self.process, input_parameters)))
+
+        # Start a timer
+        start_time = time.time()
+
+        # Execute the process
+        result = self.process()
+        duration = time.time() - start_time
+
+        # Information message
+        if self.verbose != 0:
+            msg = "{0:.1f}s, {1:.1f}min".format(duration, duration / 60.)
+            print(max(0, (80 - len(msg))) * '_' + msg)
+
+        return result
+
+    def _get_process_arguments(self):
+        """ Get the process arguments.
+
+        The user process traits are accessed through the user_traits()
+        method that returns a sorted dictionary.
+
+        Returns
+        -------
+        input_parameters: dict
+            the process input parameters.
+        """
+        # Store for input parameters
+        input_parameters = {}
+
+        # Go through all the user traits
+        for name, trait in self.process.user_traits().iteritems():
+
+            # Get the trait value
+            value = self.process.get_parameter(name)
+
+            # Split input and output traits
+            is_input = True
+            if "output" in trait.__dict__ and trait.output:
+                is_input = False
+
+            # Skip undefined trait attributes and outputs
+            if is_input and value is not Undefined:
+
+                # Store the input parameter
+                input_parameters[name] = value
+
+        return input_parameters
+
+    def __getattr__(self, name):
+        """ Define behavior for when a user attempts to access an attribute
+        of a MemorizedProcess instance.
+
+        First check the MemorizedProcess object and then the Process object.
+
+        Parameters
+        ----------
+        name: string
+            the name of the parameter we want to access.
+        """
+        if name in self.__dict__:
+            super(UnMemorizedProcess, self).__getattr__(name)
+        elif name in self.process.user_traits():
+            return self.process.get_parameter(name)
+        elif name in dir(self.process):
+            return getattr(self.process, name)
+        else:
+            raise AttributeError(
+                "'UnMemorizedProcess' and 'Process' objects have no attribute "
+                "'{0}'".format(name))
+
+    def __setattr__(self, name, value):
+        """ Define behavior for when a user attempts to set an attribute
+        of a MemorizedProcess instance.
+
+        First check the MemorizedProcess object and then the Process object.
+
+        Parameters
+        ----------
+        name: string
+            the name of the parameter we want to set.
+        value: object
+            the parameter value.
+        """
+        if ("process" in self.__dict__ and
+                name in self.__dict__["process"].__dict__):
+            super(self.__dict__["process_class"],
+                  self.__dict__["process"]).__setattr__(name, value)
+        else:
+            super(UnMemorizedProcess, self).__setattr__(name, value)
+
+    def __repr__(self):
+        """ ProcessFunc class representation.
+        """
+        return "{0}({1})".format(self.__class__.__name__, self.process.id)
+
+
 class MemorizedProcess(object):
-    """ Callable onject decorating a capsul process for caching its return
+    """ Callable object decorating a capsul process for caching its return
     values each time it is called.
 
     All values are cached on the filesystem, in a deep directory
@@ -41,7 +176,7 @@ class MemorizedProcess(object):
     """
 
     def __init__(self, process, cachedir, timestamp=None, verbose=1):
-        """ Initialize the ProcessFunc class.
+        """ Initialize the MemorizedProcess class.
 
         Parameters
         ----------
@@ -108,9 +243,6 @@ class MemorizedProcess(object):
         # process
         process_dir, process_hash, input_parameters = self._get_process_id()
 
-        # Deal with matlab images
-        #kwargs = save_matlab_headers(kwargs)
-
         # Execute the process
         if not os.path.isdir(process_dir):
 
@@ -135,7 +267,7 @@ class MemorizedProcess(object):
         return result
 
     def _call_process(self, process_dir, input_parameters):
-        """ Load the result of a process.
+        """ Call a process.
 
         Parameters
         ----------
@@ -153,7 +285,7 @@ class MemorizedProcess(object):
         if self.verbose != 0:
             print("{0}\n[Memory] Calling {1}...\n{2}".format(
                 80 * "_", self.process.id,
-                self._get_process_signature(input_parameters)))
+                get_process_signature(self.process, input_parameters)))
 
         # Start a timer
         start_time = time.time()
@@ -194,7 +326,7 @@ class MemorizedProcess(object):
         # Display an information message
         if self.verbose != 0:
             print("[Memory]: Loading {0}...".format(
-                self._get_process_signature(input_parameters)))
+                get_process_signature(self.process, input_parameters)))
 
         # Load the process result
         result_fname = os.path.join(process_dir, "result.json")
@@ -313,23 +445,6 @@ class MemorizedProcess(object):
 
         return process_dir
 
-    def _get_process_signature(self, input_parameters):
-        """ Generate the process signature.
-
-        Parameters
-        ----------
-        input_parameters: dict
-            the process input_parameters.
-
-        Returns
-        -------
-        signature: string
-            the process signature.
-        """
-        kwargs = ["{0}={1}".format(name, value)
-                  for name, value in input_parameters.iteritems()]
-        return "{0}({1})".format(self.process.id, " ".join(kwargs))
-
     def __repr__(self):
         """ ProcessFunc class representation.
         """
@@ -370,13 +485,33 @@ class MemorizedProcess(object):
             the name of the parameter we want to set.
         value: object
             the parameter value.
-        """ 
-        if ("process" in self.__dict__ and 
+        """
+        if ("process" in self.__dict__ and
                 name in self.__dict__["process"].__dict__):
             super(self.__dict__["process_class"],
                   self.__dict__["process"]).__setattr__(name, value)
         else:
             super(MemorizedProcess, self).__setattr__(name, value)
+
+
+def get_process_signature(process, input_parameters):
+    """ Generate the process signature.
+
+    Parameters
+    ----------
+    process: Process
+        a capsul process object
+    input_parameters: dict
+        the process input_parameters.
+
+    Returns
+    -------
+    signature: string
+        the process signature.
+    """
+    kwargs = ["{0}={1}".format(name, value)
+              for name, value in input_parameters.iteritems()]
+    return "{0}({1})".format(process.id, " ".join(kwargs))
 
 
 def has_attribute(trait, attribute_name, attribute_value=None,
@@ -471,11 +606,11 @@ class CapsulResultEncoder(json.JSONEncoder):
                          "outputs"]:
                 result_dict[name] = getattr(obj, name)
             return result_dict
-            
+
         # Undefined parameter special case
         if isinstance(obj, Undefined.__class__):
             return "<undefined_trait_value>"
-            
+
         # InterfaceResult special case
         if isinstance(obj, InterfaceResult):
             return "<skip_nipype_interface_result>"
@@ -496,6 +631,8 @@ class Memory(object):
     ----------
     cachedir: string
         the directory name of the location for the caching.
+        If None is given, no caching is done and the Memory object is
+        transparent.
 
     Methods
     -------
@@ -515,28 +652,32 @@ class Memory(object):
             the directory name of the location for the caching.
         """
         # Build the capsul memory folder
-        cachedir = os.path.join(os.path.abspath(cachedir), "capsul_memory")
-        if not os.path.exists(cachedir):
-            os.makedirs(cachedir)
-        elif not os.path.isdir(cachedir):
-            raise ValueError("'base_dir' should be a directory")
+        if cachedir is not None:
+            cachedir = os.path.join(
+                os.path.abspath(cachedir), "capsul_memory")
+            if not os.path.exists(cachedir):
+                os.makedirs(cachedir)
+            elif not os.path.isdir(cachedir):
+                raise ValueError("'base_dir' should be a directory")
 
         # Define class parameters
         self.cachedir = cachedir
         self.timestamp = time.time()
 
-    def cache(self, process):
-        """ Decorates the given process in order to only execute the process
-        for input parameters not cached on disk.
+    def cache(self, process, verbose=1):
+        """ Create a proxy of the given process in order to only execute
+        the process for input parameters not cached on disk.
 
         Parameters
         ----------
         process: capsul process
             the capsul Process to be wrapped and cached.
+        verbose: int
+            if different from zero, print console messages.
 
         Returns
         -------
-        decorated_process: MemorizedProcess object
+        proxy_process: MemorizedProcess object
             the returned object is a MemorizedProcess object, that behaves
             as a process object, but offers extra methods for cache lookup
             and management.
@@ -566,9 +707,18 @@ class Memory(object):
 
         >>> results.outputs._merged_file
         """
-        if isinstance(process, MemorizedProcess):
+        # If a proxy process is found get the encapsulated process
+        if (isinstance(process, MemorizedProcess) or
+                isinstance(process, UnMemorizedProcess)):
             process = process.process
-        return MemorizedProcess(process, self.cachedir, self.timestamp)
+
+        # If the cachedir is None no caching is done
+        if self.cachedir is None:
+            return UnMemorizedProcess(process, verbose)
+        # Otherwise a proxy process is created
+        else:
+            return MemorizedProcess(process, self.cachedir, self.timestamp,
+                                    verbose)
 
     def clear(self, skips=None):
         """ Remove all the cache appart from those given to the method

@@ -15,6 +15,7 @@ from copy import deepcopy
 import json
 import subprocess
 import logging
+import shutil
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -78,8 +79,7 @@ class ProcessMeta(Controller.__metaclass__):
 
 
 class Process(Controller):
-    """
-    A prosess is an atomic component that contains a processing.
+    """ A process is an atomic component that contains a processing.
 
     Attributes
     ----------
@@ -156,7 +156,7 @@ class Process(Controller):
         Returns
         -------
         results:  ProcessResult object
-            contains all execution information
+            contains all execution information.
         """
         # Get the process class
         process = self.__class__
@@ -564,6 +564,138 @@ class Process(Controller):
         "Processing method that has to be defined in derived classes")
 
 
+class FileCopyProcess(Process):
+    """ A specific process that copies all the input files.
+
+    Attributes
+    ----------
+    `copied_inputs` : list of 2-uplet
+        the list of copied files (src, dest).
+
+    Methods
+    -------
+    __call__
+    _update_input_traits
+    _get_process_arguments
+    _copy_input_files
+    """
+    def __init__(self, inputs_to_copy=None):
+        """ Initialize the FileCopyProcess class.
+
+        Parameters
+        ----------
+        inputs_to_copy: list of str (optional, default None)
+            the list of inputs to copy.
+            If None, all the input files are copied.
+        """
+        # Inheritance
+        super(FileCopyProcess, self).__init__()
+
+        # Class parameters
+        self.inputs_to_copy = inputs_to_copy or []
+        self.copied_inputs = None
+
+    def __call__(self, **kwargs):
+        """ Method to execute the FileCopyProcess.
+        """
+        # Set the process inputs
+        for name, value in kwargs.iteritems():
+            self.process.set_parameter(name, value)
+
+        # Copy the desired items
+        self._update_input_traits()
+
+        # Inheritance
+        super(FileCopyProcess, self).__call__(**self.copied_inputs)
+
+    def _update_input_traits(self):
+        """ Update the process input traits: input files are copied.
+        """
+        # Get the new trait values
+        input_parameters = self._get_process_arguments()
+        self.copied_inputs = self._copy_input_files(input_parameters)
+
+    def _copy_input_files(self, python_object):
+        """ Recursive method that copy the input process files.
+
+        Parameters
+        ----------
+        python_object: object
+            a generic python object.
+
+        Returns
+        """
+        # Deal with dictionary
+        # Create an output dict that will contain the copied file locations
+        # and the other values
+        if isinstance(python_object, dict):
+            out = {}
+            for key, val in python_object.items():
+                if val is not Undefined:
+                    out[key] = self._copy_input_files(val)
+
+        # Deal with tuple and list
+        # Create an output list or tuple that will contain the copied file
+        # locations and the other values
+        elif isinstance(python_object, (list, tuple)):
+            out = []
+            for val in python_object:
+                if val is not Undefined:
+                    out.append(self._copy_input_files(val))
+            if isinstance(python_object, tuple):
+                out = tuple(out)
+
+        # Otherwise start the copy (with metadata cp -p) if the object is
+        # a file
+        else:
+            out = python_object
+            if (python_object is not Undefined and
+                    isinstance(python_object, str) and
+                    os.path.isfile(python_object)):
+                srcdir = os.path.dirname(python_object)
+                destdir = os.path.join(srcdir, "_workspace")
+                if not os.path.exists(destdir):
+                    os.makedirs(destdir)
+                fname = os.path.basename(python_object)
+                out = os.path.join(destdir, fname)
+                shutil.copy2(python_object, out)
+
+        return out
+
+    def _get_process_arguments(self):
+        """ Get the process arguments.
+
+        The user process traits are accessed through the user_traits()
+        method that returns a sorted dictionary.
+
+        Returns
+        -------
+        input_parameters: dict
+            the process input parameters.
+        """
+        # Store for input parameters
+        input_parameters = {}
+
+        # Go through all the user traits
+        for name, trait in self.user_traits().iteritems():
+
+            # Get the trait value
+            value = self.get_parameter(name)
+
+            # Split input and output traits
+            is_input = True
+            if "output" in trait.__dict__ and trait.output:
+                is_input = False
+
+            # Skip undefined trait attributes and outputs
+            if is_input and value is not Undefined:
+
+                # Store the input parameter
+                input_parameters[name] = value
+
+        return input_parameters
+
+
 class NipypeProcess(Process):
     """ Base class used to wrap nipype interfaces.
     """
@@ -673,7 +805,7 @@ class NipypeProcess(Process):
 
         # Set additional information in the execution report
         returncode = results.returncode
-        #if isinstance(returncode, InterfaceResult):
+        # if isinstance(returncode, InterfaceResult):
         if hasattr(returncode.runtime, "cmd_line"):
             results.runtime["cmd_line"] = returncode.runtime.cmdline
         results.runtime["stderr"] = returncode.runtime.stderr
