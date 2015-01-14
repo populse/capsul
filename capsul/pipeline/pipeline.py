@@ -73,7 +73,7 @@ class Pipeline(Process):
     # By default nodes_activation trait is hidden in user interface. Changing
     # this value to False will make it visible.
     hide_nodes_activation = True
-    
+
     def __init__(self, autoexport_nodes_parameters=True, **kwargs):
         """ Initialize the Pipeline class
 
@@ -85,9 +85,9 @@ class Pipeline(Process):
         """
         # Inheritance
         super(Pipeline, self).__init__(**kwargs)
-        super(Pipeline, self).add_trait('nodes_activation',
-                            Instance(Controller,
-                                     hidden=self.hide_nodes_activation))
+        super(Pipeline, self).add_trait(
+            'nodes_activation',
+            Instance(Controller, hidden=self.hide_nodes_activation))
 
         # Class attributes
         self.list_process_in_pipeline = []
@@ -152,7 +152,7 @@ class Pipeline(Process):
         if self.is_user_trait(trait):
             output = bool(trait.output)
             optional = bool(trait.optional)
-            plug = Plug(output=output,optional=optional)
+            plug = Plug(output=output, optional=optional)
             self.pipeline_node.plugs[name] = plug
             plug.on_trait_change(self.update_nodes_and_plugs_activation,
                                  'enabled')
@@ -955,7 +955,7 @@ class Pipeline(Process):
                     graph.add_node(GraphNode(
                         node_name, node.process.workflow_graph()))
 
-                # If a Process or an iterative node is found: the meta graph 
+                # If a Process or an iterative node is found: the meta graph
                 # node parameter contains a list with one process node or
                 # a dynamic structure that cannot be processed yet.
                 else:
@@ -1018,7 +1018,7 @@ class Pipeline(Process):
     def _run_process(self):
         """ Execution of the pipeline.
 
-        Since  no study configuration are set, execute the pipeline in a 
+        Since  no study configuration are set, execute the pipeline in a
         sequential order, single-processor mode.
 
         Returns
@@ -1028,11 +1028,11 @@ class Pipeline(Process):
         """
         # Get all the process nodes to execute
         nodes_list = self.workflow_ordered_nodes()
-        
+
         # Go through all process nodes
         returned = []
         for node in nodes_list:
-        
+
             # Execute the process contained in the node
             node_ret = node.process()
             returned.append(node_ret)
