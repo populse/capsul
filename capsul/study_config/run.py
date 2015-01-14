@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_process(output_dir, process_instance, cachedir=None,
-                generate_logging=False):
+                generate_logging=False, verbose=1, **kwargs):
     """ Execute a capsul process in a specific directory.
 
     Parameters
@@ -36,6 +36,8 @@ def run_process(output_dir, process_instance, cachedir=None,
         If None, no caching is done.
     generate_logging: bool (optional, default False)
         if True save the log stored in the process after its execution.
+    verbose: int
+        if different from zero, print console messages.
 
     Returns
     -------
@@ -63,10 +65,10 @@ def run_process(output_dir, process_instance, cachedir=None,
 
     # Create a memory object
     mem = Memory(cachedir)
-    proxy_instance = mem.cache(process_instance)
+    proxy_instance = mem.cache(process_instance, verbose=verbose)
 
     # Execute the proxy process
-    returncode = proxy_instance()
+    returncode = proxy_instance(**kwargs)
 
     # Save the process log
     if generate_logging:
