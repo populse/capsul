@@ -7,71 +7,71 @@
 # for details.
 ##########################################################################
 
-# python system modules
+# System import
 import os
-import shutil
 import logging
+
+# CAPSUL import
+from capsul.study_config.memory import Memory
+
+# TRAIT import
+from traits.api import Undefined
 
 # Define the logger
 logger = logging.getLogger(__name__)
 
-# traits
-from traits.trait_base import _Undefined
 
+def run_process(output_dir, process_instance, cachedir=None,
+                generate_logging=False, spm_dir=None):
+    """ Execute a capsul process in a specific directory.
 
-def set_output_dir(subj_output_dir, process_instance, spm_dir):
-    """ Try to set the study output directory
+    Parameters
+    ----------
+    output_dir: str (mandatory)
+        the folder where the process will write results.
+    process_instance: Process (madatory)
+        the capsul process we want to execute.
+    cachedir: str (optional, default None)
+        save in the cache the current process execution.
+        If None, no caching is done.
+    generate_logging: bool (optional, default False)
+        if True save the log stored in the process after its execution.
+    spm_dir: str (optional, default None)
+        the directory containing the spm sources.
+
+    Returns
+    -------
+    returncode: ProcessResult
+        contains all execution information.
+    output_log_file: str
+        the path to the process execution log file.
     """
-    if not isinstance(subj_output_dir, _Undefined):
-        # nipype setup
-        if "_nipype_interface" in dir(process_instance):
-            process_instance._nipype_interface.inputs.output_directory = (
-                subj_output_dir)
-            if "spm" in process_instance._nipype_interface_name:
-                process_instance._nipype_interface.mlab.inputs.prescript = [
-                    "ver,", "try,", "addpath('{0}');".format(spm_dir),
-                    "cd('{0}');".format(subj_output_dir)]
-            elif process_instance._nipype_interface_name == "dcm2nii":
-                # process_instance.output_dir = subj_output_dir
-                trait = process_instance._nipype_interface.inputs.trait(
-                    "output_dir")
-                trait.genfile = False
-                trait = process_instance._nipype_interface.inputs.trait(
-                    "config_file")
-                trait.genfile = False
+    # Guarantee that the output directory exists
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
 
+    # Update the instance output directory trait before execution
+    if output_dir is not Undefined:
         if "output_directory" in process_instance.user_traits():
-            process_instance.output_directory = subj_output_dir
+            process_instance.output_directory = output_dir
 
-
-def _run_process(subj_output_dir, description, process_instance,
-                 generate_logging, spm_dir):
-    """ Execute the process
-    """
-    # First set instance parameters
-    set_output_dir(subj_output_dir, process_instance, spm_dir)
-    if generate_logging:
-        output_log_file = os.path.join(subj_output_dir, description + ".json")
-        process_instance.log_file = output_log_file
-    returncode = process_instance()
-
-    # generate some log
+    # Setup the process log file
     output_log_file = None
     if generate_logging:
-        output_log_file = os.path.join(subj_output_dir, description + ".json")
+        output_log_file = os.path.join(
+            os.path.basename(output_dir),
+            os.path.dirname(output_dir) + ".json")
         process_instance.log_file = output_log_file
+
+    # Create a memory object
+    mem = Memory(cachedir)
+    proxy_instance = mem.cache(process_instance)
+
+    # Execute the proxy process
+    returncode = proxy_instance()
+
+    # Save the process log
+    if generate_logging:
         process_instance.save_log(returncode)
 
-    # for spm, need to move the batch
-    # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)
-    if ("_nipype_interface" in dir(process_instance) and
-        process_instance._nipype_interface_name == "spm"):
-            mfile = os.path.join(os.getcwd(),
-                process_instance._nipype_interface.mlab.inputs.script_file)
-            n_mfile = os.path.join(subj_output_dir,
-                process_instance._nipype_interface.mlab.inputs.script_file)
-            if os.path.isfile(mfile):
-                shutil.move(mfile, n_mfile)
-
     return returncode, output_log_file
-

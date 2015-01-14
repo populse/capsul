@@ -347,7 +347,8 @@ class Process(Controller):
             ("import sys; from {0} import {1}; kwargs={2}; "
              "kwargs.update(dict((sys.argv[i * 2 + 1], sys.argv[i * 2 + 2]) "
              "for i in range((len(sys.argv) - 1) / 2))); "
-             "{1}()(**kwargs)").format(module_name, class_name, repr(argsdict)).replace("'", '"')
+             "{1}()(**kwargs)").format(
+                 module_name, class_name, repr(argsdict)).replace("'", '"')
         ] + sum([list(x) for x in pathsdict.items()], [])
 
         return commandline
@@ -758,6 +759,10 @@ class NipypeProcess(Process):
             self.reoriented_and_cropped_files = _Undefined()
             self.bvecs = _Undefined()
             self.bvals = _Undefined()
+            trait = self._nipype_interface.inputs.trait("output_dir")
+            trait.genfile = False
+            trait = self._nipype_interface.inputs.trait("config_file")
+            trait.genfile = False
 
         # For the split fsl interface, initialize the dimension trait
         # value properly
@@ -800,12 +805,32 @@ class NipypeProcess(Process):
         results:  ProcessResult object
             contains all execution information
         """
+        # Set the interface output directory just before the execution
+        self._nipype_interface.inputs.output_directory = self.output_directory
+
+        # Set the cwd in spm batch
+        if "spm" in self._nipype_interface_name:
+            self._nipype_interface.mlab.inputs.prescript += [
+                # " ver,", "try,", "addpath('{0}');".format(spm_dir),
+                "cd('{0}');".format(self.output_directory)]
+
         # Inheritance
         results = super(NipypeProcess, self).__call__(**kwargs)
 
+        # For spm, need to move the batch
+        # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)
+        if self._nipype_interface_name == "spm":
+            mfile = os.path.join(
+                os.getcwd(),
+                self._nipype_interface.mlab.inputs.script_file)
+            destmfile = os.path.join(
+                self.output_directory,
+                self._nipype_interface.mlab.inputs.script_file)
+            if os.path.isfile(mfile):
+                shutil.move(mfile, destmfile)
+
         # Set additional information in the execution report
         returncode = results.returncode
-        # if isinstance(returncode, InterfaceResult):
         if hasattr(returncode.runtime, "cmd_line"):
             results.runtime["cmd_line"] = returncode.runtime.cmdline
         results.runtime["stderr"] = returncode.runtime.stderr
