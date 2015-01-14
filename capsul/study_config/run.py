@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_process(output_dir, process_instance, cachedir=None,
-                generate_logging=False, spm_dir=None):
+                generate_logging=False):
     """ Execute a capsul process in a specific directory.
 
     Parameters
@@ -36,8 +36,6 @@ def run_process(output_dir, process_instance, cachedir=None,
         If None, no caching is done.
     generate_logging: bool (optional, default False)
         if True save the log stored in the process after its execution.
-    spm_dir: str (optional, default None)
-        the directory containing the spm sources.
 
     Returns
     -------
