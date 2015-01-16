@@ -7,16 +7,12 @@ GUI
 The exact GUI description of all functions and classes, as given by 
 the docstrings.
 
+**User guide:** See the :ref:`capsul_guide` section for further details.
+
 .. _capsul_gui_ref:
 
 :mod:`capsul.qt_apps`: Application
 ==================================
-
-.. automodule:: capsul.qt_apps
-   :no-members:
-   :no-inherited-members:
-
-**User guide:** See the :ref:`capsul_guide` section for further details.
 
 .. currentmodule:: capsul.qt_apps
 
@@ -32,16 +28,6 @@ Classes
 
 :mod:`capsul.qt_apps.utils`: Utils
 ==================================
-
-.. automodule:: capsul.qt_apps.utils
-   :no-members:
-   :no-inherited-members:
-
-.. automodule:: capsul.qt_apps
-   :no-members:
-   :no-inherited-members:
-
-**User guide:** See the :ref:`capsul_guide` section for further details.
 
 .. currentmodule:: capsul.qt_apps.utils
 
@@ -69,12 +55,6 @@ Functions
 
 :mod:`capsul.qt_gui`: Controller Widgets
 ========================================
-
-.. automodule:: capsul.qt_gui
-   :no-members:
-   :no-inherited-members:
-
-**User guide:** See the :ref:`capsul_guide` section for further details.
 
 .. currentmodule:: capsul.qt_gui
 
@@ -107,12 +87,6 @@ Controls
 
 :mod:`capsul.qt_gui.widgets`: Pipeline Viewers
 ==============================================
-
-.. automodule:: capsul.qt_gui.widgets
-   :no-members:
-   :no-inherited-members:
-
-**User guide:** See the :ref:`capsul_guide` section for further details.
 
 .. currentmodule:: capsul.qt_gui.widgets
 

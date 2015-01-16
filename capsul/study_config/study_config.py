@@ -74,12 +74,11 @@ class StudyConfig(Controller):
     -------
     run
     reset_process_counter
-    save_study_configuration
-    update_study_configuration
-    set_study_configuration
     set_trait_value
     get_trait
     get_trait_value
+    update_study_configuration
+    set_study_configuration
     """
 
     default_modules = ['FSLConfig', 'MatlabConfig', 'SmartCachingConfig',
@@ -556,9 +555,9 @@ class StudyConfig(Controller):
     def get_trait(self, trait_name):
         """ Method to access the 'trait_name' study configuration element.
 
-        .. note:
-
-            If the 'trait_name' element is not found, return None
+        Notes
+        -----
+        If the 'trait_name' element is not found, return None
 
         Parameters
         ----------

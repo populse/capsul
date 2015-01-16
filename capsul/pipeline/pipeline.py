@@ -49,7 +49,7 @@ class Pipeline(Process):
     `workflow_list`: list
         a list of odered nodes that can be executed
     `workflow_repr`: str
-        a string representation of the workflow list `<node_i>-><node_i+1>`
+        a string representation of the workflow list <node_i>-><node_i+1>
 
     Methods
     -------
@@ -118,7 +118,8 @@ class Pipeline(Process):
     ##############
 
     def autoexport_nodes_parameters(self):
-        """Automatically export node containing pipeline plugs
+        """ Automatically export node containing pipeline plugs
+
         If plug is not optional and if the plug has to be exported
         """
         for node_name, node in self.nodes.iteritems():
@@ -195,7 +196,6 @@ class Pipeline(Process):
             a list of plug names that we do not want to export
         make_optional: list of str (optional)
             a list of plug names that we do not want to export
-
         """
         # Unique constrains
         make_optional = set(make_optional or [])
@@ -311,8 +311,7 @@ class Pipeline(Process):
 
         Examples
         --------
-        >>> pipeline.add_switch('group_switch', ['in1', 'in2'],
-            ['out1', 'out2'])
+        >>> pipeline.add_switch('group_switch', ['in1', 'in2'], ['out1', 'out2'])
 
         will create a switch with 4 inputs and 2 outputs:
         inputs: "in1_switch_out1", "in2_switch_out1", "in1_switch_out2",
@@ -375,8 +374,7 @@ class Pipeline(Process):
         Parameters
         ----------
         name: str
-            the description plug we want to load
-            'node.plug'
+            the description plug we want to load 'node.plug'
 
         Returns
         -------
@@ -420,8 +418,8 @@ class Pipeline(Process):
             If no node is specified, the pipeline node itself is used:
             "output->other_node.input".
         weak_link: bool
-             this property is used when nodes are optional,
-             the plug information may not be generated.
+            this property is used when nodes are optional,
+            the plug information may not be generated.
         """
         # Parse the link
         (source_node_name, source_plug_name, source_node,
@@ -468,8 +466,8 @@ class Pipeline(Process):
         Parameters
         ----------
         link: str
-          link description. Its shape should be: "node.output->other_node.input".
-          If no node is specified, the pipeline itself is assumed.
+            link description. Its shape should be: "node.output->other_node.input".
+            If no node is specified, the pipeline itself is assumed.
         """
         # Parse the link
         (source_node_name, source_plug_name, source_node,
@@ -898,7 +896,7 @@ class Pipeline(Process):
         self._disable_update_nodes_and_plugs_activation -= 1
 
     def workflow_graph(self):
-        """Generate a workflow graph
+        """ Generate a workflow graph
 
         Returns
         -------
@@ -1185,6 +1183,7 @@ class Pipeline(Process):
         Returns
         -------
         pipeline_state: dictionary
+            todo
         """
         result = {}
         for node in self.all_nodes():

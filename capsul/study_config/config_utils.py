@@ -27,7 +27,7 @@ def environment(sh_file=None, env={}):
     Parameters
     ----------
     sh_file: str (mandatory)
-        the path to the *.sh script used to set up the environment.
+        the path to the sh script used to set up the environment.
     env: dict (optional, default empty)
         the default environment used to parse the configuration sh file.
 

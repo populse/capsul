@@ -627,20 +627,15 @@ class CapsulResultEncoder(json.JSONEncoder):
 class Memory(object):
     """ Memory context to provide caching for processes.
 
-    Parameters
+    Attributes
     ----------
-    cachedir: string
-        the directory name of the location for the caching.
-        If None is given, no caching is done and the Memory object is
-        transparent.
+    `cachedir`: string
+        the location for the caching. If None is given, no caching is done.
 
     Methods
     -------
     cache
-        creates a cacheable function from an capsul Process class.
-    clear_previous_runs
-        removes from the disk all the runs that where not used after
-        the creation time of the specific Memory instance.
+    clear
     """
 
     def __init__(self, cachedir):

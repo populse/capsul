@@ -6,16 +6,12 @@ Contributing Documentation
 
 Useful information for advanced users.
 
+**API:** See the :ref:`capsul_ref` section for API details.
+
 .. _capsul_dev:
 
 :mod:`capsul.pipeline`: Pipeline
 =================================
-
-.. automodule:: capsul.pipeline
-   :no-members:
-   :no-inherited-members:
-
-**API:** See the :ref:`capsul_ref` section for API details.
 
 .. currentmodule:: capsul.pipeline
 
@@ -47,17 +43,7 @@ Iterative node building blocks.
 :mod:`capsul.process`: Process
 ===============================
 
-.. automodule:: capsul.process
-   :no-members:
-   :no-inherited-members:
-
 .. currentmodule:: capsul.process
-
-.. autosummary::
-    :toctree: generated/capsul-process/
-    :template: class.rst
-
-    process.NipypeProcess
 
 .. autosummary::
     :toctree: generated/capsul-process/
@@ -69,23 +55,27 @@ Iterative node building blocks.
 :mod:`capsul.study_config`: Study Configuration
 ================================================
 
-.. automodule:: capsul.study_config
-   :no-members:
-   :no-inherited-members:
-
-
 .. currentmodule:: capsul.study_config
+
+.. autosummary::
+    :toctree: generated/capsul-studyconfig/
+    :template: class.rst
+
+    memory.MemorizedProcess
+    memory.UnMemorizedProcess
 
 .. autosummary::
     :toctree: generated/capsul-studyconfig/
     :template: function.rst
 
     config_utils.environment
-    config_utils.find_spm
-    run._run_process
-    run.set_output_dir
-    run_with_cache._joblib_run_process
-    spm_cache_utils.local_map
-    spm_cache_utils.copy_resources
-    spm_cache_utils.last_timestamp
+    run.run_process
+
+.. currentmodule:: capsul.study_config.config_modules
+
+.. autosummary::
+    :toctree: generated/capsul-studyconfig/
+    :template: function.rst
+
+    spm_config.find_spm
 
