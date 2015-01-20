@@ -22,7 +22,13 @@ from capsul.process import Process
 from capsul.process import ProcessResult
 
 # NIPYPE import
-from nipype.interfaces.base import InterfaceResult
+try:
+    from nipype.interfaces.base import InterfaceResult
+except ImportError:
+    # if nipype is not here, we will not really need this but it is used in
+    # object type checking in CapsulResultEncoder
+    class InterfaceResult(object):
+        pass
 
 # TRAITS import
 from traits.api import Undefined
