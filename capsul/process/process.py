@@ -738,11 +738,21 @@ class NipypeProcess(Process):
 
         # Set the nipype and nipype interface versions
         interface_name = self._nipype_interface.__module__.split(".")[2]
-        self.versions.update({
-            "nipype": get_tool_version("nipype"),
-            interface_name: self._nipype_interface.version
-        })
-
+        if interface_name != "spm":
+            self.versions.update({
+                "nipype": get_tool_version("nipype"),
+                interface_name: self._nipype_interface.version
+            })
+        else:
+            from nipype.interfaces.spm import SPMCommand
+            from nipype.interfaces.matlab import MatlabCommand
+            self.versions.update({
+                "nipype": get_tool_version("nipype"),
+                interface_name: "{0}-{1}|{2}-{3}".format(
+                    SPMCommand._matlab_cmd, MatlabCommand._default_paths,
+                    SPMCommand._paths, SPMCommand._use_mcr)
+            })
+ 
         # Add a new trait to store the processing output directory
         super(Process, self).add_trait(
             "output_directory", Directory(Undefined, exists=True,
