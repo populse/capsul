@@ -18,12 +18,13 @@ import traceback
 logger = logging.getLogger(__name__)
 
 # Trait import
-import traits.api as traits
 from traits.trait_base import _Undefined
 from traits.api import Directory, CTrait
 
-# Soma import
-from soma.controller import trait_ids
+# CAPSUL import
+from capsul.utils.trait_utils import trait_ids
+from capsul.utils.trait_utils import build_expression
+from capsul.utils.trait_utils import eval_trait
 
 # Capsul import
 from process import NipypeProcess
@@ -66,17 +67,6 @@ def nipype_factory(nipype_instance):
     sync_process_output_traits
     clone_nipype_trait
     """
-    # In order to convert nipype special traits, we define a dict of
-    # correspondances
-    trait_cvt_table = {
-        "InputMultiPath_TraitCompound": "List",
-        "InputMultiPath": "List",
-        "MultiPath": "List",
-        "Dict_Str_Str": "DictStrStr",
-        "OutputMultiPath_TraitCompound": "List",
-        "OutputMultiPath": "List",
-        "OutputList": "List"
-    }
 
     ####################################################################
     # Monkey patching for Nipype version '0.9.2'.
@@ -342,124 +332,9 @@ def nipype_factory(nipype_instance):
             the cloned/converted trait that will be used in the process
             instance.
         """
-        # Get the nipype trait string description
-        str_description = trait_ids(trait)
-
-        # Normalize (convert) the description if necessary
-        # For the moment do not create Either struct since it is not
-        # considered in capuslview
-        add_switch = False
-        if "MultiPath" in str_description[0]:
-            add_switch = False  # set to True to ceate a selector
-
-        # Use the convertion table to normalize the trait description
-        for old_str, new_str in trait_cvt_table.iteritems():
-            for cnt in range(len(str_description)):
-                str_description[cnt] = str_description[
-                    cnt].replace(old_str, new_str)
-
-        # If a selector structure is detected, update the string description
-        # accordingly
-        if add_switch:
-            str_description = [
-                str_description[0],
-                "_".join(str_description[0].split("_")[1:])]
-
-        # Create a new trait from its expression and namespace
-        # Frist define the namespace were the expression will be executed
-        namespace = {"traits": traits, "_Undefined": _Undefined,
-                     "process_trait": None}
-
-        # Build now the trait expressions
-        trait_expressions = []
-
-        # Go through all the string description items
-        for trait_spec in str_description:
-
-            # Get each atomic trait elements
-            trait_spec = trait_spec.split("_")
-
-            # Start building the current trait expression
-            expression = ""
-
-            # Go through all atomic trait elements
-            for trait_item in trait_spec:
-
-                # Standard case: add atomic trait description in the
-                # expression
-                expression += "traits.{0}(".format(trait_item)
-
-                # Special case: Enum
-                # Need to add enum values at the construction
-                if trait_item == "Enum":
-                    # Enum()
-                    if (isinstance(trait.get_validate(), tuple) and
-                       trait.get_validate()[0] == 5):
-
-                        expression += "{0}".format(trait.get_validate()[1])
-
-                    # List(Enum())
-                    elif trait.handler.inner_traits():
-
-                        inner_trait = trait.handler.inner_traits()[0]
-
-                        if (isinstance(inner_trait.get_validate(), tuple)
-                           and inner_trait.get_validate()[0] == 5):
-
-                            expression += "{0}".format(
-                                inner_trait.get_validate()[1])
-
-                    # Either(Enum(),..)
-                    else:
-                        for inner_trait in trait.handler.handlers:
-                            if inner_trait.values:
-                                expression += "{0}".format(inner_trait.values)
-
-                # Special case: Range
-                # Need to add the lower and upper bounds
-                if trait_item == "Range":
-                    if isinstance(nipype_trait, traits.CTrait):
-                        expression += "low={0},high={1}".format(
-                            nipype_trait.handler._low,
-                            nipype_trait.handler._high)
-                    else:
-                        expression += "low={0},high={1}".format(
-                            nipype_trait._low,
-                            nipype_trait._high)
-
-                # Special case: File
-                # Initialize the default file trait value to undefined
-                if trait_item == "File":
-                    expression += "_Undefined()"
-
-            # Finalize the current expression and store it
-            expression += ")" * len(trait_spec)
-            trait_expressions.append(expression)
-
-        # If we have multiple expression use a selector structure
-        if len(trait_expressions) > 1:
-            expression = "process_trait = traits.Either("
-            for trait_expression in trait_expressions:
-                expression += "{0}, ".format(trait_expression)
-            expression += ")"
-        # Otherwise
-        else:
-            expression = "process_trait = {0}".format(trait_expressions[0])
-
-        # Evaluate the expression in the defined namespace
-        def f():
-            exec expression in namespace
-
-        try:
-            f()
-        except:
-            raise Exception(
-                "Can't evaluate expression {0} in namespace {1}."
-                "Please investigate: {2}.".format(
-                    expression, namespace, sys.exc_info()[1]))
-
-        # Get the evaluated traits
-        process_trait = namespace["process_trait"]
+        # Clone the nipype trait
+        expression = build_expression(nipype_trait)
+        process_trait = eval_trait(expression)
 
         # Copy some information from the nipype trait
         process_trait.desc = nipype_trait.desc
