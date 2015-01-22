@@ -19,4 +19,4 @@ class SmartCachingConfig(StudyConfigModule):
             output=False,
             desc='Use smart-caching during the execution'))
         self.study_config = study_config
-        self.study_config.on_trait_change(self._use_smart_caching_changed, 'use_smart_caching')
+        # self.study_config.on_trait_change(self._use_smart_caching_changed, 'use_smart_caching')
