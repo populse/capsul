@@ -14,7 +14,7 @@ class SomaWorkflowConfig(StudyConfigModule):
     def __init__(self, study_config, configuration):
         super(SomaWorkflowConfig, self).__init__(study_config, configuration)
         study_config.add_trait('use_soma_workflow', Bool(
-            Undefined,
+            False,
             output=False,
             desc='Use soma woklow for the execution'))
         study_config.add_trait('somaworkflow_computing_resource', Str(

@@ -91,7 +91,7 @@ class SPMConfig(StudyConfigModule):
             Undefined,
             desc="If True, SPM configuration is set up on startup."))
         self.study_config.add_trait("spm_standalone", Bool(
-            Undefined,
+            False,
             desc="If True, use the standalone version of SPM."))
         self.study_config.add_trait("spm_directory", Directory(
             Undefined,
@@ -116,7 +116,8 @@ class SPMConfig(StudyConfigModule):
             # If use_spm is not defined, SPM configuration will
             # be done if possible but there will be no error if it cannot be
             # done.
-            force_configuration = False   
+            force_configuration = False
+        self.study_config.use_spm = True   
 
         # If we need to check spm configuration
         if self.study_config.use_spm is True:
