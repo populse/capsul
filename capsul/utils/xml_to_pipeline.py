@@ -69,15 +69,28 @@ class AutoPipeline(Pipeline):
         if "standard" in self._parameters["pipeline"]["processes"]:
             for process_description in self.to_list(self._parameters[
                     "pipeline"]["processes"]["standard"]):
-                optional_parameters = []
+                optional_parameters = {}
                 if "force" in process_description:
                     for force_description in self.to_list(process_description[
                             "force"]):
-                        optional_parameters.append(force_description["@name"])
+                        # Argument coarse typing
+                        try:
+                            value = eval(force_description["@value"])
+                        except:
+                            value = force_description["@value"]
+                        optional_parameters.update(
+                            {force_description["@name"]: value})
+
+                # Add the new process to the pipeline
+                node_name = process_description["@name"]
                 self.add_process(
                     process_description["@name"],
                     process_description["module"],
-                    make_optional=optional_parameters)
+                    make_optional=optional_parameters.keys())
+
+                # Set the forced values
+                for name, value in optional_parameters.iteritems():
+                    self.nodes[node_name].process.set_parameter(name, value)
 
         # Add all the pipeline iterative processes
         if "iterative" in self._parameters["pipeline"]["processes"]:
