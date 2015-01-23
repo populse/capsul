@@ -15,6 +15,9 @@ import inspect
 # CAPSUL import
 from capsul.pipeline import Pipeline
 
+# TRAIT import
+from traits.api import Undefined
+
 
 def title_for(xmlpath_description):
     """ Create a title from an underscore-separated file name.

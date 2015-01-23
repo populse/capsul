@@ -536,7 +536,7 @@ class Process(Controller):
             the trait value we want to set
         """
         # Detect File and Directory trait types with None value
-        if not value and is_trait_pathname(self.trait(name)):
+        if value is None and is_trait_pathname(self.trait(name)):
 
             # The None trait value is _Undefined, do the replacement
             value = _Undefined()
@@ -613,13 +613,13 @@ class FileCopyProcess(Process):
             self._update_input_traits()
 
             # Inheritance
-            super(FileCopyProcess, self).__call__(**self.copied_inputs)
+            return super(FileCopyProcess, self).__call__(**self.copied_inputs)
 
         # Transparent class, call the Process class method
         else:
 
             # Inheritance
-            super(FileCopyProcess, self).__call__(**kwargs)
+            return super(FileCopyProcess, self).__call__(**kwargs)
 
     def _update_input_traits(self):
         """ Update the process input traits: input files are copied.
@@ -793,20 +793,6 @@ class NipypeProcess(FileCopyProcess):
             trait = self._nipype_interface.inputs.trait("config_file")
             trait.genfile = False
 
-        # For the split fsl interface, initialize the dimension trait
-        # value properly
-        elif (self._nipype_interface_name == "fsl" and
-              self._nipype_class == "Split"):
-
-            self._nipype_interface.inputs.dimension = "t"
-
-        # For the merge fsl interface, initialize the dimension trait
-        # value properly
-        elif (self._nipype_interface_name == "fsl" and
-              self._nipype_class == "Merge"):
-
-            self._nipype_interface.inputs.dimension = "t"
-
     def __call__(self, **kwargs):
         """ Method to execute the NipypeProcess.
 
@@ -837,14 +823,23 @@ class NipypeProcess(FileCopyProcess):
         # Set the interface output directory just before the execution
         self._nipype_interface.inputs.output_directory = self.output_directory
 
-        # Set the cwd in spm batch
-        if "spm" in self._nipype_interface_name:
-            self._nipype_interface.mlab.inputs.prescript += [
-                # " ver,", "try,", "addpath('{0}');".format(spm_dir),
-                "cd('{0}');".format(self.output_directory)]
+        # Before calling the nipype interface, set nipype process parameters
+        # to the undelying interface: prevent the case where a mandatory traits
+        # with a default value is not set explicitely due to trait speed up
+        # policy, a Value Error is reised.
+        for name, trait in self.user_traits().iteritems():
+            if trait.output is not True:
+                value = self.get_parameter(name)
+                if value is not Undefined:
+                    setattr(self._nipype_interface.inputs, name, value) 
 
         # Inheritance
-        results = super(NipypeProcess, self).__call__(**kwargs)
+        # Set the cwd in spm batch
+        if self._nipype_interface_name == "spm":
+            results = super(NipypeProcess, self).__call__(**kwargs)
+        # Do nothing specific
+        else:
+            results = super(NipypeProcess, self).__call__(**kwargs)
 
         # For spm, need to move the batch
         # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)

@@ -16,6 +16,7 @@ import hashlib
 import time
 import shutil
 import json
+import numpy
 
 # CAPSUL import
 from capsul.process import Process
@@ -596,6 +597,10 @@ class CapsulFileEncoder(json.JSONEncoder):
         # File special case
         if isinstance(obj, basestring) and os.path.isfile(obj):
             return file_fingerprint(obj)
+
+        # Array special case
+        if isinstance(obj, numpy.array):
+            return obj.tolist()
 
         # Call the base class default method
         return json.JSONEncoder.default(self, obj)

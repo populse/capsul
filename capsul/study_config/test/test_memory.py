@@ -18,7 +18,6 @@ from capsul.process import Process
 from capsul.process import FileCopyProcess
 from capsul.process import get_process_instance
 from capsul.study_config.memory import Memory
-from capsul.study_config.study_config import StudyConfig
 
 # Trait import
 from traits.api import Float, File, List, String
@@ -70,7 +69,7 @@ class TestMemory(unittest.TestCase):
         process = DummyProcess()
 
         # Create a proxy process
-        proxy_process = self.mem.cache(process, verbose=0)
+        proxy_process = self.mem.cache(process, verbose=1)
 
         # Test the cache mechanism
         for param in [(1., 2.3), (2., 2.), (1., 2.3)]:
