@@ -579,11 +579,13 @@ class FileCopyProcess(Process):
     _get_process_arguments
     _copy_input_files
     """
-    def __init__(self, inputs_to_copy=None):
+    def __init__(self, activate_copy=True, inputs_to_copy=None):
         """ Initialize the FileCopyProcess class.
 
         Parameters
         ----------
+        activate_copy: bool (default True)
+            if False this class is transparent and behaves as a Process class.
         inputs_to_copy: list of str (optional, default None)
             the list of inputs to copy.
             If None, all the input files are copied.
@@ -592,21 +594,32 @@ class FileCopyProcess(Process):
         super(FileCopyProcess, self).__init__()
 
         # Class parameters
-        self.inputs_to_copy = inputs_to_copy or []
-        self.copied_inputs = None
+        self.activate_copy = activate_copy
+        if self.activate_copy:
+            self.inputs_to_copy = inputs_to_copy or self.user_traits().keys()
+            self.copied_inputs = None
 
     def __call__(self, **kwargs):
         """ Method to execute the FileCopyProcess.
         """
-        # Set the process inputs
-        for name, value in kwargs.iteritems():
-            self.process.set_parameter(name, value)
+        # The copy option is activated
+        if self.activate_copy:
 
-        # Copy the desired items
-        self._update_input_traits()
+            # Set the process inputs
+            for name, value in kwargs.iteritems():
+                self.process.set_parameter(name, value)
 
-        # Inheritance
-        super(FileCopyProcess, self).__call__(**self.copied_inputs)
+            # Copy the desired items
+            self._update_input_traits()
+
+            # Inheritance
+            super(FileCopyProcess, self).__call__(**self.copied_inputs)
+
+        # Transparent class, call the Process class method
+        else:
+
+            # Inheritance
+            super(FileCopyProcess, self).__call__(**kwargs)
 
     def _update_input_traits(self):
         """ Update the process input traits: input files are copied.
@@ -679,24 +692,27 @@ class FileCopyProcess(Process):
         # Go through all the user traits
         for name, trait in self.user_traits().iteritems():
 
-            # Get the trait value
-            value = self.get_parameter(name)
+            # Check if the target parameter is in the check list
+            if name in self.inputs_to_copy:
 
-            # Split input and output traits
-            is_input = True
-            if "output" in trait.__dict__ and trait.output:
-                is_input = False
+                # Get the trait value
+                value = self.get_parameter(name)
 
-            # Skip undefined trait attributes and outputs
-            if is_input and value is not Undefined:
+                # Split input and output traits
+                is_input = True
+                if "output" in trait.__dict__ and trait.output:
+                    is_input = False
 
-                # Store the input parameter
-                input_parameters[name] = value
+                # Skip undefined trait attributes and outputs
+                if is_input and value is not Undefined:
+
+                    # Store the input parameter
+                    input_parameters[name] = value
 
         return input_parameters
 
 
-class NipypeProcess(Process):
+class NipypeProcess(FileCopyProcess):
     """ Base class used to wrap nipype interfaces.
     """
     def __init__(self, nipype_instance, *args, **kwargs):
@@ -723,36 +739,40 @@ class NipypeProcess(Process):
         _nipype_interface_name : str
             private attribute to store the nipye interface name
         """
-        # Inheritance
-        super(NipypeProcess, self).__init__(*args, **kwargs)
-
         # Set some class attributes that characterize the nipype interface
         self._nipype_interface = nipype_instance
         self._nipype_module = nipype_instance.__class__.__module__
         self._nipype_class = nipype_instance.__class__.__name__
         self._nipype_interface_name = self._nipype_module.split(".")[2]
 
+        # Inheritance: activate input files copy for spm interfaces.
+        if self._nipype_interface_name == "spm":
+            super(NipypeProcess, self).__init__(
+                activate_copy=True, *args, **kwargs)
+        else:
+            super(NipypeProcess, self).__init__(
+                activate_copy=False, *args, **kwargs)
+
         # Replace the process name and identification attributes
         self.id = ".".join([self._nipype_module, self._nipype_class])
         self.name = self._nipype_interface.__class__.__name__
 
         # Set the nipype and nipype interface versions
-        interface_name = self._nipype_interface.__module__.split(".")[2]
-        if interface_name != "spm":
+        if self._nipype_interface_name != "spm":
             self.versions.update({
                 "nipype": get_tool_version("nipype"),
-                interface_name: self._nipype_interface.version
+                self._nipype_interface_name: self._nipype_interface.version
             })
         else:
             from nipype.interfaces.spm import SPMCommand
             from nipype.interfaces.matlab import MatlabCommand
             self.versions.update({
                 "nipype": get_tool_version("nipype"),
-                interface_name: "{0}-{1}|{2}-{3}".format(
+                self._nipype_interface_name: "{0}-{1}|{2}-{3}".format(
                     SPMCommand._matlab_cmd, MatlabCommand._default_paths,
                     SPMCommand._paths, SPMCommand._use_mcr)
             })
- 
+
         # Add a new trait to store the processing output directory
         super(Process, self).add_trait(
             "output_directory", Directory(Undefined, exists=True,
