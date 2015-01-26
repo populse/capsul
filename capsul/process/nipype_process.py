@@ -81,28 +81,8 @@ def nipype_factory(nipype_instance):
         runtime: Bunch (mandatory)
             the configuration structure
         """
-        from copy import deepcopy
         runtime.cwd = self.inputs.output_directory
-
-        # Need to complete the m-file: impossible to do it with the
-        # MatlabInputSpec.prescript in v0.10 since the object is recreated
-        if "spm" in self.__module__:
-            self.mlab.inputs.script = self._make_matlab_command(
-                deepcopy(self._parse_inputs()))
-            print self.mlab.inputs.script
-            print stop
-            results = self.mlab.run()
-            runtime.returncode = results.runtime.returncode
-            if self.mlab.inputs.uses_mcr:
-                if 'Skipped' in results.runtime.stdout:
-                    self.raise_exception(runtime)
-            runtime.stdout = results.runtime.stdout
-            runtime.stderr = results.runtime.stderr
-            runtime.merged = results.runtime.merged
-            return runtime
-        # Default case
-        else:
-            return self._run_interface_core(runtime)
+        return self._run_interface_core(runtime)
 
     def _list_outputs(self):
         """ Method to list all the interface outputs

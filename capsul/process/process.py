@@ -579,7 +579,8 @@ class FileCopyProcess(Process):
     _get_process_arguments
     _copy_input_files
     """
-    def __init__(self, activate_copy=True, inputs_to_copy=None):
+    def __init__(self, activate_copy=True, inputs_to_copy=None,
+                 destination=None):
         """ Initialize the FileCopyProcess class.
 
         Parameters
@@ -589,14 +590,22 @@ class FileCopyProcess(Process):
         inputs_to_copy: list of str (optional, default None)
             the list of inputs to copy.
             If None, all the input files are copied.
+        destination: str (optional default None)
+            where the files are copied.
+            If None, files are copied in a '_workspace' folder included in the
+            image folder.
         """
         # Inheritance
         super(FileCopyProcess, self).__init__()
 
         # Class parameters
         self.activate_copy = activate_copy
+        self.destination = destination
         if self.activate_copy:
-            self.inputs_to_copy = inputs_to_copy or self.user_traits().keys()
+            if inputs_to_copy is None:
+                self.inputs_to_copy = self.user_traits().keys()
+            else:
+                self.inputs_to_copy = inputs_to_copy
             self.copied_inputs = None
 
     def __call__(self, **kwargs):
@@ -637,6 +646,9 @@ class FileCopyProcess(Process):
             a generic python object.
 
         Returns
+        -------
+        out: object
+            the copied-file input object.
         """
         # Deal with dictionary
         # Create an output dict that will contain the copied file locations
@@ -663,10 +675,13 @@ class FileCopyProcess(Process):
         else:
             out = python_object
             if (python_object is not Undefined and
-                    isinstance(python_object, str) and
+                    isinstance(python_object, basestring) and
                     os.path.isfile(python_object)):
                 srcdir = os.path.dirname(python_object)
-                destdir = os.path.join(srcdir, "_workspace")
+                if self.destination is None:
+                    destdir = os.path.join(srcdir, "_workspace")
+                else:
+                    destdir = self.destination
                 if not os.path.exists(destdir):
                     os.makedirs(destdir)
                 fname = os.path.basename(python_object)
@@ -747,8 +762,14 @@ class NipypeProcess(FileCopyProcess):
 
         # Inheritance: activate input files copy for spm interfaces.
         if self._nipype_interface_name == "spm":
+            # Copy only 'copyfile' nipype traits
+            inputs_to_copy = []
+            for name, trait in self._nipype_interface.inputs.traits().items():
+                if trait.copyfile is True:
+                    inputs_to_copy.append(name)
             super(NipypeProcess, self).__init__(
-                activate_copy=True, *args, **kwargs)
+                activate_copy=True, inputs_to_copy=inputs_to_copy, *args,
+                **kwargs)
         else:
             super(NipypeProcess, self).__init__(
                 activate_copy=False, *args, **kwargs)
@@ -823,19 +844,10 @@ class NipypeProcess(FileCopyProcess):
         # Set the interface output directory just before the execution
         self._nipype_interface.inputs.output_directory = self.output_directory
 
-        # Before calling the nipype interface, set nipype process parameters
-        # to the undelying interface: prevent the case where a mandatory traits
-        # with a default value is not set explicitely due to trait speed up
-        # policy, a Value Error is reised.
-        for name, trait in self.user_traits().iteritems():
-            if trait.output is not True:
-                value = self.get_parameter(name)
-                if value is not Undefined:
-                    setattr(self._nipype_interface.inputs, name, value) 
-
         # Inheritance
         # Set the cwd in spm batch
         if self._nipype_interface_name == "spm":
+            self.destination = self.output_directory
             results = super(NipypeProcess, self).__call__(**kwargs)
         # Do nothing specific
         else:

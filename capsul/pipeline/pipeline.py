@@ -183,19 +183,21 @@ class Pipeline(Process):
         super(Pipeline, self).remove_trait(name)
 
     def add_process(self, name, process, do_not_export=None,
-                    make_optional=None, **kwargs):
+                    make_optional=None, inputs_to_copy=None, **kwargs):
         """ Add a new node in the pipeline
 
         Parameters
         ----------
         name: str (mandatory)
-            the node name (has to be unique)
+            the node name (has to be unique).
         process: Process (mandatory)
-            the process we want to add
+            the process we want to add.
         do_not_export: list of str (optional)
-            a list of plug names that we do not want to export
+            a list of plug names that we do not want to export.
         make_optional: list of str (optional)
-            a list of plug names that we do not want to export
+            a list of plug names that we do not want to export.
+        inputs_to_copy: list of str (optional)
+            a list of item to copy.
         """
         # Unique constrains
         make_optional = set(make_optional or [])
@@ -209,6 +211,9 @@ class Pipeline(Process):
 
         # Create a process node
         process = get_process_instance(process, **kwargs)
+        # Update the list of files item to copy
+        if inputs_to_copy is not None and hasattr(process, "inputs_to_copy"):
+            process.inputs_to_copy.extend(inputs_to_copy)
         if isinstance(process, Pipeline):
             node = process.pipeline_node
             node.name = name

@@ -342,7 +342,7 @@ class MemorizedProcess(object):
                 "Non-existing cache value (may have been cleared).\n"
                 "File {0} does not exist.".format(result_fname))
         with open(result_fname) as json_data:
-            result_dict = json.load(json_data)
+            result_dict = json.load(json_data, cls=CapsulResultDecoder)
 
         # Generate the ProcessResult
         result = ProcessResult(
@@ -427,7 +427,8 @@ class MemorizedProcess(object):
 
         # Generate the process hash
         hasher = hashlib.new("md5")
-        hasher.update(json.dumps(process_parameters, cls=CapsulFileEncoder))
+        hasher.update(json.dumps(process_parameters, sort_keys=True,
+                                 cls=CapsulFileEncoder))
         process_hash = hasher.hexdigest()
 
         return process_hash, input_parameters
@@ -587,6 +588,7 @@ def file_fingerprint(afile):
         stat = os.stat(afile)
         fingerprint["size"] = str(stat.st_size)
         fingerprint["mtime"] = str(stat.st_mtime)
+    print "***********", fingerprint
     return fingerprint
 
 
@@ -597,10 +599,6 @@ class CapsulFileEncoder(json.JSONEncoder):
         # File special case
         if isinstance(obj, basestring) and os.path.isfile(obj):
             return file_fingerprint(obj)
-
-        # Array special case
-        if isinstance(obj, numpy.array):
-            return obj.tolist()
 
         # Call the base class default method
         return json.JSONEncoder.default(self, obj)
@@ -626,8 +624,30 @@ class CapsulResultEncoder(json.JSONEncoder):
         if isinstance(obj, InterfaceResult):
             return "<skip_nipype_interface_result>"
 
+        # Array special case
+        if isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+
         # Call the base class default method
         return json.JSONEncoder.default(self, obj)
+
+
+class CapsulResultDecoder(json.JSONDecoder):
+    """ Deal with ProcessResult in json.
+    """
+    def __init__(self, *args, **kargs):
+        json.JSONDecoder.__init__(self, object_hook=self.undefined, *args,
+                                  **kargs)
+
+    def undefined(self, obj):
+        # Undefined parameter special case
+        if obj == "<undefined_trait_value>":
+            obj = Undefined
+        if isinstance(obj, dict):
+            for key, value in obj.iteritems():
+                if value == "<undefined_trait_value>":
+                    obj[key] = Undefined
+        return obj
 
 
 ############################################################################

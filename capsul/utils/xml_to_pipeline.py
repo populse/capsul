@@ -73,6 +73,8 @@ class AutoPipeline(Pipeline):
             for process_description in self.to_list(self._parameters[
                     "pipeline"]["processes"]["standard"]):
                 optional_parameters = {}
+                hidden_parameters = {}
+                to_copy_parameters = []
                 if "force" in process_description:
                     for force_description in self.to_list(process_description[
                             "force"]):
@@ -81,19 +83,40 @@ class AutoPipeline(Pipeline):
                             value = eval(force_description["@value"])
                         except:
                             value = force_description["@value"]
-                        optional_parameters.update(
-                            {force_description["@name"]: value})
+
+                        # Case force copy
+                        if ("@copyfile" in force_description and
+                                force_description["@copyfile"] == "True"):
+                            to_copy_parameters.append(
+                                force_description["@name"])
+
+                        else:
+                            # Case of hidden nipype interface parameters: trick
+                            # to be removed when all 'usedefault' nipype input
+                            # spec trait will be set properly
+                            if ("@usedefault" in force_description and
+                               force_description["@usedefault"] == "True"):
+
+                                hidden_parameters.update(
+                                    {force_description["@name"]: value})
+                            # Case of process parameters
+                            optional_parameters.update(
+                                {force_description["@name"]: value})
 
                 # Add the new process to the pipeline
                 node_name = process_description["@name"]
                 self.add_process(
                     process_description["@name"],
                     process_description["module"],
-                    make_optional=optional_parameters.keys())
+                    make_optional=optional_parameters.keys(),
+                    inputs_to_copy=to_copy_parameters)
 
                 # Set the forced values
+                process = self.nodes[node_name].process
                 for name, value in optional_parameters.iteritems():
-                    self.nodes[node_name].process.set_parameter(name, value)
+                    process.set_parameter(name, value)
+                for name, value in hidden_parameters.iteritems():
+                    setattr(process._nipype_interface.inputs, name, value)
 
         # Add all the pipeline iterative processes
         if "iterative" in self._parameters["pipeline"]["processes"]:
@@ -107,7 +130,7 @@ class AutoPipeline(Pipeline):
                 iterative_parameters = []
                 if "iter" in process_description:
                     iterative_parameters = self.to_list(
-                        process_description["iter"])            
+                        process_description["iter"])
                 self.add_iterative_process(
                     process_description["@name"],
                     process_description["module"],
