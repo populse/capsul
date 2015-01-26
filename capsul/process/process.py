@@ -845,9 +845,16 @@ class NipypeProcess(FileCopyProcess):
         self._nipype_interface.inputs.output_directory = self.output_directory
 
         # Inheritance
-        # Set the cwd in spm batch
         if self._nipype_interface_name == "spm":
+            # Set the spm working
             self.destination = self.output_directory
+            # Clean the working folder
+            if os.path.isdir(self.output_directory):
+                items_in_folder = os.listdir(self.output_directory)
+                if len(items_in_folder) != 0:
+                    logger.info("Found items '{0}', exec auto-clean for spm "
+                                "process.".format(items_in_folder))
+                    shutil.rmtree(self.output_directory)
             results = super(NipypeProcess, self).__call__(**kwargs)
         # Do nothing specific
         else:
