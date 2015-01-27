@@ -263,15 +263,73 @@ class MemorizedProcess(object):
                 result = self._call_process(process_dir, input_parameters)
                 for name, value in result.outputs.iteritems():
                     self.process.set_parameter(name, value)
+
+                # Save the result files in the memory with the corresponding
+                # mapping
+                output_parameters = {}
+                for name, trait in self.process.traits(output=True).items():
+                    # Get the trait value
+                    value = self.process.get_parameter(name)
+                    output_parameters[name] = value
+                file_mapping = []
+                self._copy_files_to_memory(output_parameters, process_dir,
+                                           file_mapping)
+                map_fname = os.path.join(process_dir, "file_mapping.json")
+                with open(map_fname, "w") as open_file:
+                    open_file.write(json.dumps(file_mapping))
+
             except:
                 shutil.rmtree(process_dir)
                 raise
 
         # Restore the process results from the cache folder
         else:
+            # Restore the memorized files
+            map_fname = os.path.join(process_dir, "file_mapping.json")
+            with open(map_fname) as json_data:
+                file_mapping = json.load(json_data)
+            for workspace_file, memory_file in file_mapping:
+                shutil.copy2(memory_file, workspace_file)
+
+            # Update the process output traits
             result = self._load_process_result(process_dir, input_parameters)
 
         return result
+
+    def _copy_files_to_memory(self, python_object, process_dir, file_mapping):
+        """ Copy file items inside the memory.
+
+        Parameters
+        ----------
+        python_object: object
+            a generic python object.
+        process_dir: str
+            the process memory path.
+        file_mapping: list of 2-uplet
+            store in this structure the mapping between the workspace and the
+            memory (workspace_file, memory_file).
+        """
+        # Deal with dictionary
+        if isinstance(python_object, dict):
+            for val in python_object.values():
+                if val is not Undefined:
+                    self._copy_files_to_memory(val, process_dir, file_mapping)
+
+        # Deal with tuple and list
+        elif isinstance(python_object, (list, tuple)):
+            for val in python_object:
+                if val is not Undefined:
+                    self._copy_files_to_memory(val, process_dir, file_mapping)
+
+        # Otherwise start the copy if the object is a file
+        else:
+            if (python_object is not Undefined and
+                    isinstance(python_object, basestring) and
+                    os.path.isfile(python_object)):
+                fname = os.path.basename(python_object)
+                out = os.path.join(process_dir, fname)
+                shutil.copy2(python_object, out)
+                file_mapping.append((python_object, out))
 
     def _call_process(self, process_dir, input_parameters):
         """ Call a process.
