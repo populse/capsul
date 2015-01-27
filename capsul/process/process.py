@@ -580,7 +580,7 @@ class FileCopyProcess(Process):
     _copy_input_files
     """
     def __init__(self, activate_copy=True, inputs_to_copy=None,
-                 destination=None):
+                 inputs_to_clean=None, destination=None):
         """ Initialize the FileCopyProcess class.
 
         Parameters
@@ -590,6 +590,9 @@ class FileCopyProcess(Process):
         inputs_to_copy: list of str (optional, default None)
             the list of inputs to copy.
             If None, all the input files are copied.
+        inputs_to_clean: list of str (optional, default None)
+            some copied inputs that can be deleted at the end of the
+            processing.
         destination: str (optional default None)
             where the files are copied.
             If None, files are copied in a '_workspace' folder included in the
@@ -602,6 +605,7 @@ class FileCopyProcess(Process):
         self.activate_copy = activate_copy
         self.destination = destination
         if self.activate_copy:
+            self.inputs_to_clean = inputs_to_clean or []
             if inputs_to_copy is None:
                 self.inputs_to_copy = self.user_traits().keys()
             else:
@@ -622,13 +626,50 @@ class FileCopyProcess(Process):
             self._update_input_traits()
 
             # Inheritance
-            return super(FileCopyProcess, self).__call__(**self.copied_inputs)
+            result = super(FileCopyProcess, self).__call__(**self.copied_inputs)
+
+            # Clean the workspace
+            self._clean_workspace()
+
+            return result
 
         # Transparent class, call the Process class method
         else:
 
             # Inheritance
             return super(FileCopyProcess, self).__call__(**kwargs)
+
+    def _clean_workspace(self):
+        """ Removed som copied inputs that can be deleted at the end of the
+        processing.
+        """
+        for to_rm_name in self.inputs_to_clean:
+            if to_rm_name in self.copied_inputs:
+                self._rm_files(self.copied_inputs[to_rm_name])
+                
+    def _rm_files(self, python_object):
+        """ Remove a set of copied files from the filesystem.
+
+        Parameters
+        ----------
+        python_object: object
+            a generic python object.
+        """
+        # Deal with dictionary
+        if isinstance(python_object, dict):
+            for val in python_object.values():
+                self._rm_files(val)
+
+        # Deal with tuple and list
+        elif isinstance(python_object, (list, tuple)):
+            for val in python_object:
+                self._rm_files(val)
+
+        # Otherwise start the deletion if the object is a file
+        else:
+            if (isinstance(python_object, basestring) and
+                    os.path.isfile(python_object)):
+                os.remove(python_object)      
 
     def _update_input_traits(self):
         """ Update the process input traits: input files are copied.
@@ -763,10 +804,8 @@ class NipypeProcess(FileCopyProcess):
         # Inheritance: activate input files copy for spm interfaces.
         if self._nipype_interface_name == "spm":
             # Copy only 'copyfile' nipype traits
-            inputs_to_copy = []
-            for name, trait in self._nipype_interface.inputs.traits().items():
-                if trait.copyfile is True:
-                    inputs_to_copy.append(name)
+            inputs_to_copy = self._nipype_interface.inputs.traits(
+                copyfile=True).keys()
             super(NipypeProcess, self).__init__(
                 activate_copy=True, inputs_to_copy=inputs_to_copy, *args,
                 **kwargs)

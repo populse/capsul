@@ -183,7 +183,8 @@ class Pipeline(Process):
         super(Pipeline, self).remove_trait(name)
 
     def add_process(self, name, process, do_not_export=None,
-                    make_optional=None, inputs_to_copy=None, **kwargs):
+                    make_optional=None, inputs_to_copy=None,
+                    inputs_to_clean=None, **kwargs):
         """ Add a new node in the pipeline
 
         Parameters
@@ -211,9 +212,14 @@ class Pipeline(Process):
 
         # Create a process node
         process = get_process_instance(process, **kwargs)
+
         # Update the list of files item to copy
         if inputs_to_copy is not None and hasattr(process, "inputs_to_copy"):
             process.inputs_to_copy.extend(inputs_to_copy)
+        if inputs_to_clean is not None and hasattr(process, "inputs_to_clean"):
+            process.inputs_to_clean.extend(inputs_to_clean)
+
+        # Create the pipeline node
         if isinstance(process, Pipeline):
             node = process.pipeline_node
             node.name = name

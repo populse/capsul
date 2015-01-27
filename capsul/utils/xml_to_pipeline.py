@@ -75,22 +75,27 @@ class AutoPipeline(Pipeline):
                 optional_parameters = {}
                 hidden_parameters = {}
                 to_copy_parameters = []
+                to_rm_parameters = []
                 if "force" in process_description:
                     for force_description in self.to_list(process_description[
                             "force"]):
-                        # Argument coarse typing
-                        try:
-                            value = eval(force_description["@value"])
-                        except:
-                            value = force_description["@value"]
-
                         # Case force copy
-                        if ("@copyfile" in force_description and
-                                force_description["@copyfile"] == "True"):
-                            to_copy_parameters.append(
-                                force_description["@name"])
+                        if "@copyfile" in force_description:   
+                            if force_description["@copyfile"] in ["True", "Temp"]:
+                                to_copy_parameters.append(
+                                    force_description["@name"])
+                            if force_description["@copyfile"] == "Temp":
+                                to_rm_parameters.append(
+                                    force_description["@name"])
 
+                        # Pipeline parameters to be set
                         else:
+                            # Argument coarse typing
+                            try:
+                                value = eval(force_description["@value"])
+                            except:
+                                value = force_description["@value"]
+
                             # Case of hidden nipype interface parameters: trick
                             # to be removed when all 'usedefault' nipype input
                             # spec trait will be set properly
@@ -109,7 +114,8 @@ class AutoPipeline(Pipeline):
                     process_description["@name"],
                     process_description["module"],
                     make_optional=optional_parameters.keys(),
-                    inputs_to_copy=to_copy_parameters)
+                    inputs_to_copy=to_copy_parameters,
+                    inputs_to_clean=to_rm_parameters)
 
                 # Set the forced values
                 process = self.nodes[node_name].process
