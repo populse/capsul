@@ -421,17 +421,56 @@ class MemorizedProcess(object):
                 input_parameters[name] = value
 
         # Add the tool versions to check roughly if the running codes have
-        # changed
+        # changed and add file path fingerprints
         process_parameters = input_parameters.copy()
+        process_parameters = self._add_fingerprints(process_parameters)
         process_parameters["versions"] = self.process.versions
 
         # Generate the process hash
         hasher = hashlib.new("md5")
-        hasher.update(json.dumps(process_parameters, sort_keys=True,
-                                 cls=CapsulFileEncoder))
+        hasher.update(json.dumps(process_parameters, sort_keys=True))
         process_hash = hasher.hexdigest()
 
         return process_hash, input_parameters
+
+    def _add_fingerprints(self, python_object):
+        """ Add file path fingerprints.
+
+        Parameters
+        ----------
+        python_object: object
+            a generic python object.
+
+        Returns
+        -------
+        out: object
+            the input object with fingerprint-file representation.
+        """
+        # Deal with dictionary
+        out = {}
+        if isinstance(python_object, dict):
+            for key, val in python_object.iteritems():
+                if val is not Undefined:
+                    out[key] = self._add_fingerprints(val)
+
+        # Deal with tuple and list
+        elif isinstance(python_object, (list, tuple)):
+            out = []
+            for val in python_object:
+                if val is not Undefined:
+                    out.append(self._add_fingerprints(val))
+            if isinstance(python_object, tuple):
+                out = tuple(out)
+
+        # Otherwise start the deletion if the object is a file
+        else:
+            out = python_object
+            if (python_object is not Undefined and
+                    isinstance(python_object, basestring) and
+                    os.path.isfile(python_object)):
+                out = file_fingerprint(python_object)
+
+        return out
 
     def _get_process_dir(self):
         """ Get the directory corresponding to the cache for the current
@@ -588,20 +627,7 @@ def file_fingerprint(afile):
         stat = os.stat(afile)
         fingerprint["size"] = str(stat.st_size)
         fingerprint["mtime"] = str(stat.st_mtime)
-    print "***********", fingerprint
     return fingerprint
-
-
-class CapsulFileEncoder(json.JSONEncoder):
-    """ Deal with files in json.
-    """
-    def default(self, obj):
-        # File special case
-        if isinstance(obj, basestring) and os.path.isfile(obj):
-            return file_fingerprint(obj)
-
-        # Call the base class default method
-        return json.JSONEncoder.default(self, obj)
 
 
 class CapsulResultEncoder(json.JSONEncoder):
