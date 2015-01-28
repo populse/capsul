@@ -158,7 +158,8 @@ class AutoPipeline(Pipeline):
                         process, parameter, pipeline_parameter=parameter_name)
 
         # Add all the pipeline links
-        for link_description in self._parameters["pipeline"]["links"]["link"]:
+        for link_description in self.to_list(self._parameters["pipeline"][
+                "links"]["link"]):
             link = "{0}->{1}".format(
                 link_description["@src"],
                 link_description["@dest"])
