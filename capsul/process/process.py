@@ -838,21 +838,6 @@ class NipypeProcess(FileCopyProcess):
             "output_directory", Directory(Undefined, exists=True,
                                           optional=True))
 
-        # Nipype '0.9.2' tricks
-        # In order to run the nipype dcm2nii interface, we
-        # need to create attributes that will be modified by
-        # the nipype run call
-        if self._nipype_interface_name == "dcm2nii":
-            self.output_files = _Undefined()
-            self.reoriented_files = _Undefined()
-            self.reoriented_and_cropped_files = _Undefined()
-            self.bvecs = _Undefined()
-            self.bvals = _Undefined()
-            trait = self._nipype_interface.inputs.trait("output_dir")
-            trait.genfile = False
-            trait = self._nipype_interface.inputs.trait("config_file")
-            trait.genfile = False
-
     def __call__(self, **kwargs):
         """ Method to execute the NipypeProcess.
 
