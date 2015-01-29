@@ -171,12 +171,17 @@ class Pipeline(Process):
         # If we remove a user trait, clear/remove the associated plug
         if self.is_user_trait(trait):
             plug = self.pipeline_node.plugs[name]
+            links_to_remove = []
+            # use intermediary links_to_remove to avoid modifying the links set
+            # while iterating on it...
             for link in plug.links_to:
                 dst = '%s.%s' % (link[0], link[1])
-                self.remove_link('%s->%s' % (name, dst))
+                links_to_remove.append('%s->%s' % (name, dst))
             for link in plug.links_from:
                 src = '%s.%s' % (link[0], link[1])
-                self.remove_link('%s->%s' % (src, name))
+                links_to_remove.append('%s->%s' % (src, name))
+            for link in links_to_remove:
+                self.remove_link(link)
             del self.pipeline_node.plugs[name]
 
         # Remove the trait
