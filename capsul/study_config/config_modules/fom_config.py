@@ -87,5 +87,9 @@ class FomConfig(StudyConfigModule):
         self.study_config.use_fom = True
     
     def initialize_callbacks(self):
-        self.study_config.on_trait_change(self.initialize_module, 'use_fom')
-    
+        self.study_config.on_trait_change(
+            self.initialize_module,
+            ['use_fom', 'input_directory', 'input_fom', 'meshes_format',
+             'output_directory', 'output_fom', 'shared_directory', 'shared_fom',
+             'spm_directory', 'volumes_format'])
+
