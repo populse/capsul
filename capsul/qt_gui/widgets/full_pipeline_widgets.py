@@ -406,10 +406,11 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_text = '<em>%s</em>' % param_text
         else:
             trait = self.process.user_traits()[param_name]
-            if isinstance(trait.trait_type, traits.File) \
-                    or isinstance(trait.trait_type, traits.Directory):
-                if os.path.exists(value):
-                    param_text = '<b>%s</b>' % param_text
+            if (isinstance(trait.trait_type, traits.File) \
+                    or isinstance(trait.trait_type, traits.Directory) \
+                    or isinstance(trait.trait_type, traits.Any)) \
+                    and os.path.exists(value):
+                param_text = '<b>%s</b>' % param_text
         return param_text
 
     def update_node(self):
@@ -1103,6 +1104,20 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     When colored_parameters is set, however, callbacks have to be installed to
     track changes in traits values, so this actually has an overhead.
+    When colored_parameters is used, the color code is as follows:
+
+    * black pamameter name: input
+    * red parameter name: output
+    * italics parameter name: Undefined, None, or empty string value
+    * bold parameter name: existing file or directory name
+    * regular font parameter name: non-existing file, or non-file parameter type
+    * black plug: mandatory
+    * green plug: optional
+    * grey plug: mandatory, inactive
+    * light green plug: optional, inactive
+    * grey link: inactive
+    * orange link: active
+    * dotted line link: weak link
     '''
 
     def __init__(self, pipeline, parent=None, show_sub_pipelines=False,
