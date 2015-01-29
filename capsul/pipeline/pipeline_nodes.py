@@ -734,7 +734,7 @@ class Switch(Node):
     _anytrait_changed
     """
 
-    def __init__(self, pipeline, name, inputs, outputs):
+    def __init__(self, pipeline, name, inputs, outputs, make_optional=()):
         """ Generate a Switch Node
 
         Warnings
@@ -752,6 +752,10 @@ class Switch(Node):
             a list of options
         outputs: list (mandatory)
             a list of output parameters
+        make_optional: sequence (optional)
+            list of optional outputs.
+            These outputs will be made optional in the switch output. By default
+            they are mandatory.
         """
         # if the user pass a simple element, create a list and add this
         # element
@@ -778,7 +782,7 @@ class Switch(Node):
                                 for plug_name in outputs])
         node_inputs = ([dict(name="switch"), ] +
                        [dict(name=i, optional=True) for i in flat_inputs])
-        node_outputs = [dict(name=i)
+        node_outputs = [dict(name=i, optional=(i in make_optional))
                         for i in outputs]
         # inherit from Node class
         super(Switch, self).__init__(pipeline, name, node_inputs,
@@ -788,7 +792,7 @@ class Switch(Node):
 
         # add switch enum trait to select the process
         self.add_trait("switch", Enum(output=False, *inputs))
-        
+
         # add a trait for each input and each output
         for i in flat_inputs:
             self.add_trait(i, Any(output=False))

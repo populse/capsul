@@ -303,7 +303,8 @@ class Pipeline(Process):
             # Add new node in pipeline process list
             self.list_process_in_pipeline.append(node.process)
 
-    def add_switch(self, name, inputs, outputs):
+    def add_switch(self, name, inputs, outputs, export_switch=True,
+                   make_optional=()):
         """ Add a switch node in the pipeline
 
         Parameters
@@ -319,6 +320,13 @@ class Pipeline(Process):
             several input groups.
         outputs: list of str (mandatory)
             names for outputs.
+        export_switch: bool (optional)
+            if True, export the switch trigger to the parent pipeline with
+            ``name`` as parameter name
+        make_optional: sequence (optional)
+            list of optional outputs.
+            These outputs will be made optional in the switch output. By default
+            they are mandatory.
 
         Examples
         --------
@@ -335,11 +343,12 @@ class Pipeline(Process):
                              "name: {0}".format(name))
 
         # Create the node
-        node = Switch(self, name, inputs, outputs)
+        node = Switch(self, name, inputs, outputs, make_optional=make_optional)
         self.nodes[name] = node
 
         # Export the switch controller to the pipeline node
-        self.export_parameter(name, "switch", name)
+        if export_switch:
+            self.export_parameter(name, "switch", name)
 
     def parse_link(self, link):
         """ Parse a link comming from export_parameter method.
