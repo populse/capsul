@@ -549,7 +549,7 @@ class StudyConfig(Controller):
         trait_value: object (madatory)
             the trait value we want to set
         """
-        if trait_name in self.traits(output=False):
+        if trait_name in self.user_traits():
             setattr(self, trait_name, trait_value)
 
     def get_trait(self, trait_name):
@@ -569,7 +569,7 @@ class StudyConfig(Controller):
         trait: trait
             the trait we want to access
         """
-        if trait_name in self.traits(output=False):
+        if trait_name in self.user_traits():
             return self.trait(trait_name)
         else:
             return None
@@ -592,7 +592,7 @@ class StudyConfig(Controller):
         value: object
             the trait value we want to access
         """
-        if trait_name in self.traits(output=False):
+        if trait_name in self.user_traits():
             return getattr(self, trait_name)
         else:
             return None
