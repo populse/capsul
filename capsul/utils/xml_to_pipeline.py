@@ -80,8 +80,9 @@ class AutoPipeline(Pipeline):
                     for force_description in self.to_list(process_description[
                             "force"]):
                         # Case force copy
-                        if "@copyfile" in force_description:   
-                            if force_description["@copyfile"] in ["True", "Temp"]:
+                        if "@copyfile" in force_description:
+                            if force_description["@copyfile"] in [
+                                    "True", "Temp"]:
                                 to_copy_parameters.append(
                                     force_description["@name"])
                             if force_description["@copyfile"] == "Temp":
@@ -116,6 +117,11 @@ class AutoPipeline(Pipeline):
                     make_optional=optional_parameters.keys(),
                     inputs_to_copy=to_copy_parameters,
                     inputs_to_clean=to_rm_parameters)
+
+                # Set the view node
+                if ("@processing" in process_description and
+                        process_description["@processing"] == "False"):
+                    self.nodes[node_name].node_type = "view_node"
 
                 # Set the forced values
                 process = self.nodes[node_name].process
