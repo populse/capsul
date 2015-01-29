@@ -228,7 +228,7 @@ class StudyConfig(Controller):
             self.modules[config_module_name] = module
             return module
 
-    def run(self, process_or_pipeline, executer_qc_nodes=False, verbose=1,
+    def run(self, process_or_pipeline, executer_qc_nodes=True, verbose=1,
             **kwargs):
         """ Method to execute a process or a pipline in a study configuration
          environment.
