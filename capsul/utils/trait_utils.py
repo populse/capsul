@@ -149,7 +149,7 @@ def is_trait_pathname(trait):
             isinstance(trait.trait_type, traits.Directory))
 
 
-def clone_trait(trait_description, trait_values=None):
+def clone_trait(trait_description):
     """ Clone a trait from its string description.
 
     In the case of Enum trait, we need to initilaize the object with all its
@@ -160,8 +160,6 @@ def clone_trait(trait_description, trait_values=None):
     trait_description: list of str (mandatory)
         the trait string description from which we want to create a new trait
         instance of the same type.
-    trait_values: object (optional, default None)
-        the new trait initiale values.
     """
     # Build the new trait expression
     trait_expression = []
@@ -171,19 +169,7 @@ def clone_trait(trait_description, trait_values=None):
 
         # Split the current trait specification
         trait_spec = trait_spec.split("_")
-
-        # Build the expression we will evaluate to build the new trait item
-        expression = ""
-        for trait_item in trait_spec:
-            expression += "traits.{0}(".format(trait_item)
-
-        # Add initiale values if necessary
-        if trait_values is not None:
-            expression += str(trait_values)
-
-        # Close and store the current trait expression
-        expression += ")" * len(trait_spec)
-        trait_expression.append(expression)
+        trait_expression.append(build_expression_from_spec(trait_spec))
 
     # Build the final expression: use the Either trait if multiple expressions
     if len(trait_expression) > 1:
@@ -194,7 +180,68 @@ def clone_trait(trait_description, trait_values=None):
     else:
         expression = "eval_trait = {0}".format(trait_expression[0])
 
+    print expression
+
     return eval_trait(expression)
+
+
+def build_expression_from_spec(trait_spec):
+    """ Build the expression to instanciate the trait.
+
+    Parameters
+    ----------
+    trait_spec: list of string (mandatory)
+        a trait string description structure.
+
+    Returns
+    -------
+    expression: str
+        the corresponding string expression.
+    """
+    # Only deal for now with those traits
+    allowed_traits = ["List", "Tuple", "Int", "Float", "Str", "String", "File",
+                      "Directory", "Any", "Bool"]
+
+    # Build the expression we will evaluate to build the new trait item
+    expression = ""
+    expression_size = 0
+    for trait_item in trait_spec:
+
+        # Check item type
+        if trait_item not in allowed_traits:
+            raise ValueError("'{0}' trait not yet supported.".format(
+                trait_item))
+
+        # Update the expression with the new item
+        expression += "traits.{0}(".format(trait_item)
+        expression_size += 1
+
+        # Tuple special case
+        if trait_item == "Tuple":
+
+            # Go through all tuple items
+            for cnt, tuple_item in enumerate(trait_spec[expression_size:]):
+
+                # Check item type
+                if tuple_item not in allowed_traits:
+                    raise ValueError("'{0}' trait not yet supported.".format(
+                        trait_item))
+
+                # List and Tuple special cases
+                if tuple_item in ["List", "Tuple"]:
+                    expression += build_expression_from_spec(
+                        trait_spec[expression_size + cnt:])
+                    break
+
+                # Update expression with the new item
+                else:
+                    expression += "traits.{0}(), ".format(tuple_item)
+            break
+
+    # Close and store the current trait expression
+    expression += ")" * expression_size
+
+    return expression
 
 
 def eval_trait(expression):
@@ -208,7 +255,7 @@ def eval_trait(expression):
     Returns
     -------
     eval_trait: trait instance
-        a trait instance.    
+        a trait instance.
     """
     # Create a new trait from its expression and namespace
     # Frist define the namespace were the expression will be executed
@@ -270,7 +317,8 @@ def trait_ids(trait):
     if main_id in ["Either", "TraitCompound"]:
 
         # Debug message
-        logger.debug("A coumpound trait has been found %s", repr(trait.handler.handlers))
+        logger.debug("A coumpound trait has been found %s", repr(
+            trait.handler.handlers))
 
         # Build each trait compound description
         trait_description = []

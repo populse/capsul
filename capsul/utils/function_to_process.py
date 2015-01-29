@@ -177,8 +177,7 @@ def class_factory(func, destination_module_globals):
 
         # Create the trait
         trait_desc = trait_item["type"]
-        trait_values = trait_item.get("initializer", None)
-        trait = clone_trait([trait_desc], trait_values)
+        trait = clone_trait([trait_desc])
 
         # Specify the trait
         trait.desc = trait_item.get("desc", "")
@@ -234,4 +233,3 @@ def register_processes(functions, destination_module_globals=None):
     # Go through all function and create/register the corresponding process
     for func in functions:
         class_factory(func, destination_module_globals)
-
