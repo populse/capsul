@@ -164,12 +164,13 @@ class AutoPipeline(Pipeline):
                         process, parameter, pipeline_parameter=parameter_name)
 
         # Add all the pipeline links
-        for link_description in self.to_list(self._parameters["pipeline"][
-                "links"]["link"]):
-            link = "{0}->{1}".format(
-                link_description["@src"],
-                link_description["@dest"])
-            self.add_link(link)
+        if "links" in self._parameters["pipeline"]:
+            for link_description in self.to_list(self._parameters["pipeline"][
+                    "links"]["link"]):
+                link = "{0}->{1}".format(
+                    link_description["@src"],
+                    link_description["@dest"])
+                self.add_link(link)
 
         # Set the pipeline node positions
         self.node_position = {}
