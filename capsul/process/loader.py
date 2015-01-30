@@ -29,8 +29,8 @@ except ImportError:
 def get_process_instance(process_or_id, **kwargs):
     """ Return a Process instance given an Process identifier.
 
-    The identifier is a derived Process class instance or a Nipype
-    interface instance.
+    The identifier is a derived Process class, a derived Process class
+    instance or a Nipype interface instance.
     It can also be the string description of this class:
     `<module>.<class>` e.g. `caps.pipeline.spm_preproc.PreprocClass`
 
@@ -98,6 +98,11 @@ def get_process_instance(process_or_id, **kwargs):
         if isinstance(result, Interface):
             result = nipype_factory(result)
 
+    # If the function 'process_or_id' parameter is a Process
+    # class.
+    elif isinstance(process_or_id, type) and issubclass(process_or_id, Process):
+        result = process_or_id()
+        
     else:
         raise ValueError("Invalid process_or_id argument. "
                          "Got '{0}' and expect a Process instance/string "
