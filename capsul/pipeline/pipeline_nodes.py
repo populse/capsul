@@ -856,12 +856,23 @@ class Switch(Node):
         # an "external" assignment (ie not the result of switch action or
         # change in one of its inputs), then propagate the new value to
         # all corresponding inputs.
-        if hasattr(self, '_outputs') and not self.__block_output_propagation and name in self._outputs:
+        # However those inputs which are connected to a pipeline input are
+        # not propagated, to avoid cyclic feedback between outputs and inputs
+        # inside a pipeline
+        if hasattr(self, '_outputs') and not self.__block_output_propagation \
+                and name in self._outputs:
             self.__block_output_propagation = True
             flat_inputs = ["{0}_switch_{1}".format(switch_name, name) \
                 for switch_name in self._switch_values]
             for input_name in flat_inputs:
-                setattr(self, input_name, new)
+                # check if input is connected to a pipeline input
+                plug = self.plugs[input_name]
+                for link_spec in plug.links_from:
+                    if isinstance(link_spec[2], PipelineNode) \
+                            and not link_spec[3].output:
+                        break
+                else:
+                    setattr(self, input_name, new)
             self.__block_output_propagation = False
         # if the change is in an input, change the corresponding output
         # accordingly.
