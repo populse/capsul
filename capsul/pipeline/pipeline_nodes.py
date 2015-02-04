@@ -721,6 +721,32 @@ class IterativeNode(Node):
 class Switch(Node):
     """ Switch node to select a specific Process.
 
+    A switch commutes a group of inputs to its outputs, according to its "switch" trait value. Each group may be typically linked to a different process. Processes not "selected" by the switch are disabled, if possible.
+    Values are also propagated through inputs/outputs of the switch (see below).
+
+    Inputs / outputs:
+
+    Say the switch "my_switch" has 2 outputs, "param1" and "param2". It will be connected to the outputs of 2 processing nodes, "node1" and "node2", both having 2 outputs: node1.out1, node1.out2, node2.out1, node2.out2.
+    The switch will thus have 4 entries, in 2 groups, named for instance "node1" and "node2". The switch will link the outputs of node1 or node2 to its outputs. The switch inputs will be named as follows:
+
+    * 1st group: "node1_switch_param1", "node1_switch_param2"
+    * 2nd group: "node2_switch_param1", "node2_switch_param2"
+
+    * When my_switch.switch value is "node1", my_switch.node1_switch_param1 is connected to my_switch.param1 and my_switch.node1_switch_param2 is connected to my_switch.param2. The processing node node2 is disabled (unselected).
+    * When my_switch.switch value is "node2", my_switch.node2_switch_param1 is connected to my_switch.param1 and my_switch.node2_switch_param2 is connected to my_switch.param2. The processing node node1 is disabled (unselected).
+
+    Values propagation:
+
+    * When a switch is activated (its switch parameter is changed), the outputs will reflect the selected inputs, which means their values will be the same as the corresponding inputs.
+
+    * But in many cases, parameters values will be given from the output (if the switch output is one of the pipeline outputs, this one will be visible from the "outside world, not the switch inputs). In this case, values set as a switch input propagate to its inputs.
+
+    * An exception is when a switch input is linked to the parent pipeline inputs: its value is also visible from "outside" and should not be set via output values via the switch. In this specific case, output values are not propagated to such inputs.
+
+    Notes
+    -----
+    Switch is normally not instantiated directly, but from a pipeline :py:meth:`pipeline_definition <capsul.pipeline.pipeline.Pipeline.pipeline_definition>` method
+
     Attributes
     ----------
     _switch_values : list
@@ -732,6 +758,8 @@ class Switch(Node):
     --------
     _switch_changed
     _anytrait_changed
+    capsul.pipeline.pipeline.Pipeline.add_switch
+    capsul.pipeline.pipeline.Pipeline.pipeline_definition
     """
 
     def __init__(self, pipeline, name, inputs, outputs, make_optional=()):

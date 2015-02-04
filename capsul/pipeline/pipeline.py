@@ -42,6 +42,29 @@ from soma.sorted_dictionary import SortedDictionary
 class Pipeline(Process):
     """ Pipeline containing Process nodes, and links between node parameters.
 
+    A Pipeline is normally subclassed, and its :py:meth:`pipeline_definition` method is overloaded to define its nodes and links. :py:meth:`pipeline_definition` will be called by the pipeline constructor.
+
+    ::
+
+        from capsul.pipeline import Pipeline
+
+        class MyPipeline(Pipeline):
+
+          def pipeline_definition(self):
+              self.add_process('proc1', 'my_toolbox.my_process1')
+              self.add_process('proc2', 'my_toolbox.my_process2')
+              self.add_switch('main_switch', ['in1', 'in2'], ['out1', 'out2'])
+              self.add_link('proc1.out1->main_switch.in1_switch_out1')
+              self.add_link('proc1.out2->main_switch.in1_switch_out2')
+              self.add_link('proc2.out1->main_switch.in2_switch_out1')
+              self.add_link('proc2.out1->main_switch.in2_switch_out2')
+
+    After execution of :py:meth:`pipeline_definition`, the inner nodes parameters which are not connected will be automatically exported to the parent pipeline, with names prefixed with their process name, unless they are listed in a special "do_not_export" list (passed to :py:meth:`add_process` or stored in the pipeline instance).
+
+    >>> pipeline = MyPipeline()
+    >>> print pipeline.proc1_input
+    <undefined>
+
     Attributes
     ----------
     `nodes`: dict {node_name: node}
@@ -53,6 +76,7 @@ class Pipeline(Process):
 
     Methods
     -------
+    pipeline_definition
     add_trait
     add_process
     add_switch
@@ -116,6 +140,13 @@ class Pipeline(Process):
     ##############
     # Methods    #
     ##############
+
+    def pipeline_definition(self):
+        """ Define pipeline structure, nodes, sub-pipelines, switches, and links.
+
+        This method should be overloaded in subclasses, it does nothing in the base Pipeline class.
+        """
+        pass
 
     def autoexport_nodes_parameters(self):
         """ Automatically export node containing pipeline plugs
@@ -341,6 +372,10 @@ class Pipeline(Process):
         inputs: "in1_switch_out1", "in2_switch_out1", "in1_switch_out2",
         "in2_switch_out2"
         outputs: "out1", "out2"
+
+        See Also
+        --------
+        capsul.pipeline.pipeline_nodes.Switch
         """
         # Check the unicity of the name we want to insert
         if name in self.nodes:
