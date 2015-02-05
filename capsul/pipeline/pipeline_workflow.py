@@ -46,8 +46,6 @@ def workflow_from_pipeline(pipeline, study_config={}):
         pass
 
     def _files_group(path, merged_formats):
-        for format, values in formats.iteritems():
-            merged_formats.update( values )
         bname = os.path.basename(path)
         l0 = len(path) - len(bname)
         p0 = 0
@@ -452,8 +450,8 @@ def workflow_from_pipeline(pipeline, study_config={}):
         return jobs, dependencies, groups, root_groups, root_jobs
 
     # TODO: handle formats in a separate, centralized place
-    # formats: { name: ext_props }
-    #     ext_props: { ext: [dependent_exts] }
+    # formats: {name: ext_props}
+    #     ext_props: {ext: [dependent_exts]}
     #     dependent_exts: (ext, mandatory)
     formats = {
         'NIFTI-1': {'.nii': [], '.img': [('.hdr', True)], '.nii.gz': []},
@@ -462,7 +460,12 @@ def workflow_from_pipeline(pipeline, study_config={}):
         'MESH': {'.mesh': []},
         'ARG': {'.arg': [('.data', False)]},
     }
+    # transform it to an ext-based dict
+    # merged_formats: {ext: [dependent_exts]}
+    # (formats names are lost here)
     merged_formats = {}
+    for format, values in formats.iteritems():
+        merged_formats.update(values)
 
     temp_map = assign_temporary_filenames(pipeline)
     temp_subst_list = [(x1, x2[0]) for x1, x2 in temp_map.iteritems()]
