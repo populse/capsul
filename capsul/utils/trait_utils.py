@@ -180,8 +180,6 @@ def clone_trait(trait_description):
     else:
         expression = "eval_trait = {0}".format(trait_expression[0])
 
-    print expression
-
     return eval_trait(expression)
 
 
