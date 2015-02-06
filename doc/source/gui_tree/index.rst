@@ -98,4 +98,5 @@ Classes
 
     full_pipeline_widgets.PipelineDevelopperView
     workflow_widget.PipelineUserView
+    activation_inspector.ActivationInspector
 
