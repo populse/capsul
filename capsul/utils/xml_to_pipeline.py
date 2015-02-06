@@ -149,6 +149,15 @@ class AutoPipeline(Pipeline):
                     make_optional=optional_parameters,
                     iterative_plugs=iterative_parameters)
 
+        # Add the pipeline switches
+        if "switch" in self._parameters["pipeline"]["processes"]:
+            for process_description in self.to_list(self._parameters[
+                    "pipeline"]["processes"]["switch"]):
+                self.add_switch(
+                    process_description["@name"],
+                    process_description["input"],
+                    process_description["output"])
+
         # Export pipeline input and output parameters
         for tag, sub_tag, plug in [("inputs", "input", "@dest"),
                                    ("outputs", "output", "@src")]:
