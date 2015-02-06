@@ -11,12 +11,63 @@
 import logging
 import traceback
 import os
+import json
 import sys
 from setuptools import find_packages
 from inspect import isclass
 
 # Define the logger
 logger = logging.getLogger(__name__)
+
+
+def find_pipelines_from_description(module_name, url=None):
+    """ Function that list all the pipeline of a module.
+
+    Parameters
+    ----------
+    module_name: str (mandatory)
+        the name of the module we want to go through in order to find all
+        pipeline classes.
+    url: str (optional)
+        the url to the module documentation.
+
+    Returns
+    -------
+    structured_pipelines: hierachic dict
+        each key is a sub module of the module. Leafs contain a list with
+        the url to the documentation.
+    pipelines: list
+        a list a pipeline string descriptions.        
+    """
+    # Try to import the module
+    try:
+        __import__(module_name)
+    except:
+        logger.error("Can't load module {0}".format(module_name))
+        return {}, []
+
+    # Get the module path
+    module = sys.modules[module_name]
+    module_path = module.__path__[0]
+
+    # Build the expected pipeline description file
+    description_file = os.path.join(
+        module_path, "{0}.capsul".format(module_name))
+
+    # Load the description file
+    if os.path.isfile(description_file):
+        with open(description_file) as json_file:
+            pipelines = json.load(json_file)
+
+        # Organize the pipeline string description by module names
+        structured_pipelines = {}
+        lists2dict([x.split(".") for x in pipelines], url, structured_pipelines)
+
+        return structured_pipelines, pipelines
+
+    # No description found
+    else:
+        return {}, []
 
 
 def find_pipelines(module_name, url=None, allowed_instance="Pipeline"):

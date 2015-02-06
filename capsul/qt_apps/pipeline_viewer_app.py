@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # Capsul import
 from capsul.qt_apps.utils.application import Application
 from capsul.qt_apps.main_window import CapsulMainWindow
-from capsul.qt_apps.utils.find_pipelines import find_pipelines
+from capsul.qt_apps.utils.find_pipelines import find_pipelines_from_description
 import capsul.qt_apps.resources as resources
 from capsul.plugins import PLUGS
 
@@ -55,7 +55,8 @@ class PipelineViewerApp(Application):
         # List capsul declared plugins (set of pipelines).
         pipeline_menu = {}
         for module_name, doc_url in PLUGS:
-            pipeline_menu.update(find_pipelines(module_name, doc_url)[0])
+            pipeline_menu.update(
+                find_pipelines_from_description(module_name, doc_url)[0])
 
         # Create and show the main window
         self.window = CapsulMainWindow(pipeline_menu, ui_file)

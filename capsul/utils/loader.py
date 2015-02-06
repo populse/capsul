@@ -11,6 +11,7 @@
 import string
 import sys
 import logging
+import importlib
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -45,8 +46,14 @@ def load_objects(module_name, object_name=None, allowed_instances=None):
         object_name = cleanup(object_name)
 
     # Import the module
-    __import__(module_name)
-    module = sys.modules[module_name]
+    if not module_name in sys.modules:
+        importlib.import_module(module_name)
+        module = sys.modules[module_name]
+    # If the module has been edited and we want to try out the new version
+    # without leaving the application
+    else:
+        module = sys.modules[module_name]
+        reload(module)
 
     # Get the target (possibly allowed) tool(s)
     tools = []
