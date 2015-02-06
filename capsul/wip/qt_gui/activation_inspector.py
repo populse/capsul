@@ -11,11 +11,13 @@
 import os
 import re
 import logging
+import tempfile
 
 # Define the logger
 logger = logging.getLogger(__name__)
 
 # Soma import
+from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui
 
 # Capsul import
@@ -24,7 +26,6 @@ import capsul.qt_apps.resources as resources
 from capsul.process import get_process_instance
 from capsul.qt_gui.widgets import PipelineDevelopperView
 from capsul.qt_gui.controller_widget import ScrollControllerWidget
-from capsul.qt_apps.utils.window import MyQUiLoader
 from capsul.pipeline.pipeline_nodes import PipelineNode
 
 
@@ -66,7 +67,8 @@ class ActivationInspectorApp(Application):
         self.setApplicationVersion(self._version)
 
         # Get the user interface description from capsul resources
-        ui_file = os.path.join(os.path.dirname(__file__), "activation_inspector.ui")
+        ui_file = os.path.join(
+            os.path.dirname(__file__), "activation_inspector.ui")
         #ui_file = os.path.join(resources.__path__[0], "activation_inspector.ui")
 
         # Create and show the activation/pipeline/controller windows
@@ -81,10 +83,10 @@ class ActivationInspectorApp(Application):
 
         return True
 
-class ActivationInspector(QtGui.QWidget, MyQUiLoader):
+class ActivationInspector(QtGui.QWidget):
     """ A Widget to display the pipeline activation process step by step.
     """
-    def __init__(self, pipeline, ui_file, record_file,
+    def __init__(self, pipeline, ui_file=None, record_file=None,
                  developper_view=None, parent=None):
         """ Initialize the ActivationInspector class.
 
@@ -92,10 +94,12 @@ class ActivationInspector(QtGui.QWidget, MyQUiLoader):
         ----------
         pipeline: capsul.Pipeline (mandatory)
             the pipeline we want to inspect.
-        ui_file: str (mandatory)
-            the path to the qt user interface description file
-        record_file: str (mandatory)
+        ui_file: str (optional)
+            the path to the qt user interface description file.
+            If not specified, it will find its standard one.
+        record_file: str (optional)
             a file path where the activation steps are recorded.
+            If not specified (None), it will create a temporary file.
         developper_view: PipelineDevelopperView (optional)
             if specified it is possible to click on a plug to set a filter
             pattern and to update the pipeline activation accordingly.
@@ -103,8 +107,12 @@ class ActivationInspector(QtGui.QWidget, MyQUiLoader):
         # Inheritance: create the application
         QtGui.QWidget.__init__(self, parent)
 
-        # Inheritance: load the user interface window
-        MyQUiLoader.__init__(self, ui_file)
+        # load the user interface window
+        if ui_file is None:
+            ui_file = os.path.join(
+                os.path.dirname(__file__), "activation_inspector.ui")
+
+        self.ui = qt_backend.loadUi(ui_file)
 
         # Define dynamic controls
         self.controls = {
@@ -113,10 +121,25 @@ class ActivationInspector(QtGui.QWidget, MyQUiLoader):
             QtGui.QLineEdit: ["pattern"]
         }
 
+        if record_file is None:
+            record_file_s = tempfile.mkstemp()
+            record_file = record_file_s[1]
+            os.close(record_file_s[0])
+            print 'temporary record file:', record_file
+            class AutoDeleteFile(object):
+                def __init__(self, record_file):
+                    self.record_file = record_file
+                def __del__(self):
+                    try:
+                        os.unlink(self.record_file)
+                    except:
+                        pass
+            self._autodelete_record_file = AutoDeleteFile(record_file)
+
         # Add ui class parameter with the dynamic controls and initialize
         # default values
         self.add_controls_to_ui()
-        
+
         # Store class parameters
         self.pipeline = pipeline
         self.record_file = record_file
@@ -340,7 +363,8 @@ if __name__ == "__main__":
     sys.argv = []
 
     # Start the application
-    app = ActivationInspectorApp(options.pipeline_path, options.record_file)
-    sys.exit(app.exec_())
+    if QtGui.QApplication.instance() is None:
+        app = ActivationInspectorApp(options.pipeline_path, options.record_file)
+        sys.exit(app.exec_())
 
 
