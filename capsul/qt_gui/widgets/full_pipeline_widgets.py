@@ -17,6 +17,7 @@ from soma.qt_gui.qt_backend import QtCore, QtGui
 from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline import Switch, PipelineNode, IterativeNode
 from capsul.pipeline import pipeline_tools
+from capsul.pipeline import Pipeline
 from capsul.process import get_process_instance, Process
 from soma.controller import Controller
 try:
@@ -406,7 +407,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_text = '<em>%s</em>' % param_text
         else:
             trait = self.process.user_traits()[param_name]
-            print "**********", value, trait.handler
             if (isinstance(trait.trait_type, traits.File) \
                     or isinstance(trait.trait_type, traits.Directory)) \
                     and os.path.exists(value):
@@ -1144,6 +1144,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.colored_parameters = True
         self._show_sub_pipelines = show_sub_pipelines
         self._allow_open_controller = allow_open_controller
+
+        # Check that we have a pipeline
+        # TODO: accept also process
+        if not isinstance(pipeline, Pipeline):
+            raise NotImplementedError
+
         self.set_pipeline(pipeline)
         self._grab = False
 
