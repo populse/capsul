@@ -1145,10 +1145,20 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self._show_sub_pipelines = show_sub_pipelines
         self._allow_open_controller = allow_open_controller
 
-        # Check that we have a pipeline
-        # TODO: accept also process
+        # Check that we have a pipeline or a process
         if not isinstance(pipeline, Pipeline):
-            raise NotImplementedError
+            if isinstance(pipeline, Process):
+                process = pipeline
+                pipeline = Pipeline()
+                pipeline.add_process(process.name, process.id)
+                pipeline.autoexport_nodes_parameters()
+                pipeline.node_position["inputs"] = (0., 0.)
+                pipeline.node_position[process.name] = (300., 0.)
+                pipeline.node_position["outputs"] = (600., 0.)
+                pipeline.scene_scale_factor = 0.5
+            else:
+                raise Exception("Expect a Pipeline or a Process, not a "
+                                "'{0}'.".foramt(repr(pipeline)))
 
         self.set_pipeline(pipeline)
         self._grab = False
