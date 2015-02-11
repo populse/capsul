@@ -1,8 +1,6 @@
-=======================================================
-Collaborative Analysis Platform: Simple, Unifying, Lean
-CAPSUL
-=======================================================
-
+===============================================================
+CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean 
+===============================================================
 
 Documentation
 =============
