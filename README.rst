@@ -2,6 +2,9 @@
 CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean 
 ===============================================================
 
+.. image:: https://api.travis-ci.org/AGrigis/capsul.png?branch=agunitestci
+  :target: https://api.travis-ci.org/AGrigis/capsul
+  
 Documentation
 =============
 
