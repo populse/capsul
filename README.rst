@@ -7,7 +7,7 @@ CAPSUL
 Documentation
 =============
 
-  Visit CAPSUL (http://www.intra.cea.fr/capsul-doc) main page!
+  Visit CAPSUL (http://neurospin.github.io/capsul) main page!
 
 Download
 ========
