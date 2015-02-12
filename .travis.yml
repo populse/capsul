@@ -41,6 +41,5 @@ install:
 
 script:
     - python test/test_capsul.py
-    - python test/coverage.py
 
 
