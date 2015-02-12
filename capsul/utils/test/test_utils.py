@@ -141,7 +141,7 @@ class TestUtils(unittest.TestCase):
             self.assertTrue(issubclass(sub_class, Node))
         node_class = load_objects(
             "capsul.pipeline.pipeline_nodes", object_name="Node")[0]
-        self.assertEqual(node_class, Node)
+        self.assertTrue(type(node_class) is type(Node))
 
 
 def test():

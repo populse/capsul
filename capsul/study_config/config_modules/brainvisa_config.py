@@ -22,7 +22,3 @@ class BrainVISAConfig(StudyConfigModule):
             Undefined,
             output=False,
             desc='Study shared directory'))
-
-        study_config.shared_directory = os.path.join(
-            soma_config.BRAINVISA_SHARE, 'brainvisa-share-%s' \
-                % soma_config.short_version)

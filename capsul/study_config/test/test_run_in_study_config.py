@@ -37,21 +37,39 @@ class DummyProcess(Process):
 class TestRunProcess(unittest.TestCase):
     """ Execute a process.
     """
-    def __init__(self, testname, dirpath, cachepath=None):
-        """ Initilaize the TestRunProcess class.
+    def test_execution_with_cache(self):
+        """ Execute a process with cache.
         """
-        # Inheritance
-        super(TestRunProcess, self).__init__(testname)
-
-        # Create the memory object
-        self.cachedir = cachepath
-        self.output_dir = dirpath
-
         # Create a study configuration
-        self.study_config = StudyConfig(modules=[])
-        self.study_config.output_directory = dirpath
+        self.output_directory = tempfile.mkdtemp()
+        self.study_config = StudyConfig(
+            modules=["SmartCachingConfig"],
+            use_smart_caching=True,
+            output_directory=self.output_directory)
 
-    def test_execution_1(self):
+        # Call the test
+        self.execution_dummy()
+
+        # Rm temporary folder
+        shutil.rmtree(self.output_directory)
+
+    def test_execution_without_cache(self):
+        """ Execute a process without cache.
+        """
+        # Create a study configuration
+        self.output_directory = tempfile.mkdtemp()
+        self.study_config = StudyConfig(
+            modules=["SmartCachingConfig"],
+            use_smart_caching=False,
+            output_directory=self.output_directory)
+
+        # Call the test
+        self.execution_dummy()
+
+        # Rm temporary folder
+        shutil.rmtree(self.output_directory)
+
+    def execution_dummy(self):
         """ Test to execute DummyProcess.
         """
         # Create a process instance
@@ -64,19 +82,15 @@ class TestRunProcess(unittest.TestCase):
             self.assertEqual(process.res, param[0] * param[1])
             self.assertEqual(
                 process.output_directory,
-                os.path.join(self.output_dir, "{0}-{1}".format(
+                os.path.join(self.output_directory, "{0}-{1}".format(
                     self.study_config.process_counter - 1, process.name)))
 
 
 def test():
     """ Function to execute unitest.
     """
-    dirpath = tempfile.mkdtemp()
-    suite = unittest.TestSuite()
-    suite.addTest(TestRunProcess("test_execution_1", dirpath, dirpath))
-    suite.addTest(TestRunProcess("test_execution_1", dirpath, None))
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestRunProcess)
     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    shutil.rmtree(dirpath)
     return runtime.wasSuccessful()
 
 

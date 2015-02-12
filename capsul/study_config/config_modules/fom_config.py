@@ -6,6 +6,7 @@
 # for details.
 ##########################################################################
 
+import os
 from traits.api import Bool, Str, Undefined
 from soma.fom import AttributesToPaths, PathToAttributes
 from soma.application import Application
@@ -57,8 +58,9 @@ class FomConfig(StudyConfigModule):
             ('output', self.study_config.output_fom),
             ('shared', self.study_config.shared_fom))
         for fom_type, fom_filename in foms:
-            fom = soma_app.fom_manager.load_foms(fom_filename)
-            self.study_config.modules_data.foms[fom_type] = fom
+            if os.path.isfile(fom_filename):
+                fom = soma_app.fom_manager.load_foms(fom_filename)
+                self.study_config.modules_data.foms[fom_type] = fom
 
         # Create FOM completion data in self.study_config.modules_data
         formats = tuple(getattr(self.study_config, key) \

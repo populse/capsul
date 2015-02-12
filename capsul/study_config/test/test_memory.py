@@ -52,17 +52,40 @@ class DummyCopyProcess(FileCopyProcess):
 class TestMemory(unittest.TestCase):
     """ Execute a process using smart-caching functionalities.
     """
-    def __init__(self, testname, dirpath):
-        """ Initilaize the TestMemory class.
+    def test_proxy_process_with_cache(self):
+        """ Test the proxy process behaviours with cache.
         """
-        # Inheritance
-        super(TestMemory, self).__init__(testname)
-
         # Create the memory object
-        self.cachedir = dirpath
+        self.cachedir = tempfile.mkdtemp()
         self.mem = Memory(self.cachedir)
+    
+        # Call the test
+        self.proxy_process()
 
-    def test_proxy_process(self):
+        # Rm temporary folder
+        shutil.rmtree(self.cachedir)
+
+    def test_proxy_process_without_cache(self):
+        """ Test the proxy process behaviours without cache.
+        """
+        # Create the memory object
+        self.cachedir = None
+        self.mem = Memory(self.cachedir)
+    
+        # Call the test
+        self.proxy_process()
+
+    def test_proxy_process_copy(self):
+        """ Test memory with copy.
+        """
+        # Create the memory object
+        self.cachedir = None
+        self.mem = Memory(self.cachedir)
+    
+        # Call the test
+        self.proxy_process_copy()
+
+    def proxy_process(self):
         """ Test the proxy process behaviours.
         """
         # Create a process instance
@@ -76,7 +99,7 @@ class TestMemory(unittest.TestCase):
             proxy_process(f=param[0], ff=param[1])
             self.assertEqual(proxy_process.res, param[0] * param[1])
 
-    def test_proxy_process_copy(self):
+    def proxy_process_copy(self):
         """ Test memory with copy.
         """
         # Create a process instance
@@ -87,10 +110,14 @@ class TestMemory(unittest.TestCase):
 
         # Test the cache mechanism
         proxy_process(f=2.5, i=__file__, l=[__file__])
+        if os.path.dirname(__file__) != "":
+            copied_file = "{0}/_workspace/{1}".format(
+                os.path.dirname(__file__), os.path.basename(__file__))
+        else:
+            copied_file = "_workspace/{0}".format(__file__)
         self.assertEqual(
             proxy_process.s,
-            ("{'i': '_workspace/test_memory.py', 'l': "
-             "['_workspace/test_memory.py'], 'f': 2.5}"))
+            "{{'i': '{0}', 'l': ['{0}'], 'f': 2.5}}".format(copied_file))
 
 if 0:
     # Configure the environment
@@ -155,13 +182,8 @@ if 0:
 def test():
     """ Function to execute unitest.
     """
-    dirpath = tempfile.mkdtemp()
-    suite = unittest.TestSuite()
-    suite.addTest(TestMemory("test_proxy_process", dirpath))
-    suite.addTest(TestMemory("test_proxy_process", None))
-    suite.addTest(TestMemory("test_proxy_process_copy", None))
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestMemory)
     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    shutil.rmtree(dirpath)
     return runtime.wasSuccessful()
 
 

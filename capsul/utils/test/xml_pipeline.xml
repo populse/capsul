@@ -4,11 +4,11 @@
     </docstring>
     <processes>
         <standard name="p1">
-            <module>capsul.wip.utils.test.process.AFunctionToWrap</module>
-            <force name="reference" value=""/>
+            <module>capsul.utils.test.process.AFunctionToWrap</module>
+            <force name="reference" value="['test']"/>
         </standard>
         <standard name="p2">
-            <module>capsul.wip.utils.test.process.AFunctionToWrap</module>
+            <module>capsul.utils.test.process.AFunctionToWrap</module>
         </standard>
     </processes>
     <links>

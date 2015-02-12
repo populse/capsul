@@ -59,32 +59,34 @@ class TestControls(Controller):
         self.lll = [[["a", "b", ""]], [["aa", "", "ff"]], [["s"]]]
 
 
-# Set the logging level
-logging.basicConfig(level=logging.INFO)
+if __name__ == "__main__":
 
-# Create a qt applicaction
-app = QtGui.QApplication(sys.argv)
+    # Set the logging level
+    logging.basicConfig(level=logging.INFO)
 
-# Create the controller we want to parametrized
-controller = TestControls()
+    # Create a qt applicaction
+    app = QtGui.QApplication(sys.argv)
 
-# Set some values to the controller parameters
-controller.s = ""
-controller.f = 10.2
+    # Create the controller we want to parametrized
+    controller = TestControls()
 
-# Create to controller widget that are synchronized on the fly
-widget1 = ScrollControllerWidget(controller, live=True)
-widget2 = ControllerWidget(controller, live=True)
-widget1.show()
-widget2.show()
+    # Set some values to the controller parameters
+    controller.s = ""
+    controller.f = 10.2
 
-# Check if the controller widget is valid before edition
-print "Controller widget valid before edition: ",
-print widget1.controller_widget.is_valid()
+    # Create to controller widget that are synchronized on the fly
+    widget1 = ScrollControllerWidget(controller, live=True)
+    widget2 = ControllerWidget(controller, live=True)
+    widget1.show()
+    widget2.show()
 
-# Start the qt loop
-app.exec_()
+    # Check if the controller widget is valid before edition
+    print "Controller widget valid before edition: ",
+    print widget1.controller_widget.is_valid()
 
-# Check if the controller widget is valid after edition
-print "Controller widget valid after edition: ",
-print widget1.controller_widget.is_valid()
+    # Start the qt loop
+    app.exec_()
+
+    # Check if the controller widget is valid after edition
+    print "Controller widget valid after edition: ",
+    print widget1.controller_widget.is_valid()

@@ -488,12 +488,12 @@ class IterativeNode(Node):
         # Add a trait for each input and each output
         for trait_name, trait_item in self.input_iterative_traits.iteritems():
             trait_description, trait = trait_item
-            trait = clone_trait(trait_description, trait.handler.values)
+            trait = clone_trait(trait_description)
             self.add_trait(trait_name, trait)
             self.trait(trait_name).output = False
         for trait_name, trait_item in self.input_traits.iteritems():
             trait_description, trait = trait_item
-            trait = clone_trait(trait_description, trait.handler.values)
+            trait = clone_trait(trait_description)
             self.add_trait(trait_name, trait)
             self.trait(trait_name).output = False
             setattr(
@@ -576,7 +576,7 @@ class IterativeNode(Node):
         pipeline_node = self.process.nodes[""]
         for trait_name, trait_item in self.input_traits.iteritems():
             trait_description, trait = trait_item
-            trait = clone_trait(trait_description, trait.handler.values)
+            trait = clone_trait(trait_description)
             pipeline_node.process.add_trait(trait_name, trait)
             pipeline_node.process.trait(trait_name).optional = False
             pipeline_node.process.trait(trait_name).output = False

@@ -14,21 +14,22 @@ import os
 from PySide import QtGui
 
 # CAPSUL import
-from capsul.wip.utils.xml_to_pipeline import parse_pipeline_description
-from capsul.wip.utils.test.pipeline import XmlPipeline
-from capsul.wip.utils.test.pipeline import XmlIterativePipeline
+from capsul.utils.xml_to_pipeline import parse_pipeline_description
+from capsul.utils.test.pipeline import XmlPipeline
+from capsul.utils.test.pipeline import XmlIterativePipeline
 from capsul.qt_gui.widgets import PipelineDevelopperView
 
 
-pipeline = XmlPipeline()
-iterative_pipeline = XmlIterativePipeline()
+if __name__ == "__main__":
+    pipeline = XmlPipeline()
+    iterative_pipeline = XmlIterativePipeline()
 
-app = QtGui.QApplication(sys.argv)
-view1 = PipelineDevelopperView(pipeline)
-view1.show()
-view2 = PipelineDevelopperView(iterative_pipeline)
-view2.show()
-app.exec_()
-del view1
-del view2
+    app = QtGui.QApplication(sys.argv)
+    view1 = PipelineDevelopperView(pipeline)
+    view1.show()
+    view2 = PipelineDevelopperView(iterative_pipeline)
+    view2.show()
+    app.exec_()
+    del view1
+    del view2
 

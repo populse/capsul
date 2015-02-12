@@ -7,9 +7,12 @@
 # for details.
 ##########################################################################
 
+# System import
 import os
-from capsul.wip.utils.xml_to_pipeline import register_pipelines
-from capsul.wip.utils.test.module import a_function_to_wrap
+
+# CAPSUL import
+from capsul.utils.xml_to_pipeline import register_pipelines
+from capsul.utils.test.module import a_function_to_wrap
 
 
 # Locate the files containing the pipeline descriptions

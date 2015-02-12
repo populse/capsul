@@ -236,31 +236,32 @@ def test():
 if __name__ == "__main__":
     print "RETURNCODE: ", test()
 
-    def write_state():
-        state_file_name = '/tmp/state.json'
-        json.dump(pipeline.pipeline_state(), open(state_file_name,'w'))
-        print 'Wrote', state_file_name
+    if 0:
+        def write_state():
+            state_file_name = '/tmp/state.json'
+            json.dump(pipeline.pipeline_state(), open(state_file_name,'w'))
+            print 'Wrote', state_file_name
 
-    import sys
-    #from PySide import QtGui
-    from soma.qt_gui import qt_backend
-    qt_backend.set_qt_backend('PyQt4')
-    from soma.qt_gui.qt_backend import QtGui
-    from capsul.qt_gui.widgets import PipelineDevelopperView
-    #from capsul.qt_gui.widgets import PipelineUserView
-    from capsul.process import get_process_instance
+        import sys
+        #from PySide import QtGui
+        from soma.qt_gui import qt_backend
+        qt_backend.set_qt_backend('PyQt4')
+        from soma.qt_gui.qt_backend import QtGui
+        from capsul.qt_gui.widgets import PipelineDevelopperView
+        #from capsul.qt_gui.widgets import PipelineUserView
+        from capsul.process import get_process_instance
 
-    app = QtGui.QApplication(sys.argv)
-    pipeline = get_process_instance(MainTestPipeline)
-    pipeline.on_trait_change(write_state,'selection_changed')
-    view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True, allow_open_controller=True)
-    view1.add_embedded_subpipeline('switch_pipeline', scale=0.7)
-    view1.add_embedded_subpipeline('way1_1', scale=0.4)
-    view1.add_embedded_subpipeline('way2_1', scale=0.4)
-    view1.show()
-    #view2 = PipelineUserView(pipeline)
-    #view2.show()
-    app.exec_()
-    del view1
-    #del view2
+        app = QtGui.QApplication(sys.argv)
+        pipeline = get_process_instance(MainTestPipeline)
+        pipeline.on_trait_change(write_state,'selection_changed')
+        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True, allow_open_controller=True)
+        view1.add_embedded_subpipeline('switch_pipeline', scale=0.7)
+        view1.add_embedded_subpipeline('way1_1', scale=0.4)
+        view1.add_embedded_subpipeline('way2_1', scale=0.4)
+        view1.show()
+        #view2 = PipelineUserView(pipeline)
+        #view2.show()
+        app.exec_()
+        del view1
+        #del view2
 
