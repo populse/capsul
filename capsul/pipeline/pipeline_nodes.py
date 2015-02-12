@@ -171,9 +171,12 @@ class Node(Controller):
     
     def _value_callback(self, source_plug_name, dest_node, dest_plug_name, value):
         """ Spread the source plug value to the destination plug.
-        """     
+        """
+        #if not hasattr(self, '_custom_link_handler'):
         dest_node.set_plug_value(dest_plug_name, value)
-    
+        #else:
+            #print 'SET', source_plug_name, dest_node, dest_plug_name, repr(value)
+
     def connect(self, source_plug_name, dest_node, dest_plug_name):
         """ Connect linked plugs of two nodes
 

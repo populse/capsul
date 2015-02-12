@@ -11,6 +11,8 @@
 import logging
 from copy import deepcopy
 import types
+import tempfile
+import os
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -37,6 +39,7 @@ from pipeline_nodes import (
 # Soma import
 from soma.controller import Controller
 from soma.sorted_dictionary import SortedDictionary
+from soma.utils.functiontools import SomaPartial
 
 
 class Pipeline(Process):
@@ -1357,3 +1360,121 @@ class Pipeline(Process):
         for node_name in pipeline_state:
             result.append('node "%s" is new' % node_name)
         return result
+
+    def _link_debugger(self, prefix, node, obj, name, value):
+        plug = node.plugs.get(name, None)
+        if plug is None:
+            return
+        def _link_name(plug, prefix, node_name, source):
+            if (plug.output and source) or (not plug.output and not source):
+                # internal connection in a (sub) pipeline
+                name = prefix + node_name
+            else:
+                # external link
+                name = '.'.join(prefix.split('.')[:-2] + [node_name])
+            if name != '' and not name.endswith('.'):
+                name += '.'
+            return name
+        print >> self._link_debugger_file, 'PLUG: change,', \
+            'name:', prefix + name, \
+            ', value:', repr(value)
+        for link in plug.links_from:
+            lnode = _link_name(plug, prefix, link[0], True)
+            print >> self._link_debugger_file, '    -> (src) %s%s' \
+                % (lnode, link[1])
+        for link in plug.links_to:
+            lnode = _link_name(plug, prefix, link[0], False)
+            print >> self._link_debugger_file, '    -> (dst) %s%s' \
+                % (lnode, link[1])
+        self._link_debugger_file.flush()
+
+    def install_links_debug_handler(self, log_file=None, handler=None,
+                                    prefix=''):
+        """ Set callbacks when traits value change, and follow plugs links to
+        debug links propagation and problems in it.
+
+        Parameters
+        ----------
+        log_file: str (optional)
+            file-like object to write links propagation in.
+            If none is specified, a temporary file will be created for it.
+        handler: function (optional)
+            Callback to be processed for debugging. If none is specified, the
+            default pipeline debugging function will be used. This default
+            handler prints traits changes and links to be processed in the
+            log_file.
+            The handler function will receive a prefix string, a node,
+            and traits parameters, namely the object (process) owning the
+            changed value, the trait name and value in this object.
+        prefix: str (optional)
+            prefix to be prepended to traits names, typically the parent
+            pipeline full name
+
+        Returns
+        -------
+        log_file: the file object where events will be written in
+        """
+
+        if handler is None:
+            handler = self._link_debugger
+        if log_file is None:
+            log_file_s = tempfile.mkstemp()
+            class AutodeDelete(object):
+                def __init__(self, file_object):
+                    self.file_object = file_object
+                def __del__(self):
+                    try:
+                        os.unlink(self.file_object)
+                    except:
+                        pass
+            log_file = log_file_s[1]
+            os.close(log_file_s[0])
+            self._log_file_del = AutodeDelete(log_file)
+
+        self._link_debugger_file = log_file
+        if prefix != '' and not prefix.endswith('.'):
+            prefix = prefix + '.'
+        # install handler on nodes
+        for node_name, node in self.nodes.iteritems():
+            node_prefix = prefix + node_name
+            if node_prefix != '' and not node_prefix.endswith('.'):
+                node_prefix += '.'
+            node._custom_link_handler = SomaPartial(handler, node_prefix, node)
+            if hasattr(node, 'process'):
+                process = node.process
+                if hasattr(process, 'nodes') and process is not self:
+                    # sub-pipeline
+                    process.install_links_debug_handler(
+                        log_file=log_file,
+                        handler=handler,
+                        prefix=node_prefix)
+                else: # leaf process
+                    process.on_trait_change(node._custom_link_handler)
+            else: # switch
+                node.on_trait_change(node._custom_link_handler)
+
+    def uninstall_links_debug_handler(self):
+        """ Remove links debugging callbacks set by install_links_debug_handler
+        """
+
+        if hasattr(self, '_log_file_del'):
+            del self._log_file_del
+        if hasattr(self, '_link_debugger_file'):
+            del self._link_debugger_file
+
+        for node_name, node in self.nodes.iteritems():
+            if hasattr(node, 'process'):
+                process = node.process
+                if hasattr(node, 'nodes'): # pipeline
+                    node.process.uninstall_links_debug_handler()
+                else: # leaf process
+                    if hasattr(node, '_custom_link_handler'):
+                        process.on_trait_change(
+                            node._custom_link_handler, remove=True)
+                        del node._custom_link_handler
+            else: # switch
+                if hasattr(node, '_custom_link_handler'):
+                    node.on_trait_change(
+                        node._custom_link_handler, remove=True)
+                    del node._custom_link_handler
+
