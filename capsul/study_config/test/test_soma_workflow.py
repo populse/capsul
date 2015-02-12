@@ -181,7 +181,7 @@ class TestSomaWorkflow(unittest.TestCase):
         self.assertTrue(("Process_3", "Process_4") in dependencies)
         self.assertEqual(workflow.groups, [])
 
-    def test_atomic_execution(self):
+    def atomic_execution(self):
         self.atomic_pipeline.workflow_ordered_nodes()
         if sys.version_info >= (2, 7):
             self.assertIn(self.atomic_pipeline.workflow_repr,
@@ -205,7 +205,7 @@ class TestSomaWorkflow(unittest.TestCase):
         self.assertEqual(dependencies.count(("node2_output", "Process_4")), 1)
         self.assertTrue(len(workflow.groups) == 1)
 
-    def test_composite_execution(self):
+    def composite_execution(self):
         self.composite_pipeline.workflow_ordered_nodes()
         self.assertEqual(self.composite_pipeline.workflow_repr,
                          "node1->node3->node2->node4")
