@@ -1,9 +1,6 @@
 language: python
 
 python:
-    - "pypy"
-    - 2.6
-    - 2.7
     - "2.7_with_system_site_packages"
 
 before_install:
@@ -17,6 +14,7 @@ before_install:
     - sudo apt-get install -qq python-coverage
 
 install:
+    - pip install numpy
     - pip install soma-workflow
     - python setup.py install
 
