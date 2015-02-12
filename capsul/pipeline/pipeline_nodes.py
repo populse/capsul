@@ -173,9 +173,42 @@ class Node(Controller):
         """ Spread the source plug value to the destination plug.
         """
         #if not hasattr(self, '_custom_link_handler'):
+        print '(nodes) value changed:', self, source_plug_name, dest_node, dest_plug_name, repr(value)
         dest_node.set_plug_value(dest_plug_name, value)
         #else:
             #print 'SET', source_plug_name, dest_node, dest_plug_name, repr(value)
+
+    def _value_callback_with_logging(
+            self, log_stream, prefix, source_plug_name, dest_node,
+            dest_plug_name, value):
+        """ Spread the source plug value to the destination plug, and log it in
+        a stream for debugging.
+        """
+        print '(debug) value changed:', self, source_plug_name, dest_node, dest_plug_name, repr(value), ', stream:', log_stream, prefix
+
+        plug = self.plugs.get(source_plug_name, None)
+        if plug is None:
+            return
+        def _link_name(plug, prefix, node_name, source):
+            if (plug.output and source) or (not plug.output and not source):
+                # internal connection in a (sub) pipeline
+                name = prefix + node_name
+            else:
+                # external link
+                name = '.'.join(prefix.split('.')[:-2] + [node_name])
+            if name != '' and not name.endswith('.'):
+                name += '.'
+            return name
+        dest_plug = dest_node.plugs[dest_plug_name]
+        print >> log_stream, 'value link,', \
+            'from:', prefix + source_plug_name, \
+            'to:', _link_name(dest_plug, prefix, dest_plug_name,
+                              not plug.output), \
+            ', value:', repr(value), prefix, dest_plug, dest_plug_name
+        log_stream.flush()
+
+        # actually propagate
+        dest_node.set_plug_value(dest_plug_name, value)
 
     def connect(self, source_plug_name, dest_node, dest_plug_name):
         """ Connect linked plugs of two nodes
