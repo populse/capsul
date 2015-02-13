@@ -19,6 +19,7 @@ install:
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install ordereddict; fi
     - conda install --yes numpy scipy nose traits networkx dateutil
     - pip install argparse --use-mirrors
+    - pip install importlib --use-mirrors
     - pip install nibabel --use-mirrors
     - pip install nose-cov --use-mirrors
     - pip install nipype --use-mirrors
