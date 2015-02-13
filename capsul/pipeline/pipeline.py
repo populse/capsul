@@ -235,6 +235,8 @@ class Pipeline(Process):
             a list of plug names that we do not want to export.
         inputs_to_copy: list of str (optional)
             a list of item to copy.
+        inputs_to_clean: list of str (optional)
+            a list of temporary items.
         """
         # Unique constrains
         make_optional = set(make_optional or [])
@@ -269,7 +271,7 @@ class Pipeline(Process):
         # plug so that it gets activated even if not linked
         for parameter_name in kwargs:
             if process.trait(parameter_name):
-                node.plugs[i].has_default_value = True
+                node.plugs[parameter_name].has_default_value = True
                 make_optional.add(parameter_name)
 
         # Change plug default properties
@@ -294,21 +296,27 @@ class Pipeline(Process):
         self.list_process_in_pipeline.append(process)
 
     def add_iterative_process(self, name, process, iterative_plugs=None,
-                              do_not_export=None, make_optional=None, **kwargs):
+                              do_not_export=None, make_optional=None,
+                              inputs_to_copy=None, inputs_to_clean=None,
+                              **kwargs):
         """ Add a new iterative node in the pipeline.
 
         Parameters
         ----------
         name: str (mandatory)
-            the node name (has to be unique)
+            the node name (has to be unique).
         process: Process (mandatory)
-            the process we want to add
+            the process we want to add.
         iterative_plugs: list of str (optional)
-            a list of plug names on which we want to iterate
+            a list of plug names on which we want to iterate.
         do_not_export: list of str (optional)
-            a list of plug names that we do not want to export
+            a list of plug names that we do not want to export.
         make_optional: list of str (optional)
-            a list of plug names that we do not want to export
+            a list of plug names that we do not want to export.
+        inputs_to_copy: list of str (optional)
+            a list of item to copy.
+        inputs_to_clean: list of str (optional)
+            a list of temporary items.
         """
         # If no iterative plug are given as parameter, add a process
         if iterative_plugs is None:
@@ -323,7 +331,14 @@ class Pipeline(Process):
                                  "same name : {0}".format(name))
 
             # Create the iterative pipeline node
+            # > get the process
             process = get_process_instance(process, **kwargs)
+            # > update the list of files item to copy
+            if inputs_to_copy is not None and hasattr(process, "inputs_to_copy"):
+                process.inputs_to_copy.extend(inputs_to_copy)
+            if inputs_to_clean is not None and hasattr(process, "inputs_to_clean"):
+                process.inputs_to_clean.extend(inputs_to_clean)
+            # > create the iterative node
             node = IterativeNode(
                 self, name, process, iterative_plugs, do_not_export,
                 make_optional, **kwargs)

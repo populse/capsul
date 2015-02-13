@@ -122,7 +122,7 @@ def test():
 if __name__ == "__main__":
     test()
 
-    if 0:
+    if 1:
         from PySide import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 

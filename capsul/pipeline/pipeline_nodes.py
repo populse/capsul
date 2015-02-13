@@ -27,9 +27,11 @@ except ImportError:
 # Capsul import
 from capsul.process import get_process_instance
 from capsul.utils.trait_utils import clone_trait
+from capsul.utils.trait_utils import trait_ids
+from capsul.utils.trait_utils import build_expression
+from capsul.utils.trait_utils import eval_trait
 
 # Soma import
-from soma.controller import trait_ids
 from soma.controller import Controller
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
@@ -492,14 +494,14 @@ class IterativeNode(Node):
             self.add_trait(trait_name, trait)
             self.trait(trait_name).output = False
         for trait_name, trait_item in self.input_traits.iteritems():
-            trait_description, trait = trait_item
-            trait = clone_trait(trait_description)
+            expression = build_expression(trait_item[1])
+            trait = eval_trait(expression)
             self.add_trait(trait_name, trait)
             self.trait(trait_name).output = False
             setattr(
                 self, trait_name, getattr(self.iterative_process, trait_name))
-            self._anytrait_changed(
-                trait_name, None, getattr(self.iterative_process, trait_name))
+            #self._anytrait_changed(
+            #    trait_name, None, getattr(self.iterative_process, trait_name))
         for trait_name, trait_item in self.output_iterative_traits.iteritems():
             trait_description, trait = trait_item
             trait = clone_trait(trait_description)
@@ -570,13 +572,20 @@ class IterativeNode(Node):
                 self.process.on_trait_change(callback, trait_name, remove=True)
            
         # > create the iterative pipeline
-        self.process = IterativePipeline()       
+        self.process = IterativePipeline()  
 
         # Go through all input regular traits
         pipeline_node = self.process.nodes[""]
         for trait_name, trait_item in self.input_traits.iteritems():
-            trait_description, trait = trait_item
-            trait = clone_trait(trait_description)
+            expression = build_expression(trait_item[1])
+            # FixMe
+            if "Either" in expression:
+                logger.warning(
+                    "Capsul do not deal with either iterative traits. The '{0}' "
+                    "trait with expression '{1}' will be temporary replaced by "
+                    " a traits.Any type.".format(trait_name, expression))
+                expression = "traits.Any()"
+            trait = eval_trait(expression)
             pipeline_node.process.add_trait(trait_name, trait)
             pipeline_node.process.trait(trait_name).optional = False
             pipeline_node.process.trait(trait_name).output = False
