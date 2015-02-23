@@ -21,6 +21,13 @@ def pilotfunction(pilot_func):
     ----------
     pilot_func: @func (mandatory)
         a function that will be decorated.
+
+    Returns
+    -------
+    decorated_func: @func
+        the same input function, with the function's global variables removed.
     """
-    return types.FunctionType(
+    func = types.FunctionType(
         pilot_func.func_code, {"__builtins__": __builtins__})
+    func.__module__ = pilot_func.__module__
+    return func

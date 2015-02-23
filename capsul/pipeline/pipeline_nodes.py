@@ -858,12 +858,21 @@ class Switch(Node):
         # refresh the pipeline
         self.pipeline.update_nodes_and_plugs_activation()
 
-        # refresh the links to the output plugs
+        # Refresh the links to the output plugs
         for output_plug_name in self._outputs:
+            # Get the associated input name
             corresponding_input_plug_name = "{0}_switch_{1}".format(
                 new_selection, output_plug_name)
+
+            # Update the output value
             setattr(self, output_plug_name,
                     getattr(self, corresponding_input_plug_name))
+
+            # Propagate the associated trait description
+            out_trait = self.trait(output_plug_name)
+            in_trait = self.trait(corresponding_input_plug_name)
+            out_trait.desc = in_trait.desc
+
         self.pipeline.restore_update_nodes_and_plugs_activation()
         self.__block_output_propagation = False
 

@@ -59,13 +59,14 @@ class ProcessMeta(Controller.__metaclass__):
 
         # Complete the docstring
         docstring += [
-            "    Notes",
-            "    -----",
-            "    Type '{0}.help()' for a full description of "
+            "",
+            ".. note::",
+            "",
+            "    * Type '{0}.help()' for a full description of "
             "this process parameters.".format(name),
-            "    Type '<{0}>.get_input_spec()' for a full description of "
+            "    * Type '<{0}>.get_input_spec()' for a full description of "
             "this process input trait types.".format(name),
-            "    Type '<{0}>.get_output_spec()' for a full description of "
+            "    * Type '<{0}>.get_output_spec()' for a full description of "
             "this process output trait types.".format(name),
             ""
         ]
@@ -467,6 +468,7 @@ class Process(Controller):
 
         # Get all the mandatory input traits
         mandatory_items = self.traits(output=False, optional=False)
+        mandatory_items.update(self.traits(output=None, optional=False))
 
         # If we have mandatory inputs, get the corresponding string
         # descriptions
@@ -480,6 +482,7 @@ class Process(Controller):
 
         # Get all optional input traits
         optional_items = self.traits(output=False, optional=True)
+        optional_items.update(self.traits(output=None, optional=True))
 
         # If we have optional inputs, get the corresponding string
         # descriptions

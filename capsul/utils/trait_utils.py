@@ -101,6 +101,11 @@ def get_trait_desc(trait_name, trait, def_val=None):
             manhelpstr += wrap(line, 70,
                                initial_indent="    ",
                                subsequent_indent="    ")
+    else:
+        manhelpstr += wrap("No description.", 70,
+                           initial_indent="    ",
+                           subsequent_indent="    ")
+        
 
     return manhelpstr
 
