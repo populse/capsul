@@ -1409,7 +1409,6 @@ class Pipeline(Process):
         self._link_debugger_file = log_file
         if prefix != '' and not prefix.endswith('.'):
             prefix = prefix + '.'
-        print '**', self, repr(self.name), ', prefix:', repr(prefix)
         # install handler on nodes
         for node_name, node in self.nodes.iteritems():
             node_prefix = prefix + node_name
