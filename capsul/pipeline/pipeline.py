@@ -1425,7 +1425,11 @@ class Pipeline(Process):
                     self.file_object = file_object
                 def __del__(self):
                     try:
-                        os.unlink(self.file_object)
+                        self.file_object.close()
+                    except IOError:
+                        pass
+                    try:
+                        os.unlink(self.file_object.name)
                     except:
                         pass
             os.close(log_file_s[0])
@@ -1445,30 +1449,33 @@ class Pipeline(Process):
                 custom_handler = node._value_callback_with_logging
             else:
                 custom_handler = handler
-            # replace all callbacks
-            print 'replace callbacks in node:', node, len(node._callbacks)
-            for element, callback in list(node._callbacks.items()):
-                source_plug_name, dest_node, dest_plug_name = element
-                value_callback = SomaPartial(
-                    custom_handler, log_file, prefix, source_plug_name,
-                    dest_node, dest_plug_name)
-                node.on_trait_change(callback, source_plug_name, remove=True)
-                node._callbacks[element] = value_callback
-                node.on_trait_change(value_callback, source_plug_name)
-
-            #node._custom_link_handler = SomaPartial(handler, node_prefix, node)
+            sub_process = None
+            sub_pipeline = False
             if hasattr(node, 'process'):
-                process = node.process
-                if hasattr(process, 'nodes') and process is not self:
-                    # sub-pipeline
-                    process.install_links_debug_handler(
-                        log_file=log_file,
-                        handler=handler,
-                        prefix=node_prefix)
-                #else: # leaf process
-                    #process.on_trait_change(node._custom_link_handler)
-            #else: # switch
-                #node.on_trait_change(node._custom_link_handler)
+                sub_process = node.process
+            if hasattr(sub_process, 'nodes') and sub_process is not self:
+                sub_pipeline = sub_process
+            if sub_pipeline:
+                sub_pipeline.install_links_debug_handler(
+                    log_file=log_file,
+                    handler=handler,
+                    prefix=node_prefix)
+            else:
+                # replace all callbacks
+                print 'replace callbacks in node:', node, repr(node.name), len(node._callbacks)
+                callbacks = list(node._callbacks.items())
+                for element, callback in callbacks:
+                    source_plug_name, dest_node, dest_plug_name = element
+                    value_callback = SomaPartial(
+                        custom_handler, log_file, prefix, source_plug_name,
+                        dest_node, dest_plug_name)
+                    print 'disconnect', source_plug_name, dest_node, dest_plug_name
+                    #node.disconnect(source_plug_name, dest_node, dest_plug_name)
+                    node.on_trait_change(callback, source_plug_name,
+                                         remove=True)
+                    node._callbacks[element] = value_callback
+                    node.on_trait_change(value_callback, source_plug_name)
+                    #node.set_callback_on_plug(source_plug_name, value_callback)
 
         return log_file
 
@@ -1476,24 +1483,26 @@ class Pipeline(Process):
         """ Remove links debugging callbacks set by install_links_debug_handler
         """
 
-        if hasattr(self, '_log_file_del'):
-            del self._log_file_del
-        if hasattr(self, '_link_debugger_file'):
-            del self._link_debugger_file
-
         for node_name, node in self.nodes.iteritems():
+            print 'reset callbacks in node:', node, repr(node.name), len(node._callbacks)
+            for element, callback in list(node._callbacks.items()):
+                source_plug_name, dest_node, dest_plug_name = element
+                value_callback = SomaPartial(
+                    node._value_callback, source_plug_name,
+                    dest_node, dest_plug_name)
+                node.on_trait_change(callback, source_plug_name, remove=True)
+                node._callbacks[element] = value_callback
+                node.on_trait_change(value_callback, source_plug_name)
+
             if hasattr(node, 'process'):
                 process = node.process
-                if hasattr(node, 'nodes'): # pipeline
-                    node.process.uninstall_links_debug_handler()
-                else: # leaf process
-                    if hasattr(node, '_custom_link_handler'):
-                        process.on_trait_change(
-                            node._custom_link_handler, remove=True)
-                        del node._custom_link_handler
-            else: # switch
-                if hasattr(node, '_custom_link_handler'):
-                    node.on_trait_change(
-                        node._custom_link_handler, remove=True)
-                    del node._custom_link_handler
+                if hasattr(process, 'nodes') and process is not self:
+                    # sub-pipeline
+                    process.uninstall_links_debug_handler()
+
+        if hasattr(self, '_link_debugger_file'):
+            del self._link_debugger_file
+        if hasattr(self, '_log_file_del'):
+            del self._log_file_del
+
 
