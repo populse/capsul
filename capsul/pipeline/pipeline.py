@@ -1409,6 +1409,7 @@ class Pipeline(Process):
         self._link_debugger_file = log_file
         if prefix != '' and not prefix.endswith('.'):
             prefix = prefix + '.'
+        print '**', self, repr(self.name), ', prefix:', repr(prefix)
         # install handler on nodes
         for node_name, node in self.nodes.iteritems():
             node_prefix = prefix + node_name
@@ -1435,7 +1436,7 @@ class Pipeline(Process):
                 for element, callback in callbacks:
                     source_plug_name, dest_node, dest_plug_name = element
                     value_callback = SomaPartial(
-                        custom_handler, log_file, prefix, source_plug_name,
+                        custom_handler, log_file, node_prefix, source_plug_name,
                         dest_node, dest_plug_name)
                     node.remove_callback_from_plug(source_plug_name, callback)
                     node._callbacks[element] = value_callback

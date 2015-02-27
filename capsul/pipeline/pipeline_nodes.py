@@ -185,22 +185,34 @@ class Node(Controller):
         plug = self.plugs.get(source_plug_name, None)
         if plug is None:
             return
-        def _link_name(plug, prefix, node_name, source):
-            if (plug.output and source) or (not plug.output and not source):
-                # internal connection in a (sub) pipeline
-                name = prefix + node_name
+        def _link_name(dest_node, plug, prefix, dest_plug_name,
+                       source_node_or_process):
+            external = False
+            # check if it is an external link
+            if hasattr(dest_node, 'process') and hasattr(dest_node.process, 'nodes'):
+                children = dest_node.process.nodes.values()
+                if source_node_or_process in children:
+                    external = True
+                else:
+                    children = [
+                        x.process for x in children if hasattr(x, 'process')]
+                if source_node_or_process in children:
+                    external = True
+            if external:
+                name = '.'.join(prefix.split('.')[:-2] + [dest_plug_name])
             else:
-                # external link
-                name = '.'.join(prefix.split('.')[:-2] + [node_name])
-            if name != '' and not name.endswith('.'):
-                name += '.'
+                # internal connection in a (sub) pipeline
+                name = prefix + dest_node.name
+                if name != '' and not name.endswith('.'):
+                  name += '.'
+                name += dest_plug_name
             return name
         dest_plug = dest_node.plugs[dest_plug_name]
-        print >> log_stream, 'value link,', \
+        print >> log_stream, 'value link:', \
             'from:', prefix + source_plug_name, \
-            'to:', _link_name(dest_plug, prefix, dest_plug_name,
-                              not plug.output), \
-            ', value:', repr(value), prefix, dest_plug, dest_plug_name
+            'to:', _link_name(dest_node, dest_plug, prefix, dest_plug_name,
+                              self), \
+            ', value:', repr(value) #, 'self:', self, repr(self.name), ', prefix:',repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
         log_stream.flush()
 
         # actually propagate
