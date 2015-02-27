@@ -187,19 +187,36 @@ class Node(Controller):
             return
         def _link_name(dest_node, plug, prefix, dest_plug_name,
                        source_node_or_process):
-            external = False
-            # check if it is an external link
-            if hasattr(dest_node, 'process') and hasattr(dest_node.process, 'nodes'):
-                children = dest_node.process.nodes.values()
+            external = True
+            sibling = False
+            # check if it is an external link: if source is not a parent dest
+            if hasattr(source_node_or_process, 'process') and hasattr(source_node_or_process.process, 'nodes'):
+                source_process = source_node_or_process
+                source_node = source_node_or_process.process.pipeline_node
+                children = [x for k, x in source_node.process.nodes.items()
+                            if x != '']
+                if dest_node in children:
+                    external = False
+            # check if it is a sibling node:
+            # if external and source is not in dest
+            if external and hasattr(dest_node, 'process') \
+                    and hasattr(dest_node.process, 'nodes'):
+                sibling = True
+                children = [x for k, x in dest_node.process.nodes.items()
+                            if x != '']
                 if source_node_or_process in children:
-                    external = True
+                    sibling = False
                 else:
                     children = [
                         x.process for x in children if hasattr(x, 'process')]
                 if source_node_or_process in children:
-                    external = True
+                    sibling = False
             if external:
-                name = '.'.join(prefix.split('.')[:-2] + [dest_plug_name])
+                if sibling:
+                    name = '.'.join(prefix.split('.')[:-2] \
+                        + [dest_node.name, dest_plug_name])
+                else:
+                    name = '.'.join(prefix.split('.')[:-2] + [dest_plug_name])
             else:
                 # internal connection in a (sub) pipeline
                 name = prefix + dest_node.name
@@ -212,7 +229,7 @@ class Node(Controller):
             'from:', prefix + source_plug_name, \
             'to:', _link_name(dest_node, dest_plug, prefix, dest_plug_name,
                               self), \
-            ', value:', repr(value) #, 'self:', self, repr(self.name), ', prefix:',repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
+            ', value:', repr(value), 'self:', self, repr(self.name), ', prefix:',repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
         log_stream.flush()
 
         # actually propagate
