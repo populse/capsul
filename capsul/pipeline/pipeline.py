@@ -1361,34 +1361,6 @@ class Pipeline(Process):
             result.append('node "%s" is new' % node_name)
         return result
 
-    def _link_debugger(self, prefix, node, obj, name, value):
-        #print 'value changed:', obj, name, repr(value)
-        plug = node.plugs.get(name, None)
-        if plug is None:
-            return
-        def _link_name(plug, prefix, node_name, source):
-            if (plug.output and source) or (not plug.output and not source):
-                # internal connection in a (sub) pipeline
-                name = prefix + node_name
-            else:
-                # external link
-                name = '.'.join(prefix.split('.')[:-2] + [node_name])
-            if name != '' and not name.endswith('.'):
-                name += '.'
-            return name
-        print >> self._link_debugger_file, 'PLUG: change,', \
-            'name:', prefix + name, \
-            ', value:', repr(value)
-        for link in plug.links_from:
-            lnode = _link_name(plug, prefix, link[0], True)
-            print >> self._link_debugger_file, '    -> (src) %s%s' \
-                % (lnode, link[1])
-        for link in plug.links_to:
-            lnode = _link_name(plug, prefix, link[0], False)
-            print >> self._link_debugger_file, '    -> (dst) %s%s' \
-                % (lnode, link[1])
-        self._link_debugger_file.flush()
-
     def install_links_debug_handler(self, log_file=None, handler=None,
                                     prefix=''):
         """ Set callbacks when traits value change, and follow plugs links to
@@ -1416,8 +1388,6 @@ class Pipeline(Process):
         log_file: the file object where events will be written in
         """
 
-        #if handler is None:
-            #handler = self._link_debugger
         if log_file is None:
             log_file_s = tempfile.mkstemp()
             class AutodeDelete(object):
@@ -1439,7 +1409,6 @@ class Pipeline(Process):
         self._link_debugger_file = log_file
         if prefix != '' and not prefix.endswith('.'):
             prefix = prefix + '.'
-        print '**', self, self.name
         # install handler on nodes
         for node_name, node in self.nodes.iteritems():
             node_prefix = prefix + node_name
@@ -1462,14 +1431,12 @@ class Pipeline(Process):
                     prefix=node_prefix)
             else:
                 # replace all callbacks
-                print 'replace callbacks in node:', node, repr(node.name), len(node._callbacks)
                 callbacks = list(node._callbacks.items())
                 for element, callback in callbacks:
                     source_plug_name, dest_node, dest_plug_name = element
                     value_callback = SomaPartial(
                         custom_handler, log_file, prefix, source_plug_name,
                         dest_node, dest_plug_name)
-                    print 'disconnect', source_plug_name, dest_node, dest_plug_name
                     node.remove_callback_from_plug(source_plug_name, callback)
                     node._callbacks[element] = value_callback
                     node.set_callback_on_plug(source_plug_name, value_callback)
@@ -1490,7 +1457,6 @@ class Pipeline(Process):
             if sub_pipeline:
                 sub_pipeline.uninstall_links_debug_handler()
             else:
-                print 'reset callbacks in node:', node, repr(node.name), len(node._callbacks)
                 for element, callback in list(node._callbacks.items()):
                     source_plug_name, dest_node, dest_plug_name = element
                     value_callback = SomaPartial(

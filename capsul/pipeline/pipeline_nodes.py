@@ -172,11 +172,7 @@ class Node(Controller):
     def _value_callback(self, source_plug_name, dest_node, dest_plug_name, value):
         """ Spread the source plug value to the destination plug.
         """
-        #if not hasattr(self, '_custom_link_handler'):
-        print '(nodes) value changed:', self, repr(self.name), source_plug_name, dest_node, dest_plug_name, repr(value)
         dest_node.set_plug_value(dest_plug_name, value)
-        #else:
-            #print 'SET', source_plug_name, dest_node, dest_plug_name, repr(value)
 
     def _value_callback_with_logging(
             self, log_stream, prefix, source_plug_name, dest_node,
@@ -184,7 +180,7 @@ class Node(Controller):
         """ Spread the source plug value to the destination plug, and log it in
         a stream for debugging.
         """
-        print '(debug) value changed:', self, self.name, source_plug_name, dest_node, dest_plug_name, repr(value), ', stream:', log_stream, prefix
+        #print '(debug) value changed:', self, self.name, source_plug_name, dest_node, dest_plug_name, repr(value), ', stream:', log_stream, prefix
 
         plug = self.plugs.get(source_plug_name, None)
         if plug is None:
@@ -227,7 +223,6 @@ class Node(Controller):
                                      dest_node, dest_plug_name)
         self._callbacks[(source_plug_name, dest_node,
                          dest_plug_name)] = value_callback
-        print 'connect:', self, self.name, source_plug_name, dest_node, dest_plug_name, ':', value_callback, '\n'
         self.set_callback_on_plug(source_plug_name, value_callback)
 
     def disconnect(self, source_plug_name, dest_node, dest_plug_name):
