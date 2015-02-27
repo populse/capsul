@@ -23,7 +23,7 @@
       <bool>true</bool>
      </property>
      <property name="columnCount">
-      <number>6</number>
+      <number>5</number>
      </property>
      <attribute name="horizontalHeaderCascadingSectionResizes">
       <bool>true</bool>
@@ -46,22 +46,17 @@
      </column>
      <column>
       <property name="text">
-       <string>From</string>
+       <string>(caused from)</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Plug</string>
+       <string>Current plug source</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Type</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Link</string>
+       <string>Link dest</string>
       </property>
      </column>
      <column>

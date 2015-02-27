@@ -25,9 +25,8 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
     """
     CAUSE = 1
     PLUG = 2
-    LINK_TYPE = 3
-    PROPAGATE = 4
-    VALUE = 5
+    PROPAGATE = 3
+    VALUE = 4
 
     def __init__(self, pipeline, ui_file=None, record_file=None, parent=None):
         super(CapsulLinkDebuggerView, self).__init__(parent)
@@ -91,27 +90,18 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
         f = open(self.record_file)
         lines = f.readlines()
         self.ui.links_table.setRowCount(len(lines))
-        plugre = re.compile('^PLUG: .*, name: ([^ ,]+) *, value: (.*)$')
-        linkre = re.compile('^ *-> ([^ ]+) +(.*)$')
+        linkre = re.compile('^value link: from: ([^ ,]+) *to: ([^ ]+) *, value: ([^ ]+).*$')
         links_orgs = {}
         for line in lines:
-            match = plugre.match(line)
+            match = linkre.match(line)
             if match:
-                plug_name = match.group(1)
-                plug_value = match.group(2)
-                link_type = None
-            else:
-                match = linkre.match(line)
-                if match:
-                    link_type = match.group(1)
-                    link_dest = match.group(2)
-            if link_type is not None:
+                link_source = match.group(1)
+                link_dest = match.group(2)
+                plug_value = match.group(3)
                 self.ui.links_table.setItem(
                     l, 0, QtGui.QTableWidgetItem('%d' % l))
                 self.ui.links_table.setItem(
-                    l, self.PLUG, QtGui.QTableWidgetItem(plug_name))
-                self.ui.links_table.setItem(
-                    l, self.LINK_TYPE, QtGui.QTableWidgetItem(link_type))
+                    l, self.PLUG, QtGui.QTableWidgetItem(link_source))
                 self.ui.links_table.setItem(
                     l, self.PROPAGATE, QtGui.QTableWidgetItem(link_dest))
                 self.ui.links_table.setItem(
