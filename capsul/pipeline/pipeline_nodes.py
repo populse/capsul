@@ -189,8 +189,9 @@ class Node(Controller):
                        source_node_or_process):
             external = True
             sibling = False
-            # check if it is an external link: if source is not a parent dest
-            if hasattr(source_node_or_process, 'process') and hasattr(source_node_or_process.process, 'nodes'):
+            # check if it is an external link: if source is not a parent of dest
+            if hasattr(source_node_or_process, 'process') \
+                    and hasattr(source_node_or_process.process, 'nodes'):
                 source_process = source_node_or_process
                 source_node = source_node_or_process.process.pipeline_node
                 children = [x for k, x in source_node.process.nodes.items()
@@ -201,16 +202,20 @@ class Node(Controller):
             # if external and source is not in dest
             if external and hasattr(dest_node, 'process') \
                     and hasattr(dest_node.process, 'nodes'):
+                print 'check sibling, prefix:', prefix, ', dest_plug_name:', dest_plug_name, 'dest_node:', dest_node, dest_node.name, ', source:', source_node_or_process
                 sibling = True
                 children = [x for k, x in dest_node.process.nodes.items()
                             if x != '']
                 if source_node_or_process in children:
                     sibling = False
+                    print 'source in children'
                 else:
                     children = [
                         x.process for x in children if hasattr(x, 'process')]
                 if source_node_or_process in children:
                     sibling = False
+                    print 'source.process in children'
+                print 'sibling:', sibling
             if external:
                 if sibling:
                     name = '.'.join(prefix.split('.')[:-2] \
