@@ -62,6 +62,11 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
         self.set_pipeline(pipeline)
         self.update_links_view()
         self.ui.links_table.cellClicked.connect(self.activateCell)
+        self.ui.actionPrevious.activated.connect(self.go_previous_line)
+        self.ui.actionNext.activated.connect(self.go_next_line)
+        self.ui.actionFollow.activated.connect(self.go_follow_link)
+        self.ui.actionRefresh.activated.connect(self.update_links_view)
+
 
     def __del__(self):
         self.release_pipeline()
@@ -107,11 +112,6 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
                 self.ui.links_table.setItem(
                     l, self.VALUE, QtGui.QTableWidgetItem(plug_value))
                 links_orgs.setdefault(link_dest, []).append(l)
-        #for l in xrange(len(lines)):
-            #item = self.ui.links_table.item(l, self.PLUG)
-            #if item is None:
-                #continue
-            #link_source = unicode(item.text())
                 if link_source in links_orgs:
                     org = links_orgs[link_source][0]
                     self.ui.links_table.setItem(
@@ -147,31 +147,60 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
     def go_next(self, row):
         self.ui.links_table.clearSelection()
         next_item = self.ui.links_table.item(row, self.PROPAGATE)
-        next_item.setSelected(True)
-        items = self.ui.links_table.findItems(
-            next_item.text(), QtCore.Qt.MatchExactly)
-        for item in items:
-            if item.column() == self.PLUG and item.row() >= row:
-                item.setSelected(True)
+        if next_item:
+            next_item.setSelected(True)
+            items = self.ui.links_table.findItems(
+                next_item.text(), QtCore.Qt.MatchExactly)
+            for item in items:
+                if item.column() == self.PLUG and item.row() >= row:
+                    item.setSelected(True)
 
     def highlight_plug(self, row):
         self.ui.links_table.clearSelection()
         plug = self.ui.links_table.item(row, self.PLUG)
-        plug.setSelected(True)
-        items = self.ui.links_table.findItems(
-            plug.text(), QtCore.Qt.MatchExactly)
-        for item in items:
-            if item.column() in (self.CAUSE, self.PROPAGATE):
-                item.setSelected(True)
+        if plug:
+            plug.setSelected(True)
+            items = self.ui.links_table.findItems(
+                plug.text(), QtCore.Qt.MatchExactly)
+            for item in items:
+                if item.column() in (self.CAUSE, self.PROPAGATE):
+                    item.setSelected(True)
 
     def highlight_value(self, row):
         self.ui.links_table.clearSelection()
         value_item = self.ui.links_table.item(row, self.VALUE)
-        value_item.setSelected(True)
-        items = self.ui.links_table.findItems(
-            value_item.text(), QtCore.Qt.MatchExactly)
-        for item in items:
-            if item.column() == self.VALUE:
-                item.setSelected(True)
+        if value_item:
+            value_item.setSelected(True)
+            items = self.ui.links_table.findItems(
+                value_item.text(), QtCore.Qt.MatchExactly)
+            for item in items:
+                if item.column() == self.VALUE:
+                    item.setSelected(True)
+
+    def go_next_line(self):
+        row = self.ui.links_table.currentRow() + 1
+        self.ui.links_table.setCurrentCell(row, self.PLUG)
+        self.highlight_plug(row)
+
+    def go_previous_line(self):
+        row = self.ui.links_table.currentRow() - 1
+        if row >= 0:
+            self.ui.links_table.setCurrentCell(row, self.PLUG)
+            self.highlight_plug(row)
+
+    def go_follow_link(self):
+        row = self.ui.links_table.currentRow()
+        plug = self.ui.links_table.item(row, self.PROPAGATE)
+        if plug:
+            items = self.ui.links_table.findItems(
+                plug.text(), QtCore.Qt.MatchExactly)
+            for item in items:
+                if item.column() == self.PLUG and item.row() > row:
+                    self.ui.links_table.setCurrentCell(item.row(), self.PLUG)
+                    break
+        self.go_next(row)
+
+
+
 
 
