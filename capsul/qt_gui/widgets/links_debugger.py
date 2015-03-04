@@ -107,18 +107,19 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
                 self.ui.links_table.setItem(
                     l, self.VALUE, QtGui.QTableWidgetItem(plug_value))
                 links_orgs.setdefault(link_dest, []).append(l)
+        #for l in xrange(len(lines)):
+            #item = self.ui.links_table.item(l, self.PLUG)
+            #if item is None:
+                #continue
+            #link_source = unicode(item.text())
+                if link_source in links_orgs:
+                    org = links_orgs[link_source][0]
+                    self.ui.links_table.setItem(
+                        l, self.CAUSE,
+                        QtGui.QTableWidgetItem(
+                            self.ui.links_table.item(org, 2)))
                 l += 1
         self.links_orgs = links_orgs
-        for l in xrange(len(lines)):
-            item = self.ui.links_table.item(l, self.PLUG)
-            if item is None:
-                continue
-            plug_name = unicode(item.text())
-            if plug_name in links_orgs:
-                org = links_orgs[plug_name][0]
-                self.ui.links_table.setItem(
-                    l, self.CAUSE,
-                    QtGui.QTableWidgetItem(self.ui.links_table.item(org, 2)))
 
     def activateCell(self, row, column):
         if self.ui.links_table.item(row, column) is None:
@@ -150,7 +151,7 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
         items = self.ui.links_table.findItems(
             next_item.text(), QtCore.Qt.MatchExactly)
         for item in items:
-            if item.column() == self.PLUG:
+            if item.column() == self.PLUG and item.row() >= row:
                 item.setSelected(True)
 
     def highlight_plug(self, row):
