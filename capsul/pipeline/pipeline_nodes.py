@@ -200,22 +200,22 @@ class Node(Controller):
                     external = False
             # check if it is a sibling node:
             # if external and source is not in dest
-            if external and hasattr(dest_node, 'process') \
-                    and hasattr(dest_node.process, 'nodes'):
-                print 'check sibling, prefix:', prefix, ', dest_plug_name:', dest_plug_name, 'dest_node:', dest_node, dest_node.name, ', source:', source_node_or_process
+            if external:
                 sibling = True
-                children = [x for k, x in dest_node.process.nodes.items()
-                            if x != '']
-                if source_node_or_process in children:
-                    sibling = False
-                    print 'source in children'
-                else:
-                    children = [
-                        x.process for x in children if hasattr(x, 'process')]
-                if source_node_or_process in children:
-                    sibling = False
-                    print 'source.process in children'
-                print 'sibling:', sibling
+                #print >> open('/tmp/linklog.txt', 'a'), 'check sibling, prefix:', prefix, 'source:', source_node_or_process, ', dest_plug_name:', dest_plug_name, 'dest_node:', dest_node, dest_node.name
+                if hasattr(dest_node, 'process') \
+                        and hasattr(dest_node.process, 'nodes'):
+                    children = [x for k, x in dest_node.process.nodes.items()
+                                if x != '']
+                    if source_node_or_process in children:
+                        sibling = False
+                    else:
+                        children = [
+                            x.process for x in children \
+                            if hasattr(x, 'process')]
+                    if source_node_or_process in children:
+                        sibling = False
+                #print 'sibling:', sibling
             if external:
                 if sibling:
                     name = '.'.join(prefix.split('.')[:-2] \
@@ -230,11 +230,12 @@ class Node(Controller):
                 name += dest_plug_name
             return name
         dest_plug = dest_node.plugs[dest_plug_name]
+        #print >> open('/tmp/linklog.txt', 'a'), 'link_name:',  self, repr(self.name), ', prefix:', repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
         print >> log_stream, 'value link:', \
             'from:', prefix + source_plug_name, \
             'to:', _link_name(dest_node, dest_plug, prefix, dest_plug_name,
                               self), \
-            ', value:', repr(value), 'self:', self, repr(self.name), ', prefix:',repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
+            ', value:', repr(value) #, 'self:', self, repr(self.name), ', prefix:',repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
         log_stream.flush()
 
         # actually propagate
