@@ -208,7 +208,7 @@ class Node(Controller):
         # remove the callback to spread the source plug value
         callback = self._callbacks.pop((source_plug_name, dest_node,
                                         dest_plug_name))
-        self.on_trait_change(callback, source_plug_name, remove=True)
+        self.remove_callback_from_plug(source_plug_name, callback)
 
     def __getstate__(self):
         '''Remove the callbacks from the default __getstate__ result because
@@ -237,6 +237,18 @@ class Node(Controller):
             a callback function
         """
         self.on_trait_change(callback, plug_name)
+
+    def remove_callback_from_plug(self, plug_name, callback):
+        """ Remove an event when a plug change
+
+        Parameters
+        ----------
+        plug_name: str (mandatory)
+            a plug name
+        callback: @f (mandatory)
+            a callback function
+        """
+        self.on_trait_change(callback, plug_name, remove=True)
 
     def get_plug_value(self, plug_name):
         """ Return the plug value
@@ -339,6 +351,18 @@ class ProcessNode(Node):
             a callback function
         """
         self.process.on_trait_change(callback, plug_name)
+
+    def remove_callback_from_plug(self, plug_name, callback):
+        """ Remove an event when a plug change
+
+        Parameters
+        ----------
+        plug_name: str (mandatory)
+            a plug name
+        callback: @f (mandatory)
+            a callback function
+        """
+        self.process.on_trait_change(callback, plug_name, remove=True)
 
     def get_plug_value(self, plug_name):
         """ Return the plug value
