@@ -94,6 +94,7 @@
    <addaction name="actionNext"/>
    <addaction name="actionFollow"/>
    <addaction name="actionRefresh"/>
+   <addaction name="actionClear"/>
    <addaction name="actionDone"/>
   </widget>
   <action name="actionPrevious">
@@ -143,6 +144,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionClear">
+   <property name="text">
+    <string>Clear</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear the view and associated file</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
    </property>
   </action>
  </widget>

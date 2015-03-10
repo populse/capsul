@@ -66,6 +66,7 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
         self.ui.actionNext.activated.connect(self.go_next_line)
         self.ui.actionFollow.activated.connect(self.go_follow_link)
         self.ui.actionRefresh.activated.connect(self.update_links_view)
+        self.ui.actionClear.activated.connect(self.clear_view)
 
 
     def __del__(self):
@@ -81,8 +82,9 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
             self.release_pipeline()
         self.pipeline = pipeline
         pipeline.uninstall_links_debug_handler()
-        pipeline.install_links_debug_handler(
+        record_stream = pipeline.install_links_debug_handler(
             log_file=open(self.record_file, 'w'), handler=None, prefix='')
+        self.record_stream = record_stream
 
     def release_pipeline(self):
         if self.pipeline is not None:
@@ -91,7 +93,11 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
 
     def update_links_view(self):
         self.ui.links_table.clearContents()
+        self.ui.links_table.setRowCount(0)  # IMPORTANT otherwise perf drops
+        table_header = self.ui.links_table.horizontalHeader()
+        table_header.setResizeMode(QtGui.QHeaderView.Interactive)
         l = 0
+        self.record_stream.flush()
         f = open(self.record_file)
         lines = f.readlines()
         self.ui.links_table.setRowCount(len(lines))
@@ -104,7 +110,7 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
                 link_dest = match.group(2)
                 plug_value = match.group(3)
                 self.ui.links_table.setItem(
-                    l, 0, QtGui.QTableWidgetItem('%d' % l))
+                    l, 0, QtGui.QTableWidgetItem('%04d' % l))
                 self.ui.links_table.setItem(
                     l, self.PLUG, QtGui.QTableWidgetItem(link_source))
                 self.ui.links_table.setItem(
@@ -120,6 +126,26 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
                             self.ui.links_table.item(org, 2)))
                 l += 1
         self.links_orgs = links_orgs
+        table_header.setResizeMode(QtGui.QHeaderView.ResizeToContents)
+        #table_header.setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+        #table_header.setResizeMode(2, QtGui.QHeaderView.ResizeToContents)
+        #table_header.setResizeMode(3, QtGui.QHeaderView.ResizeToContents)
+        #table_header.setResizeMode(4, QtGui.QHeaderView.ResizeToContents)
+        #table_header.setResizeMode(QtGui.QHeaderView.Interactive)
+        QtGui.qApp.processEvents()
+        #table_header.resizeSection(0, table_header.sectionSizeHint(0))
+        #table_header.resizeSection(1, table_header.sectionSizeHint(1))
+        #table_header.resizeSection(2, table_header.sectionSizeHint(2))
+        #table_header.resizeSection(3, table_header.sectionSizeHint(3))
+        #table_header.resizeSection(4, table_header.sectionSizeHint(4))
+        table_header.setResizeMode(QtGui.QHeaderView.Interactive)
+
+    def clear_view(self):
+        self.ui.links_table.clearContents()
+        self.ui.links_table.setRowCount(0)
+        self.record_stream.seek(0)
+        self.record_stream.truncate(0)
+        self.record_stream.flush()
 
     def activateCell(self, row, column):
         if self.ui.links_table.item(row, column) is None:
