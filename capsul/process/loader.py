@@ -73,12 +73,9 @@ def get_process_instance(process_or_id, **kwargs):
         object_name = id_list[-1]
 
         # Try to load the class
-        try:
-            module_objects = load_objects(
-                module_name, object_name,
-                allowed_instances=[Process, Interface])
-        except ImportError:
-            module_objects = []
+        module_objects = load_objects(
+            module_name, object_name,
+            allowed_instances=[Process, Interface])
 
         # Expect only one Process
         if len(module_objects) != 1:
