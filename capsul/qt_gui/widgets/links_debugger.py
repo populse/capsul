@@ -37,6 +37,9 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
                 os.path.dirname(__file__), "links_debugger.ui")
 
         self.ui = qt_backend.loadUi(ui_file)
+        self.ui.help.hide()
+        self.ui.help.setParent(None)
+        self.help_geom = None
         table_header = self.ui.links_table.horizontalHeader()
         table_header.setResizeMode(QtGui.QHeaderView.ResizeToContents)
         table_header_v = self.ui.links_table.verticalHeader()
@@ -67,6 +70,7 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
         self.ui.actionFollow.activated.connect(self.go_follow_link)
         self.ui.actionRefresh.activated.connect(self.update_links_view)
         self.ui.actionClear.activated.connect(self.clear_view)
+        self.ui.actionHelp.activated.connect(self.help)
 
 
     def __del__(self):
@@ -226,6 +230,15 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
                     break
         self.go_next(row)
 
+    def help(self):
+        if self.help_geom is None or self.ui.help.isVisible():
+            self.help_geom = self.ui.help.geometry()
+            set_geom = False
+        else:
+            set_geom = True
+        self.ui.help.setVisible(not self.ui.help.isVisible())
+        if set_geom:
+            self.ui.help.setGeometry(self.help_geom)
 
 
 
