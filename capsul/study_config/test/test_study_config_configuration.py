@@ -4,6 +4,7 @@ import unittest
 import sys
 import os
 import json
+import soma.config
 from tempfile import mkdtemp
 from shutil import rmtree
 from capsul.study_config.study_config import StudyConfig
@@ -101,6 +102,9 @@ tests_no_files = [
         'use_matlab': False,
         'use_spm': False,
         "use_freesurfer": False,
+        "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
+                                         'brainvisa-share-%s' % \
+                                         soma.config.short_version),
         'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
@@ -144,6 +148,9 @@ tests_standard_files = [
         'input_fom': 'morphologist-auto-1.0',
         'somaworkflow_computing_resources_config': {},
         'generate_logging': False,
+        "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
+                                         'brainvisa-share-%s' % \
+                                         soma.config.short_version),
         'output_fom': 'morphologist-auto-1.0',
         'automatic_configuration': False,
         'use_matlab': False,
@@ -224,6 +231,9 @@ tests_custom_files = [
         'input_fom': 'morphologist-auto-1.0',
         'somaworkflow_computing_resources_config': {},
         'generate_logging': False,
+        "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
+                                         'brainvisa-share-%s' % \
+                                         soma.config.short_version),
         'output_fom': 'morphologist-auto-1.0',
         'automatic_configuration': False,
         'use_matlab': False,
@@ -314,10 +324,14 @@ class TestStudyConfigConfiguration(unittest.TestCase):
                                                 study_config_file)
             config = sc.get_configuration_dict()
             modules = sorted(sc.modules.keys())
-            self.assertEqual(config, expected_config,
-                'StudyConfig(%s) %s config dict is %s but expected value '
-                'is %s' % (sargs, test_description, repr(config), 
-                            repr(expected_config)))
+
+            self.assertEqual(set(config), set(expected_config))
+            for key in config:
+                self.assertEqual(config[key], expected_config[key])
+            #self.assertEqual(config, expected_config,
+            #    'StudyConfig(%s) %s config dict is %s but expected value '
+            #    'is %s' % (sargs, test_description, repr(config), 
+            #                repr(expected_config)))
             self.assertEqual(modules, expected_modules,
                 'StudyConfig(%s) %s modules are %s but expected value is '
                 '%s' % (sargs, test_description, repr(modules), 
