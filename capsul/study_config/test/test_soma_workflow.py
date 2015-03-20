@@ -181,12 +181,12 @@ class TestSomaWorkflow(unittest.TestCase):
         self.assertTrue(("Process_3", "Process_4") in dependencies)
         self.assertEqual(workflow.groups, [])
 
-    def atomic_execution(self):
+    def test_atomic_execution(self):
         self.atomic_pipeline.workflow_ordered_nodes()
         if sys.version_info >= (2, 7):
             self.assertIn(self.atomic_pipeline.workflow_repr,
                           ('node1->node3->node2->node4',
-                          'node1->node2->node3->node4'))
+                           'node1->node2->node3->node4'))
         else: # python 2.6 unittest does not have assertIn()
             self.assertTrue(self.atomic_pipeline.workflow_repr in \
                 ('node1->node3->node2->node4',
