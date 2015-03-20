@@ -144,14 +144,14 @@ tests_standard_files = [
 # Test StudyConfig('my_study')
 [[('my_study',), {}],[
     {   'use_fom': True, 
-        'shared_fom': 'shared-brainvisa-1.0',
-        'input_fom': 'morphologist-auto-1.0',
+        'shared_fom': "",
+        'input_fom': "",
         'somaworkflow_computing_resources_config': {},
         'generate_logging': False,
         "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
                                          'brainvisa-share-%s' % \
                                          soma.config.short_version),
-        'output_fom': 'morphologist-auto-1.0',
+        'output_fom': "",
         'automatic_configuration': False,
         'use_matlab': False,
         'use_spm': False,
@@ -227,14 +227,14 @@ tests_custom_files = [
 # Test StudyConfig('my_study')
 [[('my_study',), {}],[
     {   'use_fom': True, 
-        'shared_fom': 'shared-brainvisa-1.0',
-        'input_fom': 'morphologist-auto-1.0',
+        'shared_fom': "",
+        'input_fom': "",
         'somaworkflow_computing_resources_config': {},
         'generate_logging': False,
         "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
                                          'brainvisa-share-%s' % \
                                          soma.config.short_version),
-        'output_fom': 'morphologist-auto-1.0',
+        'output_fom': "",
         'automatic_configuration': False,
         'use_matlab': False,
         'use_spm': False,

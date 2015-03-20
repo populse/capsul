@@ -39,9 +39,9 @@ class FomConfig(StudyConfigModule):
             desc='Format used for meshes'))
 
         # defaults
-        self.study_config.input_fom = 'morphologist-auto-1.0'
-        self.study_config.output_fom = 'morphologist-auto-1.0'
-        self.study_config.shared_fom = 'shared-brainvisa-1.0'
+        self.study_config.input_fom = ""
+        self.study_config.output_fom = ""
+        self.study_config.shared_fom = ""
         
             
     def initialize_module(self):
@@ -58,7 +58,7 @@ class FomConfig(StudyConfigModule):
             ('output', self.study_config.output_fom),
             ('shared', self.study_config.shared_fom))
         for fom_type, fom_filename in foms:
-            if os.path.isfile(fom_filename):
+            if fom_filename != "":
                 fom = soma_app.fom_manager.load_foms(fom_filename)
                 self.study_config.modules_data.foms[fom_type] = fom
 

@@ -14,9 +14,9 @@ class TestStudyConfigFOM(unittest.TestCase):
         initial_config = {
           "input_directory" : "/blop/basetests",
           "output_directory" : "/blop/basetests",
-          "input_fom" : "morphologist-auto-1.0",
-          "output_fom" : "morphologist-auto-1.0",
-          "shared_fom" : "shared-brainvisa-1.0",
+          "input_fom" : "",
+          "output_fom" : "",
+          "shared_fom" : "",
           "spm_directory" : "/i2bm/local/spm8-standalone",
           "use_soma_workflow" : True,
           "use_fom" : True,
