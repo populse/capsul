@@ -45,8 +45,8 @@ CAPSUL is a powerful tool to define and share processing pipelines.
 
 # Capsul dependencies
 SPHINX_MIN_VERSION = 1.0
-SOMA_WORKFLOW_MIN_VERSION = "2.6.0"
-SOMA_MIN_VERSION = "4.5.0"
+SOMA_WORKFLOW_MIN_VERSION = "2.6.1"
+SOMA_MIN_VERSION = "4.5.1"
 
 # Nipype dependencies: pypi package is not taged correctly
 NIBABEL_MIN_VERSION = "1.0"
@@ -54,7 +54,7 @@ NETWORKX_MIN_VERSION = "1.0"
 NUMPY_MIN_VERSION = "1.3"
 SCIPY_MIN_VERSION = "0.7"
 TRAITS_MIN_VERSION = "4.0"
-NIPYPE_VERSION = "0.9.2"
+NIPYPE_VERSION = "0.10.0"
 
 # Main setup parameters
 NAME = "capsul"

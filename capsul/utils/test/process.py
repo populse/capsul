@@ -7,8 +7,9 @@
 # for details.
 ##########################################################################
 
-from capsul.wip.utils.function_to_process import register_processes
-from capsul.wip.utils.test.module import a_function_to_wrap
+# CAPSUL import
+from capsul.utils.function_to_process import register_processes
+from capsul.utils.test.module import a_function_to_wrap
 
 # Register new processes
 register_processes([a_function_to_wrap]) # globals())

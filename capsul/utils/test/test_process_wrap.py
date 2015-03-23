@@ -11,7 +11,7 @@
 import unittest
 
 # Capsul import
-from capsul.wip.utils.test.process import AFunctionToWrap
+from capsul.utils.test.process import AFunctionToWrap
 
 
 class TestProcessWrap(unittest.TestCase):
@@ -27,6 +27,7 @@ class TestProcessWrap(unittest.TestCase):
         self.process.fname = "fname"
         self.process.directory = "directory"
         self.process.value = 1.2
+        self.process.enum = "choice1"
         self.process.list_of_str = ["a_string"]
 
     def test_process_wrap(self):

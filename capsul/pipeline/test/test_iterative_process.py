@@ -122,24 +122,25 @@ def test():
 if __name__ == "__main__":
     test()
 
-    from PySide import QtGui
-    from capsul.qt_gui.widgets import PipelineDevelopperView
+    if 1:
+        from PySide import QtGui
+        from capsul.qt_gui.widgets import PipelineDevelopperView
 
-    app = QtGui.QApplication(sys.argv)
-    pipeline = MyPipeline()
-    pipeline.input_image = ["toto", "tutu", "titi"]
-    pipeline.dynamic_parameter = [3, 1, 4]
-    pipeline.other_input = 0
-    pipeline2 = pipeline.nodes["iterative"].process
-    pipeline2.scene_scale_factor = 0.5
-    pipeline.node_position = {'inputs': (50.0, 50.0),
-                              'iterative': (267.0, 56.0),
-                              'outputs': (1124.0, 96.0)}
+        app = QtGui.QApplication(sys.argv)
+        pipeline = MyPipeline()
+        pipeline.input_image = ["toto", "tutu", "titi"]
+        pipeline.dynamic_parameter = [3, 1, 4]
+        pipeline.other_input = 0
+        pipeline2 = pipeline.nodes["iterative"].process
+        pipeline2.scene_scale_factor = 0.5
+        pipeline.node_position = {'inputs': (50.0, 50.0),
+                                  'iterative': (267.0, 56.0),
+                                  'outputs': (1124.0, 96.0)}
 
-    view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
-                                   allow_open_controller=True)
-    view1.add_embedded_subpipeline('iterative')
+        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+                                       allow_open_controller=True)
+        view1.add_embedded_subpipeline('iterative')
 
-    view1.show()
-    app.exec_()
-    del view1
+        view1.show()
+        app.exec_()
+        del view1

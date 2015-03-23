@@ -16,7 +16,7 @@ def a_function_to_wrap(fname, directory, value, enum, list_of_str, reference):
         <input name="fname" type="File" desc="test" />
         <input name="directory" type="Directory" desc="test" />
         <input name="value" type="Float" desc="test" />
-        <input name="enum" type="Enum" initializer="('choice1','choice2')" desc="test" />
+        <input name="enum" type="Str" desc="test" />
         <input name="list_of_str" type="List_Str" desc="test" />
         <output name="reference" type="List_Str" desc="test" />
     </process>

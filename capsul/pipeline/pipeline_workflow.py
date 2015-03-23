@@ -13,7 +13,7 @@ A single available function:
 workflow = workflow_from_pipeline(pipeline)
 """
 import os
-from socket import getfqdn
+import socket
 
 import soma_workflow.client as swclient
 
@@ -502,7 +502,7 @@ def local_workflow_run(workflow_name, workflow):
     workflow: Workflow (mandatory)
         the soma-workflow workflow
     """
-    localhost = getfqdn().split(".")[0]
+    localhost = socket.gethostname()
     controller = swclient.WorkflowController(localhost)
     wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name)
     swclient.Helper.wait_workflow(wf_id, controller)

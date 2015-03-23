@@ -85,14 +85,15 @@ def test():
 if __name__ == "__main__":
     print "RETURNCODE: ", test()
 
-    import sys
-    from PySide import QtGui
-    from capsul.qt_gui.widgets import PipelineDevelopperView
+    if 0:
+        import sys
+        from PySide import QtGui
+        from capsul.qt_gui.widgets import PipelineDevelopperView
 
-    app = QtGui.QApplication(sys.argv)
-    pipeline = MyPipeline()
-    setattr(pipeline.nodes_activation, "node2", False)
-    view1 = PipelineDevelopperView(pipeline)
-    view1.show()
-    app.exec_()
-    del view1
+        app = QtGui.QApplication(sys.argv)
+        pipeline = MyPipeline()
+        setattr(pipeline.nodes_activation, "node2", False)
+        view1 = PipelineDevelopperView(pipeline)
+        view1.show()
+        app.exec_()
+        del view1

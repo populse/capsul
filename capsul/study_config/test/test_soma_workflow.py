@@ -186,7 +186,7 @@ class TestSomaWorkflow(unittest.TestCase):
         if sys.version_info >= (2, 7):
             self.assertIn(self.atomic_pipeline.workflow_repr,
                           ('node1->node3->node2->node4',
-                          'node1->node2->node3->node4'))
+                           'node1->node2->node3->node4'))
         else: # python 2.6 unittest does not have assertIn()
             self.assertTrue(self.atomic_pipeline.workflow_repr in \
                 ('node1->node3->node2->node4',
@@ -223,25 +223,26 @@ def test():
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
 
-    import sys
-    from soma.qt_gui import qt_backend
-    qt_backend.set_qt_backend('PyQt4')
-    from soma.qt_gui.qt_backend import QtGui
-    from capsul.qt_gui.widgets import PipelineDevelopperView
+    if 0:
+        import sys
+        from soma.qt_gui import qt_backend
+        qt_backend.set_qt_backend('PyQt4')
+        from soma.qt_gui.qt_backend import QtGui
+        from capsul.qt_gui.widgets import PipelineDevelopperView
 
-    #app = QtGui.QApplication(sys.argv)
-    #pipeline = MyCompositePipeline()
-    #view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
-    #view1.show()
-    #app.exec_()
-    #del view1
+        #app = QtGui.QApplication(sys.argv)
+        #pipeline = MyCompositePipeline()
+        #view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
+        #view1.show()
+        #app.exec_()
+        #del view1
 
-    from capsul.qt_gui.widgets import PipelineUserView
-    app = QtGui.QApplication(sys.argv)
-    pipeline = MyCompositePipeline()
-    view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
-    view1.show()
-    view2 = PipelineUserView(pipeline)
-    view2.show()
-    app.exec_()
-    del view1
+        from capsul.qt_gui.widgets import PipelineUserView
+        app = QtGui.QApplication(sys.argv)
+        pipeline = MyCompositePipeline()
+        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
+        view1.show()
+        view2 = PipelineUserView(pipeline)
+        view2.show()
+        app.exec_()
+        del view1

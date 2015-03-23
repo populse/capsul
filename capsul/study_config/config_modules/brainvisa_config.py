@@ -8,10 +8,7 @@
 
 import os
 from traits.api import Directory, Undefined
-try:
-    from soma import config as soma_config
-except:
-    pass
+from soma import config as soma_config
 from capsul.study_config.study_config import StudyConfigModule
 
 

@@ -10,6 +10,8 @@
 # System import
 import unittest
 import sys
+import shutil
+import tempfile
 
 # Trait import
 from traits.api import File
@@ -102,7 +104,13 @@ class TestQCNodes(unittest.TestCase):
         """ Initialize the TestQCNodes class
         """
         self.pipeline = MyPipeline()
-        self.study_config = StudyConfig()
+        self.output_directory = tempfile.mkdtemp()
+        self.study_config = StudyConfig(output_directory=self.output_directory)
+
+    def __del__(self):
+        """ Remove temporary items.
+        """
+        shutil.rmtree(self.output_directory)
 
     def test_qc_active(self):
         """ Method to test if the run qc option works properly.

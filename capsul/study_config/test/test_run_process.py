@@ -36,17 +36,33 @@ class DummyProcess(Process):
 class TestRunProcess(unittest.TestCase):
     """ Execute a process.
     """
-    def __init__(self, testname, dirpath, cachepath=None):
-        """ Initilaize the TestRunProcess class.
+    def test_execution_with_cache(self):
+        """ Execute a process with cache.
         """
-        # Inheritance
-        super(TestRunProcess, self).__init__(testname)
+        # Create a study configuration
+        self.output_dir = tempfile.mkdtemp()
+        self.cachedir = self.output_dir
 
-        # Create the memory object
-        self.cachedir = cachepath
-        self.output_dir = dirpath
+        # Call the test
+        self.execution_dummy()
 
-    def test_execution_1(self):
+        # Rm temporary folder
+        shutil.rmtree(self.output_dir)
+
+    def test_execution_without_cache(self):
+        """ Execute a process without cache.
+        """
+        # Create a study configuration
+        self.output_dir = tempfile.mkdtemp()
+        self.cachedir = None
+
+        # Call the test
+        self.execution_dummy()
+
+        # Rm temporary folder
+        shutil.rmtree(self.output_dir)
+
+    def execution_dummy(self):
         """ Test to execute DummyProcess.
         """
         # Create a process instance
@@ -64,6 +80,10 @@ class TestRunProcess(unittest.TestCase):
 def test():
     """ Function to execute unitest.
     """
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestRunProcess)
+    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
+    return runtime.wasSuccessful()
+
     dirpath = tempfile.mkdtemp()
     suite = unittest.TestSuite()
     suite.addTest(TestRunProcess("test_execution_1", dirpath, dirpath))

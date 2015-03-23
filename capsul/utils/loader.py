@@ -46,14 +46,8 @@ def load_objects(module_name, object_name=None, allowed_instances=None):
         object_name = cleanup(object_name)
 
     # Import the module
-    if not module_name in sys.modules:
-        importlib.import_module(module_name)
-        module = sys.modules[module_name]
-    # If the module has been edited and we want to try out the new version
-    # without leaving the application
-    else:
-        module = sys.modules[module_name]
-        reload(module)
+    importlib.import_module(module_name)
+    module = sys.modules[module_name]
 
     # Get the target (possibly allowed) tool(s)
     tools = []

@@ -72,6 +72,8 @@ class AutoPipeline(Pipeline):
         if "standard" in self._parameters["pipeline"]["processes"]:
             for process_description in self.to_list(self._parameters[
                     "pipeline"]["processes"]["standard"]):
+
+                # Parse the force description
                 optional_parameters = {}
                 hidden_parameters = {}
                 to_copy_parameters = []
@@ -79,35 +81,14 @@ class AutoPipeline(Pipeline):
                 if "force" in process_description:
                     for force_description in self.to_list(process_description[
                             "force"]):
-                        # Case force copy
-                        if "@copyfile" in force_description:
-                            if force_description["@copyfile"] in [
-                                    "True", "Temp"]:
-                                to_copy_parameters.append(
-                                    force_description["@name"])
-                            if force_description["@copyfile"] == "Temp":
-                                to_rm_parameters.append(
-                                    force_description["@name"])
 
-                        # Pipeline parameters to be set
-                        else:
-                            # Argument coarse typing
-                            try:
-                                value = eval(force_description["@value"])
-                            except:
-                                value = force_description["@value"]
-
-                            # Case of hidden nipype interface parameters: trick
-                            # to be removed when all 'usedefault' nipype input
-                            # spec trait will be set properly
-                            if ("@usedefault" in force_description and
-                               force_description["@usedefault"] == "True"):
-
-                                hidden_parameters.update(
-                                    {force_description["@name"]: value})
-                            # Case of process parameters
-                            optional_parameters.update(
-                                {force_description["@name"]: value})
+                        (to_copy_parameter, to_rm_parameter, hidden_parameter,
+                         optional_parameter) = self.eval_force_description(
+                            force_description)
+                        to_copy_parameters.extend(to_copy_parameter)
+                        to_rm_parameters.extend(to_rm_parameter)
+                        hidden_parameters.update(hidden_parameter)
+                        optional_parameters.update(optional_parameter)
 
                 # Add the new process to the pipeline
                 node_name = process_description["@name"]
@@ -134,20 +115,39 @@ class AutoPipeline(Pipeline):
         if "iterative" in self._parameters["pipeline"]["processes"]:
             for process_description in self.to_list(self._parameters[
                     "pipeline"]["processes"]["iterative"]):
-                optional_parameters = []
+
+                # Parse the force description
+                optional_parameters = {}
+                hidden_parameters = {}
+                to_copy_parameters = []
+                to_rm_parameters = []
                 if "force" in process_description:
                     for force_description in self.to_list(process_description[
                             "force"]):
-                        optional_parameters.append(force_description["@name"])
+                        
+                        (to_copy_parameter, to_rm_parameter, hidden_parameter,
+                         optional_parameter) = self.eval_force_description(
+                            force_description)
+                        to_copy_parameters.extend(to_copy_parameter)
+                        to_rm_parameters.extend(to_rm_parameter)
+                        hidden_parameters.update(hidden_parameter)
+                        optional_parameters.update(optional_parameter)
+
+                # Get the iterative items
                 iterative_parameters = []
                 if "iter" in process_description:
                     iterative_parameters = self.to_list(
                         process_description["iter"])
+
+                # Add the new iterative process to the pipeline
                 self.add_iterative_process(
                     process_description["@name"],
                     process_description["module"],
-                    make_optional=optional_parameters,
-                    iterative_plugs=iterative_parameters)
+                    make_optional=optional_parameters.keys(),
+                    iterative_plugs=iterative_parameters,
+                    inputs_to_copy=to_copy_parameters,
+                    inputs_to_clean=to_rm_parameters,
+                    **optional_parameters)
 
         # Add the pipeline switches
         if "switch" in self._parameters["pipeline"]["processes"]:
@@ -201,6 +201,58 @@ class AutoPipeline(Pipeline):
         if not isinstance(value, list):
             return [value]
         return value
+
+    def eval_force_description(self, force_description):
+        """ Parse the parameter force description.
+
+        Parameters
+        ----------
+        force_description: dict
+            the description of the parameter to force representation.
+
+        Returns
+        -------
+        to_copy_parameter: list
+            a list containing the element if it needs to be copied.
+        to_rm_parameter: list
+            a list containing the element if it is a temporary parameter.
+        hidden_parameter, optional_parameter: dict
+            a dictionary containing the parameter default value.
+        """
+        # Initialize output parameters
+        to_copy_parameter = []
+        to_rm_parameter = []
+        hidden_parameter = {}
+        optional_parameter = {}
+
+        # Case force copy
+        if "@copyfile" in force_description:
+            if force_description["@copyfile"] in [
+                    "True", "Temp"]:
+                to_copy_parameter = [force_description["@name"]]
+            if force_description["@copyfile"] == "Temp":
+                to_rm_parameter = [force_description["@name"]]
+
+        # Pipeline parameters to be set
+        else:
+            # Argument coarse typing
+            try:
+                value = eval(force_description["@value"])
+            except:
+                value = force_description["@value"]
+
+            # Case of hidden nipype interface parameters: trick
+            # to be removed when all 'usedefault' nipype input
+            # spec trait will be set properly
+            if ("@usedefault" in force_description and
+               force_description["@usedefault"] == "True"):
+
+                hidden_parameter[force_description["@name"]] = value
+            # Case of process parameters
+            optional_parameter[force_description["@name"]] = value
+
+        return (to_copy_parameter, to_rm_parameter, hidden_parameter,
+                optional_parameter)
 
 
 def class_factory(xmlpath_description, destination_module_globals):

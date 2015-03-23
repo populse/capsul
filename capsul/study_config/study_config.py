@@ -404,14 +404,16 @@ class StudyConfig(Controller):
 
         # First read global options
         global_config_file = os.environ.get("CAPSUL_CONFIG")
-        if global_config_file:
+        if (isinstance(global_config_file, basestring) and
+            os.path.isfile(global_config_file)):
+
             config = json.load(open(global_config_file))
             self.global_config_file = global_config_file
         else:
             global_config_file = \
                 os.path.expanduser(os.path.join(self._user_config_directory,
                                                 "config.json"))
-            if os.path.exists(global_config_file):
+            if os.path.isfile(global_config_file):
                 config = json.load(open(global_config_file))
                 self.global_config_file = global_config_file
             else:

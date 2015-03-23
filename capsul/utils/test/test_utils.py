@@ -10,6 +10,9 @@
 # System import
 import unittest
 
+# Nipype impoort
+import nipype.interfaces.spm as spm
+
 # Trait import
 from traits.api import Float, CTrait, File, Directory
 from traits.api import Undefined
@@ -75,7 +78,6 @@ class TestUtils(unittest.TestCase):
         """
         # Test first to build trait description from nipype traits and then
         # to instanciate the trait
-        from nipype.interfaces.spm import Level1Design, EstimateContrast
         to_test_fields = {
             "timing_units": "traits.Enum(('secs', 'scans'))",
             "bases": ("traits.Dict(traits.Enum(('hrf', 'fourier', "
@@ -85,7 +87,7 @@ class TestUtils(unittest.TestCase):
             "mask_threshold": ("traits.Either(traits.Enum(('-Inf',)), "
                                "traits.Float())")
         }
-        i = Level1Design()
+        i = spm.Level1Design()
         for field, result in to_test_fields.iteritems():
 
             # Test to build the trait expression
@@ -113,7 +115,7 @@ class TestUtils(unittest.TestCase):
                 "))))))"),
             "use_derivs": "traits.Bool()"
         }
-        i = EstimateContrast()
+        i = spm.EstimateContrast()
         for field, result in to_test_fields.iteritems():
 
             # Test to build the trait expression
@@ -141,7 +143,7 @@ class TestUtils(unittest.TestCase):
             self.assertTrue(issubclass(sub_class, Node))
         node_class = load_objects(
             "capsul.pipeline.pipeline_nodes", object_name="Node")[0]
-        self.assertEqual(node_class, Node)
+        self.assertTrue(type(node_class) is type(Node))
 
 
 def test():
