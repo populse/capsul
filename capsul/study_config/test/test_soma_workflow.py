@@ -205,7 +205,7 @@ class TestSomaWorkflow(unittest.TestCase):
         self.assertEqual(dependencies.count(("node2_output", "Process_4")), 1)
         self.assertTrue(len(workflow.groups) == 1)
 
-    def composite_execution(self):
+    def test_composite_execution(self):
         self.composite_pipeline.workflow_ordered_nodes()
         self.assertEqual(self.composite_pipeline.workflow_repr,
                          "node1->node3->node2->node4")
