@@ -267,6 +267,8 @@ class LayoutHelperWriter(object):
 
         # Header
         w(".. AUTO-GENERATED FILE -- DO NOT EDIT!\n\n")
+        w(".. raw:: html\n\n")
+        w("    <div class='container-index'>\n\n")
         title = "Documentation of the {0} Pipelines\n".format(
             self.root_module_name.upper())
         w(title)
@@ -279,6 +281,7 @@ class LayoutHelperWriter(object):
             if cnt % 2 == 0:
                 w("    <div class='row-fluid'>\n\n")
             w(self.generate_index_entry(module_name))
+        w("\n    </div>\n")
         w("\n    </div>")
 
         # Close the open file
