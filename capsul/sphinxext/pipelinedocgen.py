@@ -90,7 +90,7 @@ class PipelineHelpWriter(object):
         ad += ".. currentmodule:: {0}\n\n".format(currentmodule)
 
         # Then add the trait description
-        # It will generate to sections: input and output
+        # It will generate two sections: input and output
         ad += pipeline_instance.get_help(returnhelp=True)
 
         # Add schema if generated
@@ -171,7 +171,7 @@ class PipelineHelpWriter(object):
 
     def write_index(self, outdir, froot="index", relative_to=None,
                     rst_extension=".rst"):
-        """ Make a reST API index file from the list of  written files
+        """ Make a reST API index file from the list of written files
 
         Parameters
         ----------
