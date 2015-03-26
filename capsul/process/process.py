@@ -479,18 +479,32 @@ class Process(Controller):
             if True return the help string message formatted in rst,
             otherwise display the raw help string message on the console.
         """
+        # Create the help content variable
+        doctring = [""]
+
+        # Update the documentation with a description of the pipeline
+        # when the xml to pipeline wrapper has been used
+        if returnhelp and hasattr(self, "_pipeline_desc"):
+            str_desc = "".join(["    {0}".format(line)
+                                for line in self._pipeline_desc])
+            doctring += [
+                ".. hidden-code-block:: python",
+                "    :starthidden: True",
+                "",
+                str_desc,
+                ""
+            ]
+
         # Get the process docstring
         if self.__doc__:
-            doctring = self.__doc__.split("\n") + [""]
-        else:
-            doctring = [""]
+            doctring += self.__doc__.split("\n") + [""]
 
         # Update the documentation with a reference on the source function
         # when the function to process wrapper has been used
         if hasattr(self, "_func_name") and hasattr(self, "_func_module"):
             doctring += [
                 "This process has been wrapped from {0}.{1}.".format(
-                    self._func_name, self._func_module),
+                    self._func_module, self._func_name),
                 ""
             ]
             if returnhelp:
