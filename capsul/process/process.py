@@ -498,7 +498,7 @@ class Process(Controller):
                     ".. currentmodule:: {0}".format(self._func_module),
                     "",
                     ".. autosummary::",
-                    "    :toctree: wrappedfunc/",
+                    "    :toctree: ./",
                     "",
                     "    {0}".format(self._func_name),
                     ""
