@@ -528,6 +528,14 @@ class Pipeline(Process):
             if source_trait.output and not dest_trait.output:
                 dest_trait.connected_output = True
 
+        # Propagate the description in case of destination switch node
+        if isinstance(dest_node, Switch):
+            source_trait = source_node.get_trait(source_plug_name)
+            dest_trait = dest_node.trait(dest_plug_name)
+            dest_trait.desc = source_trait.desc
+            dest_node._switch_changed(getattr(dest_node, "switch"),
+                                      getattr(dest_node, "switch"))
+
         # Observer
         source_node.connect(source_plug_name, dest_node, dest_plug_name)
         dest_node.connect(dest_plug_name, source_node, source_plug_name)

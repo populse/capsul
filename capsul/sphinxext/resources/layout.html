@@ -1,0 +1,151 @@
+{% extends "!layout.html" %}
+
+{% block htmltitle %}
+  {{ super() }}
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{{ pathto('_static/css/bootstrap.min.css', 1) }}" media="screen" />
+  <link rel="stylesheet" href="{{ pathto('_static/css/bootstrap-responsive.css', 1) }}"/>
+{% endblock %}
+
+<!-- sidebar -->
+{% block extrahead %}
+  {% if pagename != 'index' %}
+   {% if theme_collapsiblesidebar|tobool %}
+       <script type="text/javascript" src="{{ pathto('_static/sidebar.js', 1) }}"></script>
+   {% endif %}
+  {% endif %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="{{ pathto('_static/js/bootstrap.min.js', 1)}}" type="text/javascript"></script>
+  <link rel="canonical" href="https://bioproj.extra.cea.fr/redmine/projects/%(NAME_LOWER)s/{{pagename}}.html" />
+{% endblock %}
+
+<!-- page title -->
+    {% set title = '%(NAME_UPPER)s' %}
+
+<!-- header -->
+{% block header %}
+
+<div class="header-wrapper">
+  <div class="header">
+    <p class="logo">
+      <a href="{{ pathto('index') }}">
+        <img src="{{ pathto("_static/%(LOGO)s.png", 1) }}" alt="Logo"/>
+      </a>
+    </p>
+
+    {%- block navbar -%}
+    <div class="navbar">
+      <ul>
+        <li><a href="{{pathto('index')}}">Home</a></li>
+        <li><a href="{{pathto('generated/installation')}}">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+		    <a href="{{pathto('generated/documentation')}}">Documentation</a>
+		    <a class="btn dropdown-toggle" data-toggle="dropdown">
+		      <span class="caret"></span>
+		    </a>
+		    <ul class="dropdown-menu">
+	          <!-- <li class="link-title">dMRI</li> -->
+		      %(INDEX)s
+		    </ul>
+		  </div>
+        </li>
+        <li><a href="http://neurospin-wiki.org/">NeuroSpin Wiki</a></li>
+      </ul>
+    </div> <!-- end navbar -->
+    {%- endblock -%}
+  </div>
+</div>
+
+{%- if pagename == 'index' %}
+<!-- Banner -->
+<div class="container banner-container">
+
+  <div class="row-fluid banner-inner">
+    <div class="hidden-phone">
+      <div class="span6">
+        <div class="row-fluid">
+          <div class="offset2 span8">
+            <div id="index_carousel_tn" class="thumbnail">
+              <div id="examples_carousel" class="carousel slide" data-interval="false">
+                <ol id="nsap_index_indicators" class="carousel-indicators">
+                  %(CAROUSEL_INDICATORS)s
+                </ol>
+                <div class="carousel-inner">
+                  %(CAROUSEL_IMAGES)s
+                </div>
+                <a class="carousel-control left" href="#examples_carousel" data-slide="prev">&lsaquo;</a>
+                <a class="carousel-control right" href="#examples_carousel" data-slide="next">&rsaquo;</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="nsap_synopsis" class="span6">
+      %(DESCRIPTION)s   
+    </div>
+  </div> 
+
+</div>
+{%- endif %}
+
+{% endblock %}
+
+
+<!-- body -->
+{% block content %}
+<div class="content-wrapper">
+
+  {%- if pagename != 'generated/documentation' %}
+    <div class="sphinxsidebar">
+      <div class="sphinxsidebarwrapper">
+
+        <!-- info setup -->
+        {%- if pagename != "installation" %}
+          <p class="doc-version">
+           This documentation is for {{project}} <strong>version {{ release|e }}</strong>
+          </p>
+        {%- endif %}
+        <p class="citing">
+          If you use the software, please do not esitate to 
+          <a href="https://bioproj.extra.cea.fr/redmine/projects/%(NAME_LOWER)s">
+          Report a Bug</a>.
+        </p>
+      <!-- toc tree -->
+      {{ toc }}
+
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="content">
+    {%- block document %}
+      {{ super() }}
+    {%- endblock %}
+    <div class="clearer">
+    </div>
+  </div>
+  
+</div>
+{% endblock %}
+
+{% block relbar1 %}{% endblock %}
+{% block relbar2 %}{% endblock %}
+
+
+<!-- footer -->
+{%- block footer %}
+<div class="footer">
+{%- if show_copyright %}
+  {%- if hasdoc('copyright') %}
+    {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; {{ copyright }}.{% endtrans %}
+  {%- else %}
+    {% trans copyright=copyright|e %}&copy; {{ copyright }}.{% endtrans %}
+  {%- endif %}
+{%- endif %}
+</div>
+{%- endblock %}
+
+

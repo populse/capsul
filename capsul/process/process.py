@@ -9,6 +9,7 @@
 
 # System import
 import os
+import operator
 from socket import getfqdn
 from datetime import datetime as datetime
 from copy import deepcopy
@@ -59,13 +60,14 @@ class ProcessMeta(Controller.__metaclass__):
 
         # Complete the docstring
         docstring += [
-            "    Notes",
-            "    -----",
-            "    Type '{0}.help()' for a full description of "
+            "",
+            ".. note::",
+            "",
+            "    * Type '{0}.help()' for a full description of "
             "this process parameters.".format(name),
-            "    Type '<{0}>.get_input_spec()' for a full description of "
+            "    * Type '<{0}>.get_input_spec()' for a full description of "
             "this process input trait types.".format(name),
-            "    Type '<{0}>.get_output_spec()' for a full description of "
+            "    * Type '<{0}>.get_output_spec()' for a full description of "
             "this process output trait types.".format(name),
             ""
         ]
@@ -264,6 +266,50 @@ class Process(Controller):
 
         return log
 
+    def _rst_table(self, data):
+        """ Create a rst formated table.
+
+        Parameters
+        ----------
+        data: list of list of str (mandatory)
+            the table line-cell centent.
+
+        Returns
+        -------
+        rsttable: list of str
+            the rst formated table containing the input data.
+        """
+        # Output rst table
+        rsttable = []
+
+        # Get the size of the largest row in order to
+        # format properly the rst table (do not forget the '+' and '*')
+        row_widths = [len(item) for item in reduce(operator.add, data)]
+        width = max(row_widths) + 11
+
+        # Generate the rst table
+
+        # > table synthax
+        rsttable.append("+" + "-" * width + "+")
+        # > go through the table lines
+        for table_row in data:
+            # > go through the cell lines
+            for index, cell_row in enumerate(table_row):
+                # > set the parameter name in bold
+                if index == 0 and ":" in cell_row:
+                    delimiter_index = cell_row.index(":")
+                    cell_row = ("**" + cell_row[:delimiter_index] + "**" +
+                                cell_row[delimiter_index:])
+                # >  add table rst content
+                rsttable.append(
+                    "| | {0}".format(cell_row) +
+                    " " * (width - len(cell_row) - 3) +
+                    "|")
+            # > close cell
+            rsttable.append("+" + "-" * width + "+")
+
+        return rsttable
+
     ####################################################################
     # Public methods
     ####################################################################
@@ -346,8 +392,8 @@ class Process(Controller):
             ("import sys; from {0} import {1}; kwargs={2}; "
              "kwargs.update(dict((sys.argv[i * 2 + 1], sys.argv[i * 2 + 2]) "
              "for i in range((len(sys.argv) - 1) / 2))); "
-             "{1}()(**kwargs)").format(
-                 module_name, class_name, repr(argsdict)).replace("'", '"')
+             "{1}()(**kwargs)").format(module_name, class_name,
+                                       repr(argsdict)).replace("'", '"')
         ] + sum([list(x) for x in pathsdict.items()], [])
 
         return commandline
@@ -430,8 +476,8 @@ class Process(Controller):
         Parameters
         ----------
         returnhelp: bool (optional, default False)
-            if True return the help string message,
-            otherwise display it on the console.
+            if True return the help string message formatted in rst,
+            otherwise display the raw help string message on the console.
         """
         # Get the process docstring
         if self.__doc__:
@@ -439,9 +485,28 @@ class Process(Controller):
         else:
             doctring = [""]
 
+        # Update the documentation with a reference on the source function
+        # when the function to process wrapper has been used
+        if hasattr(self, "_func_name") and hasattr(self, "_func_module"):
+            doctring += [
+                "This process has been wrapped from {0}.{1}.".format(
+                    self._func_name, self._func_module),
+                ""
+            ]
+            if returnhelp:
+                doctring += [
+                    ".. currentmodule:: {0}".format(self._func_module),
+                    "",
+                    ".. autosummary::",
+                    "    :toctree: ./",
+                    "",
+                    "    {0}".format(self._func_name),
+                    ""
+                ]
+
         # Append the input and output traits help
-        full_help = (doctring + self.get_input_help() + [""] +
-                     self.get_output_help() + [""])
+        full_help = (doctring + self.get_input_help(returnhelp) + [""] +
+                     self.get_output_help(returnhelp) + [""])
         full_help = "\n".join(full_help)
 
         # Return the full process help
@@ -451,8 +516,13 @@ class Process(Controller):
         else:
             print(full_help)
 
-    def get_input_help(self):
+    def get_input_help(self, rst_formating=False):
         """ Generate description for process input parameters.
+
+        Parameters
+        ----------
+        rst_formating: bool (optional, default False)
+            if True generate a rst table witht the input descriptions.
 
         Returns
         -------
@@ -467,26 +537,46 @@ class Process(Controller):
 
         # Get all the mandatory input traits
         mandatory_items = self.traits(output=False, optional=False)
+        mandatory_items.update(self.traits(output=None, optional=False))
 
         # If we have mandatory inputs, get the corresponding string
         # descriptions
+        data = []
         if mandatory_items:
             for trait_name, trait in mandatory_items.iteritems():
-                manhelpstr.extend(
-                    get_trait_desc(trait_name, trait))
+                trait_desc = get_trait_desc(trait_name, trait)
+                data.append(trait_desc)
+
+        # If we want to format the output nicely (rst)
+        if data != []:
+            if rst_formating:
+                manhelpstr += self._rst_table(data)
+            # Otherwise
+            else:
+                manhelpstr += reduce(operator.add, data)
 
         # Markup to separate optional inputs
         opthelpstr = ["", "[Optional]", ""]
 
         # Get all optional input traits
         optional_items = self.traits(output=False, optional=True)
+        optional_items.update(self.traits(output=None, optional=True))
 
         # If we have optional inputs, get the corresponding string
         # descriptions
+        data = []
         if optional_items:
             for trait_name, trait in optional_items.iteritems():
-                opthelpstr.extend(
+                data.append(
                     get_trait_desc(trait_name, trait))
+
+        # If we want to format the output nicely (rst)
+        if data != []:
+            if rst_formating:
+                opthelpstr += self._rst_table(data)
+            # Otherwise
+            else:
+                opthelpstr += reduce(operator.add, data)
 
         # Add the mandatry and optional input string description if necessary
         if mandatory_items:
@@ -496,8 +586,13 @@ class Process(Controller):
 
         return helpstr
 
-    def get_output_help(self):
+    def get_output_help(self, rst_formating=False):
         """ Generate description for process output parameters.
+
+        Parameters
+        ----------
+        rst_formating: bool (optional, default False)
+            if True generate a rst table witht the input descriptions.
 
         Returns
         -------
@@ -516,9 +611,18 @@ class Process(Controller):
 
         # If we have some outputs, get the corresponding string
         # descriptions
+        data = []
         for trait_name, trait in items.iteritems():
-            helpstr.extend(
+            data.append(
                 get_trait_desc(trait_name, trait))
+
+        # If we want to format the output nicely (rst)
+        if data != []:
+            if rst_formating:
+                helpstr += self._rst_table(data)
+            # Otherwise
+            else:
+                helpstr += reduce(operator.add, data)
 
         return helpstr
 
@@ -626,7 +730,8 @@ class FileCopyProcess(Process):
             self._update_input_traits()
 
             # Inheritance
-            result = super(FileCopyProcess, self).__call__(**self.copied_inputs)
+            result = super(FileCopyProcess, self).__call__(
+                **self.copied_inputs)
 
             # Clean the workspace
             self._clean_workspace()
@@ -646,7 +751,7 @@ class FileCopyProcess(Process):
         for to_rm_name in self.inputs_to_clean:
             if to_rm_name in self.copied_inputs:
                 self._rm_files(self.copied_inputs[to_rm_name])
-                
+
     def _rm_files(self, python_object):
         """ Remove a set of copied files from the filesystem.
 
@@ -669,7 +774,7 @@ class FileCopyProcess(Process):
         else:
             if (isinstance(python_object, basestring) and
                     os.path.isfile(python_object)):
-                os.remove(python_object)      
+                os.remove(python_object)
 
     def _update_input_traits(self):
         """ Update the process input traits: input files are copied.
