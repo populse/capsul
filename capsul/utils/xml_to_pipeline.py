@@ -9,6 +9,7 @@
 
 # System import
 import os
+import re
 import xmltodict
 import inspect
 
@@ -209,6 +210,11 @@ def class_factory(xmlpath_description, destination_module_globals):
     In order to make the class publicly accessible, we assign the result of
     the function to a variable dynamically using globals().
 
+    .. warning::
+
+        The rst external reference synthax has been change since the
+        '<target>' is reserved for xml token. Use '[target]' instead.
+
     Parameters
     ----------
     xmlpath_description: str (mandatory)
@@ -221,14 +227,22 @@ def class_factory(xmlpath_description, destination_module_globals):
     # Get the pipeline prototype
     pipeline_proto = parse_pipeline_description(xmlpath_description)
 
+    # Get the pipeline raw description
+    with open(xmlpath_description) as openfile:
+        pipeline_desc = openfile.readlines()
+
     # Get the pipeline docstring
     docstring = pipeline_proto["pipeline"]["docstring"]
+    for link in re.findall(r":ref:`.*?\[.*?\]`", docstring, flags=re.DOTALL):
+        docstring = docstring.replace(link,
+                                      link.replace("[", "<").replace("]", ">"))
 
     # Define the pipeline class parameters
     class_parameters = {
         "__doc__": docstring,
         "__module__": destination_module_globals["__name__"],
-        "_parameters": pipeline_proto
+        "_parameters": pipeline_proto,
+        "_pipeline_desc": pipeline_desc
     }
 
     # Get the pipeline instance associated to the prototype
