@@ -425,9 +425,11 @@ class Process(Controller):
             a string representation of all the input trait specifications.
         """
         output = "\nINPUT SPECIFICATIONS\n\n"
-        for trait_name, trait in self.traits(output=False).iteritems():
-            output += "{0}: {1}\n".format(
-                trait_name, trait_ids(self.trait(trait_name)))
+        # self.traits(output=False) skips params with no output property
+        for trait_name, trait in self.user_traits().iteritems():
+            if not trait.output:
+                output += "{0}: {1}\n".format(
+                    trait_name, trait_ids(self.trait(trait_name)))
         return output
 
     def get_output_spec(self):
@@ -453,8 +455,9 @@ class Process(Controller):
             a dictionary with all the input trait names and values.
         """
         output = {}
-        for trait_name, trait in self.traits(output=False).iteritems():
-            output[trait_name] = getattr(self, trait_name)
+        for trait_name, trait in self.user_traits().iteritems():
+            if not trait.output:
+                output[trait_name] = getattr(self, trait_name)
         return output
 
     def get_outputs(self):
@@ -550,7 +553,8 @@ class Process(Controller):
         manhelpstr = ["[Mandatory]", ""]
 
         # Get all the mandatory input traits
-        mandatory_items = self.traits(output=False, optional=False)
+        mandatory_items = dict([x for x in self.user_traits().iteritems()
+                                if not x[1].output and not x[1].optional])
         mandatory_items.update(self.traits(output=None, optional=False))
 
         # If we have mandatory inputs, get the corresponding string
