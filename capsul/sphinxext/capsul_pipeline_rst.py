@@ -111,7 +111,7 @@ for sorted_modules, dtype in ([sorted_pipelines, "pipeline"],
         # prevent Sphinx to convert such files
         docwriter.write_index(
             outdir, "index",
-            relative_to=os.path.join("source", "generated", module_name),
+            relative_to=os.path.join(base_outdir, module_name),
             rst_extension=".txt")
 
         # Just print a summary
@@ -130,7 +130,7 @@ modules = set(sorted_processes.keys() + sorted_pipelines.keys())
 for module_name in modules:
 
     # Where the index will be written: a relative path from the makefile
-    outdir = os.path.join("source", "generated", module_name)
+    outdir = os.path.join(base_outdir, module_name)
 
     # Generate an empty writer object
     docwriter = PipelineHelpWriter([])
