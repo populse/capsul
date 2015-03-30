@@ -102,7 +102,10 @@ def find_pipeline_and_process(module_name):
 
     # Get the module path
     module = sys.modules[module_name]
-    module_path = module.__path__[0]
+    if hasattr(module, '__path__'):
+        module_path = module.__path__[0]
+    else:
+        module_path = os.path.dirname(module.__file__)
 
     # Use setuptools to go through the module
     sub_modules = find_packages(where=module_path, exclude=("doc", ))
@@ -145,8 +148,10 @@ def find_pipeline_and_process(module_name):
                     continue
                 tool = getattr(sub_sub_module, tool_name)
                 # Check all the authorized derived class
-                for cnt, parent_class in enumerate([Pipeline, Process]):
-                    if (isclass(tool) and issubclass(tool, parent_class)):
+                parent_classes = [Pipeline, Process]
+                for cnt, parent_class in enumerate(parent_classes):
+                    if (isclass(tool) and issubclass(tool, parent_class)) \
+                            and tool not in parent_classes:
                         pip_and_proc[cnt].add(
                             sub_sub_module_name + "." + tool_name)
                         break
