@@ -91,7 +91,11 @@ class Pipeline(Process):
     find_empty_parameters
     count_items
     define_steps
+    add_step
+    remove_sep
     disabled_steps_nodes
+    get_step_nodes
+    enable_all_steps
     """
 
     selection_changed = Event()
@@ -1410,19 +1414,61 @@ class Pipeline(Process):
 
         >>> pipeline.steps.brain_extraction = False
 
+        See also add_step()
+
         Parameters
         ----------
         steps: dict or preferably OrderedDict or SortedDictionary (mandatory)
             The steps dict keys are steps names, the values are lists of nodes
             names forming the step.
         '''
-        self.add_trait('steps', Trait(Controller))
-        self.steps = Controller()
         for step_name, nodes in steps.iteritems():
-            self.steps.add_trait(step_name, Bool)
-            trait = self.steps.trait(step_name)
-            trait.nodes = nodes
-            setattr(self.steps, step_name, True)
+            self.add_step(step_name, nodes)
+
+    def add_step(self, step_name, nodes):
+        '''Add a step definiton to the pipeline (see also define_steps).
+
+        Steps are groups of pipeline nodes, which may be disabled at runtime.
+        They are normally defined in a logical order regarding the workflow
+        streams. They are different from pipelines in that steps are purely
+        virtual groups, they do not have parameters.
+
+        Disabling a step acts differently as the pipeline node activation: other
+        nodes are not inativated according to their dependencies. Instead,
+        those steps are not run.
+
+        Parameters
+        ----------
+        step_name: string (mandatory)
+            name of the new step
+        nodes: list ore sequence
+            nodes contained in the step (Node instances)
+        '''
+        if not self.user_traits().has_key('steps'):
+            self.add_trait(
+                'steps',
+                Trait(Controller, desc=
+                    'Steps are groups of pipeline nodes, which may be disabled '
+                    'at runtime. They are normally defined in a logical order '
+                    'regarding the workflow streams. They are different from '
+                    'pipelines in that steps are purely virtual groups, they '
+                    'do not have parameters. To activate or diasable a step, '
+                    'do:\n'
+                    '>>> pipeline.steps.my_step = False\n'
+                    '\n'
+                    'To get the nodes list in a step:\n'
+                    '>>> pipeline.get_step_nodes("my_step")'))
+            self.steps = Controller()
+        self.steps.add_trait(step_name, Bool)
+        trait = self.steps.trait(step_name)
+        trait.nodes = nodes
+        setattr(self.steps, step_name, True)
+
+    def remove_step(self, step_name):
+        '''Remove the given step
+        '''
+        if self.user_traits().has_key('steps'):
+            self.steps.remove_trait(step_name)
 
     def disabled_steps_nodes(self):
         '''List nodes disabled for runtime execution
@@ -1441,4 +1487,17 @@ class Pipeline(Process):
                 nodes = trait.nodes
                 disabled_nodes.extend([self.nodes[node] for node in nodes])
         return disabled_nodes
+
+    def get_step_nodes(self, step_name):
+        '''Get the nodes in the given pipeline step
+        '''
+        return self.steps.trait(step_name).nodes
+
+    def enable_all_steps(self):
+        '''Set all defined steps (using add_step() or define_steps()) to be
+        enabled. Ueful to reset the pipeline state after it has been changed.
+        '''
+        steps = getattr(self, 'steps', Controller())
+        for step, trait in steps.user_traits().iteritems():
+            setattr(steps, step, True)
 
