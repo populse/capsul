@@ -33,6 +33,12 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
     study_config: StudyConfig (optional), or dict
         holds information about file transfers and shared resource paths.
         If not specified, no translation/transfers will be used.
+    disabled_nodes: sequence of pipeline nodes (Node instances) (optional)
+        such nodes will be disabled on-the-fly in the pipeline, file transfers
+        will be adapted accordingly (outputs may become inputs in the resulting
+        workflow), and temporary files will be checked. If a disabled node was
+        to produce a temporary files which is still used in an enabled node,
+        then a ValueError exception will be raised.
 
     Returns
     -------
@@ -341,11 +347,11 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
 
         Return
         ------
-            [in_transfers, out_transfers]
-            each of which is a dict: { Process: proc_dict }
-                proc_dict is a dict: { file_path : FileTransfer object }
-            FileTransfer objects are reused when referring to the same path
-            used from different processes within the pipeline.
+        [in_transfers, out_transfers]
+        each of which is a dict: { Process: proc_dict }
+            proc_dict is a dict: { file_path : FileTransfer object }
+        FileTransfer objects are reused when referring to the same path
+        used from different processes within the pipeline.
         """
         in_transfers = {}
         out_transfers = {}
@@ -371,7 +377,36 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
                         break
         return transfers
 
+    def _expand_nodes(nodes):
+        '''Expands the nodes list or set to leaf nodes by replacing pipeline
+        nodes by their children list.
+
+        Return
+        ------
+        set of leaf nodes.
+        '''
+        nodes_list = list(nodes)
+        expanded_nodes = set()
+        while nodes_list:
+            node = nodes_list.pop(0)
+            if not hasattr(node, 'process'):
+                continue # switch or something
+            if isinstance(node.process, Pipeline):
+                nodes_list.extend(node.process.nodes.values())
+            else:
+                expanded_nodes.add(node)
+        return expanded_nodes
+
     def _handle_disable_nodes(pipeline, temp_map, transfers, disabled_nodes):
+        '''Take into account disabled nodes by changing FileTransfer outputs
+        for such nodes to inputs, and recording output temporary files, so as
+        to ensure that missing temporary outputs will not be used later in
+        the workflow.
+
+        disabled_nodes should be a list, or preferably a set, of leaf process
+        nodes. Use _expand_nodes() if needed before calling
+        _handle_disable_nodes().
+        '''
         move_to_input = {}
         remove_temp = set()
         for node in disabled_nodes:
@@ -389,11 +424,15 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
                     else:
                         transfer = None
                     if transfer is not None:
+                        print 'transfered output path:', path, \
+                            'from: %s.%s changes to input.' \
+                            % (node.name, param)
                         move_to_input[path] = transfer
                         transfer.initial_status \
                             = swclient.constants.FILES_ON_CLIENT
                     elif path in temp_map:
-                        print 'temp path:', path, 'will not be produced.'
+                        print 'temp path in: %s.%s will not be produced.' \
+                            % (node.name, param)
                         remove_temp.add(path)
         return move_to_input, remove_temp
 
@@ -515,6 +554,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
     swf_paths = _get_swf_paths(study_config)
     transfers = _get_transfers(pipeline, swf_paths[0], merged_formats)
     #print 'disabling nodes:', disabled_nodes
+    # get complete list of disabled leaf nodes
+    disabled_nodes = _expand_nodes(disabled_nodes)
     move_to_input, remove_temp = _handle_disable_nodes(
         pipeline, temp_subst_map, transfers, disabled_nodes)
     #print 'changed transfers:', move_to_input
