@@ -23,7 +23,7 @@ from capsul.pipeline.topological_sort import Graph
 from traits.api import Directory, Undefined, File, Str, Any
 
 
-def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
+def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
     """ Create a soma-workflow workflow from a Capsul Pipeline
 
     Parameters
@@ -39,6 +39,9 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
         workflow), and temporary files will be checked. If a disabled node was
         to produce a temporary files which is still used in an enabled node,
         then a ValueError exception will be raised.
+        If disabled_nodes is not passed, they will possibly be taken from the
+        pipeline (if available) using disabled steps:
+        see Pipeline.define_steps()
 
     Returns
     -------
@@ -345,8 +348,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
         transfer_paths: list
             paths basedirs for translations from soma-worflow config
 
-        Return
-        ------
+        Returns
+        -------
         [in_transfers, out_transfers]
         each of which is a dict: { Process: proc_dict }
             proc_dict is a dict: { file_path : FileTransfer object }
@@ -381,8 +384,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
         '''Expands the nodes list or set to leaf nodes by replacing pipeline
         nodes by their children list.
 
-        Return
-        ------
+        Returns
+        -------
         set of leaf nodes.
         '''
         nodes_list = list(nodes)
@@ -392,7 +395,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
             if not hasattr(node, 'process'):
                 continue # switch or something
             if isinstance(node.process, Pipeline):
-                nodes_list.extend(node.process.nodes.values())
+                nodes_list.extend([p for p in node.process.nodes.itervalues()
+                                   if p is not node])
             else:
                 expanded_nodes.add(node)
         return expanded_nodes
@@ -555,6 +559,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=set()):
     transfers = _get_transfers(pipeline, swf_paths[0], merged_formats)
     #print 'disabling nodes:', disabled_nodes
     # get complete list of disabled leaf nodes
+    if disabled_nodes is None:
+        disabled_nodes = pipeline.disabled_steps_nodes()
     disabled_nodes = _expand_nodes(disabled_nodes)
     move_to_input, remove_temp = _handle_disable_nodes(
         pipeline, temp_subst_map, transfers, disabled_nodes)

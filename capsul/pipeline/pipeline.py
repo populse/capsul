@@ -25,7 +25,7 @@ except ImportError:
     import enthought.traits.api as traits
     from enthought.traits.trait_base import _Undefined
     from enthought.traits.api import (File, Float, Enum, Str, Int, Bool,
-        List, Tuple, Instance, Any, Event, CTrait, Directory)
+        List, Tuple, Instance, Any, Event, CTrait, Directory, Trait)
 
 # Capsul import
 from capsul.process import Process
@@ -90,6 +90,8 @@ class Pipeline(Process):
     parse_parameter
     find_empty_parameters
     count_items
+    define_steps
+    disabled_steps_nodes
     """
 
     selection_changed = Event()
@@ -1380,3 +1382,63 @@ class Pipeline(Process):
         for node_name in pipeline_state:
             result.append('node "%s" is new' % node_name)
         return result
+
+    def define_steps(self, steps):
+        '''Define steps in the pipeline.
+        Steps are pipeline portions that form groups, and which can be enabled
+        or disabled on a runtime basis (when building workflows).
+
+        Once steps are defined, their activation may be accessed through the
+        "step" trait, which has one boolean property for each step:
+
+        Ex:
+
+        ::
+
+            steps = OrderedDict()
+            steps['preprocessings'] = [
+                'normalization',
+                'bias_correction',
+                'histo_analysis']
+            steps['brain_extraction'] = [
+                'brain_segmentation',
+                'hemispheres_split']
+            pipeline.define_steps(steps)
+
+        >>> print pipeline.steps.preprocessings
+        True
+
+        >>> pipeline.steps.brain_extraction = False
+
+        Parameters
+        ----------
+        steps: dict or preferably OrderedDict or SortedDictionary (mandatory)
+            The steps dict keys are steps names, the values are lists of nodes
+            names forming the step.
+        '''
+        self.add_trait('steps', Trait(Controller))
+        self.steps = Controller()
+        for step_name, nodes in steps.iteritems():
+            self.steps.add_trait(step_name, Bool)
+            trait = self.steps.trait(step_name)
+            trait.nodes = nodes
+            setattr(self.steps, step_name, True)
+
+    def disabled_steps_nodes(self):
+        '''List nodes disabled for runtime execution
+
+        Returns
+        -------
+        disabled_nodes: list
+            list of pipeline nodes (Node instances) which will not run in
+            a workflow created from this pipeline state.
+        '''
+        steps = getattr(self, 'steps', Controller())
+        disabled_nodes = []
+        for step, trait in steps.user_traits().iteritems():
+            if not getattr(steps, step, True):
+                # disabled step
+                nodes = trait.nodes
+                disabled_nodes.extend([self.nodes[node] for node in nodes])
+        return disabled_nodes
+
