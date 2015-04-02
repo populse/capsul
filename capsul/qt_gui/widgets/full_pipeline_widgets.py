@@ -1408,19 +1408,21 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 step_state = getattr(self.scene.pipeline.pipeline_steps, step)
                 step_action.setChecked(step_state)
                 step_action.toggled.connect(SomaPartial(self.enable_step, step))
-                #menu.addAction(step_action)
-            disable_prec = menu.addAction('Disable preceding steps')
-            disable_prec.triggered.connect(SomaPartial(
-                self.disable_preceding_steps, step))
-            disable_foll = menu.addAction('Disable following steps')
-            disable_foll.triggered.connect(SomaPartial(
-                self.disable_following_steps, step))
-            enable_prec = menu.addAction('Enable preceding steps')
-            enable_prec.triggered.connect(SomaPartial(
-                self.enable_preceding_steps, step))
-            enable_foll = menu.addAction('Enable following steps')
-            enable_foll.triggered.connect(SomaPartial(
-                self.enable_following_steps, step))
+            if len(my_steps) != 0:
+                step = my_steps[0]
+                disable_prec = menu.addAction('Disable preceding steps')
+                disable_prec.triggered.connect(SomaPartial(
+                    self.disable_preceding_steps, step))
+                enable_prec = menu.addAction('Enable preceding steps')
+                enable_prec.triggered.connect(SomaPartial(
+                    self.enable_preceding_steps, step))
+                step = my_steps[-1]
+                disable_foll = menu.addAction('Disable following steps')
+                disable_foll.triggered.connect(SomaPartial(
+                    self.disable_following_steps, step))
+                enable_foll = menu.addAction('Enable following steps')
+                enable_foll.triggered.connect(SomaPartial(
+                    self.enable_following_steps, step))
 
         menu.addAction(disable_action)
         menu.exec_(QtGui.QCursor.pos())
