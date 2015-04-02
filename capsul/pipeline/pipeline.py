@@ -65,6 +65,49 @@ class Pipeline(Process):
     >>> print pipeline.proc1_input
     <undefined>
 
+    **Nodes**
+
+    A pipeline is made of nodes, and links between their parameters. Several
+    types of nodes may be part of a pipeline:
+
+    .. currentmodule:: capsul.pipeline
+
+    * process nodes (:py:class:`pipeline_nodes.ProcessNode`) are the leaf nodes
+      which represent actual processing bricks.
+    * pipeline nodes (:py:class:`pipeline_nodes.PipelineNode`) are sub-pipelines
+      which allow to reuse an existing pipeline within another one
+    * switch nodes (:py:class:`pipeline_nodes.Switch`) allows to select values
+      between several possible inputs. The switch mechanism also allows to select between several alternative processes or processing branchs.
+    * iterative process nodes (:py:class:`pipeline_nodes.IterativeNode`)
+      represent sets of parallel processing nodes, typically used for a
+      map/reduce schema.
+
+    .. currentmodule:: capsul.pipeline.pipeline
+
+    Note that you normally do not instantiate these nodes explicitly when
+    building a pipeline. Rather programmers may call the
+    :py:meth:`add_process`, :py:meth:`add_switch`,
+    :py:meth:`add_iterative_process` methods.
+
+    **Nodes activation**
+
+    Pipeline nodes may be enabled or disabled. Disabling a node will trigger
+    a global pipeline nodes activation step, where all nodes which do not form
+    a complete chain will be inactive. This way a branch may be disabled by
+    disabling one of its nodes. This process is used by the switch system,
+    which allows to select one processing branch betwen several, and disables
+    the unselected ones.
+
+    **Pipeline steps**
+
+    Pipelines may define execution steps: they are user-oriented groups of nodes
+    that are to be run together, or disabled together for runtime execution.
+    They are intended to allow partial, or step-by-step execution. They do not
+    work like the nodes enabling mechanism described above.
+
+    Steps may be defined within the :py:meth:`pipeline_definition` method.
+    See :py:meth:`add_pipeline_step`.
+
     Attributes
     ----------
     `nodes`: dict {node_name: node}
@@ -1451,9 +1494,9 @@ class Pipeline(Process):
                     'Steps are groups of pipeline nodes, which may be disabled '
                     'at runtime. They are normally defined in a logical order '
                     'regarding the workflow streams. They are different from '
-                    'pipelines in that steps are purely virtual groups, they '
-                    'do not have parameters. To activate or diasable a step, '
-                    'do:\n'
+                    'sub-pipelines in that steps are purely virtual groups, '
+                    'they do not have parameters. To activate or diasable a '
+                    'step, just do:\n'
                     'pipeline.steps.my_step = False\n'
                     '\n'
                     'To get the nodes list in a step:\n'
