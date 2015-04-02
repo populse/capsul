@@ -1445,9 +1445,9 @@ class Pipeline(Process):
             nodes contained in the step (Node instances)
         '''
         if not self.user_traits().has_key('pipeline_steps'):
-            self.add_trait(
+            super(Pipeline, self).add_trait(
                 'pipeline_steps',
-                Trait(Controller, desc=
+                Instance(Controller, desc=
                     'Steps are groups of pipeline nodes, which may be disabled '
                     'at runtime. They are normally defined in a logical order '
                     'regarding the workflow streams. They are different from '
