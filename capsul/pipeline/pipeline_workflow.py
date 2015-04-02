@@ -560,7 +560,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
     #print 'disabling nodes:', disabled_nodes
     # get complete list of disabled leaf nodes
     if disabled_nodes is None:
-        disabled_nodes = pipeline.disabled_steps_nodes()
+        disabled_nodes = pipeline.disabled_pipeline_steps_nodes()
     disabled_nodes = _expand_nodes(disabled_nodes)
     move_to_input, remove_temp = _handle_disable_nodes(
         pipeline, temp_subst_map, transfers, disabled_nodes)

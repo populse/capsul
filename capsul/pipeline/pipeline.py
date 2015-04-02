@@ -90,12 +90,12 @@ class Pipeline(Process):
     parse_parameter
     find_empty_parameters
     count_items
-    define_steps
-    add_step
-    remove_sep
-    disabled_steps_nodes
-    get_step_nodes
-    enable_all_steps
+    define_pipeline_steps
+    add_pipeline_step
+    remove_pipeline_step
+    disabled_pipeline_steps_nodes
+    get_pipeline_step_nodes
+    enable_all_pipeline_steps
     """
 
     selection_changed = Event()
@@ -1387,7 +1387,7 @@ class Pipeline(Process):
             result.append('node "%s" is new' % node_name)
         return result
 
-    def define_steps(self, steps):
+    def define_pipeline_steps(self, steps):
         '''Define steps in the pipeline.
         Steps are pipeline portions that form groups, and which can be enabled
         or disabled on a runtime basis (when building workflows).
@@ -1407,14 +1407,14 @@ class Pipeline(Process):
             steps['brain_extraction'] = [
                 'brain_segmentation',
                 'hemispheres_split']
-            pipeline.define_steps(steps)
+            pipeline.define_pipeline_steps(steps)
 
-        >>> print pipeline.steps.preprocessings
+        >>> print pipeline.pipeline_steps.preprocessings
         True
 
-        >>> pipeline.steps.brain_extraction = False
+        >>> pipeline.pipeline_steps.brain_extraction = False
 
-        See also add_step()
+        See also add_pipeline_step()
 
         Parameters
         ----------
@@ -1423,9 +1423,9 @@ class Pipeline(Process):
             names forming the step.
         '''
         for step_name, nodes in steps.iteritems():
-            self.add_step(step_name, nodes)
+            self.add_pipeline_step(step_name, nodes)
 
-    def add_step(self, step_name, nodes):
+    def add_pipeline_step(self, step_name, nodes):
         '''Add a step definiton to the pipeline (see also define_steps).
 
         Steps are groups of pipeline nodes, which may be disabled at runtime.
@@ -1444,9 +1444,9 @@ class Pipeline(Process):
         nodes: list ore sequence
             nodes contained in the step (Node instances)
         '''
-        if not self.user_traits().has_key('steps'):
+        if not self.user_traits().has_key('pipeline_steps'):
             self.add_trait(
-                'steps',
+                'pipeline_steps',
                 Trait(Controller, desc=
                     'Steps are groups of pipeline nodes, which may be disabled '
                     'at runtime. They are normally defined in a logical order '
@@ -1458,19 +1458,19 @@ class Pipeline(Process):
                     '\n'
                     'To get the nodes list in a step:\n'
                     'pipeline.get_step_nodes("my_step")'))
-            self.steps = Controller()
-        self.steps.add_trait(step_name, Bool)
-        trait = self.steps.trait(step_name)
+            self.pipeline_steps = Controller()
+        self.pipeline_steps.add_trait(step_name, Bool)
+        trait = self.pipeline_steps.trait(step_name)
         trait.nodes = nodes
-        setattr(self.steps, step_name, True)
+        setattr(self.pipeline_steps, step_name, True)
 
-    def remove_step(self, step_name):
+    def remove_pipeline_step(self, step_name):
         '''Remove the given step
         '''
-        if self.user_traits().has_key('steps'):
-            self.steps.remove_trait(step_name)
+        if self.user_traits().has_key('pipeline_steps'):
+            self.pipeline_steps.remove_trait(step_name)
 
-    def disabled_steps_nodes(self):
+    def disabled_pipeline_steps_nodes(self):
         '''List nodes disabled for runtime execution
 
         Returns
@@ -1479,7 +1479,7 @@ class Pipeline(Process):
             list of pipeline nodes (Node instances) which will not run in
             a workflow created from this pipeline state.
         '''
-        steps = getattr(self, 'steps', Controller())
+        steps = getattr(self, 'pipeline_steps', Controller())
         disabled_nodes = []
         for step, trait in steps.user_traits().iteritems():
             if not getattr(steps, step, True):
@@ -1488,16 +1488,16 @@ class Pipeline(Process):
                 disabled_nodes.extend([self.nodes[node] for node in nodes])
         return disabled_nodes
 
-    def get_step_nodes(self, step_name):
+    def get_pipeline_step_nodes(self, step_name):
         '''Get the nodes in the given pipeline step
         '''
-        return self.steps.trait(step_name).nodes
+        return self.pipeline_steps.trait(step_name).nodes
 
-    def enable_all_steps(self):
+    def enable_all_pipeline_steps(self):
         '''Set all defined steps (using add_step() or define_steps()) to be
         enabled. Ueful to reset the pipeline state after it has been changed.
         '''
-        steps = getattr(self, 'steps', Controller())
+        steps = getattr(self, 'pipeline_steps', Controller())
         for step, trait in steps.user_traits().iteritems():
             setattr(steps, step, True)
 

@@ -56,9 +56,9 @@ class DummyPipeline(Pipeline):
                               pipeline_parameter="output3",
                               is_optional=True)
 
-        self.add_step('step1', ['node1'])
-        self.add_step('step2', ['node2'])
-        self.add_step('step3', ['node3'])
+        self.add_pipeline_step('step1', ['node1'])
+        self.add_pipeline_step('step2', ['node2'])
+        self.add_pipeline_step('step3', ['node3'])
 
         self.node_position = {'inputs': (54.0, 298.0),
             'node1': (173.0, 168.0),
@@ -86,30 +86,31 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.study_config = study_config
 
     def test_full_wf(self):
+        self.pipeline.enable_all_pipeline_steps()
         wf = pipeline_workflow.workflow_from_pipeline(
             self.pipeline, study_config=self.study_config)
         self.assertEqual(len(wf.jobs), 4)
         self.assertEqual(len(wf.dependencies), 3)
 
     def test_partial_wf1(self):
-        self.pipeline.enable_all_steps()
-        self.pipeline.steps.step3 = False
+        self.pipeline.enable_all_pipeline_steps()
+        self.pipeline.pipeline_steps.step3 = False
         wf = pipeline_workflow.workflow_from_pipeline(
             self.pipeline, study_config=self.study_config)
         self.assertEqual(len(wf.jobs), 3)
         self.assertEqual(len(wf.dependencies), 2)
 
     def test_partial_wf2(self):
-        self.pipeline.enable_all_steps()
-        self.pipeline.steps.step2 = False
+        self.pipeline.enable_all_pipeline_steps()
+        self.pipeline.pipeline_steps.step2 = False
         wf = pipeline_workflow.workflow_from_pipeline(
             self.pipeline, study_config=self.study_config)
         self.assertEqual(len(wf.jobs), 3)
         self.assertEqual(len(wf.dependencies), 0)
 
     def test_partial_wf3_fail(self):
-        self.pipeline.enable_all_steps()
-        self.pipeline.steps.step1 = False
+        self.pipeline.enable_all_pipeline_steps()
+        self.pipeline.pipeline_steps.step1 = False
         try:
             wf = pipeline_workflow.workflow_from_pipeline(
                 self.pipeline, study_config=self.study_config)
