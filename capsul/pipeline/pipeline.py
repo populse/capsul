@@ -1454,10 +1454,10 @@ class Pipeline(Process):
                     'pipelines in that steps are purely virtual groups, they '
                     'do not have parameters. To activate or diasable a step, '
                     'do:\n'
-                    '>>> pipeline.steps.my_step = False\n'
+                    'pipeline.steps.my_step = False\n'
                     '\n'
                     'To get the nodes list in a step:\n'
-                    '>>> pipeline.get_step_nodes("my_step")'))
+                    'pipeline.get_step_nodes("my_step")'))
             self.steps = Controller()
         self.steps.add_trait(step_name, Bool)
         trait = self.steps.trait(step_name)
