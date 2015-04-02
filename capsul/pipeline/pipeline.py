@@ -77,7 +77,8 @@ class Pipeline(Process):
     * pipeline nodes (:py:class:`pipeline_nodes.PipelineNode`) are sub-pipelines
       which allow to reuse an existing pipeline within another one
     * switch nodes (:py:class:`pipeline_nodes.Switch`) allows to select values
-      between several possible inputs. The switch mechanism also allows to select between several alternative processes or processing branchs.
+      between several possible inputs. The switch mechanism also allows to select
+      between several alternative processes or processing branchs.
     * iterative process nodes (:py:class:`pipeline_nodes.IterativeNode`)
       represent sets of parallel processing nodes, typically used for a
       map/reduce schema.
@@ -107,6 +108,12 @@ class Pipeline(Process):
 
     Steps may be defined within the :py:meth:`pipeline_definition` method.
     See :py:meth:`add_pipeline_step`.
+
+    Note also that pipeline steps only act at the highest level: if a
+    sub-pipeline has disabled steps, they will not be taken into account in the
+    higher level pipeline execution, because executing by steps a part of a
+    sub-pipeline within the context of a higher one does generally not make
+    sense.
 
     Attributes
     ----------
