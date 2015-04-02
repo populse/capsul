@@ -20,6 +20,7 @@ from capsul.pipeline import pipeline_tools
 from capsul.pipeline import Pipeline
 from capsul.process import get_process_instance, Process
 from soma.controller import Controller
+from soma.utils.functiontools import SomaPartial
 try:
     from traits import api as traits
 except ImportError:
@@ -167,7 +168,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
     def __init__(self, name, parameters, active=True,
                  style=None, parent=None, process=None, sub_pipeline=None,
-                 colored_parameters=True):
+                 colored_parameters=True, runtime_enabled=True):
         super(NodeGWidget, self).__init__(parent)
         if style is None:
             style = 'default'
@@ -184,6 +185,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.sub_pipeline = sub_pipeline
         self.embedded_subpipeline = None
         self.colored_parameters = colored_parameters
+        self.runtime_enabled = runtime_enabled
 
         self._set_brush()
         self.setAcceptedMouseButtons(
@@ -290,6 +292,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
             color_1, color_2 = self._colors[self.style][0:2]
         else:
             color_1, color_2 = self._colors[self.style][2:4]
+        if not self.runtime_enabled:
+            color_1 = self._color_disabled(color_1)
+            color_2 = self._color_disabled(color_2)
         gradient = QtGui.QLinearGradient(0, 0, 0, 50)
         gradient.setColorAt(0, color_1)
         gradient.setColorAt(1, color_2)
@@ -301,10 +306,20 @@ class NodeGWidget(QtGui.QGraphicsItem):
         else:
             color_1 = LIGHT_GRAY_1
             color_2 = LIGHT_GRAY_2
+        if not self.runtime_enabled:
+            color_1 = self._color_disabled(color_1)
+            color_2 = self._color_disabled(color_2)
         gradient = QtGui.QLinearGradient(0, 0, 0, 50)
         gradient.setColorAt(1, color_1)
         gradient.setColorAt(0, color_2)
         self.title_brush = QtGui.QBrush(gradient)
+
+    def _color_disabled(self, color):
+        target = [220, 240, 220]
+        new_color = QtGui.QColor((color.red() + target[0]) / 2,
+                                 (color.green() + target[1]) / 2,
+                                 (color.blue() + target[2]) / 2)
+        return new_color
 
     def _create_parameter(self, param_name, pipeline_plug):
         plug_width = 12
@@ -765,7 +780,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             self.add_node(node_name, NodeGWidget(
                 node_name, node.plugs, active=node.activated, style=style,
                 sub_pipeline=sub_pipeline, process=process,
-                colored_parameters=self.colored_parameters))
+                colored_parameters=self.colored_parameters,
+                runtime_enabled=self.is_node_runtime_enabled(node)))
         if pipeline_outputs:
             self.add_node(
                 'outputs', NodeGWidget(
@@ -785,6 +801,16 @@ class PipelineScene(QtGui.QGraphicsScene):
                             active=source_plug.activated \
                                 and dest_plug.activated,
                             weak=weak_link)
+
+    def is_node_runtime_enabled(self, node):
+        steps = getattr(self.pipeline, 'pipeline_steps', None)
+        if steps is None:
+            return True
+        in_steps = [step for step, trait in steps.user_traits().iteritems()
+                    if node.name in trait.nodes
+                    and getattr(steps, step) is False]
+        # enabled: if in no disabled step
+        return len(in_steps) == 0
 
     def update_pipeline(self):
         pipeline = self.pipeline
@@ -806,6 +832,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                     gnode.parameters = pipeline_outputs
             else:
                 node = pipeline.nodes[node_name]
+                gnode.runtime_enabled = self.is_node_runtime_enabled(node)
             gnode.active = node.activated
             gnode.update_node()
         to_remove = []
@@ -1166,6 +1193,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def __del__(self):
         if self.scene.pipeline:
             pipeline = self.scene.pipeline
+            if hasattr(pipeline, 'pipeline_steps'):
+                pipeline.pipeline_steps.on_trait_change(
+                    self._reset_pipeline, remove=True)
             pipeline.on_trait_change(self._reset_pipeline,
                                      'selection_changed', remove=True)
             pipeline.on_trait_change(self._reset_pipeline,
@@ -1206,14 +1236,18 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         # Setup callback to update view when pipeline state is modified
         pipeline.on_trait_change(self._reset_pipeline, 'selection_changed')
         pipeline.on_trait_change(self._reset_pipeline, 'user_traits_changed')
+        if hasattr(pipeline, 'pipeline_steps'):
+            pipeline.pipeline_steps.on_trait_change(
+                self._reset_pipeline)
 
     def _reset_pipeline(self):
+        # print 'reset pipeline'
         #self._set_pipeline(pipeline)
         self.scene.update_pipeline()
 
     def zoom_in(self):
         '''
-        Zoom the view in, applying a 1.2 zool factor
+        Zoom the view in, applying a 1.2 zoom factor
         '''
         self.scale(1.2, 1.2)
 
@@ -1349,20 +1383,32 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         disable_action.setChecked(node.enabled)
         disable_action.toggled.connect(self.enableNode)
 
-        disable_down_action = menu.addAction('Disable for downhill processing')
-        disable_down_action.triggered.connect(self.disable_downhill)
+        #disable_down_action = menu.addAction('Disable for downhill processing')
+        #disable_down_action.triggered.connect(self.disable_downhill)
 
-        disable_up_action = menu.addAction('Disable for uphill processing')
-        disable_up_action.triggered.connect(self.disable_uphill)
+        #disable_up_action = menu.addAction('Disable for uphill processing')
+        #disable_up_action.triggered.connect(self.disable_uphill)
 
-        disable_done_action = menu.addAction('Disable nodes with existing outputs')
-        disable_done_action.triggered.connect(self.disable_done_outputs)
+        #disable_done_action = menu.addAction('Disable nodes with existing outputs')
+        #disable_done_action.triggered.connect(self.disable_done_outputs)
 
-        reactivate_pipeline_action = menu.addAction('Reactivate disabed pipeline nodes')
-        reactivate_pipeline_action.triggered.connect(self.reactivate_pipeline)
+        #reactivate_pipeline_action = menu.addAction('Reactivate disabed pipeline nodes')
+        #reactivate_pipeline_action.triggered.connect(self.reactivate_pipeline)
 
-        reactivate_node_action = menu.addAction('Reactivate disabed pipeline node')
-        reactivate_node_action.triggered.connect(self.reactivate_node)
+        #reactivate_node_action = menu.addAction('Reactivate disabed pipeline node')
+        #reactivate_node_action.triggered.connect(self.reactivate_node)
+
+        steps = getattr(self.scene.pipeline, 'pipeline_steps', None)
+        if steps is not None:
+            my_steps = [step_name for step_name in steps.user_traits()
+                        if node.name in steps.trait(step_name).nodes]
+            for step in my_steps:
+                step_action = QtGui.QAction('(enable) step: %s' % step, menu)
+                step_action.setCheckable(True)
+                step_state = getattr(self.scene.pipeline.pipeline_steps, step)
+                step_action.setChecked(step_state)
+                step_action.toggled.connect(SomaPartial(self.enable_step, step))
+                menu.addAction(step_action)
 
         menu.addAction(disable_action)
         menu.exec_(QtGui.QCursor.pos())
@@ -1388,3 +1434,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     def reactivate_node(self):
         pipeline_tools.reactivate_node(self.scene.pipeline, self.current_node_name)
+
+    def enable_step(self, step_name, state):
+        # print 'enable:', step_name, state
+        setattr(self.scene.pipeline.pipeline_steps, step_name, state)
