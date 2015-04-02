@@ -1424,6 +1424,21 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 enable_foll.triggered.connect(SomaPartial(
                     self.enable_following_steps, step))
 
+        if isinstance(node, Switch):
+            # allow to select switch value from the menu
+            submenu = menu.addMenu('Switch value')
+            agroup = QtGui.QActionGroup(submenu)
+            values = node.trait('switch').trait_type.values
+            value = node.switch
+            set_index = -1
+            for item in values:
+                action = submenu.addAction(item)
+                action.setCheckable(True)
+                action.triggered.connect(SomaPartial(
+                    self.set_switch_value, node, item))
+                if item == value:
+                    action.setChecked(True)
+
         menu.addAction(disable_action)
         menu.exec_(QtGui.QCursor.pos())
         del self.current_node_name
@@ -1484,4 +1499,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 setattr(steps, step, True)
             elif step == step_name:
                 found = True
+
+    def set_switch_value(self, switch, value, dummy):
+        switch.switch = value
 
