@@ -1403,12 +1403,24 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             my_steps = [step_name for step_name in steps.user_traits()
                         if node.name in steps.trait(step_name).nodes]
             for step in my_steps:
-                step_action = QtGui.QAction('(enable) step: %s' % step, menu)
+                step_action = menu.addAction('(enable) step: %s' % step)
                 step_action.setCheckable(True)
                 step_state = getattr(self.scene.pipeline.pipeline_steps, step)
                 step_action.setChecked(step_state)
                 step_action.toggled.connect(SomaPartial(self.enable_step, step))
-                menu.addAction(step_action)
+                #menu.addAction(step_action)
+            disable_prec = menu.addAction('Disable preceding steps')
+            disable_prec.triggered.connect(SomaPartial(
+                self.disable_preceding_steps, step))
+            disable_foll = menu.addAction('Disable following steps')
+            disable_foll.triggered.connect(SomaPartial(
+                self.disable_following_steps, step))
+            enable_prec = menu.addAction('Enable preceding steps')
+            enable_prec.triggered.connect(SomaPartial(
+                self.enable_preceding_steps, step))
+            enable_foll = menu.addAction('Enable following steps')
+            enable_foll.triggered.connect(SomaPartial(
+                self.enable_following_steps, step))
 
         menu.addAction(disable_action)
         menu.exec_(QtGui.QCursor.pos())
@@ -1418,23 +1430,56 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def enableNode(self, checked):
         self.scene.pipeline.nodes[self.current_node_name].enabled = checked
 
-    def disable_downhill(self):
-        pipeline = self.scene.pipeline
-        pipeline_tools.disable_node_for_downhill_pipeline(pipeline, self.current_node_name)
+    #def disable_downhill(self):
+        #pipeline = self.scene.pipeline
+        #pipeline_tools.disable_node_for_downhill_pipeline(pipeline, self.current_node_name)
 
-    def disable_uphill(self):
-        pipeline = self.scene.pipeline
-        pipeline_tools.disable_node_for_uphill_pipeline(pipeline, self.current_node_name)
+    #def disable_uphill(self):
+        #pipeline = self.scene.pipeline
+        #pipeline_tools.disable_node_for_uphill_pipeline(pipeline, self.current_node_name)
 
-    def disable_done_outputs(self):
-        pipeline_tools.disable_nodes_with_existing_outputs(self.scene.pipeline)
+    #def disable_done_outputs(self):
+        #pipeline_tools.disable_nodes_with_existing_outputs(self.scene.pipeline)
 
-    def reactivate_pipeline(self):
-        pipeline_tools.reactivate_pipeline(self.scene.pipeline)
+    #def reactivate_pipeline(self):
+        #pipeline_tools.reactivate_pipeline(self.scene.pipeline)
 
-    def reactivate_node(self):
-        pipeline_tools.reactivate_node(self.scene.pipeline, self.current_node_name)
+    #def reactivate_node(self):
+        #pipeline_tools.reactivate_node(self.scene.pipeline, self.current_node_name)
 
     def enable_step(self, step_name, state):
-        # print 'enable:', step_name, state
         setattr(self.scene.pipeline.pipeline_steps, step_name, state)
+
+    def disable_preceding_steps(self, step_name, dummy):
+        # don't know why we get this additionall dummy parameter (False)
+        steps = self.scene.pipeline.pipeline_steps
+        for step in steps.user_traits():
+            if step == step_name:
+                break
+            setattr(steps, step, False)
+
+    def disable_following_steps(self, step_name, dummy):
+        steps = self.scene.pipeline.pipeline_steps
+        found = False
+        for step in steps.user_traits():
+            if found:
+                setattr(steps, step, False)
+            elif step == step_name:
+                found = True
+
+    def enable_preceding_steps(self, step_name, dummy):
+        steps = self.scene.pipeline.pipeline_steps
+        for step in steps.user_traits():
+            if step == step_name:
+                break
+            setattr(steps, step, True)
+
+    def enable_following_steps(self, step_name, dummy):
+        steps = self.scene.pipeline.pipeline_steps
+        found = False
+        for step in steps.user_traits():
+            if found:
+                setattr(steps, step, True)
+            elif step == step_name:
+                found = True
+
