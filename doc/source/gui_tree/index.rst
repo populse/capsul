@@ -47,7 +47,9 @@ Functions
     :toctree: generated/capsul-apps-utils/
     :template: function.rst
 
-    find_pipelines.find_pipelines
+    find_pipelines.find_pipelines_from_description
+    find_pipelines.find_pipeline_and_process
+    find_pipelines.lists2dict
     fill_treectrl.fill_treectrl
     fill_treectrl.add_tree_nodes
     fill_treectrl.search_in_menu
