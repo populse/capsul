@@ -1424,6 +1424,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 enable_foll.triggered.connect(SomaPartial(
                     self.enable_following_steps, step))
 
+        enable_all_action = menu.addAction('Enable all steps')
+        enable_all_action.triggered.connect(self.enable_all_steps)
         disable_done_action = menu.addAction(
             'Disable steps with existing outputs')
         disable_done_action.triggered.connect(self.disable_done_steps)
@@ -1513,6 +1515,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def disable_done_steps(self):
         pipeline_tools.disable_runtime_steps_with_existing_outputs(
             self.scene.pipeline)
+
+    def enable_all_steps(self):
+        self.scene.pipeline.enable_all_pipeline_steps()
 
     def check_files(self):
         overwritten_outputs = pipeline_tools.nodes_with_existing_outputs(
