@@ -1042,6 +1042,10 @@ class Pipeline(Process):
         graph: topological_sort.Graph
             graph representation of the workflow from the current state of
             the pipeline
+        remove_disabled_steps: bool (optional)
+            When set, disabled steps (and their children) will not be included
+            in the workflow graph.
+            Default: True
         """
 
         def insert(pipeline, node_name, plug, dependencies):
@@ -1129,6 +1133,10 @@ class Pipeline(Process):
         -------
         workflow_list: list of Process
             an ordered list of Processes to execute
+        remove_disabled_steps: bool (optional)
+            When set, disabled steps (and their children) will not be included
+            in the workflow graph.
+            Default: True
         """
         # Create a graph and a list of graph node edges
         graph = self.workflow_graph(remove_disabled_steps)
