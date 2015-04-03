@@ -19,6 +19,8 @@ from capsul.pipeline.pipeline import Switch, PipelineNode, IterativeNode
 from capsul.pipeline import pipeline_tools
 from capsul.pipeline import Pipeline
 from capsul.process import get_process_instance, Process
+from capsul.qt_gui.widgets.pipeline_file_warning_widget \
+    import PipelineFileWarningWidget
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
 try:
@@ -1529,84 +1531,19 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self, 'Pipeline ready', 'All input files are available. '
                 'No output file will be overwritten.')
         else:
-            dialog = QtGui.QDialog(self)
+            dialog = QtGui.QWidget()
             layout = QtGui.QVBoxLayout(dialog)
-            splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-            layout.addWidget(splitter)
-            widget1 = QtGui.QWidget(splitter)
-            layout1 = QtGui.QVBoxLayout(widget1)
-            widget2 = QtGui.QWidget(splitter)
-            layout2 = QtGui.QVBoxLayout(widget2)
-            label = QtGui.QLabel()
-            layout1.addWidget(label)
-
-            text = '<h1>Pipeline file parameters problems</h1>\n'
-
-            if len(missing_inputs) == 0:
-                text += '<h2>Inputs: OK</h2>\n' \
-                    '<p>All input file are present.</p>\n'
-                label.setText(text)
-            else:
-                text += '<h2>Inputs: missing files</h2>\n'
-                label.setText(text)
-
-                table = QtGui.QTableWidget()
-                layout1.addWidget(table)
-                table.setColumnCount(3)
-                sizes = [len(l) for node, l in missing_inputs.iteritems()]
-                table.setRowCount(sum(sizes))
-                table.setHorizontalHeaderLabels(
-                    ['node', 'parameter', 'filename'])
-                row = 0
-                for node_name, items in missing_inputs.iteritems():
-                    for param_name, file_name in items:
-                        if not file_name or file_name is traits.Undefined:
-                            file_name = '<temp. file>'
-                        table.setItem(row, 0, QtGui.QTableWidgetItem(node_name))
-                        table.setItem(row, 1,
-                                      QtGui.QTableWidgetItem(param_name))
-                        table.setItem(row, 2, QtGui.QTableWidgetItem(file_name))
-                        row += 1
-                table.setSortingEnabled(True)
-                table.resizeColumnsToContents()
-
-            label_out = QtGui.QLabel(dialog)
-            layout2.addWidget(label_out)
-            if len(overwritten_outputs) == 0:
-                text = '<h2>Outputs: OK</h2>\n' \
-                    '<p>No output file will be overwritten.</p>\n'
-                label_out.setText(text)
-            else:
-                text = '<h2>Outputs: overwritten files</h2>\n'
-                label_out.setText(text)
-
-                table = QtGui.QTableWidget()
-                layout2.addWidget(table)
-                table.setColumnCount(3)
-                sizes = [len(l) for node, l in overwritten_outputs.iteritems()]
-                table.setRowCount(sum(sizes))
-                table.setHorizontalHeaderLabels(
-                    ['node', 'parameter', 'filename'])
-                row = 0
-                for node_name, items in overwritten_outputs.iteritems():
-                    for param_name, file_name in items:
-                        if not file_name or file_name is traits.Undefined:
-                            file_name = '<temp. file>'
-                        table.setItem(row, 0, QtGui.QTableWidgetItem(node_name))
-                        table.setItem(row, 1,
-                                      QtGui.QTableWidgetItem(param_name))
-                        table.setItem(row, 2, QtGui.QTableWidgetItem(file_name))
-                        row += 1
-                table.setSortingEnabled(True)
-                table.resizeColumnsToContents()
-
+            warn_widget = PipelineFileWarningWidget(
+                missing_inputs, overwritten_outputs)
+            layout.addWidget(warn_widget)
             hlay = QtGui.QHBoxLayout()
             layout.addLayout(hlay)
             hlay.addStretch()
-            ok = QtGui.QPushButton('OK', dialog)
+            ok = QtGui.QPushButton('OK')
+            self.ok_button = ok
             hlay.addWidget(ok)
-            ok.clicked.connect(dialog.accept)
-
+            ok.clicked.connect(dialog.close)
             dialog.show()
-            dialog.exec_()
+            self._warn_files_widget = dialog
+
 
