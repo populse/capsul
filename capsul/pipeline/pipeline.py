@@ -1034,7 +1034,7 @@ class Pipeline(Process):
 
         self._disable_update_nodes_and_plugs_activation -= 1
 
-    def workflow_graph(self):
+    def workflow_graph(self, remove_disabled_steps=True):
         """ Generate a workflow graph
 
         Returns
@@ -1074,6 +1074,14 @@ class Pipeline(Process):
         graph = Graph()
         dependencies = set()
 
+        if remove_disabled_steps:
+            steps = getattr(self, 'pipeline_steps', Controller())
+            disabled_nodes = set()
+            for step, trait in steps.user_traits().iteritems():
+                if not getattr(steps, step):
+                    disabled_nodes.update(
+                        [self.nodes[node] for node in trait.nodes])
+
         # Add activated Process nodes in the graph
         for node_name, node in self.nodes.iteritems():
 
@@ -1082,7 +1090,9 @@ class Pipeline(Process):
                 continue
 
             # Select only active Process nodes
-            if node.activated and not isinstance(node, Switch):
+            if node.activated and not isinstance(node, Switch) \
+                    and (not remove_disabled_steps
+                         or node not in disabled_nodes):
 
                 # If a Pipeline is found: the meta graph node parameter contains
                 # a sub Graph
@@ -1090,7 +1100,7 @@ class Pipeline(Process):
                     not isinstance(node, IterativeNode)):
 
                     graph.add_node(GraphNode(
-                        node_name, node.process.workflow_graph()))
+                        node_name, node.process.workflow_graph(False)))
 
                 # If a Process or an iterative node is found: the meta graph
                 # node parameter contains a list with one process node or
@@ -1112,7 +1122,7 @@ class Pipeline(Process):
 
         return graph
 
-    def workflow_ordered_nodes(self):
+    def workflow_ordered_nodes(self, remove_disabled_steps=True):
         """ Generate a workflow: list of process node to execute
 
         Returns
@@ -1121,7 +1131,7 @@ class Pipeline(Process):
             an ordered list of Processes to execute
         """
         # Create a graph and a list of graph node edges
-        graph = self.workflow_graph()
+        graph = self.workflow_graph(remove_disabled_steps)
 
         # Start the topologival sort
         ordered_list = graph.topological_sort()
