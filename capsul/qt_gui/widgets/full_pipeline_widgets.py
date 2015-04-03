@@ -1424,6 +1424,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 enable_foll.triggered.connect(SomaPartial(
                     self.enable_following_steps, step))
 
+        disable_done_action = menu.addAction(
+            'Disable steps with existing outputs')
+        disable_done_action.triggered.connect(self.disable_done_steps)
+        check_pipeline_action = menu.addAction(
+            'Check input / output files')
+        check_pipeline_action.triggered.connect(self.check_files)
+
         if isinstance(node, Switch):
             # allow to select switch value from the menu
             submenu = menu.addMenu('Switch value')
@@ -1502,4 +1509,99 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     def set_switch_value(self, switch, value, dummy):
         switch.switch = value
+
+    def disable_done_steps(self):
+        pipeline_tools.disable_runtime_steps_with_existing_outputs(
+            self.scene.pipeline)
+
+    def check_files(self):
+        overwritten_outputs = pipeline_tools.nodes_with_existing_outputs(
+            self.scene.pipeline)
+        missing_inputs = pipeline_tools.nodes_with_missing_inputs(
+            self.scene.pipeline)
+        if len(overwritten_outputs) == 0 and len(missing_inputs) == 0:
+            QtGui.QMessageBox.information(
+                self, 'Pipeline ready', 'All input files are available. '
+                'No output file will be overwritten.')
+        else:
+            dialog = QtGui.QDialog(self)
+            layout = QtGui.QVBoxLayout(dialog)
+            splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+            layout.addWidget(splitter)
+            widget1 = QtGui.QWidget(splitter)
+            layout1 = QtGui.QVBoxLayout(widget1)
+            widget2 = QtGui.QWidget(splitter)
+            layout2 = QtGui.QVBoxLayout(widget2)
+            label = QtGui.QLabel()
+            layout1.addWidget(label)
+
+            text = '<h1>Pipeline file parameters problems</h1>\n'
+
+            if len(missing_inputs) == 0:
+                text += '<h2>Inputs: OK</h2>\n' \
+                    '<p>All input file are present.</p>\n'
+                label.setText(text)
+            else:
+                text += '<h2>Inputs: missing files</h2>\n'
+                label.setText(text)
+
+                table = QtGui.QTableWidget()
+                layout1.addWidget(table)
+                table.setColumnCount(3)
+                sizes = [len(l) for node, l in missing_inputs.iteritems()]
+                table.setRowCount(sum(sizes))
+                table.setHorizontalHeaderLabels(
+                    ['node', 'parameter', 'filename'])
+                row = 0
+                for node_name, items in missing_inputs.iteritems():
+                    for param_name, file_name in items:
+                        if not file_name or file_name is traits.Undefined:
+                            file_name = '<temp. file>'
+                        table.setItem(row, 0, QtGui.QTableWidgetItem(node_name))
+                        table.setItem(row, 1,
+                                      QtGui.QTableWidgetItem(param_name))
+                        table.setItem(row, 2, QtGui.QTableWidgetItem(file_name))
+                        row += 1
+                table.setSortingEnabled(True)
+                table.resizeColumnsToContents()
+
+            label_out = QtGui.QLabel(dialog)
+            layout2.addWidget(label_out)
+            if len(overwritten_outputs) == 0:
+                text = '<h2>Outputs: OK</h2>\n' \
+                    '<p>No output file will be overwritten.</p>\n'
+                label_out.setText(text)
+            else:
+                text = '<h2>Outputs: overwritten files</h2>\n'
+                label_out.setText(text)
+
+                table = QtGui.QTableWidget()
+                layout2.addWidget(table)
+                table.setColumnCount(3)
+                sizes = [len(l) for node, l in overwritten_outputs.iteritems()]
+                table.setRowCount(sum(sizes))
+                table.setHorizontalHeaderLabels(
+                    ['node', 'parameter', 'filename'])
+                row = 0
+                for node_name, items in overwritten_outputs.iteritems():
+                    for param_name, file_name in items:
+                        if not file_name or file_name is traits.Undefined:
+                            file_name = '<temp. file>'
+                        table.setItem(row, 0, QtGui.QTableWidgetItem(node_name))
+                        table.setItem(row, 1,
+                                      QtGui.QTableWidgetItem(param_name))
+                        table.setItem(row, 2, QtGui.QTableWidgetItem(file_name))
+                        row += 1
+                table.setSortingEnabled(True)
+                table.resizeColumnsToContents()
+
+            hlay = QtGui.QHBoxLayout()
+            layout.addLayout(hlay)
+            hlay.addStretch()
+            ok = QtGui.QPushButton('OK', dialog)
+            hlay.addWidget(ok)
+            ok.clicked.connect(dialog.accept)
+
+            dialog.show()
+            dialog.exec_()
 
