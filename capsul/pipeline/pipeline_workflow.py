@@ -21,6 +21,7 @@ from capsul.pipeline import Pipeline, Switch
 from capsul.process import Process
 from capsul.pipeline.topological_sort import Graph
 from traits.api import Directory, Undefined, File, Str, Any
+from soma.sorted_dictionary import OrderedDict
 
 
 def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
@@ -470,9 +471,13 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
         jobs = {}
         groups = {}
         root_jobs = {}
-        root_groups = {}
         dependencies = set()
         group_nodes = {}
+
+        ordered_nodes = graph.topological_sort()
+        proc_keys = dict([(node[1] if isinstance(node[1], Graph)
+                              else node[1][0].process, i)
+                           for i, node in enumerate(ordered_nodes)])
 
         # Go through all graph nodes
         for node_name, node in graph._nodes.iteritems():
@@ -498,14 +503,13 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
         # Recurence on graph node
         for node_name, node in group_nodes.iteritems():
             wf_graph = node.meta
-            (sub_jobs, sub_deps, sub_groups, sub_root_groups,
-                       sub_root_jobs) = workflow_from_graph(
-                          wf_graph, temp_map, shared_map, transfers,
-                          shared_paths, disabled_nodes)
-            group = build_group(node_name,
-                sub_root_groups.values() + sub_root_jobs.values())
+            (sub_jobs, sub_deps, sub_groups, sub_root_jobs) \
+                = workflow_from_graph(
+                    wf_graph, temp_map, shared_map, transfers,
+                    shared_paths, disabled_nodes)
+            group = build_group(node_name, sub_root_jobs.values())
             groups[node.meta] = group
-            root_groups[node.meta] = group
+            root_jobs[node.meta] = group
             jobs.update(sub_jobs)
             groups.update(sub_groups)
             dependencies.update(sub_deps)
@@ -531,7 +535,12 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
                     djob = groups[dnode.meta]
                 dependencies.add((sjob, djob))
 
-        return jobs, dependencies, groups, root_groups, root_jobs
+        # sort root jobs/groups
+        root_jobs_list = [(proc_keys[p], p, j)
+                          for p, j in root_jobs.iteritems()]
+        root_jobs_list.sort()
+        root_jobs = OrderedDict([x[1:] for x in root_jobs_list])
+        return jobs, dependencies, groups, root_jobs
 
     # TODO: handle formats in a separate, centralized place
     # formats: {name: ext_props}
@@ -571,18 +580,15 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
     # Get a graph
     try:
         graph = pipeline.workflow_graph()
-        (jobs, dependencies, groups, root_groups,
-              root_jobs) = workflow_from_graph(
+        (jobs, dependencies, groups, root_jobs) = workflow_from_graph(
                   graph, temp_subst_map, shared_map, transfers, swf_paths[1],
                   disabled_nodes=disabled_nodes, forbidden_temp=remove_temp)
     finally:
         restore_empty_filenames(temp_map)
 
-    # TODO: root_group would need reordering according to dependencies
-    # (maybe using topological_sort)
     workflow = swclient.Workflow(jobs=jobs.values(),
         dependencies=dependencies,
-        root_group=root_groups.values() + root_jobs.values(),
+        root_group=root_jobs.values(),
         name=pipeline.name)
 
     return workflow
