@@ -19,6 +19,7 @@ import tempfile
 import subprocess
 
 # Get the module name passed in argument
+default_output_dir = os.path.join("source", "generated")
 parser = OptionParser(usage="usage: %prog -i <inputmodule>'")
 parser.add_option("-i", "--imodule",
                   action="store",
@@ -28,6 +29,14 @@ parser.add_option("-i", "--imodule",
 parser.add_option("-v", "--verbose",
                   action="store_true", dest="verbose", default=False,
                   help="set the logging level to DEBUG.")
+parser.add_option("-o", "--outdir",
+                  action="store",
+                  dest="outdir",
+                  default=default_output_dir,
+                  help="output base directory. Docs will be generated in "
+                  "sub-directories there, named by their module names. "
+                  "default: {0}".format(
+                      default_output_dir))
 (options, args) = parser.parse_args()
 if options.module is None:
     parser.error("Wrong number of arguments.")
@@ -44,6 +53,8 @@ else:
         level=logging.INFO,
         format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(
             logger.name))
+
+base_outdir = options.outdir
 
 # Capsul import
 from capsul.qt_apps.utils.find_pipelines import find_pipeline_and_process
@@ -93,7 +104,7 @@ for module_name, module_pipelines in sorted_pipelines.items():
 
     # Where the documentation will be written: a relative path from the
     # makefile
-    outdir = os.path.join("source", "generated", module_name, "schema")
+    outdir = os.path.join(base_outdir, module_name, "schema")
 
     # Go through all pipeline
     for module_pipeline in module_pipelines:
