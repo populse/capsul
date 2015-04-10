@@ -52,6 +52,12 @@ class DummyCopyProcess(FileCopyProcess):
 class TestMemory(unittest.TestCase):
     """ Execute a process using smart-caching functionalities.
     """
+    def setUp(self):
+        self.workspace_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.workspace_dir)
+
     def test_proxy_process_with_cache(self):
         """ Test the proxy process behaviours with cache.
         """
@@ -104,17 +110,15 @@ class TestMemory(unittest.TestCase):
         """
         # Create a process instance
         process = DummyCopyProcess()
+        process.destination = self.workspace_dir
 
         # Create a proxy process
         proxy_process = self.mem.cache(process, verbose=1)
 
         # Test the cache mechanism
         proxy_process(f=2.5, i=__file__, l=[__file__])
-        if os.path.dirname(__file__) != "":
-            copied_file = "{0}/_workspace/{1}".format(
-                os.path.dirname(__file__), os.path.basename(__file__))
-        else:
-            copied_file = "_workspace/{0}".format(__file__)
+        copied_file = os.path.join(self.workspace_dir,
+                                   os.path.basename(__file__))
         self.assertEqual(
             proxy_process.s,
             "{{'i': '{0}', 'l': ['{0}'], 'f': 2.5}}".format(copied_file))
