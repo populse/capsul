@@ -73,7 +73,7 @@ class NipypeConfig(StudyConfigModule):
         self.study_config.use_nipype = True
 
     def initialize_callbacks(self):
-        """ When the 'use_nipype' trait changes, configure nipypr with the new
+        """ When the 'use_nipype' trait changes, configure nipype with the new
         setting.
         """
         self.study_config.on_trait_change(self.initialize_module, "use_nipype")

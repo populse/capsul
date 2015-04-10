@@ -50,10 +50,20 @@ def run_process(output_dir, process_instance, cachedir=None,
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
 
+    # Update the output directory folder if necessary
+    if output_dir is Undefined:
+        output_dir = os.getcwd()       
+
+    # Set the spm directory if necessary
+    if hasattr(process_instance, "_nipype_interface"):
+        if "spm" in process_instance._nipype_interface_name:
+            process_instance._nipype_interface.mlab.inputs.prescript = [
+                "ver,", "try,", "addpath('{0}');".format("/i2bm/local/spm8"),
+                "cd('{0}');".format(output_dir)]
+
     # Update the instance output directory trait before execution
-    if output_dir is not Undefined:
-        if "output_directory" in process_instance.user_traits():
-            process_instance.output_directory = output_dir
+    if "output_directory" in process_instance.user_traits():
+        process_instance.output_directory = output_dir
 
     # Setup the process log file
     output_log_file = None

@@ -17,6 +17,7 @@ import time
 import shutil
 import json
 import numpy
+import logging
 
 # CAPSUL import
 from capsul.process import Process
@@ -33,6 +34,10 @@ except ImportError:
 
 # TRAITS import
 from traits.api import Undefined
+
+
+# Define the logger
+logger = logging.getLogger(__name__)
 
 
 ###########################################################################
@@ -288,8 +293,16 @@ class MemorizedProcess(object):
             map_fname = os.path.join(process_dir, "file_mapping.json")
             with open(map_fname) as json_data:
                 file_mapping = json.load(json_data)
+
+            # Go through all mapping files
             for workspace_file, memory_file in file_mapping:
-                shutil.copy2(memory_file, workspace_file)
+
+                # Determine if the workspace directory is writeable
+                if os.access(os.path.dirname(workspace_file), os.W_OK):
+                    shutil.copy2(memory_file, workspace_file)
+                else:
+                    logger.debug("Can't restore file '{0}', access rights are "
+                                 "not sufficients.".format(workspace_file))
 
             # Update the process output traits
             result = self._load_process_result(process_dir, input_parameters)
@@ -360,8 +373,9 @@ class MemorizedProcess(object):
         duration = time.time() - start_time
 
         # Save the result in json format
-        json_data = json.dumps(result, sort_keys=True, check_circular=True,
-                               indent=4, cls=CapsulResultEncoder)
+        json_data = json.dumps(result, sort_keys=True,
+                               check_circular=True, indent=4,
+                               cls=CapsulResultEncoder)
         result_fname = os.path.join(process_dir, "result.json")
         with open(result_fname, "w") as open_file:
             open_file.write(json_data)
@@ -692,12 +706,13 @@ class CapsulResultEncoder(json.JSONEncoder):
     """ Deal with ProcessResult in json.
     """
     def default(self, obj):
+        print("***", obj, type(obj))
         # File special case
         if isinstance(obj, ProcessResult):
             result_dict = {}
             for name in ["runtime", "returncode", "inputs",
                          "outputs"]:
-                result_dict[name] = getattr(obj, name)
+                result_dict[name] = tuple_json_encoder(getattr(obj, name))
             return result_dict
 
         # Undefined parameter special case
@@ -710,29 +725,61 @@ class CapsulResultEncoder(json.JSONEncoder):
 
         # Array special case
         if isinstance(obj, numpy.ndarray):
-            return obj.tolist()
+            return obj.tolist()   
 
         # Call the base class default method
         return json.JSONEncoder.default(self, obj)
+
+
+def tuple_json_encoder(obj):
+    """ Encode a tuple in order to save it in json format.
+
+    Parameters
+    ----------
+    obj: object
+        a python object to encode.
+
+    Returns
+    -------
+    encobj: object
+        the encoded object.
+    """
+    if isinstance(obj, tuple):
+        return {
+            "__tuple__": True,
+            "items": [tuple_json_encoder(item) for item in obj]
+        }
+    elif isinstance(obj, list):
+        return [tuple_json_encoder(item) for item in obj]
+    elif isinstance(obj, dict):
+        return dict((tuple_json_encoder(key), tuple_json_encoder(value))
+                    for key, value in obj.iteritems())
+    else:
+        return obj
 
 
 class CapsulResultDecoder(json.JSONDecoder):
     """ Deal with ProcessResult in json.
     """
     def __init__(self, *args, **kargs):
-        json.JSONDecoder.__init__(self, object_hook=self.undefined, *args,
+        json.JSONDecoder.__init__(self, object_hook=self.object_object, *args,
                                   **kargs)
 
-    def undefined(self, obj):
+    def object_object(self, obj):
+        # Tuple special case
+        if "__tuple__" in obj:
+            return tuple(obj["items"])
         # Undefined parameter special case
-        if obj == "<undefined_trait_value>":
-            obj = Undefined
-        if isinstance(obj, dict):
+        elif obj == "<undefined_trait_value>":
+            return Undefined
+        elif isinstance(obj, dict):
             for key, value in obj.iteritems():
                 if value == "<undefined_trait_value>":
                     obj[key] = Undefined
-        return obj
-
+            return obj
+        # Default
+        else:
+            return obj
 
 ############################################################################
 # Memory manager: provide some tracking about what is computed when, to
