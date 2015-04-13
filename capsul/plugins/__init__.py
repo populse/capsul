@@ -11,4 +11,5 @@ PLUGS = [
     ("caps", "http://nsap.intra.cea.fr/caps-doc/"),
     ("qmri", "https://bioproj.extra.cea.fr/redmine/projects/qmri/publishing/"),
     ("funtk", "https://bioproj.extra.cea.fr/redmine/projects/funtk/publishing/"),
+    ("monkeyfmri", "")
 ]
