@@ -630,7 +630,7 @@ def get_process_signature(process, input_parameters):
     """
     kwargs = ["{0}={1}".format(name, value)
               for name, value in input_parameters.iteritems()]
-    return "{0}({1})".format(process.id, " ".join(kwargs))
+    return "{0}({1})".format(process.id, ", ".join(kwargs))
 
 
 def has_attribute(trait, attribute_name, attribute_value=None,
@@ -706,7 +706,6 @@ class CapsulResultEncoder(json.JSONEncoder):
     """ Deal with ProcessResult in json.
     """
     def default(self, obj):
-        print("***", obj, type(obj))
         # File special case
         if isinstance(obj, ProcessResult):
             result_dict = {}
@@ -725,7 +724,7 @@ class CapsulResultEncoder(json.JSONEncoder):
 
         # Array special case
         if isinstance(obj, numpy.ndarray):
-            return obj.tolist()   
+            return obj.tolist()
 
         # Call the base class default method
         return json.JSONEncoder.default(self, obj)
@@ -780,6 +779,7 @@ class CapsulResultDecoder(json.JSONDecoder):
         # Default
         else:
             return obj
+
 
 ############################################################################
 # Memory manager: provide some tracking about what is computed when, to

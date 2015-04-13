@@ -24,7 +24,7 @@ class NipypeConfig(StudyConfigModule):
     configure the nipype module.
     """
     
-    dependencies = ["MatlabConfig", "SPMConfig", "FSLConfig", "FreeSurferConfig"]
+    dependencies = []
     
     def __init__(self, study_config, configuration):
         """ Initialize the NipypeConfig class.

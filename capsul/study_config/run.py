@@ -52,13 +52,12 @@ def run_process(output_dir, process_instance, cachedir=None,
 
     # Update the output directory folder if necessary
     if output_dir is Undefined:
-        output_dir = os.getcwd()       
+        output_dir = os.getcwd()
 
-    # Set the spm directory if necessary
+    # Set the current directory directory if necessary
     if hasattr(process_instance, "_nipype_interface"):
         if "spm" in process_instance._nipype_interface_name:
-            process_instance._nipype_interface.mlab.inputs.prescript = [
-                "ver,", "try,", "addpath('{0}');".format("/i2bm/local/spm8"),
+            process_instance._nipype_interface.mlab.inputs.prescript += [
                 "cd('{0}');".format(output_dir)]
 
     # Update the instance output directory trait before execution
