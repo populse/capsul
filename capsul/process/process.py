@@ -31,9 +31,10 @@ from soma.controller import trait_ids
 from soma.utils import LateBindingProperty
 
 # Capsul import
-from capsul.utils import get_tool_version
-from capsul.utils.trait_utils import (
-    is_trait_value_defined, is_trait_pathname, get_trait_desc)
+from capsul.utils.version_utils import get_tool_version
+from capsul.utils.trait_utils import is_trait_value_defined
+from capsul.utils.trait_utils import is_trait_pathname
+from capsul.utils.trait_utils import get_trait_desc
 
 
 class ProcessMeta(Controller.__metaclass__):

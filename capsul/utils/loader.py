@@ -10,21 +10,35 @@
 # System import
 import string
 import sys
+import os
+import types
 import logging
 import importlib
+
+# Capsul import
+from capsul.utils.function_to_process import title_for as process_title_for
+from capsul.utils.function_to_process import class_factory as process_class_factory
+from capsul.utils.xml_to_pipeline import title_for as pipeline_title_for
+from capsul.utils.xml_to_pipeline import class_factory as pipeline_class_factory
+
 
 # Define the logger
 logger = logging.getLogger(__name__)
 
 
 def load_objects(module_name, object_name=None, allowed_instances=None):
-    """ Load a python object from a a module.
+    """ Load a python object from a module.
 
-    If 'object_name' is None, the function will import the full module
-    content.
-    It is possible to filter objects and to keep only objects of specific
-    types by setting the 'allowed_instances' parameter.
-    By default only class are returned.
+    Loader rules:
+
+        * if the 'object_name' is None, the function will import the full
+          module content.
+        * if the 'object_name' has a '.xml' extension, expect a pipeline xml
+          description.
+        * it is possible to filter objects and to keep only objects of specific
+          types by setting the 'allowed_instances' parameter.
+
+    By default only classes are returned.
 
     Parameters
     ----------
@@ -45,39 +59,58 @@ def load_objects(module_name, object_name=None, allowed_instances=None):
     if object_name:
         object_name = cleanup(object_name)
 
-    # Import the module
-    importlib.import_module(module_name)
-    module = sys.modules[module_name]
-
-    # Get the target (possibly allowed) tool(s)
+    # Store the target (possibly allowed) tool(s)
     tools = []
 
-    # If a specific object is required, load only this object
-    if object_name:
-        try:
-            insert_tool(tools, getattr(module, object_name),
-                        allowed_instances)
-        except ImportError, e:
-            raise Exception(
-                "Could not import {0}: {1}".format(object_name, e))
+    # Import the module
+    # > special case for pipeline xml description
+    if object_name is not None and object_name.endswith("xml"):
 
-    # Otherwise, return all the module public objects
+        # Get the absolute path the the xml description file
+        importlib.import_module(module_name)
+        module = sys.modules[module_name]
+        xmlpath_description = os.path.join(
+            os.path.dirname(module.__file__), object_name)
+
+        # Warp pipeline from xml description
+        destination_module_globals = {
+            "__name__": module_name
+        }
+        pipeline_class_factory(xmlpath_description, destination_module_globals)
+        tools.append(destination_module_globals[
+            pipeline_title_for(object_name)])
+
+    # > default: import the module
     else:
+        importlib.import_module(module_name)
+        module = sys.modules[module_name]
 
-        # Go through all the module items
-        for tool_name in dir(module):
-
-            # Do not consider private items
-            if tool_name.startswith("_"):
-                continue
-
-            # Load the module object
+        # If a specific object is required, load only this object
+        if object_name is not None:
             try:
-                insert_tool(tools, getattr(module, tool_name),
+                insert_tool(tools, getattr(module, object_name),
                             allowed_instances)
             except ImportError, e:
                 raise Exception(
-                    "Could not import {0}: {1}".format(tool_name, e))
+                    "Could not import {0}: {1}".format(object_name, e))
+
+        # Otherwise, return all the module public objects
+        else:
+
+            # Go through all the module items
+            for tool_name in dir(module):
+
+                # Do not consider private items
+                if tool_name.startswith("_"):
+                    continue
+
+                # Load the module object
+                try:
+                    insert_tool(tools, getattr(module, tool_name),
+                                allowed_instances)
+                except ImportError, e:
+                    raise Exception(
+                        "Could not import {0}: {1}".format(tool_name, e))
 
     return tools
 
@@ -126,7 +159,7 @@ def insert_tool(tools, tool, allowed_instances=None):
     # Set up the default behaviour: only class are returned.
     allowed_instances = allowed_instances or [object, ]
 
-    # Tool must not have the exact type of the allowed_instances types
+    # Tool must not have the exact type of the 'allowed_instances' types
     # otherwise it will always be inserted since the base classes are
     # always imported before being subclassed in a module)
     if isinstance(tool, type) and tool not in allowed_instances:
@@ -137,3 +170,21 @@ def insert_tool(tools, tool, allowed_instances=None):
             if issubclass(tool, check_instance):
                 tools.append(tool)
                 break
+
+    # If a function is passed, check if a process description has been
+    # specified in the docstring in order to wrap the function as a process
+    elif isinstance(tool, types.FunctionType):
+
+        # Check docstring
+        capsul_start = tool.__doc__.rfind("<process>")
+        capsul_end = tool.__doc__.rfind("</process>")
+        if (capsul_start != -1 and capsul_end != -1 and
+                capsul_start < capsul_end):
+
+            # Warp function from docstring instructions
+            destination_module_globals = {
+                "__name__": tool.__module__
+            }
+            process_class_factory(tool, destination_module_globals)
+            tools.append(destination_module_globals[
+                process_title_for(tool.__name__)])

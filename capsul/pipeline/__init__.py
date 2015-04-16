@@ -8,5 +8,8 @@
 ##########################################################################
 
 from pipeline import Pipeline
-from pipeline_nodes import (Plug, Node, ProcessNode, PipelineNode,
-                      Switch)
+from pipeline_nodes import Plug
+from pipeline_nodes import Node
+from pipeline_nodes import ProcessNode
+from pipeline_nodes import PipelineNode
+from pipeline_nodes import Switch

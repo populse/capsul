@@ -12,6 +12,7 @@ import sys
 import xml.dom.minidom
 import inspect
 import re
+import importlib
 
 # Capsul import
 from capsul.utils.trait_utils import clone_trait
@@ -79,7 +80,7 @@ def parse_docstring(docstring):
 
 
 class AutoProcess(Process):
-    """ Dummy process class genereated dynamically.
+    """ Process class  generated dynamically.
     """
     def __init__(self):
         """ Initialize the AutoProcess class.
@@ -94,7 +95,7 @@ class AutoProcess(Process):
             self.trait(trait_name).desc = trait.desc
             self.trait(trait_name).optional = trait.optional
 
-        # Redifine process identifier
+        # Redefine process identifier
         if hasattr(self, "_id"):
             self.id = self._id
 
@@ -116,11 +117,11 @@ class AutoProcess(Process):
                     parameter["name"], namespace[parameter["name"]])
 
     def _build_expression(self):
-        """ Build the expression and corresponding namespace to execute
+        """ Build the expression and corresponding name space to execute
         properly the function attached to this process.
         """
         # Load the function from its string description
-        __import__(self._func_module)
+        importlib.import_module(self._func_module)
         module = sys.modules[self._func_module]
         function = getattr(module, self._func_name)
 
@@ -134,7 +135,7 @@ class AutoProcess(Process):
                     parameter["name"])
 
         # Build the expression
-        # Start spliting input and output function parameters
+        # Start splitting input and output function parameters
         args = []
         return_values = []
         for parameter in self._parameters:
