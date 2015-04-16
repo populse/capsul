@@ -25,6 +25,7 @@ from traits.api import Trait
 
 # Capsul import
 from capsul.process import Process
+from capsul.process import get_process_instance
 from topological_sort import GraphNode
 from topological_sort import Graph
 from pipeline_nodes import Plug
@@ -245,10 +246,7 @@ class Pipeline(Process):
             a list of item to copy.
         inputs_to_clean: list of str (optional)
             a list of temporary items.
-        """
-        # Avoid cyclic import induced by the 'get_process_instance' function
-        from capsul.process import get_process_instance
-
+        """      
         # Unique constrains
         make_optional = set(make_optional or [])
         do_not_export = set(do_not_export or [])
@@ -329,9 +327,6 @@ class Pipeline(Process):
         inputs_to_clean: list of str (optional)
             a list of temporary items.
         """
-        # Avoid cyclic import induced by the 'get_process_instance' function
-        from capsul.process import get_process_instance
-
         # If no iterative plug are given as parameter, add a process
         if iterative_plugs is None:
             self.add_process(name, process, do_not_export,

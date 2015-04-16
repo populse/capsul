@@ -18,8 +18,6 @@ import importlib
 # Capsul import
 from capsul.utils.function_to_process import title_for as process_title_for
 from capsul.utils.function_to_process import class_factory as process_class_factory
-from capsul.utils.xml_to_pipeline import title_for as pipeline_title_for
-from capsul.utils.xml_to_pipeline import class_factory as pipeline_class_factory
 
 
 # Define the logger
@@ -54,6 +52,10 @@ def load_objects(module_name, object_name=None, allowed_instances=None):
     tools: list
         a list of objects.
     """
+    # Set here to avoid cyclic imports
+    from capsul.utils.xml_to_pipeline import title_for as pipeline_title_for
+    from capsul.utils.xml_to_pipeline import class_factory as pipeline_class_factory
+
     # Remove special characters from the module name and object name
     module_name = cleanup(module_name)
     if object_name:
