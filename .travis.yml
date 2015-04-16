@@ -23,6 +23,7 @@ install:
     - pip install nibabel --use-mirrors
     - pip install nose-cov --use-mirrors
     - pip install nipype --use-mirrors
+    - pip install xmltodict --use-mirrors
     - pip install soma-workflow --use-mirrors
     - python setup.py install
 
