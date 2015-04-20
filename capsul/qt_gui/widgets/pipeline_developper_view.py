@@ -11,6 +11,8 @@
 import os
 from pprint import pprint
 import weakref
+import tempfile
+import subprocess
 
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui
@@ -1058,6 +1060,10 @@ class PipelineScene(QtGui.QGraphicsScene):
                 pview = self.parent()
                 pview.set_logical_view(not pview.is_logical_view())
                 event.accept()
+            elif event.key() == QtCore.Qt.Key_A:
+                # auto-set nodes positions
+                pview = self.parent()
+                pview.auto_dot_node_positions()
 
     def link_tooltip_text(self, source_dest):
         '''Tooltip text for the fiven link
@@ -1146,6 +1152,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         return False
 
     def plug_tooltip_text(self, node, name):
+        '''Tooltip text for a node plug
+        '''
         if node.name in ('inputs', 'outputs'):
             proc = self.pipeline
             splug = self.pipeline.pipeline_node.plugs[name]
@@ -1722,4 +1730,78 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             dialog.show()
             self._warn_files_widget = dialog
 
+    def auto_dot_node_positions(self):
+        scale = 1. #50.
+        dgraph = self._generate_dot_graph()
+        tfile, tfile_name = tempfile.mkstemp()
+        os.close(tfile)
+        self._write_dot(dgraph, tfile_name)
+        toutfile, toutfile_name = tempfile.mkstemp()
+        os.close(toutfile)
+        cmd = ['dot', '-Tplain', '-o', toutfile_name, tfile_name]
+        subprocess.check_call(cmd)
+
+        nodes_pos = self._read_dot_pos(toutfile_name)
+
+        scene = self.scene
+        rects = dict([(name, node.boundingRect())
+                      for name, node in scene.gnodes.iteritems()])
+        pos = dict([(name, (-rects[name].width()/2 - pos[1]*scale,
+                            -rects[name].height()/2 + pos[0]*scale))
+                    for id, name, pos in nodes_pos])
+        minx = min([x[0] for x in pos.itervalues()])
+        miny = min([x[1] for x in pos.itervalues()])
+        pos = dict([(name, (p[0] - minx, p[1] - miny))
+                    for name, p in pos.iteritems()])
+        print 'pos:'
+        print pos
+        scene.pos = pos
+        for node, position in pos.iteritems():
+            gnode = scene.gnodes[node]
+            gnode.setPos(*position)
+
+        os.unlink(tfile_name)
+        os.unlink(toutfile_name)
+
+    def _write_dot(self, dgraph, filename):
+        fileobj = open(filename, 'w')
+        fileobj.write('digraph {\n')
+        nodesep = 20.
+        for id, node in dgraph[0]:
+            rect = self.scene.gnodes[node].boundingRect()
+            w, h = rect.width() + nodesep, rect.height() + nodesep
+            fileobj.write('  %d [label=%s] [fixedsize=true] [width=%f] [height=%f];\n' % (id, node, h, w))
+        for edge in dgraph[1]:
+            fileobj.write('  %d -> %d;\n' % edge)
+        fileobj.write('}\n')
+
+    def _generate_dot_graph(self):
+        scene = self.scene
+        nodes = []
+        edges = set()
+        nodemap = {}
+        id = 0
+        for node_name, node in scene.gnodes.iteritems():
+            nodes.append((id, node_name))
+            nodemap[node_name] = id
+            id += 1
+        for source_dest in scene.glinks:
+            edge = (nodemap[source_dest[0][0]], nodemap[source_dest[1][0]])
+            edges.add(edge)
+
+        return (nodes, edges)
+
+    def _read_dot_pos(self, filename):
+        fileobj = open(filename)
+        nodes_pos = []
+        for line in fileobj.xreadlines():
+            if line.startswith('node'):
+                line_els = line.split()
+                id = line_els[1]
+                pos = tuple([float(x) for x in line_els[2:4]])
+                name = line_els[6]
+                nodes_pos.append((id, name, pos))
+            elif line.startswith('edge'):
+                break
+        return nodes_pos
 
