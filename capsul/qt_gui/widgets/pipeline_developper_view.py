@@ -221,7 +221,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
     def _build(self):
         margin = 5
-        plug_width = 12
         self.title = QtGui.QGraphicsTextItem(self.get_title(), self)
         font = self.title.font()
         font.setWeight(QtGui.QFont.Bold)
@@ -230,77 +229,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.title.setZValue(2)
         self.title.setParentItem(self)
 
-        pos = margin + margin + self.title.boundingRect().size().height()
-        for in_param, pipeline_plug in self.parameters.iteritems():
-            output = (not pipeline_plug.output if self.name in (
-                'inputs', 'outputs') else pipeline_plug.output)
-            if output:
-                continue
-            if self.logical_view:
-                param_text = ''
-                in_param = 'inputs'
-                param_name = QtGui.QGraphicsTextItem(self)
-                param_name.setHtml(param_text)
-                plug_name = '%s:%s' % (self.name, in_param)
-                plug = Plug(plug_name,
-                            param_name.boundingRect().size().height(),
-                            plug_width, activated=True,
-                            optional=False, parent=self)
-            else:
-                param_text = self._parameter_text(in_param)
-                param_name = QtGui.QGraphicsTextItem(self)
-                param_name.setHtml(param_text)
-                plug_name = '%s:%s' % (self.name, in_param)
-                plug = Plug(plug_name,
-                            param_name.boundingRect().size().height(),
-                            plug_width, activated=pipeline_plug.activated,
-                            optional=pipeline_plug.optional, parent=self)
-            param_name.setZValue(2)
-            plug.setPos(margin, pos)
-            param_name.setPos(plug.boundingRect().size().width() + margin, pos)
-            param_name.setParentItem(self)
-            plug.setParentItem(self)
-            self.in_plugs[in_param] = plug
-            self.in_params[in_param] = param_name
-            pos = pos + param_name.boundingRect().size().height()
-            if self.logical_view:
-                break
-
-        for out_param, pipeline_plug in self.parameters.iteritems():
-            output = (not pipeline_plug.output if self.name in (
-                'inputs', 'outputs') else pipeline_plug.output)
-            if not output:
-                continue
-            if self.logical_view:
-                param_text = ''
-                out_param = 'outputs'
-                param_name = QtGui.QGraphicsTextItem(self)
-                param_name.setHtml(param_text)
-                plug_name = '%s:%s' % (self.name, out_param)
-                plug = Plug(plug_name,
-                            param_name.boundingRect().size().height(),
-                            plug_width, activated=True,
-                            optional=False, parent=self)
-            else:
-                param_text = self._parameter_text(out_param)
-                param_name = QtGui.QGraphicsTextItem(self)
-                param_name.setHtml(param_text)
-                plug_name = '%s:%s' % (self.name, out_param)
-                plug = Plug(plug_name,
-                            param_name.boundingRect().size().height(),
-                            plug_width, activated=pipeline_plug.activated,
-                            optional=pipeline_plug.optional, parent=self)
-            param_name.setZValue(2)
-            param_name.setPos(plug.boundingRect().size().width() + margin, pos)
-            plug.setPos(plug.boundingRect().size().width() + margin +
-                        param_name.boundingRect().size().width() + margin, pos)
-            param_name.setParentItem(self)
-            plug.setParentItem(self)
-            self.out_plugs[out_param] = plug
-            self.out_params[out_param] = param_name
-            pos = pos + param_name.boundingRect().size().height()
-            if self.logical_view:
-                break
+        if self.logical_view:
+            self._build_logical_view_plugs()
+        else:
+            self._build_regular_view_plugs()
 
         self.box = QtGui.QGraphicsRectItem(self)
         self.box.setBrush(self.bg_brush)
@@ -318,6 +250,107 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.box_title.setBrush(self.title_brush)
         self.box_title.setPen(QtGui.QPen(QtCore.Qt.NoPen))
         self.box_title.setParentItem(self)
+
+    def _build_regular_view_plugs(self):
+        margin = 5
+        plug_width = 12
+        pos = margin + margin + self.title.boundingRect().size().height()
+
+        for in_param, pipeline_plug in self.parameters.iteritems():
+            output = (not pipeline_plug.output if self.name in (
+                'inputs', 'outputs') else pipeline_plug.output)
+            if output:
+                continue
+            param_text = self._parameter_text(in_param)
+            param_name = QtGui.QGraphicsTextItem(self)
+            param_name.setHtml(param_text)
+            plug_name = '%s:%s' % (self.name, in_param)
+            plug = Plug(plug_name,
+                        param_name.boundingRect().size().height(),
+                        plug_width, activated=pipeline_plug.activated,
+                        optional=pipeline_plug.optional, parent=self)
+            param_name.setZValue(Plug2)
+            plug.setPos(margin, pos)
+            param_name.setPos(plug.boundingRect().size().width() + margin, pos)
+            param_name.setParentItem(self)
+            plug.setParentItem(self)
+            self.in_plugs[in_param] = plug
+            self.in_params[in_param] = param_name
+            pos = pos + param_name.boundingRect().size().height()
+
+        for out_param, pipeline_plug in self.parameters.iteritems():
+            output = (not pipeline_plug.output if self.name in (
+                'inputs', 'outputs') else pipeline_plug.output)
+            if not output:
+                continue
+            param_text = self._parameter_text(out_param)
+            param_name = QtGui.QGraphicsTextItem(self)
+            param_name.setHtml(param_text)
+            plug_name = '%s:%s' % (self.name, out_param)
+            plug = Plug(plug_name,
+                        param_name.boundingRect().size().height(),
+                        plug_width, activated=pipeline_plug.activated,
+                        optional=pipeline_plug.optional, parent=self)
+            param_name.setZValue(2)
+            param_name.setPos(plug.boundingRect().size().width() + margin, pos)
+            plug.setPos(plug.boundingRect().size().width() + margin +
+                        param_name.boundingRect().size().width() + margin, pos)
+            param_name.setParentItem(self)
+            plug.setParentItem(self)
+            self.out_plugs[out_param] = plug
+            self.out_params[out_param] = param_name
+            pos = pos + param_name.boundingRect().size().height()
+
+    def _build_logical_view_plugs(self):
+        margin = 5
+        plug_width = 12
+        pos = margin + margin + self.title.boundingRect().size().height()
+
+        has_input = False
+        has_output = False
+
+        for in_param, pipeline_plug in self.parameters.iteritems():
+            output = (not pipeline_plug.output if self.name in (
+                'inputs', 'outputs') else pipeline_plug.output)
+            if output:
+                has_output = True
+            else:
+                has_input = True
+            if has_input and has_output:
+                break
+
+        if has_input:
+            param_name = QtGui.QGraphicsTextItem(self)
+            param_name.setHtml('')
+            plug_name = '%s:inputs' % self.name
+            plug = Plug(plug_name,
+                        param_name.boundingRect().size().height(),
+                        plug_width, activated=True,
+                        optional=False, parent=self)
+            param_name.setZValue(2)
+            plug.setPos(margin, pos)
+            param_name.setPos(plug.boundingRect().size().width() + margin, pos)
+            param_name.setParentItem(self)
+            plug.setParentItem(self)
+            self.in_plugs['inputs'] = plug
+            self.in_params['inputs'] = param_name
+
+        if has_output:
+            param_name = QtGui.QGraphicsTextItem(self)
+            param_name.setHtml('')
+            plug_name = '%s:outputs' % self.name
+            plug = Plug(plug_name,
+                        param_name.boundingRect().size().height(),
+                        plug_width, activated=True,
+                        optional=False, parent=self)
+            param_name.setZValue(2)
+            param_name.setPos(plug.boundingRect().size().width() + margin, pos)
+            plug.setPos(self.title.boundingRect().width()
+                        - plug.boundingRect().width(), pos)
+            param_name.setParentItem(self)
+            plug.setParentItem(self)
+            self.out_plugs['outputs'] = plug
+            self.out_params['outputs'] = param_name
 
     def _set_brush(self):
         if self.active:
