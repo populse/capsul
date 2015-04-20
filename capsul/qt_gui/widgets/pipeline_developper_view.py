@@ -553,6 +553,12 @@ class NodeGWidget(QtGui.QGraphicsItem):
                     to_remove.append(param)
             for param in to_remove:
                 self._remove_parameter(param)
+        rect = self.title.mapRectToParent(self.title.boundingRect())
+        margin = 5
+        brect = self.boundingRect()
+        brect.setWidth(brect.right() - margin)
+        rect.setWidth(brect.width())
+        self.box_title.setRect(rect)
         self.box.setRect(self.boundingRect())
 
     def contentsRect(self):
