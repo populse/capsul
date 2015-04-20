@@ -20,12 +20,14 @@ from traits.api import Enum
 from traits.api import Str
 from traits.api import Bool
 from traits.api import Any
+from traits.api import Undefined
 
 # Capsul import
 from capsul.utils.trait_utils import clone_trait
 from capsul.utils.trait_utils import trait_ids
 from capsul.utils.trait_utils import build_expression
 from capsul.utils.trait_utils import eval_trait
+from capsul.utils.trait_utils import is_trait_pathname
 
 # Soma import
 from soma.controller import Controller
@@ -392,9 +394,10 @@ class ProcessNode(Node):
         value: object (mandatory)
             the plug value we want to set
         """
-        from traits.trait_base import _Undefined
         if value in ["", "<undefined>"]:
-            value = _Undefined()
+            value = Undefined
+        elif is_trait_pathname(self.process.trait(plug_name)) and value is None:
+            value = Undefined
         setattr(self.process, plug_name, value)
 
     def get_trait(self, trait_name):
