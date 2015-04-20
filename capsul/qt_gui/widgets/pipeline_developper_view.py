@@ -352,6 +352,18 @@ class NodeGWidget(QtGui.QGraphicsItem):
             self.out_plugs['outputs'] = plug
             self.out_params['outputs'] = param_name
 
+    def clear_plugs(self):
+        for plugs, params in ((self.in_plugs, self.in_params),
+                              (self.out_plugs, self.out_params)):
+            for plug_name, plug in plugs.iteritems():
+                param_item = params[plug_name]
+                self.scene().removeItem(param_item)
+                self.scene().removeItem(plug)
+        self.in_params = {}
+        self.in_plugs = {}
+        self.out_params = {}
+        self.out_plugs = {}
+
     def _set_brush(self):
         if self.active:
             color_1, color_2 = self._colors[self.style][0:2]
@@ -455,7 +467,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 ni += 1
             pos = margin * 2 + self.title.boundingRect().size().height() \
                 + param_item.boundingRect().size().height() * npos
-            param_item = params[param_name]
+            new_param_item = params.get(param_name)
+            if new_param_item is None:
+                continue
+            param_item = new_param_item
             plug = plugs[param_name]
             ppos = param_item.pos()
             param_item.setPos(ppos.x(), pos)
@@ -814,16 +829,16 @@ class PipelineScene(QtGui.QGraphicsScene):
         if not dest_gnode_name:
             dest_gnode_name = 'outputs'
         if self.logical_view:
+            # is it useful ?
             source_param = 'outputs'
             dest_param = 'inputs'
         dest_gnode = self.gnodes.get(dest_gnode_name)
-        if dest_gnode is not None:
-            if dest_param in dest_gnode.in_plugs:
-                glink = self.glinks[((source_gnode_name, source_param),
-                    (dest_gnode_name, dest_param))]
-                self.removeItem(glink)
-                del self.glinks[((source_gnode_name, source_param),
-                    (dest_gnode_name, dest_param))]
+        new_source_dest = ((source_gnode_name, source_param),
+                           (dest_gnode_name, dest_param))
+        glink = self.glinks.get(new_source_dest)
+        if glink is not None:
+            self.removeItem(glink)
+            del self.glinks[new_source_dest]
 
     def update_paths(self):
         for i in self.items():
@@ -917,11 +932,17 @@ class PipelineScene(QtGui.QGraphicsScene):
 
     def update_pipeline(self):
         if self.logical_view:
-            self.update_logical_pipeline()
-            return
+            self._update_logical_pipeline()
+        else:
+            self._update_regular_pipeline()
+
+    def _update_regular_pipeline(self):
         # normal view
         pipeline = self.pipeline
         for node_name, gnode in self.gnodes.iteritems():
+            if gnode.logical_view:
+                gnode.clear_plugs()
+                gnode.logical_view = False
             if node_name in ('inputs', 'outputs'):
                 node = pipeline.nodes['']
                 # in case traits have been added/removed
@@ -986,10 +1007,13 @@ class PipelineScene(QtGui.QGraphicsScene):
                                 and dest_plug.activated,
                             weak=weak_link)
 
-    def update_logical_pipeline(self):
+    def _update_logical_pipeline(self):
         pipeline = self.pipeline
         # nodes state
         for node_name, gnode in self.gnodes.iteritems():
+            if not gnode.logical_view:
+                gnode.clear_plugs()
+                gnode.logical_view = True
             if node_name in ('inputs', 'outputs'):
                 node = pipeline.nodes['']
             else:
