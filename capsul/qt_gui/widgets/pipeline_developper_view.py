@@ -269,7 +269,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
                         param_name.boundingRect().size().height(),
                         plug_width, activated=pipeline_plug.activated,
                         optional=pipeline_plug.optional, parent=self)
-            param_name.setZValue(Plug2)
+            param_name.setZValue(2)
             plug.setPos(margin, pos)
             param_name.setPos(plug.boundingRect().size().width() + margin, pos)
             param_name.setParentItem(self)
@@ -1014,6 +1014,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                             weak=weak_link)
 
     def _update_logical_pipeline(self):
+        # update nodes plugs and links in logical view mode
         pipeline = self.pipeline
         # nodes state
         for node_name, gnode in self.gnodes.iteritems():
@@ -1045,14 +1046,28 @@ class PipelineScene(QtGui.QGraphicsScene):
 
     def keyPressEvent(self, event):
         super(PipelineScene, self).keyPressEvent(event)
-        if not event.isAccepted() and event.key() == QtCore.Qt.Key_P:
-            done = True
-            event.accept()
-            posdict = dict([(key, (value.x(), value.y())) \
-                            for key, value in self.pos.iteritems()])
-            pprint(posdict)
+        if not event.isAccepted():
+            if event.key() == QtCore.Qt.Key_P:
+                # print position of boxes
+                event.accept()
+                posdict = dict([(key, (value.x(), value.y())) \
+                                for key, value in self.pos.iteritems()])
+                pprint(posdict)
+            elif event.key() == QtCore.Qt.Key_T:
+                # toggle logical / full view
+                pview = self.parent()
+                pview.set_logical_view(not pview.is_logical_view())
+                event.accept()
 
     def link_tooltip_text(self, source_dest):
+        '''Tooltip text for the fiven link
+
+        Parameters
+        ----------
+        source_dest: tupe (2 tuples of 2 strings)
+            link description:
+            ((source_node, source_param), (dest_node, dest_param))
+        '''
         source_node_name = source_dest[0][0]
         dest_node_name = source_dest[1][0]
         if source_node_name in ('inputs', 'outputs'):
