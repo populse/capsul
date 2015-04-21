@@ -378,6 +378,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
         gradient.setColorAt(0, color_1)
         gradient.setColorAt(1, color_2)
         self.bg_brush = QtGui.QBrush(gradient)
+        self.main_color = color_1
+        self.secondary_color = color_2
 
         if self.active:
             color_1 = GRAY_1
@@ -1491,8 +1493,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def mousePressEvent(self, event):
         super(PipelineDevelopperView, self).mousePressEvent(event)
         if not event.isAccepted():
-            self._grab = True
-            self._grabpos = event.pos()
+            if event.button() == QtCore.Qt.RightButton:
+                self.open_background_menu()
+            else:
+                self._grab = True
+                self._grabpos = event.pos()
 
     def mouseReleaseEvent(self, event):
         self._grab = False
@@ -1656,6 +1661,14 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         del self.current_node_name
         del self.current_process
 
+    def open_background_menu(self):
+        menu = QtGui.QMenu('background menu', None)
+        auto_node_pos = menu.addAction('Auto arrange nodes positions')
+        auto_node_pos.triggered.connect(self.auto_dot_node_positions)
+        save_dot = menu.addAction('Save image of pipeline graph')
+        save_dot.triggered.connect(self.save_dot_image_ui)
+        menu.exec_(QtGui.QCursor.pos())
+
     def enableNode(self, checked):
         self.scene.pipeline.nodes[self.current_node_name].enabled = checked
 
@@ -1731,7 +1744,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self._warn_files_widget = dialog
 
     def auto_dot_node_positions(self):
-        scale = 1. #50.
+        scale = 50.
         dgraph = self._generate_dot_graph()
         tfile, tfile_name = tempfile.mkstemp()
         os.close(tfile)
@@ -1746,8 +1759,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         scene = self.scene
         rects = dict([(name, node.boundingRect())
                       for name, node in scene.gnodes.iteritems()])
-        pos = dict([(name, (-rects[name].width()/2 - pos[1]*scale,
-                            -rects[name].height()/2 + pos[0]*scale))
+        pos = dict([(name, (-rects[name].width()/2 + pos[0]*scale,
+                            -rects[name].height()/2 - pos[1]*scale))
                     for id, name, pos in nodes_pos])
         minx = min([x[0] for x in pos.itervalues()])
         miny = min([x[1] for x in pos.itervalues()])
@@ -1763,14 +1776,41 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         os.unlink(tfile_name)
         os.unlink(toutfile_name)
 
+    def save_dot_image(self, filename):
+        scale = 50.
+        dgraph = self._generate_dot_graph()
+        tfile, tfile_name = tempfile.mkstemp()
+        os.close(tfile)
+        self._write_dot(dgraph, tfile_name)
+        ext = filename.split('.')[-1]
+        cmd = ['dot', '-T%s' % ext, '-o', filename, tfile_name]
+        subprocess.check_call(cmd)
+        os.unlink(tfile_name)
+
     def _write_dot(self, dgraph, filename):
         fileobj = open(filename, 'w')
-        fileobj.write('digraph {\n')
-        nodesep = 20.
+        fileobj.write('digraph {\n  nodesep=0.25; rankdir="LR";\n')
+        nodesep = 20. # in qt scale space
+        scale = 0.02
         for id, node in dgraph[0]:
-            rect = self.scene.gnodes[node].boundingRect()
-            w, h = rect.width() + nodesep, rect.height() + nodesep
-            fileobj.write('  %d [label=%s] [fixedsize=true] [width=%f] [height=%f];\n' % (id, node, h, w))
+            gnode = self.scene.gnodes[node]
+            rect = gnode.boundingRect()
+            w = (rect.width() + nodesep) * scale
+            h = (rect.height() + nodesep) * scale
+            shape = 'box'
+            color = 'black'
+            if node in ('inputs', 'outputs'):
+                color = 'blue'
+            else:
+                pnode = self.scene.pipeline.nodes[node]
+                if isinstance(pnode, Switch):
+                    shape = 'cds'
+                    #color = 'yellow'
+                #elif isinstance(pnode, PipelineNode):
+                    #color = 'red'
+            color = gnode.main_color.name()
+            bgcolor = gnode.secondary_color.name()
+            fileobj.write('  %d [label=%s] [fixedsize=true] [style="filled"] [width=%f] [height=%f] [shape="%s"] [color="%s"] [fillcolor="%s"];\n' % (id, node, w, h, shape, color, bgcolor))
         for edge in dgraph[1]:
             fileobj.write('  %d -> %d;\n' % edge)
         fileobj.write('}\n')
@@ -1804,4 +1844,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             elif line.startswith('edge'):
                 break
         return nodes_pos
+
+    def save_dot_image_ui(self, ):
+        filename = QtGui.QFileDialog.getSaveFileName(None, 'Save image of the pipeline', '', 'Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')
+        if filename:
+            self.save_dot_image(filename)
 
