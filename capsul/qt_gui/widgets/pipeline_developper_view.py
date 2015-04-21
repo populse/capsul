@@ -1747,7 +1747,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self._warn_files_widget = dialog
 
     def auto_dot_node_positions(self):
-        scale = 50.
+        scale = 67.
         dgraph = self._generate_dot_graph()
         tfile, tfile_name = tempfile.mkstemp()
         os.close(tfile)
@@ -1780,7 +1780,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         os.unlink(toutfile_name)
 
     def save_dot_image(self, filename):
-        scale = 50.
         dgraph = self._generate_dot_graph()
         tfile, tfile_name = tempfile.mkstemp()
         os.close(tfile)
@@ -1794,7 +1793,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         fileobj = open(filename, 'w')
         fileobj.write('digraph {\n  nodesep=0.25; rankdir="LR";\n')
         nodesep = 20. # in qt scale space
-        scale = 0.02
+        scale = 1. / 67.
         for id, node, color, bgcolor in dgraph[0]:
             gnode = self.scene.gnodes[node]
             rect = gnode.boundingRect()
@@ -1815,8 +1814,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 '[fillcolor="%s"] [orientation=%f];\n'
                 % (id, node, w, h, shape, color, bgcolor, orient))
         for edge in dgraph[1]:
-            fileobj.write('  %s -> %s [color="%s"];\n'
-                % (edge[0], edge[1], edge[2]))
+            fileobj.write('  %s -> %s [color="%s" style="%s"];\n'
+                % (edge[0], edge[1], edge[2], edge[3]))
         fileobj.write('}\n')
 
     def _generate_dot_graph(self):
@@ -1833,8 +1832,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             #id += 1
         for source_dest, glink in scene.glinks.iteritems():
             color = glink.pen().color().name()
+            if glink.weak:
+                style = 'dotted'
+            else:
+                style = 'solid'
             edge = (nodemap[source_dest[0][0]], nodemap[source_dest[1][0]],
-                    color)
+                    color, style)
             edges.add(edge)
 
         return (nodes, edges)
