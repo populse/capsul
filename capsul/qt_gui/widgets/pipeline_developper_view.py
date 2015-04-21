@@ -1794,7 +1794,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         fileobj.write('digraph {\n  nodesep=0.25; rankdir="LR";\n')
         nodesep = 20. # in qt scale space
         scale = 0.02
-        for id, node in dgraph[0]:
+        for id, node, color, bgcolor in dgraph[0]:
             gnode = self.scene.gnodes[node]
             rect = gnode.boundingRect()
             w = (rect.width() + nodesep) * scale
@@ -1809,11 +1809,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 if isinstance(pnode, Switch):
                     shape = 'house'
                     orient = 270.
-            color = gnode.main_color.name()
-            bgcolor = gnode.secondary_color.name()
-            fileobj.write('  %d [label=%s] [fixedsize=true] [style="filled"] [width=%f] [height=%f] [shape="%s"] [color="%s"] [fillcolor="%s"] [orientation=%f];\n' % (id, node, w, h, shape, color, bgcolor, orient))
+            fileobj.write('  %s [label=%s] [fixedsize=true] [style="filled"] '
+                '[width=%f] [height=%f] [shape="%s"] [color="%s"] '
+                '[fillcolor="%s"] [orientation=%f];\n'
+                % (id, node, w, h, shape, color, bgcolor, orient))
         for edge in dgraph[1]:
-            fileobj.write('  %d -> %d;\n' % edge)
+            fileobj.write('  %s -> %s [color="%s"];\n'
+                % (edge[0], edge[1], edge[2]))
         fileobj.write('}\n')
 
     def _generate_dot_graph(self):
@@ -1821,13 +1823,17 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         nodes = []
         edges = set()
         nodemap = {}
-        id = 0
         for node_name, node in scene.gnodes.iteritems():
-            nodes.append((id, node_name))
+            id = node_name
+            color = node.main_color.name()
+            bgcolor = node.secondary_color.name()
+            nodes.append((id, node_name, color, bgcolor))
             nodemap[node_name] = id
-            id += 1
-        for source_dest in scene.glinks:
-            edge = (nodemap[source_dest[0][0]], nodemap[source_dest[1][0]])
+            #id += 1
+        for source_dest, glink in scene.glinks.iteritems():
+            color = glink.pen().color().name()
+            edge = (nodemap[source_dest[0][0]], nodemap[source_dest[1][0]],
+                    color)
             edges.add(edge)
 
         return (nodes, edges)
@@ -1847,7 +1853,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         return nodes_pos
 
     def save_dot_image_ui(self, ):
-        filename = QtGui.QFileDialog.getSaveFileName(None, 'Save image of the pipeline', '', 'Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')
+        filename = QtGui.QFileDialog.getSaveFileName(
+            None, 'Save image of the pipeline', '',
+            'Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')
         if filename:
             self.save_dot_image(filename)
 
