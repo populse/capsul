@@ -13,6 +13,7 @@ from pprint import pprint
 import weakref
 import tempfile
 import subprocess
+import distutils.spawn
 
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui
@@ -1623,7 +1624,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 step_action.setCheckable(True)
                 step_state = getattr(self.scene.pipeline.pipeline_steps, step)
                 step_action.setChecked(step_state)
-                step_action.toggled.connect(SomaPartial(self.enable_step, step))
+                step_action.toggled.connect(SomaPartial(self.enable_step,
+                                                        step))
             if len(my_steps) != 0:
                 step = my_steps[0]
                 disable_prec = menu.addAction('Disable preceding steps')
@@ -1670,13 +1672,32 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         del self.current_process
 
     def open_background_menu(self):
+        '''
+        Open the right-click menu when triggered from the pipeline backround.
+        '''
+        has_dot = distutils.spawn.find_executable('dot')
         menu = QtGui.QMenu('background menu', None)
         auto_node_pos = menu.addAction('Auto arrange nodes positions')
         auto_node_pos.triggered.connect(self.auto_dot_node_positions)
+        if not has_dot:
+            auto_node_pos.setEnabled(False)
+            auto_node_pos.setText(
+                'Auto arrange nodes positions (needs graphviz/dot tool '
+                'installed)')
         init_node_pos = menu.addAction('Reset to initial nodes positions')
         init_node_pos.triggered.connect(self.reset_initial_nodes_positions)
+        if not hasattr(self.scene.pipeline, 'node_position') \
+                or len(self.scene.pipeline.node_position) == 0:
+            init_node_pos.setEnabled(False)
+            init_node_pos.setText(
+                'Reset to initial nodes positions (none defined')
         save_dot = menu.addAction('Save image of pipeline graph')
         save_dot.triggered.connect(self.save_dot_image_ui)
+        if not has_dot:
+            save_dot.setEnabled(False)
+            save_dot.setText(
+                'Save image of pipeline graph (needs graphviz/dot tool '
+                'installed)')
         menu.exec_(QtGui.QCursor.pos())
 
     def enableNode(self, checked):
@@ -1754,6 +1775,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self._warn_files_widget = dialog
 
     def auto_dot_node_positions(self):
+        '''
+        Calculate pipeline nodes positions using graphviz/dot, and place the
+        pipeline view nodes accordingly.
+        '''
         scale = 67.
         dgraph = self._generate_dot_graph()
         tfile, tfile_name = tempfile.mkstemp()
@@ -1787,16 +1812,39 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         os.unlink(toutfile_name)
 
     def save_dot_image(self, filename):
+        '''
+        Save a graphviz/dot representation of the pipeline.
+        The pipeline representation follows the current visualization mode
+        ("regular" or "logical" with smaller boxes) with one link of a given
+        type (active, weak) between two given boxes: all parameters are not
+        represented.
+        The output format is guessed by the filename extension.
+        '''
         dgraph = self._generate_dot_graph()
         tfile, tfile_name = tempfile.mkstemp()
         os.close(tfile)
         self._write_dot(dgraph, tfile_name)
         ext = filename.split('.')[-1]
+        formats = {'txt': 'plain'}
+        format = formats.get(ext, ext)
         cmd = ['dot', '-T%s' % ext, '-o', filename, tfile_name]
         subprocess.check_call(cmd)
         os.unlink(tfile_name)
 
     def _write_dot(self, dgraph, filename):
+        '''
+        Write a graphviz/dot input file, which can be used to generate an
+        image representation of the graph, or to make dot automatically
+        position nodes.
+
+        Parameters
+        ----------
+        dgraph: dot graph
+            representation of the pipeline, obatained using
+            :py:meth:`_generate_dot_graph`
+        filename: string
+            file name to save the dot definition in
+        '''
         fileobj = open(filename, 'w')
         fileobj.write('digraph {\n  nodesep=0.25; rankdir="LR";\n')
         nodesep = 20. # in qt scale space
@@ -1826,30 +1874,50 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         fileobj.write('}\n')
 
     def _generate_dot_graph(self):
+        '''
+        Build a graphviz/dot-compatible representation of the pipeline.
+        The pipeline representation follows the current visualization mode
+        ("regular" or "logical" with smaller boxes) with one link of a given
+        type (active, weak) between two given boxes: all parameters are not
+        represented.
+
+        Returns
+        -------
+        dot_graph: tuple
+            a (nodes, edges) tuple, where nodes is a list of node tuples
+            (id, node_name, color, background_gcolor) and edges is a set of
+            tuples (source_node_id, dest_node_id, color, style). This
+            representation is simple and is meant to feed :py:meth:`_write_dot`
+        '''
         scene = self.scene
         nodes = []
         edges = set()
-        nodemap = {}
         for node_name, node in scene.gnodes.iteritems():
             id = node_name
             color = node.main_color.name()
             bgcolor = node.secondary_color.name()
             nodes.append((id, node_name, color, bgcolor))
-            nodemap[node_name] = id
-            #id += 1
         for source_dest, glink in scene.glinks.iteritems():
             color = glink.pen().color().name()
             if glink.weak:
                 style = 'dotted'
             else:
                 style = 'solid'
-            edge = (nodemap[source_dest[0][0]], nodemap[source_dest[1][0]],
-                    color, style)
+            edge = (source_dest[0][0], source_dest[1][0], color, style)
             edges.add(edge)
 
         return (nodes, edges)
 
     def _read_dot_pos(self, filename):
+        '''
+        Read the nodes positions from a file generated by graphviz/dot, in
+        "plain" text format.
+
+        Returns
+        -------
+        nodes_pos: dict
+            keys are nodes IDs (names), and values are 2D positions
+        '''
         fileobj = open(filename)
         nodes_pos = []
         for line in fileobj.xreadlines():
@@ -1863,7 +1931,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 break
         return nodes_pos
 
-    def save_dot_image_ui(self, ):
+    def save_dot_image_ui(self):
+        '''
+        Ask for a filename using the file dialog, and save a graphviz/dot
+        representation of the pipeline.
+        The pipeline representation follows the current visualization mode
+        ("regular" or "logical" with smaller boxes) with one link of a given
+        type (active, weak) between two given boxes: all parameters are not
+        represented.
+        '''
         filename = QtGui.QFileDialog.getSaveFileName(
             None, 'Save image of the pipeline', '',
             'Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')
@@ -1871,6 +1947,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self.save_dot_image(filename)
 
     def reset_initial_nodes_positions(self):
+        '''
+        Set each pipeline node to its "saved" position, ie the one which may
+        be found in the "node_position" variable of the pipeline.
+        '''
         scene = self.scene
         pos = getattr(scene.pipeline, 'node_position')
         if pos is not None:
