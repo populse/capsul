@@ -436,6 +436,11 @@ class NodeGWidget(QtGui.QGraphicsItem):
             params_size = len(params)
             xpos = plug.boundingRect().size().width() + margin
             pxpos = margin
+        if self.logical_view:
+            params_size = 0
+            if output:
+                pxpos = self.title.boundingRect().width() \
+                    - plug.boundingRect().width()
         pos = margin * 2 + self.title.boundingRect().size().height() \
             + param_name_item.boundingRect().size().height() * params_size
         param_name_item.setPos(xpos, pos)
