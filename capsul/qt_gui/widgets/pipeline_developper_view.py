@@ -1673,6 +1673,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         menu = QtGui.QMenu('background menu', None)
         auto_node_pos = menu.addAction('Auto arrange nodes positions')
         auto_node_pos.triggered.connect(self.auto_dot_node_positions)
+        init_node_pos = menu.addAction('Reset to initial nodes positions')
+        init_node_pos.triggered.connect(self.reset_initial_nodes_positions)
         save_dot = menu.addAction('Save image of pipeline graph')
         save_dot.triggered.connect(self.save_dot_image_ui)
         menu.exec_(QtGui.QCursor.pos())
@@ -1867,4 +1869,16 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             'Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')
         if filename:
             self.save_dot_image(filename)
+
+    def reset_initial_nodes_positions(self):
+        scene = self.scene
+        pos = getattr(scene.pipeline, 'node_position')
+        if pos is not None:
+            scene.pos = pos
+            for node, position in pos.iteritems():
+                gnode = scene.gnodes.get(node)
+                if gnode is not None:
+                    if isinstance(position, QtCore.QPointF):
+                        position = (position.x(), position.y())
+                    gnode.setPos(*position)
 
