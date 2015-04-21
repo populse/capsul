@@ -192,6 +192,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.colored_parameters = colored_parameters
         self.runtime_enabled = runtime_enabled
         self.logical_view = logical_view
+        self.main_color = QtGui.QColor(0, 0, 0)
+        self.secondary_color = QtGui.QColor(0, 0, 0)
 
         self._set_brush()
         self.setAcceptedMouseButtons(
@@ -1799,18 +1801,17 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             h = (rect.height() + nodesep) * scale
             shape = 'box'
             color = 'black'
+            orient = 0.
             if node in ('inputs', 'outputs'):
                 color = 'blue'
             else:
                 pnode = self.scene.pipeline.nodes[node]
                 if isinstance(pnode, Switch):
-                    shape = 'cds'
-                    #color = 'yellow'
-                #elif isinstance(pnode, PipelineNode):
-                    #color = 'red'
+                    shape = 'house'
+                    orient = 270.
             color = gnode.main_color.name()
             bgcolor = gnode.secondary_color.name()
-            fileobj.write('  %d [label=%s] [fixedsize=true] [style="filled"] [width=%f] [height=%f] [shape="%s"] [color="%s"] [fillcolor="%s"];\n' % (id, node, w, h, shape, color, bgcolor))
+            fileobj.write('  %d [label=%s] [fixedsize=true] [style="filled"] [width=%f] [height=%f] [shape="%s"] [color="%s"] [fillcolor="%s"] [orientation=%f];\n' % (id, node, w, h, shape, color, bgcolor, orient))
         for edge in dgraph[1]:
             fileobj.write('  %d -> %d;\n' % edge)
         fileobj.write('}\n')
