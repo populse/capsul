@@ -1047,8 +1047,9 @@ class PipelineScene(QtGui.QGraphicsScene):
                         self.add_link(
                             (source_node_name, source_parameter),
                             (dest_node_name, dest_parameter),
-                            active=True,
-                            weak=False)
+                            active=source_plug.activated \
+                                and dest_plug.activated,
+                            weak=weak_link)
 
     def keyPressEvent(self, event):
         super(PipelineScene, self).keyPressEvent(event)
