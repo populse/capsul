@@ -1306,11 +1306,29 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     -------
     __init__
     set_pipeline
+    is_logical_view
+    set_logical_view
     zoom_in
     zoom_out
+    openProcessController
     add_embedded_subpipeline
     onLoadSubPipelineClicked
     onOpenProcessController
+    enableNode
+    enable_step
+    disable_preceding_steps
+    disable_following_steps
+    enable_preceding_steps
+    enable_following_steps
+    set_switch_value
+    disable_done_steps
+    enable_all_steps
+    check_files
+    auto_dot_node_positions
+    save_dot_image
+    save_dot_image_ui
+    reset_initial_nodes_positions
+    window
     '''
     subpipeline_clicked = QtCore.Signal(str, Process,
                                         QtCore.Qt.KeyboardModifiers)

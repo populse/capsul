@@ -98,7 +98,7 @@ Classes
     :toctree: generated/capsul-gui-widgets/
     :template: class.rst
 
-    full_pipeline_widgets.PipelineDevelopperView
-    workflow_widget.PipelineUserView
+    PipelineDevelopperView
+    PipelineUserView
     activation_inspector.ActivationInspector
 
