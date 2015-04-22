@@ -22,7 +22,7 @@ except ImportError:
     from enthought.traits import api as traits
 
 # Capsul import
-from capsul.pipeline import Pipeline, PipelineNode
+from capsul.pipeline import Pipeline, PipelineNode, Switch
 
 
 def disable_node_for_downhill_pipeline(pipeline, node_name):
@@ -401,10 +401,11 @@ def pipeline_node_colors(pipeline, node):
         color_1, color_2, color_3 = _colors[style][0:3]
     else:
         color_1, color_2, color_3 = _colors[style][3:6]
-    if node in pipeline.disabled_pipeline_steps_nodes():
-        color_1 = _color_disabled(color_1)
-        color_2 = _color_disabled(color_2)
-        color_3 = _color_disabled(color_3)
+    # TODO: reactivate this later when disabled_pipeline_steps_nodes() exists
+    #if node in pipeline.disabled_pipeline_steps_nodes():
+        #color_1 = _color_disabled(color_1)
+        #color_2 = _color_disabled(color_2)
+        #color_3 = _color_disabled(color_3)
     return color_1, color_2, color_3, style
 
 
