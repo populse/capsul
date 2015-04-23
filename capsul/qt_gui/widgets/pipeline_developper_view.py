@@ -171,7 +171,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         'pipeline': (DEEP_PURPLE_1, DEEP_PURPLE_2, PURPLE_1, PURPLE_2),
     }
 
-    def __init__(self, name, parameters, active=True,
+    def __init__(self, name, parameters, pipeline, active=True,
                  style=None, parent=None, process=None, sub_pipeline=None,
                  colored_parameters=True, runtime_enabled=True,
                  logical_view=False):
@@ -193,8 +193,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.colored_parameters = colored_parameters
         self.runtime_enabled = runtime_enabled
         self.logical_view = logical_view
-        self.main_color = QtGui.QColor(0, 0, 0)
-        self.secondary_color = QtGui.QColor(0, 0, 0)
+        self.pipeline = pipeline
 
         self._set_brush()
         self.setAcceptedMouseButtons(
@@ -370,6 +369,15 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.out_plugs = {}
 
     def _set_brush(self):
+        #pipeline = self.pipeline
+        #if self.name in ('inputs', 'outputs'):
+            #node = pipeline.pipeline_node
+        #else:
+            #node = pipeline.nodes[self.name]
+        #color_1, color_2, color_3, style = pipeline_tools.pipeline_node_colors(
+            #pipeline, node)
+        #color_1 = QtGui.QColor.fromRgbF(*color_1)
+        #color_2 = QtGui.QColor.fromRgbF(*color_2)
         if self.active:
             color_1, color_2 = self._colors[self.style][0:2]
         else:
@@ -381,8 +389,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
         gradient.setColorAt(0, color_1)
         gradient.setColorAt(1, color_2)
         self.bg_brush = QtGui.QBrush(gradient)
-        self.main_color = color_1
-        self.secondary_color = color_2
 
         if self.active:
             color_1 = GRAY_1
@@ -885,7 +891,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                 pipeline_inputs[name] = plug
         if pipeline_inputs:
             self.add_node(
-                'inputs', NodeGWidget('inputs', pipeline_inputs,
+                'inputs', NodeGWidget('inputs', pipeline_inputs, pipeline,
                     active=pipeline.pipeline_node.activated,
                     process=pipeline,
                     colored_parameters=self.colored_parameters,
@@ -912,7 +918,8 @@ class PipelineScene(QtGui.QGraphicsScene):
                 # this test is not really pretty...
                 style = 'pipeline'
             self.add_node(node_name, NodeGWidget(
-                node_name, node.plugs, active=node.activated, style=style,
+                node_name, node.plugs, pipeline, active=node.activated,
+                style=style,
                 sub_pipeline=sub_pipeline, process=process,
                 colored_parameters=self.colored_parameters,
                 runtime_enabled=self.is_node_runtime_enabled(node),
@@ -920,7 +927,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         if pipeline_outputs:
             self.add_node(
                 'outputs', NodeGWidget(
-                    'outputs', pipeline_outputs,
+                    'outputs', pipeline_outputs, pipeline,
                     active=pipeline.pipeline_node.activated,
                     process=pipeline,
                     colored_parameters=self.colored_parameters,
