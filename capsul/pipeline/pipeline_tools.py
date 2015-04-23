@@ -699,7 +699,7 @@ def save_dot_graph(dot_graph, filename, **kwargs):
 
 def save_dot_image(pipeline, filename, nodes_sizes={}, use_nodes_pos=False,
                    include_io=True, enlarge_boxes=0., workflow=False,
-                   **kwargs):
+                   format=None, **kwargs):
     '''
     Save a dot/graphviz image of the pipeline in a file.
 
@@ -717,7 +717,7 @@ def save_dot_image(pipeline, filename, nodes_sizes={}, use_nodes_pos=False,
     pipeline: Pipeline
         pipeline to convert to a dot graph
     filename: string
-        file name to save the dot definition in
+        file name to save the dot definition in.
     nodes_sizes: dict (optional)
         nodes sizes may be specified here, keys are node names, and values are
         tuples (width, height). Special "inputs" and "outputs" keys represent
@@ -735,6 +735,9 @@ def save_dot_image(pipeline, filename, nodes_sizes={}, use_nodes_pos=False,
     workflow: bool (optional)
         if True, the workflow corresponding to the current pipeline state will
         be used instead of the complete graph: disabled parts will be hidden.
+    format: string (optional)
+        dot output format (see `dot <http://www.graphviz.org>`_ command doc).
+        If not specified, guessed from the file name extension.
     **kwargs: additional attributes for the dot graph
       like nodesep=0.1 or rankdir="TB"
     '''
@@ -750,9 +753,10 @@ def save_dot_image(pipeline, filename, nodes_sizes={}, use_nodes_pos=False,
     os.close(tempf[0])
     dot_filename = tempf[1]
     save_dot_graph(dgraph, dot_filename, **kwargs)
-    ext = filename.split('.')[-1]
-    formats = {'txt': 'plain'}
-    format = formats.get(ext, ext)
+    if format is None:
+        ext = filename.split('.')[-1]
+        formats = {'txt': 'plain'}
+        format = formats.get(ext, ext)
     cmd = ['dot', '-T%s' % ext, '-o', filename, dot_filename]
     subprocess.check_call(cmd)
     os.unlink(dot_filename)
