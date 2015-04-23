@@ -48,28 +48,7 @@ else:
 # Capsul import
 from capsul.qt_apps.utils.find_pipelines import find_pipeline_and_process
 from capsul.process import get_process_instance
-
-
-def write(pipeline, out=sys.stdout):
-    """ Function to generate a pipeline graphical representation
-
-    Parameters
-    ----------
-    pipeline: Pipeline (mandatory)
-        a capsul pipeline.
-    out: printable object
-        the destination object where the result is printed.
-    """
-    graph = pipeline.workflow_graph()
-    print >> out, "digraph workflow {"
-    ids = {}
-    for n in graph._nodes:
-        id = str(len(ids))
-        ids[n] = id
-        print >> out, '  {0} [label="{1}"];'.format(id, n)
-    for n, v in graph._links:
-        print >> out, "  {0} -> {1};".format(ids[n], ids[v])
-    print >> out, "}"
+from capsul.pipeline import pipeline_tools
 
 
 # Get all caps pipelines
@@ -109,14 +88,9 @@ for module_name, module_pipelines in sorted_pipelines.items():
         if not os.path.isdir(outdir):
             os.makedirs(outdir)
         image_name = os.path.join(outdir, module_pipeline + ".png")
-        dot = tempfile.NamedTemporaryFile(suffix=".png")
-
-        # Generate dot file from pipeline
-        write(pipeline_instance, dot)
-        dot.flush()
-
-        # Create png
-        subprocess.check_call(["dot", "-Tpng", "-o", image_name, dot.name])
+        pipeline_tools.save_dot_image(
+            pipeline_instance, image_name, nodesep=0.1, include_io=False,
+            rankdir='TB')
         logger.info("Pipeline '{0}' representation has been written at "
                     "location '{1}'.".format(module_pipeline,
                                              os.path.abspath(image_name)))
