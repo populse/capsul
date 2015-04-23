@@ -80,10 +80,6 @@ for module_name, module_pipelines in sorted_pipelines.items():
         # Get pipeline instance
         pipeline_instance = get_process_instance(module_pipeline)
 
-        # Activate all nodes manually (for the picture!)
-        for node in pipeline_instance.nodes.itervalues():
-            node.activated = True
-
         # Get output files
         if not os.path.isdir(outdir):
             os.makedirs(outdir)
