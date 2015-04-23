@@ -403,11 +403,10 @@ def pipeline_node_colors(pipeline, node):
         color_1, color_2, color_3 = _colors[style][0:3]
     else:
         color_1, color_2, color_3 = _colors[style][3:6]
-    # TODO: reactivate this later when disabled_pipeline_steps_nodes() exists
-    #if node in pipeline.disabled_pipeline_steps_nodes():
-        #color_1 = _color_disabled(color_1)
-        #color_2 = _color_disabled(color_2)
-        #color_3 = _color_disabled(color_3)
+    if node in pipeline.disabled_pipeline_steps_nodes():
+        color_1 = _color_disabled(color_1)
+        color_2 = _color_disabled(color_2)
+        color_3 = _color_disabled(color_3)
     return color_1, color_2, color_3, style
 
 
