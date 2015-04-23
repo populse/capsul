@@ -1063,13 +1063,12 @@ class PipelineScene(QtGui.QGraphicsScene):
             if event.key() == QtCore.Qt.Key_P:
                 # print position of boxes
                 event.accept()
-                posdict = dict([(key, (value.x(), value.y())) \
-                                for key, value in self.pos.iteritems()])
-                pprint(posdict)
+                pview = self.parent()
+                pview.print_node_positions()
             elif event.key() == QtCore.Qt.Key_T:
                 # toggle logical / full view
                 pview = self.parent()
-                pview.set_logical_view(not pview.is_logical_view())
+                pview.switch_logical_view()
                 event.accept()
             elif event.key() == QtCore.Qt.Key_A:
                 # auto-set nodes positions
@@ -1694,6 +1693,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         '''
         has_dot = distutils.spawn.find_executable('dot')
         menu = QtGui.QMenu('background menu', None)
+        if self.is_logical_view():
+            logical_view = menu.addAction('Switch to regular parameters view')
+        else:
+            logical_view = menu.addAction('Switch to logical pipeline view')
+        logical_view.triggered.connect(self.switch_logical_view)
         auto_node_pos = menu.addAction('Auto arrange nodes positions')
         auto_node_pos.triggered.connect(self.auto_dot_node_positions)
         if not has_dot:
@@ -1715,6 +1719,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             save_dot.setText(
                 'Save image of pipeline graph (needs graphviz/dot tool '
                 'installed)')
+        menu.addSeparator()
+        print_pos = menu.addAction('Print nodes positions')
+        print_pos.triggered.connect(self.print_node_positions)
         menu.exec_(QtGui.QCursor.pos())
 
     def enableNode(self, checked):
@@ -1886,4 +1893,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                     if isinstance(position, QtCore.QPointF):
                         position = (position.x(), position.y())
                     gnode.setPos(*position)
+
+    def switch_logical_view(self):
+        self.set_logical_view(not self.is_logical_view())
+
+    def print_node_positions(self):
+        posdict = dict([(key, (value.x(), value.y())) \
+                        for key, value in self.scene.pos.iteritems()])
+        pprint(posdict)
 
