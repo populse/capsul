@@ -37,40 +37,12 @@ from soma.qt_gui.controller_widget import ScrollControllerWidget
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-BLUE_1 = QtGui.QColor.fromRgbF(0.7, 0.7, 0.9, 1)
-BLUE_2 = QtGui.QColor.fromRgbF(0.5, 0.5, 0.7, 1)
-LIGHT_BLUE_1 = QtGui.QColor.fromRgbF(0.95, 0.95, 1.0, 1)
-LIGHT_BLUE_2 = QtGui.QColor.fromRgbF(0.85, 0.85, 0.9, 1)
-
 GRAY_1 = QtGui.QColor.fromRgbF(0.7, 0.7, 0.8, 1)
 GRAY_2 = QtGui.QColor.fromRgbF(0.4, 0.4, 0.4, 1)
 LIGHT_GRAY_1 = QtGui.QColor.fromRgbF(0.7, 0.7, 0.8, 1)
 LIGHT_GRAY_2 = QtGui.QColor.fromRgbF(0.6, 0.6, 0.7, 1)
 
-SAND_1 = QtGui.QColor.fromRgb(204, 178, 76)
-SAND_2 = QtGui.QColor.fromRgb(255, 229, 127)
-LIGHT_SAND_1 = QtGui.QColor.fromRgb(217, 198, 123)
-LIGHT_SAND_2 = QtGui.QColor.fromRgb(255, 241, 185)
-
-GOLD_1 = QtGui.QColor.fromRgb(255, 229, 51)
-GOLD_2 = QtGui.QColor.fromRgb(229, 153, 51)
-LIGHT_GOLD_1 = QtGui.QColor.fromRgb(225, 239, 131)
-LIGHT_GOLD_2 = QtGui.QColor.fromRgb(240, 197, 140)
-
-BROWN_1 = QtGui.QColor.fromRgb(233, 198, 175)
-BROWN_2 = QtGui.QColor.fromRgb(211, 141, 95)
-LIGHT_BROWN_1 = QtCore.Qt.gray  # TBI
-LIGHT_BROWN_2 = QtCore.Qt.gray  # TBI
-
-RED_1 = QtGui.QColor.fromRgb(175, 54, 16)
 RED_2 = QtGui.QColor.fromRgb(234, 131, 31)
-LIGHT_RED_1 = QtCore.Qt.gray  # TBI
-LIGHT_RED_2 = QtCore.Qt.gray  # TBI
-
-PURPLE_1 = QtGui.QColor.fromRgbF(0.85, 0.8, 0.85, 1)
-PURPLE_2 = QtGui.QColor.fromRgbF(0.8, 0.75, 0.8, 1)
-DEEP_PURPLE_1 = QtGui.QColor.fromRgbF(0.8, 0.7, 0.8, 1)
-DEEP_PURPLE_2 = QtGui.QColor.fromRgbF(0.6, 0.5, 0.6, 1)
 
 
 # -----------------------------------------------------------------------------
@@ -165,20 +137,12 @@ class EmbeddedSubPipelineItem(QtGui.QGraphicsProxyWidget):
 
 class NodeGWidget(QtGui.QGraphicsItem):
 
-    _colors = {
-        'default': (BLUE_1, BLUE_2, LIGHT_BLUE_1, LIGHT_BLUE_2),
-        'switch': (SAND_1, SAND_2, LIGHT_SAND_1, LIGHT_SAND_2),
-        'pipeline': (DEEP_PURPLE_1, DEEP_PURPLE_2, PURPLE_1, PURPLE_2),
-    }
-
     def __init__(self, name, parameters, pipeline, active=True,
-                 style=None, parent=None, process=None, sub_pipeline=None,
+                 parent=None, process=None, sub_pipeline=None,
                  colored_parameters=True, runtime_enabled=True,
                  logical_view=False):
         super(NodeGWidget, self).__init__(parent)
-        if style is None:
-            style = 'default'
-        self.style = style
+        self.style = 'default'
         self.name = name
         self.parameters = parameters
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
@@ -369,22 +333,16 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.out_plugs = {}
 
     def _set_brush(self):
-        #pipeline = self.pipeline
-        #if self.name in ('inputs', 'outputs'):
-            #node = pipeline.pipeline_node
-        #else:
-            #node = pipeline.nodes[self.name]
-        #color_1, color_2, color_3, style = pipeline_tools.pipeline_node_colors(
-            #pipeline, node)
-        #color_1 = QtGui.QColor.fromRgbF(*color_1)
-        #color_2 = QtGui.QColor.fromRgbF(*color_2)
-        if self.active:
-            color_1, color_2 = self._colors[self.style][0:2]
+        pipeline = self.pipeline
+        if self.name in ('inputs', 'outputs'):
+            node = pipeline.pipeline_node
         else:
-            color_1, color_2 = self._colors[self.style][2:4]
-        if not self.runtime_enabled:
-            color_1 = self._color_disabled(color_1)
-            color_2 = self._color_disabled(color_2)
+            node = pipeline.nodes[self.name]
+        color_1, color_2, color_3, style = pipeline_tools.pipeline_node_colors(
+            pipeline, node)
+        self.style = style
+        color_1 = QtGui.QColor.fromRgbF(*color_1)
+        color_2 = QtGui.QColor.fromRgbF(*color_2)
         gradient = QtGui.QLinearGradient(0, 0, 0, 50)
         gradient.setColorAt(0, color_1)
         gradient.setColorAt(1, color_2)
@@ -901,10 +859,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                 continue
             process = None
             if isinstance(node, Switch):
-                style = 'switch'
                 process = node
-            else:
-                style = None
             if hasattr(node, 'process'):
                 process = node.process
             if isinstance(node, PipelineNode) \
@@ -912,14 +867,8 @@ class PipelineScene(QtGui.QGraphicsScene):
                 sub_pipeline = node.process
             else:
                 sub_pipeline = None
-            if sub_pipeline and self.parent() is not None \
-                    and hasattr(self.parent(), '_show_sub_pipelines') \
-                    and self.parent()._show_sub_pipelines:
-                # this test is not really pretty...
-                style = 'pipeline'
             self.add_node(node_name, NodeGWidget(
                 node_name, node.plugs, pipeline, active=node.activated,
-                style=style,
                 sub_pipeline=sub_pipeline, process=process,
                 colored_parameters=self.colored_parameters,
                 runtime_enabled=self.is_node_runtime_enabled(node),
