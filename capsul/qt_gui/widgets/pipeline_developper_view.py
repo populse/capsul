@@ -1325,7 +1325,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     enable_all_steps
     check_files
     auto_dot_node_positions
-    save_dot_image
     save_dot_image_ui
     reset_initial_nodes_positions
     window
@@ -1797,11 +1796,17 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         Calculate pipeline nodes positions using graphviz/dot, and place the
         pipeline view nodes accordingly.
         '''
-        scale = 67.
-        dgraph = self._generate_dot_graph()
+        scene = self.scene
+        scale = 67. # dpi
+        nodes_sizes = dict([(name,
+                             (gnode.boundingRect().width(),
+                              gnode.boundingRect().height()))
+                             for name, gnode in scene.gnodes.iteritems()])
+        dgraph = pipeline_tools.dot_graph_from_pipeline(
+            scene.pipeline, nodes_sizes=nodes_sizes)
         tfile, tfile_name = tempfile.mkstemp()
         os.close(tfile)
-        self._write_dot(dgraph, tfile_name)
+        pipeline_tools.save_dot_graph(dgraph, tfile_name)
         toutfile, toutfile_name = tempfile.mkstemp()
         os.close(toutfile)
         cmd = ['dot', '-Tplain', '-o', toutfile_name, tfile_name]
@@ -1809,7 +1814,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
         nodes_pos = self._read_dot_pos(toutfile_name)
 
-        scene = self.scene
         rects = dict([(name, node.boundingRect())
                       for name, node in scene.gnodes.iteritems()])
         pos = dict([(name, (-rects[name].width()/2 + pos[0]*scale,
@@ -1828,103 +1832,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
         os.unlink(tfile_name)
         os.unlink(toutfile_name)
-
-    def save_dot_image(self, filename):
-        '''
-        Save a graphviz/dot representation of the pipeline.
-        The pipeline representation follows the current visualization mode
-        ("regular" or "logical" with smaller boxes) with one link of a given
-        type (active, weak) between two given boxes: all parameters are not
-        represented.
-        The output format is guessed by the filename extension.
-        '''
-        dgraph = self._generate_dot_graph()
-        tfile, tfile_name = tempfile.mkstemp()
-        os.close(tfile)
-        self._write_dot(dgraph, tfile_name)
-        ext = filename.split('.')[-1]
-        formats = {'txt': 'plain'}
-        format = formats.get(ext, ext)
-        cmd = ['dot', '-T%s' % ext, '-o', filename, tfile_name]
-        subprocess.check_call(cmd)
-        os.unlink(tfile_name)
-
-    def _write_dot(self, dgraph, filename):
-        '''
-        Write a graphviz/dot input file, which can be used to generate an
-        image representation of the graph, or to make dot automatically
-        position nodes.
-
-        Parameters
-        ----------
-        dgraph: dot graph
-            representation of the pipeline, obatained using
-            :py:meth:`_generate_dot_graph`
-        filename: string
-            file name to save the dot definition in
-        '''
-        fileobj = open(filename, 'w')
-        fileobj.write('digraph {\n  nodesep=0.25; rankdir="LR";\n')
-        nodesep = 20. # in qt scale space
-        scale = 1. / 67.
-        for id, node, color, bgcolor in dgraph[0]:
-            gnode = self.scene.gnodes[node]
-            rect = gnode.boundingRect()
-            w = (rect.width() + nodesep) * scale
-            h = (rect.height() + nodesep) * scale
-            shape = 'box'
-            color = 'black'
-            orient = 0.
-            if node in ('inputs', 'outputs'):
-                color = 'blue'
-            else:
-                pnode = self.scene.pipeline.nodes[node]
-                if isinstance(pnode, Switch):
-                    shape = 'house'
-                    orient = 270.
-            fileobj.write('  %s [label=%s] [fixedsize=true] [style="filled"] '
-                '[width=%f] [height=%f] [shape="%s"] [color="%s"] '
-                '[fillcolor="%s"] [orientation=%f];\n'
-                % (id, node, w, h, shape, color, bgcolor, orient))
-        for edge in dgraph[1]:
-            fileobj.write('  %s -> %s [color="%s" style="%s"];\n'
-                % (edge[0], edge[1], edge[2], edge[3]))
-        fileobj.write('}\n')
-
-    def _generate_dot_graph(self):
-        '''
-        Build a graphviz/dot-compatible representation of the pipeline.
-        The pipeline representation follows the current visualization mode
-        ("regular" or "logical" with smaller boxes) with one link of a given
-        type (active, weak) between two given boxes: all parameters are not
-        represented.
-
-        Returns
-        -------
-        dot_graph: tuple
-            a (nodes, edges) tuple, where nodes is a list of node tuples
-            (id, node_name, color, background_gcolor) and edges is a set of
-            tuples (source_node_id, dest_node_id, color, style). This
-            representation is simple and is meant to feed :py:meth:`_write_dot`
-        '''
-        scene = self.scene
-        nodes = []
-        edges = set()
-        for node_name, node in scene.gnodes.iteritems():
-            id = node_name
-            color = node.main_color.name()
-            bgcolor = node.secondary_color.name()
-            nodes.append((id, node_name, color, bgcolor))
-        for source_dest, glink in scene.glinks.iteritems():
-            color = glink.pen().color().name()
-            if glink.weak:
-                style = 'dotted'
-            else:
-                style = 'solid'
-            edge = (source_dest[0][0], source_dest[1][0], color, style)
-            edges.add(edge)
-
-        return (nodes, edges)
 
     def _read_dot_pos(self, filename):
         '''
@@ -1962,7 +1869,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             None, 'Save image of the pipeline', '',
             'Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')
         if filename:
-            self.save_dot_image(filename)
+            pipeline_tools.save_dot_image(filename)
 
     def reset_initial_nodes_positions(self):
         '''
