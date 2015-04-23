@@ -565,14 +565,15 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
             if has_inputs:
                 nodes.append(('inputs', 'inputs', node_props))
     if has_outputs:
-        print 'has_outputs'
         size = nodes_sizes.get('outputs')
         for prop in ('width', 'height', 'fixedsize'):
             if main_node_props.has_key(prop):
                 del main_node_props[prop]
         if size is not None:
-            main_node_props.update({'width': size[0], 'height': size[1],
-                                    'fixedsize': 'true'})
+            main_node_props.update(
+                {'width': (size[0] + enlarge_boxes) * scale,
+                 'height': (size[1] + enlarge_boxes) * scale,
+                 'fixedsize': 'true'})
         nodes.append(('outputs', 'outputs', main_node_props))
 
     return (nodes, edges)
