@@ -290,7 +290,8 @@ def disable_nodes_with_existing_outputs(pipeline):
     if sub_pipelines:
         print 'checking pipelines:', sub_pipelines
     for node_name in disabled_nodes:
-        # disable nodes first, so that those nodes will not have exported inputs
+        # disable nodes first, so that those nodes will not have exported
+        # inputs
         setattr(pipeline.nodes_activation, node_name, False)
     # then export downhill inputs
     for node_name in disabled_nodes:
@@ -450,9 +451,11 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
     The pipeline representation uses one link between two given boxes:
     parameters are not represented.
 
-    This is different from the workflow graph,
+    This is different from the workflow graph, as given by
     :py:meth:`capsul.pipeline.Pipeline.workflow_graph`, in that the full graph
     is represented here, including disabled nodes.
+
+    To build a workflow graph, see :py:func:`dot_graph_from_workflow`.
 
     Parameters
     ----------
@@ -575,6 +578,75 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
     return (nodes, edges)
 
 
+def dot_graph_from_workflow(pipeline, nodes_sizes={}, use_nodes_pos=False,
+                            enlarge_boxes=0.):
+    '''
+    Build a graphviz/dot-compatible representation of the pipeline workflow.
+
+    This is different from the pipeline graph, as obtained
+    by:py:func:`dot_graph_from_pipeline`, since only used parts are visible
+    here: switches and disabled branches are removed.
+
+    Parameters
+    ----------
+    pipeline: Pipeline
+        pipeline to convert to a dot graph
+    nodes_sizes: dict (optional)
+        nodes sizes may be specified here, keys are node names, and values are
+        tuples (width, height). Special "inputs" and "outputs" keys represent
+        the global inputs/outputs blocks of the pipeline.
+    use_nodes_pos: bool (optional)
+        if True, nodes positions in the pipeline.node_position variable will
+        be used to force nodes positions in the graph.
+    enlarge_boxes: float (optional)
+        when nodes sizes are specified, enlarge them by this amount to produce
+        bigger boxes
+
+    Returns
+    -------
+    dot_graph: tuple
+        a (nodes, edges) tuple, where nodes is a list of node tuples
+        (id, node_name, props) and edges is a dict, where
+        keys are (source_node_id, dest_node_id), and values are tuples
+        (props, active, weak). In both cases props is a dictionary of
+        properties.
+        This representation is simple and is meant to feed
+        :py:func:`save_dot_graph`
+    '''
+
+    graph = pipeline.workflow_graph()
+    nodes = []
+    edges = {}
+
+    for n in graph._nodes:
+        node = pipeline.nodes[n]
+        color, bgcolor, darkcolor, style = pipeline_node_colors(pipeline, node)
+        colorstr = '#%02x%02x%02x' % tuple([int(c * 255.9) for c in darkcolor])
+        bgcolorstr = '#%02x%02x%02x' % tuple([int(c * 255.9) for c in bgcolor])
+        node_props = {'color': colorstr, 'fillcolor': bgcolorstr}
+        if style == 'switch':
+            node_props.update({'shape': 'house', 'orientation': 270.})
+        else:
+            node_props.update({'shape': 'box'})
+        if use_nodes_pos:
+            pos = nodes_pos.get(id)
+            if pos is not None:
+                node_props.update({'pos': '%f,%f' % (pos[0] * scale,
+                                                     -pos[1] * scale)})
+        size = nodes_sizes.get(id)
+        if size is not None:
+            node_props.update({'width': (size[0] + enlarge_boxes) * scale,
+                               'height': (size[1] + enlarge_boxes) * scale,
+                               'fixedsize': 'true'})
+        nodes.append((n, n, node_props))
+    for n, v in graph._links:
+        edge = (n, v)
+        props = {'color': '#eb821e', 'style': 'solid'}
+        edges[edge] = (props, True, False)
+
+    return (nodes, edges)
+
+
 def save_dot_graph(dot_graph, filename, **kwargs):
     '''
     Write a graphviz/dot input file, which can be used to generate an
@@ -626,17 +698,19 @@ def save_dot_graph(dot_graph, filename, **kwargs):
 
 
 def save_dot_image(pipeline, filename, nodes_sizes={}, use_nodes_pos=False,
-                   include_io=True, enlarge_boxes=0., **kwargs):
+                   include_io=True, enlarge_boxes=0., workflow=False,
+                   **kwargs):
     '''
     Save a dot/graphviz image of the pipeline in a file.
 
-    This is different from the workflow graph,
-    :py:meth:`capsul.pipeline.Pipeline.workflow_graph`, in that the full graph
-    is represented here, including disabled nodes.
+    It may use either the complete pipeline graph (with switches and disabled
+    branches), or the workflow, hiding disabled parts (see the workflow
+    parameter).
 
-    Basically combines :py:func:`dot_graph_from_pipeline` and
-    :py:func:`save_dot_graph`, then run the `dot <http://www.graphviz.org>`_
-    command, which has to be installed and available on the system.
+    Basically combines :py:func:`dot_graph_from_pipeline` or
+    :py:func:`dot_graph_from_workflow`, and :py:func:`save_dot_graph`, then
+    runs the `dot <http://www.graphviz.org>`_ command, which has to be
+    installed and available on the system.
 
     Parameters
     ----------
@@ -658,12 +732,20 @@ def save_dot_image(pipeline, filename, nodes_sizes={}, use_nodes_pos=False,
     enlarge_boxes: float (optional)
         when nodes sizes are specified, enlarge them by this amount to produce
         bigger boxes
+    workflow: bool (optional)
+        if True, the workflow corresponding to the current pipeline state will
+        be used instead of the complete graph: disabled parts will be hidden.
     **kwargs: additional attributes for the dot graph
       like nodesep=0.1 or rankdir="TB"
-   '''
-    dgraph = dot_graph_from_pipeline(
-        pipeline, nodes_sizes=nodes_sizes, use_nodes_pos=use_nodes_pos,
-        include_io=include_io, enlarge_boxes=enlarge_boxes)
+    '''
+    if workflow:
+        dgraph = dot_graph_from_workflow(
+            pipeline, nodes_sizes=nodes_sizes, use_nodes_pos=use_nodes_pos,
+            enlarge_boxes=enlarge_boxes)
+    else:
+        dgraph = dot_graph_from_pipeline(
+            pipeline, nodes_sizes=nodes_sizes, use_nodes_pos=use_nodes_pos,
+            include_io=include_io, enlarge_boxes=enlarge_boxes)
     tempf = tempfile.mkstemp()
     os.close(tempf[0])
     dot_filename = tempf[1]
