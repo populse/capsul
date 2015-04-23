@@ -351,7 +351,7 @@ def pipeline_node_colors(pipeline, node):
         3-tuples of float values between 0. and 1. style is "default",
         "switch" or "pipeline".
     '''
-    def _color_disabled(self, color):
+    def _color_disabled(color):
         target = [0.86, 0.94, 0.86]
         new_color = ((color[0] + target[0]) / 2,
                      (color[1] + target[1]) / 2,
