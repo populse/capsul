@@ -48,7 +48,10 @@ else:
     name_suffix = "core"
     modules = core_modules
     scripts = []
-    pkgdata = {}
+    pkgdata = {
+        "capsul.utils.test": ["*.xml"],
+        "capsul.pipeline.test": ["*.json"]
+    }
     release_info = {}
     execfile(os.path.join("capsul", "info.py"), release_info)
 

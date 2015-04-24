@@ -10,29 +10,29 @@
 # System import
 import logging
 from copy import deepcopy
-import types
 
 # Define the logger
 logger = logging.getLogger(__name__)
 
 # Trait import
-try:
-    import traits.api as traits
-    from traits.trait_base import _Undefined
-    from traits.api import (File, Float, Enum, Str, Int, Bool, List, Tuple,
-        Instance, Any, Event, CTrait, Directory, Trait)
-except ImportError:
-    import enthought.traits.api as traits
-    from enthought.traits.trait_base import _Undefined
-    from enthought.traits.api import (File, Float, Enum, Str, Int, Bool,
-        List, Tuple, Instance, Any, Event, CTrait, Directory)
+import traits.api as traits
+from traits.api import File
+from traits.api import Bool
+from traits.api import Instance
+from traits.api import Event
+from traits.api import Directory
+from traits.api import Trait
 
 # Capsul import
 from capsul.process import Process
 from capsul.process import get_process_instance
-from topological_sort import GraphNode, Graph
-from pipeline_nodes import (
-    Plug, ProcessNode, PipelineNode, Switch, IterativeNode)
+from topological_sort import GraphNode
+from topological_sort import Graph
+from pipeline_nodes import Plug
+from pipeline_nodes import ProcessNode
+from pipeline_nodes import PipelineNode
+from pipeline_nodes import Switch
+from pipeline_nodes import IterativeNode
 
 # Soma import
 from soma.controller import Controller
@@ -42,7 +42,9 @@ from soma.sorted_dictionary import SortedDictionary
 class Pipeline(Process):
     """ Pipeline containing Process nodes, and links between node parameters.
 
-    A Pipeline is normally subclassed, and its :py:meth:`pipeline_definition` method is overloaded to define its nodes and links. :py:meth:`pipeline_definition` will be called by the pipeline constructor.
+    A Pipeline is normally subclassed, and its :py:meth:`pipeline_definition`
+    method is overloaded to define its nodes and links.
+    :py:meth:`pipeline_definition` will be called by the pipeline constructor.
 
     ::
 
@@ -59,7 +61,11 @@ class Pipeline(Process):
               self.add_link('proc2.out1->main_switch.in2_switch_out1')
               self.add_link('proc2.out1->main_switch.in2_switch_out2')
 
-    After execution of :py:meth:`pipeline_definition`, the inner nodes parameters which are not connected will be automatically exported to the parent pipeline, with names prefixed with their process name, unless they are listed in a special "do_not_export" list (passed to :py:meth:`add_process` or stored in the pipeline instance).
+    After execution of :py:meth:`pipeline_definition`, the inner nodes
+    parameters which are not connected will be automatically exported to the
+    parent pipeline, with names prefixed with their process name, unless they
+    are listed in a special "do_not_export" list (passed to
+    :py:meth:`add_process` or stored in the pipeline instance).
 
     >>> pipeline = MyPipeline()
     >>> print pipeline.proc1_input
@@ -68,7 +74,8 @@ class Pipeline(Process):
     Attributes
     ----------
     `nodes`: dict {node_name: node}
-        a dictionary containing the pipline nodes and where the pipeline node name is ''
+        a dictionary containing the pipline nodes and where the pipeline node
+        name is ''
     `workflow_list`: list
         a list of odered nodes that can be executed
     `workflow_repr`: str
@@ -142,9 +149,11 @@ class Pipeline(Process):
     ##############
 
     def pipeline_definition(self):
-        """ Define pipeline structure, nodes, sub-pipelines, switches, and links.
+        """ Define pipeline structure, nodes, sub-pipelines, switches, and
+        links.
 
-        This method should be overloaded in subclasses, it does nothing in the base Pipeline class.
+        This method should be overloaded in subclasses, it does nothing in the
+        base Pipeline class.
         """
         pass
 
@@ -161,7 +170,7 @@ class Pipeline(Process):
                     continue
                 if (((node_name, parameter_name) not in self.do_not_export and
                     ((plug.output and not plug.links_to) or
-                    (not plug.output and not plug.links_from)) and
+                     (not plug.output and not plug.links_from)) and
                     not self.nodes[node_name].get_trait(parameter_name).optional)):
 
                     self.export_parameter(node_name, parameter_name)
@@ -237,7 +246,7 @@ class Pipeline(Process):
             a list of item to copy.
         inputs_to_clean: list of str (optional)
             a list of temporary items.
-        """
+        """      
         # Unique constrains
         make_optional = set(make_optional or [])
         do_not_export = set(do_not_export or [])
@@ -334,9 +343,11 @@ class Pipeline(Process):
             # > get the process
             process = get_process_instance(process, **kwargs)
             # > update the list of files item to copy
-            if inputs_to_copy is not None and hasattr(process, "inputs_to_copy"):
+            if inputs_to_copy is not None and hasattr(process,
+                                                      "inputs_to_copy"):
                 process.inputs_to_copy.extend(inputs_to_copy)
-            if inputs_to_clean is not None and hasattr(process, "inputs_to_clean"):
+            if inputs_to_clean is not None and hasattr(process,
+                                                       "inputs_to_clean"):
                 process.inputs_to_clean.extend(inputs_to_clean)
             # > create the iterative node
             node = IterativeNode(
@@ -376,12 +387,13 @@ class Pipeline(Process):
             ``name`` as parameter name
         make_optional: sequence (optional)
             list of optional outputs.
-            These outputs will be made optional in the switch output. By default
-            they are mandatory.
+            These outputs will be made optional in the switch output. By
+            default they are mandatory.
 
         Examples
         --------
-        >>> pipeline.add_switch('group_switch', ['in1', 'in2'], ['out1', 'out2'])
+        >>> pipeline.add_switch('group_switch', ['in1', 'in2'],
+                                ['out1', 'out2'])
 
         will create a switch with 4 inputs and 2 outputs:
         inputs: "in1_switch_out1", "in2_switch_out1", "in1_switch_out2",
@@ -474,9 +486,9 @@ class Pipeline(Process):
 
         # Check if plug nexists
         if plug_name not in node.plugs:
-            raise ValueError('%s is not a valid parameter name for node %s' %
-                             (plug_name, (node_name if node_name else
-                                               'pipeline')))
+            raise ValueError(
+                "'{0}' is not a valid parameter name for node '{1}'".format(
+                    plug_name, (node_name if node_name else "pipeline")))
         return node_name, plug_name, node, node.plugs[plug_name]
 
     def add_link(self, link, weak_link=False):
@@ -499,7 +511,7 @@ class Pipeline(Process):
         # Parse the link
         (source_node_name, source_plug_name, source_node,
          source_plug, dest_node_name, dest_plug_name, dest_node,
-        dest_plug) = self.parse_link(link)
+         dest_plug) = self.parse_link(link)
 
         # Assure that pipeline plugs are not linked
         if not source_plug.output and source_node is not self.pipeline_node:
@@ -549,13 +561,14 @@ class Pipeline(Process):
         Parameters
         ----------
         link: str
-            link description. Its shape should be: "node.output->other_node.input".
+            link description. Its shape should be:
+            "node.output->other_node.input".
             If no node is specified, the pipeline itself is assumed.
         """
         # Parse the link
         (source_node_name, source_plug_name, source_node,
          source_plug, dest_node_name, dest_plug_name, dest_node,
-        dest_plug) = self.parse_link(link)
+         dest_plug) = self.parse_link(link)
 
         # Update plugs memory of the pipeline
         source_plug.links_to.discard((dest_node_name, dest_plug_name,
@@ -570,7 +583,6 @@ class Pipeline(Process):
         # Set a connected_output property
         if (isinstance(dest_node, ProcessNode) and
                 isinstance(source_node, ProcessNode)):
-            source_trait = source_node.process.trait(source_plug_name)
             dest_trait = dest_node.process.trait(dest_plug_name)
             if dest_trait.connected_output:
                 dest_trait.connected_output = False  # FIXME
@@ -619,10 +631,11 @@ class Pipeline(Process):
 
         # Check the the pipeline parameter name is not already used
         if pipeline_parameter in self.user_traits():
-            raise ValueError("Parameter {0} of node {1} cannot be "
-                             "exported to pipeline parameter "
-                             "{2}".format(plug_name, node_name or 'pipeline_node',
-                             pipeline_parameter))
+            raise ValueError(
+                "Parameter '{0}' of node '{1}' cannot be exported to pipeline "
+                "parameter '{2}'".format(
+                    plug_name, node_name or 'pipeline_node',
+                    pipeline_parameter))
 
         # Set user enabled parameter only if specified
         # Important because this property is automatically set during
@@ -641,12 +654,15 @@ class Pipeline(Process):
         self.set_parameter(pipeline_parameter, node.get_plug_value(plug_name))
 
         # Do not forget to link the node with the pipeline node
+
         if trait.output:
-            self.add_link("{0}.{1}->{2}".format(node_name, plug_name,
-                                         pipeline_parameter), weak_link)
+            link_desc = "{0}.{1}->{2}".format(
+                node_name, plug_name, pipeline_parameter)
+            self.add_link(link_desc,  weak_link)
         else:
-            self.add_link("{0}->{1}.{2}".format(pipeline_parameter,
-                                         node_name, plug_name), weak_link)
+            link_desc = "{0}->{1}.{2}".format(
+                pipeline_parameter, node_name, plug_name)
+            self.add_link(link_desc, weak_link)
 
     def _set_node_enabled(self, node_name, is_enabled):
         """ Method to enable or disabled a node
@@ -672,7 +688,8 @@ class Pipeline(Process):
         """
         for node in self.nodes.itervalues():
             yield node
-            if isinstance(node,PipelineNode) and node is not self.pipeline_node:
+            if (isinstance(node, PipelineNode) and
+               node is not self.pipeline_node):
                 for sub_node in node.process.all_nodes():
                     if sub_node is not node:
                         yield sub_node
@@ -714,14 +731,14 @@ class Pipeline(Process):
                     if plug.enabled and not plug.activated:
                         if plug.has_default_value:
                             plug.activated = True
-                            plugs_activated.append((plug_name,plug))
+                            plugs_activated.append((plug_name, plug))
                         else:
-                            # Look for a non weak link connected to an activated
-                            # plug in order to activate the plug
+                            # Look for a non weak link connected to an
+                            # activated plug in order to activate the plug
                             for nn, pn, n, p, weak_link in plug.links_from:
                                 if not weak_link and p.activated:
                                     plug.activated = True
-                                    plugs_activated.append((plug_name,plug))
+                                    plugs_activated.append((plug_name, plug))
                                     break
                     # If the plug is not activated and is not optional the
                     # whole node is deactivated
@@ -734,7 +751,7 @@ class Pipeline(Process):
                     if plug.output and plug.enabled:
                         if not plug.activated:
                             plug.activated = True
-                            plugs_activated.append((plug_name,plug))
+                            plugs_activated.append((plug_name, plug))
         return plugs_activated
 
     def _check_local_node_deactivation(self, node):
@@ -752,7 +769,7 @@ class Pipeline(Process):
             list of (plug_name,plug) containing all plugs that have been
             deactivated
         """
-        def check_plug_activation(plug,links):
+        def check_plug_activation(plug, links):
             # After th next fo loop, plug_activated can have three
             # values:
             #  True  if there is a non weak link connected to an
@@ -791,21 +808,20 @@ class Pipeline(Process):
                     if plug.has_default_value:
                         continue
                     output = plug.output
-                    if isinstance(node, PipelineNode) and \
-                          node is not self.pipeline_node and \
-                          output:
-                        plug_activated = check_plug_activation(plug,
-                            plug.links_to) and \
-                            check_plug_activation(plug, plug.links_from)
+                    if (isinstance(node, PipelineNode) and
+                       node is not self.pipeline_node and output):
+                        plug_activated = (
+                            check_plug_activation(plug, plug.links_to) and
+                            check_plug_activation(plug, plug.links_from))
                     else:
                         if node is self.pipeline_node:
                             output = not output
                         if output:
-                            plug_activated = check_plug_activation(plug,
-                                plug.links_to)
+                            plug_activated = check_plug_activation(
+                                plug, plug.links_to)
                         else:
-                            plug_activated = check_plug_activation(plug,
-                                plug.links_from)
+                            plug_activated = check_plug_activation(
+                                plug, plug.links_from)
 
                     # Plug must be deactivated, record it in result and check
                     # if this deactivation also deactivate the node
@@ -823,7 +839,7 @@ class Pipeline(Process):
                 for plug_name, plug in node.plugs.iteritems():
                     if plug.activated:
                         plug.activated = False
-                        plugs_deactivated.append((plug_name,plug))
+                        plugs_deactivated.append((plug_name, plug))
         return plugs_deactivated
 
     def delay_update_nodes_and_plugs_activation(self):
@@ -846,8 +862,8 @@ class Pipeline(Process):
             self.update_nodes_and_plugs_activation()
 
     def update_nodes_and_plugs_activation(self):
-        """ Reset all nodes and plugs activations according to the current state
-        of the pipeline (i.e. switch selection, nodes disabled, etc.).
+        """ Reset all nodes and plugs activations according to the current
+        state of the pipeline (i.e. switch selection, nodes disabled, etc.).
         Activations are set according to the following rules.
         """
         if not hasattr(self, 'parent_pipeline'):
@@ -863,12 +879,10 @@ class Pipeline(Process):
 
         self._disable_update_nodes_and_plugs_activation += 1
 
-        #print '!'
-        #print '!update_nodes_and_plugs_activation!', self.id, self, self._disable_update_nodes_and_plugs_activation
         debug = getattr(self, '_debug_activations', None)
         if debug:
-            debug = open(debug,'w')
-            print >> debug,self.id
+            debug = open(debug, 'w')
+            print >> debug, self.id
 
         # Remember all links that are inactive (i.e. at least one of the two
         # plugs is inactive) in order to execute a callback if they become
@@ -887,8 +901,8 @@ class Pipeline(Process):
             for plug_name, plug in node.plugs.iteritems():
                 plug.activated = False
 
-        # Forward activation : try to activate nodes (and their input plugs) and
-        # propagate activations neighbours of activated plugs
+        # Forward activation : try to activate nodes (and their input plugs)
+        # and propagate activations neighbours of activated plugs
 
         # Starts iterations with all nodes
         nodes_to_check = set(self.all_nodes())
@@ -899,8 +913,8 @@ class Pipeline(Process):
                 node_activated = node.activated
                 for plug_name, plug in self._check_local_node_activation(node):
                     if debug:
-                        print >> debug, '%d+%s:%s' % (iteration, node.full_name, plug_name)
-                    #print '!activations! iteration', iteration, '+++ %s:%s' % (node.full_name,plug_name)
+                        print >> debug, '%d+%s:%s' % (
+                            iteration, node.full_name, plug_name)
                     for nn, pn, n, p, weak_link in plug.links_to.union(plug.links_from):
                         if not weak_link and p.enabled:
                             new_nodes_to_check.add(n)
@@ -924,8 +938,8 @@ class Pipeline(Process):
                 if test:
                     for plug_name, plug in test:
                         if debug:
-                            print >> debug, '%d-%s:%s' % (iteration, node.full_name, plug_name)
-                        #print '!deactivations! iteration', iteration, '--- %s:%s' % (node.full_name,plug_name)
+                            print >> debug, '%d-%s:%s' % (
+                                iteration, node.full_name, plug_name)
                         for nn, pn, n, p, weak_link in plug.links_from.union(plug.links_to):
                             if p.activated:
                                 new_nodes_to_check.add(n)
@@ -934,13 +948,14 @@ class Pipeline(Process):
                         # of all plugs that are still active and propagate
                         # this deactivation to neighbours
                         if node_activated and debug:
-                            print >> debug, '%d-%s' % (iteration, node.full_name)
+                            print >> debug, '%d-%s' % (
+                                iteration, node.full_name)
                         for plug_name, plug in node.plugs.iteritems():
                             if plug.activated:
                                 plug.activated = False
-                                #print '!deactivations! iteration', iteration, '--> %s:%s' % (node.full_name,plug_name)
                                 if debug:
-                                    print >> debug, '%d=%s:%s' % (iteration, node.full_name, plug_name)
+                                    print >> debug, '%d=%s:%s' % (
+                                        iteration, node.full_name, plug_name)
                                 for nn, pn, n, p, weak_link in plug.links_from.union(plug.links_to):
                                     if p.activated:
                                         new_nodes_to_check.add(n)
@@ -995,7 +1010,7 @@ class Pipeline(Process):
 
             # Main loop
             for (dest_node_name, dest_plug_name, dest_node, dest_plug,
-                  weak_link) in plug.links_to:
+                 weak_link) in plug.links_to:
 
                 # Ignore the link if it is pointing to a node in a
                 # sub-pipeline or in the parent pipeline
@@ -1028,10 +1043,10 @@ class Pipeline(Process):
             # Select only active Process nodes
             if node.activated and not isinstance(node, Switch):
 
-                # If a Pipeline is found: the meta graph node parameter contains
-                # a sub Graph
+                # If a Pipeline is found: the meta graph node parameter
+                # contains a sub Graph
                 if (isinstance(node.process, Pipeline) and
-                    not isinstance(node, IterativeNode)):
+                   not isinstance(node, IterativeNode)):
 
                     graph.add_node(GraphNode(
                         node_name, node.process.workflow_graph()))

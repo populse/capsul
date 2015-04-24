@@ -170,8 +170,13 @@ class AutoPipeline(Pipeline):
                         parameter_name = export_description["@name"]
                     else:
                         parameter_name = parameter
+                    if "@optional" in export_description:
+                        optional = export_description["@optional"]
+                    else:
+                        optional = None
                     self.export_parameter(
-                        process, parameter, pipeline_parameter=parameter_name)
+                        process, parameter, pipeline_parameter=parameter_name,
+                        is_optional=optional)
 
         # Add all the pipeline links
         if "links" in self._parameters["pipeline"]:

@@ -19,7 +19,8 @@ from traits.api import Undefined
 
 # Capsul import
 import capsul
-from capsul.utils import get_tool_version, get_nipype_interfaces_versions
+from capsul.utils.version_utils import get_tool_version
+from capsul.utils.version_utils import get_nipype_interfaces_versions
 from capsul.utils.trait_utils import (
     get_trait_desc, is_trait_value_defined, is_trait_pathname,
     clone_trait, build_expression, trait_ids, eval_trait)

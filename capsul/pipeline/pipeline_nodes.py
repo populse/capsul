@@ -15,21 +15,19 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Trait import
-try:
-    import traits.api as traits
-    from traits.api import (File, Float, Enum, Str, Int, Bool, List, Tuple,
-        Instance, Any, Event, CTrait, Directory)
-except ImportError:
-    import enthought.traits.api as traits
-    from enthought.traits.api import (File, Float, Enum, Str, Int, Bool,
-        List, Tuple, Instance, Any, Event, CTrait, Directory)
+import traits.api as traits
+from traits.api import Enum
+from traits.api import Str
+from traits.api import Bool
+from traits.api import Any
+from traits.api import Undefined
 
 # Capsul import
-from capsul.process import get_process_instance
 from capsul.utils.trait_utils import clone_trait
 from capsul.utils.trait_utils import trait_ids
 from capsul.utils.trait_utils import build_expression
 from capsul.utils.trait_utils import eval_trait
+from capsul.utils.trait_utils import is_trait_pathname
 
 # Soma import
 from soma.controller import Controller
@@ -86,7 +84,7 @@ class Node(Controller):
     name : str
         the node name
     full_name : str
-        a unique name among all nodes and sub-nodes of the top level pipeline 
+        a unique name among all nodes and sub-nodes of the top level pipeline
     enabled : bool
         user parameter to control the node activation
     activated : bool
@@ -163,19 +161,20 @@ class Node(Controller):
         # add an event on the Node instance traits to validate the pipeline
         self.on_trait_change(pipeline.update_nodes_and_plugs_activation,
                              "enabled")
-    
+
     @property
     def full_name(self):
         if self.pipeline.parent_pipeline:
             return self.pipeline.pipeline_node.full_name + '.' + self.name
         else:
-            return self.name    
-    
-    def _value_callback(self, source_plug_name, dest_node, dest_plug_name, value):
+            return self.name
+
+    def _value_callback(self, source_plug_name, dest_node, dest_plug_name,
+                        value):
         """ Spread the source plug value to the destination plug.
-        """     
+        """
         dest_node.set_plug_value(dest_plug_name, value)
-    
+
     def connect(self, source_plug_name, dest_node, dest_plug_name):
         """ Connect linked plugs of two nodes
 
@@ -189,7 +188,7 @@ class Node(Controller):
             the destination plug name
         """
         # add a callback to spread the source plug value
-        value_callback = SomaPartial(self._value_callback, source_plug_name, 
+        value_callback = SomaPartial(self._value_callback, source_plug_name,
                                      dest_node, dest_plug_name)
         self._callbacks[(source_plug_name, dest_node,
                          dest_plug_name)] = value_callback
@@ -213,17 +212,18 @@ class Node(Controller):
         self.remove_callback_from_plug(source_plug_name, callback)
 
     def __getstate__(self):
-        '''Remove the callbacks from the default __getstate__ result because
+        """ Remove the callbacks from the default __getstate__ result because
         they prevent Node instance from being used with pickle.
-        '''
-        state = super(Node,self).__getstate__()
+        """
+        state = super(Node, self).__getstate__()
         state['_callbacks'] = state['_callbacks'].keys()
         return state
-     
+
     def __setstate__(self, state):
-        '''Restore the callbacks that have been removed by __getstate__.
-        '''
-        state['_callbacks'] = dict((i,SomaPartial(self._value_callback,*i)) for i in state['_callbacks'])
+        """ Restore the callbacks that have been removed by __getstate__.
+        """
+        state['_callbacks'] = dict((i, SomaPartial(self._value_callback, *i))
+                                   for i in state['_callbacks'])
         super(Node, self).__setstate__(state)
         for callback_key, value_callback in self._callbacks.iteritems():
             self.set_callback_on_plug(callback_key[0], value_callback)
@@ -316,16 +316,15 @@ class ProcessNode(Node):
         Parameters
         ----------
         pipeline: Pipeline (mandatory)
-            the pipeline object where the node is added
+            the pipeline object where the node is added.
         name: str (mandatory)
-            the node name
-        process: instance or string
-            a process/interface instance or the corresponding string
-            description
+            the node name.
+        process: instance
+            a process/interface instance.
         kwargs: dict
-            process default values
+            process default values.
         """
-        self.process = get_process_instance(process, **kwargs)
+        self.process = process
         self.kwargs = kwargs
         inputs = []
         outputs = []
@@ -395,9 +394,10 @@ class ProcessNode(Node):
         value: object (mandatory)
             the plug value we want to set
         """
-        from traits.trait_base import _Undefined
         if value in ["", "<undefined>"]:
-            value = _Undefined()
+            value = Undefined
+        elif is_trait_pathname(self.process.trait(plug_name)) and value is None:
+            value = Undefined
         setattr(self.process, plug_name, value)
 
     def get_trait(self, trait_name):
@@ -536,13 +536,13 @@ class IterativeNode(Node):
         self.update_iterative_pipeline(0)
 
     def _anytrait_changed(self, name, old, new):
-        """ Add an event that enables us to create process on the fly when an 
+        """ Add an event that enables us to create process on the fly when an
         iterative input trait value has changed.
 
         .. note ::
 
             Wait to have the same number of items in iterative input traits
-            to update the iterative pipeline.            
+            to update the iterative pipeline.
 
         Parameters
         ----------
@@ -555,7 +555,7 @@ class IterativeNode(Node):
         """
         # If an iterative plug has changed
         if (hasattr(self, "input_iterative_traits") and
-            name in self.input_iterative_traits):
+           name in self.input_iterative_traits):
 
             # To refresh the iterative pipeline, need to have the same number
             # of items in iterative traits
@@ -567,7 +567,7 @@ class IterativeNode(Node):
                 is_valid = (input_size == nb_of_inputs).all()
             else:
                 nb_of_inputs = 0
-                is_valid = True        
+                is_valid = True
 
             # Generate / update the iterative pipeline
             if is_valid:
@@ -587,16 +587,16 @@ class IterativeNode(Node):
         # Create / recreate the iterative pipeline
         # > disconnect the iterative process if already crerated
         if self.process is not None:
-            
+
             # Disconnect all iterative process traits and corresponding node
             #traits
             for trait_name, callback in self.dynamic_node_callbacks.iteritems():
                 self.on_trait_change(callback, trait_name, remove=True)
             for trait_name, callback in self.dynamic_process_callbacks.iteritems():
                 self.process.on_trait_change(callback, trait_name, remove=True)
-           
+
         # > create the iterative pipeline
-        self.process = IterativePipeline()  
+        self.process = IterativePipeline()
 
         # Go through all input regular traits
         pipeline_node = self.process.nodes[""]
@@ -605,9 +605,10 @@ class IterativeNode(Node):
             # FixMe
             if "Either" in expression:
                 logger.warning(
-                    "Capsul do not deal with either iterative traits. The '{0}' "
-                    "trait with expression '{1}' will be temporary replaced by "
-                    " a traits.Any type.".format(trait_name, expression))
+                    "Capsul do not deal with either iterative traits. The "
+                    "'{0}' trait with expression '{1}' will be temporary "
+                    "replaced by a traits.Any type.".format(
+                        trait_name, expression))
                 expression = "traits.Any()"
             trait = eval_trait(expression)
             pipeline_node.process.add_trait(trait_name, trait)
@@ -671,7 +672,8 @@ class IterativeNode(Node):
             # Update the iterative process trait.
             # Hook: function that will be called to update the iterative
             # process trait when the 'trait_name' node trait is modified.
-            callback = SomaPartial(IterativeNode.update_iterative_process, self)
+            callback = SomaPartial(
+                IterativeNode.update_iterative_process, self)
 
             # When the 'trait_name' node trait value is modified,
             # update the underlying corresponding iterative process trait
@@ -680,8 +682,8 @@ class IterativeNode(Node):
             # Store the created callback
             self.dynamic_node_callbacks[trait_name] = callback
 
-        # > For output traits, connect the iterative pipeline traits to the node 
-        # traits
+        # > For output traits, connect the iterative pipeline traits to the
+        # node traits
         for trait_name, trait_item in self.output_iterative_traits.iteritems():
 
             # Unpack the trait item
@@ -733,7 +735,7 @@ class IterativeNode(Node):
         trait_name: str (mandatory)
             the name of the trait to synchronized.
         """
-        setattr(iterative_node.process, trait_name, 
+        setattr(iterative_node.process, trait_name,
                 getattr(iterative_node, trait_name))
 
     @staticmethod
@@ -749,36 +751,60 @@ class IterativeNode(Node):
             the name of the trait to synchronized.
         """
         setattr(iterative_node, trait_name,
-                getattr(iterative_node.process, trait_name)) 
+                getattr(iterative_node.process, trait_name))
+
 
 class Switch(Node):
     """ Switch node to select a specific Process.
 
-    A switch commutes a group of inputs to its outputs, according to its "switch" trait value. Each group may be typically linked to a different process. Processes not "selected" by the switch are disabled, if possible.
-    Values are also propagated through inputs/outputs of the switch (see below).
+    A switch commutes a group of inputs to its outputs, according to its
+    "switch" trait value. Each group may be typically linked to a different
+    process. Processes not "selected" by the switch are disabled, if possible.
+    Values are also propagated through inputs/outputs of the switch
+    (see below).
 
     Inputs / outputs:
 
-    Say the switch "my_switch" has 2 outputs, "param1" and "param2". It will be connected to the outputs of 2 processing nodes, "node1" and "node2", both having 2 outputs: node1.out1, node1.out2, node2.out1, node2.out2.
-    The switch will thus have 4 entries, in 2 groups, named for instance "node1" and "node2". The switch will link the outputs of node1 or node2 to its outputs. The switch inputs will be named as follows:
+    Say the switch "my_switch" has 2 outputs, "param1" and "param2". It will
+    be connected to the outputs of 2 processing nodes, "node1" and "node2",
+    both having 2 outputs: node1.out1, node1.out2, node2.out1, node2.out2.
+    The switch will thus have 4 entries, in 2 groups, named for instance
+    "node1" and "node2". The switch will link the outputs of node1 or
+    node2 to its outputs. The switch inputs will be named as follows:
 
     * 1st group: "node1_switch_param1", "node1_switch_param2"
     * 2nd group: "node2_switch_param1", "node2_switch_param2"
 
-    * When my_switch.switch value is "node1", my_switch.node1_switch_param1 is connected to my_switch.param1 and my_switch.node1_switch_param2 is connected to my_switch.param2. The processing node node2 is disabled (unselected).
-    * When my_switch.switch value is "node2", my_switch.node2_switch_param1 is connected to my_switch.param1 and my_switch.node2_switch_param2 is connected to my_switch.param2. The processing node node1 is disabled (unselected).
+    * When my_switch.switch value is "node1", my_switch.node1_switch_param1
+      is connected to my_switch.param1 and my_switch.node1_switch_param2 is
+      connected to my_switch.param2. The processing node node2 is disabled
+      (unselected).
+    * When my_switch.switch value is "node2", my_switch.node2_switch_param1
+      is connected to my_switch.param1 and my_switch.node2_switch_param2 is
+      connected to my_switch.param2. The processing node node1 is disabled
+      (unselected).
 
     Values propagation:
 
-    * When a switch is activated (its switch parameter is changed), the outputs will reflect the selected inputs, which means their values will be the same as the corresponding inputs.
+    * When a switch is activated (its switch parameter is changed), the
+      outputs will reflect the selected inputs, which means their values will
+      be the same as the corresponding inputs.
 
-    * But in many cases, parameters values will be given from the output (if the switch output is one of the pipeline outputs, this one will be visible from the "outside world, not the switch inputs). In this case, values set as a switch input propagate to its inputs.
+    * But in many cases, parameters values will be given from the output
+      (if the switch output is one of the pipeline outputs, this one will be
+      visible from the "outside world, not the switch inputs). In this case,
+      values set as a switch input propagate to its inputs.
 
-    * An exception is when a switch input is linked to the parent pipeline inputs: its value is also visible from "outside" and should not be set via output values via the switch. In this specific case, output values are not propagated to such inputs.
+    * An exception is when a switch input is linked to the parent pipeline
+      inputs: its value is also visible from "outside" and should not be set
+      via output values via the switch. In this specific case, output values
+      are not propagated to such inputs.
 
     Notes
     -----
-    Switch is normally not instantiated directly, but from a pipeline :py:meth:`pipeline_definition <capsul.pipeline.pipeline.Pipeline.pipeline_definition>` method
+    Switch is normally not instantiated directly, but from a pipeline
+    :py:meth:`pipeline_definition
+    <capsul.pipeline.pipeline.Pipeline.pipeline_definition>` method
 
     Attributes
     ----------
@@ -815,8 +841,8 @@ class Switch(Node):
             a list of output parameters
         make_optional: sequence (optional)
             list of optional outputs.
-            These outputs will be made optional in the switch output. By default
-            they are mandatory.
+            These outputs will be made optional in the switch output. By
+            default they are mandatory.
         """
         # if the user pass a simple element, create a list and add this
         # element
@@ -834,7 +860,6 @@ class Switch(Node):
         # private copy of outputs and inputs
         self._outputs = outputs
         self._switch_values = inputs
-
 
         # format inputs and outputs to inherit from Node class
         flat_inputs = []
@@ -932,8 +957,8 @@ class Switch(Node):
         if hasattr(self, '_outputs') and not self.__block_output_propagation \
                 and name in self._outputs:
             self.__block_output_propagation = True
-            flat_inputs = ["{0}_switch_{1}".format(switch_name, name) \
-                for switch_name in self._switch_values]
+            flat_inputs = ["{0}_switch_{1}".format(switch_name, name)
+                           for switch_name in self._switch_values]
             for input_name in flat_inputs:
                 # check if input is connected to a pipeline input
                 plug = self.plugs[input_name]
@@ -956,4 +981,3 @@ class Switch(Node):
     def __setstate__(self, state):
         self.__block_output_propagation = True
         super(Switch, self).__setstate__(state)
-

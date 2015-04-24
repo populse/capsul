@@ -1150,7 +1150,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             if isinstance(pipeline, Process):
                 process = pipeline
                 pipeline = Pipeline()
-                pipeline.add_process(process.name, process.id)
+                pipeline.add_process(process.name, process)
                 pipeline.autoexport_nodes_parameters()
                 pipeline.node_position["inputs"] = (0., 0.)
                 pipeline.node_position[process.name] = (300., 0.)
@@ -1158,7 +1158,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 pipeline.scene_scale_factor = 0.5
             else:
                 raise Exception("Expect a Pipeline or a Process, not a "
-                                "'{0}'.".foramt(repr(pipeline)))
+                                "'{0}'.".format(repr(pipeline)))
 
         self.set_pipeline(pipeline)
         self._grab = False

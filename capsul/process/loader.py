@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # Caspul import
 from process import Process
 from nipype_process import nipype_factory
-from capsul.utils import load_objects
+from capsul.utils.loader import load_objects
 
 # Nipype import
 try:
@@ -27,30 +27,43 @@ except ImportError:
 
 
 def get_process_instance(process_or_id, **kwargs):
-    """ Return a Process instance given an Process identifier.
+    """ Return a Process instance given an identifier.
 
-    The identifier is a derived Process class, a derived Process class
-    instance or a Nipype interface instance.
-    It can also be the string description of this class:
-    `<module>.<class>` e.g. `caps.pipeline.spm_preproc.PreprocClass`
+    The identifier is either:
 
-    Default values of the instance are passed as additional parameters.
+        * a derived Process class.
+        * a derived Process class instance.
+        * a Nipype Interface instance.
+        * a Nipype Interface class.
+        * a string description of the class `<module>.<class>`.
+        * a string description of a function to warp `<module>.<function>`.
+        * a string description of a pipeline `<module>.<fname>.xml`.
+
+    Default values of the process instance are passed as additional parameters.
 
     .. note:
 
-        If the function 'process_or_id' parameter is not valid a
-        ValueError error is raised.
+        If no process is found an ImportError is raised.
+
+    .. note:
+
+        If the 'process_or_id' parameter is not valid a ValueError is raised.
+
+    .. note:
+
+        If the function to warp does not contain a process description in its
+        docstring ('<process>...</process>') a ValueError is raised.
 
     Parameters
     ----------
     process_or_id: instance or class description (mandatory)
-        a process/nipype interface instance or its string description.
+        a process/nipype interface instance/class or a string description.
     kwargs:
-        default values of the process instance.
+        default values of the process instance parameters.
 
     Returns
     -------
-    result: instance
+    result: Process
         an initialized process instance.
     """
     # If the function 'process_or_id' parameter is already a Process
@@ -58,10 +71,20 @@ def get_process_instance(process_or_id, **kwargs):
     if isinstance(process_or_id, Process):
         result = process_or_id
 
+    # If the function 'process_or_id' parameter is a Process class.
+    elif (isinstance(process_or_id, type) and
+          issubclass(process_or_id, Process)):
+        result = process_or_id()
+
     # If the function 'process_or_id' parameter is already a Nipye
     # interface instance, wrap this structure in a Process class
     elif isinstance(process_or_id, Interface):
         result = nipype_factory(process_or_id)
+
+    # If the function 'process_or_id' parameter is an Interface class.
+    elif (isinstance(process_or_id, type) and
+          issubclass(process_or_id, Interface)):
+        result = nipype_factory(process_or_id())
 
     # If the function 'process_or_id' parameter is a class string
     # description
@@ -69,8 +92,12 @@ def get_process_instance(process_or_id, **kwargs):
 
         # Get the class and module names from the class string description
         id_list = process_or_id.split(".")
-        module_name = ".".join(id_list[:-1])
-        object_name = id_list[-1]
+        if id_list[-1] == "xml":
+            module_name = ".".join(id_list[:-2])
+            object_name = ".".join(id_list[-2:])
+        else:
+            module_name = ".".join(id_list[:-1])
+            object_name = id_list[-1]
 
         # Try to load the class
         module_objects = load_objects(
@@ -80,8 +107,8 @@ def get_process_instance(process_or_id, **kwargs):
         # Expect only one Process
         if len(module_objects) != 1:
             raise ImportError(
-                "Found {0} processes declared "
-                "in {1} when looking for {2} class".format(
+                "Found '{0}' process(es) declared in '{1}' when looking for "
+                "'{2}' class/function/pipeline.".format(
                     len(module_objects), module_name, object_name))
 
         # Get the target Process
@@ -95,11 +122,6 @@ def get_process_instance(process_or_id, **kwargs):
         if isinstance(result, Interface):
             result = nipype_factory(result)
 
-    # If the function 'process_or_id' parameter is a Process
-    # class.
-    elif isinstance(process_or_id, type) and issubclass(process_or_id, Process):
-        result = process_or_id()
-        
     else:
         raise ValueError("Invalid process_or_id argument. "
                          "Got '{0}' and expect a Process instance/string "

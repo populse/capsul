@@ -7,5 +7,8 @@
 # for details.
 ##########################################################################
 
-from process import Process, NipypeProcess, ProcessResult, FileCopyProcess
+from process import Process
+from process import NipypeProcess
+from process import ProcessResult
+from process import FileCopyProcess
 from loader import get_process_instance

@@ -18,8 +18,7 @@ import traceback
 logger = logging.getLogger(__name__)
 
 # Trait import
-from traits.trait_base import _Undefined
-from traits.api import Directory, CTrait
+from traits.api import Directory, CTrait, Undefined
 
 # CAPSUL import
 from capsul.utils.trait_utils import trait_ids
@@ -95,18 +94,43 @@ def nipype_factory(nipype_instance):
         # Get the outputs from the nipype method
         outputs = self._list_outputs_core()
 
-        # Modify the path outputs
+        # Modify the output paths
         corrected_outputs = {}
-        for key, value in outputs.iteritems():
-            if (not isinstance(value, _Undefined) and
-               not isinstance(value, list)):
-
-                corrected_outputs[key] = os.path.join(
-                    self.inputs.output_directory,
-                    os.path.basename(value))
-            else:
-                corrected_outputs[key] = value
+        for trait_name, trait_value in outputs.iteritems():
+            trait_desc = trait_ids(self.output_spec().trait(trait_name))
+            if len(trait_desc) != 1:
+                raise ValueError("Do not deal for the moment with Either "
+                                 "nipype output traits.")
+            corrected_outputs[trait_name] = self._modify_path(
+                trait_value, trait_desc[0].split("_"))
         return corrected_outputs
+
+    def _modify_path(self, item, trait_ids):
+        """ Recursive method that will change file and directory path.
+
+        Parameters
+        ----------
+        item: object
+            a python object.
+        trait_ids: list of str
+            the trait string description to detect files and directories.
+
+        Returns
+        -------
+        out: object
+            the input object with modified files and directories.
+        """
+        if isinstance(item, list):
+            out = [self._modify_path(subitem, trait_ids[1:]) for subitem in item]
+        elif isinstance(item, dict):
+            out = dict((key, self._modify_path(value, trait_ids[1:]))
+                        for key, value in item.items())
+        elif trait_ids[0] in ["File", "Directory"] and item is not Undefined:
+            out = os.path.join(self.inputs.output_directory,
+                               os.path.basename(item))
+        else:
+            out = item
+        return out
 
     def _list_fsl_split_outputs(self):
         """ Method to list the fsl split interface outputs
@@ -192,6 +216,8 @@ def nipype_factory(nipype_instance):
     else:
         nipype_instance._list_outputs = types.MethodType(_list_outputs,
                                                          nipype_instance)
+    nipype_instance._modify_path = types.MethodType(_modify_path,
+                                                    nipype_instance)
 
     # Monkey patching: '_run_interface'
     nipype_instance._run_interface_core = nipype_instance._run_interface
