@@ -1,6 +1,5 @@
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.application import Application
-#from soma.gui.widget_controller_creation import ControllerWidget
 from capsul.qt_gui.controller_widget import ControllerWidget
 #import sys
 #if sys.version_info[:2] >= (2, 7):
@@ -9,7 +8,6 @@ from capsul.qt_gui.controller_widget import ControllerWidget
     #from soma.sorted_dictionary import SortedDictionary as OrderedDict
 from soma.gui.icon_factory import IconFactory
 from soma.qt_gui.widgets.file_selection_widget import FileSelectionWidget
-from soma.qt4gui.api import TimeredQLineEdit
 try:
     from traits.api import File, HasTraits, Any, Directory
 except ImportError:
@@ -17,12 +15,18 @@ except ImportError:
 
 class ProcessWithFomWidget(QtGui.QWidget):
     """Process interface with FOM handling, and execution running"""
-    def __init__(self, process_with_fom, process):
+    def __init__(self, process_with_fom):
+        """
+        Parameters
+        ----------
+        process_with_fom: ProcessWithFom instance
+            process with FOM to be displayed
+        """
         super(ProcessWithFomWidget, self).__init__()
         self.setLayout( QtGui.QVBoxLayout() )
         # Get the object process (SimpMorpho)
         self.process_with_fom = process_with_fom
-        self.process = process
+        self.process = process_with_fom.process
 
         # To show output directory and select file
         self.lineedit_input = FileSelectionWidget(
