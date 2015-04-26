@@ -752,7 +752,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         self.changed.connect(self.update_paths)
 
-    def add_node(self, name, gnode):
+    def _add_node(self, name, gnode):
         self.addItem(gnode)
         pos = self.pos.get(name)
         if pos is None:
@@ -761,6 +761,23 @@ class PipelineScene(QtGui.QGraphicsScene):
         else:
             gnode.setPos(pos)
         self.gnodes[name] = gnode
+
+    def add_node(self, node_name, node):
+        if isinstance(node, Switch):
+            process = node
+        if hasattr(node, 'process'):
+            process = node.process
+        if isinstance(node, PipelineNode):
+            sub_pipeline = node.process
+        else:
+            sub_pipeline = None
+        gnode = NodeGWidget(
+            node_name, node.plugs, self.pipeline,
+            sub_pipeline=sub_pipeline, process=process,
+            colored_parameters=self.colored_parameters,
+            logical_view=self.logical_view)
+        self._add_node(node_name, gnode)
+        return gnode
 
     def add_link(self, source, dest, active, weak):
         source_gnode_name, source_param = source
@@ -846,7 +863,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             else:
                 pipeline_inputs[name] = plug
         if pipeline_inputs:
-            self.add_node(
+            self._add_node(
                 'inputs', NodeGWidget('inputs', pipeline_inputs, pipeline,
                     process=pipeline,
                     colored_parameters=self.colored_parameters,
@@ -854,22 +871,9 @@ class PipelineScene(QtGui.QGraphicsScene):
         for node_name, node in pipeline.nodes.iteritems():
             if not node_name:
                 continue
-            process = None
-            if isinstance(node, Switch):
-                process = node
-            if hasattr(node, 'process'):
-                process = node.process
-            if isinstance(node, PipelineNode):
-                sub_pipeline = node.process
-            else:
-                sub_pipeline = None
-            self.add_node(node_name, NodeGWidget(
-                node_name, node.plugs, pipeline,
-                sub_pipeline=sub_pipeline, process=process,
-                colored_parameters=self.colored_parameters,
-                logical_view=self.logical_view))
+            self.add_node(node_name, node)
         if pipeline_outputs:
-            self.add_node(
+            self._add_node(
                 'outputs', NodeGWidget(
                     'outputs', pipeline_outputs, pipeline,
                     process=pipeline,
@@ -1321,6 +1325,18 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         super(PipelineScene, self).helpEvent(event)
 
+    def remove_node(self, node_name):
+        gnode = self.gnodes[node_name]
+        todel = set()
+        for link, glink in self.glinks.iteritems():
+            if link[0][0] == node_name or link[1][0] == node_name:
+                self.removeItem(glink)
+                todel.add(link)
+        for link in todel:
+            del self.glinks[link]
+        self.removeItem(gnode)
+        del self.gnodes[node_name]
+
 
 class PipelineDevelopperView(QtGui.QGraphicsView):
     '''
@@ -1672,6 +1688,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         disable_action.setCheckable(True)
         disable_action.setChecked(node.enabled)
         disable_action.toggled.connect(self.enableNode)
+        menu.addAction(disable_action)
 
         steps = getattr(self.scene.pipeline, 'pipeline_steps', None)
         if steps is not None:
@@ -1724,7 +1741,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 if item == value:
                     action.setChecked(True)
 
-        menu.addAction(disable_action)
+        if node is not self.scene.pipeline.pipeline_node:
+            del_node_action = menu.addAction('Delete node')
+            del_node_action.triggered.connect(self.del_node)
+
         menu.exec_(QtGui.QCursor.pos())
         del self.current_node_name
         del self.current_process
@@ -1733,6 +1753,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         '''
         Open the right-click menu when triggered from the pipeline backround.
         '''
+        self.click_pos = QtGui.QCursor.pos()
         has_dot = distutils.spawn.find_executable('dot')
         menu = QtGui.QMenu('background menu', None)
         if self.is_logical_view():
@@ -1764,7 +1785,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         menu.addSeparator()
         print_pos = menu.addAction('Print nodes positions')
         print_pos.triggered.connect(self.print_node_positions)
+
+        menu.addSeparator()
+        add_proc = menu.addAction('Add process in pipeline')
+        add_proc.triggered.connect(self.add_process)
+        add_switch = menu.addAction('Add switch in pipeline')
+        add_switch.triggered.connect(self.add_switch)
+
         menu.exec_(QtGui.QCursor.pos())
+        del self.click_pos
 
     def enableNode(self, checked):
         self.scene.pipeline.nodes[self.current_node_name].enabled = checked
@@ -1944,3 +1973,78 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                         for key, value in self.scene.pos.iteritems()])
         pprint(posdict)
 
+    def del_node(self):
+        pipeline = self.scene.pipeline
+        node_name = self.current_node_name
+        node = pipeline.nodes[node_name]
+        # FIXME: should rather be in a method Pipeline.remove_node()
+        for plug_name, plug in node.plugs.iteritems():
+            if not plug.output:
+                for link_def in list(plug.links_from):
+                    src_node, src_plug = link_def[:2]
+                    link_descr = '%s.%s->%s.%s' \
+                        % (src_node, src_plug, node_name, plug_name)
+                    pipeline.remove_link(link_descr)
+            else:
+                for link_def in list(plug.links_to):
+                    dst_node, dst_plug = link_def[:2]
+                    link_descr = '%s.%s->%s.%s' \
+                        % (node_name, plug_name, dst_node, dst_plug)
+                    pipeline.remove_link(link_descr)
+        #pipeline.remove_node(node) # unfortunately this method doesn't exist
+        del pipeline.nodes[node_name]
+        if hasattr(node, 'process'):
+            pipeline.list_process_in_pipeline.remove(node.process)
+            pipeline.nodes_activation.on_trait_change(
+                pipeline._set_node_enabled, node_name, remove=True)
+            pipeline.nodes_activation.remove_trait(node_name)
+        self.scene.remove_node(node_name)
+        self.scene.pipeline.update_nodes_and_plugs_activation()
+
+    def add_process(self):
+        '''
+        Insert a process node in the pipeline. Asks for the process
+        module/name, and the node name before inserting.
+        '''
+        proc_name_gui = QtGui.QDialog()
+        proc_name_gui.setWindowTitle('process module/name:')
+        layout = QtGui.QGridLayout(proc_name_gui)
+        layout.addWidget(QtGui.QLabel('module/process:'), 0, 0)
+        proc_line = QtGui.QLineEdit()
+        layout.addWidget(proc_line, 0, 1)
+        layout.addWidget(QtGui.QLabel('node name'), 1, 0)
+        name_line = QtGui.QLineEdit()
+        layout.addWidget(name_line, 1, 1)
+        #hlay = QtGui.QHBoxLayout()
+        #layout.addLayout(hlay, 1, 1)
+        ok = QtGui.QPushButton('OK')
+        layout.addWidget(ok, 2, 0)
+        cancel = QtGui.QPushButton('Cancel')
+        layout.addWidget(cancel, 2, 1)
+        ok.clicked.connect(proc_name_gui.accept)
+        cancel.clicked.connect(proc_name_gui.reject)
+
+        res = proc_name_gui.exec_()
+        del ok, cancel, name_line, proc_line
+        del layout
+        if res:
+            proc_module = unicode(proc_line.text())
+            node_name = str(name_line.text())
+            pipeline = self.scene.pipeline
+            try:
+                process = get_process_instance(unicode(proc_line.text()))
+            except Exception, e:
+                print e
+                return
+            pipeline.add_process(node_name, process)
+
+            node = pipeline.nodes[node_name]
+            if isinstance(node, PipelineNode):
+                sub_pipeline = node.process
+            else:
+                sub_pipeline = None
+            gnode = self.scene.add_node(node_name, node)
+            gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
+
+    def add_switch(self):
+        pass
