@@ -2017,8 +2017,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         cancel.clicked.connect(proc_name_gui.reject)
 
         res = proc_name_gui.exec_()
-        del ok, cancel, name_line, proc_line
-        del layout
         if res:
             proc_module = unicode(proc_line.text())
             node_name = str(name_line.text())
@@ -2037,6 +2035,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 sub_pipeline = None
             gnode = self.scene.add_node(node_name, node)
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
+        del ok, cancel, name_line, proc_line
+        del layout
 
     def add_switch(self):
         pass
