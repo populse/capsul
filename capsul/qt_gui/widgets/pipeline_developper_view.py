@@ -1650,7 +1650,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         """ Event to open a sub-process/sub-pipeline controller
         """
         if self._allow_open_controller:
-            self.openPopupMenu(node_name, process)
+            self.open_node_menu(node_name, process)
 
     def openProcessController(self):
         sub_view = QtGui.QScrollArea()
@@ -1671,11 +1671,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         # prevent the sub_view to close/delete immediately
         QtCore.QObject.setParent(sub_view, self.window())
 
-    def openPopupMenu(self, node_name, process):
+    def open_node_menu(self, node_name, process):
         """ right-click popup menu for nodes
         """
-        menu = QtGui.QMenu('Nodes handling', None)
         node_name = unicode(node_name) # in case it is a QString
+        menu = QtGui.QMenu('Node: %s' % node_name, None)
+        title = menu.addAction('Node: %s' % node_name)
+        title.setEnabled(False)
+        menu.addSeparator()
+
         self.current_node_name = node_name
         self.current_process = process
         if node_name in ('inputs', 'outputs'):
@@ -1756,7 +1760,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         '''
         self.click_pos = QtGui.QCursor.pos()
         has_dot = distutils.spawn.find_executable('dot')
-        menu = QtGui.QMenu('background menu', None)
+        menu = QtGui.QMenu('Pipeline level menu', None)
+        title = menu.addAction('Pipeline level menu')
+        title.setEnabled(False)
+        menu.addSeparator()
+
         if self.is_logical_view():
             logical_view = menu.addAction('Switch to regular parameters view')
         else:
