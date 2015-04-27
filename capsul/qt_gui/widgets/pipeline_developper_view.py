@@ -51,8 +51,8 @@ RED_2 = QtGui.QColor.fromRgb(234, 131, 31)
 
 class Plug(QtGui.QGraphicsPolygonItem):
 
-    def __init__(self, name, height, width, activated=True, optional=False,
-                 parent=None):
+    def __init__(self, name, height, width, activated=True,
+                 optional=False, parent=None):
         super(Plug, self).__init__(parent)
         self.name = name
         color = self._color(activated, optional)
@@ -381,7 +381,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
         param_name_item = QtGui.QGraphicsTextItem(self)
         param_name_item.setHtml(param_text)
         plug_name = '%s:%s' % (self.name, param_name)
-        plug = Plug(plug_name, param_name_item.boundingRect().size().height(),
+        plug = Plug(plug_name,
+                    param_name_item.boundingRect().size().height(),
                     plug_width, activated=pipeline_plug.activated,
                     optional=pipeline_plug.optional, parent=self)
         param_name_item.setZValue(2)
@@ -1461,6 +1462,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
         self.set_pipeline(pipeline)
         self._grab = False
+        self._grab_link = False
+        self.plug_clicked.connect(self._plug_clicked)
 
     def __del__(self):
         if self.scene.pipeline:
@@ -1576,6 +1579,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     def mouseReleaseEvent(self, event):
         self._grab = False
+        if self._grab_link:
+            event.accept()
+            self._release_grab_link(event)
         super(PipelineDevelopperView, self).mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event):
@@ -1587,6 +1593,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self.horizontalScrollBar().value() - int(translation.x()))
             self.verticalScrollBar().setValue(
                 self.verticalScrollBar().value() - int(translation.y()))
+        elif self._grab_link:
+            self._move_grab_link(event)
+            event.accept()
         else:
             super(PipelineDevelopperView, self).mouseMoveEvent(event)
 
@@ -2040,3 +2049,60 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     def add_switch(self):
         pass
+
+    def _plug_clicked(self, name):
+        node_name, plug_name = str(name).split(':')
+        plug_name = str(plug_name)
+        gnode = self.scene.gnodes[node_name]
+        plug = gnode.out_plugs.get(plug_name)
+        if not plug:
+            return # probably an input plug
+        plug_pos = plug.mapToScene(plug.mapFromParent(plug.get_plug_point()))
+        self._grabpos = self.mapFromScene(plug_pos)
+        self._temp_link = Link(
+            plug_pos,
+            self.mapToScene(self.mapFromGlobal(QtGui.QCursor.pos())),
+            True, False)
+        self.scene.addItem(self._temp_link)
+
+        self._grab_link = True
+        self._grabbed_plug = (node_name, plug_name)
+
+    def _move_grab_link(self, event):
+        pos = self.mapToScene(event.pos())
+        self._temp_link.update(self.mapToScene(self._grabpos), pos)
+
+    def _release_grab_link(self, event):
+        self._grab_link = False
+        # delete the temp link
+        self.scene.removeItem(self._temp_link)
+        del self._temp_link
+        pos = self.mapToScene(event.pos())
+        item = self.scene.itemAt(pos)
+        print 'item:', item
+        plug = None
+        if isinstance(item, Link):
+            print 'it\'s a link.'
+            # look for its dest plug
+            plug = None
+            for source_dest, link in self.scene.glinks.iteritems():
+                if link is item:
+                    plug = source_dest[1]
+                    break
+        elif isinstance(item, Plug):
+            plug = str(item.name).split(':')
+        if plug is not None:
+            print 'PLUG:', plug
+            if self._grabbed_plug[0] != '':
+                src = '%s.%s' % self._grabbed_plug
+            else:
+                src = self._grabbed_plug[1]
+            if plug[0] != '':
+                dst = '%s.%s' % tuple(plug)
+            else:
+                dst = plug[1]
+            self.scene.pipeline.add_link('%s->%s' % (src, dst))
+            self.scene.update_pipeline()
+        self._grabbed_plug = None
+
+
