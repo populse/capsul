@@ -2051,6 +2051,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         pass
 
     def _plug_clicked(self, name):
+        if self.is_logical_view():
+            # in logival view, links are not editable since they do not reflect
+            # the details of reality
+            return
         node_name, plug_name = str(name).split(':')
         plug_name = str(plug_name)
         gnode = self.scene.gnodes[node_name]
@@ -2073,13 +2077,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self._temp_link.update(self.mapToScene(self._grabpos), pos)
 
     def _release_grab_link(self, event):
+        max_square_dist = 100.
         self._grab_link = False
         # delete the temp link
         self.scene.removeItem(self._temp_link)
         del self._temp_link
         pos = self.mapToScene(event.pos())
         item = self.scene.itemAt(pos)
-        print 'item:', item
         plug = None
         if isinstance(item, Link):
             print 'it\'s a link.'
@@ -2089,15 +2093,26 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 if link is item:
                     plug = source_dest[1]
                     break
+            if plug is not None:
+                print 'PLUG:', plug
+                # check the plug is not too far from the drop point
+                gnode = self.scene.gnodes[plug[0]]
+                gplug = gnode.in_plugs[plug[1]]
+                plug_pos = gplug.mapToScene(
+                    gplug.mapFromParent(gplug.get_plug_point()))
+                pdiff = plug_pos - pos
+                dist2 = pdiff.x() * pdiff.x() + pdiff.y() * pdiff.y()
+                if dist2 > max_square_dist:
+                    print 'too far.'
+                    plug = None
         elif isinstance(item, Plug):
             plug = str(item.name).split(':')
         if plug is not None:
-            print 'PLUG:', plug
-            if self._grabbed_plug[0] != '':
+            if self._grabbed_plug[0] not in ('', 'inputs'):
                 src = '%s.%s' % self._grabbed_plug
             else:
                 src = self._grabbed_plug[1]
-            if plug[0] != '':
+            if plug[0] not in ('', 'outputs'):
                 dst = '%s.%s' % tuple(plug)
             else:
                 dst = plug[1]
