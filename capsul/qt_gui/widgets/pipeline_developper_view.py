@@ -732,6 +732,17 @@ class Link(QtGui.QGraphicsPathItem):
         self.active = active
         self.weak = weak
 
+    def mousePressEvent(self, event):
+        item = self.scene().itemAt(event.scenePos())
+        print 'Link click, item:', item
+        if event.button() == QtCore.Qt.RightButton:
+            # not a signal since we don't jhave enough identity information in
+            # self: the scene has to help us.
+            self.scene()._link_right_clicked(self)
+            event.accept()
+        else:
+            super(Link, self).mousePressEvent(event)
+
 
 class PipelineScene(QtGui.QGraphicsScene):
     # Signal emitted when a sub pipeline has to be open.
@@ -741,6 +752,8 @@ class PipelineScene(QtGui.QGraphicsScene):
     node_right_clicked = QtCore.Signal(str, Controller)
     # Signal emitted when a plug is clicked
     plug_clicked = QtCore.Signal(str)
+    # Signal emitted when a link is right-clicked
+    link_right_clicked = QtCore.Signal(str, str, str, str)
 
     def __init__(self, parent=None):
         super(PipelineScene, self).__init__(parent)
@@ -1330,6 +1343,17 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.removeItem(gnode)
         del self.gnodes[node_name]
 
+    def _link_right_clicked(self, link):
+        # find the link in list
+        print 'Scene._link_right_clicked:', link
+        for source_dest, glink in self.glinks.iteritems():
+            if glink is link:
+                print 'found.'
+                self.link_right_clicked.emit(
+                    source_dest[0][0], source_dest[0][1],
+                    source_dest[1][0], source_dest[1][1])
+                break
+
 
 class PipelineDevelopperView(QtGui.QGraphicsView):
     '''
@@ -1386,6 +1410,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     '''Signal emitted when a node box is right-clicked'''
     plug_clicked = QtCore.Signal(str)
     '''Signal emitted when a plug is right-clicked'''
+    link_right_clicked = QtCore.Signal(str, str, str, str)
+    '''Signal emitted when a link is right-clicked'''
     scene = None
     '''
     type: PipelineScene
@@ -1464,6 +1490,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self._grab = False
         self._grab_link = False
         self.plug_clicked.connect(self._plug_clicked)
+        self.link_right_clicked.connect(self._link_clicked)
 
     def __del__(self):
         if self.scene.pipeline:
@@ -1492,6 +1519,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.node_right_clicked.connect(self.node_right_clicked)
         self.scene.node_right_clicked.connect(self.onOpenProcessController)
         self.scene.plug_clicked.connect(self.plug_clicked)
+        self.scene.link_right_clicked.connect(self.link_right_clicked)
         self.scene.pos = pos
         self.scene.set_pipeline(pipeline)
         self.setWindowTitle(pipeline.name)
@@ -2127,5 +2155,66 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self.scene.pipeline.add_link('%s->%s' % (src, dst))
             self.scene.update_pipeline()
         self._grabbed_plug = None
+
+    def _link_clicked(self, src_node, src_plug, dst_node, dst_plug):
+        src_node = str(src_node)
+        src_plug = str(src_plug)
+        dst_node = str(dst_node)
+        dst_plug = str(dst_plug)
+        if self.is_logical_view():
+            # in logical view, links are not real links
+            return
+        print 'link:', src_node, src_plug, dst_node, dst_plug
+        if src_node in ('', 'inputs'):
+            src = src_plug
+            snode = self.scene.pipeline.pipeline_node
+        else:
+            src = '%s.%s' % (src_node, src_plug)
+            snode = self.scene.pipeline.nodes[src_node]
+        if dst_node in ('', 'outputs'):
+            dst = dst_plug
+            dnode = self.scene.pipeline.pipeline_node
+        else:
+            dst = '%s.%s' % (dst_node, dst_plug)
+            dnode = self.scene.pipeline.nodes[dst_node]
+        name = '%s->%s' % (src, dst)
+        self._current_link = name #(src_node, src_plug, dst_node, dst_plug)
+
+        menu = QtGui.QMenu('Link: %s' % name)
+        title = menu.addAction('Link: %s' % name)
+        title.setEnabled(False)
+        menu.addSeparator()
+
+        weak = False
+        splug = snode.plugs[src_plug]
+        for link in splug.links_to:
+            if link[0] == dst_node and link[1] == dst_plug:
+                weak = link[4]
+                break
+        weak_action = menu.addAction('Weak link')
+        weak_action.setCheckable(True)
+        weak_action.setChecked(weak)
+        weak_action.toggled.connect(self.change_weak_link)
+
+        menu.addSeparator()
+        del_link = menu.addAction('Delete link')
+        del_link.triggered.connect(self.del_link)
+
+        menu.exec_(QtGui.QCursor.pos())
+        del self._current_link
+
+    def change_weak_link(self, weak):
+        #src_node, src_plug, dst_node, dst_plug = self._current_link
+        link_def = self._current_link
+        self.scene.pipeline.remove_link(link_def)
+        self.scene.pipeline.add_link(link_def, weak_link=weak)
+        self.scene.update_pipeline()
+
+    def del_link(self):
+        #src_node, src_plug, dst_node, dst_plug = self._current_link
+        link_def = self._current_link
+        self.scene.pipeline.remove_link(link_def)
+        self.scene.update_pipeline()
+
 
 
