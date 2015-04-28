@@ -2043,23 +2043,67 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         Insert a process node in the pipeline. Asks for the process
         module/name, and the node name before inserting.
         '''
-        proc_name_gui = QtGui.QDialog()
-        proc_name_gui.setWindowTitle('process module/name:')
-        layout = QtGui.QGridLayout(proc_name_gui)
-        layout.addWidget(QtGui.QLabel('module/process:'), 0, 0)
-        proc_line = QtGui.QLineEdit()
-        layout.addWidget(proc_line, 0, 1)
-        layout.addWidget(QtGui.QLabel('node name'), 1, 0)
-        name_line = QtGui.QLineEdit()
-        layout.addWidget(name_line, 1, 1)
-        #hlay = QtGui.QHBoxLayout()
-        #layout.addLayout(hlay, 1, 1)
-        ok = QtGui.QPushButton('OK')
-        layout.addWidget(ok, 2, 0)
-        cancel = QtGui.QPushButton('Cancel')
-        layout.addWidget(cancel, 2, 1)
-        ok.clicked.connect(proc_name_gui.accept)
-        cancel.clicked.connect(proc_name_gui.reject)
+
+        class ProcessModuleInput(QtGui.QDialog):
+            def __init__(self):
+                super(ProcessModuleInput, self).__init__()
+                self.setWindowTitle('process module/name:')
+                layout = QtGui.QGridLayout(self)
+                layout.addWidget(QtGui.QLabel('module/process:'), 0, 0)
+                proc_line = QtGui.QLineEdit()
+                layout.addWidget(proc_line, 0, 1)
+                layout.addWidget(QtGui.QLabel('node name'), 1, 0)
+                name_line = QtGui.QLineEdit()
+                layout.addWidget(name_line, 1, 1)
+                #hlay = QtGui.QHBoxLayout()
+                #layout.addLayout(hlay, 1, 1)
+                ok = QtGui.QPushButton('OK')
+                layout.addWidget(ok, 2, 0)
+                cancel = QtGui.QPushButton('Cancel')
+                layout.addWidget(cancel, 2, 1)
+                ok.clicked.connect(self.accept)
+                cancel.clicked.connect(self.reject)
+
+                self.compl = QtGui.QCompleter(['tutu', 'blop', 'beurk'])
+                proc_line.setCompleter(self.compl)
+                proc_line.textEdited.connect(self.on_text_edited)
+
+            def on_text_edited(self, text):
+                print 'text:', text
+                compl = []
+                modpath = str(text).split('.')
+                if len(modpath) > 1:
+                    basemod = '.'.join(modpath[:-1])
+                    print 'basemod:', basemod
+                    try:
+                        mod = __import__(basemod)
+                        #if hasattr(mod, '__path__'):
+                            #paths = mod.__path__
+                        #else:
+                        paths = [os.path.dirname(mod.__file__)]
+                        print 'paths:', paths
+                        sel = set()
+                        for path in paths:
+                            for f in os.listdir(path):
+                                if f.endswith('.py'):
+                                    sel.add(f[:-3])
+                                elif f.endswith('.pyc') or f.endswith('.pyo'):
+                                    sel.add(f[:-4])
+                                elif '.' not in f \
+                                        and os.path.isdir(os.path.join(
+                                            path, f)):
+                                    sel.add(f)
+                        begin = modpath[-1]
+                        print 'begin:', begin
+                        compl = ['.'.join([basemod, f]) for f in sel \
+                            if f.startswith(modpath[-1])]
+                    except ImportError:
+                        pass
+                print 'compl:', compl
+                model = self.compl.model()
+                model.setStringList(compl)
+
+        proc_name_gui = ProcessModuleInput()
 
         res = proc_name_gui.exec_()
         if res:
