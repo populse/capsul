@@ -2122,6 +2122,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 model.setStringList(list(compl))
 
         proc_name_gui = ProcessModuleInput()
+        proc_name_gui.resize(800, proc_name_gui.sizeHint().height())
 
         res = proc_name_gui.exec_()
         if res:
