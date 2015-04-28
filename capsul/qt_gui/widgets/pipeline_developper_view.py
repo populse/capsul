@@ -13,6 +13,9 @@ import weakref
 import tempfile
 import subprocess
 import distutils.spawn
+import importlib
+import sys
+import types
 
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui
@@ -24,6 +27,7 @@ from capsul.process.process import Process
 from capsul.process.loader import get_process_instance
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
+from capsul.utils.loader import load_objects
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
 try:
@@ -2050,11 +2054,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self.setWindowTitle('process module/name:')
                 layout = QtGui.QGridLayout(self)
                 layout.addWidget(QtGui.QLabel('module/process:'), 0, 0)
-                proc_line = QtGui.QLineEdit()
-                layout.addWidget(proc_line, 0, 1)
+                self.proc_line = QtGui.QLineEdit()
+                layout.addWidget(self.proc_line, 0, 1)
                 layout.addWidget(QtGui.QLabel('node name'), 1, 0)
-                name_line = QtGui.QLineEdit()
-                layout.addWidget(name_line, 1, 1)
+                self.name_line = QtGui.QLineEdit()
+                layout.addWidget(self.name_line, 1, 1)
                 #hlay = QtGui.QHBoxLayout()
                 #layout.addLayout(hlay, 1, 1)
                 ok = QtGui.QPushButton('OK')
@@ -2065,53 +2069,68 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 cancel.clicked.connect(self.reject)
 
                 self.compl = QtGui.QCompleter(['tutu', 'blop', 'beurk'])
-                proc_line.setCompleter(self.compl)
-                proc_line.textEdited.connect(self.on_text_edited)
+                self.proc_line.setCompleter(self.compl)
+                self.proc_line.textEdited.connect(self.on_text_edited)
 
             def on_text_edited(self, text):
-                print 'text:', text
-                compl = []
+                compl = set()
                 modpath = str(text).split('.')
+                current_mod = None
+                paths = []
+                sel = set()
                 if len(modpath) > 1:
-                    basemod = '.'.join(modpath[:-1])
-                    print 'basemod:', basemod
+                    current_mod = '.'.join(modpath[:-1])
                     try:
-                        mod = __import__(basemod)
-                        #if hasattr(mod, '__path__'):
-                            #paths = mod.__path__
-                        #else:
-                        paths = [os.path.dirname(mod.__file__)]
-                        print 'paths:', paths
-                        sel = set()
-                        for path in paths:
-                            for f in os.listdir(path):
-                                if f.endswith('.py'):
-                                    sel.add(f[:-3])
-                                elif f.endswith('.pyc') or f.endswith('.pyo'):
-                                    sel.add(f[:-4])
-                                elif '.' not in f \
-                                        and os.path.isdir(os.path.join(
-                                            path, f)):
-                                    sel.add(f)
-                        begin = modpath[-1]
-                        print 'begin:', begin
-                        compl = ['.'.join([basemod, f]) for f in sel \
-                            if f.startswith(modpath[-1])]
+                        mod = importlib.import_module(current_mod)
                     except ImportError:
+                        mod = None
+                    if mod:
+                        if os.path.basename(mod.__file__).startswith(
+                                '__init__.py'):
+                            paths = [os.path.dirname(mod.__file__)]
+                        # add process/pipeline objects in current_mod
+                        procs = load_objects(
+                            current_mod, allowed_instances=[
+                                Process, Pipeline, types.ModuleType])
+                        compl.update(['.'.join([current_mod, c.__name__])
+                                      for c in procs])
+                else:
+                    # no current module
+                    paths = sys.path
+                for path in paths:
+                    if path == '':
+                        path = '.'
+                    try:
+                        for f in os.listdir(path):
+                            if f.endswith('.py'):
+                                sel.add(f[:-3])
+                            elif f.endswith('.pyc') or f.endswith('.pyo'):
+                                sel.add(f[:-4])
+                            elif '.' not in f \
+                                    and os.path.isdir(os.path.join(
+                                        path, f)):
+                                sel.add(f)
+                    except OSError:
                         pass
-                print 'compl:', compl
+                begin = modpath[-1]
+                cm = []
+                if current_mod is not None:
+                    cm = [current_mod]
+                compl.update(['.'.join(cm + [f]) for f in sel \
+                    if f.startswith(modpath[-1])])
                 model = self.compl.model()
-                model.setStringList(compl)
+                model.setStringList(list(compl))
 
         proc_name_gui = ProcessModuleInput()
 
         res = proc_name_gui.exec_()
         if res:
-            proc_module = unicode(proc_line.text())
-            node_name = str(name_line.text())
+            proc_module = unicode(proc_name_gui.proc_line.text())
+            node_name = str(proc_name_gui.name_line.text())
             pipeline = self.scene.pipeline
             try:
-                process = get_process_instance(unicode(proc_line.text()))
+                process = get_process_instance(
+                  unicode(proc_name_gui.proc_line.text()))
             except Exception, e:
                 print e
                 return
@@ -2124,8 +2143,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 sub_pipeline = None
             gnode = self.scene.add_node(node_name, node)
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
-        del ok, cancel, name_line, proc_line
-        del layout
 
     def add_switch(self):
         pass
