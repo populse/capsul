@@ -116,9 +116,14 @@ class Plug(QtGui.QGraphicsPolygonItem):
 
 
     def mousePressEvent(self, event):
+        print 'plug pressed.'
         super(Plug, self).mousePressEvent(event)
         if event.button() == QtCore.Qt.LeftButton:
             self.scene().plug_clicked.emit(self.name)
+            event.accept()
+        elif event.button() == QtCore.Qt.RightButton:
+            print 'plug: right click'
+            self.scene().plug_right_clicked.emit(self.name)
             event.accept()
 
 class EmbeddedSubPipelineItem(QtGui.QGraphicsProxyWidget):
@@ -683,7 +688,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
     def mousePressEvent(self, event):
         item = self.scene().itemAt(event.scenePos())
         #print 'NodeGWidget click, item:', item
-        if isinstance(item, Plug) and event.button() == QtCore.Qt.LeftButton:
+        if isinstance(item, Plug):
             item.mousePressEvent(event)
             return
         super(NodeGWidget, self).mousePressEvent(event)
@@ -756,6 +761,8 @@ class PipelineScene(QtGui.QGraphicsScene):
     node_right_clicked = QtCore.Signal(str, Controller)
     # Signal emitted when a plug is clicked
     plug_clicked = QtCore.Signal(str)
+    # Signal emitted when a plug is clicked with the right mouse button
+    plug_right_clicked = QtCore.Signal(str)
     # Signal emitted when a link is right-clicked
     link_right_clicked = QtCore.Signal(str, str, str, str)
 
@@ -1377,6 +1384,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     subpipeline_clicked
     node_right_clicked
     plug_clicked
+    plug_right_clicked
+    link_right_clicked
     colored_parameters
     scene
 
@@ -1413,6 +1422,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     node_right_clicked = QtCore.Signal(str, Controller)
     '''Signal emitted when a node box is right-clicked'''
     plug_clicked = QtCore.Signal(str)
+    '''Signal emitted when a plug is clicked'''
+    plug_right_clicked = QtCore.Signal(str)
     '''Signal emitted when a plug is right-clicked'''
     link_right_clicked = QtCore.Signal(str, str, str, str)
     '''Signal emitted when a link is right-clicked'''
@@ -1494,6 +1505,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self._grab = False
         self._grab_link = False
         self.plug_clicked.connect(self._plug_clicked)
+        self.plug_right_clicked.connect(self._plug_right_clicked)
         self.link_right_clicked.connect(self._link_clicked)
 
     def __del__(self):
@@ -1523,6 +1535,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.node_right_clicked.connect(self.node_right_clicked)
         self.scene.node_right_clicked.connect(self.onOpenProcessController)
         self.scene.plug_clicked.connect(self.plug_clicked)
+        self.scene.plug_right_clicked.connect(self.plug_right_clicked)
         self.scene.link_right_clicked.connect(self.link_right_clicked)
         self.scene.pos = pos
         self.scene.set_pipeline(pipeline)
@@ -2292,27 +2305,135 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         weak_action = menu.addAction('Weak link')
         weak_action.setCheckable(True)
         weak_action.setChecked(weak)
-        weak_action.toggled.connect(self.change_weak_link)
+        weak_action.toggled.connect(self._change_weak_link)
 
         menu.addSeparator()
         del_link = menu.addAction('Delete link')
-        del_link.triggered.connect(self.del_link)
+        del_link.triggered.connect(self._del_link)
 
         menu.exec_(QtGui.QCursor.pos())
         del self._current_link
 
-    def change_weak_link(self, weak):
+    def _change_weak_link(self, weak):
         #src_node, src_plug, dst_node, dst_plug = self._current_link
         link_def = self._current_link
         self.scene.pipeline.remove_link(link_def)
         self.scene.pipeline.add_link(link_def, weak_link=weak)
         self.scene.update_pipeline()
 
-    def del_link(self):
+    def _del_link(self):
         #src_node, src_plug, dst_node, dst_plug = self._current_link
         link_def = self._current_link
         self.scene.pipeline.remove_link(link_def)
         self.scene.update_pipeline()
+
+    def _plug_right_clicked(self, name):
+        if self.is_logical_view():
+            # in logival view, links are not editable since they do not reflect
+            # the details of reality
+            return
+        node_name, plug_name = str(name).split(':')
+        plug_name = str(plug_name)
+        if node_name in ('inputs', 'outputs'):
+            plug = self.scene.pipeline.pipeline_node.plugs[plug_name]
+        else:
+            plug = self.scene.pipeline.nodes[node_name].plugs[plug_name]
+        output = plug.output
+        self._temp_plug = plug
+        self._temp_plug_name = (node_name, plug_name)
+
+        menu = QtGui.QMenu('Plug: %s' % name)
+        title = menu.addAction('Plug: %s' % name)
+        title.setEnabled(False)
+        menu.addSeparator()
+
+        if node_name not in ('inputs', 'outputs'):
+            # not a main node: allow export
+            if output:
+                links = plug.links_to
+            else:
+                links = plug.links_from
+            existing = False
+            for link in links:
+                if link[0] == '':
+                    existing = True
+                    break
+            export_action = menu.addAction('export plug')
+            export_action.triggered.connect(self._export_plug)
+            if existing:
+                export_action.setEnabled(False)
+
+        else:
+            del_plug = menu.addAction('Remove plug')
+            del_plug.triggered.connect(self._remove_plug)
+            edit_plug = menu.addAction('Rename / edit plug')
+            edit_plug.triggered.connect(self._edit_plug)
+            prune = menu.addAction('Prune unused pipeline plugs')
+            prune.triggered.connect(self._prune_plugs)
+
+        menu.exec_(QtGui.QCursor.pos())
+        del self._temp_plug
+        del self._temp_plug_name
+
+    class _PlugEdit(QtGui.QDialog):
+        def __init__(self, show_weak=True, parent=None):
+            super(PipelineDevelopperView._PlugEdit, self).__init__(parent)
+            layout = QtGui.QVBoxLayout(self)
+            hlay1 = QtGui.QHBoxLayout()
+            layout.addLayout(hlay1)
+            hlay1.addWidget(QtGui.QLabel('Plug name:'))
+            self.name_line = QtGui.QLineEdit()
+            hlay1.addWidget(self.name_line)
+            hlay2 = QtGui.QHBoxLayout()
+            layout.addLayout(hlay2)
+            self.optional = QtGui.QCheckBox('Optional')
+            hlay2.addWidget(self.optional)
+            if show_weak:
+                self.weak = QtGui.QCheckBox('Weak link')
+                hlay2.addWidget(self.weak)
+            hlay3 = QtGui.QHBoxLayout()
+            layout.addLayout(hlay3)
+            ok = QtGui.QPushButton('OK')
+            hlay3.addWidget(ok)
+            cancel = QtGui.QPushButton('Cancel')
+            hlay3.addWidget(cancel)
+            ok.clicked.connect(self.accept)
+            cancel.clicked.connect(self.reject)
+
+    def _export_plug(self):
+        print 'export:', self._temp_plug_name
+        dial = self._PlugEdit()
+        dial.name_line.setText(self._temp_plug_name[1])
+        dial.optional.setChecked(self._temp_plug.optional)
+
+        res = dial.exec_()
+        if res:
+            print 'OK'
+            self.scene.pipeline.export_parameter(
+                self._temp_plug_name[0], self._temp_plug_name[1],
+                pipeline_parameter=str(dial.name_line.text()),
+                is_optional=dial.optional.isChecked(),
+                weak_link=dial.weak.isChecked())
+            self.scene.update_pipeline()
+
+    def _remove_plug(self):
+        print 'TODO...'
+
+    def _edit_plug(self):
+        dial = self._PlugEdit(show_weak=False)
+        dial.name_line.setText(self._temp_plug_name[1])
+        dial.name_line.setEnabled(False) ## FIXME
+        dial.optional.setChecked(self._temp_plug.optional)
+        res = dial.exec_()
+        if res:
+            plug = self._temp_plug
+            plug.optional = dial.optional.isChecked()
+
+            print 'TODO.'
+            self.scene.update_pipeline()
+
+    def _prune_plugs(self):
+        print 'TODO.'
 
 
 
