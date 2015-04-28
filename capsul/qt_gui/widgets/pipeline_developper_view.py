@@ -2138,15 +2138,51 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             pipeline.add_process(node_name, process)
 
             node = pipeline.nodes[node_name]
-            if isinstance(node, PipelineNode):
-                sub_pipeline = node.process
-            else:
-                sub_pipeline = None
             gnode = self.scene.add_node(node_name, node)
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
     def add_switch(self):
-        pass
+        '''
+        Insert a switch node in the pipeline. Asks for the switch
+        inputs/outputs, and the node name before inserting.
+        '''
+
+        class SwitchInput(QtGui.QDialog):
+            def __init__(self):
+                super(SwitchInput, self).__init__()
+                self.setWindowTitle('switch parameters/name:')
+                layout = QtGui.QGridLayout(self)
+                layout.addWidget(QtGui.QLabel('inputs:'), 0, 0)
+                self.inputs_line = QtGui.QLineEdit()
+                layout.addWidget(self.inputs_line, 0, 1)
+                layout.addWidget(QtGui.QLabel('outputs:'), 1, 0)
+                self.outputs_line = QtGui.QLineEdit()
+                layout.addWidget(self.outputs_line, 1, 1)
+                layout.addWidget(QtGui.QLabel('node name'), 2, 0)
+                self.name_line = QtGui.QLineEdit()
+                layout.addWidget(self.name_line, 2, 1)
+                ok = QtGui.QPushButton('OK')
+                layout.addWidget(ok, 3, 0)
+                cancel = QtGui.QPushButton('Cancel')
+                layout.addWidget(cancel, 3, 1)
+                ok.clicked.connect(self.accept)
+                cancel.clicked.connect(self.reject)
+
+        switch_name_gui = SwitchInput()
+        switch_name_gui.resize(600, switch_name_gui.sizeHint().height())
+
+        res = switch_name_gui.exec_()
+        if res:
+            pipeline = self.scene.pipeline
+            node_name = str(switch_name_gui.name_line.text())
+            inputs = str(switch_name_gui.inputs_line.text()).split()
+            outputs = str(switch_name_gui.outputs_line.text()).split()
+            pipeline.add_switch(node_name, inputs, outputs)
+
+            node = pipeline.nodes[node_name]
+            gnode = self.scene.add_node(node_name, node)
+            gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
+            self.pipeline.update_pipeline()
 
     def _plug_clicked(self, name):
         if self.is_logical_view():
