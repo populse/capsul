@@ -2182,7 +2182,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             node = pipeline.nodes[node_name]
             gnode = self.scene.add_node(node_name, node)
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
-            self.pipeline.update_pipeline()
+            self.scene.pipeline.update_pipeline()
 
     def _plug_clicked(self, name):
         if self.is_logical_view():
