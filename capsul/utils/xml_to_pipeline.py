@@ -437,7 +437,7 @@ def pipeline_to_xmldict(pipeline):
 
     def _write_links(pipeline, pipeline_dict, exported):
         links_list = pipeline_dict.setdefault(
-            'links', OrderedDict()).setdefault('link', [])
+            "links", OrderedDict()).setdefault("link", [])
         for node_name, node in pipeline.nodes.iteritems():
             for plug_name, plug in node.plugs.iteritems():
                 if (node_name == '' and not plug.output) \
@@ -448,14 +448,28 @@ def pipeline_to_xmldict(pipeline):
                             src = plug_name
                         else:
                             src = '%s.%s' % (node_name, plug_name)
+                            if src in exported:
+                                continue  # already done in exportation section
                         if link[0] == '':
                             dst = link[1]
                         else:
                             dst = '%s.%s' % (link[0], link[1])
+                            if dst in exported:
+                                continue  # already done in exportation section
                         link_def = OrderedDict([("@src", src), ("@dest", dst)])
                         if link[-1]:
                             link_def["@weak_link"] = "1"
                         links_list.append(link_def)
+
+    def _write_nodes_positions(pipeline, pipeline_dict):
+        if hasattr(pipeline, "node_position"):
+            positions = pipeline_dict.setdefault(
+                "positions", OrderedDict()).setdefault("position", [])
+            for node_name, pos in pipeline.node_position.iteritems():
+                node_pos = OrderedDict([("@process", node_name),
+                                        ("@x", unicode(pos[0])),
+                                        ("@y", unicode(pos[1]))])
+                positions.append(node_pos)
 
 
     pipeline_dict = OrderedDict()
@@ -467,6 +481,7 @@ def pipeline_to_xmldict(pipeline):
     _write_processes(pipeline, pipeline_dict)
     exported = _write_params(pipeline, pipeline_dict)
     _write_links(pipeline, pipeline_dict, exported)
+    _write_nodes_positions(pipeline, pipeline_dict)
 
     if hasattr(pipeline, "scene_scale_factor"):
         pipeline_dict["scale"] = {
@@ -475,16 +490,21 @@ def pipeline_to_xmldict(pipeline):
     return xml_dict
 
 
-def pipeline_to_xml(pipeline):
+def pipeline_to_xml(pipeline, output=None):
     """ Generates a XML description of the pipeline structure
 
     Parameters
     ----------
     pipeline: Pipeline instance (mandatory)
+    output: file object (optional)
+        file to write XML in. If not specified, return the XML as a string, as
+        does the xmltodict module.
 
     Returns
     -------
-    XML description of the pipeline, in a string.
+    if output is specified: None
+    if output is not specified: XML description of the pipeline, in a unicode
+    string.
     """
     xml_dict = pipeline_to_xmldict(pipeline)
     return xmltodict.unparse(xml_dict, full_document=False, pretty=True,
