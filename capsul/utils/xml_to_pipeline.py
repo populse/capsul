@@ -198,18 +198,12 @@ class AutoPipeline(Pipeline):
                         weak_link = export_description["@weak_link"]
                     else:
                         weak_link = None
-                    try:
-                        self.export_parameter(
-                            process, parameter,
-                            pipeline_parameter=parameter_name,
-                            is_optional=optional,
-                            is_enabled=enabled,
-                            weak_link=weak_link)
-                    except Exception, e:
-                        print 'exception in', process, parameter, parameter_name
-                        e.message = e.message + ' in exporting %s.%s to %s' \
-                            % (process, parameter, parameter_name)
-                        raise
+                    self.export_parameter(
+                        process, parameter,
+                        pipeline_parameter=parameter_name,
+                        is_optional=optional,
+                        is_enabled=enabled,
+                        weak_link=weak_link)
 
         # Add all the pipeline links
         if "links" in self._parameters["pipeline"]:
@@ -324,6 +318,9 @@ def class_factory(xmlpath_description, destination_module_globals):
     with open(xmlpath_description) as openfile:
         pipeline_desc = openfile.readlines()
 
+    if "@class_name" in pipeline_proto["pipeline"]:
+        class_name = str(pipeline_proto["pipeline"]["@class_name"])
+
     # Get the pipeline docstring
     docstring = pipeline_proto["pipeline"]["docstring"]
     for link in re.findall(r":ref:`.*?\[.*?\]`", docstring, flags=re.DOTALL):
@@ -374,63 +371,63 @@ def pipeline_to_xmldict(pipeline):
     compatible with the xmltodict module.
     """
     def _switch_description(node):
-        descr = OrderedDict([('@name', node.name), ("@export_switch", "0")])
+        descr = OrderedDict([("@name", node.name), ("@export_switch", "0")])
         inputs = []
         outputs = []
-        descr['input'] = inputs
-        descr['output'] = outputs
+        descr["input"] = inputs
+        descr["output"] = outputs
         for plug_name, plug in node.plugs.iteritems():
             if plug.output:
                 outputs.append(plug_name)
             else:
-                name_parts = plug_name.split('_switch_')
+                name_parts = plug_name.split("_switch_")
                 if len(name_parts) == 2:
                     inputs.append(name_parts[0])
         descr["switch_value"] = node.switch
         return descr
 
     def _write_processes(pipeline, pipeline_dict):
-        proc_dict = pipeline_dict.setdefault('processes', OrderedDict())
+        proc_dict = pipeline_dict.setdefault("processes", OrderedDict())
         for node_name, node in pipeline.nodes.iteritems():
-            if node_name == '':
+            if node_name == "":
                 continue
             if isinstance(node, Switch):
-                switches = proc_dict.setdefault('switch', [])
+                switches = proc_dict.setdefault("switch", [])
                 switch_descr = _switch_description(node)
                 switches.append(switch_descr)
             elif isinstance(node, IterativeNode):
-                iternodes = proc_dict.setdefault('iterative', [])
-                iterative.append({'@name': node.name})
+                iternodes = proc_dict.setdefault("iterative", [])
+                iterative.append({"@name": node.name})
             else:
-                procnodes = proc_dict.setdefault('standard', [])
+                procnodes = proc_dict.setdefault("standard", [])
                 proc = node.process
                 mod = proc.__module__
                 classname = proc.__class__.__name__
-                procitem = {'@name': node.name}
-                procitem['module'] = '%s.%s' % (mod, classname)
+                procitem = {"@name": node.name}
+                procitem["module"] = "%s.%s" % (mod, classname)
                 procnodes.append(procitem)
 
     def _write_params(pipeline, pipeline_dict):
         exported = set()
         for plug_name, plug in pipeline.pipeline_node.plugs.iteritems():
-            param_descr = OrderedDict([('@name', plug_name)])
+            param_descr = OrderedDict([("@name", plug_name)])
             if not plug.enabled:
                 param_descr["@enabled"] = "0"
             if plug.optional:
                 param_descr["@optional"] = "1"
             if plug.output:
                 params = pipeline_dict.setdefault(
-                    'outputs', OrderedDict()).setdefault('output', [])
-                link = '.'.join(list(plug.links_from)[0][:2])
-                param_descr['@src'] = link
+                    "outputs", OrderedDict()).setdefault("output", [])
+                link = ".".join(list(plug.links_from)[0][:2])
+                param_descr["@src"] = link
                 if link[-1]:
                     param_descr["@weak_link"] = "1"
                 exported.add(link)
             else:
                 params = pipeline_dict.setdefault(
-                    'inputs', OrderedDict()).setdefault('input', [])
-                link = '.'.join(list(plug.links_to)[0][:2])
-                param_descr['@dest'] = link
+                    "inputs", OrderedDict()).setdefault("input", [])
+                link = ".".join(list(plug.links_to)[0][:2])
+                param_descr["@dest"] = link
                 exported.add(link)
             params.append(param_descr)
         return exported
@@ -440,20 +437,20 @@ def pipeline_to_xmldict(pipeline):
             "links", OrderedDict()).setdefault("link", [])
         for node_name, node in pipeline.nodes.iteritems():
             for plug_name, plug in node.plugs.iteritems():
-                if (node_name == '' and not plug.output) \
-                        or (node_name != '' and plug.output):
+                if (node_name == "" and not plug.output) \
+                        or (node_name != "" and plug.output):
                     links = plug.links_to
                     for link in links:
-                        if node_name == '':
+                        if node_name == "":
                             src = plug_name
                         else:
-                            src = '%s.%s' % (node_name, plug_name)
+                            src = "%s.%s" % (node_name, plug_name)
                             if src in exported:
                                 continue  # already done in exportation section
-                        if link[0] == '':
+                        if link[0] == "":
                             dst = link[1]
                         else:
-                            dst = '%s.%s' % (link[0], link[1])
+                            dst = "%s.%s" % (link[0], link[1])
                             if dst in exported:
                                 continue  # already done in exportation section
                         link_def = OrderedDict([("@src", src), ("@dest", dst)])
@@ -472,8 +469,8 @@ def pipeline_to_xmldict(pipeline):
                 positions.append(node_pos)
 
 
-    pipeline_dict = OrderedDict()
-    xml_dict = OrderedDict([('pipeline', pipeline_dict)])
+    pipeline_dict = OrderedDict([("@class_name", pipeline.__class__.__name__)])
+    xml_dict = OrderedDict([("pipeline", pipeline_dict)])
     # FIXME: pipeline name ?
 
     if hasattr(pipeline, "__doc__"):
@@ -508,5 +505,5 @@ def pipeline_to_xml(pipeline, output=None):
     """
     xml_dict = pipeline_to_xmldict(pipeline)
     return xmltodict.unparse(xml_dict, full_document=False, pretty=True,
-                             indent='    ')
+                             indent="    ")
 
