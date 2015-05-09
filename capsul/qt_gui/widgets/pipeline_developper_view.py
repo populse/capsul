@@ -2191,11 +2191,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             inputs = str(switch_name_gui.inputs_line.text()).split()
             outputs = str(switch_name_gui.outputs_line.text()).split()
             pipeline.add_switch(node_name, inputs, outputs)
-
-            node = pipeline.nodes[node_name]
-            gnode = self.scene.add_node(node_name, node)
+            # add_switch triggers an update
+            gnode = self.scene.gnodes[node_name]
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
-            self.scene.update_pipeline()
 
     def _plug_clicked(self, name):
         if self.is_logical_view():
