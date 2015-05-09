@@ -898,6 +898,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     def _update_regular_pipeline(self):
         # normal view
         pipeline = self.pipeline
+        removed_nodes = []
         for node_name, gnode in self.gnodes.iteritems():
             if gnode.logical_view:
                 gnode.clear_plugs()
@@ -918,9 +919,61 @@ class PipelineScene(QtGui.QGraphicsScene):
                             pipeline_outputs[name] = plug
                     gnode.parameters = pipeline_outputs
             else:
-                node = pipeline.nodes[node_name]
+                node = pipeline.nodes.get(node_name)
+                if node is None:  # removed node
+                    removed_nodes.append(node_name)
+                    continue
             gnode.active = node.activated
             gnode.update_node()
+
+        # handle removed nodes
+        for node_name in removed_nodes:
+            self.removeItem(self.gnodes[node_name])
+            del self.gnodes[node_name]
+
+        # check for added nodes
+        added_nodes = []
+        for node_name, node in pipeline.nodes.iteritems():
+            if node_name == '':
+                pipeline_inputs = SortedDictionary()
+                pipeline_outputs = SortedDictionary()
+                for name, plug in node.plugs.iteritems():
+                    if plug.output:
+                        pipeline_outputs[name] = plug
+                    else:
+                        pipeline_inputs[name] = plug
+                if pipeline_inputs and 'inputs' not in self.gnodes:
+                    self.add_node(
+                        'inputs', NodeGWidget(
+                            'inputs', pipeline_inputs, pipeline,
+                            process=pipeline,
+                            colored_parameters=self.colored_parameters,
+                            logical_view=self.logical_view))
+                if pipeline_outputs and 'outputs' not in self.gnodes:
+                    self.add_node(
+                        'outputs', NodeGWidget(
+                            'outputs', pipeline_outputs, pipeline,
+                            process=pipeline,
+                            colored_parameters=self.colored_parameters,
+                            logical_view=self.logical_view))
+            elif node_name not in self.gnodes:
+                process = None
+                if isinstance(node, Switch):
+                    process = node
+                if hasattr(node, 'process'):
+                    process = node.process
+                if isinstance(node, PipelineNode) \
+                        or isinstance(node, IterativeNode):
+                    sub_pipeline = node.process
+                else:
+                    sub_pipeline = None
+                self.add_node(node_name, NodeGWidget(
+                    node_name, node.plugs, pipeline,
+                    sub_pipeline=sub_pipeline, process=process,
+                    colored_parameters=self.colored_parameters,
+                    logical_view=self.logical_view))
+
+        # links
         to_remove = []
         for source_dest, glink in self.glinks.iteritems():
             source, dest = source_dest
@@ -969,6 +1022,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         # update nodes plugs and links in logical view mode
         pipeline = self.pipeline
         # nodes state
+        removed_nodes = []
         for node_name, gnode in self.gnodes.iteritems():
             if not gnode.logical_view:
                 gnode.clear_plugs()
@@ -976,9 +1030,61 @@ class PipelineScene(QtGui.QGraphicsScene):
             if node_name in ('inputs', 'outputs'):
                 node = pipeline.nodes['']
             else:
-                node = pipeline.nodes[node_name]
+                node = pipeline.nodes.get(node_name)
+                if node is None:  # removed node
+                    removed_nodes.append(node_name)
+                    continue
             gnode.active = node.activated
             gnode.update_node()
+
+        # handle removed nodes
+        for node_name in removed_nodes:
+            self.removeItem(self.gnodes[node_name])
+            del self.gnodes[node_name]
+
+        # check for added nodes
+        added_nodes = []
+        for node_name, node in pipeline.nodes.iteritems():
+            if node_name == '':
+                pipeline_inputs = SortedDictionary()
+                pipeline_outputs = SortedDictionary()
+                for name, plug in node.plugs.iteritems():
+                    if plug.output:
+                        pipeline_outputs['outputs'] = plug
+                    else:
+                        pipeline_inputs['inputs'] = plug
+                if pipeline_inputs and 'inputs' not in self.gnodes:
+                    self.add_node(
+                        'inputs', NodeGWidget(
+                            'inputs', pipeline_inputs, pipeline,
+                            process=pipeline,
+                            colored_parameters=self.colored_parameters,
+                            logical_view=self.logical_view))
+                if pipeline_outputs and 'outputs' not in self.gnodes:
+                    self.add_node(
+                        'outputs', NodeGWidget(
+                            'outputs', pipeline_outputs, pipeline,
+                            process=pipeline,
+                            colored_parameters=self.colored_parameters,
+                            logical_view=self.logical_view))
+            elif node_name not in self.gnodes:
+                process = None
+                if isinstance(node, Switch):
+                    process = node
+                if hasattr(node, 'process'):
+                    process = node.process
+                if isinstance(node, PipelineNode) \
+                        or isinstance(node, IterativeNode):
+                    sub_pipeline = node.process
+                else:
+                    sub_pipeline = None
+                self.add_node(node_name, NodeGWidget(
+                    node_name, node.plugs, pipeline,
+                    sub_pipeline=sub_pipeline, process=process,
+                    colored_parameters=self.colored_parameters,
+                    logical_view=self.logical_view))
+
+        # links
         # delete all links
         for source_dest, glink in self.glinks.iteritems():
             self.removeItem(glink)
