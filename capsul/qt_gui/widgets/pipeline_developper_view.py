@@ -946,14 +946,14 @@ class PipelineScene(QtGui.QGraphicsScene):
                     else:
                         pipeline_inputs[name] = plug
                 if pipeline_inputs and 'inputs' not in self.gnodes:
-                    self.add_node(
+                    self._add_node(
                         'inputs', NodeGWidget(
                             'inputs', pipeline_inputs, pipeline,
                             process=pipeline,
                             colored_parameters=self.colored_parameters,
                             logical_view=self.logical_view))
                 if pipeline_outputs and 'outputs' not in self.gnodes:
-                    self.add_node(
+                    self._add_node(
                         'outputs', NodeGWidget(
                             'outputs', pipeline_outputs, pipeline,
                             process=pipeline,
@@ -969,11 +969,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                     sub_pipeline = node.process
                 else:
                     sub_pipeline = None
-                self.add_node(node_name, NodeGWidget(
-                    node_name, node.plugs, pipeline,
-                    sub_pipeline=sub_pipeline, process=process,
-                    colored_parameters=self.colored_parameters,
-                    logical_view=self.logical_view))
+                self.add_node(node_name, node)
 
         # links
         to_remove = []
@@ -1056,14 +1052,14 @@ class PipelineScene(QtGui.QGraphicsScene):
                     else:
                         pipeline_inputs['inputs'] = plug
                 if pipeline_inputs and 'inputs' not in self.gnodes:
-                    self.add_node(
+                    self._add_node(
                         'inputs', NodeGWidget(
                             'inputs', pipeline_inputs, pipeline,
                             process=pipeline,
                             colored_parameters=self.colored_parameters,
                             logical_view=self.logical_view))
                 if pipeline_outputs and 'outputs' not in self.gnodes:
-                    self.add_node(
+                    self._add_node(
                         'outputs', NodeGWidget(
                             'outputs', pipeline_outputs, pipeline,
                             process=pipeline,
@@ -1079,11 +1075,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                     sub_pipeline = node.process
                 else:
                     sub_pipeline = None
-                self.add_node(node_name, NodeGWidget(
-                    node_name, node.plugs, pipeline,
-                    sub_pipeline=sub_pipeline, process=process,
-                    colored_parameters=self.colored_parameters,
-                    logical_view=self.logical_view))
+                self.add_node(node_name, node)
 
         # links
         # delete all links
