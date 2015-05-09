@@ -505,5 +505,5 @@ def pipeline_to_xml(pipeline, output=None):
     """
     xml_dict = pipeline_to_xmldict(pipeline)
     return xmltodict.unparse(xml_dict, full_document=False, pretty=True,
-                             indent="    ")
+                             indent="    ", output=output)
 
