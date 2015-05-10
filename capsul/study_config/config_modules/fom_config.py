@@ -52,7 +52,10 @@ class FomConfig(StudyConfigModule):
             return
         
         soma_app = Application('capsul', plugin_modules=['soma.fom'])
-        soma_app.initialize()
+        if 'soma.fom' not in soma_app.loaded_plugin_modules:
+            # WARNING: this is unsafe, may erase configured things, and
+            # probably not thread-safe.
+            soma_app.initialize()
         self.study_config.modules_data.foms = {}
         foms = (('input', self.study_config.input_fom),
             ('output', self.study_config.output_fom),
