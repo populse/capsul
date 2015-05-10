@@ -2302,7 +2302,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 break
         weak_action = menu.addAction('Weak link')
         weak_action.setCheckable(True)
-        weak_action.setChecked(weak)
+        weak_action.setChecked(bool(weak))
         weak_action.toggled.connect(self._change_weak_link)
 
         menu.addSeparator()
