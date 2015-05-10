@@ -416,6 +416,9 @@ def pipeline_to_xmldict(pipeline):
             if plug.optional:
                 param_descr["@optional"] = "1"
             if plug.output:
+                if len(plug.links_from) == 0:
+                    # FIXME: maybe don't completely ignore the plug ?
+                    continue
                 params = pipeline_dict.setdefault(
                     "outputs", OrderedDict()).setdefault("output", [])
                 link = ".".join(list(plug.links_from)[0][:2])
@@ -424,6 +427,9 @@ def pipeline_to_xmldict(pipeline):
                     param_descr["@weak_link"] = "1"
                 exported.add(link)
             else:
+                if len(plug.links_to) == 0:
+                    # FIXME: maybe don't completely ignore the plug ?
+                    continue
                 params = pipeline_dict.setdefault(
                     "inputs", OrderedDict()).setdefault("input", [])
                 link = ".".join(list(plug.links_to)[0][:2])
