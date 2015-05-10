@@ -381,7 +381,8 @@ def pipeline_to_xmldict(pipeline):
                 outputs.append(plug_name)
             else:
                 name_parts = plug_name.split("_switch_")
-                if len(name_parts) == 2:
+                if len(name_parts) == 2 \
+                        and name_parts[0] not in inputs:
                     inputs.append(name_parts[0])
         descr["switch_value"] = node.switch
         return descr
