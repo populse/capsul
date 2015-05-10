@@ -814,8 +814,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         if self.logical_view:
             source_param = 'outputs'
             dest_param = 'inputs'
-        source_dest = ((source_gnode_name, source_param),
-            (dest_gnode_name, dest_param))
+        source_dest = ((str(source_gnode_name), str(source_param)),
+            (str(dest_gnode_name), str(dest_param)))
         if source_dest in self.glinks:
             # already done
             if self.logical_view:
@@ -855,8 +855,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             source_param = 'outputs'
             dest_param = 'inputs'
         dest_gnode = self.gnodes.get(dest_gnode_name)
-        new_source_dest = ((source_gnode_name, source_param),
-                           (dest_gnode_name, dest_param))
+        new_source_dest = ((str(source_gnode_name), str(source_param)),
+                           (str(dest_gnode_name), str(dest_param)))
         glink = self.glinks.get(new_source_dest)
         if glink is not None:
             self.removeItem(glink)
@@ -1006,9 +1006,16 @@ class PipelineScene(QtGui.QGraphicsScene):
                 source_node_name = ''
             if dest_node_name == 'outputs':
                 dest_node_name = ''
-            source_plug \
-                = pipeline.nodes[source_node_name].plugs.get(source_param)
-            dest_plug = pipeline.nodes[dest_node_name].plugs.get(dest_param)
+            source_node = pipeline.nodes.get(source_node_name)
+            if source_node is None:
+                to_remove.append(source_dest)
+                continue
+            source_plug = source_node.plugs.get(source_param)
+            dest_node = pipeline.nodes.get(dest_node_name)
+            if dest_node is None:
+                to_remove.append(dest_node_name)
+                continue
+            dest_plug = dest_node.plugs.get(dest_param)
             remove_glink = False
             if source_plug is None or dest_plug is None:
                 # plug[s] removed
@@ -2320,7 +2327,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.update_pipeline()
 
     def _del_link(self):
-        #src_node, src_plug, dst_node, dst_plug = self._current_link
+        # src_node, src_plug, dst_node, dst_plug = self._current_link
         link_def = self._current_link
         self.scene.pipeline.remove_link(link_def)
         self.scene.update_pipeline()
