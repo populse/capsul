@@ -187,17 +187,17 @@ class AutoPipeline(Pipeline):
                     else:
                         parameter_name = parameter
                     if "@optional" in export_description:
-                        optional = export_description["@optional"]
+                        optional = bool(int(export_description["@optional"]))
                     else:
                         optional = None
                     if "@enabled" in export_description:
-                        enabled = export_description["@enabled"]
+                        enabled = bool(int(export_description["@enabled"]))
                     else:
                         enabled = None
                     if "@weak_link" in export_description:
-                        weak_link = export_description["@weak_link"]
+                        weak_link = bool(int(export_description["@weak_link"]))
                     else:
-                        weak_link = None
+                        weak_link = False
                     self.export_parameter(
                         process, parameter,
                         pipeline_parameter=parameter_name,
