@@ -451,13 +451,13 @@ def pipeline_to_xmldict(pipeline):
                             src = plug_name
                         else:
                             src = "%s.%s" % (node_name, plug_name)
-                            if src in exported:
+                            if src in exported and link[0] == "":
                                 continue  # already done in exportation section
                         if link[0] == "":
                             dst = link[1]
                         else:
                             dst = "%s.%s" % (link[0], link[1])
-                            if dst in exported:
+                            if dst in exported and link[0] == "":
                                 continue  # already done in exportation section
                         link_def = OrderedDict([("@src", src), ("@dest", dst)])
                         if link[-1]:
