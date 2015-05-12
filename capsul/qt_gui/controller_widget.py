@@ -16,6 +16,14 @@ logger = logging.getLogger(__name__)
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.controller import trait_ids
+from soma.qt4gui.timered_widgets import TimeredQLineEdit
+from soma.functiontools import partial
+
+# Qt import
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    _fromUtf8 = lambda s: s
 
 
 class ScrollControllerWidget(QtGui.QScrollArea):
@@ -76,6 +84,36 @@ class ScrollControllerWidget(QtGui.QScrollArea):
         self.controller_widget.disconnect()
 
 
+class DeletableLineEdit(QtGui.QWidget):
+    """ Close button + line editor, used for modifiable key labels
+    """
+    userModification = QtCore.Signal()
+    buttonPressed = QtCore.Signal()
+
+    def __init__(self, text=None, parent=None):
+        super(DeletableLineEdit, self).__init__(parent)
+        layout = QtGui.QHBoxLayout()
+        self.setLayout(layout)
+        delete_button = QtGui.QToolButton()
+        layout.addWidget(delete_button)
+        # Set the tool icons
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(
+            _fromUtf8(":/capsul_widgets_icons/delete")),
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        delete_button.setIcon(icon)
+        self.line_edit = TimeredQLineEdit(text)
+        layout.addWidget(self.line_edit)
+        self.line_edit.userModification.connect(self.userModification)
+        delete_button.pressed.connect(self.buttonPressed)
+
+    def text(self):
+        return self.line_edit.text()
+
+    def setText(self, text):
+        self.line_edit.setText(text)
+
+
 class ControllerWidget(QtGui.QWidget):
     """ Class that create a widget to set the controller parameters.
     """
@@ -85,7 +123,8 @@ class ControllerWidget(QtGui.QWidget):
     _defined_controls = {}
 
     def __init__(self, controller, parent=None, name=None, live=False,
-                 hide_labels=False, select_controls=None):
+                 hide_labels=False, select_controls=None,
+                 editable_labels=False):
         """ Method to initilaize the ControllerWidget class.
 
         Parameters
@@ -107,6 +146,9 @@ class ControllerWidget(QtGui.QWidget):
         select_controls: str (optional, default None)
             parameter to select specific conrtoller traits. Authorized options
             are 'inputs' or 'outputs'.
+        editable_labels: bool (optional, default False)
+            if True, labels (trait keys) may be edited by the user, their
+            modification will trigger a signal.
         """
         # Inheritance
         super(ControllerWidget, self).__init__(parent)
@@ -125,6 +167,8 @@ class ControllerWidget(QtGui.QWidget):
         # dictionary elements are 4-uplets of the form (trait, control_class,
         # control_instance, control_label).
         self._controls = {}
+        self._keys_connections = {}
+        self.editable_labels = editable_labels
 
         # If possilbe, set the widget name
         if name:
@@ -141,6 +185,7 @@ class ControllerWidget(QtGui.QWidget):
         # Create all the layout controls associated with the controller values
         # we want to tune (ie the user traits)
         self._create_controls()
+        self.connect_keys()
 
         # Start the event loop that check for wrong edited fields (usefull
         # when we work off line, otherwise the traits make the job but it is
@@ -253,6 +298,23 @@ class ControllerWidget(QtGui.QWidget):
             # Update the connection status
             self.connected = True
 
+    def connect_keys(self):
+        if not self.editable_labels or self._keys_connections:
+            return
+        keys_connect = {}
+        # Go through all the controller widget controls
+        for control_name, control in self._controls.iteritems():
+            hook1 = partial(self.key_modified, control_name)
+            hook2 = partial(self.delete_key, control_name)
+            control = self._controls[control_name]
+            label_control = control[3]
+            if isinstance(label_control, tuple):
+                label_control = label_control[0]
+            label_control.userModification.connect(hook1)
+            label_control.buttonPressed.connect(hook2)
+            keys_connect[control_name] = (label_control, hook1, hook2)
+        self._keys_connections = keys_connect
+
     def disconnect(self):
         """ Disconnect the controller trait and the controller widget controls
         """
@@ -276,6 +338,13 @@ class ControllerWidget(QtGui.QWidget):
             # Update the connection status
             self.connected = False
 
+    def disconnect_keys(self):
+        for control_name, connections in self._keys_connections.iteritems():
+            label_widget, hook1, hook2 = connections
+            label_widget.userModification.disconnect(hook1)
+            label_widget.buttonPressed.disconnect(hook2)
+        self._keys_connections = {}
+
     def update_controls(self):
         """ Event to refresh controller widget controls and intern parameters.
 
@@ -289,6 +358,7 @@ class ControllerWidget(QtGui.QWidget):
         was_connected = self.connected
         if was_connected:
             self.disconnect()
+        self.disconnect_keys()
 
         # Go through all the controller widget controls
         to_remove_controls = []
@@ -336,6 +406,7 @@ class ControllerWidget(QtGui.QWidget):
         # Restore the connection status
         if was_connected:
             self.connect()
+        self.connect_keys()
 
         # Update the widget geometry
         self.updateGeometry()
@@ -422,9 +493,13 @@ class ControllerWidget(QtGui.QWidget):
                 return
 
             # Create the control instance and associated label
+            if self.editable_labels:
+                label_class = DeletableLineEdit
+            else:
+                label_class = QtGui.QLabel
             control_instance, control_label = control_class.create_widget(
                 self, trait_name, getattr(self.controller, trait_name),
-                trait)
+                trait, label_class)
             control_class.is_valid(control_instance)
 
             # If the trait contains a description, insert a tool tip to the
@@ -525,6 +600,36 @@ class ControllerWidget(QtGui.QWidget):
             control_instance.show()
             for label in control_label:
                 label.show()
+
+    def key_modified(self, old_key):
+        control_label = self._controls[old_key][3]
+        if isinstance(control_label, tuple):
+            control_label = control_label[0]
+        key = str(control_label.text())
+        was_connected = self.connected
+        if was_connected:
+            self.disconnect()
+        self.disconnect_keys()
+
+        controller = self.controller
+        trait = controller.trait(old_key)
+        controller.add_trait(key, trait)
+        setattr(controller, key, getattr(controller, old_key))
+        controller.remove_trait(old_key)
+        self._controls[key] = self._controls[old_key]
+        del self._controls[old_key]
+        if was_connected:
+            self.connect()
+        # reconnect label widget
+        self.connect_keys()
+        # self.update_controls()  # not even needed
+
+    def delete_key(self, key):
+        controller = self.controller
+        trait = controller.trait(key)
+        controller.remove_trait(key)
+        self.update_controls()
+
 
     ###########################################################################
     # Class Methods

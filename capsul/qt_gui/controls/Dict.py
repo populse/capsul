@@ -115,7 +115,8 @@ class DictControlWidget(object):
         pass
 
     @staticmethod
-    def create_widget(parent, control_name, control_value, trait):
+    def create_widget(parent, control_name, control_value, trait,
+                      label_class=None):
         """ Method to create the dict widget.
 
         Parameters
@@ -128,6 +129,10 @@ class DictControlWidget(object):
             the default control value
         trait: Tait (mandatory)
             the trait associated to the control
+        label_class: Qt widget class (optional, default: None)
+            the label widget will be an instance of this class. Its constructor
+            will be called using 2 arguments: the label string and the parent
+            widget.
 
         Returns
         -------
@@ -136,12 +141,14 @@ class DictControlWidget(object):
             associated labels: (a label QLabel, the tools QWidget))
         """
         # Get the inner trait: expect only one inner trait
-        if len(trait.inner_traits) != 2:
+        # note: trait.inner_traits might be a method (ListInt) or a tuple
+        # (List), whereas trait.handler.inner_trait is always a method
+        if len(trait.handler.inner_traits()) != 2:
             raise Exception(
                 "Expect two inner traits in Dict control. Trait '{0}' "
                 "inner traits are '{1}'.".format(
                     control_name, trait.inner_traits))
-        inner_trait = trait.inner_traits[1]
+        inner_trait = trait.handler.inner_traits()[1]
 
         # Create the dict widget: a frame
         frame = QtGui.QFrame(parent=parent)
@@ -183,7 +190,7 @@ class DictControlWidget(object):
 
         # Create the associated controller widget
         controller_widget = ControllerWidget(controller, parent=frame,
-                                             live=True)
+                                             live=True, editable_labels=True)
 
         # Store some parameters in the dict widget
         frame.inner_trait = inner_trait
@@ -213,8 +220,10 @@ class DictControlWidget(object):
         control_label = trait.label
         if control_label is None:
             control_label = control_name
+        if label_class is None:
+            label_class = QtGui.QLabel
         if control_label is not None:
-            label = QtGui.QLabel(control_label, parent)
+            label = label_class(control_label, parent)
         else:
             label = None
 
@@ -512,53 +521,12 @@ class DictControlWidget(object):
         control_instance.controller_widget.create_control(
             trait_name, control_instance.inner_trait)
         grid_layout = control_instance.controller_widget._grid_layout
-        label_widget = grid_layout.itemAtPosition(
-            grid_layout.rowCount() - 1, 0).widget()
-        text = label_widget.text()
-        grid_layout.removeWidget(label_widget)
-        if label_widget.parent() is not None:
-            label_widget.setParent(None)
-        del label_widget
-        label_widget = QtGui.QLineEdit(text)
-        label_widget.last_key = str(text)
-        grid_layout.addWidget(label_widget, grid_layout.rowCount() - 1, 0)
-
-        # Hook: function that will be called to update a specific
-        # controller trait when a 'textChanged' qt signal is emited
-        widget_hook = partial(
-            DictControlWidget.key_changed,
-            control_instance.controller_widget,
-            control_name, control_instance, label_widget)
-        label_widget.textChanged.connect(widget_hook)
 
         # Update the dict controller
         control_instance._controller_connections[0]()
         #control_instance.controller_widget.update_controller_widget()
         logger.debug("Add 'DictControlWidget' '{0}' new trait "
                       "callback.".format(trait_name))
-
-    @staticmethod
-    def key_changed(controller_widget, control_name, control_instance,
-                    label_widget, text):
-        print 'key_changed:', label_widget.last_key, '->', text
-        print 'control_instance:', control_instance
-        controller = control_instance.controller
-        print 'controller:', controller
-        old_name = label_widget.last_key
-        new_name = str(text)
-
-        controller.add_trait(new_name, controller.trait(old_name))
-        setattr(controller, new_name, getattr(controller, old_name))
-        controller.remove_trait(old_name)
-
-        print 'controller_widget:', controller_widget
-        #trait_value = getattr(controller_widget.controller, control_name)
-        #print 'trait_value:', trait_value
-        #trait_value[new_name] = trait_value[old_name]
-        #del trait_value[old_name]
-        label_widget.last_key = new_name
-        print 'update after key change.'
-        control_instance._controller_connections[0]()
 
     @staticmethod
     def delete_one_row(control_instance, index_to_remove):

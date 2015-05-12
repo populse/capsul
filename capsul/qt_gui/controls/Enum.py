@@ -77,7 +77,8 @@ class EnumControlWidget(object):
         control_instance.textChanged.connect(callback)
 
     @staticmethod
-    def create_widget(parent, control_name, control_value, trait):
+    def create_widget(parent, control_name, control_value, trait,
+                      label_class=None):
         """ Method to create the widget.
 
         Parameters
@@ -90,6 +91,10 @@ class EnumControlWidget(object):
             the default control value, here the enum values
         trait: Tait (mandatory)
             the trait associated to the control
+        label_class: Qt widget class (optional, default: None)
+            the label widget will be an instance of this class. Its constructor
+            will be called using 2 arguments: the label string and the parent
+            widget.
 
         Returns
         -------
@@ -116,8 +121,10 @@ class EnumControlWidget(object):
             widget.setCurrentIndex(widget._choices.index(control_value))
 
         # Create the label associated with the enum widget
-        if control_name is not None:
-            label = QtGui.QLabel(control_name, parent)
+        if label_class is None:
+            label_class = QtGui.QLabel
+        if control_label is not None:
+            label = label_class(control_label, parent)
         else:
             label = None
 

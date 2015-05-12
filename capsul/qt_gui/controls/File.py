@@ -105,7 +105,8 @@ class FileControlWidget(object):
         control_instance.path.textChanged.connect(callback)
 
     @staticmethod
-    def create_widget(parent, control_name, control_value, trait):
+    def create_widget(parent, control_name, control_value, trait,
+                      label_class=None):
         """ Method to create the file widget.
 
         Parameters
@@ -118,6 +119,10 @@ class FileControlWidget(object):
             the default control value
         trait: Tait (mandatory)
             the trait associated to the control
+        label_class: Qt widget class (optional, default: None)
+            the label widget will be an instance of this class. Its constructor
+            will be called using 2 arguments: the label string and the parent
+            widget.
 
         Returns
         -------
@@ -154,8 +159,10 @@ class FileControlWidget(object):
         control_label = trait.label
         if control_label is None:
             control_label = control_name
+        if label_class is None:
+            label_class = QtGui.QLabel
         if control_label is not None:
-            label = QtGui.QLabel(control_label, parent)
+            label = label_class(control_label, parent)
         else:
             label = None
 
