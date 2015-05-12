@@ -326,12 +326,11 @@ class TestStudyConfigConfiguration(unittest.TestCase):
             modules = sorted(sc.modules.keys())
 
             self.assertEqual(set(config), set(expected_config))
-            for key in config:
-                self.assertEqual(config[key], expected_config[key])
-            #self.assertEqual(config, expected_config,
-            #    'StudyConfig(%s) %s config dict is %s but expected value '
-            #    'is %s' % (sargs, test_description, repr(config), 
-            #                repr(expected_config)))
+            for name, value in expected_config.iteritems():
+                self.assertEqual(config[name], value,
+                    'StudyConfig(%s) %s attribute %s should be %s but is '
+                    '%s' % (sargs, test_description, name, repr(value),
+                            repr(getattr(sc, name))))
             self.assertEqual(modules, expected_modules,
                 'StudyConfig(%s) %s modules are %s but expected value is '
                 '%s' % (sargs, test_description, repr(modules), 
@@ -345,11 +344,6 @@ class TestStudyConfigConfiguration(unittest.TestCase):
                 'StudyConfig(%s) %s study_config_file should be %s but is '
                 '%s' % (sargs, test_description, repr(study_config_file), 
                         repr(sc.study_config_file)))
-            for name, value in expected_config.iteritems():
-                self.assertEqual(getattr(sc, name), value,
-                    'StudyConfig(%s) %s attribute % should be %s but is '
-                    '%s' % (sargs, test_description, name, repr(value), 
-                            repr(getattr(sc, name))))
     
     
     def test_study_config_configuration(self):

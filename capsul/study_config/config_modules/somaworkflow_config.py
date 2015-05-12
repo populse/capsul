@@ -6,7 +6,7 @@
 # for details.
 ##########################################################################
 
-from traits.api import Bool, Str, Undefined, Instance, List, Dict
+from traits.api import Bool, Str, Undefined, List, Dict, TraitType, TraitError
 from capsul.study_config.study_config import StudyConfigModule
 from soma.controller import Controller
 
@@ -31,7 +31,32 @@ class SomaWorkflowConfig(StudyConfigModule):
                     desc='Soma-workflow paths translations mapping: '
                     '{local_path: remote_path}'))
 
+    class ControllerTrait(TraitType):
+        def __init__(self, controller, open_keys=False, open_trait_type=None,
+                     **kwargs):
+            super(SomaWorkflowConfig.ControllerTrait, self).__init__(
+                None, **kwargs)
+            self.controller = controller
+            self.default_value = controller
+            self.open_keys = open_keys
+            self.open_trait_type = open_trait_type
+
+        def validate(self, object, name, value):
+            if isinstance(value, Controller):
+                return super(SomaWorkflowConfig.ControllerTrait,
+                             self).validate(value)
+            if not hasattr(value, 'iteritems'):
+                raise TraitError('trait must be a Controller')
+            new_value = getattr(object, name).copy(with_values=False)
+            if self.open_keys:
+                for key in value:
+                    if not self.controller.trait(key):
+                        new_value.add_trait(key, self.open_trait_type)
+            new_value.import_from_dict(value)
+            return new_value
+
     def __init__(self, study_config, configuration):
+
         super(SomaWorkflowConfig, self).__init__(study_config, configuration)
         study_config.add_trait('use_soma_workflow', Bool(
             False,
@@ -42,55 +67,25 @@ class SomaWorkflowConfig(StudyConfigModule):
             output=False,
             desc='Soma-workflow computing resource to be used to run processing'))
 
+        c = Controller()
         study_config.add_trait(
             'somaworkflow_computing_resources_config',
-                Instance(Controller,
+                SomaWorkflowConfig.ControllerTrait(
+                    c,
+                    open_keys=True,
+                    open_trait_type=SomaWorkflowConfig.ControllerTrait(
+                        SomaWorkflowConfig.ResourceController(),
+                        output=False, allow_none=False,
+                        desc='Computing resource config'),
                     output=False, allow_none=False,
                     desc='Computing resource config'))
-        study_config.somaworkflow_computing_resources_config = Controller()
-        study_config.somaworkflow_computing_resources_config.add_trait(
-            'localhost',
-            Instance(SomaWorkflowConfig.ResourceController,
-                output=False, allow_none=False,
-                desc='Computing resource config'))
-        study_config.somaworkflow_computing_resources_config.localhost = \
-            SomaWorkflowConfig.ResourceController()
 
-        #study_config.add_trait(
-            #'somaworkflow_computing_resources_config',
-            #Dict(
-                #key_trait=Str(
-                    #'localhost',
-                    #output=False, desc='Computing resource name',
-                    #allow_none=False),
-                #value_trait=Instance(
-                    #SomaWorkflowConfig.ResourceController,
-                    #output=False, allow_none=False,
-                    #dummy=None,
-                    #desc='Computing resource config'),
-                #output=False,
-                #desc='Soma-workflow computing resources configs',
-                #allow_none=False))
-
-        #study_config.add_trait(
-            #'somaworkflow_computing_resources_config',
-            #Instance(Controller,
-                #output=False,
-                #desc='Soma-workflow computing resources configs',
-                #allow_none=False))
-        #study_config.somaworkflow_computing_resources_config = Controller()
-        #study_config.somaworkflow_computing_resources_config.add_trait(
-            #'transfer_paths', List(
-                #[],
-                #output=False,
-                #desc='list of paths where files have to be transferred by '
-                #'soma-workflow'))
-        #study_config.somaworkflow_computing_resources_config.add_trait(
-            #'path_translations', Dict(
-                #{},
-                #output=False,
-                #desc='Soma-workflow paths translations mapping: '
-                #'{local_path: remote_path}'))
+        #c.add_trait(
+            #'localhost',
+            #SomaWorkflowConfig.ControllerTrait(
+                #SomaWorkflowConfig.ResourceController(),
+                #output=False, allow_none=False,
+                #desc='Computing resource config'))
 
     def initialize_callbacks(self):
         self.study_config.on_trait_change(

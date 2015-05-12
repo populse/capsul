@@ -453,14 +453,9 @@ class StudyConfig(Controller):
         """ Returns a json compatible dictionary containing current
         configuration.
         """
-        config = {}
-        for attribute, trait in self.user_traits().iteritems():
-            if trait.transient:
-                continue
-            value = getattr(self, attribute)
-            if value is Undefined:
-                continue
-            config[attribute] = value
+        config = self.export_to_dict(exclude_transient=True,
+                                     exclude_undefined=True,
+                                     exclude_none=True)
         return config
 
     def save_configuration(self, file):
