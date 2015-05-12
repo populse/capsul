@@ -48,8 +48,7 @@ class SomaWorkflowConfig(StudyConfigModule):
             'somaworkflow_computing_resources_config',
                 ControllerTrait(
                     c,
-                    open_keys=True,
-                    open_trait_type=ControllerTrait(
+                    inner_trait=ControllerTrait(
                         SomaWorkflowConfig.ResourceController(),
                         output=False, allow_none=False,
                         desc='Computing resource config'),
