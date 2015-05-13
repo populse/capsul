@@ -23,14 +23,22 @@ class SomaWorkflowConfig(StudyConfigModule):
                     desc='list of paths where files have to be transferred '
                     'by soma-workflow'))
             self.add_trait(
-                'path_translations', Dict(
-                    value={},
-                    key_trait=Str(),
-                    value_trait=List(trait=Str(), value=('', ''),
+                'path_translations',
+                ControllerTrait(
+                    Controller(),
+                    inner_trait=List(trait=Str(), value=('', ''),
                                      minlen=2, maxlen=2),
                     output=False,
                     desc='Soma-workflow paths translations mapping: '
                     '{local_path: (identifier, uuid)}'))
+                #Dict(
+                    #value={},
+                    #key_trait=Str(),
+                    #value_trait=List(trait=Str(), value=('', ''),
+                                     #minlen=2, maxlen=2),
+                    #output=False,
+                    #desc='Soma-workflow paths translations mapping: '
+                    #'{local_path: (identifier, uuid)}'))
 
     def __init__(self, study_config, configuration):
 
@@ -39,10 +47,12 @@ class SomaWorkflowConfig(StudyConfigModule):
             False,
             output=False,
             desc='Use soma workflow for the execution'))
-        study_config.add_trait('somaworkflow_computing_resource', Str(
-            Undefined,
-            output=False,
-            desc='Soma-workflow computing resource to be used to run processing'))
+        study_config.add_trait(
+            'somaworkflow_computing_resource',
+            Str(
+                Undefined,
+                output=False,
+                desc='Soma-workflow computing resource to be used to run processing'))
 
         c = Controller()
         study_config.add_trait(
