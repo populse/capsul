@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.utils.functiontools import SomaPartial
+from soma.qt4gui.timered_widgets import TimeredQLineEdit
 
 
 class FileControlWidget(object):
@@ -79,30 +80,30 @@ class FileControlWidget(object):
             the control widget we want to validate
         """
         # Hook: function that will be called to check for typo
-        # when a 'textChanged' qt signal is emited
+        # when a 'userModification' qt signal is emited
         widget_callback = partial(cls.is_valid, control_instance)
 
         # The first time execute manually the control check method
         widget_callback()
 
-        # When a qt 'textChanged' signal is emited, check if the new
+        # When a qt 'userModification' signal is emited, check if the new
         # user value is correct
-        control_instance.path.textChanged.connect(widget_callback)
+        control_instance.path.userModification.connect(widget_callback)
 
     @staticmethod
     def add_callback(callback, control_instance):
-        """ Method to add a callback to the control instance when a 'textChanged'
+        """ Method to add a callback to the control instance when a 'userModification'
         signal is emited.
 
         Parameters
         ----------
         callback: @function (mandatory)
-            the function that will be called when a 'textChanged' signal is
+            the function that will be called when a 'userModification' signal is
             emited.
         control_instance: QWidget (mandatory)
             the control widget we want to validate
         """
-        control_instance.path.textChanged.connect(callback)
+        control_instance.path.userModification.connect(callback)
 
     @staticmethod
     def create_widget(parent, control_name, control_value, trait,
@@ -139,7 +140,7 @@ class FileControlWidget(object):
         layout.setContentsMargins(0, 0, 0, 0)
         widget.setLayout(layout)
         # Create a widget to print the file path
-        path = QtGui.QLineEdit(widget)
+        path = TimeredQLineEdit(widget)
         layout.addWidget(path)
         widget.path = path
         # Create a browse button
@@ -255,13 +256,13 @@ class FileControlWidget(object):
 
             # Update one element of the controller.
             # Hook: function that will be called to update a specific
-            # controller trait when a 'textChanged' qt signal is emited
+            # controller trait when a 'userModification' qt signal is emited
             widget_hook = partial(cls.update_controller, controller_widget,
                                   control_name, control_instance)
 
-            # When a qt 'textChanged' signal is emited, update the
+            # When a qt 'userModification' signal is emited, update the
             # 'control_name' controller trait value
-            control_instance.path.textChanged.connect(widget_hook)
+            control_instance.path.userModification.connect(widget_hook)
 
             # Update the control.
             # Hook: function that will be called to update the control value
@@ -311,9 +312,9 @@ class FileControlWidget(object):
             controller_widget.controller.on_trait_change(
                 controller_hook, name=control_name, remove=True)
 
-            # Remove the widget hook associated with the qt 'textChanged'
+            # Remove the widget hook associated with the qt 'userModification'
             # signal
-            control_instance.path.textChanged.disconnect(widget_hook)
+            control_instance.path.userModification.disconnect(widget_hook)
 
             # Delete the trait - control connection we just remove
             del control_instance._controller_connections

@@ -121,6 +121,9 @@ class EnumControlWidget(object):
             widget.setCurrentIndex(widget._choices.index(control_value))
 
         # Create the label associated with the enum widget
+        control_label = trait.label
+        if control_label is None:
+            control_label = control_name
         if label_class is None:
             label_class = QtGui.QLabel
         if control_label is not None:
