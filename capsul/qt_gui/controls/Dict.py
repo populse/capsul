@@ -163,19 +163,13 @@ class DictControlWidget(object):
         # Create the tool buttons
         resize_button = QtGui.QToolButton()
         add_button = QtGui.QToolButton()
-        #delete_button = QtGui.QToolButton()
         layout.addWidget(resize_button)
         layout.addWidget(add_button)
-        #layout.addWidget(delete_button)
         # Set the tool icons
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/add")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         add_button.setIcon(icon)
-        #icon = QtGui.QIcon()
-        #icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/delete")),
-                       #QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        #delete_button.setIcon(icon)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_down")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -211,10 +205,6 @@ class DictControlWidget(object):
         add_hook = partial(
             DictControlWidget.add_dict_item, parent, control_name, frame)
         add_button.clicked.connect(add_hook)
-        ## Delete dict item callback
-        #delete_hook = partial(
-            #DictControlWidget.delete_dict_item, parent, control_name, frame)
-        #delete_button.clicked.connect(delete_hook)
 
         # Create the label associated with the dict widget
         control_label = trait.label
@@ -227,6 +217,8 @@ class DictControlWidget(object):
         else:
             label = None
 
+        controller_widget.main_controller_def = (DictControlWidget, parent,
+                                                 control_name, frame)
         return (frame, (label, tool_widget))
 
     @staticmethod
@@ -250,13 +242,9 @@ class DictControlWidget(object):
             synchronize with the controller
         """
         # Get the dict widget inner controller values
-        print 'dict update_controller', controller_widget, control_name
-        print 'dict controller:', control_instance.controller
-        print 'control instance:', control_instance
         new_trait_value = dict([
             (name, getattr(control_instance.controller, name))
             for name in control_instance.controller.user_traits()])
-        print 'new_trait_value:', new_trait_value
 
         # Update the 'control_name' parent controller value
         setattr(controller_widget.controller, control_name,
@@ -528,149 +516,6 @@ class DictControlWidget(object):
                       "callback.".format(trait_name))
 
     @staticmethod
-    def delete_one_row(control_instance, index_to_remove):
-        """ Delete a two columns row if a widget is found in column two
-
-        Parameters
-        ----------
-        control_instance: QFrame (mandatory)
-            the instance of the controller widget control we want to
-            synchronize with the controller
-        index_to_remove: int (mandatory)
-            the row index we want to delete from the widget
-
-        Returns
-        -------
-        is_deleted: bool
-            True if a widget has been found and the row has been deledted,
-            False otherwise
-        widget: QWidget
-            the widget that has been deleted. If 'is_deleted' is False return
-            None
-        """
-        # Initilaize the output
-        is_deleted = False
-
-        # Try to get the widget item in column two
-        widget_item = (
-            control_instance.controller_widget._grid_layout.itemAtPosition(
-                index_to_remove, 1))
-
-        # If a widget has been found, remove the current line
-        if widget_item is not None:
-
-            # Remove the widget
-            widget = widget_item.widget()
-            control_instance.controller_widget._grid_layout.removeItem(
-                widget_item)
-            widget.deleteLater()
-
-            # Try to get the widget label in column one
-            label_item = (
-                control_instance.controller_widget._grid_layout.itemAtPosition(
-                    index_to_remove, 0))
-
-            # If a label has been found, remove it
-            if label_item is not None:
-
-                # Remove the label
-                label = label_item.widget()
-                control_instance.controller_widget._grid_layout.removeItem(
-                    label_item)
-                label.deleteLater()
-
-            # Update the output
-            is_deleted = True
-
-        # No widget found
-        else:
-            widget = None
-
-        return is_deleted, widget
-
-    @staticmethod
-    def delete_dict_item(controller_widget, control_name, control_instance):
-        """ Delete the last control element
-
-        Parameters
-        ----------
-        controller_widget: ControllerWidget (mandatory)
-            a controller widget that contains the controller we want to update
-        control_name: str(mandatory)
-            the name of the controller widget control we want to synchronize
-            with the controller
-        control_instance: QFrame (mandatory)
-            the instance of the controller widget control we want to
-            synchronize with the controller
-        """
-        # Delete the last inserted control
-        last_row = (
-            control_instance.controller_widget._grid_layout.rowCount())
-        nb_of_items = control_instance.controller_widget._grid_layout.count()
-        item_found = False
-        index_to_remove = last_row - 1
-
-        # If the dict contain at least one widget
-        if nb_of_items > 0:
-
-            # While the last inserted widget has not been found
-            while index_to_remove >= 0 and not item_found:
-
-                # Try to remove the 'index_to_remove' control row
-                item_found, widget = DictControlWidget.delete_one_row(
-                    control_instance, index_to_remove)
-
-                # If a dict control has been deleted, remove the associated
-                # tools
-                if hasattr(widget, "controller"):
-
-                    # Remove the dict control extra tools row
-                    DictControlWidget.delete_one_row(
-                        control_instance, index_to_remove - 1)
-
-                # Get the trait name that has just been deleted from the
-                # controller widget
-                if item_found:
-                    trait_name = str(index_to_remove - 1)
-
-                # Increment
-                index_to_remove -= 1
-
-        # No more control to delete
-        else:
-            logger.debug(
-                "No more control to delete in '{0}'.".format(control_instance))
-
-        # If one dict control item has been deleted
-        if item_found:
-
-            # If the inner control is a dict, convert the control index
-            # Indeed, two elements are inserted for a dict item
-            # (tools + widget)
-            if trait_ids(control_instance.inner_trait)[0].startswith("Dict_"):
-                trait_name = str((int(trait_name) + 1) / 2 - 1)
-
-            # Remove the trait from the controller
-            control_instance.controller.remove_trait(trait_name)
-
-            # Get, unpack and delete the control item
-            control = control_instance.controller_widget._controls[trait_name]
-            (inner_trait, inner_control_class, inner_control_instance,
-             inner_control_label) = control
-            del(control_instance.controller_widget._controls[trait_name])
-
-            # Disconnect the removed control
-            inner_control_class.disconnect(
-                controller_widget, trait_name, inner_control_instance)
-
-            # Update the dict controller
-            control_instance._controller_connections[0]()
-            logger.debug("Remove 'DictControlWidget' '{0}' controller and "
-                          "trait item.".format(trait_name))
-
-        control_instance.controller_widget._grid_layout.update()
-
-    @staticmethod
     def expand_or_collapse(control_instance, resize_button):
         """ Callback to expand or collapse a 'DictControlWidget'.
 
@@ -687,14 +532,16 @@ class DictControlWidget(object):
         # Hide the control
         if control_instance.isVisible():
             control_instance.hide()
-            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_right")),
-                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            icon.addPixmap(QtGui.QPixmap(_fromUtf8(
+                ":/capsul_widgets_icons/nav_right")),
+                QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         # Show the control
         else:
             control_instance.show()
-            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_down")),
-                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            icon.addPixmap(QtGui.QPixmap(_fromUtf8(
+                ":/capsul_widgets_icons/nav_down")),
+                QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         # Set the new button icon
         resize_button.setIcon(icon)

@@ -306,8 +306,8 @@ class ControllerWidget(QtGui.QWidget):
         keys_connect = {}
         # Go through all the controller widget controls
         for control_name, control in self._controls.iteritems():
-            hook1 = partial(self.key_modified, control_name)
-            hook2 = partial(self.delete_key, control_name)
+            hook1 = partial(self._key_modified, control_name)
+            hook2 = partial(self._delete_key, control_name)
             control = self._controls[control_name]
             label_control = control[3]
             if isinstance(label_control, tuple):
@@ -603,8 +603,9 @@ class ControllerWidget(QtGui.QWidget):
             for label in control_label:
                 label.show()
 
-    def key_modified(self, old_key):
-        print 'key_modified:', old_key
+    def _key_modified(self, old_key):
+        """ Dict / open controller key modification callback
+        """
         control_label = self._controls[old_key][3]
         if isinstance(control_label, tuple):
             control_label = control_label[0]
@@ -626,14 +627,26 @@ class ControllerWidget(QtGui.QWidget):
         # reconnect label widget
         self.connect_keys()
         # self.update_controls()  # not even needed
-        self.update_controller()
+        if hasattr(self, 'main_controller_def'):
+            main_control_class, controller_widget, control_name, frame = \
+                self.main_controller_def
+            main_control_class.update_controller(
+                controller_widget, control_name, frame)
+        #self.update_controller()
 
-    def delete_key(self, key):
+    def _delete_key(self, key):
+        """ Dict / open controller key deletion callback
+        """
         controller = self.controller
         trait = controller.trait(key)
         controller.remove_trait(key)
         self.update_controls()
-        self.update_controller()
+        if hasattr(self, 'main_controller_def'):
+            main_control_class, controller_widget, control_name, frame = \
+                self.main_controller_def
+            main_control_class.update_controller(
+                controller_widget, control_name, frame)
+        #self.update_controller()
 
 
     ###########################################################################
