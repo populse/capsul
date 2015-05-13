@@ -240,7 +240,6 @@ class ControllerWidget(QtGui.QWidget):
         At the end the controller traits values will match the controller
         widget user defined parameters.
         """
-        print 'UPDATE CONTROLLER'
         # Go through all the controller widget controls
         for control_name, control in self._controls.iteritems():
 
@@ -248,7 +247,6 @@ class ControllerWidget(QtGui.QWidget):
             trait, control_class, control_instance, control_label = control
 
             # Call the current control specific update controller method
-            print 'DO:', control_name, control_class, control_instance
             control_class.update_controller(self, control_name,
                                             control_instance)
 
