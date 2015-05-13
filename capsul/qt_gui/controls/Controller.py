@@ -346,8 +346,7 @@ class ControllerControlWidget(object):
             the instance of the controller widget control we want to
             synchronize with the controller
         """
-        # Get the number of traits associated with the current list control
-        # controller
+        # Get a new key name
         trait_name = 'new_item'
         i = 1
         while control_instance.controller.trait(trait_name):
@@ -358,13 +357,11 @@ class ControllerControlWidget(object):
         control_instance.controller.add_trait(
             trait_name, control_instance.inner_trait)
 
-        # Create the associated control
-        #control_instance.controller_widget.create_control(
-            #trait_name, control_instance.inner_trait)
+        # update interface
         control_instance.controller_widget.update_controls()
+        # update the real underlying dict object
+        control_instance.controller_widget.update_controller()
 
-        ## Update the controller
-        #controller_widget.update_controller(control_name, control_instance) #control_instance.controller_widget.update_controller_widget()
         logger.debug("Add 'ControllerControlWidget' '{0}' new trait "
                       "callback.".format(trait_name))
 

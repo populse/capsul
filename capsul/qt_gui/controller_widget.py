@@ -240,6 +240,7 @@ class ControllerWidget(QtGui.QWidget):
         At the end the controller traits values will match the controller
         widget user defined parameters.
         """
+        print 'UPDATE CONTROLLER'
         # Go through all the controller widget controls
         for control_name, control in self._controls.iteritems():
 
@@ -247,6 +248,7 @@ class ControllerWidget(QtGui.QWidget):
             trait, control_class, control_instance, control_label = control
 
             # Call the current control specific update controller method
+            print 'DO:', control_name, control_class, control_instance
             control_class.update_controller(self, control_name,
                                             control_instance)
 
@@ -602,6 +604,7 @@ class ControllerWidget(QtGui.QWidget):
                 label.show()
 
     def key_modified(self, old_key):
+        print 'key_modified:', old_key
         control_label = self._controls[old_key][3]
         if isinstance(control_label, tuple):
             control_label = control_label[0]
@@ -623,12 +626,14 @@ class ControllerWidget(QtGui.QWidget):
         # reconnect label widget
         self.connect_keys()
         # self.update_controls()  # not even needed
+        self.update_controller()
 
     def delete_key(self, key):
         controller = self.controller
         trait = controller.trait(key)
         controller.remove_trait(key)
         self.update_controls()
+        self.update_controller()
 
 
     ###########################################################################

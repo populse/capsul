@@ -163,19 +163,19 @@ class DictControlWidget(object):
         # Create the tool buttons
         resize_button = QtGui.QToolButton()
         add_button = QtGui.QToolButton()
-        delete_button = QtGui.QToolButton()
+        #delete_button = QtGui.QToolButton()
         layout.addWidget(resize_button)
         layout.addWidget(add_button)
-        layout.addWidget(delete_button)
+        #layout.addWidget(delete_button)
         # Set the tool icons
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/add")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         add_button.setIcon(icon)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/delete")),
-                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        delete_button.setIcon(icon)
+        #icon = QtGui.QIcon()
+        #icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/delete")),
+                       #QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        #delete_button.setIcon(icon)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_down")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -211,10 +211,10 @@ class DictControlWidget(object):
         add_hook = partial(
             DictControlWidget.add_dict_item, parent, control_name, frame)
         add_button.clicked.connect(add_hook)
-        # Delete dict item callback
-        delete_hook = partial(
-            DictControlWidget.delete_dict_item, parent, control_name, frame)
-        delete_button.clicked.connect(delete_hook)
+        ## Delete dict item callback
+        #delete_hook = partial(
+            #DictControlWidget.delete_dict_item, parent, control_name, frame)
+        #delete_button.clicked.connect(delete_hook)
 
         # Create the label associated with the dict widget
         control_label = trait.label
@@ -503,28 +503,27 @@ class DictControlWidget(object):
             the instance of the controller widget control we want to
             synchronize with the controller
         """
-        # Get the number of traits associated with the current dict control
-        # controller
-        nb_of_traits = len(control_instance.controller.user_traits())
-        trait_name = str(nb_of_traits)
+        # Get a new key name
+        trait_name = 'new_item'
+        i = 1
+        while control_instance.controller.trait(trait_name):
+            trait_name = 'new_item_%d' % i
+            i += 1
 
-        # Add the new trait to the inner dict controller
+        was_connected = controller_widget.connected
+        if was_connected:
+            controller_widget.disconnect()
+        # Add the new trait to the inner list controller
         control_instance.controller.add_trait(
             trait_name, control_instance.inner_trait)
+        DictControlWidget.update_controller(
+            controller_widget, control_name, control_instance)
+        if was_connected:
+            controller_widget.connect()
 
-        # Create the associated control
-        if isinstance(control_instance.inner_trait.trait_type, Instance):
-            new_value = \
-                control_instance.inner_trait.trait_type.create_default_value(
-                    control_instance.inner_trait.trait_type.klass)
-            setattr(control_instance.controller, trait_name, new_value)
-        control_instance.controller_widget.create_control(
-            trait_name, control_instance.inner_trait)
-        grid_layout = control_instance.controller_widget._grid_layout
+        # update interface
+        control_instance.controller_widget.update_controls()
 
-        # Update the dict controller
-        control_instance._controller_connections[0]()
-        #control_instance.controller_widget.update_controller_widget()
         logger.debug("Add 'DictControlWidget' '{0}' new trait "
                       "callback.".format(trait_name))
 
