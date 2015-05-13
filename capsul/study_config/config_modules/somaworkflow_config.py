@@ -26,10 +26,11 @@ class SomaWorkflowConfig(StudyConfigModule):
                 'path_translations', Dict(
                     value={},
                     key_trait=Str(),
-                    value_trait=Str(),
+                    value_trait=List(trait=Str(), value=('', ''),
+                                     minlen=2, maxlen=2),
                     output=False,
                     desc='Soma-workflow paths translations mapping: '
-                    '{local_path: remote_path}'))
+                    '{local_path: (identifier, uuid)}'))
 
     def __init__(self, study_config, configuration):
 
