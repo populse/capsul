@@ -28,6 +28,9 @@ except AttributeError:
 QtCore.QResource.registerResource(os.path.join(os.path.dirname(
     os.path.dirname(__file__)), 'resources', 'widgets_icons.rcc'))
 
+# Define the logger
+logger = logging.getLogger(__name__)
+
 
 class ControllerControlWidget(object):
     """ Control to enter an instance of controller.
@@ -103,7 +106,8 @@ class ControllerControlWidget(object):
         pass
 
     @staticmethod
-    def create_widget(parent, control_name, control_value, trait):
+    def create_widget(parent, control_name, control_value, trait,
+                      label_class=None):
         """ Method to create the controller widget.
 
         Parameters
@@ -116,6 +120,10 @@ class ControllerControlWidget(object):
             the default control value
         trait: Tait (mandatory)
             the trait associated to the control
+        label_class: Qt widget class (optional, default: None)
+            the label widget will be an instance of this class. Its constructor
+            will be called using 2 arguments: the label string and the parent
+            widget.
 
         Returns
         -------
@@ -143,9 +151,29 @@ class ControllerControlWidget(object):
             QtGui.QIcon.Normal, QtGui.QIcon.Off)
         resize_button.setIcon(icon)
 
+        editable_labels = False
+        if trait.handler.inner_traits():
+            editable_labels = True
+            frame.inner_trait = trait.handler.inner_traits()[0]
+
+            add_button = QtGui.QToolButton()
+            delete_button = QtGui.QToolButton()
+            layout.addWidget(add_button)
+            # Set the tool icons
+            icon = QtGui.QIcon()
+            icon.addPixmap(
+                QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/add")),
+                QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            add_button.setIcon(icon)
+            # Add list item callback
+            add_hook = partial(
+                ControllerControlWidget.add_item, parent, control_name, frame)
+            add_button.clicked.connect(add_hook)
+
         # Create the associated controller widget
         controller_widget = ControllerWidget(control_value, parent=frame,
-                                             live=True)
+                                             live=True,
+                                             editable_labels=editable_labels)
 
         # Store some parameters in the list widget
         frame.trait = trait
@@ -166,8 +194,10 @@ class ControllerControlWidget(object):
         control_label = trait.label
         if control_label is None:
             control_label = control_name
+        if label_class is None:
+            label_class = QtGui.QLabel
         if control_label is not None:
-            label = QtGui.QLabel(control_label, parent)
+            label = label_class(control_label, parent)
         else:
             label = None
 
@@ -296,3 +326,42 @@ class ControllerControlWidget(object):
 
         # Set the new button icon
         resize_button.setIcon(icon)
+
+    ###########################################################################
+    # Callbacks
+    ###########################################################################
+
+    @staticmethod
+    def add_item(controller_widget, control_name, control_instance):
+        """ Append one element in the controller widget.
+
+        Parameters
+        ----------
+        controller_widget: ControllerWidget (mandatory)
+            a controller widget that contains the controller we want to update
+        control_name: str(mandatory)
+            the name of the controller widget control we want to synchronize
+            with the controller
+        control_instance: QFrame (mandatory)
+            the instance of the controller widget control we want to
+            synchronize with the controller
+        """
+        # Get a new key name
+        trait_name = 'new_item'
+        i = 1
+        while control_instance.controller.trait(trait_name):
+            trait_name = 'new_item_%d' % i
+            i += 1
+
+        # Add the new trait to the inner list controller
+        control_instance.controller.add_trait(
+            trait_name, control_instance.inner_trait)
+
+        # update interface
+        control_instance.controller_widget.update_controls()
+        # update the real underlying dict object
+        control_instance.controller_widget.update_controller()
+
+        logger.debug("Add 'ControllerControlWidget' '{0}' new trait "
+                      "callback.".format(trait_name))
+

@@ -11,6 +11,7 @@
 import os
 import logging
 from functools import partial
+from traits.api import Instance
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.utils.functiontools import SomaPartial
 from soma.controller import trait_ids
 from soma.controller import Controller
+from soma.sorted_dictionary import OrderedDict
 
 # Capsul import
 from capsul.qt_gui.controller_widget import ControllerWidget
@@ -33,14 +35,14 @@ except AttributeError:
 QtCore.QResource.registerResource(os.path.join(os.path.dirname(
     os.path.dirname(__file__)), 'resources', 'widgets_icons.rcc'))
 
-class ListController(Controller):
-    """ Dummy list controller to simplify the creation of a list widget
+class DictController(Controller):
+    """ Dummy dict controller to simplify the creation of a dict widget
     """
     pass
 
 
-class ListControlWidget(object):
-    """ Control to enter a list of items.
+class DictControlWidget(object):
+    """ Control to enter a dict of items.
     """
 
     ###########################################################################
@@ -51,8 +53,8 @@ class ListControlWidget(object):
     def is_valid(control_instance, *args, **kwargs):
         """ Method to check if the new control values are correct.
 
-        If the new list controls values are not correct, the backroung
-        color of each control in the list will be red.
+        If the new dict controls values are not correct, the backroung
+        color of each control in the dict will be red.
 
         Parameters
         ----------
@@ -86,12 +88,12 @@ class ListControlWidget(object):
 
     @classmethod
     def check(cls, control_instance):
-        """ Check if a controller widget list control is filled correctly.
+        """ Check if a controller widget dict control is filled correctly.
 
         Parameters
         ----------
-        cls: ListControlWidget (mandatory)
-            a ListControlWidget control
+        cls: DictControlWidget (mandatory)
+            a DictControlWidget control
         control_instance: QFrame (mandatory)
             the control widget we want to validate
         """
@@ -99,7 +101,7 @@ class ListControlWidget(object):
 
     @staticmethod
     def add_callback(callback, control_instance):
-        """ Method to add a callback to the control instance when the list 
+        """ Method to add a callback to the control instance when the dict
         trait is modified
 
         Parameters
@@ -115,7 +117,7 @@ class ListControlWidget(object):
     @staticmethod
     def create_widget(parent, control_name, control_value, trait,
                       label_class=None):
-        """ Method to create the list widget.
+        """ Method to create the dict widget.
 
         Parameters
         ----------
@@ -123,7 +125,7 @@ class ListControlWidget(object):
             the parent widget
         control_name: str (mandatory)
             the name of the control we want to create
-        control_value: list of items (mandatory)
+        control_value: dict of items (mandatory)
             the default control value
         trait: Tait (mandatory)
             the trait associated to the control
@@ -141,18 +143,19 @@ class ListControlWidget(object):
         # Get the inner trait: expect only one inner trait
         # note: trait.inner_traits might be a method (ListInt) or a tuple
         # (List), whereas trait.handler.inner_trait is always a method
-        if len(trait.handler.inner_traits()) != 1:
+        if len(trait.handler.inner_traits()) != 2:
             raise Exception(
-                "Expect only one inner trait in List control. Trait '{0}' "
-                "inner trait is '{1}'.".format(control_name, trait.handler.inner_traits()))
-        inner_trait = trait.handler.inner_traits()[0]
+                "Expect two inner traits in Dict control. Trait '{0}' "
+                "inner traits are '{1}'.".format(
+                    control_name, trait.inner_traits))
+        inner_trait = trait.handler.inner_traits()[1]
 
-        # Create the list widget: a frame
+        # Create the dict widget: a frame
         frame = QtGui.QFrame(parent=parent)
         frame.setFrameShape(QtGui.QFrame.StyledPanel)
 
-        # Create tools to interact with the list widget: expand or collapse -
-        # add a list item - remove a list item
+        # Create tools to interact with the dict widget: expand or collapse -
+        # add a dict item - remove a dict item
         tool_widget = QtGui.QWidget(parent)
         layout = QtGui.QHBoxLayout()
         layout.addStretch(1)
@@ -160,19 +163,13 @@ class ListControlWidget(object):
         # Create the tool buttons
         resize_button = QtGui.QToolButton()
         add_button = QtGui.QToolButton()
-        delete_button = QtGui.QToolButton()
         layout.addWidget(resize_button)
         layout.addWidget(add_button)
-        layout.addWidget(delete_button)
         # Set the tool icons
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/add")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         add_button.setIcon(icon)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/delete")),
-                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        delete_button.setIcon(icon)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_down")),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -180,40 +177,36 @@ class ListControlWidget(object):
 
         # Create a new controller that contains length 'control_value' inner
         # trait elements
-        controller = ListController()
-        for cnt, inner_control_values in enumerate(control_value):
-            controller.add_trait(str(cnt), inner_trait)
-            setattr(controller, str(cnt), inner_control_values)
+        controller = DictController()
+        for name, inner_control_values in control_value.iteritems():
+            controller.add_trait(str(name), inner_trait)
+            setattr(controller, str(name), inner_control_values)
 
         # Create the associated controller widget
         controller_widget = ControllerWidget(controller, parent=frame,
-                                             live=True)
+                                             live=True, editable_labels=True)
 
-        # Store some parameters in the list widget
+        # Store some parameters in the dict widget
         frame.inner_trait = inner_trait
         frame.trait = trait
         frame.controller = controller
         frame.controller_widget = controller_widget
         frame.connected = False
 
-        # Add the list controller widget to the list widget
+        # Add the dict controller widget to the dict widget
         frame.setLayout(controller_widget.layout())
 
-        # Set some callback on the list control tools
+        # Set some callback on the dict control tools
         # Resize callback
         resize_hook = partial(
-            ListControlWidget.expand_or_collapse, frame, resize_button)
+            DictControlWidget.expand_or_collapse, frame, resize_button)
         resize_button.clicked.connect(resize_hook)
-        # Add list item callback
+        # Add dict item callback
         add_hook = partial(
-            ListControlWidget.add_list_item, parent, control_name, frame)
+            DictControlWidget.add_dict_item, parent, control_name, frame)
         add_button.clicked.connect(add_hook)
-        # Delete list item callback
-        delete_hook = partial(
-            ListControlWidget.delete_list_item, parent, control_name, frame)
-        delete_button.clicked.connect(delete_hook)
 
-        # Create the label associated with the list widget
+        # Create the label associated with the dict widget
         control_label = trait.label
         if control_label is None:
             control_label = control_name
@@ -224,6 +217,8 @@ class ListControlWidget(object):
         else:
             label = None
 
+        controller_widget.main_controller_def = (DictControlWidget, parent,
+                                                 control_name, frame)
         return (frame, (label, tool_widget))
 
     @staticmethod
@@ -246,25 +241,25 @@ class ListControlWidget(object):
             the instance of the controller widget control we want to
             synchronize with the controller
         """
-        # Get the list widget inner controller values
-        new_trait_value = [
-            getattr(control_instance.controller, str(i))
-            for i in range(len(control_instance.controller.user_traits()))]
+        # Get the dict widget inner controller values
+        new_trait_value = dict([
+            (name, getattr(control_instance.controller, name))
+            for name in control_instance.controller.user_traits()])
 
         # Update the 'control_name' parent controller value
         setattr(controller_widget.controller, control_name,
                 new_trait_value)
         logger.debug(
-            "'ListControlWidget' associated controller trait '{0}' has "
+            "'DictControlWidget' associated controller trait '{0}' has "
             "been updated with value '{1}'.".format(
                 control_name, new_trait_value))
 
     @classmethod
     def update_controller_widget(cls, controller_widget, control_name,
                                  control_instance):
-        """ Update one element of the list controller widget.
+        """ Update one element of the dict controller widget.
 
-        At the end the list controller widget user editable parameter with the
+        At the end the dict controller widget user editable parameter with the
         name 'control_name' will match the controller trait value with the same
         name.
 
@@ -282,54 +277,50 @@ class ListControlWidget(object):
         # One callback has not been removed properly
         if control_name in controller_widget.controller.user_traits():
 
-            # Get the list widget current connection status
+            # Get the dict widget current connection status
             was_connected = control_instance.connected
 
-            # Disconnect the list controller and the inner list controller
+            # Disconnect the dict controller and the inner dict controller
             cls.disconnect(controller_widget, control_name, control_instance)
             control_instance.controller_widget.disconnect()
 
-            # Get the 'control_name' list value from the top list controller
+            # Get the 'control_name' dict value from the top dict controller
             trait_value = getattr(controller_widget.controller, control_name)
 
-            # Get the number of list elements in the controller associated
-            # with the current list control
-            len_widget = len(control_instance.controller.user_traits())
+            # Get the number of dict elements in the controller associated
+            # with the current dict control
+            widget_traits = control_instance.controller.user_traits()
 
             # Parameter that is True if a user trait associated with the
-            # current list control has changed
+            # current dict control has changed
             user_traits_changed = False
 
             # Special case: some traits have been deleted to the top controller
-            if len(trait_value) < len_widget:
-
-                # Need to remove to the inner list controller some traits
-                for i in range(len(trait_value), len_widget):
-                    control_instance.controller.remove_trait(str(i))
-
-                # Notify that some traits of the inner list controller have
-                # been deleted
-                user_traits_changed = True
+            # Need to remove to the inner dict controller some traits
+            for trait_name in widget_traits:
+                if trait_name not in trait_value:
+                    control_instance.controller.remove_trait(trait_name)
+                    # Notify that some traits of the inner dict controller have
+                    # been deleted
+                    user_traits_changed = True
 
             # Special case: some new traits have been added to the top
             # controller
-            elif len(trait_value) > len_widget:
-
-                # Need to add to the inner list controller some traits
-                # with type 'inner_trait'
-                for i in range(len_widget, len(trait_value)):
+            # Need to add to the inner dict controller some traits
+            # with type 'inner_trait'
+            for trait_name in trait_value:
+                if trait_name not in widget_traits:
                     control_instance.controller.add_trait(
-                        str(i), control_instance.inner_trait)
-
-                # Notify that some traits of the inner list controller
-                # have been added
-                user_traits_changed = True
+                        trait_name, control_instance.inner_trait)
+                    # Notify that some traits of the inner dict controller
+                    # have been added
+                    user_traits_changed = True
 
             # Update the controller associated with the current control
-            for i in range(len(trait_value)):
-                setattr(control_instance.controller, str(i), trait_value[i])
+            for trait_name, value in trait_value.iteritems():
+                setattr(control_instance.controller, trait_name, value)
 
-            # Connect the inner list controller
+            # Connect the inner dict controller
             control_instance.controller_widget.connect()
 
             # Emit the 'user_traits_changed' signal if necessary
@@ -337,11 +328,11 @@ class ListControlWidget(object):
                 control_instance.controller.user_traits_changed = True
 
                 logger.debug(
-                    "'ListControlWidget' inner controller has been updated:"
+                    "'DictControlWidget' inner controller has been updated:"
                     "old size '{0}', new size '{1}'.".format(
-                        len_widget, len(trait_value)))
+                        len(widget_traits), len(trait_value)))
 
-            # Restore the previous list controller connection status
+            # Restore the previous dict controller connection status
             if was_connected:
                 cls.connect(controller_widget, control_name, control_instance)
 
@@ -353,7 +344,7 @@ class ListControlWidget(object):
 
     @classmethod
     def connect(cls, controller_widget, control_name, control_instance):
-        """ Connect a 'List' controller trait and a 'ListControlWidget'
+        """ Connect a 'List' controller trait and a 'DictControlWidget'
         controller widget control.
 
         Parameters
@@ -372,28 +363,28 @@ class ListControlWidget(object):
         # Check if the control is connected
         if not control_instance.connected:
 
-            # Update the list item when one of his associated controller trait
+            # Update the dict item when one of his associated controller trait
             # changed.
             # Hook: function that will be called to update the controller
-            # associated with a list widget when a list widget inner controller
+            # associated with a dict widget when a dict widget inner controller
             # trait is modified.
-            list_controller_hook = SomaPartial(
+            dict_controller_hook = SomaPartial(
                 cls.update_controller, controller_widget, control_name,
                 control_instance)
 
-            # Go through all list widget inner controller user traits
+            # Go through all dict widget inner controller user traits
             for trait_name in control_instance.controller.user_traits():
 
                 # And add the callback on each user trait
                 control_instance.controller.on_trait_change(
-                    list_controller_hook, trait_name)
-                logger.debug("Item '{0}' of a 'ListControlWidget', add "
+                    dict_controller_hook, trait_name)
+                logger.debug("Item '{0}' of a 'DictControlWidget', add "
                               "a callback on inner controller trait "
                               "'{0}'.".format(control_name, trait_name))
 
-            # Update the list controller widget.
+            # Update the dict controller widget.
             # Hook: function that will be called to update the specific widget
-            # when a trait event is detected on the list controller.
+            # when a trait event is detected on the dict controller.
             controller_hook = SomaPartial(
                 cls.update_controller_widget, controller_widget, control_name,
                 control_instance)
@@ -403,13 +394,13 @@ class ListControlWidget(object):
             controller_widget.controller.on_trait_change(
                 controller_hook, control_name)
 
-            # Update the list connection status
+            # Update the dict connection status
             control_instance._controller_connections = (
-                list_controller_hook, controller_hook)
-            logger.debug("Add 'List' connection: {0}.".format(
+                dict_controller_hook, controller_hook)
+            logger.debug("Add 'Dict' connection: {0}.".format(
                 control_instance._controller_connections))
 
-            # Connect also all list items
+            # Connect also all dict items
             inner_controls = control_instance.controller_widget._controls
             for (inner_control_name,
                  inner_control) in inner_controls.iteritems():
@@ -423,12 +414,12 @@ class ListControlWidget(object):
                     control_instance.controller_widget, inner_control_name,
                     inner_control_instance)
 
-            # Update the list control connection status
+            # Update the dict control connection status
             control_instance.connected = True
 
     @staticmethod
     def disconnect(controller_widget, control_name, control_instance):
-        """ Disconnect a 'List' controller trait and a 'ListControlWidget'
+        """ Disconnect a 'List' controller trait and a 'DictControlWidget'
         controller widget control.
 
         Parameters
@@ -448,23 +439,23 @@ class ListControlWidget(object):
         if control_instance.connected:
 
             # Get the stored widget and controller hooks
-            (list_controller_hook,
+            (dict_controller_hook,
              controller_hook) = control_instance._controller_connections
 
             # Remove the controller hook from the 'control_name' trait
             controller_widget.controller.on_trait_change(
                 controller_hook, control_name, remove=True)
 
-            # Remove the list controller hook associated with the controller
+            # Remove the dict controller hook associated with the controller
             # traits
             for trait_name in control_instance.controller.user_traits():
                 control_instance.controller.on_trait_change(
-                    list_controller_hook, trait_name, remove=True)
+                    dict_controller_hook, trait_name, remove=True)
 
             # Delete the trait - control connection we just remove
             del control_instance._controller_connections
 
-            # Disconnect also all list items
+            # Disconnect also all dict items
             inner_controls = control_instance.controller_widget._controls
             for (inner_control_name,
                  inner_control) in inner_controls.iteritems():
@@ -478,7 +469,7 @@ class ListControlWidget(object):
                     control_instance.controller_widget, inner_control_name,
                     inner_control_instance)
 
-            # Update the list control connection status
+            # Update the dict control connection status
             control_instance.connected = False
 
     ###########################################################################
@@ -486,8 +477,8 @@ class ListControlWidget(object):
     ###########################################################################
 
     @staticmethod
-    def add_list_item(controller_widget, control_name, control_instance):
-        """ Append one element in the list controller widget.
+    def add_dict_item(controller_widget, control_name, control_instance):
+        """ Append one element in the dict controller widget.
 
         Parameters
         ----------
@@ -500,176 +491,38 @@ class ListControlWidget(object):
             the instance of the controller widget control we want to
             synchronize with the controller
         """
-        # Get the number of traits associated with the current list control
-        # controller
-        nb_of_traits = len(control_instance.controller.user_traits())
-        trait_name = str(nb_of_traits)
+        # Get a new key name
+        trait_name = 'new_item'
+        i = 1
+        while control_instance.controller.trait(trait_name):
+            trait_name = 'new_item_%d' % i
+            i += 1
 
+        was_connected = controller_widget.connected
+        if was_connected:
+            controller_widget.disconnect()
         # Add the new trait to the inner list controller
         control_instance.controller.add_trait(
             trait_name, control_instance.inner_trait)
+        DictControlWidget.update_controller(
+            controller_widget, control_name, control_instance)
+        if was_connected:
+            controller_widget.connect()
 
-        # Create the associated control
-        control_instance.controller_widget.create_control(
-            trait_name, control_instance.inner_trait)
+        # update interface
+        control_instance.controller_widget.update_controls()
 
-        # Update the list controller
-        control_instance._controller_connections[0]()
-        #control_instance.controller_widget.update_controller_widget()
-        logger.debug("Add 'ListControlWidget' '{0}' new trait "
+        logger.debug("Add 'DictControlWidget' '{0}' new trait "
                       "callback.".format(trait_name))
 
     @staticmethod
-    def delete_one_row(control_instance, index_to_remove):
-        """ Delete a two columns row if a widget is found in column two
-
-        Parameters
-        ----------
-        control_instance: QFrame (mandatory)
-            the instance of the controller widget control we want to
-            synchronize with the controller
-        index_to_remove: int (mandatory)
-            the row index we want to delete from the widget
-
-        Returns
-        -------
-        is_deleted: bool
-            True if a widget has been found and the row has been deledted,
-            False otherwise
-        widget: QWidget
-            the widget that has been deleted. If 'is_deleted' is False return
-            None
-        """
-        # Initilaize the output
-        is_deleted = False
-
-        # Try to get the widget item in column two
-        widget_item = (
-            control_instance.controller_widget._grid_layout.itemAtPosition(
-                index_to_remove, 1))
-
-        # If a widget has been found, remove the current line
-        if widget_item is not None:
-
-            # Remove the widget
-            widget = widget_item.widget()
-            control_instance.controller_widget._grid_layout.removeItem(
-                widget_item)
-            widget.deleteLater()
-
-            # Try to get the widget label in column one
-            label_item = (
-                control_instance.controller_widget._grid_layout.itemAtPosition(
-                    index_to_remove, 0))
-
-            # If a label has been found, remove it
-            if label_item is not None:
-
-                # Remove the label
-                label = label_item.widget()
-                control_instance.controller_widget._grid_layout.removeItem(
-                    label_item)
-                label.deleteLater()
-
-            # Update the output
-            is_deleted = True
-
-        # No widget found
-        else:
-            widget = None
-
-        return is_deleted, widget
-
-    @staticmethod
-    def delete_list_item(controller_widget, control_name, control_instance):
-        """ Delete the last control element
-
-        Parameters
-        ----------
-        controller_widget: ControllerWidget (mandatory)
-            a controller widget that contains the controller we want to update
-        control_name: str(mandatory)
-            the name of the controller widget control we want to synchronize
-            with the controller
-        control_instance: QFrame (mandatory)
-            the instance of the controller widget control we want to
-            synchronize with the controller
-        """
-        # Delete the last inserted control
-        last_row = (
-            control_instance.controller_widget._grid_layout.rowCount())
-        nb_of_items = control_instance.controller_widget._grid_layout.count()
-        item_found = False
-        index_to_remove = last_row - 1
-
-        # If the list contain at least one widget
-        if nb_of_items > 0:
-
-            # While the last inserted widget has not been found
-            while index_to_remove >= 0 and not item_found:
-
-                # Try to remove the 'index_to_remove' control row
-                item_found, widget = ListControlWidget.delete_one_row(
-                    control_instance, index_to_remove)
-
-                # If a list control has been deleted, remove the associated
-                # tools
-                if hasattr(widget, "controller"):
-
-                    # Remove the list control extra tools row
-                    ListControlWidget.delete_one_row(
-                        control_instance, index_to_remove - 1)
-
-                # Get the trait name that has just been deleted from the
-                # controller widget
-                if item_found:
-                    trait_name = str(index_to_remove - 1)
-
-                # Increment
-                index_to_remove -= 1
-
-        # No more control to delete
-        else:
-            logger.debug(
-                "No more control to delete in '{0}'.".format(control_instance))
-
-        # If one list control item has been deleted
-        if item_found:
-
-            # If the inner control is a list, convert the control index
-            # Indeed, two elements are inserted for a list item
-            # (tools + widget)
-            if trait_ids(control_instance.inner_trait)[0].startswith("List_"):
-                trait_name = str((int(trait_name) + 1) / 2 - 1)
-
-            # Remove the trait from the controller
-            control_instance.controller.remove_trait(trait_name)
-
-            # Get, unpack and delete the control item
-            control = control_instance.controller_widget._controls[trait_name]
-            (inner_trait, inner_control_class, inner_control_instance,
-             inner_control_label) = control
-            del(control_instance.controller_widget._controls[trait_name])
-
-            # Disconnect the removed control
-            inner_control_class.disconnect(
-                controller_widget, trait_name, inner_control_instance)
-
-            # Update the list controller
-            control_instance._controller_connections[0]()
-            logger.debug("Remove 'ListControlWidget' '{0}' controller and "
-                          "trait item.".format(trait_name))
-
-        control_instance.controller_widget._grid_layout.update()
-
-    @staticmethod
     def expand_or_collapse(control_instance, resize_button):
-        """ Callback to expand or collapse a 'ListControlWidget'.
+        """ Callback to expand or collapse a 'DictControlWidget'.
 
         Parameters
         ----------
         control_instance: QFrame (mandatory)
-            the list widget item
+            the dict widget item
         resize_button: QToolButton
             the signal sender
         """
@@ -679,14 +532,16 @@ class ListControlWidget(object):
         # Hide the control
         if control_instance.isVisible():
             control_instance.hide()
-            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_right")),
-                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            icon.addPixmap(QtGui.QPixmap(_fromUtf8(
+                ":/capsul_widgets_icons/nav_right")),
+                QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         # Show the control
         else:
             control_instance.show()
-            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_down")),
-                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            icon.addPixmap(QtGui.QPixmap(_fromUtf8(
+                ":/capsul_widgets_icons/nav_down")),
+                QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         # Set the new button icon
         resize_button.setIcon(icon)

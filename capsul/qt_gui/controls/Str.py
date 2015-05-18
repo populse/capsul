@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.utils.functiontools import SomaPartial
+from soma.qt4gui.timered_widgets import TimeredQLineEdit
 
 
 class StrControlWidget(object):
@@ -78,33 +79,34 @@ class StrControlWidget(object):
             the control widget we want to validate
         """
         # Hook: function that will be called to check for typo
-        # when a 'textChanged' qt signal is emited
+        # when a 'userModification' qt signal is emited
         widget_callback = partial(cls.is_valid, control_instance)
 
         # The first time execute manually the control check method
         widget_callback()
 
-        # When a qt 'textChanged' signal is emited, check if the new
+        # When a qt 'userModification' signal is emited, check if the new
         # user value is correct
-        control_instance.textChanged.connect(widget_callback)
+        control_instance.userModification.connect(widget_callback)
 
     @staticmethod
     def add_callback(callback, control_instance):
-        """ Method to add a callback to the control instance when a 'textChanged'
+        """ Method to add a callback to the control instance when a 'userModification'
         signal is emited.
 
         Parameters
         ----------
         callback: @function (mandatory)
-            the function that will be called when a 'textChanged' signal is
+            the function that will be called when a 'userModification' signal is
             emited.
         control_instance: QLineEdit (mandatory)
             the control widget we want to validate
         """
-        control_instance.textChanged.connect(callback)
+        control_instance.userModification.connect(callback)
 
     @staticmethod
-    def create_widget(parent, control_name, control_value, trait):
+    def create_widget(parent, control_name, control_value, trait,
+                      label_class=False):
         """ Method to create the string widget.
 
         Parameters
@@ -117,6 +119,10 @@ class StrControlWidget(object):
             the default control value
         trait: Tait (mandatory)
             the trait associated to the control
+        label_class: Qt widget class (optional, default: None)
+            the label widget will be an instance of this class. Its constructor
+            will be called using 2 arguments: the label string and the parent
+            widget.
 
         Returns
         -------
@@ -125,7 +131,7 @@ class StrControlWidget(object):
             associated label: QLabel)
         """
         # Create the widget that will be used to fill a string
-        widget = QtGui.QLineEdit(parent)
+        widget = TimeredQLineEdit(parent)
 
         # Add a widget parameter to tell us if the widget is already connected
         widget.connected = False
@@ -134,8 +140,10 @@ class StrControlWidget(object):
         control_label = trait.label
         if control_label is None:
             control_label = control_name
+        if label_class is None:
+            label_class = QtGui.QLabel
         if control_label is not None:
-            label = QtGui.QLabel(control_label, parent)
+            label = label_class(control_label, parent)
         else:
             label = None
 
@@ -227,13 +235,13 @@ class StrControlWidget(object):
 
             # Update one element of the controller.
             # Hook: function that will be called to update a specific
-            # controller trait when a 'textChanged' qt signal is emited
+            # controller trait when a 'userModification' qt signal is emited
             widget_hook = partial(cls.update_controller, controller_widget,
                                   control_name, control_instance)
 
-            # When a qt 'textChanged' signal is emited, update the
+            # When a qt 'userModification' signal is emited, update the
             # 'control_name' controller trait value
-            control_instance.textChanged.connect(widget_hook)
+            control_instance.userModification.connect(widget_hook)
 
             # Update the control.
             # Hook: function that will be called to update the control value
@@ -283,9 +291,9 @@ class StrControlWidget(object):
             controller_widget.controller.on_trait_change(
                 controller_hook, name=control_name, remove=True)
 
-            # Remove the widget hook associated with the qt 'textChanged'
+            # Remove the widget hook associated with the qt 'userModification'
             # signal
-            control_instance.textChanged.disconnect(widget_hook)
+            control_instance.userModification.disconnect(widget_hook)
 
             # Delete the trait - control connection we just remove
             del control_instance._controller_connections

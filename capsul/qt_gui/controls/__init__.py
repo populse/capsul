@@ -16,6 +16,7 @@ from List import ListControlWidget
 from Bool import BoolControlWidget
 from File import FileControlWidget
 from Directory import DirectoryControlWidget
+from Dict import DictControlWidget
 from Controller import ControllerControlWidget
 
 # Define a structure that will contain the mapping between the string trait
@@ -35,3 +36,5 @@ controls["Directory"] = DirectoryControlWidget
 controls["List"] = ListControlWidget
 controls["Instance"] = ControllerControlWidget
 controls["TraitInstance"] = ControllerControlWidget
+controls["ControllerTrait"] = ControllerControlWidget
+controls["Dict"] = DictControlWidget
