@@ -18,13 +18,16 @@ import os
 logger = logging.getLogger(__name__)
 
 # Trait import
-import traits.api as traits
-from traits.api import File
-from traits.api import Bool
-from traits.api import Instance
-from traits.api import Event
-from traits.api import Directory
-from traits.api import Trait
+try:
+    import traits.api as traits
+    from traits.trait_base import _Undefined
+    from traits.api import (File, Float, Enum, Str, Int, Bool, List, Tuple,
+        Instance, Any, Event, CTrait, Directory, Trait)
+except ImportError:
+    import enthought.traits.api as traits
+    from enthought.traits.trait_base import _Undefined
+    from enthought.traits.api import (File, Float, Enum, Str, Int, Bool,
+        List, Tuple, Instance, Any, Event, CTrait, Directory, Trait)
 
 # Capsul import
 from capsul.process import Process
@@ -75,6 +78,56 @@ class Pipeline(Process):
     >>> print pipeline.proc1_input
     <undefined>
 
+    **Nodes**
+
+    A pipeline is made of nodes, and links between their parameters. Several
+    types of nodes may be part of a pipeline:
+
+    .. currentmodule:: capsul.pipeline
+
+    * process nodes (:py:class:`pipeline_nodes.ProcessNode`) are the leaf nodes
+      which represent actual processing bricks.
+    * pipeline nodes (:py:class:`pipeline_nodes.PipelineNode`) are sub-pipelines
+      which allow to reuse an existing pipeline within another one
+    * switch nodes (:py:class:`pipeline_nodes.Switch`) allows to select values
+      between several possible inputs. The switch mechanism also allows to select
+      between several alternative processes or processing branchs.
+    * iterative process nodes (:py:class:`pipeline_nodes.IterativeNode`)
+      represent sets of parallel processing nodes, typically used for a
+      map/reduce schema.
+
+    .. currentmodule:: capsul.pipeline.pipeline
+
+    Note that you normally do not instantiate these nodes explicitly when
+    building a pipeline. Rather programmers may call the
+    :py:meth:`add_process`, :py:meth:`add_switch`,
+    :py:meth:`add_iterative_process` methods.
+
+    **Nodes activation**
+
+    Pipeline nodes may be enabled or disabled. Disabling a node will trigger
+    a global pipeline nodes activation step, where all nodes which do not form
+    a complete chain will be inactive. This way a branch may be disabled by
+    disabling one of its nodes. This process is used by the switch system,
+    which allows to select one processing branch betwen several, and disables
+    the unselected ones.
+
+    **Pipeline steps**
+
+    Pipelines may define execution steps: they are user-oriented groups of nodes
+    that are to be run together, or disabled together for runtime execution.
+    They are intended to allow partial, or step-by-step execution. They do not
+    work like the nodes enabling mechanism described above.
+
+    Steps may be defined within the :py:meth:`pipeline_definition` method.
+    See :py:meth:`add_pipeline_step`.
+
+    Note also that pipeline steps only act at the highest level: if a
+    sub-pipeline has disabled steps, they will not be taken into account in the
+    higher level pipeline execution, because executing by steps a part of a
+    sub-pipeline within the context of a higher one does generally not make
+    sense.
+
     Attributes
     ----------
     `nodes`: dict {node_name: node}
@@ -101,6 +154,12 @@ class Pipeline(Process):
     parse_parameter
     find_empty_parameters
     count_items
+    define_pipeline_steps
+    add_pipeline_step
+    remove_pipeline_step
+    disabled_pipeline_steps_nodes
+    get_pipeline_step_nodes
+    enable_all_pipeline_steps
     """
 
     selection_changed = Event()
@@ -997,7 +1056,7 @@ class Pipeline(Process):
 
         self._disable_update_nodes_and_plugs_activation -= 1
 
-    def workflow_graph(self):
+    def workflow_graph(self, remove_disabled_steps=True):
         """ Generate a workflow graph
 
         Returns
@@ -1005,6 +1064,10 @@ class Pipeline(Process):
         graph: topological_sort.Graph
             graph representation of the workflow from the current state of
             the pipeline
+        remove_disabled_steps: bool (optional)
+            When set, disabled steps (and their children) will not be included
+            in the workflow graph.
+            Default: True
         """
 
         def insert(pipeline, node_name, plug, dependencies):
@@ -1037,6 +1100,14 @@ class Pipeline(Process):
         graph = Graph()
         dependencies = set()
 
+        if remove_disabled_steps:
+            steps = getattr(self, 'pipeline_steps', Controller())
+            disabled_nodes = set()
+            for step, trait in steps.user_traits().iteritems():
+                if not getattr(steps, step):
+                    disabled_nodes.update(
+                        [self.nodes[node] for node in trait.nodes])
+
         # Add activated Process nodes in the graph
         for node_name, node in self.nodes.iteritems():
 
@@ -1045,7 +1116,9 @@ class Pipeline(Process):
                 continue
 
             # Select only active Process nodes
-            if node.activated and not isinstance(node, Switch):
+            if node.activated and not isinstance(node, Switch) \
+                    and (not remove_disabled_steps
+                         or node not in disabled_nodes):
 
                 # If a Pipeline is found: the meta graph node parameter
                 # contains a sub Graph
@@ -1053,7 +1126,7 @@ class Pipeline(Process):
                    not isinstance(node, IterativeNode)):
 
                     graph.add_node(GraphNode(
-                        node_name, node.process.workflow_graph()))
+                        node_name, node.process.workflow_graph(False)))
 
                 # If a Process or an iterative node is found: the meta graph
                 # node parameter contains a list with one process node or
@@ -1075,16 +1148,20 @@ class Pipeline(Process):
 
         return graph
 
-    def workflow_ordered_nodes(self):
+    def workflow_ordered_nodes(self, remove_disabled_steps=True):
         """ Generate a workflow: list of process node to execute
 
         Returns
         -------
         workflow_list: list of Process
             an ordered list of Processes to execute
+        remove_disabled_steps: bool (optional)
+            When set, disabled steps (and their children) will not be included
+            in the workflow graph.
+            Default: True
         """
         # Create a graph and a list of graph node edges
-        graph = self.workflow_graph()
+        graph = self.workflow_graph(remove_disabled_steps)
 
         # Start the topologival sort
         ordered_list = graph.topological_sort()
@@ -1510,4 +1587,117 @@ class Pipeline(Process):
         if hasattr(self, '_log_file_del'):
             del self._log_file_del
 
+    def define_pipeline_steps(self, steps):
+        '''Define steps in the pipeline.
+        Steps are pipeline portions that form groups, and which can be enabled
+        or disabled on a runtime basis (when building workflows).
+
+        Once steps are defined, their activation may be accessed through the
+        "step" trait, which has one boolean property for each step:
+
+        Ex:
+
+        ::
+
+            steps = OrderedDict()
+            steps['preprocessings'] = [
+                'normalization',
+                'bias_correction',
+                'histo_analysis']
+            steps['brain_extraction'] = [
+                'brain_segmentation',
+                'hemispheres_split']
+            pipeline.define_pipeline_steps(steps)
+
+        >>> print pipeline.pipeline_steps.preprocessings
+        True
+
+        >>> pipeline.pipeline_steps.brain_extraction = False
+
+        See also add_pipeline_step()
+
+        Parameters
+        ----------
+        steps: dict or preferably OrderedDict or SortedDictionary (mandatory)
+            The steps dict keys are steps names, the values are lists of nodes
+            names forming the step.
+        '''
+        for step_name, nodes in steps.iteritems():
+            self.add_pipeline_step(step_name, nodes)
+
+    def add_pipeline_step(self, step_name, nodes):
+        '''Add a step definiton to the pipeline (see also define_steps).
+
+        Steps are groups of pipeline nodes, which may be disabled at runtime.
+        They are normally defined in a logical order regarding the workflow
+        streams. They are different from pipelines in that steps are purely
+        virtual groups, they do not have parameters.
+
+        Disabling a step acts differently as the pipeline node activation: other
+        nodes are not inactivated according to their dependencies. Instead,
+        those steps are not run.
+
+        Parameters
+        ----------
+        step_name: string (mandatory)
+            name of the new step
+        nodes: list ore sequence
+            nodes contained in the step (Node instances)
+        '''
+        if not self.user_traits().has_key('pipeline_steps'):
+            super(Pipeline, self).add_trait(
+                'pipeline_steps',
+                Instance(Controller, desc=
+                    'Steps are groups of pipeline nodes, which may be disabled '
+                    'at runtime. They are normally defined in a logical order '
+                    'regarding the workflow streams. They are different from '
+                    'sub-pipelines in that steps are purely virtual groups, '
+                    'they do not have parameters. To activate or diasable a '
+                    'step, just do:\n'
+                    'pipeline.steps.my_step = False\n'
+                    '\n'
+                    'To get the nodes list in a step:\n'
+                    'pipeline.get_step_nodes("my_step")'))
+            self.pipeline_steps = Controller()
+        self.pipeline_steps.add_trait(step_name, Bool)
+        trait = self.pipeline_steps.trait(step_name)
+        trait.nodes = nodes
+        setattr(self.pipeline_steps, step_name, True)
+
+    def remove_pipeline_step(self, step_name):
+        '''Remove the given step
+        '''
+        if self.user_traits().has_key('pipeline_steps'):
+            self.pipeline_steps.remove_trait(step_name)
+
+    def disabled_pipeline_steps_nodes(self):
+        '''List nodes disabled for runtime execution
+
+        Returns
+        -------
+        disabled_nodes: list
+            list of pipeline nodes (Node instances) which will not run in
+            a workflow created from this pipeline state.
+        '''
+        steps = getattr(self, 'pipeline_steps', Controller())
+        disabled_nodes = []
+        for step, trait in steps.user_traits().iteritems():
+            if not getattr(steps, step, True):
+                # disabled step
+                nodes = trait.nodes
+                disabled_nodes.extend([self.nodes[node] for node in nodes])
+        return disabled_nodes
+
+    def get_pipeline_step_nodes(self, step_name):
+        '''Get the nodes in the given pipeline step
+        '''
+        return self.pipeline_steps.trait(step_name).nodes
+
+    def enable_all_pipeline_steps(self):
+        '''Set all defined steps (using add_step() or define_steps()) to be
+        enabled. Ueful to reset the pipeline state after it has been changed.
+        '''
+        steps = getattr(self, 'pipeline_steps', Controller())
+        for step, trait in steps.user_traits().iteritems():
+            setattr(steps, step, True)
 
