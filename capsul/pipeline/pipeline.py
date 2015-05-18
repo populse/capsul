@@ -10,6 +10,9 @@
 # System import
 import logging
 from copy import deepcopy
+import types
+import tempfile
+import os
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -37,6 +40,7 @@ from pipeline_nodes import IterativeNode
 # Soma import
 from soma.controller import Controller
 from soma.sorted_dictionary import SortedDictionary
+from soma.utils.functiontools import SomaPartial
 
 
 class Pipeline(Process):
@@ -1395,3 +1399,115 @@ class Pipeline(Process):
         for node_name in pipeline_state:
             result.append('node "%s" is new' % node_name)
         return result
+
+    def install_links_debug_handler(self, log_file=None, handler=None,
+                                    prefix=''):
+        """ Set callbacks when traits value change, and follow plugs links to
+        debug links propagation and problems in it.
+
+        Parameters
+        ----------
+        log_file: str (optional)
+            file-like object to write links propagation in.
+            If none is specified, a temporary file will be created for it.
+        handler: function (optional)
+            Callback to be processed for debugging. If none is specified, the
+            default pipeline debugging function will be used. This default
+            handler prints traits changes and links to be processed in the
+            log_file.
+            The handler function will receive a prefix string, a node,
+            and traits parameters, namely the object (process) owning the
+            changed value, the trait name and value in this object.
+        prefix: str (optional)
+            prefix to be prepended to traits names, typically the parent
+            pipeline full name
+
+        Returns
+        -------
+        log_file: the file object where events will be written in
+        """
+
+        if log_file is None:
+            log_file_s = tempfile.mkstemp()
+            class AutodeDelete(object):
+                def __init__(self, file_object):
+                    self.file_object = file_object
+                def __del__(self):
+                    try:
+                        self.file_object.close()
+                    except IOError:
+                        pass
+                    try:
+                        os.unlink(self.file_object.name)
+                    except:
+                        pass
+            os.close(log_file_s[0])
+            log_file = open(log_file_s[1], 'w')
+            self._log_file_del = AutodeDelete(log_file)
+
+        self._link_debugger_file = log_file
+        if prefix != '' and not prefix.endswith('.'):
+            prefix = prefix + '.'
+        # install handler on nodes
+        for node_name, node in self.nodes.iteritems():
+            node_prefix = prefix + node_name
+            if node_prefix != '' and not node_prefix.endswith('.'):
+                node_prefix += '.'
+            if handler is None:
+                custom_handler = node._value_callback_with_logging
+            else:
+                custom_handler = handler
+            sub_process = None
+            sub_pipeline = False
+            if hasattr(node, 'process'):
+                sub_process = node.process
+            if hasattr(sub_process, 'nodes') and sub_process is not self:
+                sub_pipeline = sub_process
+            if sub_pipeline:
+                sub_pipeline.install_links_debug_handler(
+                    log_file=log_file,
+                    handler=handler,
+                    prefix=node_prefix)
+            else:
+                # replace all callbacks
+                callbacks = list(node._callbacks.items())
+                for element, callback in callbacks:
+                    source_plug_name, dest_node, dest_plug_name = element
+                    value_callback = SomaPartial(
+                        custom_handler, log_file, node_prefix, source_plug_name,
+                        dest_node, dest_plug_name)
+                    node.remove_callback_from_plug(source_plug_name, callback)
+                    node._callbacks[element] = value_callback
+                    node.set_callback_on_plug(source_plug_name, value_callback)
+
+        return log_file
+
+    def uninstall_links_debug_handler(self):
+        """ Remove links debugging callbacks set by install_links_debug_handler
+        """
+
+        for node_name, node in self.nodes.iteritems():
+            sub_process = None
+            sub_pipeline = False
+            if hasattr(node, 'process'):
+                sub_process = node.process
+            if hasattr(sub_process, 'nodes') and sub_process is not self:
+                sub_pipeline = sub_process
+            if sub_pipeline:
+                sub_pipeline.uninstall_links_debug_handler()
+            else:
+                for element, callback in list(node._callbacks.items()):
+                    source_plug_name, dest_node, dest_plug_name = element
+                    value_callback = SomaPartial(
+                        node._value_callback, source_plug_name,
+                        dest_node, dest_plug_name)
+                    node.remove_callback_from_plug(source_plug_name, callback)
+                    node._callbacks[element] = value_callback
+                    node.set_callback_on_plug(source_plug_name, value_callback)
+
+        if hasattr(self, '_link_debugger_file'):
+            del self._link_debugger_file
+        if hasattr(self, '_log_file_del'):
+            del self._log_file_del
+
+
