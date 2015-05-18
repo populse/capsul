@@ -1385,21 +1385,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         disable_action.setChecked(node.enabled)
         disable_action.toggled.connect(self.enableNode)
 
-        #disable_down_action = menu.addAction('Disable for downhill processing')
-        #disable_down_action.triggered.connect(self.disable_downhill)
-
-        #disable_up_action = menu.addAction('Disable for uphill processing')
-        #disable_up_action.triggered.connect(self.disable_uphill)
-
-        #disable_done_action = menu.addAction('Disable nodes with existing outputs')
-        #disable_done_action.triggered.connect(self.disable_done_outputs)
-
-        #reactivate_pipeline_action = menu.addAction('Reactivate disabed pipeline nodes')
-        #reactivate_pipeline_action.triggered.connect(self.reactivate_pipeline)
-
-        #reactivate_node_action = menu.addAction('Reactivate disabed pipeline node')
-        #reactivate_node_action.triggered.connect(self.reactivate_node)
-
         steps = getattr(self.scene.pipeline, 'pipeline_steps', None)
         if steps is not None:
             my_steps = [step_name for step_name in steps.user_traits()
@@ -1457,23 +1442,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     def enableNode(self, checked):
         self.scene.pipeline.nodes[self.current_node_name].enabled = checked
-
-    #def disable_downhill(self):
-        #pipeline = self.scene.pipeline
-        #pipeline_tools.disable_node_for_downhill_pipeline(pipeline, self.current_node_name)
-
-    #def disable_uphill(self):
-        #pipeline = self.scene.pipeline
-        #pipeline_tools.disable_node_for_uphill_pipeline(pipeline, self.current_node_name)
-
-    #def disable_done_outputs(self):
-        #pipeline_tools.disable_nodes_with_existing_outputs(self.scene.pipeline)
-
-    #def reactivate_pipeline(self):
-        #pipeline_tools.reactivate_pipeline(self.scene.pipeline)
-
-    #def reactivate_node(self):
-        #pipeline_tools.reactivate_node(self.scene.pipeline, self.current_node_name)
 
     def enable_step(self, step_name, state):
         setattr(self.scene.pipeline.pipeline_steps, step_name, state)
