@@ -130,7 +130,7 @@ class SPMConfig(StudyConfigModule):
                 if (self.study_config.spm_exec is Undefined or 
                         not os.path.isfile(self.study_config.spm_exec)):
                     if force_configuration:
-                        raise EnvironmentError("'smp_exec' must be defined in "
+                        raise EnvironmentError("'spm_exec' must be defined in "
                                                "order to use SPM-standalone.")
                     else:
                         self.study_config.use_spm = False
