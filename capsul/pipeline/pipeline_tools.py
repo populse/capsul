@@ -23,6 +23,7 @@ except ImportError:
 
 # Capsul import
 from capsul.pipeline import Pipeline, PipelineNode, Switch
+from soma.controller import Controller
 
 
 def disable_node_for_downhill_pipeline(pipeline, node_name):
@@ -761,4 +762,244 @@ def save_dot_image(pipeline, filename, nodes_sizes={}, use_nodes_pos=False,
     cmd = ['dot', '-T%s' % ext, '-o', filename, dot_filename]
     subprocess.check_call(cmd)
     os.unlink(dot_filename)
+
+def disable_runtime_steps_with_existing_outputs(pipeline):
+    '''
+    Disable steps in a pipeline which outputs contain existing files. This
+    disabling is the "runtime steps disabling" one (see
+    :py:class:`capsul.pipeline.Pipeline`), not the node disabling with
+    activation propagation, so it doesn't affect the actual pipeline state.
+    The aim is to prevent overwriting files which have already been processed,
+    and to allow downstream execution of the remaining steps of the pipeline.
+
+    Parameters
+    ----------
+    pipeline: Pipeline (mandatory)
+        pipeline to disbale nodes in.
+    '''
+    steps = getattr(pipeline, 'pipeline_steps', Controller())
+    for step, trait in steps.user_traits().iteritems():
+        if not getattr(steps, step):
+            continue  # already inactive
+        for node_name in trait.nodes:
+            node = pipeline.nodes[node_name]
+            if not node.enabled or not node.activated:
+                continue  # node not active anyway
+            process = node.process
+            for param in node.plugs:
+                trait = process.trait(param)
+                if trait.output and (isinstance(trait.trait_type, traits.File)
+                        or isinstance(trait.trait_type, traits.Directory)):
+                    value = getattr(process, param)
+                    if value is not None and value is not traits.Undefined \
+                            and os.path.exists(value):
+                        # disable step
+                        print 'disable step', step, 'because of:', node_name, '.', param
+                        setattr(steps, step, False)
+                        break  # no need to iterate other nodes in same step
+
+
+def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
+                                recursive=False):
+    '''
+    Checks nodes in a pipeline which outputs contain existing files on the
+    filesystem. Such nodes, maybe, should not run again. Only nodes which
+    actually produce outputs are selected this way (switches are skipped).
+
+    Parameters
+    ----------
+    pipeline: Pipeline (mandatory)
+        pipeline to disbale nodes in.
+    exclude_inactive: bool (optional)
+        if this option is set, inactive nodes will not be checked
+        nor returned in the list. Inactive means disabled, not active, or in a
+        disabled runtime step.
+        Default: True
+    recursive: bool (optional)
+        if this option is set, sub-pipelines will not be returned as a whole but
+        will be parsed recursively to select individual leaf nodes.
+        Default: False
+
+    Returns
+    -------
+    selected_nodes: dict
+        keys: node names
+        values: list of pairs (param_name, file_name)
+    '''
+    selected_nodes = {}
+    if exclude_inactive:
+        steps = getattr(pipeline, 'pipeline_steps', Controller())
+        disabled_nodes = set()
+        for step, trait in steps.user_traits().iteritems():
+            if not getattr(steps, step):
+                disabled_nodes.update(trait.nodes)
+
+    nodes = pipeline.nodes.items()
+    while nodes:
+        node_name, node = nodes.pop(0)
+        if node_name == '' or not hasattr(node, 'process'):
+            # main pipeline node, switch...
+            continue
+        if exclude_inactive:
+            if not node.enabled or not node.activated or node in disabled_nodes:
+                continue
+        process = node.process
+        if recursive and isinstance(process, Pipeline):
+            nodes += [('%s.%s' % (node_name, new_name), new_node)
+                      for new_name, new_node in process.nodes.iteritems()
+                      if new_name != '']
+            continue
+        for plug_name, plug in node.plugs.iteritems():
+            if plug.output:
+                trait = process.trait(plug_name)
+                if isinstance(trait.trait_type, traits.File) \
+                        or isinstance(trait.trait_type, traits.Directory):
+                    value = getattr(process, plug_name)
+                    if value is not None and value is not traits.Undefined \
+                            and os.path.exists(value):
+                        plug_list = selected_nodes.setdefault(node_name, [])
+                        plug_list.append((plug_name, value))
+    return selected_nodes
+
+
+def nodes_with_missing_inputs(pipeline, recursive=True):
+    '''
+    Checks nodes in a pipeline which inputs contain invalid inputs.
+    Inputs which are files non-existing on the filesystem (so, which cannot
+    run), or have missing mandatory inputs, or take as input a temporary file
+    which should be the output from another disabled node, are recorded.
+
+    Parameters
+    ----------
+    pipeline: Pipeline (mandatory)
+        pipeline to disbale nodes in.
+    recursive: bool (optional)
+        if this option is set, sub-pipelines will not be returned as a whole but
+        will be parsed recursively to select individual leaf nodes. Note that if
+        not set, a pipeline is regarded as a process, but pipelines may not use
+        all their inputs/outputs so the result might be inaccurate.
+        Default: True
+
+    Returns
+    -------
+    selected_nodes: dict
+        keys: node names
+        values: list of pairs (param_name, file_name)
+    '''
+    selected_nodes = {}
+    steps = getattr(pipeline, 'pipeline_steps', Controller())
+    disabled_nodes = set()
+    for step, trait in steps.user_traits().iteritems():
+        if not getattr(steps, step):
+            disabled_nodes.update(
+                [pipeline.nodes[node_name] for node_name in trait.nodes])
+
+    nodes = pipeline.nodes.items()
+    while nodes:
+        node_name, node = nodes.pop(0)
+        if node_name == '' or not hasattr(node, 'process'):
+            # main pipeline node, switch...
+            continue
+        if not node.enabled or not node.activated or node in disabled_nodes:
+            continue
+        process = node.process
+        if recursive and isinstance(process, Pipeline):
+            nodes += [('%s.%s' % (node_name, new_name), new_node)
+                      for new_name, new_node in process.nodes.iteritems()
+                      if new_name != '']
+            continue
+        for plug_name, plug in node.plugs.iteritems():
+            if not plug.output:
+                trait = process.trait(plug_name)
+                if isinstance(trait.trait_type, traits.File) \
+                        or isinstance(trait.trait_type, traits.Directory):
+                    value = getattr(process, plug_name)
+                    keep_me = False
+                    if value is None or value is traits.Undefined \
+                            or value == '' or not os.path.exists(value):
+                        # check where this file comes from
+                        origin_node, origin_param, origin_parent \
+                            = where_is_plug_value_from(plug, recursive)
+                        if origin_node is not None \
+                                and (origin_node in disabled_nodes
+                                     or origin_parent in disabled_nodes):
+                            # file coming from another disabled node
+                            #if not value or value is traits.Undefined:
+                                ## temporary one
+                                #print 'TEMP: %s.%s' % (node_name, plug_name)
+                                #value = None
+                            keep_me = True
+                        elif origin_node is None:
+                            # unplugged: does not come from anywhere else
+                            if (value is not traits.Undefined and value) \
+                                    or not plug.optional:
+                                # non-empty value, non-existing file
+                                # or mandatory, empty value
+                                keep_me = True
+                        # the rest is a plugged input from another process,
+                        # or an optional empty value
+                    if keep_me:
+                        plug_list = selected_nodes.setdefault(node_name, [])
+                        plug_list.append((plug_name, value))
+    return selected_nodes
+
+
+def where_is_plug_value_from(plug, recursive=True):
+    '''
+    Find where the given (input) plug takes its value from.
+    It has to be the output of an uphill process, or be unconnected.
+    Looking for it may involve ascending through switches or pipeline walls.
+
+    Parameters
+    ----------
+    plug: Plug instance (mandatory)
+        the plug to find source connection with
+    recursive: bool (optional)
+        if this option is set, sub-pipelines will not be returned as a whole but
+        will be parsed recursively to select individual leaf nodes. Note that if
+        not set, a pipeline is regarded as a process, but pipelines may not use
+        all their inputs/outputs so the result might be inaccurate.
+        Default: True
+
+    Returns
+    -------
+    node: Node
+        origin pipeline node. May be None if the plug was not connected to an
+        active source.
+    param_name: string
+        origin plug name in the origin node. May be None if node is None
+    parent: Node
+        Top-level parent node of the origin node. Useful to determine if the
+        origin node is in a runtime pipeline step, which only records top-level
+        nodes.
+    '''
+    links = [link + (None, ) for link in plug.links_from]
+    while links:
+        node_name, param_name, node, in_plug, weak, parent = links.pop(0)
+        if not node.activated or not node.enabled:
+            # disabled nodes are not influencing
+            continue
+        if isinstance(node, Switch):
+            # recover through switch input
+            switch_value = node.switch
+            switch_input = '%s_switch_%s' % (switch_value, param_name)
+            in_plug = node.plugs[switch_input]
+            links += [link + (parent, ) for link in in_plug.links_from]
+        elif recursive and isinstance(node, PipelineNode):
+            # either output from a sibling sub_pipeline
+            # or input from parent pipeline
+            # but it is handled the same way.
+            # check their inputs
+            # just if sibling, keep them as parent
+            if in_plug.output and parent is None:
+                new_parent = node
+            else:
+                new_parent = parent
+            links += [link + (new_parent, ) for link in in_plug.links_from]
+        else:
+            # output of a process: found it
+            # in non-recursive mode, a pipeline is regarded as a process.
+            return node, param_name, parent
+    # not found
+    return None, None, None
 

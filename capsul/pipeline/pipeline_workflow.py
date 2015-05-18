@@ -21,9 +21,10 @@ from capsul.pipeline import Pipeline, Switch
 from capsul.process import Process
 from capsul.pipeline.topological_sort import Graph
 from traits.api import Directory, Undefined, File, Str, Any
+from soma.sorted_dictionary import OrderedDict
 
 
-def workflow_from_pipeline(pipeline, study_config={}):
+def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
     """ Create a soma-workflow workflow from a Capsul Pipeline
 
     Parameters
@@ -33,6 +34,15 @@ def workflow_from_pipeline(pipeline, study_config={}):
     study_config: StudyConfig (optional), or dict
         holds information about file transfers and shared resource paths.
         If not specified, no translation/transfers will be used.
+    disabled_nodes: sequence of pipeline nodes (Node instances) (optional)
+        such nodes will be disabled on-the-fly in the pipeline, file transfers
+        will be adapted accordingly (outputs may become inputs in the resulting
+        workflow), and temporary files will be checked. If a disabled node was
+        to produce a temporary files which is still used in an enabled node,
+        then a ValueError exception will be raised.
+        If disabled_nodes is not passed, they will possibly be taken from the
+        pipeline (if available) using disabled steps:
+        see Pipeline.define_steps()
 
     Returns
     -------
@@ -65,7 +75,7 @@ def workflow_from_pipeline(pipeline, study_config={}):
         return paths
 
     def build_job(process, temp_map={}, shared_map={}, transfers=[{}, {}],
-                  shared_paths={}):
+                  shared_paths={}, forbidden_temp=set()):
         """ Create a soma-workflow Job from a Capsul Process
 
         Parameters
@@ -155,9 +165,15 @@ def workflow_from_pipeline(pipeline, study_config={}):
                     if parameter.output:
                         output_replaced_paths.append(temp_map[value])
                     else:
+                        if value in forbidden_temp:
+                            raise ValueError(
+                                'Temporary value used cannot be generated in '
+                                'the workflkow: %s.%s'
+                                % (process.name, param_name))
                         input_replaced_paths.append(temp_map[value])
                 else:
-                    _translated_path(value, parameter, shared_map, shared_paths)
+                    _translated_path(value, parameter, shared_map,
+                                     shared_paths)
 
         # and replace in commandline
         iproc_transfers = transfers[0].get(process, {})
@@ -333,13 +349,13 @@ def workflow_from_pipeline(pipeline, study_config={}):
         transfer_paths: list
             paths basedirs for translations from soma-worflow config
 
-        Return
-        ------
-            [in_transfers, out_transfers]
-            each of which is a dict: { Process: proc_dict }
-                proc_dict is a dict: { file_path : FileTransfer object }
-            FileTransfer objects are reused when referring to the same path used
-            from different processes within the pipeline.
+        Returns
+        -------
+        [in_transfers, out_transfers]
+        each of which is a dict: { Process: proc_dict }
+            proc_dict is a dict: { file_path : FileTransfer object }
+        FileTransfer objects are reused when referring to the same path
+        used from different processes within the pipeline.
         """
         in_transfers = {}
         out_transfers = {}
@@ -365,8 +381,69 @@ def workflow_from_pipeline(pipeline, study_config={}):
                         break
         return transfers
 
+    def _expand_nodes(nodes):
+        '''Expands the nodes list or set to leaf nodes by replacing pipeline
+        nodes by their children list.
+
+        Returns
+        -------
+        set of leaf nodes.
+        '''
+        nodes_list = list(nodes)
+        expanded_nodes = set()
+        while nodes_list:
+            node = nodes_list.pop(0)
+            if not hasattr(node, 'process'):
+                continue # switch or something
+            if isinstance(node.process, Pipeline):
+                nodes_list.extend([p for p in node.process.nodes.itervalues()
+                                   if p is not node])
+            else:
+                expanded_nodes.add(node)
+        return expanded_nodes
+
+    def _handle_disable_nodes(pipeline, temp_map, transfers, disabled_nodes):
+        '''Take into account disabled nodes by changing FileTransfer outputs
+        for such nodes to inputs, and recording output temporary files, so as
+        to ensure that missing temporary outputs will not be used later in
+        the workflow.
+
+        disabled_nodes should be a list, or preferably a set, of leaf process
+        nodes. Use _expand_nodes() if needed before calling
+        _handle_disable_nodes().
+        '''
+        move_to_input = {}
+        remove_temp = set()
+        for node in disabled_nodes:
+            if not hasattr(node, 'process'):
+                continue # switch or something else
+            process = node.process
+            otrans = transfers[1].get(process, None)
+            for param, trait in process.user_traits().iteritems():
+                if trait.output and (isinstance(trait.trait_type, File) \
+                        or isinstance(trait.trait_type, Directory) \
+                        or type(trait.trait_type) is Any):
+                    path = getattr(process, param)
+                    if otrans is not None:
+                        transfer, path2 = otrans.get(param, (None, None))
+                    else:
+                        transfer = None
+                    if transfer is not None:
+                        print 'transfered output path:', path, \
+                            'from: %s.%s changes to input.' \
+                            % (node.name, param)
+                        move_to_input[path] = transfer
+                        transfer.initial_status \
+                            = swclient.constants.FILES_ON_CLIENT
+                    elif path in temp_map:
+                        print 'temp path in: %s.%s will not be produced.' \
+                            % (node.name, param)
+                        remove_temp.add(path)
+        return move_to_input, remove_temp
+
     def workflow_from_graph(graph, temp_map={}, shared_map={},
-                            transfers=[{}, {}], shared_paths={}):
+                            transfers=[{}, {}], shared_paths={},
+                            disabled_nodes=set(), forbidden_temp=set()):
         """ Convert a CAPSUL graph to a soma-workflow workflow
 
         Parameters
@@ -394,9 +471,13 @@ def workflow_from_pipeline(pipeline, study_config={}):
         jobs = {}
         groups = {}
         root_jobs = {}
-        root_groups = {}
         dependencies = set()
         group_nodes = {}
+
+        ordered_nodes = graph.topological_sort()
+        proc_keys = dict([(node[1] if isinstance(node[1], Graph)
+                              else node[1][0].process, i)
+                           for i, node in enumerate(ordered_nodes)])
 
         # Go through all graph nodes
         for node_name, node in graph._nodes.iteritems():
@@ -409,9 +490,11 @@ def workflow_from_pipeline(pipeline, study_config={}):
                 for pipeline_node in node.meta:
                     process = pipeline_node.process
                     if (not isinstance(process, Pipeline) and
-                            isinstance(process, Process)):
+                            isinstance(process, Process) and
+                            pipeline_node not in disabled_nodes):
                         job = build_job(process, temp_map, shared_map,
-                                        transfers, shared_paths)
+                                        transfers, shared_paths,
+                                        forbidden_temp=forbidden_temp)
                         sub_jobs[process] = job
                         root_jobs[process] = job
                        #node.job = job
@@ -420,14 +503,13 @@ def workflow_from_pipeline(pipeline, study_config={}):
         # Recurence on graph node
         for node_name, node in group_nodes.iteritems():
             wf_graph = node.meta
-            (sub_jobs, sub_deps, sub_groups, sub_root_groups,
-                       sub_root_jobs) = workflow_from_graph(
-                          wf_graph, temp_map, shared_map, transfers,
-                          shared_paths)
-            group = build_group(node_name,
-                sub_root_groups.values() + sub_root_jobs.values())
+            (sub_jobs, sub_deps, sub_groups, sub_root_jobs) \
+                = workflow_from_graph(
+                    wf_graph, temp_map, shared_map, transfers,
+                    shared_paths, disabled_nodes)
+            group = build_group(node_name, sub_root_jobs.values())
             groups[node.meta] = group
-            root_groups[node.meta] = group
+            root_jobs[node.meta] = group
             jobs.update(sub_jobs)
             groups.update(sub_groups)
             dependencies.update(sub_deps)
@@ -435,19 +517,30 @@ def workflow_from_pipeline(pipeline, study_config={}):
         # Add dependencies between a source job and destination jobs
         for node_name, node in graph._nodes.iteritems():
             # Source job
-            if isinstance(node.meta, list) and node.meta[0].process in jobs:
-                sjob = jobs[node.meta[0].process]
+            if isinstance(node.meta, list):
+                if node.meta[0].process in jobs:
+                    sjob = jobs[node.meta[0].process]
+                else:
+                    continue # disabled node
             else:
                 sjob = groups[node.meta]
             # Destination jobs
             for dnode in node.links_to:
-                if isinstance(dnode.meta, list) and dnode.meta[0].process in jobs:
-                    djob = jobs[dnode.meta[0].process]
+                if isinstance(dnode.meta, list):
+                    if dnode.meta[0].process in jobs:
+                        djob = jobs[dnode.meta[0].process]
+                    else:
+                        continue # disabled node
                 else:
                     djob = groups[dnode.meta]
                 dependencies.add((sjob, djob))
 
-        return jobs, dependencies, groups, root_groups, root_jobs
+        # sort root jobs/groups
+        root_jobs_list = [(proc_keys[p], p, j)
+                          for p, j in root_jobs.iteritems()]
+        root_jobs_list.sort()
+        root_jobs = OrderedDict([x[1:] for x in root_jobs_list])
+        return jobs, dependencies, groups, root_jobs
 
     # TODO: handle formats in a separate, centralized place
     # formats: {name: ext_props}
@@ -473,20 +566,29 @@ def workflow_from_pipeline(pipeline, study_config={}):
     shared_map = {}
     swf_paths = _get_swf_paths(study_config)
     transfers = _get_transfers(pipeline, swf_paths[0], merged_formats)
+    #print 'disabling nodes:', disabled_nodes
+    # get complete list of disabled leaf nodes
+    if disabled_nodes is None:
+        disabled_nodes = pipeline.disabled_pipeline_steps_nodes()
+    disabled_nodes = _expand_nodes(disabled_nodes)
+    move_to_input, remove_temp = _handle_disable_nodes(
+        pipeline, temp_subst_map, transfers, disabled_nodes)
+    #print 'changed transfers:', move_to_input
+    #print 'removed temp:', remove_temp
+    #print 'temp_map:', temp_map
 
     # Get a graph
-    graph = pipeline.workflow_graph()
-    (jobs, dependencies, groups, root_groups,
-           root_jobs) = workflow_from_graph(
-              graph, temp_subst_map, shared_map, transfers, swf_paths[1])
+    try:
+        graph = pipeline.workflow_graph()
+        (jobs, dependencies, groups, root_jobs) = workflow_from_graph(
+                  graph, temp_subst_map, shared_map, transfers, swf_paths[1],
+                  disabled_nodes=disabled_nodes, forbidden_temp=remove_temp)
+    finally:
+        restore_empty_filenames(temp_map)
 
-    restore_empty_filenames(temp_map)
-
-    # TODO: root_group would need reordering according to dependencies
-    # (maybe using topological_sort)
     workflow = swclient.Workflow(jobs=jobs.values(),
         dependencies=dependencies,
-        root_group=root_groups.values() + root_jobs.values(),
+        root_group=root_jobs.values(),
         name=pipeline.name)
 
     return workflow

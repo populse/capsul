@@ -34,3 +34,4 @@ controls["File"] = FileControlWidget
 controls["Directory"] = DirectoryControlWidget
 controls["List"] = ListControlWidget
 controls["Instance"] = ControllerControlWidget
+controls["TraitInstance"] = ControllerControlWidget

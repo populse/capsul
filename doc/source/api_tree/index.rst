@@ -65,7 +65,11 @@ Workflow conversion
     pipeline_tools.dot_graph_from_pipeline
     pipeline_tools.save_dot_graph
     pipeline_tools.save_dot_image
-
+    pipeline_tools.nodes_with_existing_outputs
+    pipeline_tools.nodes_with_missing_inputs
+    pipeline_tools.disable_runtime_steps_with_existing_outputs
+    pipeline_tools.where_is_plug_value_from
+    
 
 :mod:`capsul.process`: Process
 ===============================
