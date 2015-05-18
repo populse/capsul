@@ -21,7 +21,7 @@ from capsul.pipeline.pipeline_nodes import ProcessNode
 from capsul.pipeline.pipeline_nodes import PipelineNode
 
 # soma-base import
-from collections import OrderedDict
+from soma.sorted_dictionary import OrderedDict
 
 # TRAIT import
 from traits.api import Undefined
