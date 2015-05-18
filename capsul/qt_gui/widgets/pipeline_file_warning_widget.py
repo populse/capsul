@@ -15,10 +15,39 @@ except ImportError:
 
 
 class PipelineFileWarningWidget(QtGui.QSplitter):
+    """
+    This class is a GUI for pipeline file inputs/outputs checking.
+
+    It allows to check if there are missing inputs which may prevent the
+    pipeline from running, or if there are already existing outputs which would
+    be overwritten if the pipeline runs.
+
+    It will show warnings accordingly.
+
+    The widget is built from the output of
+    :py:func:`capsul.pipeline_tools.nodes_with_missing_inputs` and
+    :py:func:`capsul.pipeline_tools.nodes_with_existing_outputs`
+    """
 
     def __init__(self, missing_inputs, overwritten_outputs, parent=None):
         super(PipelineFileWarningWidget, self).__init__(
             QtCore.Qt.Vertical, parent)
+        """
+        Builds the check widget.
+
+        Parameters
+        ----------
+        missing_inputs: mapping iterable (mandatory)
+            a dict node: (list of pairs (param_name, file_name))
+            as output of
+            :py:func:`capsul.pipeline_tools.nodes_with_missing_inputs`
+        overwritten_outputs: mapping iterable (mandatory)
+            a dict node: (list of pairs (param_name, file_name))
+            as output of
+            :py:func:`capsul.pipeline_tools.nodes_with_existing_outputs`
+        parent: QWidget (optional)
+            parent widget
+        """
         splitter = self
         widget1 = QtGui.QWidget(splitter)
         layout1 = QtGui.QVBoxLayout(widget1)
