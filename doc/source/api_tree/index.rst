@@ -56,12 +56,15 @@ Workflow conversion
     pipeline_workflow.workflow_from_pipeline
     pipeline_workflow.local_workflow_run
 
-    pipeline_tools.disable_node_for_downhill_pipeline
-    pipeline_tools.disable_node_for_uphill_pipeline
     pipeline_tools.disable_nodes_with_existing_outputs
     pipeline_tools.reactivate_node
     pipeline_tools.reactivate_pipeline
     pipeline_tools.remove_temporary_exports
+    pipeline_tools.pipeline_node_colors
+    pipeline_tools.pipeline_link_color
+    pipeline_tools.dot_graph_from_pipeline
+    pipeline_tools.save_dot_graph
+    pipeline_tools.save_dot_image
 
 
 :mod:`capsul.process`: Process
