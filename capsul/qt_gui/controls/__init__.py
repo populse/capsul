@@ -36,4 +36,5 @@ controls["Directory"] = DirectoryControlWidget
 controls["List"] = ListControlWidget
 controls["Instance"] = ControllerControlWidget
 controls["TraitInstance"] = ControllerControlWidget
+controls["ControllerTrait"] = ControllerControlWidget
 controls["Dict"] = DictControlWidget
