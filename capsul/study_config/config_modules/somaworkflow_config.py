@@ -6,9 +6,9 @@
 # for details.
 ##########################################################################
 
-from traits.api import Bool, Str, Undefined, List, Dict, TraitType, TraitError
+from traits.api import Bool, Str, Undefined, List, Dict
 from capsul.study_config.study_config import StudyConfigModule
-from soma.controller import Controller
+from soma.controller import Controller, ControllerTrait
 
 
 class SomaWorkflowConfig(StudyConfigModule):
@@ -31,30 +31,6 @@ class SomaWorkflowConfig(StudyConfigModule):
                     desc='Soma-workflow paths translations mapping: '
                     '{local_path: remote_path}'))
 
-    class ControllerTrait(TraitType):
-        def __init__(self, controller, open_keys=False, open_trait_type=None,
-                     **kwargs):
-            super(SomaWorkflowConfig.ControllerTrait, self).__init__(
-                None, **kwargs)
-            self.controller = controller
-            self.default_value = controller
-            self.open_keys = open_keys
-            self.open_trait_type = open_trait_type
-
-        def validate(self, object, name, value):
-            if isinstance(value, Controller):
-                return super(SomaWorkflowConfig.ControllerTrait,
-                             self).validate(value)
-            if not hasattr(value, 'iteritems'):
-                raise TraitError('trait must be a Controller')
-            new_value = getattr(object, name).copy(with_values=False)
-            if self.open_keys:
-                for key in value:
-                    if not self.controller.trait(key):
-                        new_value.add_trait(key, self.open_trait_type)
-            new_value.import_from_dict(value)
-            return new_value
-
     def __init__(self, study_config, configuration):
 
         super(SomaWorkflowConfig, self).__init__(study_config, configuration)
@@ -70,10 +46,10 @@ class SomaWorkflowConfig(StudyConfigModule):
         c = Controller()
         study_config.add_trait(
             'somaworkflow_computing_resources_config',
-                SomaWorkflowConfig.ControllerTrait(
+                ControllerTrait(
                     c,
                     open_keys=True,
-                    open_trait_type=SomaWorkflowConfig.ControllerTrait(
+                    open_trait_type=ControllerTrait(
                         SomaWorkflowConfig.ResourceController(),
                         output=False, allow_none=False,
                         desc='Computing resource config'),
@@ -82,7 +58,7 @@ class SomaWorkflowConfig(StudyConfigModule):
 
         #c.add_trait(
             #'localhost',
-            #SomaWorkflowConfig.ControllerTrait(
+            #ControllerTrait(
                 #SomaWorkflowConfig.ResourceController(),
                 #output=False, allow_none=False,
                 #desc='Computing resource config'))
