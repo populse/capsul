@@ -1,0 +1,733 @@
+#! /usr/bin/env python
+##########################################################################
+# CAPSUL - Copyright (C) CEA, 2013
+# Distributed under the terms of the CeCILL-B license, as published by
+# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+# for details.
+##########################################################################
+
+# System import
+import os
+import logging
+from functools import partial
+from traits.api import Instance
+
+# Define the logger
+logger = logging.getLogger(__name__)
+
+# Soma import
+from soma.qt_gui.qt_backend import QtGui, QtCore
+from soma.utils.functiontools import SomaPartial
+from soma.controller import trait_ids
+from soma.controller import Controller
+from soma.sorted_dictionary import OrderedDict
+
+# Capsul import
+from capsul.qt_gui.controller_widget import ControllerWidget
+
+# Qt import
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    _fromUtf8 = lambda s: s
+
+QtCore.QResource.registerResource(os.path.join(os.path.dirname(
+    os.path.dirname(__file__)), 'resources', 'widgets_icons.rcc'))
+
+class DictController(Controller):
+    """ Dummy dict controller to simplify the creation of a dict widget
+    """
+    pass
+
+
+class DictControlWidget(object):
+    """ Control to enter a dict of items.
+    """
+
+    ###########################################################################
+    # Public members
+    ###########################################################################
+
+    @staticmethod
+    def is_valid(control_instance, *args, **kwargs):
+        """ Method to check if the new control values are correct.
+
+        If the new dict controls values are not correct, the backroung
+        color of each control in the dict will be red.
+
+        Parameters
+        ----------
+        control_instance: QFrame (mandatory)
+            the control widget we want to validate
+
+        Returns
+        -------
+        valid: bool
+            True if the control values are valid,
+            False otherwise
+        """
+        # Initilaized the output
+        valid = True
+
+        # Go through all the controller widget controls
+        controller_widget = control_instance.controller_widget
+        for control_name, control in controller_widget._controls.iteritems():
+
+            # Unpack the control item
+            trait, control_class, control_instance, control_label = control
+
+            # Call the current control specific check method
+            valid = control_class.is_valid(control_instance)
+
+            # Stop checking if a wrong control has been found
+            if not valid:
+                break
+
+        return valid
+
+    @classmethod
+    def check(cls, control_instance):
+        """ Check if a controller widget dict control is filled correctly.
+
+        Parameters
+        ----------
+        cls: DictControlWidget (mandatory)
+            a DictControlWidget control
+        control_instance: QFrame (mandatory)
+            the control widget we want to validate
+        """
+        pass
+
+    @staticmethod
+    def add_callback(callback, control_instance):
+        """ Method to add a callback to the control instance when the dict
+        trait is modified
+
+        Parameters
+        ----------
+        callback: @function (mandatory)
+            the function that will be called when a 'textChanged' signal is
+            emited.
+        control_instance: QFrame (mandatory)
+            the control widget we want to validate
+        """
+        pass
+
+    @staticmethod
+    def create_widget(parent, control_name, control_value, trait):
+        """ Method to create the dict widget.
+
+        Parameters
+        ----------
+        parent: QWidget (mandatory)
+            the parent widget
+        control_name: str (mandatory)
+            the name of the control we want to create
+        control_value: dict of items (mandatory)
+            the default control value
+        trait: Tait (mandatory)
+            the trait associated to the control
+
+        Returns
+        -------
+        out: 2-uplet
+            a two element tuple of the form (control widget: ,
+            associated labels: (a label QLabel, the tools QWidget))
+        """
+        # Get the inner trait: expect only one inner trait
+        if len(trait.inner_traits) != 2:
+            raise Exception(
+                "Expect two inner traits in Dict control. Trait '{0}' "
+                "inner traits are '{1}'.".format(
+                    control_name, trait.inner_traits))
+        inner_trait = trait.inner_traits[1]
+
+        # Create the dict widget: a frame
+        frame = QtGui.QFrame(parent=parent)
+        frame.setFrameShape(QtGui.QFrame.StyledPanel)
+
+        # Create tools to interact with the dict widget: expand or collapse -
+        # add a dict item - remove a dict item
+        tool_widget = QtGui.QWidget(parent)
+        layout = QtGui.QHBoxLayout()
+        layout.addStretch(1)
+        tool_widget.setLayout(layout)
+        # Create the tool buttons
+        resize_button = QtGui.QToolButton()
+        add_button = QtGui.QToolButton()
+        delete_button = QtGui.QToolButton()
+        layout.addWidget(resize_button)
+        layout.addWidget(add_button)
+        layout.addWidget(delete_button)
+        # Set the tool icons
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/add")),
+                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        add_button.setIcon(icon)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/delete")),
+                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        delete_button.setIcon(icon)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_down")),
+                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        resize_button.setIcon(icon)
+
+        # Create a new controller that contains length 'control_value' inner
+        # trait elements
+        controller = DictController()
+        for name, inner_control_values in control_value.iteritems():
+            controller.add_trait(str(name), inner_trait)
+            setattr(controller, str(name), inner_control_values)
+
+        # Create the associated controller widget
+        controller_widget = ControllerWidget(controller, parent=frame,
+                                             live=True)
+
+        # Store some parameters in the dict widget
+        frame.inner_trait = inner_trait
+        frame.trait = trait
+        frame.controller = controller
+        frame.controller_widget = controller_widget
+        frame.connected = False
+
+        # Add the dict controller widget to the dict widget
+        frame.setLayout(controller_widget.layout())
+
+        # Set some callback on the dict control tools
+        # Resize callback
+        resize_hook = partial(
+            DictControlWidget.expand_or_collapse, frame, resize_button)
+        resize_button.clicked.connect(resize_hook)
+        # Add dict item callback
+        add_hook = partial(
+            DictControlWidget.add_dict_item, parent, control_name, frame)
+        add_button.clicked.connect(add_hook)
+        # Delete dict item callback
+        delete_hook = partial(
+            DictControlWidget.delete_dict_item, parent, control_name, frame)
+        delete_button.clicked.connect(delete_hook)
+
+        # Create the label associated with the dict widget
+        control_label = trait.label
+        if control_label is None:
+            control_label = control_name
+        if control_label is not None:
+            label = QtGui.QLabel(control_label, parent)
+        else:
+            label = None
+
+        return (frame, (label, tool_widget))
+
+    @staticmethod
+    def update_controller(controller_widget, control_name, control_instance,
+                          *args, **kwarg):
+        """ Update one element of the controller.
+
+        At the end the controller trait value with the name 'control_name'
+        will match the controller widget user parameters defined in
+        'control_instance'.
+
+        Parameters
+        ----------
+        controller_widget: ControllerWidget (mandatory)
+            a controller widget that contains the controller we want to update
+        control_name: str(mandatory)
+            the name of the controller widget control we want to synchronize
+            with the controller
+        control_instance: QFrame (mandatory)
+            the instance of the controller widget control we want to
+            synchronize with the controller
+        """
+        # Get the dict widget inner controller values
+        print 'dict update_controller', controller_widget, control_name
+        print 'dict controller:', control_instance.controller
+        print 'control instance:', control_instance
+        new_trait_value = dict([
+            (name, getattr(control_instance.controller, name))
+            for name in control_instance.controller.user_traits()])
+        print 'new_trait_value:', new_trait_value
+
+        # Update the 'control_name' parent controller value
+        setattr(controller_widget.controller, control_name,
+                new_trait_value)
+        logger.debug(
+            "'DictControlWidget' associated controller trait '{0}' has "
+            "been updated with value '{1}'.".format(
+                control_name, new_trait_value))
+
+    @classmethod
+    def update_controller_widget(cls, controller_widget, control_name,
+                                 control_instance):
+        """ Update one element of the dict controller widget.
+
+        At the end the dict controller widget user editable parameter with the
+        name 'control_name' will match the controller trait value with the same
+        name.
+
+        Parameters
+        ----------
+        controller_widget: ControllerWidget (mandatory)
+            a controller widget that contains the controller we want to update
+        control_name: str(mandatory)
+            the name of the controller widget control we want to synchronize
+            with the controller
+        control_instance: QFrame (mandatory)
+            the instance of the controller widget control we want to
+            synchronize with the controller
+        """
+        # One callback has not been removed properly
+        if control_name in controller_widget.controller.user_traits():
+
+            # Get the dict widget current connection status
+            was_connected = control_instance.connected
+
+            # Disconnect the dict controller and the inner dict controller
+            cls.disconnect(controller_widget, control_name, control_instance)
+            control_instance.controller_widget.disconnect()
+
+            # Get the 'control_name' dict value from the top dict controller
+            trait_value = getattr(controller_widget.controller, control_name)
+
+            # Get the number of dict elements in the controller associated
+            # with the current dict control
+            widget_traits = control_instance.controller.user_traits()
+
+            # Parameter that is True if a user trait associated with the
+            # current dict control has changed
+            user_traits_changed = False
+
+            # Special case: some traits have been deleted to the top controller
+            # Need to remove to the inner dict controller some traits
+            for trait_name in widget_traits:
+                if trait_name not in trait_value:
+                    control_instance.controller.remove_trait(trait_name)
+                    # Notify that some traits of the inner dict controller have
+                    # been deleted
+                    user_traits_changed = True
+
+            # Special case: some new traits have been added to the top
+            # controller
+            # Need to add to the inner dict controller some traits
+            # with type 'inner_trait'
+            for trait_name in trait_value:
+                if trait_name not in widget_traits:
+                    control_instance.controller.add_trait(
+                        trait_name, control_instance.inner_trait)
+                    # Notify that some traits of the inner dict controller
+                    # have been added
+                    user_traits_changed = True
+
+            # Update the controller associated with the current control
+            for trait_name, value in trait_value.iteritems():
+                setattr(control_instance.controller, trait_name, value)
+
+            # Connect the inner dict controller
+            control_instance.controller_widget.connect()
+
+            # Emit the 'user_traits_changed' signal if necessary
+            if user_traits_changed:
+                control_instance.controller.user_traits_changed = True
+
+                logger.debug(
+                    "'DictControlWidget' inner controller has been updated:"
+                    "old size '{0}', new size '{1}'.".format(
+                        len(widget_traits), len(trait_value)))
+
+            # Restore the previous dict controller connection status
+            if was_connected:
+                cls.connect(controller_widget, control_name, control_instance)
+
+        else:
+            logger.error("oups")
+            #print cls, controller_widget, control_name, control_instance
+            #print control_instance.controller
+            #print control_instance.controller.user_traits()
+
+    @classmethod
+    def connect(cls, controller_widget, control_name, control_instance):
+        """ Connect a 'List' controller trait and a 'DictControlWidget'
+        controller widget control.
+
+        Parameters
+        ----------
+        cls: StrControlWidget (mandatory)
+            a StrControlWidget control
+        controller_widget: ControllerWidget (mandatory)
+            a controller widget that contains the controller we want to update
+        control_name: str (mandatory)
+            the name of the controller widget control we want to synchronize
+            with the controller
+        control_instance: QFrame (mandatory)
+            the instance of the controller widget control we want to
+            synchronize with the controller
+        """
+        # Check if the control is connected
+        if not control_instance.connected:
+
+            # Update the dict item when one of his associated controller trait
+            # changed.
+            # Hook: function that will be called to update the controller
+            # associated with a dict widget when a dict widget inner controller
+            # trait is modified.
+            dict_controller_hook = SomaPartial(
+                cls.update_controller, controller_widget, control_name,
+                control_instance)
+
+            # Go through all dict widget inner controller user traits
+            for trait_name in control_instance.controller.user_traits():
+
+                # And add the callback on each user trait
+                control_instance.controller.on_trait_change(
+                    dict_controller_hook, trait_name)
+                logger.debug("Item '{0}' of a 'DictControlWidget', add "
+                              "a callback on inner controller trait "
+                              "'{0}'.".format(control_name, trait_name))
+
+            # Update the dict controller widget.
+            # Hook: function that will be called to update the specific widget
+            # when a trait event is detected on the dict controller.
+            controller_hook = SomaPartial(
+                cls.update_controller_widget, controller_widget, control_name,
+                control_instance)
+
+            # When the 'control_name' controller trait value is modified,
+            # update the corresponding control
+            controller_widget.controller.on_trait_change(
+                controller_hook, control_name)
+
+            # Update the dict connection status
+            control_instance._controller_connections = (
+                dict_controller_hook, controller_hook)
+            logger.debug("Add 'Dict' connection: {0}.".format(
+                control_instance._controller_connections))
+
+            # Connect also all dict items
+            inner_controls = control_instance.controller_widget._controls
+            for (inner_control_name,
+                 inner_control) in inner_controls.iteritems():
+
+                # Unpack the control item
+                inner_control_instance = inner_control[2]
+                inner_control_class = inner_control[1]
+
+                # Call the inner control connect method
+                inner_control_class.connect(
+                    control_instance.controller_widget, inner_control_name,
+                    inner_control_instance)
+
+            # Update the dict control connection status
+            control_instance.connected = True
+
+    @staticmethod
+    def disconnect(controller_widget, control_name, control_instance):
+        """ Disconnect a 'List' controller trait and a 'DictControlWidget'
+        controller widget control.
+
+        Parameters
+        ----------
+        cls: StrControlWidget (mandatory)
+            a StrControlWidget control
+        controller_widget: ControllerWidget (mandatory)
+            a controller widget that contains the controller we want to update
+        control_name: str (mandatory)
+            the name of the controller widget control we want to synchronize
+            with the controller
+        control_instance: QFrame (mandatory)
+            the instance of the controller widget control we want to
+            synchronize with the controller
+        """
+        # Check if the control is connected
+        if control_instance.connected:
+
+            # Get the stored widget and controller hooks
+            (dict_controller_hook,
+             controller_hook) = control_instance._controller_connections
+
+            # Remove the controller hook from the 'control_name' trait
+            controller_widget.controller.on_trait_change(
+                controller_hook, control_name, remove=True)
+
+            # Remove the dict controller hook associated with the controller
+            # traits
+            for trait_name in control_instance.controller.user_traits():
+                control_instance.controller.on_trait_change(
+                    dict_controller_hook, trait_name, remove=True)
+
+            # Delete the trait - control connection we just remove
+            del control_instance._controller_connections
+
+            # Disconnect also all dict items
+            inner_controls = control_instance.controller_widget._controls
+            for (inner_control_name,
+                 inner_control) in inner_controls.iteritems():
+
+                # Unpack the control item
+                inner_control_instance = inner_control[2]
+                inner_control_class = inner_control[1]
+
+                # Call the inner control disconnect method
+                inner_control_class.disconnect(
+                    control_instance.controller_widget, inner_control_name,
+                    inner_control_instance)
+
+            # Update the dict control connection status
+            control_instance.connected = False
+
+    ###########################################################################
+    # Callbacks
+    ###########################################################################
+
+    @staticmethod
+    def add_dict_item(controller_widget, control_name, control_instance):
+        """ Append one element in the dict controller widget.
+
+        Parameters
+        ----------
+        controller_widget: ControllerWidget (mandatory)
+            a controller widget that contains the controller we want to update
+        control_name: str(mandatory)
+            the name of the controller widget control we want to synchronize
+            with the controller
+        control_instance: QFrame (mandatory)
+            the instance of the controller widget control we want to
+            synchronize with the controller
+        """
+        # Get the number of traits associated with the current dict control
+        # controller
+        nb_of_traits = len(control_instance.controller.user_traits())
+        trait_name = str(nb_of_traits)
+
+        # Add the new trait to the inner dict controller
+        control_instance.controller.add_trait(
+            trait_name, control_instance.inner_trait)
+
+        # Create the associated control
+        if isinstance(control_instance.inner_trait.trait_type, Instance):
+            new_value = \
+                control_instance.inner_trait.trait_type.create_default_value(
+                    control_instance.inner_trait.trait_type.klass)
+            setattr(control_instance.controller, trait_name, new_value)
+        control_instance.controller_widget.create_control(
+            trait_name, control_instance.inner_trait)
+        grid_layout = control_instance.controller_widget._grid_layout
+        label_widget = grid_layout.itemAtPosition(
+            grid_layout.rowCount() - 1, 0).widget()
+        text = label_widget.text()
+        grid_layout.removeWidget(label_widget)
+        if label_widget.parent() is not None:
+            label_widget.setParent(None)
+        del label_widget
+        label_widget = QtGui.QLineEdit(text)
+        label_widget.last_key = str(text)
+        grid_layout.addWidget(label_widget, grid_layout.rowCount() - 1, 0)
+
+        # Hook: function that will be called to update a specific
+        # controller trait when a 'textChanged' qt signal is emited
+        widget_hook = partial(
+            DictControlWidget.key_changed,
+            control_instance.controller_widget,
+            control_name, control_instance, label_widget)
+        label_widget.textChanged.connect(widget_hook)
+
+        # Update the dict controller
+        control_instance._controller_connections[0]()
+        #control_instance.controller_widget.update_controller_widget()
+        logger.debug("Add 'DictControlWidget' '{0}' new trait "
+                      "callback.".format(trait_name))
+
+    @staticmethod
+    def key_changed(controller_widget, control_name, control_instance,
+                    label_widget, text):
+        print 'key_changed:', label_widget.last_key, '->', text
+        print 'control_instance:', control_instance
+        controller = control_instance.controller
+        print 'controller:', controller
+        old_name = label_widget.last_key
+        new_name = str(text)
+
+        controller.add_trait(new_name, controller.trait(old_name))
+        setattr(controller, new_name, getattr(controller, old_name))
+        controller.remove_trait(old_name)
+
+        print 'controller_widget:', controller_widget
+        #trait_value = getattr(controller_widget.controller, control_name)
+        #print 'trait_value:', trait_value
+        #trait_value[new_name] = trait_value[old_name]
+        #del trait_value[old_name]
+        label_widget.last_key = new_name
+        print 'update after key change.'
+        control_instance._controller_connections[0]()
+
+    @staticmethod
+    def delete_one_row(control_instance, index_to_remove):
+        """ Delete a two columns row if a widget is found in column two
+
+        Parameters
+        ----------
+        control_instance: QFrame (mandatory)
+            the instance of the controller widget control we want to
+            synchronize with the controller
+        index_to_remove: int (mandatory)
+            the row index we want to delete from the widget
+
+        Returns
+        -------
+        is_deleted: bool
+            True if a widget has been found and the row has been deledted,
+            False otherwise
+        widget: QWidget
+            the widget that has been deleted. If 'is_deleted' is False return
+            None
+        """
+        # Initilaize the output
+        is_deleted = False
+
+        # Try to get the widget item in column two
+        widget_item = (
+            control_instance.controller_widget._grid_layout.itemAtPosition(
+                index_to_remove, 1))
+
+        # If a widget has been found, remove the current line
+        if widget_item is not None:
+
+            # Remove the widget
+            widget = widget_item.widget()
+            control_instance.controller_widget._grid_layout.removeItem(
+                widget_item)
+            widget.deleteLater()
+
+            # Try to get the widget label in column one
+            label_item = (
+                control_instance.controller_widget._grid_layout.itemAtPosition(
+                    index_to_remove, 0))
+
+            # If a label has been found, remove it
+            if label_item is not None:
+
+                # Remove the label
+                label = label_item.widget()
+                control_instance.controller_widget._grid_layout.removeItem(
+                    label_item)
+                label.deleteLater()
+
+            # Update the output
+            is_deleted = True
+
+        # No widget found
+        else:
+            widget = None
+
+        return is_deleted, widget
+
+    @staticmethod
+    def delete_dict_item(controller_widget, control_name, control_instance):
+        """ Delete the last control element
+
+        Parameters
+        ----------
+        controller_widget: ControllerWidget (mandatory)
+            a controller widget that contains the controller we want to update
+        control_name: str(mandatory)
+            the name of the controller widget control we want to synchronize
+            with the controller
+        control_instance: QFrame (mandatory)
+            the instance of the controller widget control we want to
+            synchronize with the controller
+        """
+        # Delete the last inserted control
+        last_row = (
+            control_instance.controller_widget._grid_layout.rowCount())
+        nb_of_items = control_instance.controller_widget._grid_layout.count()
+        item_found = False
+        index_to_remove = last_row - 1
+
+        # If the dict contain at least one widget
+        if nb_of_items > 0:
+
+            # While the last inserted widget has not been found
+            while index_to_remove >= 0 and not item_found:
+
+                # Try to remove the 'index_to_remove' control row
+                item_found, widget = DictControlWidget.delete_one_row(
+                    control_instance, index_to_remove)
+
+                # If a dict control has been deleted, remove the associated
+                # tools
+                if hasattr(widget, "controller"):
+
+                    # Remove the dict control extra tools row
+                    DictControlWidget.delete_one_row(
+                        control_instance, index_to_remove - 1)
+
+                # Get the trait name that has just been deleted from the
+                # controller widget
+                if item_found:
+                    trait_name = str(index_to_remove - 1)
+
+                # Increment
+                index_to_remove -= 1
+
+        # No more control to delete
+        else:
+            logger.debug(
+                "No more control to delete in '{0}'.".format(control_instance))
+
+        # If one dict control item has been deleted
+        if item_found:
+
+            # If the inner control is a dict, convert the control index
+            # Indeed, two elements are inserted for a dict item
+            # (tools + widget)
+            if trait_ids(control_instance.inner_trait)[0].startswith("Dict_"):
+                trait_name = str((int(trait_name) + 1) / 2 - 1)
+
+            # Remove the trait from the controller
+            control_instance.controller.remove_trait(trait_name)
+
+            # Get, unpack and delete the control item
+            control = control_instance.controller_widget._controls[trait_name]
+            (inner_trait, inner_control_class, inner_control_instance,
+             inner_control_label) = control
+            del(control_instance.controller_widget._controls[trait_name])
+
+            # Disconnect the removed control
+            inner_control_class.disconnect(
+                controller_widget, trait_name, inner_control_instance)
+
+            # Update the dict controller
+            control_instance._controller_connections[0]()
+            logger.debug("Remove 'DictControlWidget' '{0}' controller and "
+                          "trait item.".format(trait_name))
+
+        control_instance.controller_widget._grid_layout.update()
+
+    @staticmethod
+    def expand_or_collapse(control_instance, resize_button):
+        """ Callback to expand or collapse a 'DictControlWidget'.
+
+        Parameters
+        ----------
+        control_instance: QFrame (mandatory)
+            the dict widget item
+        resize_button: QToolButton
+            the signal sender
+        """
+        # Change the icon depending on the button status
+        icon = QtGui.QIcon()
+
+        # Hide the control
+        if control_instance.isVisible():
+            control_instance.hide()
+            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_right")),
+                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+        # Show the control
+        else:
+            control_instance.show()
+            icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/capsul_widgets_icons/nav_down")),
+                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+        # Set the new button icon
+        resize_button.setIcon(icon)
