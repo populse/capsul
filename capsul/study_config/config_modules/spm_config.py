@@ -80,16 +80,13 @@ class SPMConfig(StudyConfigModule):
         * the second one is based on a standalone version of spm and requires
           to set the spm executable directory.
     """
-    
+
     dependencies = ["MatlabConfig"]
-    
+
     def __init__(self, study_config, configuration):
         """ Initialize the SPMConfig class.
         """
         super(SPMConfig, self).__init__(study_config, configuration)
-        self.study_config.add_trait("use_spm", Bool(
-            Undefined,
-            desc="If True, SPM configuration is set up on startup."))
         self.study_config.add_trait("spm_standalone", Bool(
             False,
             desc="If True, use the standalone version of SPM."))
@@ -101,6 +98,9 @@ class SPMConfig(StudyConfigModule):
             Undefined,
             output=False,
             desc="SPM standalone (MCR) command path."))        
+        self.study_config.add_trait("use_spm", Bool(
+            Undefined,
+            desc="If True, SPM configuration is set up on startup."))
 
     def initialize_module(self):
         """ Set up SPM environment according to current configuration.

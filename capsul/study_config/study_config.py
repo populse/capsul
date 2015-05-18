@@ -525,9 +525,14 @@ class StudyConfig(Controller):
             the structure that contain the default study configuration:
             see the class attributes to build this structure.
         """
-        # Go through the configuration structure
-        for trait_name, trait_value in new_config.iteritems():
-
+        # Go through the configuration structure, respecting the traits
+        # declaration order
+        for trait_name in self.user_traits():
+            try:
+                trait_value = new_config[trait_name]
+            except KeyError:
+                # not specified in new_config
+                continue
             # Try to update the 'trait_name' configuration element
             try:
                 self.set_trait_value(trait_name, trait_value)

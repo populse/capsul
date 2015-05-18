@@ -23,20 +23,22 @@ class FomConfig(StudyConfigModule):
 
     def __init__(self, study_config, configuration):
         super(FomConfig, self).__init__(study_config, configuration)
-        self.study_config.add_trait('use_fom', Bool(
-            Undefined,
-            output=False,
-            desc='Use File Organization Models for file parameters completion'))
         self.study_config.add_trait('input_fom', Str(Undefined, output=False,
             desc='input FOM'))
         self.study_config.add_trait('output_fom', Str(Undefined, output=False,
             desc='output FOM'))
         self.study_config.add_trait('shared_fom', Str(Undefined, output=False,
             desc='shared data FOM'))
-        self.study_config.add_trait('volumes_format', Str(Undefined, output=False,
+        self.study_config.add_trait('volumes_format',
+                                    Str(Undefined, output=False,
             desc='Format used for volumes'))
-        self.study_config.add_trait('meshes_format', Str(Undefined, output=False,
+        self.study_config.add_trait('meshes_format',
+                                    Str(Undefined, output=False,
             desc='Format used for meshes'))
+        self.study_config.add_trait('use_fom', Bool(
+            Undefined,
+            output=False,
+            desc='Use File Organization Models for file parameters completion'))
 
         # defaults
         self.study_config.input_fom = ""
