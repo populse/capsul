@@ -1502,7 +1502,7 @@ class Pipeline(Process):
         virtual groups, they do not have parameters.
 
         Disabling a step acts differently as the pipeline node activation: other
-        nodes are not inativated according to their dependencies. Instead,
+        nodes are not inactivated according to their dependencies. Instead,
         those steps are not run.
 
         Parameters
