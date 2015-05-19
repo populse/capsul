@@ -7,5 +7,5 @@
 # for details.
 ##########################################################################
 
-from full_pipeline_widgets import PipelineDevelopperView
-from workflow_widget import PipelineUserView
+from pipeline_developper_view import PipelineDevelopperView
+from pipeline_user_view import PipelineUserView
