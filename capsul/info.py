@@ -74,7 +74,7 @@ REQUIRES = [
     "numpy>={0}".format(NUMPY_MIN_VERSION),
     "traits>={0}".format(TRAITS_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
-    "soma-workflow>={0}".format(SOMA_WORKFLOW_MIN_VERSION)
+    "soma-workflow>={0}".format(SOMA_WORKFLOW_MIN_VERSION),
     "xmltodict>={0}".format(XMLTODICT_MIN_VERSION)
 ]
 EXTRA_REQUIRES = {
