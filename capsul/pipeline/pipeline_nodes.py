@@ -948,9 +948,9 @@ class Switch(Node):
 
         # add a trait for each input and each output
         for i in flat_inputs:
-            self.add_trait(i, Any(output=False))
+            self.add_trait(i, Any(Undefined, output=False))
         for i in outputs:
-            self.add_trait(i, Any(output=True))
+            self.add_trait(i, Any(Undefined, output=True))
 
         # activate the switch first Process
         self._switch_changed(self._switch_values[0], self._switch_values[0])
