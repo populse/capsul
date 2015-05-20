@@ -90,7 +90,7 @@ EXTRA_REQUIRES = {
         "numpy>={0}".format(NUMPY_MIN_VERSION),
         "scipy>={0}".format(SCIPY_MIN_VERSION),
         "nibabel>={0}".format(NIBABEL_MIN_VERSION),
-        "networkx>={0}".format(NETWORKX_MIN_VERSION)
+        "networkx>={0}".format(NETWORKX_MIN_VERSION),
         "nipype=={0}".format(NIPYPE_VERSION),
     ],
 
