@@ -15,6 +15,13 @@ import inspect
 
 # CAPSUL import
 from capsul.pipeline import Pipeline
+from capsul.pipeline.pipeline_nodes import Switch
+from capsul.pipeline.pipeline_nodes import IterativeNode
+from capsul.pipeline.pipeline_nodes import ProcessNode
+from capsul.pipeline.pipeline_nodes import PipelineNode
+
+# soma-base import
+from soma.sorted_dictionary import OrderedDict
 
 # TRAIT import
 from traits.api import Undefined
@@ -43,7 +50,7 @@ def parse_pipeline_description(xmlpath_description):
     Parameters
     ----------
     xmlpath_description: str (mandatory)
-        a file containing the xml formated string describtion of the pipeline
+        a file containing the xml formated string description of the pipeline
         structure.
 
     Returns
@@ -125,7 +132,7 @@ class AutoPipeline(Pipeline):
                 if "force" in process_description:
                     for force_description in self.to_list(process_description[
                             "force"]):
-                        
+
                         (to_copy_parameter, to_rm_parameter, hidden_parameter,
                          optional_parameter) = self.eval_force_description(
                             force_description)
@@ -154,10 +161,19 @@ class AutoPipeline(Pipeline):
         if "switch" in self._parameters["pipeline"]["processes"]:
             for process_description in self.to_list(self._parameters[
                     "pipeline"]["processes"]["switch"]):
+                kwargs = {}
+                if "@export_switch" in process_description:
+                    value = bool(int(process_description["@export_switch"]))
+                    kwargs["export_switch"] = value
+                switch_name = process_description["@name"]
                 self.add_switch(
-                    process_description["@name"],
+                    switch_name,
                     process_description["input"],
-                    process_description["output"])
+                    process_description["output"],
+                    **kwargs)
+                if "switch_value" in process_description:
+                    self.nodes[switch_name].switch = \
+                        process_description["switch_value"]
 
         # Export pipeline input and output parameters
         for tag, sub_tag, plug in [("inputs", "input", "@dest"),
@@ -171,12 +187,23 @@ class AutoPipeline(Pipeline):
                     else:
                         parameter_name = parameter
                     if "@optional" in export_description:
-                        optional = export_description["@optional"]
+                        optional = bool(int(export_description["@optional"]))
                     else:
                         optional = None
+                    if "@enabled" in export_description:
+                        enabled = bool(int(export_description["@enabled"]))
+                    else:
+                        enabled = None
+                    if "@weak_link" in export_description:
+                        weak_link = bool(int(export_description["@weak_link"]))
+                    else:
+                        weak_link = False
                     self.export_parameter(
-                        process, parameter, pipeline_parameter=parameter_name,
-                        is_optional=optional)
+                        process, parameter,
+                        pipeline_parameter=parameter_name,
+                        is_optional=optional,
+                        is_enabled=enabled,
+                        weak_link=weak_link)
 
         # Add all the pipeline links
         if "links" in self._parameters["pipeline"]:
@@ -185,7 +212,10 @@ class AutoPipeline(Pipeline):
                 link = "{0}->{1}".format(
                     link_description["@src"],
                     link_description["@dest"])
-                self.add_link(link)
+                weak_link = False
+                if "@weak_link" in link_description:
+                    weak_link = bool(int(link_description["@weak_link"]))
+                self.add_link(link, weak_link=weak_link)
 
         # Set the pipeline node positions
         self.node_position = {}
@@ -275,7 +305,7 @@ def class_factory(xmlpath_description, destination_module_globals):
     Parameters
     ----------
     xmlpath_description: str (mandatory)
-        a file containing the xml formated string describtion of the pipeline
+        a file containing the xml formated string description of the pipeline
         structure.
     """
     # Create the pipeline class name
@@ -287,6 +317,9 @@ def class_factory(xmlpath_description, destination_module_globals):
     # Get the pipeline raw description
     with open(xmlpath_description) as openfile:
         pipeline_desc = openfile.readlines()
+
+    if "@class_name" in pipeline_proto["pipeline"]:
+        class_name = str(pipeline_proto["pipeline"]["@class_name"])
 
     # Get the pipeline docstring
     docstring = pipeline_proto["pipeline"]["docstring"]
@@ -313,7 +346,7 @@ def register_pipelines(xmlpipelines, destination_module_globals=None):
     Parameters
     ----------
     xmlpipelines: list of str (mandatory)
-        a list of file containing xml formated string describtion of pipeline
+        a list of file containing xml formated string description of pipeline
         structures.
     """
     # Get the caller module globals parameter
@@ -323,3 +356,161 @@ def register_pipelines(xmlpipelines, destination_module_globals=None):
     # Go through all function and create/register the corresponding process
     for xmlfname in xmlpipelines:
         class_factory(xmlfname, destination_module_globals)
+
+
+def pipeline_to_xmldict(pipeline):
+    """ Generates a XML description of the pipeline structure
+
+    Parameters
+    ----------
+    pipeline: Pipeline instance (mandatory)
+
+    Returns
+    -------
+    XML description of the pipeline, in a dictionary. This description is
+    compatible with the xmltodict module.
+    """
+    def _switch_description(node):
+        descr = OrderedDict([("@name", node.name), ("@export_switch", "0")])
+        inputs = []
+        outputs = []
+        descr["input"] = inputs
+        descr["output"] = outputs
+        for plug_name, plug in node.plugs.iteritems():
+            if plug.output:
+                outputs.append(plug_name)
+            else:
+                name_parts = plug_name.split("_switch_")
+                if len(name_parts) == 2 \
+                        and name_parts[0] not in inputs:
+                    inputs.append(name_parts[0])
+        descr["switch_value"] = node.switch
+        return descr
+
+    def _write_processes(pipeline, pipeline_dict):
+        proc_dict = pipeline_dict.setdefault("processes", OrderedDict())
+        for node_name, node in pipeline.nodes.iteritems():
+            if node_name == "":
+                continue
+            if isinstance(node, Switch):
+                switches = proc_dict.setdefault("switch", [])
+                switch_descr = _switch_description(node)
+                switches.append(switch_descr)
+            elif isinstance(node, IterativeNode):
+                iternodes = proc_dict.setdefault("iterative", [])
+                iterative.append({"@name": node.name})
+            else:
+                procnodes = proc_dict.setdefault("standard", [])
+                proc = node.process
+                mod = proc.__module__
+                classname = proc.__class__.__name__
+                procitem = {"@name": node.name}
+                procitem["module"] = "%s.%s" % (mod, classname)
+                procnodes.append(procitem)
+
+    def _write_params(pipeline, pipeline_dict):
+        exported = set()
+        for plug_name, plug in pipeline.pipeline_node.plugs.iteritems():
+            param_descr = OrderedDict([("@name", plug_name)])
+            if not plug.enabled:
+                param_descr["@enabled"] = "0"
+            if plug.optional:
+                param_descr["@optional"] = "1"
+            if plug.output:
+                if len(plug.links_from) == 0:
+                    # FIXME: maybe don't completely ignore the plug ?
+                    continue
+                params = pipeline_dict.setdefault(
+                    "outputs", OrderedDict()).setdefault("output", [])
+                link = ".".join(list(plug.links_from)[0][:2])
+                param_descr["@src"] = link
+                if link[-1]:
+                    param_descr["@weak_link"] = "1"
+                exported.add(link)
+            else:
+                if len(plug.links_to) == 0:
+                    # FIXME: maybe don't completely ignore the plug ?
+                    continue
+                params = pipeline_dict.setdefault(
+                    "inputs", OrderedDict()).setdefault("input", [])
+                link = ".".join(list(plug.links_to)[0][:2])
+                param_descr["@dest"] = link
+                exported.add(link)
+            params.append(param_descr)
+        return exported
+
+    def _write_links(pipeline, pipeline_dict, exported):
+        links_list = pipeline_dict.setdefault(
+            "links", OrderedDict()).setdefault("link", [])
+        for node_name, node in pipeline.nodes.iteritems():
+            for plug_name, plug in node.plugs.iteritems():
+                if (node_name == "" and not plug.output) \
+                        or (node_name != "" and plug.output):
+                    links = plug.links_to
+                    for link in links:
+                        if node_name == "":
+                            src = plug_name
+                        else:
+                            src = "%s.%s" % (node_name, plug_name)
+                            if src in exported and link[0] == "":
+                                continue  # already done in exportation section
+                        if link[0] == "":
+                            dst = link[1]
+                        else:
+                            dst = "%s.%s" % (link[0], link[1])
+                            if dst in exported and link[0] == "":
+                                continue  # already done in exportation section
+                        link_def = OrderedDict([("@src", src), ("@dest", dst)])
+                        if link[-1]:
+                            link_def["@weak_link"] = "1"
+                        links_list.append(link_def)
+
+    def _write_nodes_positions(pipeline, pipeline_dict):
+        if hasattr(pipeline, "node_position"):
+            positions = pipeline_dict.setdefault(
+                "positions", OrderedDict()).setdefault("position", [])
+            for node_name, pos in pipeline.node_position.iteritems():
+                node_pos = OrderedDict([("@process", node_name),
+                                        ("@x", unicode(pos[0])),
+                                        ("@y", unicode(pos[1]))])
+                positions.append(node_pos)
+
+
+    pipeline_dict = OrderedDict([("@class_name", pipeline.__class__.__name__)])
+    xml_dict = OrderedDict([("pipeline", pipeline_dict)])
+    # FIXME: pipeline name ?
+
+    if hasattr(pipeline, "__doc__"):
+        pipeline_dict["docstring"] = pipeline.__doc__
+    _write_processes(pipeline, pipeline_dict)
+    exported = _write_params(pipeline, pipeline_dict)
+    _write_links(pipeline, pipeline_dict, exported)
+    _write_nodes_positions(pipeline, pipeline_dict)
+
+    if hasattr(pipeline, "scene_scale_factor"):
+        pipeline_dict["scale"] = {
+            "@factor": unicode(pipeline.scene_scale_factor)}
+
+    return xml_dict
+
+
+def pipeline_to_xml(pipeline, output=None):
+    """ Generates a XML description of the pipeline structure
+
+    Parameters
+    ----------
+    pipeline: Pipeline instance (mandatory)
+    output: file object (optional)
+        file to write XML in. If not specified, return the XML as a string, as
+        does the xmltodict module.
+
+    Returns
+    -------
+    if output is specified: None
+    if output is not specified: XML description of the pipeline, in a unicode
+    string.
+    """
+    xml_dict = pipeline_to_xmldict(pipeline)
+    return xmltodict.unparse(xml_dict, full_document=False, pretty=True,
+                             indent="    ", output=output)
+

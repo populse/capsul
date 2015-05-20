@@ -23,20 +23,22 @@ class FomConfig(StudyConfigModule):
 
     def __init__(self, study_config, configuration):
         super(FomConfig, self).__init__(study_config, configuration)
-        self.study_config.add_trait('use_fom', Bool(
-            Undefined,
-            output=False,
-            desc='Use File Organization Models for file parameters completion'))
         self.study_config.add_trait('input_fom', Str(Undefined, output=False,
             desc='input FOM'))
         self.study_config.add_trait('output_fom', Str(Undefined, output=False,
             desc='output FOM'))
         self.study_config.add_trait('shared_fom', Str(Undefined, output=False,
             desc='shared data FOM'))
-        self.study_config.add_trait('volumes_format', Str(Undefined, output=False,
+        self.study_config.add_trait('volumes_format',
+                                    Str(Undefined, output=False,
             desc='Format used for volumes'))
-        self.study_config.add_trait('meshes_format', Str(Undefined, output=False,
+        self.study_config.add_trait('meshes_format',
+                                    Str(Undefined, output=False,
             desc='Format used for meshes'))
+        self.study_config.add_trait('use_fom', Bool(
+            Undefined,
+            output=False,
+            desc='Use File Organization Models for file parameters completion'))
 
         # defaults
         self.study_config.input_fom = ""
@@ -52,7 +54,10 @@ class FomConfig(StudyConfigModule):
             return
         
         soma_app = Application('capsul', plugin_modules=['soma.fom'])
-        soma_app.initialize()
+        if 'soma.fom' not in soma_app.loaded_plugin_modules:
+            # WARNING: this is unsafe, may erase configured things, and
+            # probably not thread-safe.
+            soma_app.initialize()
         self.study_config.modules_data.foms = {}
         foms = (('input', self.study_config.input_fom),
             ('output', self.study_config.output_fom),

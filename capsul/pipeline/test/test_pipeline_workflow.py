@@ -80,7 +80,7 @@ class TestPipelineWorkflow(unittest.TestCase):
                                    #+ ['FomConfig'])
         study_config.input_directory = '/tmp'
         study_config.somaworkflow_computing_resource = 'localhost'
-        study_config.somaworkflow_computing_resources_config['localhost'] = {
+        study_config.somaworkflow_computing_resources_config.localhost = {
             'transfer_paths': [study_config.input_directory],
         }
         self.study_config = study_config
