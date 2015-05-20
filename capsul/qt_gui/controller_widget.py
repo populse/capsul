@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.controller import trait_ids
-from soma.qt4gui.timered_widgets import TimeredQLineEdit
+from soma.qt_gui.timered_widgets import TimeredQLineEdit
 from soma.functiontools import partial
 
 # Qt import
