@@ -14,14 +14,14 @@ from capsul.study_config.study_config import StudyConfigModule
 class MatlabConfig(StudyConfigModule):
     def __init__(self, study_config, configuration):
         super(MatlabConfig, self).__init__(study_config, configuration)
-        self.study_config.add_trait("use_matlab", Bool(
-            Undefined,
-            desc="If True, Matlab configuration is set up on startup"))
         self.study_config.add_trait('matlab_exec', File(
             Undefined,
             output=False,
             desc='Matlab command path',
             exists=True))
+        self.study_config.add_trait("use_matlab", Bool(
+            Undefined,
+            desc="If True, Matlab configuration is set up on startup"))
 
     def initialize_module(self):
         """ Set up Matlab environment according to current
