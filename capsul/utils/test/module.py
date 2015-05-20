@@ -18,7 +18,7 @@ def a_function_to_wrap(fname, directory, value, enum, list_of_str, reference):
         <input name="value" type="Float" desc="test" />
         <input name="enum" type="Str" desc="test" />
         <input name="list_of_str" type="List_Str" desc="test" />
-        <output name="reference" type="List_Str" desc="test" />
+        <output name="reference" type="List_Str" desc="test" optional="True" />
     </process>
     """
     string = "ALL FUNCTION PARAMETERS::\n\n"
