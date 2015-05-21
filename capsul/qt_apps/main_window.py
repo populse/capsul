@@ -111,6 +111,9 @@ class CapsulMainWindow(MyQUiLoader):
             self.onTreeSelectionChanged)
         self.ui.actionLoad.triggered.connect(self.onLoadClicked)
 
+        # Signal for the execution
+        self.ui.actionRun.triggered.connect(self.onRunClicked)
+
         # Set default values
 
         # Set some tooltips
@@ -146,6 +149,11 @@ class CapsulMainWindow(MyQUiLoader):
     ###########################################################################
     # Slots   
     ###########################################################################
+
+    def onRunClicked(self):
+        """ Event to execute the process/pipeline.
+        """
+        self.study_config.run(self.pipeline, executer_qc_nodes=True, verbose=1)
 
     def onBrowseClicked(self):
         """ Event to show / hide the browse dock widget.

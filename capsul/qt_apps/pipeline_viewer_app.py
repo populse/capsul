@@ -53,7 +53,20 @@ class PipelineViewerApp(Application):
         ui_file = os.path.join(resources.__path__[0], "capsul.ui")
 
         # List capsul declared plugins (set of pipelines).
-        pipeline_menu = {}
+        if self.options.test:
+            pipeline_menu = {
+                "capsul": {
+                    "utils": {
+                        "test": {
+                            "pipeline": {
+                                "XmlPipeline": [""]
+                            }
+                        }
+                    }
+                }
+            }
+        else:
+            pipeline_menu = {}
         for module_name, doc_url in PLUGS:
             pipeline_menu.update(
                 find_pipelines_from_description(module_name, doc_url)[0])
@@ -63,3 +76,4 @@ class PipelineViewerApp(Application):
         self.window.show()
 
         return True
+

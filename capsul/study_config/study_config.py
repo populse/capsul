@@ -282,7 +282,7 @@ class StudyConfig(Controller):
 
             # Check the output directory is valid
             if (self.output_directory is Undefined or
-                    not isinstance(self.output_directory, str)):
+                    not isinstance(self.output_directory, basestring)):
                 raise ValueError(
                     "'{0}' is not a valid directory. A valid output "
                     "directory is expected to run the process or "
