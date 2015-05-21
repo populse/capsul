@@ -68,6 +68,10 @@ class ListControlWidget(object):
         # Initilaized the output
         valid = True
 
+        # If the trait is optional, the control is valid
+        if control_instance.trait.optional is True:
+            return valid
+
         # Go through all the controller widget controls
         controller_widget = control_instance.controller_widget
         for control_name, control in controller_widget._controls.iteritems():
@@ -113,8 +117,7 @@ class ListControlWidget(object):
         pass
 
     @staticmethod
-    def create_widget(parent, control_name, control_value, trait,
-                      label_class=None):
+    def create_widget(parent, control_name, control_value, trait):
         """ Method to create the list widget.
 
         Parameters
@@ -127,10 +130,6 @@ class ListControlWidget(object):
             the default control value
         trait: Tait (mandatory)
             the trait associated to the control
-        label_class: Qt widget class (optional, default: None)
-            the label widget will be an instance of this class. Its constructor
-            will be called using 2 arguments: the label string and the parent
-            widget.
 
         Returns
         -------
@@ -139,13 +138,11 @@ class ListControlWidget(object):
             associated labels: (a label QLabel, the tools QWidget))
         """
         # Get the inner trait: expect only one inner trait
-        # note: trait.inner_traits might be a method (ListInt) or a tuple
-        # (List), whereas trait.handler.inner_trait is always a method
-        if len(trait.handler.inner_traits()) != 1:
+        if len(trait.inner_traits) != 1:
             raise Exception(
                 "Expect only one inner trait in List control. Trait '{0}' "
-                "inner trait is '{1}'.".format(control_name, trait.handler.inner_traits()))
-        inner_trait = trait.handler.inner_traits()[0]
+                "inner trait is '{1}'.".format(control_name, trait.inner_traits))
+        inner_trait = trait.inner_traits[0]
 
         # Create the list widget: a frame
         frame = QtGui.QFrame(parent=parent)
@@ -217,10 +214,8 @@ class ListControlWidget(object):
         control_label = trait.label
         if control_label is None:
             control_label = control_name
-        if label_class is None:
-            label_class = QtGui.QLabel
         if control_label is not None:
-            label = label_class(control_label, parent)
+            label = QtGui.QLabel(control_label, parent)
         else:
             label = None
 
@@ -690,3 +685,4 @@ class ListControlWidget(object):
 
         # Set the new button icon
         resize_button.setIcon(icon)
+

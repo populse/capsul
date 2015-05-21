@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.utils.functiontools import SomaPartial
-from soma.qt_gui.timered_widgets import TimeredQLineEdit
 
 
 class FileControlWidget(object):
@@ -57,11 +56,18 @@ class FileControlWidget(object):
                 control_instance.path.backgroundRole(), QtCore.Qt.white)
             is_valid = True
 
-        # If the control value do not contains a file, the control is not valid
-        # and the backgound color of the control is red
+        # If the control value is optional, the control is valid and the
+        # backgound color of the control is yellow
+        elif control_instance.optional is True:
+            control_palette.setColor(
+                control_instance.path.backgroundRole(), QtCore.Qt.yellow)
+            is_valid = True
+            
+        # If the control value is empty, the control is not valid and the
+        # backgound color of the control is red
         else:
             control_palette.setColor(
-                control_instance.path.backgroundRole(), QtCore.Qt.red)
+                control_instance.backgroundRole(), QtCore.Qt.red)
 
         # Set the new palette to the control instance
         control_instance.path.setPalette(control_palette)
@@ -80,34 +86,33 @@ class FileControlWidget(object):
             the control widget we want to validate
         """
         # Hook: function that will be called to check for typo
-        # when a 'userModification' qt signal is emited
+        # when a 'textChanged' qt signal is emited
         widget_callback = partial(cls.is_valid, control_instance)
 
         # The first time execute manually the control check method
         widget_callback()
 
-        # When a qt 'userModification' signal is emited, check if the new
+        # When a qt 'textChanged' signal is emited, check if the new
         # user value is correct
-        control_instance.path.userModification.connect(widget_callback)
+        control_instance.path.textChanged.connect(widget_callback)
 
     @staticmethod
     def add_callback(callback, control_instance):
-        """ Method to add a callback to the control instance when a 'userModification'
+        """ Method to add a callback to the control instance when a 'textChanged'
         signal is emited.
 
         Parameters
         ----------
         callback: @function (mandatory)
-            the function that will be called when a 'userModification' signal is
+            the function that will be called when a 'textChanged' signal is
             emited.
         control_instance: QWidget (mandatory)
             the control widget we want to validate
         """
-        control_instance.path.userModification.connect(callback)
+        control_instance.path.textChanged.connect(callback)
 
     @staticmethod
-    def create_widget(parent, control_name, control_value, trait,
-                      label_class=None):
+    def create_widget(parent, control_name, control_value, trait):
         """ Method to create the file widget.
 
         Parameters
@@ -120,10 +125,6 @@ class FileControlWidget(object):
             the default control value
         trait: Tait (mandatory)
             the trait associated to the control
-        label_class: Qt widget class (optional, default: None)
-            the label widget will be an instance of this class. Its constructor
-            will be called using 2 arguments: the label string and the parent
-            widget.
 
         Returns
         -------
@@ -140,7 +141,7 @@ class FileControlWidget(object):
         layout.setContentsMargins(0, 0, 0, 0)
         widget.setLayout(layout)
         # Create a widget to print the file path
-        path = TimeredQLineEdit(widget)
+        path = QtGui.QLineEdit(widget)
         layout.addWidget(path)
         widget.path = path
         # Create a browse button
@@ -151,6 +152,9 @@ class FileControlWidget(object):
         # Add a widget parameter to tell us if the widget is already connected
         widget.connected = False
 
+        # Add a parameter to tell us if the widget is optional
+        widget.optional = trait.optional
+
         # Set a callback on the browse button
         control_class = parent.get_control_class(trait)
         browse_hook = partial(control_class.onBrowseClicked, widget)
@@ -160,10 +164,8 @@ class FileControlWidget(object):
         control_label = trait.label
         if control_label is None:
             control_label = control_name
-        if label_class is None:
-            label_class = QtGui.QLabel
         if control_label is not None:
-            label = label_class(control_label, parent)
+            label = QtGui.QLabel(control_label, parent)
         else:
             label = None
 
@@ -256,13 +258,13 @@ class FileControlWidget(object):
 
             # Update one element of the controller.
             # Hook: function that will be called to update a specific
-            # controller trait when a 'userModification' qt signal is emited
+            # controller trait when a 'textChanged' qt signal is emited
             widget_hook = partial(cls.update_controller, controller_widget,
                                   control_name, control_instance)
 
-            # When a qt 'userModification' signal is emited, update the
+            # When a qt 'textChanged' signal is emited, update the
             # 'control_name' controller trait value
-            control_instance.path.userModification.connect(widget_hook)
+            control_instance.path.textChanged.connect(widget_hook)
 
             # Update the control.
             # Hook: function that will be called to update the control value
@@ -312,9 +314,9 @@ class FileControlWidget(object):
             controller_widget.controller.on_trait_change(
                 controller_hook, name=control_name, remove=True)
 
-            # Remove the widget hook associated with the qt 'userModification'
+            # Remove the widget hook associated with the qt 'textChanged'
             # signal
-            control_instance.path.userModification.disconnect(widget_hook)
+            control_instance.path.textChanged.disconnect(widget_hook)
 
             # Delete the trait - control connection we just remove
             del control_instance._controller_connections
@@ -350,3 +352,4 @@ class FileControlWidget(object):
 
         # Set the selected file path to the path sub control
         control_instance.path.setText(unicode(fname))
+

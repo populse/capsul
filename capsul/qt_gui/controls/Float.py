@@ -63,8 +63,15 @@ class FloatControlWidget(StrControlWidget):
                 control_instance.backgroundRole(), QtCore.Qt.white)
             is_valid = True
 
-        # If the control value contains some characters, the control is not
-        # valid and the backgound color of the control is red
+        # If the control value is optional, the control is valid and the
+        # backgound color of the control is yellow
+        elif control_instance.optional is True:
+            control_palette.setColor(
+                control_instance.backgroundRole(), QtCore.Qt.yellow)
+            is_valid = True
+            
+        # If the control value is empty, the control is not valid and the
+        # backgound color of the control is red
         else:
             control_palette.setColor(
                 control_instance.backgroundRole(), QtCore.Qt.red)
@@ -136,3 +143,4 @@ class FloatControlWidget(StrControlWidget):
         control_instance.setText(unicode(new_controller_value))
         logger.debug("'FloatControlWidget' has been updated with value "
                       "'{0}'.".format(new_controller_value))
+
