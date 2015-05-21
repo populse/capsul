@@ -56,6 +56,13 @@ class StrControlWidget(object):
                 control_instance.backgroundRole(), QtCore.Qt.white)
             is_valid = True
 
+        # If the control value is optional, the control is valid and the
+        # backgound color of the control is yellow
+        elif control_instance.optional is True:
+            control_palette.setColor(
+                control_instance.backgroundRole(), QtCore.Qt.yellow)
+            is_valid = True
+            
         # If the control value is empty, the control is not valid and the
         # backgound color of the control is red
         else:
@@ -135,6 +142,9 @@ class StrControlWidget(object):
 
         # Add a widget parameter to tell us if the widget is already connected
         widget.connected = False
+
+        # Add a parameter to tell us if the widget is optional
+        widget.optional = trait.optional 
 
         # Create the label associated with the string widget
         control_label = trait.label
@@ -300,3 +310,4 @@ class StrControlWidget(object):
 
             # Update the control connection status
             control_instance.connected = False
+

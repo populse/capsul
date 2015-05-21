@@ -75,6 +75,9 @@ class Application(QtGui.QApplication):
         parser.add_option("-r", "--redirect-to-messagebox", dest="redirect",
                           action="store_true", default=False,
                           help="Redirect all messages to the console")
+        parser.add_option("-t", "--test", dest="test",
+                          action="store_true", default=False,
+                          help="Add a set of test pipelines")
         for args, kwargs in extra_options:
             parser.add_option(*args, **kwargs)
         self.options, self.arguments = parser.parse_args()
@@ -160,3 +163,4 @@ class EmittingStream(QtCore.QObject):
     """
     def write(self, text):
         self.textWritten.emit(str(text))
+

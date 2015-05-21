@@ -108,6 +108,9 @@ class EnumControlWidget(object):
         # Save the possible choices
         widget._choices = trait.handler.values
 
+        # Add a parameter to tell us if the widget is optional
+        widget.optional = trait.optional 
+
         # Set the enum list items to the widget
         for item in widget._choices:
             widget.addItem(unicode(item))
@@ -271,3 +274,4 @@ class EnumControlWidget(object):
 
         # Delete the trait - control connection we just remove
         del control_instance._controller_connections
+

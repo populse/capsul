@@ -57,11 +57,18 @@ class FileControlWidget(object):
                 control_instance.path.backgroundRole(), QtCore.Qt.white)
             is_valid = True
 
-        # If the control value do not contains a file, the control is not valid
-        # and the backgound color of the control is red
+        # If the control value is optional, the control is valid and the
+        # backgound color of the control is yellow
+        elif control_instance.optional is True:
+            control_palette.setColor(
+                control_instance.path.backgroundRole(), QtCore.Qt.yellow)
+            is_valid = True
+            
+        # If the control value is empty, the control is not valid and the
+        # backgound color of the control is red
         else:
             control_palette.setColor(
-                control_instance.path.backgroundRole(), QtCore.Qt.red)
+                control_instance.backgroundRole(), QtCore.Qt.red)
 
         # Set the new palette to the control instance
         control_instance.path.setPalette(control_palette)
@@ -150,6 +157,9 @@ class FileControlWidget(object):
 
         # Add a widget parameter to tell us if the widget is already connected
         widget.connected = False
+
+        # Add a parameter to tell us if the widget is optional
+        widget.optional = trait.optional
 
         # Set a callback on the browse button
         control_class = parent.get_control_class(trait)
@@ -350,3 +360,4 @@ class FileControlWidget(object):
 
         # Set the selected file path to the path sub control
         control_instance.path.setText(unicode(fname))
+

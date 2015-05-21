@@ -68,6 +68,10 @@ class ListControlWidget(object):
         # Initilaized the output
         valid = True
 
+        # If the trait is optional, the control is valid
+        if control_instance.trait.optional is True:
+            return valid
+
         # Go through all the controller widget controls
         controller_widget = control_instance.controller_widget
         for control_name, control in controller_widget._controls.iteritems():
@@ -690,3 +694,4 @@ class ListControlWidget(object):
 
         # Set the new button icon
         resize_button.setIcon(icon)
+
