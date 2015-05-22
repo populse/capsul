@@ -21,7 +21,19 @@ from capsul.pipeline.pipeline_nodes import ProcessNode
 from capsul.pipeline.pipeline_nodes import PipelineNode
 
 # soma-base import
-from soma.sorted_dictionary import OrderedDict
+# from soma.sorted_dictionary import OrderedDict
+# FIXME: for now we cannot use soma.sorted_dictionary.OrderedDict since it
+# inherits UserDict, and not dict. xmltodict only supports dict instances,
+# which collections.OrderedDict is. So for now, if not using python >= 2.7,
+# we're stuck with the base non-ordered dict.
+# code taken from xmltodict:
+try:  # pragma no cover
+    from collections import OrderedDict
+except ImportError:  # pragma no cover
+    try:
+        from ordereddict import OrderedDict
+    except ImportError:
+        OrderedDict = dict
 
 # TRAIT import
 from traits.api import Undefined
