@@ -30,6 +30,7 @@ from capsul.qt_gui.widgets.pipeline_file_warning_widget \
 from capsul.utils.loader import load_objects
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
+from capsul.utils import xml_to_pipeline
 try:
     from traits import api as traits
 except ImportError:
@@ -1904,6 +1905,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         export_all_outputs.triggered.connect(
             self.export_all_unconnected_outputs)
 
+        menu.addSeparator()
+        save = menu.addAction('Save pipeline')
+        save.triggered.connect(self.save_pipeline)
+
         menu.exec_(QtGui.QCursor.pos())
         del self.click_pos
 
@@ -2549,6 +2554,25 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     def _prune_plugs(self):
         print 'TODO.'
+
+    def save_pipeline(self):
+        '''
+        Ask for a filename using the file dialog, and save the pipeline as a XML
+        file.
+        '''
+        old_filename = getattr(self, '_pipeline_filename', '')
+        filename = QtGui.QFileDialog.getSaveFileName(
+            None, 'Save the pipeline', os.path.dirname(old_filename),
+            'XML files (*.xml);; All (*)', old_filename)
+        if filename:
+            posdict = dict([(key, (value.x(), value.y())) \
+                            for key, value in self.scene.pos.iteritems()])
+            old_pos = p.node_position
+            p.node_position = posdict
+            xml_to_pipeline.pipeline_to_xml(self.scene.pipeline,
+                                            open(filename, 'w'))
+            self._pipeline_filename = unicode(filename)
+            p.node_position = old_pos
 
 
 
