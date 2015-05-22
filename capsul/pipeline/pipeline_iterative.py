@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 # Capsul import
 from capsul.pipeline import Pipeline
 from capsul.process import Process
-from capsul.utils.trait_utils import clone_trait
+from soma.controller.trait_utils import clone_trait
 
 # Soma import
 from soma.controller import trait_ids

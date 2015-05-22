@@ -23,11 +23,11 @@ from traits.api import Any
 from traits.api import Undefined
 
 # Capsul import
-from capsul.utils.trait_utils import clone_trait
-from capsul.utils.trait_utils import trait_ids
-from capsul.utils.trait_utils import build_expression
-from capsul.utils.trait_utils import eval_trait
-from capsul.utils.trait_utils import is_trait_pathname
+from soma.controller.trait_utils import clone_trait
+from soma.controller.trait_utils import trait_ids
+from soma.controller.trait_utils import build_expression
+from soma.controller.trait_utils import eval_trait
+from soma.controller.trait_utils import is_trait_pathname
 
 # Soma import
 from soma.controller import Controller
