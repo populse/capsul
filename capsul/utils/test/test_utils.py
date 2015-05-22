@@ -17,13 +17,15 @@ import nipype.interfaces.spm as spm
 from traits.api import Float, CTrait, File, Directory
 from traits.api import Undefined
 
+# Soma import
+from soma.controller.trait_utils import (
+    get_trait_desc, is_trait_value_defined, is_trait_pathname,
+    clone_trait, build_expression, trait_ids, eval_trait)
+
 # Capsul import
 import capsul
 from capsul.utils.version_utils import get_tool_version
 from capsul.utils.version_utils import get_nipype_interfaces_versions
-from capsul.utils.trait_utils import (
-    get_trait_desc, is_trait_value_defined, is_trait_pathname,
-    clone_trait, build_expression, trait_ids, eval_trait)
 from capsul.utils.loader import load_objects
 
 

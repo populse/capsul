@@ -14,8 +14,10 @@ import inspect
 import re
 import importlib
 
+# Soma import
+from soma.controller.trait_utils import clone_trait
+
 # Capsul import
-from capsul.utils.trait_utils import clone_trait
 from capsul.process import Process
 
 

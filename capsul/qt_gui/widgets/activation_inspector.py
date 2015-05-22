@@ -19,13 +19,13 @@ logger = logging.getLogger(__name__)
 # Soma import
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui
+from soma.qt_gui.controller_widget import ScrollControllerWidget
 
 # Capsul import
 from capsul.qt_apps.utils.application import Application
 import capsul.qt_apps.resources as resources
 from capsul.process import get_process_instance
 from capsul.qt_gui.widgets import PipelineDevelopperView
-from capsul.qt_gui.controller_widget import ScrollControllerWidget
 from capsul.pipeline.pipeline_nodes import PipelineNode
 
 

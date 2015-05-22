@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
+from soma.qt_gui.controller_widget import ControllerWidget
 
 # Capsul import
-from capsul.qt_gui.controller_widget import ControllerWidget
 from capsul.qt_gui.widgets.viewer_widget import ViewerWidget
 from capsul.pipeline import Pipeline
 from capsul.pipeline.pipeline_nodes import Switch, PipelineNode

@@ -21,9 +21,9 @@ logger = logging.getLogger(__name__)
 from traits.api import Directory, CTrait, Undefined
 
 # CAPSUL import
-from capsul.utils.trait_utils import trait_ids
-from capsul.utils.trait_utils import build_expression
-from capsul.utils.trait_utils import eval_trait
+from soma.controller.trait_utils import trait_ids
+from soma.controller.trait_utils import build_expression
+from soma.controller.trait_utils import eval_trait
 
 # Capsul import
 from process import NipypeProcess
