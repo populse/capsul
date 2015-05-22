@@ -1799,8 +1799,33 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                     action.setChecked(True)
 
         if node is not self.scene.pipeline.pipeline_node:
+            menu.addSeparator()
             del_node_action = menu.addAction('Delete node')
             del_node_action.triggered.connect(self.del_node)
+            export_mandatory_plugs = menu.addAction(
+                'Export unconnected mandatory plugs')
+            export_mandatory_plugs.triggered.connect(
+                self.export_node_unconnected_mandatory_plugs)
+            export_all_plugs = menu.addAction(
+                'Export all unconnected plugs')
+            export_all_plugs.triggered.connect(
+                self.export_node_all_unconnected_plugs)
+            export_mandatory_inputs = menu.addAction(
+                'Export unconnected mandatory inputs')
+            export_mandatory_inputs.triggered.connect(
+                self.export_node_unconnected_mandatory_inputs)
+            export_all_inputs = menu.addAction(
+                'Export all unconnected inputs')
+            export_all_inputs.triggered.connect(
+                self.export_node_all_unconnected_inputs)
+            export_mandatory_outputs = menu.addAction(
+                'Export unconnected mandatory outputs')
+            export_mandatory_outputs.triggered.connect(
+                self.export_node_unconnected_mandatory_outputs)
+            export_all_outputs = menu.addAction(
+                'Export all unconnected outputs')
+            export_all_outputs.triggered.connect(
+                self.export_node_all_unconnected_outputs)
 
         menu.exec_(QtGui.QCursor.pos())
         del self.current_node_name
@@ -1852,6 +1877,32 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         add_proc.triggered.connect(self.add_process)
         add_switch = menu.addAction('Add switch in pipeline')
         add_switch.triggered.connect(self.add_switch)
+
+        menu.addSeparator()
+        export_mandatory_plugs = menu.addAction(
+            'Export unconnected mandatory plugs')
+        export_mandatory_plugs.triggered.connect(
+            self.export_unconnected_mandatory_plugs)
+        export_all_plugs = menu.addAction(
+            'Export all unconnected plugs')
+        export_all_plugs.triggered.connect(
+            self.export_all_unconnected_plugs)
+        export_mandatory_inputs = menu.addAction(
+            'Export unconnected mandatory inputs')
+        export_mandatory_inputs.triggered.connect(
+            self.export_unconnected_mandatory_inputs)
+        export_all_inputs = menu.addAction(
+            'Export all unconnected inputs')
+        export_all_inputs.triggered.connect(
+            self.export_all_unconnected_inputs)
+        export_mandatory_outputs = menu.addAction(
+            'Export unconnected mandatory outputs')
+        export_mandatory_outputs.triggered.connect(
+            self.export_unconnected_mandatory_outputs)
+        export_all_outputs = menu.addAction(
+            'Export all unconnected outputs')
+        export_all_outputs.triggered.connect(
+            self.export_all_unconnected_outputs)
 
         menu.exec_(QtGui.QCursor.pos())
         del self.click_pos
@@ -2061,6 +2112,65 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             pipeline.nodes_activation.remove_trait(node_name)
         self.scene.remove_node(node_name)
         self.scene.pipeline.update_nodes_and_plugs_activation()
+
+    def export_node_plugs(self, node_name, inputs=True, outputs=True,
+                          optional=False):
+        pipeline = self.scene.pipeline
+        node = pipeline.nodes[node_name]
+        for parameter_name, plug in node.plugs.iteritems():
+            if parameter_name in ("nodes_activation", "selection_changed"):
+                continue
+            if (((node_name, parameter_name) not in pipeline.do_not_export and
+                ((outputs and plug.output and not plug.links_to) or
+                    (inputs and not plug.output and not plug.links_from)) and
+                (optional or not node.get_trait(parameter_name).optional))):
+                pipeline.export_parameter(node_name, parameter_name)
+
+    def export_plugs(self, inputs=True, outputs=True, optional=False):
+        for node_name in self.scene.pipeline.nodes:
+            if node_name != "":
+                self.export_node_plugs(node_name, inputs=inputs,
+                                       outputs=outputs, optional=optional)
+
+    def export_node_unconnected_mandatory_plugs(self):
+        self.export_node_plugs(self.current_node_name)
+
+    def export_node_all_unconnected_plugs(self):
+        self.export_node_plugs(self.current_node_name, optional=True)
+
+    def export_node_unconnected_mandatory_inputs(self):
+        self.export_node_plugs(
+            self.current_node_name, inputs=True, outputs=False)
+
+    def export_node_all_unconnected_inputs(self):
+        self.export_node_plugs(
+            self.current_node_name, inputs=True, outputs=False, optional=True)
+
+    def export_node_unconnected_mandatory_outputs(self):
+        self.export_node_plugs(
+            self.current_node_name, inputs=False, outputs=True)
+
+    def export_node_all_unconnected_outputs(self):
+        self.export_node_plugs(
+            self.current_node_name, inputs=False, outputs=True, optional=True)
+
+    def export_unconnected_mandatory_plugs(self):
+        self.export_plugs()
+
+    def export_all_unconnected_plugs(self):
+        self.export_plugs(optional=True)
+
+    def export_unconnected_mandatory_inputs(self):
+        self.export_plugs(inputs=True, outputs=False)
+
+    def export_all_unconnected_inputs(self):
+        self.export_plugs(inputs=True, outputs=False, optional=True)
+
+    def export_unconnected_mandatory_outputs(self):
+        self.export_plugs(inputs=False, outputs=True)
+
+    def export_all_unconnected_outputs(self):
+        self.export_plugs(inputs=False, outputs=True, optional=True)
 
     def add_process(self):
         '''
