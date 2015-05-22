@@ -2560,6 +2560,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         Ask for a filename using the file dialog, and save the pipeline as a XML
         file.
         '''
+        pipeline = self.scene.pipeline
         old_filename = getattr(self, '_pipeline_filename', '')
         filename = QtGui.QFileDialog.getSaveFileName(
             None, 'Save the pipeline', os.path.dirname(old_filename),
@@ -2567,12 +2568,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         if filename:
             posdict = dict([(key, (value.x(), value.y())) \
                             for key, value in self.scene.pos.iteritems()])
-            old_pos = p.node_position
-            p.node_position = posdict
-            xml_to_pipeline.pipeline_to_xml(self.scene.pipeline,
-                                            open(filename, 'w'))
+            old_pos = pipeline.node_position
+            pipeline.node_position = posdict
+            xml_to_pipeline.pipeline_to_xml(pipeline, open(filename, 'w'))
             self._pipeline_filename = unicode(filename)
-            p.node_position = old_pos
+            pipeline.node_position = old_pos
 
 
 
