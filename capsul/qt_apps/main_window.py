@@ -16,12 +16,12 @@ logger = logging.getLogger(__name__)
 
 # Soma import
 from soma.qt_gui.qt_backend import QtCore, QtGui, QtWebKit
+from soma.qt_gui.controller_widget import ScrollControllerWidget
 
 # Capsul import
 from capsul.qt_apps.utils.window import MyQUiLoader
 from capsul.qt_apps.utils.fill_treectrl import fill_treectrl
 from capsul.qt_gui.widgets import (PipelineDevelopperView, PipelineUserView)
-from capsul.qt_gui.controller_widget import ScrollControllerWidget
 from capsul.qt_gui.board_widget import BoardWidget
 from capsul.process import get_process_instance
 from capsul.pipeline.pipeline_iterative import IterativePipeline

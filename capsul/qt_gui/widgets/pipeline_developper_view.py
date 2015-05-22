@@ -28,7 +28,7 @@ try:
 except ImportError:
     from enthought.traits import api as traits
 
-from capsul.qt_gui.controller_widget import ScrollControllerWidget
+from soma.qt_gui.controller_widget import ScrollControllerWidget
 
 # -----------------------------------------------------------------------------
 # Globals and constants
