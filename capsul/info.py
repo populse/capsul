@@ -46,7 +46,7 @@ CAPSUL is a powerful tool to define and share processing pipelines.
 
 # Capsul dependencies
 SPHINX_MIN_VERSION = 1.0
-SOMA_MIN_VERSION = "4.5.3"
+SOMA_MIN_VERSION = "4.5.4"
 
 # dependencies
 SOMA_WORKFLOW_MIN_VERSION = "2.7.0"
