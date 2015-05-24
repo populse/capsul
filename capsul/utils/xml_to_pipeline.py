@@ -493,7 +493,18 @@ def pipeline_to_xmldict(pipeline):
     # FIXME: pipeline name ?
 
     if hasattr(pipeline, "__doc__"):
-        pipeline_dict["docstring"] = pipeline.__doc__
+        docstr = pipeline.__doc__
+        if docstr == Pipeline.__doc__:
+            docstr = ""  # don't use the builtin Pipeline help
+        else:
+            # remove automatically added doc
+            autodocpos = docstr.find(
+                ".. note::\n\n    * Type '{0}.help()'".format(
+                    pipeline.__class__.__name__))
+            if autodocpos >= 0:
+                docstr = docstr[:autodocpos]
+        if docstr != "":
+            pipeline_dict["docstring"] = docstr
     _write_processes(pipeline, pipeline_dict)
     exported = _write_params(pipeline, pipeline_dict)
     _write_links(pipeline, pipeline_dict, exported)
