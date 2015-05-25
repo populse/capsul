@@ -335,6 +335,8 @@ def class_factory(xmlpath_description, destination_module_globals):
 
     # Get the pipeline docstring
     docstring = pipeline_proto["pipeline"]["docstring"]
+    if docstring is None:
+        docstring = ""
     for link in re.findall(r":ref:`.*?\[.*?\]`", docstring, flags=re.DOTALL):
         docstring = docstring.replace(link,
                                       link.replace("[", "<").replace("]", ">"))
@@ -487,8 +489,11 @@ def pipeline_to_xmldict(pipeline):
                                         ("@y", unicode(pos[1]))])
                 positions.append(node_pos)
 
-
-    pipeline_dict = OrderedDict([("@class_name", pipeline.__class__.__name__)])
+    class_name = pipeline.__class__.__name__
+    if pipeline.__class__ is Pipeline:
+        # if directly a Pipeline, then use a default new name
+        class_name = 'CustomPipeline'
+    pipeline_dict = OrderedDict([("@class_name", class_name)])
     xml_dict = OrderedDict([("pipeline", pipeline_dict)])
     # FIXME: pipeline name ?
 
@@ -503,8 +508,9 @@ def pipeline_to_xmldict(pipeline):
                     pipeline.__class__.__name__))
             if autodocpos >= 0:
                 docstr = docstr[:autodocpos]
-        if docstr != "":
-            pipeline_dict["docstring"] = docstr
+    else:
+        docstr = ""
+    pipeline_dict["docstring"] = docstr
     _write_processes(pipeline, pipeline_dict)
     exported = _write_params(pipeline, pipeline_dict)
     _write_links(pipeline, pipeline_dict, exported)
