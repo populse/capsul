@@ -1904,6 +1904,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             'Export all unconnected outputs')
         export_all_outputs.triggered.connect(
             self.export_all_unconnected_outputs)
+        prune = menu.addAction('Prune unused pipeline plugs')
+        prune.triggered.connect(self._prune_plugs)
 
         menu.addSeparator()
         save = menu.addAction('Save pipeline')
@@ -2488,8 +2490,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             del_plug.triggered.connect(self._remove_plug)
             edit_plug = menu.addAction('Rename / edit plug')
             edit_plug.triggered.connect(self._edit_plug)
-            prune = menu.addAction('Prune unused pipeline plugs')
-            prune.triggered.connect(self._prune_plugs)
 
         menu.exec_(QtGui.QCursor.pos())
         del self._temp_plug
@@ -2537,7 +2537,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self.scene.update_pipeline()
 
     def _remove_plug(self):
-        print 'TODO...'
+        if self._temp_plug_name[0] in ('inputs', 'outputs'):
+            print 'remove plug:', self._temp_plug_name[1]
+            self.scene.pipeline.remove_trait(self._temp_plug_name[1])
+            self.scene.update_pipeline()
 
     def _edit_plug(self):
         dial = self._PlugEdit(show_weak=False)
@@ -2553,7 +2556,17 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self.scene.update_pipeline()
 
     def _prune_plugs(self):
-        print 'TODO.'
+        pipeline = self.scene.pipeline
+        pnode = pipeline.pipeline_node
+        to_del = []
+        for plug_name, plug in pnode.plugs.iteritems():
+            if plug.output and len(plug.links_from) == 0:
+                to_del.append(plug_name)
+            elif not plug.output and len(plug.links_to) == 0:
+                to_del.append(plug_name)
+        for plug_name in to_del:
+            pipeline.remove_trait(plug_name)
+        self.scene.update_pipeline()
 
     def save_pipeline(self):
         '''
@@ -2563,8 +2576,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         pipeline = self.scene.pipeline
         old_filename = getattr(self, '_pipeline_filename', '')
         filename = QtGui.QFileDialog.getSaveFileName(
-            None, 'Save the pipeline', os.path.dirname(old_filename),
-            'XML files (*.xml);; All (*)', old_filename)
+            None, 'Save the pipeline', old_filename,
+            'XML files (*.xml);; All (*)')
         if filename:
             posdict = dict([(key, (value.x(), value.y())) \
                             for key, value in self.scene.pos.iteritems()])
