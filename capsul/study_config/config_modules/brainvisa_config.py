@@ -8,6 +8,10 @@
 
 import os
 from traits.api import Directory, Undefined
+try:
+    from brainvisa_share import config as bv_share_config
+except ImportError:
+    bv_share_config = None
 from soma import config as soma_config
 from capsul.study_config.study_config import StudyConfigModule
 
@@ -20,6 +24,13 @@ class BrainVISAConfig(StudyConfigModule):
             output=False,
             desc='Study shared directory'))
 
+        if bv_share_config is not None:
+            # take 2 fist digits in version
+            bv_share_version = '.'.join(bv_share_config.version.split('.')[:2])
+        else:
+            # brainvisa_share.config cannot be imported: sounds bad, but
+            # fallback to soma.config version (which may be different)
+            bv_share_version = soma_config.short_version
         study_config.shared_directory = os.path.join(
             soma_config.BRAINVISA_SHARE, 'brainvisa-share-%s' \
-                % soma_config.short_version)
+                % bv_share_version)

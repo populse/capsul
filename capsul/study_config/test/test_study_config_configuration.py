@@ -8,6 +8,10 @@ import soma.config
 from tempfile import mkdtemp
 from shutil import rmtree
 from capsul.study_config.study_config import StudyConfig
+try:
+    from brainvisa_share import config as bv_share_config
+except ImportError:
+    bv_share_config = None
 
 # The following variables contains a series of (p,v) where p contains
 # parameters to pass to StudyConfig constructor (*args and **kwargs) and v
@@ -15,6 +19,14 @@ from capsul.study_config.study_config import StudyConfig
 # of test is executed with a different context (i.e. configuration files and
 # CAPSUL_CONFIG environment variable).
 
+
+if bv_share_config is not None:
+    # take 2 fist digits in version
+    bv_share_version = '.'.join(bv_share_config.version.split('.')[:2])
+else:
+    # brainvisa_share.config cannot be imported: sounds bad, but
+    # fallback to soma.config version (which may be different)
+    bv_share_version = soma.config.short_version
 
 # StudyConfig instanciation tests and expected results when no configuration
 # file exist.
@@ -104,7 +116,7 @@ tests_no_files = [
         "use_freesurfer": False,
         "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
                                          'brainvisa-share-%s' % \
-                                         soma.config.short_version),
+                                         bv_share_version),
         'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
@@ -150,7 +162,7 @@ tests_standard_files = [
         'generate_logging': False,
         "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
                                          'brainvisa-share-%s' % \
-                                         soma.config.short_version),
+                                         bv_share_version),
         'output_fom': "",
         'automatic_configuration': False,
         'use_matlab': False,
@@ -233,7 +245,7 @@ tests_custom_files = [
         'generate_logging': False,
         "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
                                          'brainvisa-share-%s' % \
-                                         soma.config.short_version),
+                                         bv_share_version),
         'output_fom': "",
         'automatic_configuration': False,
         'use_matlab': False,
