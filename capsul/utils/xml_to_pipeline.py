@@ -21,7 +21,19 @@ from capsul.pipeline.pipeline_nodes import ProcessNode
 from capsul.pipeline.pipeline_nodes import PipelineNode
 
 # soma-base import
-from soma.sorted_dictionary import OrderedDict
+# from soma.sorted_dictionary import OrderedDict
+# FIXME: for now we cannot use soma.sorted_dictionary.OrderedDict since it
+# inherits UserDict, and not dict. xmltodict only supports dict instances,
+# which collections.OrderedDict is. So for now, if not using python >= 2.7,
+# we're stuck with the base non-ordered dict.
+# code taken from xmltodict:
+try:  # pragma no cover
+    from collections import OrderedDict
+except ImportError:  # pragma no cover
+    try:
+        from ordereddict import OrderedDict
+    except ImportError:
+        OrderedDict = dict
 
 # TRAIT import
 from traits.api import Undefined
@@ -323,6 +335,8 @@ def class_factory(xmlpath_description, destination_module_globals):
 
     # Get the pipeline docstring
     docstring = pipeline_proto["pipeline"]["docstring"]
+    if docstring is None:
+        docstring = ""
     for link in re.findall(r":ref:`.*?\[.*?\]`", docstring, flags=re.DOTALL):
         docstring = docstring.replace(link,
                                       link.replace("[", "<").replace("]", ">"))
@@ -475,13 +489,28 @@ def pipeline_to_xmldict(pipeline):
                                         ("@y", unicode(pos[1]))])
                 positions.append(node_pos)
 
-
-    pipeline_dict = OrderedDict([("@class_name", pipeline.__class__.__name__)])
+    class_name = pipeline.__class__.__name__
+    if pipeline.__class__ is Pipeline:
+        # if directly a Pipeline, then use a default new name
+        class_name = 'CustomPipeline'
+    pipeline_dict = OrderedDict([("@class_name", class_name)])
     xml_dict = OrderedDict([("pipeline", pipeline_dict)])
     # FIXME: pipeline name ?
 
     if hasattr(pipeline, "__doc__"):
-        pipeline_dict["docstring"] = pipeline.__doc__
+        docstr = pipeline.__doc__
+        if docstr == Pipeline.__doc__:
+            docstr = ""  # don't use the builtin Pipeline help
+        else:
+            # remove automatically added doc
+            autodocpos = docstr.find(
+                ".. note::\n\n    * Type '{0}.help()'".format(
+                    pipeline.__class__.__name__))
+            if autodocpos >= 0:
+                docstr = docstr[:autodocpos]
+    else:
+        docstr = ""
+    pipeline_dict["docstring"] = docstr
     _write_processes(pipeline, pipeline_dict)
     exported = _write_params(pipeline, pipeline_dict)
     _write_links(pipeline, pipeline_dict, exported)
