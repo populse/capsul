@@ -24,7 +24,8 @@ from traits.api import Directory, Undefined, File, Str, Any
 from soma.sorted_dictionary import OrderedDict
 
 
-def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
+def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
+                           jobs_priority=0):
     """ Create a soma-workflow workflow from a Capsul Pipeline
 
     Parameters
@@ -43,6 +44,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
         If disabled_nodes is not passed, they will possibly be taken from the
         pipeline (if available) using disabled steps:
         see Pipeline.define_steps()
+    jobs_priority: int (optional, default: 0)
+        set this priority on soma-workflow jobs.
 
     Returns
     -------
@@ -75,7 +78,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
         return paths
 
     def build_job(process, temp_map={}, shared_map={}, transfers=[{}, {}],
-                  shared_paths={}, forbidden_temp=set()):
+                  shared_paths={}, forbidden_temp=set(), priority=0):
         """ Create a soma-workflow Job from a Capsul Process
 
         Parameters
@@ -91,6 +94,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
             holds information about shared resource paths base dirs for
             soma-workflow.
             If not specified, no translation will be used.
+        priority: int (optional)
+            priority assigned to the job
 
         Returns
         -------
@@ -186,14 +191,16 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
             process_cmdline, process, iproc_transfers, oproc_transfers)
 
         # Return the soma-workflow job
-        return swclient.Job(name=process.name,
+        return swclient.Job(
+            name=process.name,
             command=process_cmdline,
             referenced_input_files
                 =input_replaced_paths \
                     + [x[0] for x in iproc_transfers.values()],
             referenced_output_files
                 =output_replaced_paths \
-                    + [x[0] for x in oproc_transfers.values()])
+                    + [x[0] for x in oproc_transfers.values()],
+            priority=priority)
 
     def build_group(name, jobs):
         """ Create a group of jobs
@@ -443,7 +450,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
 
     def workflow_from_graph(graph, temp_map={}, shared_map={},
                             transfers=[{}, {}], shared_paths={},
-                            disabled_nodes=set(), forbidden_temp=set()):
+                            disabled_nodes=set(), forbidden_temp=set(),
+                            jobs_priority=0):
         """ Convert a CAPSUL graph to a soma-workflow workflow
 
         Parameters
@@ -462,6 +470,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
             holds information about shared resource paths from soma-worflow
             section in study config.
             If not specified, no translation will be used.
+        jobs_priority: int (optional, default: 0)
+            set this priority on soma-workflow jobs.
 
         Returns
         -------
@@ -494,7 +504,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
                             pipeline_node not in disabled_nodes):
                         job = build_job(process, temp_map, shared_map,
                                         transfers, shared_paths,
-                                        forbidden_temp=forbidden_temp)
+                                        forbidden_temp=forbidden_temp,
+                                        priority=jobs_priority)
                         sub_jobs[process] = job
                         root_jobs[process] = job
                        #node.job = job
@@ -506,7 +517,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
             (sub_jobs, sub_deps, sub_groups, sub_root_jobs) \
                 = workflow_from_graph(
                     wf_graph, temp_map, shared_map, transfers,
-                    shared_paths, disabled_nodes)
+                    shared_paths, disabled_nodes, jobs_priority=jobs_priority)
             group = build_group(node_name, sub_root_jobs.values())
             groups[node.meta] = group
             root_jobs[node.meta] = group
