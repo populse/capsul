@@ -18,8 +18,6 @@ install:
     - source activate testenv
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install ordereddict; fi
     - conda install --yes numpy scipy nose traits networkx dateutil
-    - svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/trunk /tmp/soma-base
-    - python /tmp/soma-base/setup.py install
     - pip install argparse --use-mirrors
     - pip install importlib --use-mirrors
     - pip install nibabel --use-mirrors
