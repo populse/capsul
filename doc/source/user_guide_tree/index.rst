@@ -11,10 +11,11 @@ The main documentation of all the proposed scripts.
 Tutorial
 ########
 
-Different tutorials are available as `IPython notebooks <ipython.org/notebook.html>`_:
+Different tutorials are available as `IPython notebooks <ipython.org/notebook.html>`_.
+Capsul may be used in two ways:
 
-* :download:`A synthetic description of capsul (for users) <../_static/tutorial/capsul_users_tutorial.ipynb>`.
-* :download:`A full description of the capsul capabilities (for developers) <../_static/tutorial/capsul_developers_tutorial.ipynb>`.
+* a descriptive interface allows to develop processing bricks using simple Python functions and pipelines using a XML text description. :download:`See this notebook to demonstrate this approach <../_static/tutorial/capsul_descriptive_tutorial.ipynb>`.
+* an object-oriented interface that uses Python classes programming. :download:`See this notebook to demonstrate this approach <../_static/tutorial/capsul_object_oriented_tutorial.ipynb>`. Note that this interface is compatible with the descriptive one, and allows more functionalities and tweak possibilities.
 
 To run it, the following must be done:
 
