@@ -78,7 +78,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         return paths
 
     def build_job(process, temp_map={}, shared_map={}, transfers=[{}, {}],
-                  shared_paths={}, forbidden_temp=set(), priority=0):
+                  shared_paths={}, forbidden_temp=set(), name='', priority=0,
+                  step_name=''):
         """ Create a soma-workflow Job from a Capsul Process
 
         Parameters
@@ -94,8 +95,12 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             holds information about shared resource paths base dirs for
             soma-workflow.
             If not specified, no translation will be used.
+        name: string (optional)
+            job name. If empty, use the process name.
         priority: int (optional)
             priority assigned to the job
+        step_name: str (optional)
+            the step name will be stored in the job user_storage variable
 
         Returns
         -------
@@ -159,6 +164,9 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
 
         # Get the process command line
         process_cmdline = process.get_commandline()
+        job_name = name
+        if not job_name:
+            job_name = process.name
 
         # check for special modified paths in parameters
         input_replaced_paths = []
@@ -174,7 +182,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                             raise ValueError(
                                 'Temporary value used cannot be generated in '
                                 'the workflkow: %s.%s'
-                                % (process.name, param_name))
+                                % (job_name, param_name))
                         input_replaced_paths.append(temp_map[value])
                 else:
                     _translated_path(value, parameter, shared_map,
@@ -191,8 +199,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             process_cmdline, process, iproc_transfers, oproc_transfers)
 
         # Return the soma-workflow job
-        return swclient.Job(
-            name=process.name,
+        job = swclient.Job(
+            name=job_name,
             command=process_cmdline,
             referenced_input_files
                 =input_replaced_paths \
@@ -201,6 +209,9 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 =output_replaced_paths \
                     + [x[0] for x in oproc_transfers.values()],
             priority=priority)
+        if step_name:
+            job.user_storage = step_name
+        return job
 
     def build_group(name, jobs):
         """ Create a group of jobs
@@ -451,7 +462,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     def workflow_from_graph(graph, temp_map={}, shared_map={},
                             transfers=[{}, {}], shared_paths={},
                             disabled_nodes=set(), forbidden_temp=set(),
-                            jobs_priority=0):
+                            jobs_priority=0, steps={}, current_step=''):
         """ Convert a CAPSUL graph to a soma-workflow workflow
 
         Parameters
@@ -472,6 +483,10 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             If not specified, no translation will be used.
         jobs_priority: int (optional, default: 0)
             set this priority on soma-workflow jobs.
+        steps: dict (optional)
+            node name -> step name dict
+        current_step: str (optional)
+            the parent node step name
 
         Returns
         -------
@@ -505,7 +520,10 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                         job = build_job(process, temp_map, shared_map,
                                         transfers, shared_paths,
                                         forbidden_temp=forbidden_temp,
-                                        priority=jobs_priority)
+                                        name=pipeline_node.name,
+                                        priority=jobs_priority,
+                                        step_name=current_step or
+                                            steps.get(pipeline_node.name))
                         sub_jobs[process] = job
                         root_jobs[process] = job
                        #node.job = job
@@ -514,10 +532,12 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         # Recurence on graph node
         for node_name, node in group_nodes.iteritems():
             wf_graph = node.meta
+            step_name = current_step or steps.get(node_name, '')
             (sub_jobs, sub_deps, sub_groups, sub_root_jobs) \
                 = workflow_from_graph(
                     wf_graph, temp_map, shared_map, transfers,
-                    shared_paths, disabled_nodes, jobs_priority=jobs_priority)
+                    shared_paths, disabled_nodes, jobs_priority=jobs_priority,
+                    steps=steps, current_step=step_name)
             group = build_group(node_name, sub_root_jobs.values())
             groups[node.meta] = group
             root_jobs[node.meta] = group
@@ -588,12 +608,21 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     #print 'removed temp:', remove_temp
     #print 'temp_map:', temp_map
 
+    # build steps map
+    steps = {}
+    if hasattr(pipeline, 'pipeline_steps'):
+        for step_name, step \
+                in pipeline.pipeline_steps.user_traits().iteritems():
+            nodes = step.nodes
+            steps.update(dict([(node, step_name) for node in nodes]))
+
     # Get a graph
     try:
         graph = pipeline.workflow_graph()
         (jobs, dependencies, groups, root_jobs) = workflow_from_graph(
                   graph, temp_subst_map, shared_map, transfers, swf_paths[1],
-                  disabled_nodes=disabled_nodes, forbidden_temp=remove_temp)
+                  disabled_nodes=disabled_nodes, forbidden_temp=remove_temp,
+                  steps=steps)
     finally:
         restore_empty_filenames(temp_map)
 
