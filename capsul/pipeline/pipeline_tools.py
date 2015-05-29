@@ -793,7 +793,8 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
                     if value is not None and value is not traits.Undefined \
                             and os.path.exists(value):
                         # disable step
-                        print 'disable step', step, 'because of:', node_name, '.', param
+                        print 'disable step', step, 'because of:', node_name, \
+                            '.', param
                         setattr(steps, step, False)
                         break  # no need to iterate other nodes in same step
 
@@ -840,7 +841,8 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
             # main pipeline node, switch...
             continue
         if exclude_inactive:
-            if not node.enabled or not node.activated or node in disabled_nodes:
+            if not node.enabled or not node.activated \
+                    or node_name in disabled_nodes:
                 continue
         process = node.process
         if recursive and isinstance(process, Pipeline):
