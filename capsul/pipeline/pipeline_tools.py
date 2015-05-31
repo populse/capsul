@@ -840,10 +840,9 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
         if node_name == '' or not hasattr(node, 'process'):
             # main pipeline node, switch...
             continue
-        if exclude_inactive:
-            if not node.enabled or not node.activated \
-                    or node_name in disabled_nodes:
-                continue
+        if not node.enabled or not node.activated \
+                or (exclude_inactive and node_name in disabled_nodes):
+            continue
         process = node.process
         if recursive and isinstance(process, Pipeline):
             nodes += [('%s.%s' % (node_name, new_name), new_node)
@@ -854,7 +853,8 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
             if plug.output:
                 trait = process.trait(plug_name)
                 if isinstance(trait.trait_type, traits.File) \
-                        or isinstance(trait.trait_type, traits.Directory):
+                        or isinstance(trait.trait_type, traits.Directory) \
+                        or isinstance(trait.trait_type, traits.Any):
                     value = getattr(process, plug_name)
                     if value is not None and value is not traits.Undefined \
                             and os.path.exists(value):
