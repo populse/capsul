@@ -97,7 +97,7 @@ class SPMConfig(StudyConfigModule):
         self.study_config.add_trait("spm_exec", File(
             Undefined,
             output=False,
-            desc="SPM standalone (MCR) command path."))        
+            desc="SPM standalone (MCR) command path."))
         self.study_config.add_trait("use_spm", Bool(
             Undefined,
             desc="If True, SPM configuration is set up on startup."))
