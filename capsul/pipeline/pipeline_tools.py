@@ -800,7 +800,7 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
 
 
 def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
-                                recursive=False):
+                                recursive=False, exclude_inputs=True):
     '''
     Checks nodes in a pipeline which outputs contain existing files on the
     filesystem. Such nodes, maybe, should not run again. Only nodes which
@@ -819,6 +819,15 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
         if this option is set, sub-pipelines will not be returned as a whole but
         will be parsed recursively to select individual leaf nodes.
         Default: False
+    exclude_inputs: bool (optional, default: True)
+        Some processes or pipelines have input/output files: files taken as
+        inputs which are re-written as outputs, or may carry an input file to
+        the outputs through a switch selection (in the case of preprocessing
+        steps, for instance).
+        If this option is set, such outputs which also appear in the same node
+        inputs will not be listed in the existing outputs, so that they will not
+        be erased by a cleaning operation, and will not prevent execution of
+        these nodes.
 
     Returns
     -------
@@ -849,17 +858,27 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
                       for new_name, new_node in process.nodes.iteritems()
                       if new_name != '']
             continue
+        plug_list = []
+        input_files_list = set()
         for plug_name, plug in node.plugs.iteritems():
-            if plug.output:
-                trait = process.trait(plug_name)
-                if isinstance(trait.trait_type, traits.File) \
-                        or isinstance(trait.trait_type, traits.Directory) \
-                        or isinstance(trait.trait_type, traits.Any):
-                    value = getattr(process, plug_name)
-                    if value is not None and value is not traits.Undefined \
-                            and os.path.exists(value):
-                        plug_list = selected_nodes.setdefault(node_name, [])
+            trait = process.trait(plug_name)
+            if isinstance(trait.trait_type, traits.File) \
+                    or isinstance(trait.trait_type, traits.Directory) \
+                    or isinstance(trait.trait_type, traits.Any):
+                value = getattr(process, plug_name)
+                if isinstance(value, basestring) \
+                        and os.path.exists(value) \
+                        and value not in input_files_list:
+                    if plug.output:
                         plug_list.append((plug_name, value))
+                    elif exclude_inputs:
+                        input_files_list.add(value)
+        if exclude_inputs:
+            new_plug_list = [item for item in plug_list
+                             if item[1] not in input_files_list]
+            plug_list = new_plug_list
+        if plug_list:
+            selected_nodes[node_name] = plug_list
     return selected_nodes
 
 
