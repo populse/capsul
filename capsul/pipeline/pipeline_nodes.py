@@ -1005,6 +1005,9 @@ class Switch(Node):
         """ Add an event to the switch trait that enables us to select
         the desired option.
 
+        Propagates value through the switch, from in put to output if the
+        switch state corresponds to this input, or from output to inputs.
+
         Parameters
         ----------
         name: str (mandatory)
@@ -1037,13 +1040,14 @@ class Switch(Node):
                     setattr(self, input_name, new)
             self.__block_output_propagation = False
         # if the change is in an input, change the corresponding output
-        # accordingly.
+        # accordingly, if the current switch selection is on this input.
         spliter = name.split("_switch_")
         if len(spliter) == 2 and spliter[0] in self._switch_values:
             switch_selection, output_plug_name = spliter
-            self.__block_output_propagation = True
-            setattr(self, output_plug_name, new)
-            self.__block_output_propagation = False
+            if self.switch == switch_selection:
+                self.__block_output_propagation = True
+                setattr(self, output_plug_name, new)
+                self.__block_output_propagation = False
 
     def __setstate__(self, state):
         self.__block_output_propagation = True
