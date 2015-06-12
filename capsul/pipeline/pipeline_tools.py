@@ -1025,11 +1025,71 @@ def where_is_plug_value_from(plug, recursive=True):
 
 def dump_pipeline_state_as_dict(pipeline):
     '''
+    Get a pipeline state (parameters values, nodes activation, selected
+    steps... in a dictionary.
+
+    The returned dict may contain sub-pipelines state also.
+
+    The dict may be saved, and used to restore a pipeline state, using
+    :py:func:`set_pipeline_state_from_dict`.
+
+    Parameters
+    ----------
+    pipeline: Pipeline (or Process) instance
+        pipeline (or process) to get state from
+
+    Returns
+    -------
+    state_dict: dict
+        pipeline state
     '''
     def filter_unique_values(pipeline, node, node_dict):
         '''Filter out values in node_dict that appear several times:
         which are either exported, or are linked to an already specified value
         '''
+        # TODO...
+        #process = node
+        #if hasattr(node, 'process'):
+            #process = node.process
+        #if hasattr(node, 'pipeline_node'):
+            #node = node.pipeline_node
+        #main_plugs = node.plugs
+        ## check main plugs: remove values linked outside the node
+        #to_remove = []
+        #current_dict = node_dict['state']
+        #for key, value in current_dict:
+            #if key not in main_plugs:
+                #continue
+            #plug = plugs[key]
+            #if plug.output:
+                #links = plug.links_to
+            #else:
+                #links = plug.links_from
+            #if len(links) != 0:
+                #to_remove.append(key)
+            ## also remove switch outputs
+            #for link in links:
+                #if isinstance(link[2], Switch):
+                    #to_remove.append(key)
+        #for key in to_remove:
+            #del current_dict[key]
+
+        #nodes = node_dict.get('nodes')
+        #if nodes:
+            #done_plugs = set()
+            #plugs_list = []
+            #next_step_plugs = []
+            #for node_name, params in nodes.iteritems():
+                #node = process.nodes[node_name]
+                #plugs_list.extend((node.plugs, params))
+            #for plug, params in plug_list:
+                #if plug.output:
+                    #links = plug.links_to
+                #else:
+                    #links = plug.links_from
+                #for link in links:
+                    #pass
+
         return node_dict
 
     state_dict = {}
@@ -1040,16 +1100,16 @@ def dump_pipeline_state_as_dict(pipeline):
         if hasattr(node, 'process'):
             proc = node.process
         node_dict = proc.export_to_dict()
-        # TODO: filter from node_dict parameters which are already here via
-        # links
         if node_name is None:
             current_dict['state'] = node_dict
             child_dict = current_dict
         else:
+            # filter from node_dict parameters which are already here via
+            # links
             filtered_dict = filter_unique_values(pipeline, node, node_dict)
             child_dict = {}
             current_dict.setdefault('nodes', {})[node_name] = child_dict
-            child_dict['state'] = node_dict
+            child_dict['state'] = filtered_dict
         if hasattr(proc, 'nodes'):
             nodes += [(child_node_name, child_node, child_dict)
                       for child_node_name, child_node
@@ -1059,6 +1119,17 @@ def dump_pipeline_state_as_dict(pipeline):
 
 def set_pipeline_state_from_dict(pipeline, state_dict):
     '''
+    Set a pipeline (or process) state from a dict description.
+
+    State includes parameters values, nodes activation, steps selection etc.
+    The state is generally taken using :py:func:`dump_pipeline_state_as_dict`.
+
+    Parameters
+    ----------
+    pipeline: Pipeline or Process instance
+        process to set state in
+    state_dict: dict (mapping object)
+        state dictionary
     '''
     nodes = [(pipeline, state_dict)]
     while nodes:
