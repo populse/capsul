@@ -1023,3 +1023,54 @@ def where_is_plug_value_from(plug, recursive=True):
     # not found
     return None, None, None
 
+def dump_pipeline_state_as_dict(pipeline):
+    '''
+    '''
+    def filter_unique_values(pipeline, node, node_dict):
+        '''Filter out values in node_dict that appear several times:
+        which are either exported, or are linked to an already specified value
+        '''
+        return node_dict
+
+    state_dict = {}
+    nodes = [(None, pipeline, state_dict)]
+    while nodes:
+        node_name, node, current_dict = nodes.pop(0)
+        proc = node
+        if hasattr(node, 'process'):
+            proc = node.process
+        node_dict = proc.export_to_dict()
+        # TODO: filter from node_dict parameters which are already here via
+        # links
+        if node_name is None:
+            current_dict['state'] = node_dict
+            child_dict = current_dict
+        else:
+            filtered_dict = filter_unique_values(pipeline, node, node_dict)
+            child_dict = {}
+            current_dict.setdefault('nodes', {})[node_name] = child_dict
+            child_dict['state'] = node_dict
+        if hasattr(proc, 'nodes'):
+            nodes += [(child_node_name, child_node, child_dict)
+                      for child_node_name, child_node
+                      in proc.nodes.iteritems() if child_node_name != '']
+
+    return state_dict
+
+def set_pipeline_state_from_dict(pipeline, state_dict):
+    '''
+    '''
+    nodes = [(pipeline, state_dict)]
+    while nodes:
+        node, current_dict = nodes.pop(0)
+        if hasattr(node, 'process'):
+            proc = node.process
+        else:
+            proc = node
+        proc.import_from_dict(current_dict['state'])
+        sub_nodes = current_dict.get('nodes')
+        if sub_nodes:
+            nodes += [(proc.nodes[node_name], sub_dict)
+                      for node_name, sub_dict in sub_nodes.iteritems()]
+
+
