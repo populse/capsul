@@ -253,7 +253,7 @@ class Pipeline(Process):
         self.get(name)
 
         # If we insert a user trait, create the associated plug
-        if self.is_user_trait(trait):
+        if getattr(self, 'pipeline_node', False) and self.is_user_trait(trait):
             output = bool(trait.output)
             optional = bool(trait.optional)
             plug = Plug(output=output, optional=optional)
