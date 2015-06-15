@@ -7,7 +7,7 @@
 # for details.
 ##########################################################################
 
-from traits.api import List
+from traits.api import List, Undefined
 
 from capsul.process import Process
 from capsul.process import get_process_instance
@@ -29,23 +29,72 @@ class ProcessIteration(Process):
         # and changing iterative parameters to list
         for name, trait in user_traits.iteritems():
             if name in iterative_parameters:
-                self.add_trait(name, List(trait))
+                self.add_trait(name, List(trait, output=trait.output, optional=trait.optional))
             else:
                 self.regular_parameters.add(name)
                 self.add_trait(name, trait)
                 
     def _run_process(self):
         # Check that all iterative parameter value have the same size
-        size = set(len(getattr(self, i)) for i in self.iterative_parameters)
-        if size:
-            if len(size) > 1:
-                raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
-            size = size.pop()
+        no_output_value = None
+        size = None
+        size_error = False
+        for parameter in self.iterative_parameters:
+            trait = self.trait(parameter)
+            psize = len(getattr(self, parameter))
+            if psize:
+                if size is None:
+                    size = psize
+                elif size != psize:
+                    size_error = True
+                    break
+                if trait.output:
+                    if no_output_value is None:
+                        no_output_value = False
+                    elif no_output_value:
+                        size_error = True
+                        break
+            else:
+                if trait.output:
+                    if no_output_value is None:
+                        no_output_value = True
+                    elif not no_output_value:
+                        size_error = True
+                        break
+                else:
+                    if size is None:
+                        size = psize
+                    elif size != psize:
+                        size_error = True
+                        break
+                    
+        if size_error:
+            raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
+        if size == 0:
+            return
             
-            for parameter in self.regular_parameters:
-                setattr(self.process, parameter, getattr(self, parameter))
+        for parameter in self.regular_parameters:
+            setattr(self.process, parameter, getattr(self, parameter))
+        if no_output_value:
+            for parameter in self.iterative_parameters:
+                trait = self.trait(parameter)
+                if trait.output:
+                    setattr(self, parameter, [])
+            outputs = {}
+            for iteration in xrange(size):
+                for parameter in self.iterative_parameters:
+                    if not no_output_value or not self.trait(parameter).output:
+                        setattr(self.process, parameter, getattr(self, parameter)[iteration])
+                self.process()
+                for parameter in self.iterative_parameters:
+                    trait = self.trait(parameter)
+                    if trait.output:
+                        outputs.setdefault(parameter,[]).append(getattr(self.process, parameter))
+            for parameter, value in outputs.iteritems():
+                setattr(self, parameter, value)
+        else:
             for iteration in xrange(size):
                 for parameter in self.iterative_parameters:
                     setattr(self.process, parameter, getattr(self, parameter)[iteration])
                 self.process()
-    
+            

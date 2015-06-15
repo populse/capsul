@@ -82,31 +82,18 @@ class TestPipeline(unittest.TestCase):
         self.pipeline.other_input = 5
 
     def test_iterative_pipeline_connection(self):
-        """ Method to test if an iterative node and built in iterative
-        process are correctly connected.
+        """ Method to test if an iterative process work correctly
         """
-
-        # Test the input connection
-        iterative_node = self.pipeline.nodes["iterative"]
-        iterative_pipeline = iterative_node.process
-        pipeline_node = iterative_pipeline.nodes[""]
-        for trait_name in iterative_node.input_iterative_traits:
-            self.assertEqual(getattr(pipeline_node.process, trait_name),
-                             getattr(self.pipeline, trait_name))
-        for trait_name in iterative_node.input_traits:
-            self.assertEqual(getattr(pipeline_node.process, trait_name),
-                             getattr(self.pipeline, trait_name))
 
         # Test the output connection
         self.pipeline()
+        
         if sys.version_info >= (2, 7):
-            self.assertIn("toto:5.0:3.0", iterative_pipeline.output_image)
-            self.assertIn("tutu:5.0:1.0", iterative_pipeline.output_image)
+            self.assertIn("toto:5.0:3.0", self.pipeline.output_image)
+            self.assertIn("tutu:5.0:1.0", self.pipeline.output_image)
         else:
-            self.assertTrue("toto:5.0:3.0" in iterative_pipeline.output_image)
-            self.assertTrue("tutu:5.0:1.0" in iterative_pipeline.output_image)
-        self.assertEqual(
-            self.pipeline.output_image, iterative_pipeline.output_image)
+            self.assertTrue("toto:5.0:3.0" in self.pipeline.output_image)
+            self.assertTrue("tutu:5.0:1.0" in self.pipeline.output_image)
         self.assertEqual(self.pipeline.other_output, 
                          [self.pipeline.other_input, self.pipeline.other_input])
 

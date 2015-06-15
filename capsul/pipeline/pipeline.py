@@ -38,7 +38,6 @@ from pipeline_nodes import Plug
 from pipeline_nodes import ProcessNode
 from pipeline_nodes import PipelineNode
 from pipeline_nodes import Switch
-from pipeline_nodes import IterativeNode
 
 # Soma import
 from soma.controller import Controller
@@ -92,9 +91,8 @@ class Pipeline(Process):
     * switch nodes (:py:class:`pipeline_nodes.Switch`) allows to select values
       between several possible inputs. The switch mechanism also allows to select
       between several alternative processes or processing branchs.
-    * iterative process nodes (:py:class:`pipeline_nodes.IterativeNode`)
-      represent sets of parallel processing nodes, typically used for a
-      map/reduce schema.
+    * iterative process (:py:class:process_iteration.ProcessIteration`)
+      represent parallel processing of the same pipeline on a set of parameters.
 
     .. currentmodule:: capsul.pipeline.pipeline
 
@@ -397,36 +395,10 @@ class Pipeline(Process):
 
         # Otherwise, need to create a dynamic structure
         else:
-            # Check the unicity of the name we want to insert
-            if name in self.nodes:
-                raise ValueError("Pipeline cannot have two nodes with the"
-                                 "same name : {0}".format(name))
-
-            # Create the iterative pipeline node
-            # > get the process
-            process = get_process_instance(process, **kwargs)
-            # > update the list of files item to copy
-            if inputs_to_copy is not None and hasattr(process,
-                                                      "inputs_to_copy"):
-                process.inputs_to_copy.extend(inputs_to_copy)
-            if inputs_to_clean is not None and hasattr(process,
-                                                       "inputs_to_clean"):
-                process.inputs_to_clean.extend(inputs_to_clean)
-            # > create the iterative node
-            node = IterativeNode(
-                self, name, process, iterative_plugs, do_not_export,
-                make_optional, **kwargs)
-            self.nodes[name] = node
-
-            # Create a trait to control the node activation (enable property)
-            self.nodes_activation.add_trait(name, Bool)
-            setattr(self.nodes_activation, name, node.enabled)
-
-            # Observer
-            self.nodes_activation.on_trait_change(self._set_node_enabled, name)
-
-            # Add new node in pipeline process list
-            self.list_process_in_pipeline.append(node.process)
+            from .process_iteration import ProcessIteration
+            self.add_process(name, ProcessIteration(process,iterative_plugs), do_not_export,
+                             make_optional, **kwargs)
+            return
 
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=()):
@@ -1122,9 +1094,7 @@ class Pipeline(Process):
 
                 # If a Pipeline is found: the meta graph node parameter
                 # contains a sub Graph
-                if (isinstance(node.process, Pipeline) and
-                   not isinstance(node, IterativeNode)):
-
+                if isinstance(node.process, Pipeline):
                     graph.add_node(GraphNode(
                         node_name, node.process.workflow_graph(False)))
 

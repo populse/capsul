@@ -18,7 +18,7 @@ import distutils.spawn
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui
 from soma.sorted_dictionary import SortedDictionary
-from capsul.pipeline.pipeline import Switch, PipelineNode, IterativeNode
+from capsul.pipeline.pipeline import Switch, PipelineNode
 from capsul.pipeline import pipeline_tools
 from capsul.pipeline import Pipeline
 from capsul.process import get_process_instance, Process
@@ -859,8 +859,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                 process = node
             if hasattr(node, 'process'):
                 process = node.process
-            if isinstance(node, PipelineNode) \
-                    or isinstance(node, IterativeNode):
+            if isinstance(node, PipelineNode):
                 sub_pipeline = node.process
             else:
                 sub_pipeline = None
@@ -962,8 +961,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                     process = node
                 if hasattr(node, 'process'):
                     process = node.process
-                if isinstance(node, PipelineNode) \
-                        or isinstance(node, IterativeNode):
+                if isinstance(node, PipelineNode):
                     sub_pipeline = node.process
                 else:
                     sub_pipeline = None
@@ -1073,8 +1071,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                     process = node
                 if hasattr(node, 'process'):
                     process = node.process
-                if isinstance(node, PipelineNode) \
-                        or isinstance(node, IterativeNode):
+                if isinstance(node, PipelineNode):
                     sub_pipeline = node.process
                 else:
                     sub_pipeline = None
