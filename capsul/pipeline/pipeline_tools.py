@@ -1144,4 +1144,61 @@ def set_pipeline_state_from_dict(pipeline, state_dict):
             nodes += [(proc.nodes[node_name], sub_dict)
                       for node_name, sub_dict in sub_nodes.iteritems()]
 
+def get_output_directories(process):
+    '''
+    Get output directories for a process, pipeline, or node
+
+    Returns
+    -------
+    dirs: dict
+        organized directories list: a dict with recursive nodes mapping.
+        In each element, the "directories" key holds a directories names set,
+        and "nodes" is a dict with sub-nodes (node_name, dict mapping,
+        organized the same way)
+    flat_dirs: set
+        set of all directories in the pipeline, as a flat set.
+    '''
+    all_dirs = set()
+    root_dirs = {}
+    nodes = [(process, '', root_dirs)]
+    while nodes:
+        node, node_name, dirs = nodes.pop(0)
+        plugs = getattr(node, 'plugs', None)
+        if plugs is None:
+            plugs = node.user_traits()
+        if hasattr(node, 'process'):
+            process = node.process
+        else:
+            process = node
+        dirs_set = set()
+        dirs['directories'] = dirs_set
+        for param_name in plugs:
+            trait = process.trait(param_name)
+            if trait.output and isinstance(trait.trait_type, traits.File) \
+                    or isinstance(trait.trait_type, traits.Directory):
+                value = getattr(process, param_name)
+                if value is not None and value is not traits.Undefined:
+                    directory = os.path.dirname(value)
+                    if directory not in ('', '.'):
+                        all_dirs.add(directory)
+                        dirs_set.add(directory)
+        sub_nodes = getattr(process, 'nodes', None)
+        if sub_nodes:
+            # TODO: handle disabled steps
+            sub_dict = {}
+            dirs['nodes'] = sub_dict
+            for node_name, node in sub_nodes.iteritems():
+                if node_name != '' and node.activated and node.enabled:
+                    sub_node_dict = {}
+                    sub_dict[node_name] = sub_node_dict
+                    nodes.append((node, node_name, sub_node_dict))
+    return root_dirs, all_dirs
+
+def create_output_directories(process):
+    '''
+    Create output directories for a process, pipeline or node.
+    '''
+    for directory in get_output_directories(process)[1]:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
 
