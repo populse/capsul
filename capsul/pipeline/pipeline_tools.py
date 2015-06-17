@@ -742,73 +742,82 @@ def dump_pipeline_state_as_dict(pipeline):
     state_dict: dict
         pipeline state
     '''
-    def filter_unique_values(pipeline, node, node_dict):
-        '''Filter out values in node_dict that appear several times:
-        which are either exported, or are linked to an already specified value
+    def should_keep_value(node, plug, components):
         '''
-        # TODO...
-        #process = node
-        #if hasattr(node, 'process'):
-            #process = node.process
-        #if hasattr(node, 'pipeline_node'):
-            #node = node.pipeline_node
-        #main_plugs = node.plugs
-        ## check main plugs: remove values linked outside the node
-        #to_remove = []
-        #current_dict = node_dict['state']
-        #for key, value in current_dict:
-            #if key not in main_plugs:
-                #continue
-            #plug = plugs[key]
-            #if plug.output:
-                #links = plug.links_to
-            #else:
-                #links = plug.links_from
-            #if len(links) != 0:
-                #to_remove.append(key)
-            ## also remove switch outputs
-            #for link in links:
-                #if isinstance(link[2], Switch):
-                    #to_remove.append(key)
-        #for key in to_remove:
-            #del current_dict[key]
+        Tells if a plug has already been taken into account in the plugs graph.
 
-        #nodes = node_dict.get('nodes')
-        #if nodes:
-            #done_plugs = set()
-            #plugs_list = []
-            #next_step_plugs = []
-            #for node_name, params in nodes.iteritems():
-                #node = process.nodes[node_name]
-                #plugs_list.extend((node.plugs, params))
-            #for plug, params in plug_list:
-                #if plug.output:
-                    #links = plug.links_to
-                #else:
-                    #links = plug.links_from
-                #for link in links:
-                    #pass
+        Also filters out switches outputs, which should rather be set via their
+        inputs.
 
-        return node_dict
+        To do so, a connected components map has to be built for the plugs
+        graph, which is done is a semi-lazy way in components.
+
+        Parameters
+        ----------
+        node: Node
+            pipeline node the pluge belongs to
+        plug: Plug
+            the plug to test
+        components: list of sets of plugs
+            connected components will be added to this components list.
+
+        Returns
+        -------
+        True if the plug value is a "new" one and should be recorded in the
+        pipeline state. Otherwise it should be discarded (set from another
+        connected plug).
+        '''
+        def _component(plug, components):
+            for comp in components:
+                if plug in comp:
+                    return comp
+            return None
+
+        comp = _component(plug, components)
+        if comp:
+            # already done
+            return False
+        comp = set()
+        todo = []
+        todo.append(plug)
+        allowed = True
+        # propagate
+        while todo:
+            plug = todo.pop(0)
+            comp.add(plug)
+            # switches outputs should not be set (they will be through their
+            # inputs)
+            if plug.output and isinstance(node, Switch):
+                allowed = False
+            todo += [link[3] for link in plug.links_from
+                     if link[3] not in comp]
+            todo += [link[3] for link in plug.links_to
+                     if link[3] not in comp]
+        components.append(comp)
+        return allowed
 
     state_dict = {}
-    nodes = [(None, pipeline, state_dict)]
+    nodes = [(None, pipeline.pipeline_node, state_dict)]
+    components = []
     while nodes:
         node_name, node, current_dict = nodes.pop(0)
         proc = node
         if hasattr(node, 'process'):
             proc = node.process
         node_dict = proc.export_to_dict()
+        # filter out forbidden and already used plugs
+        for plug_name, plug in node.plugs.iteritems():
+            if not should_keep_value(node, plug, components):
+                del node_dict[plug_name]
         if node_name is None:
-            current_dict['state'] = node_dict
+            if len(node_dict) != 0:
+                current_dict['state'] = node_dict
             child_dict = current_dict
         else:
-            # filter from node_dict parameters which are already here via
-            # links
-            filtered_dict = filter_unique_values(pipeline, node, node_dict)
             child_dict = {}
             current_dict.setdefault('nodes', {})[node_name] = child_dict
-            child_dict['state'] = filtered_dict
+            if len(node_dict) != 0:
+                child_dict['state'] = node_dict
         if hasattr(proc, 'nodes'):
             nodes += [(child_node_name, child_node, child_dict)
                       for child_node_name, child_node
@@ -837,7 +846,7 @@ def set_pipeline_state_from_dict(pipeline, state_dict):
             proc = node.process
         else:
             proc = node
-        proc.import_from_dict(current_dict['state'])
+        proc.import_from_dict(current_dict.get('state', {}))
         sub_nodes = current_dict.get('nodes')
         if sub_nodes:
             nodes += [(proc.nodes[node_name], sub_dict)
