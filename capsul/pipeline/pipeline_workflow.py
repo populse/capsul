@@ -18,6 +18,7 @@ import socket
 import soma_workflow.client as swclient
 
 from capsul.pipeline import Pipeline, Switch
+from capsul.pipeline import pipeline_tools
 from capsul.process import Process
 from capsul.pipeline.topological_sort import Graph
 from traits.api import Directory, Undefined, File, Str, Any
@@ -25,7 +26,7 @@ from soma.sorted_dictionary import OrderedDict
 
 
 def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
-                           jobs_priority=0):
+                           jobs_priority=0, create_directories=True):
     """ Create a soma-workflow workflow from a Capsul Pipeline
 
     Parameters
@@ -46,6 +47,9 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         see Pipeline.define_steps()
     jobs_priority: int (optional, default: 0)
         set this priority on soma-workflow jobs.
+    create_directories: bool (optional, default: True)
+        if set, needed output directories (which will contain output files)
+        will be created in a first job, which all other ones depend on.
 
     Returns
     -------
@@ -76,6 +80,28 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 break
         paths.append(path + '.minf')
         return paths
+
+    def _translated_path(path, shared_map, shared_paths, trait=None):
+        if path is None or path is Undefined \
+                or not shared_paths \
+                or (trait is not None
+                    and not isinstance(trait.trait_type, File) \
+                    and not isinstance(trait.trait_type, Directory)):
+            return None # not a path
+        item = shared_map.get(path)
+        if item is not None:
+            # already in map
+            return item
+
+        for base_dir, (namespace, uuid) in shared_paths.iteritems():
+            if path.startswith(base_dir + os.sep):
+                rel_path = path[len(base_dir)+1:]
+                #uuid = path
+                item = swclient.SharedResourcePath(
+                    rel_path, namespace, uuid=uuid)
+                shared_map[path] = item
+                return item
+        return None
 
     def build_job(process, temp_map={}, shared_map={}, transfers=[{}, {}],
                   shared_paths={}, forbidden_temp=set(), name='', priority=0,
@@ -140,28 +166,6 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                     param_name = None
                 i += 1
 
-        def _translated_path(path, trait, shared_map, shared_paths):
-            if path is None or path is Undefined \
-                    or not shared_paths \
-                    or (not isinstance(trait.trait_type, File) \
-                    and not isinstance(trait.trait_type, Directory)):
-                return None # not a path
-            item = shared_map.get(path)
-            output = bool(trait.output) # trait.output can be None
-            if item is not None:
-                # already in map
-                return item
-
-            for base_dir, (namespace, uuid) in shared_paths.iteritems():
-                if path.startswith(base_dir + os.sep):
-                    rel_path = path[len(base_dir)+1:]
-                    #uuid = path
-                    item = swclient.SharedResourcePath(
-                        rel_path, namespace, uuid=uuid)
-                    shared_map[path] = item
-                    return item
-            return None
-
         # Get the process command line
         process_cmdline = process.get_commandline()
         job_name = name
@@ -185,8 +189,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                                 % (job_name, param_name))
                         input_replaced_paths.append(temp_map[value])
                 else:
-                    _translated_path(value, parameter, shared_map,
-                                     shared_paths)
+                    _translated_path(value, shared_map, shared_paths,
+                                     parameter)
 
         # and replace in commandline
         iproc_transfers = transfers[0].get(process, {})
@@ -573,6 +577,24 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         root_jobs = OrderedDict([x[1:] for x in root_jobs_list])
         return jobs, dependencies, groups, root_jobs
 
+    def _create_directories_job(pipeline, shared_map={}, shared_paths={},
+                                priority=0):
+        directories = pipeline_tools.get_output_directories(pipeline)[1]
+        if len(directories) == 0:
+            return None # no dirs to create.
+        paths = []
+        # check for path translations
+        for path in directories:
+            new_path = _translated_path(path, shared_map, shared_paths)
+            paths.append(new_path or path)
+        # FIXME: maybe use a python command to avoid the shell command mkdir
+        cmdline = ['mkdir', '-p'] + paths
+        job = swclient.Job(
+            name='output directories creation',
+            command=cmdline,
+            priority=priority)
+        return job
+
     # TODO: handle formats in a separate, centralized place
     # formats: {name: ext_props}
     #     ext_props: {ext: [dependent_exts]}
@@ -608,6 +630,11 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     #print 'removed temp:', remove_temp
     #print 'temp_map:', temp_map
 
+    if create_directories:
+        # create job
+        dirs_job = _create_directories_job(
+            pipeline, shared_map=shared_map, shared_paths=swf_paths[1])
+
     # build steps map
     steps = {}
     if hasattr(pipeline, 'pipeline_steps'):
@@ -626,9 +653,24 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     finally:
         restore_empty_filenames(temp_map)
 
-    workflow = swclient.Workflow(jobs=jobs.values(),
+    all_jobs = jobs.values()
+    root_jobs = root_jobs.values()
+
+    # if directories have to be created, all other primary jobs will depend
+    # on this first one
+    if create_directories and dirs_job is not None:
+        dependend_jobs = set()
+        for dependency in dependencies:
+            dependend_jobs.add(dependency[1])
+        new_deps = [(dirs_job, job) for job in all_jobs
+                    if job not in dependend_jobs]
+        dependencies.update(new_deps)
+        all_jobs.insert(0, dirs_job)
+        root_jobs.insert(0, dirs_job)
+
+    workflow = swclient.Workflow(jobs=all_jobs,
         dependencies=dependencies,
-        root_group=root_jobs.values(),
+        root_group=root_jobs,
         name=pipeline.name)
 
     return workflow
