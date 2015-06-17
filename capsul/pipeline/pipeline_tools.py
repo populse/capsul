@@ -860,6 +860,12 @@ def get_output_directories(process):
     all_dirs = set()
     root_dirs = {}
     nodes = [(process, '', root_dirs)]
+    disabled_nodes = set()
+    if isinstance(process, Pipeline):
+        disabled_nodes = set(process.disabled_pipeline_steps_nodes())
+    elif isinstance(process, PipelineNode):
+        disabled_nodes = set(process.process.disabled_pipeline_steps_nodes())
+
     while nodes:
         node, node_name, dirs = nodes.pop(0)
         plugs = getattr(node, 'plugs', None)
@@ -887,7 +893,8 @@ def get_output_directories(process):
             sub_dict = {}
             dirs['nodes'] = sub_dict
             for node_name, node in sub_nodes.iteritems():
-                if node_name != '' and node.activated and node.enabled:
+                if node_name != '' and node.activated and node.enabled \
+                        and not node in disabled_nodes:
                     sub_node_dict = {}
                     sub_dict[node_name] = sub_node_dict
                     nodes.append((node, node_name, sub_node_dict))
