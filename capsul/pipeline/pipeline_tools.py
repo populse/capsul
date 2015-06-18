@@ -796,6 +796,27 @@ def dump_pipeline_state_as_dict(pipeline):
         components.append(comp)
         return allowed
 
+    def prune_empty_dicts(state_dict):
+        if state_dict.get('nodes') is None:
+            return
+        todo = [(state_dict, None, None, True)]
+        while todo:
+            current_dict, parent, parent_key, recursive = todo.pop(0)
+            nodes = current_dict.get('nodes')
+            modified = False
+            if nodes:
+                if len(nodes) == 0:
+                    del current_dict['nodes']
+                    modified = True
+                elif recursive:
+                    todo = [(value, nodes, key, True)
+                            for key, value in nodes.iteritems()] + todo
+                    modified = True
+            if len(current_dict) == 0 and parent is not None:
+                del parent[parent_key]
+            elif modified:
+                todo.append((current_dict, parent, parent_key, False))
+
     state_dict = {}
     nodes = [(None, pipeline.pipeline_node, state_dict)]
     components = []
@@ -823,6 +844,7 @@ def dump_pipeline_state_as_dict(pipeline):
                       for child_node_name, child_node
                       in proc.nodes.iteritems() if child_node_name != '']
 
+    prune_empty_dicts(state_dict)
     return state_dict
 
 def set_pipeline_state_from_dict(pipeline, state_dict):
