@@ -797,6 +797,15 @@ def dump_pipeline_state_as_dict(pipeline):
         return allowed
 
     def prune_empty_dicts(state_dict):
+        '''
+        Remove empty dictionaries, and nodes containing empty dicts in pipeline
+        state dictionary
+
+        Parameters
+        ----------
+        state_dict: dict
+            the state_dict is parsed, and modified.
+        '''
         if state_dict.get('nodes') is None:
             return
         todo = [(state_dict, None, None, True)]
