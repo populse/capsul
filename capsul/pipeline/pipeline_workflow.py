@@ -381,25 +381,42 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         in_transfers = {}
         out_transfers = {}
         transfers = [in_transfers, out_transfers]
-        for param, trait in pipeline.user_traits().iteritems():
-            if isinstance(trait.trait_type, File) \
-                    or isinstance(trait.trait_type, Directory) \
-                    or type(trait.trait_type) is Any:
-                # is value in paths
-                path = getattr(pipeline, param)
-                if path is None or path is Undefined:
-                    continue
-                for tpath in transfer_paths:
+        todo_nodes = [pipeline.pipeline_node]
+        while todo_nodes:
+            node = todo_nodes.pop(0)
+            if hasattr(node, 'process'):
+                process = node.process
+            else:
+                process = node
+            for param, trait in process.user_traits().iteritems():
+                if isinstance(trait.trait_type, File) \
+                        or isinstance(trait.trait_type, Directory) \
+                        or type(trait.trait_type) is Any:
+                    # is value in paths
+                    path = getattr(process, param)
+                    if path is None or path is Undefined:
+                        continue
                     output = bool(trait.output)
-                    if path.startswith(os.path.join(tpath, '')):
-                        transfer_item = swclient.FileTransfer(
-                            is_input=not output,
-                            client_path=path,
-                            client_paths=_files_group(path, merged_formats))
-                        _propagate_transfer(pipeline.pipeline_node, param,
-                                            path, not output, transfers,
-                                            transfer_item)
-                        break
+                    existing_transfers = transfers[output].get(process, {})
+                    existing_transfer = existing_transfers.get(param)
+                    if existing_transfer:
+                        continue
+                    for tpath in transfer_paths:
+                        if path.startswith(os.path.join(tpath, '')):
+                            transfer_item = swclient.FileTransfer(
+                                is_input=not output,
+                                client_path=path,
+                                client_paths=_files_group(path,
+                                                          merged_formats))
+                            _propagate_transfer(node, param,
+                                                path, not output, transfers,
+                                                transfer_item)
+                            break
+            if hasattr(process, 'nodes'):
+                todo_nodes += [sub_node
+                               for name, sub_node in process.nodes.iteritems()
+                               if name != ''
+                                  and not isinstance(sub_node, Switch)]
         return transfers
 
     def _expand_nodes(nodes):
