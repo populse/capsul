@@ -291,12 +291,11 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             study_config, 'somaworkflow_computing_resources_config', None)
         if resources_conf is None:
             return [], {}
-        resource_conf = resources_conf.get(computing_resource)
+        resource_conf = getattr(resources_conf, computing_resource, None)
         if resource_conf is None:
             return [], {}
-        return (
-            resource_conf.get('transfer_paths', []),
-            resource_conf.get('path_translations', {}))
+        return (resource_conf.transfer_paths,
+                resource_conf.path_translations.export_to_dict())
 
     def _propagate_transfer(node, param, path, output, transfers,
                             transfer_item):
@@ -578,8 +577,17 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         return jobs, dependencies, groups, root_jobs
 
     def _create_directories_job(pipeline, shared_map={}, shared_paths={},
-                                priority=0):
-        directories = pipeline_tools.get_output_directories(pipeline)[1]
+                                priority=0, transfer_paths=[]):
+        def _is_transfer(d, transfer_paths):
+            for path in transfer_paths:
+                if d.startswith(os.path.join(path, '')):
+                    return True
+            return False
+
+        directories = [d
+                       for d in pipeline_tools.get_output_directories(
+                          pipeline)[1]
+                       if not _is_transfer(d, transfer_paths)]
         if len(directories) == 0:
             return None # no dirs to create.
         paths = []
@@ -629,11 +637,14 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     #print 'changed transfers:', move_to_input
     #print 'removed temp:', remove_temp
     #print 'temp_map:', temp_map
+    #print 'SWF transfers:', swf_paths[0]
+    #print 'shared paths:', swf_paths[1]
 
     if create_directories:
         # create job
         dirs_job = _create_directories_job(
-            pipeline, shared_map=shared_map, shared_paths=swf_paths[1])
+            pipeline, shared_map=shared_map, shared_paths=swf_paths[1],
+            transfer_paths=swf_paths[0])
 
     # build steps map
     steps = {}
