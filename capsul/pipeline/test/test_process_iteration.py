@@ -9,7 +9,11 @@
 
 # System import
 import sys
+import os
+import os.path as osp
 import unittest
+from tempfile import NamedTemporaryFile
+import struct
 
 # Trait import
 from traits.api import String, Int, List, File
@@ -25,7 +29,8 @@ class WriteOutput(Process):
     output_image = File(output=True)
     
     def _run_process(self):
-        print 'Run WriteOutput(%s, %s)' % (repr(self.input_image), repr(self.output_image))
+        # Copy input_image in output_image
+        open(self.output_image,'wb').write(open(self.input_image,'rb').read())
 
 
 class ProcessSlice(Process):
@@ -34,8 +39,15 @@ class ProcessSlice(Process):
     output_image = File(output=True)
     
     def _run_process(self):
-        print 'Run ProcessSlice(%s, %d, %s)' % (repr(self.input_image), self.slice_number, repr(self.output_image))
-
+        file_size = os.stat(self.output_image).st_size
+        if self.slice_number >= int(file_size/2):
+            raise ValueError('Due to output file size, slice_number cannot '
+                'be more than %d but %d was given' % (int(file_size/2), 
+                self.slice_number))
+        f = open(self.output_image, 'r+b')
+        f.seek(self.slice_number*2, 0)
+        f.write(struct.pack('H', self.slice_number))
+        f.close()
 
 class MyPipeline(Pipeline):
     """ Simple Pipeline to test the iterative Node
@@ -46,8 +58,12 @@ class MyPipeline(Pipeline):
         self.on_trait_change(self.input_image_changed, 'input_image')
         
     def input_image_changed(self):
-        self.slices = range(len(self.input_image))
-    
+        if isinstance(self.input_image, basestring) and \
+                osp.exists(self.input_image):
+            self.slices = range(int(os.stat(self.input_image).st_size/2))
+        else:
+            self.slices = []
+        
     def pipeline_definition(self):
         """ Define the pipeline.
         """
@@ -69,60 +85,46 @@ class MyPipeline(Pipeline):
             'process_slices': (154.47765249999998, 90.86126),
             'write_output': (154.47765249999998, 0.0)}
 
-#class TestPipeline(unittest.TestCase):
-    #""" Class to test a pipeline with an iterative node
-    #"""
-    #def setUp(self):
-        #""" In the setup construct the pipeline and set some input parameters.
-        #"""
-        ## Construct the pipeline
-        #self.pipeline = MyPipeline()
+class TestPipeline(unittest.TestCase):
+    """ Class to test a pipeline with an iterative node
+    """
+    def setUp(self):
+        """ In the setup construct the pipeline and set some input parameters.
+        """
+        # Construct the pipelHine
+        self.pipeline = MyPipeline()
 
-        ## Set some input parameters
-        #self.pipeline.input_image = ["toto", "tutu"]
-        #self.pipeline.dynamic_parameter = [3, 1]
-        #self.pipeline.other_input = 5
+        # Set some input parameters
+        self.parallel_processes = 10
+        self.input_file = NamedTemporaryFile()
+        self.input_file.write('\x00\x00' * self.parallel_processes)
+        self.input_file.flush()
+        self.pipeline.input_image = self.input_file.name
+        self.output_file = NamedTemporaryFile()
+        self.pipeline.output_image = self.output_file.name
 
-    #def test_iterative_pipeline_connection(self):
-        #""" Method to test if an iterative node and built in iterative
-        #process are correctly connected.
-        #"""
+    def test_iterative_pipeline_connection(self):
+        """ Method to test if an iterative node and built in iterative
+        process are correctly connected.
+        """
 
-        ## Test the input connection
-        #iterative_node = self.pipeline.nodes["iterative"]
-        #iterative_pipeline = iterative_node.process
-        #pipeline_node = iterative_pipeline.nodes[""]
-        #for trait_name in iterative_node.input_iterative_traits:
-            #self.assertEqual(getattr(pipeline_node.process, trait_name),
-                             #getattr(self.pipeline, trait_name))
-        #for trait_name in iterative_node.input_traits:
-            #self.assertEqual(getattr(pipeline_node.process, trait_name),
-                             #getattr(self.pipeline, trait_name))
-
-        ## Test the output connection
-        #self.pipeline()
-        #if sys.version_info >= (2, 7):
-            #self.assertIn("toto:5.0:3.0", iterative_pipeline.output_image)
-            #self.assertIn("tutu:5.0:1.0", iterative_pipeline.output_image)
-        #else:
-            #self.assertTrue("toto:5.0:3.0" in iterative_pipeline.output_image)
-            #self.assertTrue("tutu:5.0:1.0" in iterative_pipeline.output_image)
-        #self.assertEqual(
-            #self.pipeline.output_image, iterative_pipeline.output_image)
-        #self.assertEqual(self.pipeline.other_output, 
-                         #[self.pipeline.other_input, self.pipeline.other_input])
+        # Test the output connection
+        self.pipeline()
+        result = open(self.pipeline.output_image,'rb').read()
+        numbers = struct.unpack_from('H' * self.parallel_processes, result)
+        self.assertEqual(numbers, tuple(range(self.parallel_processes)))
 
 
-#def test():
-    #""" Function to execute unitest
-    #"""
-    #suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
-    #runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    #return runtime.wasSuccessful()
+def test():
+    """ Function to execute unitest
+    """
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
+    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
+    return runtime.wasSuccessful()
 
 
 if __name__ == "__main__":
-    #test()
+    test()
     from PySide import QtGui
     from capsul.qt_gui.widgets import PipelineDevelopperView
 
@@ -133,12 +135,9 @@ if __name__ == "__main__":
 
     view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
                                     allow_open_controller=True)
-#    view1.add_embedded_subpipeline('process_slices')
 
     view1.show()
     app.exec_()
     del view1
     print '---'
-    
-    pipeline()
     
