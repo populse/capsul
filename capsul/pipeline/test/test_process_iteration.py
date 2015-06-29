@@ -36,6 +36,7 @@ class WriteOutput(Process):
 class ProcessSlice(Process):
     input_image = File()
     slice_number = Int()
+    output_image_dependency = File()
     output_image = File(output=True)
     
     def _run_process(self):
@@ -77,13 +78,14 @@ class MyPipeline(Pipeline):
                 iterative_parameters = ['slice_number']))
         
         self.export_parameter('process_slices', 'slice_number', 'slices')
+        self.add_link('write_output.output_image->process_slices.output_image_dependency')
         self.add_link('input_image->process_slices.input_image')
         self.add_link('process_slices.output_image->output_image')
         
-        self.node_position = {'inputs': (-30.0, 41.18130000000002),
-            'outputs': (340.07785249999995, 57.68130000000002),
-            'process_slices': (154.47765249999998, 90.86126),
-            'write_output': (154.47765249999998, 0.0)}
+        self.node_position = {'inputs': (-166.0, 78.18130000000002),
+                              'outputs': (440.07785249999995, 23.68130000000002),
+                              'process_slices': (193.47765249999998, 78.86126000000002),
+                              'write_output': (3.4776524999999765, -1.0)}
 
 class TestPipeline(unittest.TestCase):
     """ Class to test a pipeline with an iterative node
