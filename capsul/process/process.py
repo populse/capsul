@@ -168,8 +168,15 @@ class Process(Controller):
 
         .. note:
 
-            This method must not modified the class attributes in order
+            This method must not modify the class attributes in order
             to be able to perform smart caching.
+
+        .. node:
+
+            This method should not be overloaded by Process subclasses to
+            perform actual processing. Instead, either the
+            :meth:`_run_process` method or the :meth:`get_commandline` method
+            should be overloaded.
 
         Parameters
         ----------
