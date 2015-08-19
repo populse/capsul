@@ -16,7 +16,7 @@ import logging
 import importlib
 
 # Capsul import
-from capsul.utils.function_to_process import title_for as process_title_for
+from capsul.utils.description_utils import title_for
 from capsul.utils.function_to_process import class_factory as process_class_factory
 
 
@@ -53,7 +53,6 @@ def load_objects(module_name, object_name=None, allowed_instances=None):
         a list of objects.
     """
     # Set here to avoid cyclic imports
-    from capsul.utils.xml_to_pipeline import title_for as pipeline_title_for
     from capsul.utils.xml_to_pipeline import class_factory as pipeline_class_factory
 
     # Remove special characters from the module name and object name
@@ -79,8 +78,8 @@ def load_objects(module_name, object_name=None, allowed_instances=None):
             "__name__": module_name
         }
         pipeline_class_factory(xmlpath_description, destination_module_globals)
-        tools.append(destination_module_globals[
-            pipeline_title_for(object_name)])
+        title = object_name.split(".")[0]
+        tools.append(destination_module_globals[title_for(title)])
 
     # > default: import the module
     else:
@@ -178,8 +177,8 @@ def insert_tool(tools, tool, allowed_instances=None):
     elif isinstance(tool, types.FunctionType):
 
         # Check docstring
-        capsul_start = tool.__doc__.rfind("<process>")
-        capsul_end = tool.__doc__.rfind("</process>")
+        capsul_start = tool.__doc__.rfind("<unit>")
+        capsul_end = tool.__doc__.rfind("</unit>")
         if (capsul_start != -1 and capsul_end != -1 and
                 capsul_start < capsul_end):
 
@@ -189,4 +188,4 @@ def insert_tool(tools, tool, allowed_instances=None):
             }
             process_class_factory(tool, destination_module_globals)
             tools.append(destination_module_globals[
-                process_title_for(tool.__name__)])
+                title_for(tool.__name__)])
