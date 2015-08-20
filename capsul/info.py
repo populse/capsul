@@ -47,7 +47,6 @@ NUMPY_MIN_VERSION = "1.3"
 SCIPY_MIN_VERSION = "0.7"
 TRAITS_MIN_VERSION = "4.0"
 NIPYPE_VERSION = "0.10.0"
-XMLTODICT_MIN_VERSION = "0.9.0"
 
 # Main setup parameters
 NAME = "capsul"
@@ -69,7 +68,6 @@ PROVIDES = ["capsul"]
 REQUIRES = [
     "traits>={0}".format(TRAITS_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
-    "xmltodict>={0}".format(XMLTODICT_MIN_VERSION)
 ]
 EXTRA_REQUIRES = {
     "doc": [
