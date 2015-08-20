@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline version="1.0">
+    <docstring>
+        Auto Generated Switch Pipeline Test
+    </docstring>
+    <units>
+        <unit name="p1">
+            <module>capsul.process.test.test_load_from_description.to_warp_func</module>
+            <set name="output2" value="None"/>
+        </unit>
+        <unit name="p2">
+            <module>capsul.process.test.test_load_from_description.to_warp_func</module>
+            <set name="output2" value="None"/>
+        </unit>
+        <unit name="p3">
+            <module>capsul.process.test.test_load_from_description.to_warp_func</module>
+            <set name="output2" value="None"/>
+        </unit>
+        <unit name="p4">
+            <module>capsul.process.test.test_load_from_description.to_warp_func</module>
+            <set name="output2" value="None"/>
+        </unit>
+        <unit name="p5">
+            <module>capsul.process.test.test_load_from_description.to_warp_func</module>
+            <set name="output2" value="None"/>
+        </unit>
+        <switch name="switch">
+            <path name="path1">
+                <unit name="p2"/>
+                <unit name="p3"/>
+            </path>
+            <path name="path2">
+                <unit name="p4"/>
+            </path>   
+        </switch>
+    </units>
+    <links>
+        <link source="input1" destination="p1.parameter1"/>
+        <link source="input1" destination="p2.parameter1"/>
+        <link source="input1" destination="p3.parameter1"/>
+        <link source="input1" destination="p4.parameter1"/>
+        <link source="input1" destination="p5.parameter1"/>
+        <link source="input2" destination="p1.parameter2"/>
+        <link source="p1.output2" destination="p2.parameter2"/>
+        <link source="p1.output2" destination="p4.parameter2"/>
+        <link source="p2.output2" destination="p3.parameter2"/>
+        <link source="p3.output2" destination="p5.parameter2"/>
+        <link source="p4.output2" destination="p5.parameter2"/>
+        <link source="output" destination="p5.output1"/>
+        <link source="p1.output1" destination="p2.parameter3"/>
+        <link source="p1.output1" destination="p4.parameter3"/>
+        <link source="p2.output1" destination="p3.parameter3"/>
+        <link source="p3.output1" destination="p5.parameter3"/>
+        <link source="p4.output1" destination="p5.parameter3"/>
+    </links>
+    <positions>
+        <position unit="inputs" x="8" y="282"/>
+        <position unit="p1" x="221" y="280"/>
+        <position unit="p2" x="336" y="58"/>
+        <position unit="p3" x="491" y="60"/>
+        <position unit="p4" x="356" y="485"/>
+        <position unit="p5" x="626" y="307"/>
+        <position unit="outputs" x="793" y="407"/>
+    </positions>
+    <zoom level="0.75"/> 
+</pipeline>

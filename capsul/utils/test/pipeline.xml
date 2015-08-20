@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline version="1.0">
+    <docstring>
+        Auto Generated Pipeline Test
+    </docstring>
+    <units>
+        <unit name="p1">
+            <module>capsul.process.test.test_load_from_description.to_warp_func</module>
+            <set name="parameter1" value="[2.69]"/>
+            <set name="output2" value="None"/>
+        </unit>
+        <unit name="p2">
+            <module>capsul.process.test.test_load_from_description.to_warp_func</module>
+        </unit>
+    </units>
+    <links>
+        <link source="input1" destination="p1.parameter1"/>
+        <link source="input1" destination="p2.parameter1"/>
+        <link source="input2" destination="p1.parameter2"/>
+        <link source="input2" destination="p2.parameter2"/>
+        <link source="output1" destination="p1.output1"/>
+        <link source="output2" destination="p2.output1"/>
+        <link source="output3" destination="p2.output2"/>
+        <link source="p1.output1" destination="p2.parameter3"/>
+    </links>
+    <positions>
+        <position unit="inputs" x="0" y="0"/>
+        <position unit="p1" x="200" y="200"/>
+        <position unit="p2" x="400" y="-200"/>
+        <position unit="outputs" x="600" y="0"/>
+    </positions>
+    <zoom level="1"/> 
+</pipeline>

@@ -1,38 +1,29 @@
-<pipeline>
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline version="1.0">
     <docstring>
         Auto Generated Pipeline Test
     </docstring>
-    <processes>
-        <standard name="p1">
-            <module>capsul.utils.test.process.AFunctionToWrap</module>
-            <force name="reference" value="['test']"/>
-        </standard>
-        <standard name="p2">
-            <module>capsul.utils.test.process.AFunctionToWrap</module>
-        </standard>
-    </processes>
+    <units>
+        <unit name="p1">
+            <module>capsul.utils.test.a_function_to_wrap</module>
+            <set name="fname" value="'/tmp'"/>
+        </unit>
+        <unit name="p2">
+            <module>capsul.utils.test.pipeline.xml</module>
+        </unit>
+    </units>
     <links>
-        <link src="p1.string" dest="p2.fname"/>
-        <link src="pdirectory" dest="p2.directory"/>
-        <link src="value" dest="p2.value"/>
-        <link src="enum" dest="p2.enum"/>
-        <link src="list_of_str" dest="p2.list_of_str"/>
+        <link source="p1.string" destination="p2.fname"/>
+        <link source="pdirectory" destination="p2.pdirectory"/>
+        <link source="pdirectory" destination="p1.directory"/>
+        <link source="fname" destination="p1.fname"/>
+        <link source="p2.outstring" destination="string"/>
     </links>
-    <inputs>
-        <input name="value" dest="p1.value"/>
-        <input name="enum" dest="p1.enum"/>
-        <input name="list_of_str" dest="p1.list_of_str"/>
-        <input name="pdirectory" dest="p1.directory"/>
-    </inputs>
-    <outputs>
-        <output name="out1" src="p2.string"/>
-        <output name="out2" src="p2.reference"/>
-    </outputs>
     <positions>
-        <position process="inputs" x="0" y="0"/>
-        <position process="p1" x="200" y="200"/>
-        <position process="p2" x="400" y="-200"/>
-        <position process="outputs" x="600" y="0"/>
+        <position unit="inputs" x="0" y="0"/>
+        <position unit="p1" x="200" y="200"/>
+        <position unit="p2" x="400" y="-200"/>
+        <position unit="outputs" x="600" y="0"/>
     </positions>
-    <scale factor="1"/> 
+    <zoom level="1"/> 
 </pipeline>
