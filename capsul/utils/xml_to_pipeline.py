@@ -49,6 +49,7 @@ class AutoPipeline(Pipeline):
     def __init__(self, **kwargs):
         """ Initialize the AutoPipeline class.
         """
+        self._switches = {}
         super(AutoPipeline, self).__init__(
             autoexport_nodes_parameters=False, **kwargs)
 
@@ -140,7 +141,7 @@ class AutoPipeline(Pipeline):
 
         # Check the name of the switch is not already reserved
         switch_name = switchdesc[self.switch_attributes[0]][0]
-        if switch_name in self.nodes:
+        if switch_name in self._switches:
             raise ValueError(
                 "The switch name '{0}' defined in '{1}' is "
                 "already used.".format(switch_name, self._xmlfile))
@@ -164,20 +165,19 @@ class AutoPipeline(Pipeline):
         switch_paths: dict
             a dict with the switch path description.
         """
-        # Save the switch structure
-        self.switch_paths = switch_paths
-        self._switch_values = self.switch_paths.keys()
-        self._switch_boxes = []
-        for key, value in self.switch_paths.items():
-            self._switch_boxes.extend(value)
+        # Get the switch structure
+        switch_values = switch_paths.keys()
+        switch_boxes = []
+        for key, value in switch_paths.items():
+            switch_boxes.extend(value)
 
         # Add a switch enum trait to select the path
         self.add_trait(switch_name, Enum(optional=False, output=False,
-                                         *self._switch_values))
+                                         *switch_values))
+        self._switches[switch_name] = (switch_paths, switch_boxes)
 
         # Activate the switch
-        self._anytrait_changed(switch_name, self._switch_values[0],
-                               self._switch_values[0])
+        self._anytrait_changed(switch_name, switch_values[0], switch_values[0])
 
     def _anytrait_changed(self, name, old, new):
         """ Add an event to the switch trait that enables us to select
@@ -190,13 +190,17 @@ class AutoPipeline(Pipeline):
         new: str (mandatory)
             the new option
         """
-        if name == "switch":
+        if hasattr(self, "_switches") and name in self._switches:
+
+            # Select switch
+            switch_paths, switch_boxes = self._switches[name]
+
             # Disable all the boxes in the switch structure
-            for box_name in self._switch_boxes:
+            for box_name in switch_boxes:
                 self.nodes[box_name].enabled = False
 
             # Activate only the selected path
-            for box_name in self.switch_paths[new]:
+            for box_name in switch_paths[new]:
                 self.nodes[box_name].enabled = True
 
             # Update the activation

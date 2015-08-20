@@ -70,11 +70,14 @@ class TestLoadFromDescription(unittest.TestCase):
         for node_name in ["", "p1", "p2", "p3", "p4", "p5"]:
             self.assertTrue(node_name in pipeline.nodes)
         pipeline.input1 = [2.5]
-        pipeline.switch = "path2"
+        pipeline.switch = "path1"
         pipeline()
-        #self.assertEqual(pipeline.output, 12.5)
-
-        if 1:
+        if pipeline.switch == "path2":
+            self.assertEqual(pipeline.output, 78.125)
+        else:
+            self.assertEqual(pipeline.output, 195.3125)
+            
+        if 0:
             from PySide import QtGui
             import sys
             from capsul.qt_gui.widgets import PipelineDevelopperView
