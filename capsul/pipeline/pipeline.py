@@ -32,8 +32,8 @@ except ImportError:
 # Capsul import
 from capsul.process import Process
 from capsul.process import get_process_instance
-from topological_sort import GraphNode
-from topological_sort import Graph
+from capsul.utils.topological_sort import GraphNode
+from capsul.utils.topological_sort import Graph
 from pipeline_nodes import Plug
 from pipeline_nodes import ProcessNode
 from pipeline_nodes import PipelineNode
@@ -1162,6 +1162,93 @@ class Pipeline(Process):
         walk_workflow(ordered_list, workflow_list)
 
         return workflow_list
+
+    def _create_graph(self, box, prefix="", flatten=True, add_io=False,
+                      filter_inactive=False):
+        """ Create a graph repesentation of a box.
+
+        Parameters
+        ----------
+        box: Pipeline (mandatory)
+            a box from which we want to extract the graph representation.
+        prefix: str (optional, default '')
+            a prefix for the box names.
+        flatten: bool (optional, default True)
+            If True iterate through the sub-graph structures.
+        add_io: bool (optional, default False)
+            If True add the 'inputs' and 'outputs' nodes.
+        filter_inactive: bool (optional, default False)
+            If True filter inactive boxes.
+
+        Returns
+        -------
+        graph: Graph
+            a graph representation of the input box.
+        """
+        # Add the graph nodes
+        graph = Graph()
+        pboxes = {}
+        for box_name in list(box.nodes):
+            inner_box = box.nodes[box_name].process
+            if filter_inactive and not inner_box.activated:
+                continue
+            if isinstance(inner_box, Pipeline):
+                if flatten:
+                    inner_prefix = prefix + "{0}.".format(box_name)
+                    sub_graph, inlinkreps, outlinkreps = self._create_graph(
+                        inner_box, inner_prefix,
+                        filter_inactive=filter_inactive)
+                    graph.add_graph(sub_graph)
+                    pboxes[box_name] = (sub_graph, inlinkreps, outlinkreps)
+                else:
+                    graph.add_node(GraphNode(prefix + box_name, inner_box))
+            elif isinstance(inner_box, (Process, IProcess)):
+                graph.add_node(GraphNode(prefix + box_name, inner_box))
+            else:
+                raise ValueError(
+                    "'{0}' is not a valid box type. Allowed types are '{1}', "
+                    "'{2}' or '{3}'.".format(type(inner_box), Pipeline,
+                                             Process, IProcess))
+
+        # Add io nodes if requested
+        if add_io:
+            graph.add_node(GraphNode(prefix + "inputs", None))
+            graph.add_node(GraphNode(prefix + "outputs", None))
+
+        # Add the graph links
+        input_linkreps = {}
+        output_linkreps = {}
+        for linkrep in box._links:
+
+            # Parse link
+            src_box_name, src_ctrl, dest_box_name, dest_ctrl = parse_link(
+                linkrep)
+
+            # Pbox special case: flatening
+            if src_box_name in pboxes:
+                src_box_name = "{0}.{1}".format(
+                    src_box_name, pboxes[src_box_name][2][src_ctrl][0])
+            if dest_box_name in pboxes:
+                dest_box_name = "{0}.{1}".format(
+                    dest_box_name, pboxes[dest_box_name][1][dest_ctrl][0])
+
+            # Add an inner link, skip inpout/output links, check that no
+            # inactive box is involved in this link
+            if src_box_name == "":
+                input_linkreps[src_ctrl] = (dest_box_name, dest_ctrl)
+                if add_io:
+                    graph.add_link(prefix + "inputs", prefix + dest_box_name)
+            elif dest_box_name == "":
+                output_linkreps[dest_ctrl] = (src_box_name, src_ctrl)
+                if add_io:
+                    graph.add_link(prefix + src_box_name, prefix + "outputs")
+            elif (filter_inactive and (
+                    prefix + src_box_name not in graph._nodes or
+                    prefix + dest_box_name not in graph._nodes)):
+                continue
+            else:
+                graph.add_link(prefix + src_box_name, prefix + dest_box_name)
+        return graph, input_linkreps, output_linkreps
 
     def _run_process(self):
         """ Execution of the pipeline.

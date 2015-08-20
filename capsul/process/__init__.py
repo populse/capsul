@@ -11,4 +11,5 @@ from process import Process
 from process import NipypeProcess
 from process import ProcessResult
 from process import FileCopyProcess
+from iterative_process import IProcess
 from loader import get_process_instance

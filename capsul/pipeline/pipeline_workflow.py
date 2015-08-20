@@ -20,7 +20,7 @@ import soma_workflow.client as swclient
 from capsul.pipeline import Pipeline, Switch
 from capsul.pipeline import pipeline_tools
 from capsul.process import Process
-from capsul.pipeline.topological_sort import Graph
+from capsul.utils.topological_sort import Graph
 from traits.api import Directory, Undefined, File, Str, Any
 from soma.sorted_dictionary import OrderedDict
 

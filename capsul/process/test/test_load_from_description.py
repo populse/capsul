@@ -70,7 +70,7 @@ class TestLoadFromDescription(unittest.TestCase):
         for node_name in ["", "p1", "p2", "p3", "p4", "p5"]:
             self.assertTrue(node_name in pipeline.nodes)
         pipeline.input1 = [2.5]
-        pipeline.switch = "path1"
+        pipeline.switch = "path2"
         pipeline()
         if pipeline.switch == "path2":
             self.assertEqual(pipeline.output, 78.125)
