@@ -14,6 +14,7 @@ import numpy
 
 # Casper import
 from capsul.process import IProcess
+from capsul.pipeline import Pipeline
 from capsul.process.loader import get_process_instance
 
 # Trait import
@@ -89,13 +90,75 @@ class TestIProcess(unittest.TestCase):
             self.assertEqual(process.parameter2, value)
             self.assertEqual(process.parameter3, 5)
 
-        if 1:
+        if 0:
             from PySide import QtGui
             import sys
             from capsul.qt_gui.widgets import PipelineDevelopperView
 
             app = QtGui.QApplication(sys.argv)
             view1 = PipelineDevelopperView(self.myiprocess)
+            view1.show()
+            app.exec_()
+
+    def test_xml_iprocess(self):
+        """ Method to test the xml description to pipeline on the fly warpping.
+        """
+        # Return to new line
+        print
+
+        # Test iterative pipeline creation
+        pipeline = get_process_instance("capsul.demo.iter_pipeline.xml")
+        self.assertTrue(isinstance(pipeline, Pipeline))
+        for node_name in ["", "p1", "p2", "p3"]:
+            self.assertTrue(node_name in pipeline.nodes)
+
+        # Parametrize
+        pipeline.input1 = [[2.5], [1.5]]
+        pipeline.input2 = ["a", "b"]
+        pipeline.input3 = 2
+
+        # Test graph structure
+        graph, inlinkreps, outlinkreps = pipeline._create_graph(
+            pipeline, filter_inactive=True)
+        ordered_boxes = [item[0] for item in graph.topological_sort()]
+        ordered_boxes.pop(ordered_boxes.index("p3"))
+        self.assertEqual(ordered_boxes, ["p1", "p2"])
+
+        # Test contained iterative graph structures
+        configured_iterbox = graph.find_node("p1").meta
+        itergraphs = configured_iterbox.itergraphs(prefix="p1")
+        iterkeys = ["p1" + IProcess.itersep + "0", "p1" + IProcess.itersep + "1"]
+        self.assertEqual(sorted(itergraphs.keys()), iterkeys)
+        for index, value in enumerate(pipeline.input1):
+            self.assertEqual(itergraphs[iterkeys[index]][1].parameter1, value)
+            ordered_nodes = [item[0]
+                for item in itergraphs[iterkeys[index]][0].topological_sort()]
+            self.assertEqual(ordered_nodes, [iterkeys[index]])
+
+        # Test contained iterative graph structures
+        configured_iterbox = graph.find_node("p3").meta
+        itergraphs = configured_iterbox.itergraphs(prefix="p3")
+        iterkeys = ["p3" + IProcess.itersep + "0", "p3" + IProcess.itersep + "1"]
+        self.assertEqual(sorted(itergraphs.keys()), iterkeys)
+        for index, value in enumerate(pipeline.input1):
+            self.assertEqual(itergraphs[iterkeys[index]][1].input1, value)
+            ordered_nodes = [item[0]
+                for item in itergraphs[iterkeys[index]][0].topological_sort()]
+            self.assertEqual(
+                ordered_nodes, [iterkeys[index] + ".p1", iterkeys[index] + ".p2"])
+
+        # Test execution
+        pipeline()
+        self.assertEqual(pipeline.output1, 62.5)
+        self.assertEqual(pipeline.output2, [31.25, 11.25])
+
+        if 0:
+            from PySide import QtGui
+            import sys
+            from capsul.qt_gui.widgets import PipelineDevelopperView
+
+            app = QtGui.QApplication(sys.argv)
+            view1 = PipelineDevelopperView(pipeline)
             view1.show()
             app.exec_()
 

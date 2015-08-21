@@ -46,7 +46,7 @@
         <link source="p2.output2" destination="p3.parameter2"/>
         <link source="p3.output2" destination="p5.parameter2"/>
         <link source="p4.output2" destination="p5.parameter2"/>
-        <link source="output" destination="p5.output1"/>
+        <link source="p5.output1" destination="output"/>
         <link source="p1.output1" destination="p2.parameter3"/>
         <link source="p1.output1" destination="p4.parameter3"/>
         <link source="p2.output1" destination="p3.parameter3"/>

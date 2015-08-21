@@ -55,7 +55,9 @@ class TestLoadFromDescription(unittest.TestCase):
     def test_pipeline_warpping(self):
         """ Method to test the xml description to pipeline on the fly warpping.
         """
-        pipeline = get_process_instance("capsul.utils.test.pipeline.xml")
+        print
+
+        pipeline = get_process_instance("capsul.demo.pipeline.xml")
         self.assertTrue(isinstance(pipeline, Pipeline))
         for node_name in ["", "p1", "p2"]:
             self.assertTrue(node_name in pipeline.nodes)
@@ -65,7 +67,7 @@ class TestLoadFromDescription(unittest.TestCase):
         self.assertEqual(pipeline.output2, 31.25)
         self.assertEqual(pipeline.output3, "done")
 
-        pipeline = get_process_instance("capsul.utils.test.switch_pipeline.xml")
+        pipeline = get_process_instance("capsul.demo.switch_pipeline.xml")
         self.assertTrue(isinstance(pipeline, Pipeline))
         for node_name in ["", "p1", "p2", "p3", "p4", "p5"]:
             self.assertTrue(node_name in pipeline.nodes)
@@ -76,6 +78,14 @@ class TestLoadFromDescription(unittest.TestCase):
             self.assertEqual(pipeline.output, 78.125)
         else:
             self.assertEqual(pipeline.output, 195.3125)
+
+        graph, inlinkreps, outlinkreps = pipeline._create_graph(
+            pipeline, filter_inactive=True)
+        ordered_boxes = [item[0] for item in graph.topological_sort()]
+        if pipeline.switch == "path2":
+            self.assertEqual(ordered_boxes, ["p1", "p4", "p5"])
+        else:
+            self.assertEqual(ordered_boxes, ["p1", "p2", "p3", "p5"])
             
         if 0:
             from PySide import QtGui
@@ -86,6 +96,46 @@ class TestLoadFromDescription(unittest.TestCase):
             view1 = PipelineDevelopperView(pipeline)
             view1.show()
             app.exec_()
+
+    def test_sub_pipeline_warpping(self):
+        """ Method to test the xml description to pipeline on the fly warpping.
+        """
+        print
+
+        pipeline = get_process_instance("capsul.demo.sub_pipeline.xml")
+        self.assertTrue(isinstance(pipeline, Pipeline))
+        for node_name in ["", "p1", "p2", "p3"]:
+            self.assertTrue(node_name in pipeline.nodes)
+
+        pipeline.input1 = [2.5]
+        pipeline.switch = "path2"
+        pipeline()
+        if pipeline.switch == "path2":
+            self.assertEqual(pipeline.output, 195.3125)
+        else:
+            self.assertEqual(pipeline.output, 488.28125)
+
+        graph, inlinkreps, outlinkreps = pipeline._create_graph(
+            pipeline, filter_inactive=True)
+        ordered_boxes = [item[0] for item in graph.topological_sort()]
+        if pipeline.switch == "path2":
+            self.assertEqual(ordered_boxes,
+                             ["p1", "p2.p1", "p2.p4", "p2.p5", "p3"])
+        else:
+            self.assertEqual(ordered_boxes,
+                             ["p1", "p2.p1", "p2.p2", "p2.p3", "p2.p5", "p3"])
+
+        if 0:
+            from PySide import QtGui
+            import sys
+            from capsul.qt_gui.widgets import PipelineDevelopperView
+
+            app = QtGui.QApplication(sys.argv)
+            view1 = PipelineDevelopperView(pipeline)
+            view1.show()
+            app.exec_()
+            
+
 
 
 def test():

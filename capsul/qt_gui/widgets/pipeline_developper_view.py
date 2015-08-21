@@ -1407,7 +1407,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     * dotted line link: weak link
     '''
 
-    def __init__(self, pipeline, parent=None, show_sub_pipelines=False,
+    def __init__(self, pipeline, parent=None, show_sub_pipelines=True,
             allow_open_controller=False, logical_view=False):
         '''PipelineDevelopperView
 

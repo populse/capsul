@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline version="1.0">
+    <docstring>
+        Auto Generated Switch Pipeline Test
+    </docstring>
+    <units>
+        <unit name="p1">
+            <module>capsul.process.test.test_load_from_description.to_warp_func</module>
+            <set name="output2" value="None"/>
+            <iterinput name="parameter2"/>
+            <iterinput name="parameter1"/>
+            <iteroutput name="output1"/>
+        </unit>
+        <unit name="p2">
+            <module>capsul.process.test.test_load_from_description.to_warp_func</module>
+            <set name="parameter2" value="'constant'"/>
+            <set name="output2" value="None"/>
+        </unit>
+        <unit name="p3">
+            <module>capsul.demo.pipeline.xml</module>
+            <set name="input2" value="None"/>
+            <set name="iteroutput1" value="None"/>
+            <set name="output3" value="None"/>
+            <iterinput name="input1"/>
+            <iteroutput name="output1"/>
+            <iteroutput name="output2"/>
+        </unit>
+    </units>
+    <links>
+        <link source="input2" destination="p1.iterparameter2"/>
+        <link source="input1" destination="p1.iterparameter1"/>
+        <link source="input1" destination="p3.iterinput1"/>
+        <link source="constant" destination="p1.parameter3"/>
+        <link source="p1.iteroutput1" destination="p2.parameter1"/>
+        <link source="p2.output1" destination="output1"/>
+        <link source="p3.iteroutput2" destination="output2"/>
+    </links>
+    <positions>
+        <position unit="inputs" x="24" y="172"/>
+        <position unit="p1" x="223" y="172"/>
+        <position unit="p2" x="411" y="246"/>
+        <position unit="p3" x="224" y="342"/>
+        <position unit="outputs" x="590" y="347"/>
+    </positions>
+    <zoom level="1"/> 
+</pipeline>

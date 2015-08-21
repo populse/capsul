@@ -12,12 +12,16 @@ import numpy
 
 # Capsul import
 from capsul.utils.trait_utils import clone_trait
+from capsul.utils.trait_utils import is_trait_pathname
 from capsul.utils.trait_utils import trait_ids
 from capsul.utils.topological_sort import GraphNode
 from capsul.utils.topological_sort import Graph
 
 # Soma import
 from soma.controller import Controller
+
+# Trait import
+from traits.api import Undefined
 
 
 class IProcess(Controller):
@@ -60,6 +64,40 @@ class IProcess(Controller):
 
         # Create the input and output controls
         self._set_controls()
+
+    def __call__(self, *args, **kwargs):
+        """ Execute the IProcess class.
+        """
+        # Prepare outputs
+        generated_iteroutputs = {}
+        generated_outputs = {}
+        for control_name in self.iterbox.traits(output=True):
+            if control_name in self.iteroutputs:
+                generated_iteroutputs[control_name] = []
+            else:
+                generated_outputs[control_name] = []
+
+        # Parametrize the iterative bbox input parameters
+        for box_name, struct in self.itergraphs().items():
+            graph, box = struct
+
+            # Execute the box
+            box(*args, **kwargs)
+            for control_name, value in box.get_outputs().items():
+                if control_name in generated_iteroutputs:
+                    generated_iteroutputs[control_name].append(value)
+                else:
+                    generated_outputs[control_name].append(value)
+
+        # Set outputs
+        for control_name, value in generated_outputs.items():
+            if (numpy.asarray(value) == value[0]).all():
+                setattr(self, control_name, value[0])
+            else:
+                raise ValueError("Impossible to set the ouput control '{0}', "
+                    "arguments are different {1}.".format(control_name, value)) 
+        for control_name, value in generated_iteroutputs.items():
+            setattr(self, self.iterprefix + control_name, value)
 
     ###########################################################################
     # Public Members
@@ -137,7 +175,8 @@ class IProcess(Controller):
                     value = getattr(self, itercontrol_name)
                     setattr(iterbox, control_name, value[iteritem])
                 for control_name in self.iterbox.traits(output=False):
-                    if control_name not in self.iterinputs:
+                    if (control_name not in self.iterinputs and
+                            control_name != "selection_changed"):
                         setattr(iterbox, control_name,
                                 getattr(self, control_name))
 
@@ -153,6 +192,26 @@ class IProcess(Controller):
                 itergraphs[node_name] = (itergraph, iterbox)
 
         return itergraphs
+
+    def set_parameter(self, name, value):
+        """ Method to set an iterative process instance trait value.
+
+        For File and Directory traits the None value is replaced by the
+        special Undefined trait value.
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the trait name we want to modify.
+        value: object (mandatory)
+            the trait value we want to set.
+        """
+        # Detect File and Directory trait types with None value
+        if value is None and is_trait_pathname(self.trait(name)):
+            value = Undefined
+
+        # Set the new trait value
+        setattr(self, name, value)
 
     ###########################################################################
     # Private Members
@@ -211,11 +270,13 @@ class IProcess(Controller):
 
         # Copy the input/output controls to the iterative box interface
         for control_name in self.iterbox.traits(output=False):
-            if control_name not in self.iterinputs:
+            if (control_name not in self.iterinputs and
+                    control_name != "selection_changed"):
                 trait = self.iterbox.trait(control_name)
                 self.add_trait(control_name, trait)
                 setattr(self, control_name, getattr(self.iterbox, control_name))
         for control_name in self.iterbox.traits(output=True):
-            if control_name not in self.iteroutputs:
+            if (control_name not in self.iteroutputs and
+                    control_name != "selection_changed"):
                 trait = self.iterbox.trait(control_name)
                 self.add_trait(control_name, trait)
