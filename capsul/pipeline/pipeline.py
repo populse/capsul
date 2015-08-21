@@ -32,8 +32,8 @@ except ImportError:
 # Capsul import
 from capsul.process import Process
 from capsul.process import get_process_instance
-from topological_sort import GraphNode
-from topological_sort import Graph
+from capsul.utils.topological_sort import GraphNode
+from capsul.utils.topological_sort import Graph
 from pipeline_nodes import Plug
 from pipeline_nodes import ProcessNode
 from pipeline_nodes import PipelineNode
@@ -180,7 +180,8 @@ class Pipeline(Process):
         super(Pipeline, self).__init__(**kwargs)
         super(Pipeline, self).add_trait(
             'nodes_activation',
-            ControllerTrait(Controller(), hidden=self.hide_nodes_activation))
+            ControllerTrait(Controller(), output=None, hidden=self.hide_nodes_activation))
+        self.trait("nodes_activation").output = None
 
         # Class attributes
         self.list_process_in_pipeline = []

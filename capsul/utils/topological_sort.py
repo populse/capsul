@@ -7,15 +7,11 @@
 # for details.
 ##########################################################################
 
-# System import
-import logging
-
-# Define the logger
-logger = logging.getLogger(__name__)
+import numpy
 
 
 class GraphNode(object):
-    """ Simple Graph Node Structure
+    """ Simple Graph Node Structure.
 
     Attributes
     ----------
@@ -41,15 +37,15 @@ class GraphNode(object):
     """
 
     def __init__(self, name, meta):
-        """ Create a Graph Node
+        """ Create a Graph Node.
 
         Parameters
         ----------
         name: str (mandatory)
-        the name of the node
+            the name of the node.
 
         meta: object
-        an python object to store in the node
+            an python object to store in the node.
         """
         self.name = name
         self.meta = meta
@@ -61,48 +57,48 @@ class GraphNode(object):
         self.links_from_degree = 0
 
     def add_link_to(self, node):
-        """ Method to add a Successor
+        """ Method to add a Successor.
 
         Parameters
         ----------
         node: GraphNode (mandatory)
-        the successor node
+            the successor node.
         """
         if node not in self.links_to:
             self.links_to.append(node)
             self.links_to_degree += 1
 
     def remove_link_to(self, node):
-        """ Method to remove a Successor
+        """ Method to remove a Successor.
 
         Parameters
         ----------
         node: GraphNode (mandatory)
-        the successor node
+            the successor node.
         """
         if node in self.links_to:
             self.links_to.remove(node)
             self.links_to_degree -= 1
 
     def add_link_from(self, node):
-        """ Method to add a Predecessor
+        """ Method to add a Predecessor.
 
         Parameters
         ----------
         node: GraphNode (mandatory)
-        the predecessor node
+            the predecessor node.
         """
         if node not in self.links_from:
             self.links_from.append(node)
             self.links_from_degree += 1
 
     def remove_link_from(self, node):
-        """ Method to remove a Predecessor
+        """ Method to remove a Predecessor.
 
         Parameters
         ----------
         node: GraphNode (mandatory)
-        the predecessor node
+            the predecessor node.
         """
         if node in self.links_from:
             self.links_from.remove(node)
@@ -138,50 +134,79 @@ class Graph(object):
         self._links = []
 
     def add_node(self, node):
-        """ Method to add a GraphNode in the Graph
+        """ Method to add a GraphNode in the Graph.
 
         Parameters
         ----------
         node: GraphNode (mandatory)
-        the node to insert
+            the node to insert.
         """
-        logging.debug("node: {0}".format(node.name))
         if not isinstance(node, GraphNode):
-            raise Exception("Expect a GraphNode, got {0}".format(node))
+            raise Exception("'{0}' is not a GraphNode.".format(node))
         if node.name in self._nodes:
-            raise Exception("Expect a GraphNode with a unique name, "
-                            "got {0}".format(node))
+            raise ValueError("'{0}' is already a GraphNode name.".format(
+                node.name))
         self._nodes[node.name] = node
 
+    def add_graph(self, graph):
+        """ Method to add a Graph in the Graph.
+
+        Parameters
+        ----------
+        graph: Graph (mandatory)
+            the graph to insert.
+        """
+        for node_name, node in graph._nodes.items():
+            self.add_node(node)
+        for link in graph._links:
+            self.add_link(*link)
+
+    def remove_node(self, node_name):
+        """ Method to remove a GraphNode from the Graph.
+
+        Parameters
+        ----------
+        node: string (mandatory)
+            the name of the node to remove.
+        """
+        if node_name not in self._nodes:
+            raise Exception("'{0}' is not a valid GraphNode name.".format(
+                node_name))
+        node = self._nodes[node_name]
+        for to_node in node.links_to:
+            to_node.remove_link_from(node)
+        for from_node in node.links_from:
+            from_node.remove_link_to(node)
+        del self._nodes[node_name]
+
     def find_node(self, node_name):
-        """ Method to find a GraphNode in the Graph
+        """ Method to find a GraphNode in the Graph.
 
         Parameters
         ----------
         node_name: str (mandatory)
-        the name of the desired node
+            the name of the desired node.
         """
         if node_name in self._nodes:
             return self._nodes[node_name]
         return None
 
     def add_link(self, from_node, to_node):
-        """ Method to add an edge between two GraphNodes of the Graph
+        """ Method to add an edge between two GraphNodes of the Graph.
 
         Parameters
         ----------
         from_node: GraphNode (mandatory)
-        a node in the graph
+            a node in the graph.
         to_node: GraphNode (mandatory)
-        the successor node
+            the successor node.
         """
-        logging.debug("link: {0}->{1}".format(from_node, to_node))
         if from_node not in self._nodes:
-            raise Exception("Node {0} is not defined in the Graph."
-                   "Use add_node() method".format(from_node))
+            raise Exception("Node '{0}' is not defined in the Graph.".format(
+                from_node))
         if to_node not in self._nodes:
-            raise Exception("Node {0} is not defined in the Graph."
-                   "Use add_node() method".format(to_node))
+            raise Exception("Node '{0}' is not defined in the Graph.".format(
+                to_node))
         if (from_node, to_node) not in self._links:
             self._nodes[to_node].add_link_from(self._nodes[from_node])
             self._nodes[from_node].add_link_to(self._nodes[to_node])
@@ -190,6 +215,7 @@ class Graph(object):
     def topological_sort(self):
         """ Perform the topological sort: find an order in which all the
         nodes can be taken.
+
         Step 1: Identify nodes that have no incoming link (nnil).
         Step 2: Loop until there are nnil
         a) Delete the current nodes c_nnil of in-degree 0.
@@ -207,21 +233,18 @@ class Graph(object):
         ordered_nodes = []
 
         # Step 1
-        nnil = []
-        for name, node in self._nodes.iteritems():
-            if node.links_from_degree == 0:
-                nnil.append(node)
+        nnil = self.available_nodes()
 
         # Step 2
         while len(nnil):
-        #-- a
+            # -- a
             c_nnil = nnil.pop()
-        #-- b
+            # -- b
             ordered_nodes.append(c_nnil)
-        #-- c
+            # -- c
             for node in c_nnil.links_to:
                 node.remove_link_from(c_nnil)
-        #-- d
+            # -- d
                 if node.links_from_degree == 0:
                     nnil.append(node)
 
@@ -229,8 +252,16 @@ class Graph(object):
         if len(ordered_nodes) == len(self._nodes):
             return [(node.name, node.meta) for node in ordered_nodes]
         else:
-            raise Exception("There is loop in the Graph."
-                            "Please inverstigate")
+            raise Exception("There is a loop in the Graph.")
+
+    def available_nodes(self):
+        """ List the nodes that have no incoming link.
+        """
+        nnil = []
+        for name, node in self._nodes.items():
+            if node.links_from_degree == 0:
+                nnil.append(node)
+        return nnil
 
 
 if __name__ == '__main__':

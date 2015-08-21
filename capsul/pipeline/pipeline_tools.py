@@ -93,6 +93,11 @@ def pipeline_node_colors(pipeline, node):
         style = 'pipeline'
     else:
         style = 'default'
+    if hasattr(pipeline, "_switches"):
+        for switch_name, switch_desc in pipeline._switches.items():
+            if node.name in switch_desc[1]:
+                style = "switch"
+                break
     if node.activated and node.enabled:
         color_1, color_2, color_3 = _colors[style][0:3]
     else:

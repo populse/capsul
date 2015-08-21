@@ -21,7 +21,7 @@ from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline import Switch, PipelineNode
 from capsul.pipeline import pipeline_tools
 from capsul.pipeline import Pipeline
-from capsul.process import get_process_instance, Process
+from capsul.process import get_process_instance, Process, IProcess
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 from soma.controller import Controller
@@ -1407,7 +1407,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     * dotted line link: weak link
     '''
 
-    def __init__(self, pipeline, parent=None, show_sub_pipelines=False,
+    def __init__(self, pipeline, parent=None, show_sub_pipelines=True,
             allow_open_controller=False, logical_view=False):
         '''PipelineDevelopperView
 
@@ -1438,7 +1438,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
         # Check that we have a pipeline or a process
         if not isinstance(pipeline, Pipeline):
-            if isinstance(pipeline, Process):
+            if isinstance(pipeline, (Process, IProcess)):
                 process = pipeline
                 pipeline = Pipeline()
                 pipeline.add_process(process.name, process)

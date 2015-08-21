@@ -17,11 +17,17 @@ import inspect
 from .description_utils import load_xml_description
 from .description_utils import title_for
 from .description_utils import is_io_control
+from .description_utils import parse_link
 from capsul.pipeline import Pipeline
 from capsul.pipeline.pipeline_nodes import Switch
 from capsul.pipeline.pipeline_nodes import ProcessNode
 from capsul.pipeline.pipeline_nodes import PipelineNode
 from capsul.pipeline.process_iteration import ProcessIteration
+from capsul.utils.topological_sort import GraphNode
+from capsul.utils.topological_sort import Graph
+from capsul.process import get_process_instance
+from capsul.process import Process
+from capsul.process import IProcess
 
 # TRAIT import
 from traits.api import Enum
@@ -49,7 +55,9 @@ class AutoPipeline(Pipeline):
     def __init__(self, **kwargs):
         """ Initialize the AutoPipeline class.
         """
+        # Define class parameters
         self._switches = {}
+        self._links = []
         super(AutoPipeline, self).__init__(
             autoexport_nodes_parameters=False, **kwargs)
 
@@ -115,6 +123,129 @@ class AutoPipeline(Pipeline):
             self.scene_scale_factor = float(
                 self.proto[self.zoom_tag][0][self.zoom_attributes[0]])
 
+    ###########################################################################
+    # Private Members
+    ###########################################################################
+
+    def _create_graph(self, box, prefix="", flatten=True, add_io=False,
+                      filter_inactive=False):
+        """ Create a graph repesentation of a box.
+
+        Parameters
+        ----------
+        box: Pipeline (mandatory)
+            a box from which we want to extract the graph representation.
+        prefix: str (optional, default '')
+            a prefix for the box names.
+        flatten: bool (optional, default True)
+            If True iterate through the sub-graph structures.
+        add_io: bool (optional, default False)
+            If True add the 'inputs' and 'outputs' nodes.
+        filter_inactive: bool (optional, default False)
+            If True filter inactive boxes.
+
+        Returns
+        -------
+        graph: Graph
+            a graph representation of the input box.
+        """
+        # Add the graph nodes
+        graph = Graph()
+        pboxes = {}
+        box_names = [name for name in box.nodes if name != ""]
+        for box_name in list(box_names):
+            inner_box = box.nodes[box_name]
+            if filter_inactive and not inner_box.activated:
+                continue
+            inner_box = inner_box.process
+            if isinstance(inner_box, Pipeline):
+                if flatten:
+                    inner_prefix = prefix + "{0}.".format(box_name)
+                    sub_graph, inlinkreps, outlinkreps = self._create_graph(
+                        inner_box, inner_prefix,
+                        filter_inactive=filter_inactive)
+                    graph.add_graph(sub_graph)
+                    pboxes[box_name] = (sub_graph, inlinkreps, outlinkreps)
+                else:
+                    graph.add_node(GraphNode(prefix + box_name, inner_box))
+            elif isinstance(inner_box, (Process, IProcess)):
+                graph.add_node(GraphNode(prefix + box_name, inner_box))
+            else:
+                raise ValueError(
+                    "'{0}' is not a valid box type. Allowed types are '{1}', "
+                    "'{2}' or '{3}'.".format(type(inner_box), Pipeline,
+                                             Process, IProcess))
+
+        # Add io nodes if requested
+        if add_io:
+            graph.add_node(GraphNode(prefix + "inputs", None))
+            graph.add_node(GraphNode(prefix + "outputs", None))
+
+        # Add the graph links
+        input_linkreps = {}
+        output_linkreps = {}
+        for linkrep in box._links:
+
+            # Parse link
+            src_box_name, src_ctrl, dest_box_name, dest_ctrl = parse_link(
+                linkrep)
+
+            # Pipeline special case: flatening
+            psrc_box_name = []
+            if src_box_name in pboxes:
+                for sub_box_name, _ in pboxes[src_box_name][2][src_ctrl]:
+                    psrc_box_name.append(
+                        "{0}.{1}".format(src_box_name, sub_box_name))
+                if len(psrc_box_name) != 1:
+                    raise ValueError(
+                        "Detect that several controls are connected to the "
+                        "same output: {0}({1}).".format(linkrep, psrc_box_name))
+                src_box_name = psrc_box_name[0]
+            pdest_box_name = []
+            if dest_box_name in pboxes:
+                for sub_box_name, _ in pboxes[dest_box_name][1][dest_ctrl]:
+                   pdest_box_name.append(
+                        "{0}.{1}".format(dest_box_name, sub_box_name))
+
+            # Add an inner link, skip inpout/output links, check that no
+            # inactive box is involved in this link
+            if src_box_name == "":
+                if pdest_box_name != []:
+                    for dest_box_name in pdest_box_name:
+                        input_linkreps.setdefault(src_ctrl, []).append(
+                            (dest_box_name, dest_ctrl))
+                        if add_io:
+                            graph.add_link(prefix + "inputs", prefix + dest_box_name)
+                else:
+                    input_linkreps.setdefault(src_ctrl, []).append(
+                        (dest_box_name, dest_ctrl))
+                    if add_io:
+                        graph.add_link(prefix + "inputs", prefix + dest_box_name)
+            elif dest_box_name == "":
+                output_linkreps.setdefault(dest_ctrl, []).append(
+                    (src_box_name, src_ctrl))
+                if add_io:
+                    graph.add_link(prefix + src_box_name, prefix + "outputs")
+            elif pdest_box_name != []:
+                filtered_pdest_box_name = []
+                if filter_inactive:
+                    if prefix + src_box_name not in graph._nodes:
+                        continue
+                    for dest_box_name in pdest_box_name:
+                        if prefix + dest_box_name not in graph._nodes:
+                            continue
+                        filtered_pdest_box_name.append(dest_box_name)
+                for dest_box_name in filtered_pdest_box_name:
+                    graph.add_link(prefix + src_box_name, prefix + dest_box_name)
+            elif (filter_inactive and (
+                    prefix + src_box_name not in graph._nodes or
+                    prefix + dest_box_name not in graph._nodes)):
+                continue
+            else:
+                graph.add_link(prefix + src_box_name, prefix + dest_box_name)
+
+        return graph, input_linkreps, output_linkreps
+
     def _add_switch(self, switchdesc):
         """ Add a switch in the pipeline from its description.
 
@@ -153,9 +284,9 @@ class AutoPipeline(Pipeline):
             path_boxes = [box[self.unit_attributes[0]]
                           for box in pathdesc[self.switch_path[1]]]
             switch_paths[path_name] = path_boxes
-        self.switch(switch_name, switch_paths)
+        self._switch(switch_name, switch_paths)
 
-    def switch(self, switch_name, switch_paths):
+    def _switch(self, switch_name, switch_paths):
         """ Generate a Switch Node
 
         Parameters
@@ -170,9 +301,10 @@ class AutoPipeline(Pipeline):
         switch_boxes = []
         for key, value in switch_paths.items():
             switch_boxes.extend(value)
+            self._links.append("{0}->{1}.{0}".format(switch_name, value))
 
         # Add a switch enum trait to select the path
-        self.add_trait(switch_name, Enum(optional=False, output=False,
+        self.add_trait(switch_name, Enum(optional=True, output=False,
                                          *switch_values))
         self._switches[switch_name] = (switch_paths, switch_boxes)
 
@@ -238,8 +370,10 @@ class AutoPipeline(Pipeline):
 
         # Instanciate the new box
         box_module = boxdesc[self.unit_attributes[1]][0]
-        iterinputs = boxdesc.get(self.unit_attributes[3], [])
-        iteroutputs = boxdesc.get(self.unit_attributes[4], [])
+        iterinputs = [item["name"]
+                      for item in boxdesc.get(self.unit_attributes[3], {})]
+        iteroutputs = [item["name"] 
+                       for item in boxdesc.get(self.unit_attributes[4], {})]
 
         # > parse the 'set' description
         optional_parameters = {}
@@ -250,7 +384,7 @@ class AutoPipeline(Pipeline):
         if set_tag in box_attributes:
             for box_defaults in boxdesc[set_tag]:
                 (to_copy_parameter, to_rm_parameter, hidden_parameter,
-                 optional_parameter) = self.eval_force_description(
+                 optional_parameter) = self._eval_set_description(
                     box_defaults)
                 to_copy_parameters.extend(to_copy_parameter)
                 to_rm_parameters.extend(to_rm_parameter)
@@ -268,14 +402,12 @@ class AutoPipeline(Pipeline):
 
         # > add the new iterative process to the pipeline
         else:
-            self.add_iterative_process(
+            self.add_process(
                 box_name,
-                box_module,
+                IProcess(get_process_instance(box_module), iterinputs, iteroutputs),
                 make_optional=optional_parameters.keys(),
-                iterative_plugs=iterinputs,
                 inputs_to_copy=to_copy_parameters,
-                inputs_to_clean=to_rm_parameters,
-                **optional_parameters)
+                inputs_to_clean=to_rm_parameters)
 
         # Set the node type
         qc_tag = self.unit_attributes[5]
@@ -323,6 +455,7 @@ class AutoPipeline(Pipeline):
         source = linkdesc[self.link_attributes[0]]
         destination = linkdesc[self.link_attributes[1]]
         linkrep = "{0}->{1}".format(source, destination)
+        self._links.append(linkrep)
         if linktype == "output":
             box_name, box_pname = source.split(".")
             self.export_parameter(box_name, box_pname,
@@ -340,7 +473,7 @@ class AutoPipeline(Pipeline):
         else:
             raise ValueError("Unrecognized link type '{0}'.".format(linktype))
 
-    def eval_force_description(self, set_attributes):
+    def _eval_set_description(self, set_attributes):
         """ Parse the parameter force description.
 
         Parameters

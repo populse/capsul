@@ -121,3 +121,61 @@ def is_io_control(controldesc):
         return True
     else:
         return False
+
+
+def parse_link(linkrep):
+    """ Parse a box link.
+
+    Parameters
+    ----------
+    linkrep: str (mandatory)
+        a link representation of the form
+        'box_from.control_name->box_to.input_control_name' or
+        'input_control_name->box_to.input_control_name' or
+        'box_from.output_control_name->output_control_name'
+
+    Returns
+    -------
+    output: 4-uplet
+        tuple containing the source/destination box name and control.
+        A pbox name is virtually represented by ''.
+
+
+    """
+    # Split source and destination descriptions
+    src, dest = linkrep.split("->")
+
+    # Parse the source and destination control descriptions
+    src_box_name, src_control_name = parse_controldesc(src)
+    dest_box_name, dest_control_name = parse_controldesc(dest)
+
+    return src_box_name, src_control_name, dest_box_name, dest_control_name
+
+
+def parse_controldesc(controldesc):
+    """ Parse a control description.
+
+    Parameters
+    ----------
+    controldesc: str (mandatory)
+        the description plug we want to load 'node.plug'
+
+    Returns
+    -------
+    box_name: string
+        the box name.
+    control_name: string
+        the associated control name.
+    """
+    # Parse the plug description
+    dot = controldesc.find(".")
+
+    # Check if its a pbox input/output control
+    if dot < 0:
+        box_name = ""
+        control_name = controldesc
+    else:
+        box_name = controldesc[:dot]
+        control_name = controldesc[dot + 1:]
+
+    return box_name, control_name
