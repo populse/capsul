@@ -49,6 +49,7 @@ else:
     modules = core_modules
     scripts = []
     pkgdata = {
+        "capsul.demo": ["*.xml"],
         "capsul.utils.test": ["*.xml"],
         "capsul.pipeline.test": ["*.json"]
     }
