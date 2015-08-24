@@ -159,7 +159,8 @@ def class_factory(func, destination_module_globals):
         "_func_module": func.__module__,
         "_parameters": capsul_proto,
         "_process_traits": process_traits,
-        "_defaults": defaults
+        "_defaults": defaults,
+        "desc": func.__module__ + "." + func.__name__
     }
 
     # Get the process instance associated to the function

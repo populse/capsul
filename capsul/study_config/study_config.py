@@ -20,7 +20,11 @@ else:
 logger = logging.getLogger(__name__)
 
 # Trait import
-from traits.api import Directory, Bool, String, Undefined
+from traits.api import Directory
+from traits.api import Bool
+from traits.api import String
+from traits.api import Undefined
+from traits.api import Int
 
 # Soma import
 from soma.controller import Controller
@@ -29,6 +33,7 @@ from soma.controller import Controller
 from capsul.pipeline import Pipeline
 from capsul.process import Process
 from run import run_process
+from .run import scheduler
 from capsul.pipeline.pipeline_workflow import (
     workflow_from_pipeline, local_workflow_run)
 from capsul.pipeline.pipeline_nodes import Node
@@ -101,9 +106,22 @@ class StudyConfig(Controller):
         Undefined,
         desc="Parameter to set the study output directory")
 
+    number_of_cpus = Int(
+        1,
+        desc=("If the 'use_scheduler' option is set, specify the number of "
+              "workers to be used."))
+
     generate_logging = Bool(
         False,
         desc="Parameter to control the log generation")
+
+    use_scheduler = Bool(
+        False,
+        desc="Parameter to activate the scheduler.")
+
+    use_debug = Bool(
+        False,
+        desc="Parameter to activate the debug mode.")
 
     automatic_configuration = Bool(
         False,
@@ -295,31 +313,50 @@ class StudyConfig(Controller):
                     "Can't create folder '{0}', please investigate.".format(
                         self.output_directory))
 
-            # Generate ordered execution list
-            execution_list = []
-            if isinstance(process_or_pipeline, Pipeline):
-                execution_list = process_or_pipeline.workflow_ordered_nodes()
-                # Filter process nodes if necessary
-                if not executer_qc_nodes:
-                    execution_list = [node for node in execution_list
-                                      if node.node_type != "view_node"]
-            elif isinstance(process_or_pipeline, Process):
-                execution_list.append(process_or_pipeline)
+            # Select execution mode: direct call (1 cpu) or scheduler (x cpus)
+            if self.use_scheduler:
+                cachedir = self.output_directory
+                if self.get_trait_value("use_smart_caching") in [None, False]:
+                    cachedir = None
+                log_file = None
+                if self.generate_logging:
+                    log_file = os.path.join(self.output_directory,
+                                            process_or_pipeline.id + ".log")
+                verbose = 1
+                if self.use_debug:
+                    verbose = 2
+                scheduler(process_or_pipeline,
+                          cpus=self.number_of_cpus,
+                          outputdir=self.output_directory,
+                          cachedir=cachedir,
+                          log_file=log_file,
+                          verbose=verbose)
             else:
-                raise Exception(
-                    "Unknown instance type. Got {0}and expect Process or "
-                    "Pipeline instances".format(
-                        process_or_pipeline.__module__.name__))
-
-            # Execute each process node element
-            for process_node in execution_list:
-                # Execute the process instance contained in the node
-                if isinstance(process_node, Node):
-                    self._run(process_node.process, verbose, **kwargs)
-
-                # Execute the process instance
+                # Generate ordered execution list
+                execution_list = []
+                if isinstance(process_or_pipeline, Pipeline):
+                    execution_list = process_or_pipeline.workflow_ordered_nodes()
+                    # Filter process nodes if necessary
+                    if not executer_qc_nodes:
+                        execution_list = [node for node in execution_list
+                                          if node.node_type != "view_node"]
+                elif isinstance(process_or_pipeline, Process):
+                    execution_list.append(process_or_pipeline)
                 else:
-                    self._run(process_node, verbose, **kwargs)
+                    raise Exception(
+                        "Unknown instance type. Got '{0}' and expect Process or "
+                        "Pipeline instances".format(
+                            process_or_pipeline.__module__.name__))
+
+                # Execute each process node element
+                for process_node in execution_list:
+                    # Execute the process instance contained in the node
+                    if isinstance(process_node, Node):
+                        self._run(process_node.process, verbose, **kwargs)
+
+                    # Execute the process instance
+                    else:
+                        self._run(process_node, verbose, **kwargs)
 
     def _run(self, process_instance, verbose, **kwargs):
         """ Method to execute a process in a study configuration environment.

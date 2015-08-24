@@ -127,6 +127,54 @@ class AutoPipeline(Pipeline):
     # Private Members
     ###########################################################################
 
+    def _update_graph(self, graph, iter_map, box_map, prefix=""):
+        """ Dynamically update the graph representtion of a pipeline.
+
+        Update the 'iter_map' dictionary with the built iterative
+        processings.
+        An iterative processing is added as an independant graph in the main
+        graph.
+
+        Parameters
+        ----------
+        graph: Graph
+            the updated graph representation.
+        iter_map: dict
+            the dictionary containing a mapping between all the IPorcess names
+            and associated box names.
+        box_map: dict
+            the dictionary containing a mapping between all the ibox names
+            and associated Process or Pipeline.
+        prefix: str (optional, default '')
+            a prefix for the box names.
+        """
+        # Go through nnil nodes
+        for node in graph.available_nodes():
+
+            # Deal with ibox only
+            box_name = node.name
+            if isinstance(node.meta, IProcess) and box_name not in iter_map:
+
+                # Construct the itarative graphs
+                itergraphs = node.meta.itergraphs(box_name)
+                if itergraphs == {}:
+                    raise ValueError("IProcess '{0}' can't be executed.".format(
+                        box_name))
+
+                # Update the input graph and the execution list
+                iter_map[box_name] = []
+                iterboxes = []
+                for itername, iteritem in itergraphs.items():
+                    itergraph, iterbox = iteritem
+                    graph.add_graph(itergraph)
+                    _, iteration = itername.split(IProcess.itersep)
+                    iteration = int(iteration)
+                    iterboxes.append((iteration, iterbox))
+                    iter_map[box_name].extend(
+                        [node.name for node in itergraph._nodes.values()])
+                iterboxes = sorted(iterboxes, key=lambda item: item[0])
+                box_map[box_name] = [item[1] for item in iterboxes]
+
     def _create_graph(self, box, prefix="", flatten=True, add_io=False,
                       filter_inactive=False):
         """ Create a graph repesentation of a box.
@@ -575,7 +623,8 @@ def class_factory(xmlpath_description, destination_module_globals):
         "__doc__": docstring,
         "__module__": destination_module_globals["__name__"],
         "_xmlfile": xmlpath_description,
-        "proto": pipeline_proto
+        "proto": pipeline_proto,
+        "desc": xmlpath_description
     }
 
     # Get the pipeline instance associated to the prototype

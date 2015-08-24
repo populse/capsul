@@ -104,7 +104,7 @@ class IProcess(Controller):
     ###########################################################################
 
     def update_iteroutputs(self, iterboxes):
-        """ Update the ibox standard/iterative output control values.
+        """ Update the IProcess standard/iterative output control values.
 
         Parameters
         ----------
@@ -112,22 +112,21 @@ class IProcess(Controller):
             the executed iterative boxes used to update the ibox outputs.
         """
         # Update all the ibox outputs
-        for control_name in self.outputs.controls:
+        for control_name in self.traits(output=True):
 
             # Get the non iterative control name and the iterative boxes
             # outputs
             control_name = control_name.replace(self.iterprefix, "")
-            itervalue = [
-                getattr(box.outputs, control_name).value for box in iterboxes]
+            itervalue = [getattr(box, control_name) for box in iterboxes]
 
             # Update the ibox outputs: a standard ibox control is set only if
             # all the iterative jobs have returned the same value
             if control_name in self.iteroutputs:
                 itercontrol_name = self.iterprefix + control_name
-                setattr(self.outputs, itercontrol_name, itervalue)
+                setattr(self, itercontrol_name, itervalue)
             else:
                 if all(value == itervalue[0] for value in itervalue):
-                    setattr(self.outputs, control_name, itervalue[0])
+                    setattr(self, control_name, itervalue[0])
                 else:
                     raise ValueError(
                         "The '{0}' standard ibox output can't have different "
