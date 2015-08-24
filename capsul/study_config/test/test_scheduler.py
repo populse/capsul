@@ -10,6 +10,7 @@
 # System import
 import unittest
 import logging
+import tempfile
 
 # Capsul import
 from capsul.pipeline import Pipeline
@@ -159,7 +160,7 @@ class TestLoadFromDescription(unittest.TestCase):
 
         # Test execution
         study_config = StudyConfig(
-            output_directory="/volatile/nsap/v2/test_iprocess/",
+            output_directory=tempfile.mkdtemp(),
             number_of_cpus=self.nb_cpus,
             generate_logging=True,
             use_scheduler=True)
