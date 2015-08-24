@@ -628,8 +628,12 @@ def get_process_signature(process, input_parameters):
     signature: string
         the process signature.
     """
-    kwargs = ["{0}={1}".format(name, value)
-              for name, value in input_parameters.iteritems()]
+    kwargs = []
+    for name, value in input_parameters.iteritems():
+        if isinstance(value, basestring):
+            kwargs.append("{0}='{1}'".format(name, value))
+        else:
+            kwargs.append("{0}={1}".format(name, value))
     return "{0}({1})".format(process.id, ", ".join(kwargs))
 
 

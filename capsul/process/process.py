@@ -485,7 +485,7 @@ class Process(Controller):
         """
         output = {}
         for trait_name, trait in self.user_traits().iteritems():
-            if not trait.output:
+            if not trait.output and trait_name != "nodes_activation":
                 output[trait_name] = getattr(self, trait_name)
         return output
 

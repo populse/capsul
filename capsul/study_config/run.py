@@ -9,16 +9,31 @@
 
 # System import
 import os
+import operator
 import logging
+import time
+import tempfile
+import copy
+import multiprocessing
 
 # CAPSUL import
+import capsul
 from capsul.study_config.memory import Memory
+from capsul.study_config.memory import get_process_signature
+from capsul.process import IProcess
+from .utils import split_name
 
 # TRAIT import
 from traits.api import Undefined
 
-# Define the logger
-logger = logging.getLogger(__name__)
+
+# Define the logger for this file
+multiprocessing.log_to_stderr(logging.CRITICAL)
+logger = logging.getLogger(__file__)
+
+# Define scheduler constant messages
+FLAG_ALL_DONE = b"WORK_FINISHED"
+FLAG_WORKER_FINISHED_PROCESSING = b"WORKER_FINISHED_PROCESSING"
 
 
 def run_process(output_dir, process_instance, cachedir=None,
@@ -84,3 +99,285 @@ def run_process(output_dir, process_instance, cachedir=None,
         process_instance.save_log(returncode)
 
     return returncode, output_log_file
+
+
+def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
+              verbose=1):
+    """ Execute a pbox using a schedule.
+
+    Use a FIFO strategy to deal with available nodes and resources.
+    The INFO or INFO and DEBUG logging message can be displayed in the console
+    while the INFO and DEBUG logging message are redirected in a file if the
+    'log_file' parameter is specified.
+
+    Parameters
+    ----------
+    pbox: Pipeline (mandatory)
+        a pipeline to execute with the scheduler.
+    cpus: int (optional, default 1)
+        the number of cpus to use.
+    outputdir: str (optional, default None)
+        the folder where the pipeline will write results.
+    cachedir: string (optional, default None)
+        the directory in which the smart-caching will work. If None, no cache
+        is generated.
+    log_file: str (optional, default None)
+        location where the log messages are redirected: INFO and DEBUG.
+    verbose: int (optional, default 1)
+        0 - display no log in console,
+        1 - display information log in console,
+        !=1 - display debug log in console.
+    """
+    # If someone tried to log something before basicConfig is called,
+    # Python creates a default handler that goes to the console and
+    # will ignore further basicConfig calls: we need to remove the
+    # handlers if there is one.
+    while len(logging.root.handlers) > 0:
+        logging.root.removeHandler(logging.root.handlers[-1])
+
+    # Remove console and file handlers if already created
+    while len(logger.handlers) > 0:
+        logger.removeHandler(logger.handlers[-1])
+
+    # Create console handler.
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    if verbose != 0:
+        console_handler = logging.StreamHandler()
+        if verbose == 1:
+            logger.setLevel(logging.INFO)
+            console_handler.setLevel(logging.INFO)
+        else:
+            logger.setLevel(logging.DEBUG)
+            console_handler.setLevel(logging.DEBUG)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
+    # Create a file handler if requested
+    if log_file is not None:
+        file_handler = logging.FileHandler(log_file, mode="a")
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        logger.info("Processing information will be logged in file "
+                    "'{0}'.".format(log_file))
+
+    # Information
+    start_time = time.time()
+    logger.info("Using 'capsul' version '{0}'.".format(capsul.__version__))
+    exit_rules = [
+        "For exitcode values:",
+        "    = 0 - no error was produced.",
+        "    > 0 - the process had an error, and exited with that code.",
+        "    < 0 - the process was killed with a signal of -1 * exitcode."]
+    logger.info("\n".join(exit_rules))
+    logger.info("\n{0}\n[Scheduler] Calling {1}...\n{2}".format(
+                80 * "_", pbox.id, get_process_signature(
+                    pbox, pbox.get_inputs())))
+
+    # Create an execution graph
+    exec_graph, _, _ = pbox._create_graph(pbox, filter_inactive=True)
+
+    # Get the machine available cpus
+    nb_cpus = multiprocessing.cpu_count() - 1
+    nb_cpus = nb_cpus or 1
+    if max(cpus, nb_cpus) == cpus:
+        cpus = nb_cpus
+
+    # The worker function of a capsul.Pocess, invoked in a
+    # multiprocessing.Process
+    def bbox_worker(workers_bbox, workers_returncode, outputdir=None,
+                    cachedir=None, verbose=0):
+        """ The worker.
+
+        Parameters
+        ----------
+        workers_bbox, workers_returncode: multiprocessing.Queue
+            the input and output queues.
+        outputdir: str (optional, default None)
+            the folder where the pipeline will write results through the
+            'output_directory' pipeline control.
+        cachedir: string
+            the directory in which the smart-caching will work.
+        verbose: int
+            if different from zero, print console messages.
+        """
+        import traceback
+        from socket import getfqdn
+        from capsul.study_config.memory import Memory
+        from capsul.process.loader import get_process_instance
+
+        mem = Memory(cachedir)
+        while True:
+            inputs = workers_bbox.get()
+            if inputs == FLAG_ALL_DONE:
+                workers_returncode.put(FLAG_WORKER_FINISHED_PROCESSING)
+                break
+            process_name, box_funcdesc, bbox_inputs = inputs
+            bbox_returncode = {}
+            bbox_returncode[process_name] = {}
+            bbox_item = bbox_returncode[process_name]
+            bbox_item["info"] = {}
+            bbox_item["debug"] = {}
+            try:
+                # Create the box
+                bbox = get_process_instance(box_funcdesc)
+    
+                # Create a valid process working directory if possible
+                if outputdir is not None:
+                    process_outputdir = os.path.join(outputdir, process_name)
+                    if not os.path.isdir(process_outputdir):
+                        os.makedirs(process_outputdir)
+
+                    # Update nipype interface accordingly if necessary
+                    if hasattr(bbox, "_nipype_interface"):
+                        if "spm" in bbox._nipype_interface_name:
+                            process_instance._nipype_interface.mlab.inputs.prescript += [
+                                "cd('{0}');".format(process_outputdir)]
+
+                    # Update the instance output directory accordingly if
+                    # necessary
+                    if "output_directory" in bbox.user_traits():                   
+                        bbox.output_directory = process_outputdir
+
+                # Decorate and configure the box
+                proxy_bbox = mem.cache(bbox, verbose=verbose)
+                for control_name, value in bbox_inputs.items():
+                    proxy_bbox.set_parameter(control_name, value)
+
+                # Execurte the box
+                process_result = proxy_bbox()
+                for key in ["start_time", "cwd", "end_time", "hostname",
+                            "environ", "versions"]:
+                    bbox_item["debug"][key] = process_result.runtime[key]
+                bbox_item["info"]["inputs"] = process_result.inputs
+                bbox_item["info"]["outputs"] = process_result.outputs
+                bbox_item["debug"]["returncode"] = process_result.returncode          
+                bbox_item["info"]["exitcode"] = 0
+            except:
+                bbox_item["info"]["inputs"] = bbox_inputs
+                bbox_item["info"]["outputs"] = {}
+                bbox_item["debug"]["hostname"] = getfqdn()
+                bbox_item["debug"]["environ"] = copy.deepcopy(os.environ.data)
+                bbox_item["info"]["exitcode"] = (
+                    "1 - '{0}'".format(traceback.format_exc()))
+            workers_returncode.put(bbox_returncode)
+
+    # Create the workers
+    workers = []
+    workers_bbox = multiprocessing.Queue()
+    workers_returncode = multiprocessing.Queue()
+    for index in range(cpus):
+        process = multiprocessing.Process(
+            target=bbox_worker, args=(workers_bbox, workers_returncode,
+                                      outputdir, cachedir, verbose))
+        process.deamon = True
+        process.start()
+        workers.append(process)
+
+    # Execute the boxes respecting the graph order
+    # Use a FIFO strategy to deal with multiple boxes
+    iter_map = {}
+    box_map = {}
+    pbox._update_graph(exec_graph, iter_map, box_map)
+    toexec_box_names = available_boxes(exec_graph)
+    inexec_box_names = {}
+    returncode = {}
+    global_counter = 1
+    workers_finished = 0
+    try:
+        while True:
+
+            # Add nnil boxes to the input queue
+            if toexec_box_names is not None:
+                for box_name in toexec_box_names:
+                    process_name = "{0}-{1}".format(global_counter, box_name)
+                    inexec_box_names[box_name] = process_name
+                    box = exec_graph.find_node(box_name).meta
+                    global_counter += 1
+                    box_inputs = {}
+                    for control_name in box.traits(output=False):
+                        box_inputs[control_name] = box.get_parameter(control_name)
+                    workers_bbox.put((process_name, box.desc, box_inputs))
+
+            # Collect the box returncodes
+            wave_returncode = workers_returncode.get()
+            if wave_returncode == FLAG_WORKER_FINISHED_PROCESSING:
+                workers_finished += 1
+                if workers_finished == cpus:
+                    break
+                continue
+            returncode.update(wave_returncode)
+
+            # Update the called box outputs and the graph
+            process_name = list(wave_returncode.keys())[0]
+            (identifier, box_name, box_exec_name,
+             box_iter_name, iteration) = split_name(process_name)
+            box = exec_graph.find_node(box_name).meta
+            exec_graph.remove_node(box_name)
+            for name, value in wave_returncode[process_name]["info"][
+                    "outputs"].items():
+                box.set_parameter(name, value)
+
+            # Update the iterative mapping, update the graph and IProcess
+            # if an iterative job is done
+            if box_iter_name in iter_map:
+                position = iter_map[box_iter_name].index(box_name)
+                iter_map[box_iter_name].pop(position)
+                if len(iter_map[box_iter_name]) == 0:
+                    ibox = exec_graph.find_node(box_iter_name).meta
+                    ibox.update_iteroutputs(box_map.pop(box_iter_name))
+                    iter_map.pop(box_iter_name)
+                    exec_graph.remove_node(box_iter_name)
+
+            # Information
+            for key, value in wave_returncode[process_name]["info"].items():
+                logger.info("{0}.{1} = {2}".format(
+                    process_name, key, value))
+            for key, value in wave_returncode[process_name]["debug"].items():
+                logger.debug("{0}.{1} = {2}".format(
+                    process_name, key, value))
+
+            # Update nnil boxes list
+            if toexec_box_names is not None:
+                pbox._update_graph(exec_graph, iter_map, box_map)
+                new_toexec_box_names = set(available_boxes(exec_graph))
+                inexec_box_names.pop(box_name)
+                toexec_box_names = new_toexec_box_names - set(inexec_box_names)
+
+                # Stop iteration: no more job
+                if len(exec_graph._nodes) == 0:
+                    toexec_box_names = None
+
+                    # Add poison pills to stop the remote workers
+                    for index in range(cpus):
+                        workers_bbox.put(FLAG_ALL_DONE)
+    except:
+        # Stop properly all the workers before raising the exception
+        for process in workers:
+            process.terminate()
+            process.join()
+        raise
+
+    # Print exit information message
+    duration = time.time() - start_time
+    msg = "{0:.1f}s, {1:.1f}min".format(duration, duration / 60.)
+    logger.info("\n" + max(0, (80 - len(msg))) * '_' + msg)
+
+
+def available_boxes(graph):
+    """ List the boxes that have no incoming link.
+
+    Reject IProcess box.
+
+    Parameters
+    ----------
+    graph: Graph
+        a graph.
+
+    Returns
+    -------
+    avalible_boxes: list of str
+        a list of boxes ready for execution.
+    """
+    return sorted([node.name for node in graph.available_nodes()
+                  if not isinstance(node.meta, IProcess)])

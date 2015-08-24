@@ -32,100 +32,115 @@ else:
 # file exist.
 tests_no_files = [
 
-# Test StudyConfig()
-[[(),{}],[
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        "use_fsl": False,
-        'use_matlab': False,
-        'use_spm': False,
-        'automatic_configuration': False,
-        'spm_standalone': False,
-        'use_smart_caching': False,
-        'use_soma_workflow': False,
-    },
-    ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
-        'SomaWorkflowConfig'],
-    None,
-    None]],
- 
-# Test StudyConfig('my_study')
-[[('my_study',), {}],[
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        "use_fsl": False,
-        'use_matlab': False,
-        'use_spm': False,
-        'automatic_configuration': False,
-        'spm_standalone': False,
-        'use_smart_caching': False,
-        'use_soma_workflow': False,
-    },
-    ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
-        'SomaWorkflowConfig'],
-    None,
-    None]],
+    # Test StudyConfig()
+    [[(),{}],[
+        {
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            "use_fsl": False,
+            'use_matlab': False,
+            'use_spm': False,
+            'automatic_configuration': False,
+            'spm_standalone': False,
+            'use_smart_caching': False,
+            'use_soma_workflow': False,
+        },
+        ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
+            'SomaWorkflowConfig'],
+        None,
+        None]],
+     
+    # Test StudyConfig('my_study')
+    [[('my_study',), {}],[
+        {
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            "use_fsl": False,
+            'use_matlab': False,
+            'use_spm': False,
+            'automatic_configuration': False,
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            'spm_standalone': False,
+            'use_smart_caching': False,
+            'use_soma_workflow': False,
+        },
+        ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
+            'SomaWorkflowConfig'],
+        None,
+        None]],
+            
+    # Test StudyConfig('other_study')
+    [[('other_study',), {}],[
+        {
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            "use_fsl": False,
+            'use_matlab': False,
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            'use_spm': False,
+            'automatic_configuration': False,
+            'spm_standalone': False,
+            'use_smart_caching': False,
+            'use_soma_workflow': False,
+        },
+        ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
+            'SomaWorkflowConfig'],
+        None,
+        None]],
+
+    # Test StudyConfig(init_config={'config_modules':[]})
+    #[[(),dict(init_config={'config_modules':[]})], [
+    #    {
+    #        "generate_logging": False,
+    #        'automatic_configuration': False,
+    #    },
+    #    [], None, None]],
         
-# Test StudyConfig('other_study')
-[[('other_study',), {}],[
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        "use_fsl": False,
-        'use_matlab': False,
-        'use_spm': False,
-        'automatic_configuration': False,
-        'spm_standalone': False,
-        'use_smart_caching': False,
-        'use_soma_workflow': False,
-    },
-    ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
-        'SomaWorkflowConfig'],
-    None,
-    None]],
+    # Test StudyConfig(modules=['SomaWorkflowConfig'])
+    [[(),dict(modules=['SomaWorkflowConfig'])], [
+        {
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            'automatic_configuration': False,
+            'use_soma_workflow': False,
+        },
+        ['SomaWorkflowConfig'], None, None]],
 
-# Test StudyConfig(init_config={'config_modules':[]})
-#[[(),dict(init_config={'config_modules':[]})], [
-#    {
-#        "generate_logging": False,
-#        'automatic_configuration': False,
-#    },
-#    [], None, None]],
-    
-# Test StudyConfig(modules=['SomaWorkflowConfig'])
-[[(),dict(modules=['SomaWorkflowConfig'])], [
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        'automatic_configuration': False,
-        'use_soma_workflow': False,
-    },
-    ['SomaWorkflowConfig'], None, None]],
-
-    
-[[(),dict(init_config={}, modules=StudyConfig.default_modules + ['FSLConfig',
-                                  'FreeSurferConfig', 'BrainVISAConfig'])],[
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        "use_fsl": False,
-        'use_matlab': False,
-        'use_spm': False,
-        "use_freesurfer": False,
-        "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
-                                         'brainvisa-share-%s' % \
-                                         bv_share_version),
-        'automatic_configuration': False,
-        'spm_standalone': False,
-        'use_smart_caching': False,
-        'use_soma_workflow': False,
-    },
-    ['BrainVISAConfig', 'FSLConfig', 'FreeSurferConfig', 'MatlabConfig', 
-     'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
-    None,
-    None]],
+        
+    [[(),dict(init_config={}, modules=StudyConfig.default_modules + ['FSLConfig',
+                                      'FreeSurferConfig', 'BrainVISAConfig'])],[
+        {
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            "use_fsl": False,
+            'use_matlab': False,
+            'use_spm': False,
+            "use_freesurfer": False,
+            "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
+                                             'brainvisa-share-%s' % \
+                                             bv_share_version),
+            'automatic_configuration': False,
+            'spm_standalone': False,
+            'use_smart_caching': False,
+            'use_soma_workflow': False,
+        },
+        ['BrainVISAConfig', 'FSLConfig', 'FreeSurferConfig', 'MatlabConfig', 
+         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
+        None,
+        None]],
 
 ]
 
@@ -135,166 +150,197 @@ tests_no_files = [
 # directory for this test).
 tests_standard_files = [
 
-# Test StudyConfig()
-[[(),{}],[
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        "use_fsl": False,
-        'use_matlab': False,
-        'use_spm': False,
-        'automatic_configuration': False,
-        'spm_standalone': False,
-        'use_smart_caching': False,
-        'use_soma_workflow': False,
-    },
-    ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
-        'SomaWorkflowConfig'],
-    'config.json',
-     None]],
- 
-# Test StudyConfig('my_study')
-[[('my_study',), {}],[
-    {   'use_fom': True, 
-        'shared_fom': "",
-        'input_fom': "",
-        'somaworkflow_computing_resources_config': {},
-        'generate_logging': False,
-        "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
-                                         'brainvisa-share-%s' % \
-                                         bv_share_version),
-        'output_fom': "",
-        'automatic_configuration': False,
-        'use_matlab': False,
-        'use_spm': False,
-        'spm_standalone': False,
-        'use_soma_workflow': False,
-    },
-    ['BrainVISAConfig', 'FomConfig', 'MatlabConfig', 'SPMConfig', 'SomaWorkflowConfig'],
-    'config.json',
-    os.path.join('my_study', 'config.json')]],
+    # Test StudyConfig()
+    [[(),{}],[
+        {
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            "use_fsl": False,
+            'use_matlab': False,
+            'use_spm': False,
+            'automatic_configuration': False,
+            'spm_standalone': False,
+            'use_smart_caching': False,
+            'use_soma_workflow': False,
+        },
+        ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
+            'SomaWorkflowConfig'],
+        'config.json',
+         None]],
+     
+    # Test StudyConfig('my_study')
+    [[('my_study',), {}],[
+        {   'use_fom': True, 
+            'shared_fom': "",
+            'input_fom': "",
+            'somaworkflow_computing_resources_config': {},
+            'generate_logging': False,
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
+                                             'brainvisa-share-%s' % \
+                                             bv_share_version),
+            'output_fom': "",
+            'automatic_configuration': False,
+            'use_matlab': False,
+            'use_spm': False,
+            'spm_standalone': False,
+            'use_soma_workflow': False,
+        },
+        ['BrainVISAConfig', 'FomConfig', 'MatlabConfig', 'SPMConfig', 'SomaWorkflowConfig'],
+        'config.json',
+        os.path.join('my_study', 'config.json')]],
 
-# Test StudyConfig('other_study')
-[[('other_study',), {}],[
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        'use_fsl': False,
-        'use_matlab': False,
-        'use_spm': False,
-        'automatic_configuration': False,
-        'spm_standalone': False,
-        'use_smart_caching': False,
-        'use_soma_workflow': False,
-    },
-    ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
-        'SomaWorkflowConfig'],
-    'config.json',
-    None]],
+    # Test StudyConfig('other_study')
+    [[('other_study',), {}],[
+        {
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            'use_fsl': False,
+            'use_matlab': False,
+            'use_spm': False,
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            'automatic_configuration': False,
+            'spm_standalone': False,
+            'use_smart_caching': False,
+            'use_soma_workflow': False,
+        },
+        ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig',
+            'SomaWorkflowConfig'],
+        'config.json',
+        None]],
 
-# Test StudyConfig(init_config={'config_modules':[]})
-[[(),dict(init_config={'config_modules':[]})], [
-    {
-        "generate_logging": False,
-        'automatic_configuration': False,
-    },
-    [],
-    None,
-    None]],
-    
-# Test StudyConfig(modules=['SomaWorkflowConfig'])
-[[(),dict(modules=['SomaWorkflowConfig'])], [
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        'automatic_configuration': False,
-        'use_soma_workflow': False,
-    },
-    ['SomaWorkflowConfig'],
-    'config.json',
-    None]],
+    # Test StudyConfig(init_config={'config_modules':[]})
+    [[(),dict(init_config={'config_modules':[]})], [
+        {
+            "generate_logging": False,
+            'automatic_configuration': False,
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+        },
+        [],
+        None,
+        None]],
+        
+    # Test StudyConfig(modules=['SomaWorkflowConfig'])
+    [[(),dict(modules=['SomaWorkflowConfig'])], [
+        {
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            'automatic_configuration': False,
+            'use_soma_workflow': False,
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+        },
+        ['SomaWorkflowConfig'],
+        'config.json',
+        None]],
 ]
 
 # StudyConfig instanciation tests and expected results using configuration 
 # files defined in CAPSUL_CONFIG.
 tests_custom_files = [
 
-# Test StudyConfig()
-[[(),{}],[
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        'use_fsl': False,
-        'use_matlab': False,
-        'use_spm': False,
-        'automatic_configuration': False,
-        'spm_standalone': False,
-        'use_smart_caching': False,
-        'use_soma_workflow': False,
-    },
-    ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
-    os.path.join('somewhere', 'config.json'),
-     None]],
- 
-# Test StudyConfig('my_study')
-[[('my_study',), {}],[
-    {   'use_fom': True, 
-        'shared_fom': "",
-        'input_fom': "",
-        'somaworkflow_computing_resources_config': {},
-        'generate_logging': False,
-        "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
-                                         'brainvisa-share-%s' % \
-                                         bv_share_version),
-        'output_fom': "",
-        'automatic_configuration': False,
-        'use_matlab': False,
-        'use_spm': False,
-        'spm_standalone': False,
-        'use_soma_workflow': False,
-    },
-    ['BrainVISAConfig', 'FomConfig', 'MatlabConfig', 'SPMConfig', 'SomaWorkflowConfig'],
-    os.path.join('somewhere', 'config.json'),
-    os.path.join('my_study', 'config.json')]],
+    # Test StudyConfig()
+    [[(),{}],[
+        {
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            'use_fsl': False,
+            'use_matlab': False,
+            'use_spm': False,
+            'automatic_configuration': False,
+            'spm_standalone': False,
+            'use_smart_caching': False,
+            'use_soma_workflow': False,
+        },
+        ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
+        os.path.join('somewhere', 'config.json'),
+         None]],
+     
+    # Test StudyConfig('my_study')
+    [[('my_study',), {}],[
+        {   
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            'use_fom': True, 
+            'shared_fom': "",
+            'input_fom': "",
+            'somaworkflow_computing_resources_config': {},
+            'generate_logging': False,
+            "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE, 
+                                             'brainvisa-share-%s' % \
+                                             bv_share_version),
+            'output_fom': "",
+            'automatic_configuration': False,
+            'use_matlab': False,
+            'use_spm': False,
+            'spm_standalone': False,
+            'use_soma_workflow': False,
+        },
+        ['BrainVISAConfig', 'FomConfig', 'MatlabConfig', 'SPMConfig', 'SomaWorkflowConfig'],
+        os.path.join('somewhere', 'config.json'),
+        os.path.join('my_study', 'config.json')]],
 
-# Test StudyConfig('other_study')
-[[('other_study',), {}],[
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        'use_fsl': False,
-        'use_matlab': False,
-        'use_spm': False,
-        'automatic_configuration': False,
-        'spm_standalone': False,
-        'use_smart_caching': False,
-        'use_soma_workflow': False,
-    },
-    ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
-    os.path.join('somewhere', 'config.json'),
-    os.path.join('somewhere', 'other_study.json')]],
+    # Test StudyConfig('other_study')
+    [[('other_study',), {}],[
+        {
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            'use_fsl': False,
+            'use_matlab': False,
+            'use_spm': False,
+            'automatic_configuration': False,
+            'spm_standalone': False,
+            'use_smart_caching': False,
+            'use_soma_workflow': False,
+        },
+        ['FSLConfig', 'MatlabConfig', 'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
+        os.path.join('somewhere', 'config.json'),
+        os.path.join('somewhere', 'other_study.json')]],
 
-# Test StudyConfig(init_config={'config_modules':[]})
-[[(),dict(init_config={'config_modules':[]})], [
-    {
-        "generate_logging": False,
-        'automatic_configuration': False,
-    },
-    [],
-    None,
-    None]],
-    
-# Test StudyConfig(modules=['SomaWorkflowConfig'])
-[[(),dict(modules=['SomaWorkflowConfig'])], [
-    {
-        "somaworkflow_computing_resources_config": {},
-        "generate_logging": False,
-        'automatic_configuration': False,
-        'use_soma_workflow': False,
-    },
-    ['SomaWorkflowConfig'],
-    os.path.join('somewhere', 'config.json'),
-    None]],
+    # Test StudyConfig(init_config={'config_modules':[]})
+    [[(),dict(init_config={'config_modules':[]})], [
+        {
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            "generate_logging": False,
+            'automatic_configuration': False,
+        },
+        [],
+        None,
+        None]],
+        
+    # Test StudyConfig(modules=['SomaWorkflowConfig'])
+    [[(),dict(modules=['SomaWorkflowConfig'])], [
+        {
+            "use_scheduler": False,
+            "use_debug": False,
+            "number_of_cpus": 1,
+            "somaworkflow_computing_resources_config": {},
+            "generate_logging": False,
+            'automatic_configuration': False,
+            'use_soma_workflow': False,
+        },
+        ['SomaWorkflowConfig'],
+        os.path.join('somewhere', 'config.json'),
+        None]],
 ]
 
 user_config = {}
