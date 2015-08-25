@@ -25,7 +25,7 @@ pkgdata = {
     "capsul.qt_apps.resources": ["*.ui", "*.png", "*.qrc", "*.txt"]
 }
 release_info = {}
-execfile(os.path.join(os.path.dirname(casper.__file__), "info.py"),
+execfile(os.path.join(os.path.dirname(capsul.__file__), "info.py"),
          release_info)
 
 
