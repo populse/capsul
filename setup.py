@@ -12,6 +12,7 @@ from ez_setup import use_setuptools
 use_setuptools()
 import os
 from setuptools import find_packages, setup
+import capsul
 
 
 # Select appropriate modules
@@ -24,7 +25,8 @@ pkgdata = {
     "capsul.qt_apps.resources": ["*.ui", "*.png", "*.qrc", "*.txt"]
 }
 release_info = {}
-execfile(os.path.join("capsul", "info.py"), release_info)
+execfile(os.path.join(os.path.dirname(casper.__file__), "info.py"),
+         release_info)
 
 
 # Build the setup

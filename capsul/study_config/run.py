@@ -222,6 +222,11 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
                 # Create the box
                 bbox = get_process_instance(box_funcdesc)
     
+                # Decorate and configure the box
+                proxy_bbox = mem.cache(bbox, verbose=verbose)
+                for control_name, value in bbox_inputs.items():
+                    proxy_bbox.set_parameter(control_name, value)
+
                 # Create a valid process working directory if possible
                 if outputdir is not None:
                     process_outputdir = os.path.join(outputdir, process_name)
@@ -231,18 +236,13 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
                     # Update nipype interface accordingly if necessary
                     if hasattr(bbox, "_nipype_interface"):
                         if "spm" in bbox._nipype_interface_name:
-                            process_instance._nipype_interface.mlab.inputs.prescript += [
+                            bbox._nipype_interface.mlab.inputs.prescript += [
                                 "cd('{0}');".format(process_outputdir)]
 
                     # Update the instance output directory accordingly if
                     # necessary
                     if "output_directory" in bbox.user_traits():                   
                         bbox.output_directory = process_outputdir
-
-                # Decorate and configure the box
-                proxy_bbox = mem.cache(bbox, verbose=verbose)
-                for control_name, value in bbox_inputs.items():
-                    proxy_bbox.set_parameter(control_name, value)
 
                 # Execurte the box
                 process_result = proxy_bbox()

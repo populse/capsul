@@ -370,6 +370,7 @@ def nipype_factory(nipype_instance):
         # Copy some information from the nipype trait
         process_trait.desc = nipype_trait.desc
         process_trait.optional = not nipype_trait.mandatory
+        process_trait._metadata = {}
 
         return process_trait
 

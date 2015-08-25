@@ -459,7 +459,7 @@ class AutoPipeline(Pipeline):
 
         # Set the node type
         qc_tag = self.unit_attributes[5]
-        if qc_tag in box_attributes and box_attributes[qc_tag] == "True":
+        if qc_tag in box_attributes and boxdesc[qc_tag] == "True":
             self.nodes[box_name].node_type = "view_node"
 
         # Set the forced values
