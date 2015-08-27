@@ -486,7 +486,7 @@ class AutoPipeline(Pipeline):
         linktype: string
             the link type: 'link', 'input' or 'output'.
         """
-        # Check the proper lexic has been specified
+        # Check the proper lexicon has been specified
         link_keys = list(linkdesc.keys())
         issubset = set(link_keys).issubset(self.link_attributes)
         if len(link_keys) != 2 or not issubset:
@@ -506,8 +506,11 @@ class AutoPipeline(Pipeline):
         self._links.append(linkrep)
         if linktype == "output":
             box_name, box_pname = source.split(".")
-            self.export_parameter(box_name, box_pname,
-                                  pipeline_parameter=destination)
+            if destination not in self.user_traits():
+                self.export_parameter(box_name, box_pname,
+                                      pipeline_parameter=destination)
+            else:
+                self.add_link(linkrep)
         elif linktype == "input":
             box_name, box_pname = destination.split(".")
             if source not in self.user_traits():

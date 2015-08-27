@@ -34,6 +34,7 @@ from capsul.process import Process
 from capsul.process import get_process_instance
 from capsul.utils.topological_sort import GraphNode
 from capsul.utils.topological_sort import Graph
+from capsul.utils.trait_utils import trait_ids
 from pipeline_nodes import Plug
 from pipeline_nodes import ProcessNode
 from pipeline_nodes import PipelineNode
@@ -574,6 +575,12 @@ class Pipeline(Process):
                 isinstance(source_node, ProcessNode)):
             source_trait = source_node.process.trait(source_plug_name)
             dest_trait = dest_node.process.trait(dest_plug_name)
+            source_trait_desc = trait_ids(source_trait)
+            dest_trait_desc = trait_ids(dest_trait)
+            if sorted(source_trait_desc) != sorted(dest_trait_desc):
+                raise ValueError("Cannot create link controls '{0}' when "
+                                 "involved controls have different "
+                                 "types.".format(link))
             if source_trait.output and not dest_trait.output:
                 dest_trait.connected_output = True
 

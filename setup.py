@@ -17,7 +17,7 @@ import capsul
 
 # Select appropriate modules
 modules = find_packages()
-scripts = ["capsul/qt_apps/capsulview"]
+scripts = [] #  ["capsul/qt_apps/capsulview"]
 pkgdata = {
     "capsul.demo": ["*.xml"],
     "capsul.utils.test": ["*.xml"],

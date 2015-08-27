@@ -78,6 +78,7 @@ class TestLoadFromDescription(unittest.TestCase):
             self.assertEqual(pipeline.output, 78.125)
         else:
             self.assertEqual(pipeline.output, 195.3125)
+        self.assertEqual(pipeline.output2, "done")
 
         graph, inlinkreps, outlinkreps = pipeline._create_graph(
             pipeline, filter_inactive=True)
