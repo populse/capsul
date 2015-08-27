@@ -36,6 +36,7 @@ from soma.controller.trait_utils import get_trait_desc
 
 # Capsul import
 from capsul.utils.version_utils import get_tool_version
+from capsul.utils.trait_utils import is_trait_either
 
 
 class ProcessMeta(Controller.__metaclass__):
@@ -686,11 +687,9 @@ class Process(Controller):
         value: object (mandatory)
             the trait value we want to set
         """
-        # Detect File and Directory trait types with None value
-        if value is None and is_trait_pathname(self.trait(name)):
-
-            # The None trait value is _Undefined, do the replacement
-            value = _Undefined()
+        # The None trait value is Undefined, do the replacement
+        if value is None:
+            value = Undefined
 
         # Set the new trait value
         setattr(self, name, value)

@@ -30,12 +30,8 @@ _type_to_trait_id = {
 # In order to convert nipype special traits, we define a dict of
 # correspondances
 _trait_cvt_table = {
-    "InputMultiPath_TraitCompound": "List",
-    "InputMultiPath": "List",
     "MultiPath": "List",
     "Dict_Str_Str": "DictStrStr",
-    "OutputMultiPath_TraitCompound": "List",
-    "OutputMultiPath": "List",
     "OutputList": "List"
 }
 
@@ -151,6 +147,23 @@ def is_trait_pathname(trait):
     """
     return (isinstance(trait.trait_type, traits.File) or
             isinstance(trait.trait_type, traits.Directory))
+
+
+def is_trait_either(trait):
+    """ Check if the trait is an either structure.
+
+    Parameters
+    ----------
+    trait: CTrait (mandatory)
+        the trait instance we want to test.
+
+    Returns
+    -------
+    out: bool
+        True if trait is an either structure,
+        False otherwise.
+    """
+    return isinstance(trait.trait_type, (traits.Either, traits.TraitCompound))
 
 
 def clone_trait(trait_description):
@@ -316,8 +329,15 @@ def trait_ids(trait):
     # Search for inner traits
     inner_ids = []
 
+    # MultiPath case
+    if main_id in ["InputMultiPath_TraitCompound", "InputMultiPath",
+                   "OutputMultiPath_TraitCompound", "OutputMultiPath"]:
+        inner_id = '_'.join((trait_ids(i)[0]
+                             for i in handler.inner_traits()))
+        return ["List_{0}".format(inner_id), inner_id]
+
     # Either case
-    if main_id in ["Either", "TraitCompound"]:
+    elif main_id in ["Either", "TraitCompound"]:
 
         # Debug message
         logger.debug("A coumpound trait has been found %s", repr(
@@ -355,8 +375,8 @@ def build_expression(trait):
 
     Parameters
     ----------
-    trait: trait instance (mandatory)
-        a trait instance.
+    trait: trait instance or str (mandatory)
+        a trait instance or trait description.
 
     Returns
     -------
@@ -366,7 +386,12 @@ def build_expression(trait):
     # Get the trait desciption
     # If the desciption list return more than one element, we have to deal with
     # an Either trait
-    trait_description = trait_ids(trait)
+    if isinstance(trait, basestring):
+        trait_description = [trait]
+        can_initialize = False
+    else:
+        trait_description = trait_ids(trait)
+        can_initialize = True
 
     # Error case
     if len(trait_description) == 0:
@@ -379,8 +404,12 @@ def build_expression(trait):
         logger.debug("Either compounds are %s", repr(trait.handler.handlers))
 
         # Update expression
-        either_expression = [build_expression(inner_trait())
-                             for inner_trait in trait.handler.handlers]
+        if trait.handler.handlers is not None:
+            either_expression = [build_expression(inner_trait())
+                                 for inner_trait in trait.handler.handlers]
+        else:
+            either_expression = [build_expression(trait_desc)
+                                 for trait_desc in trait_description]
         return "traits.Either({0})".format(", ".join(either_expression))
 
     # Default case
@@ -399,9 +428,14 @@ def build_expression(trait):
     # Debug message
     logger.debug("Current item is a %s", trait_item)
 
+    # Special case: description expression
+    if not can_initialize and len(trait_spec) > 1:
+        expression += "({0})".format(
+            ", ".join([build_expression(item) for item in trait_spec[1:]]))
+
     # Special case: Tuple
     # Need to set the value types
-    if trait_item == "Tuple":
+    elif can_initialize and trait_item == "Tuple":
 
         # Debug message
         logger.debug("Inner traits are %s", repr(trait.get_validate()[1]))
@@ -413,7 +447,7 @@ def build_expression(trait):
 
     # Special case: List
     # Need to set the value type
-    elif trait_item == "List":
+    elif can_initialize and trait_item == "List":
 
         # Debug message
         logger.debug("Inner traits are %s", repr(trait.inner_traits))
@@ -423,7 +457,7 @@ def build_expression(trait):
 
     # Special case: Dict
     # Need to set the key and value types
-    elif trait_item == "Dict":
+    elif can_initialize and trait_item == "Dict":
 
         # Debug message
         logger.debug("Inner traits are %s", repr(trait.inner_traits))
@@ -435,7 +469,7 @@ def build_expression(trait):
 
     # Special case: Enum
     # Need to add enum values at the construction
-    elif trait_item == "Enum":
+    elif can_initialize and trait_item == "Enum":
 
         # Debug message
         logger.debug("Default values are %s", repr(trait.get_validate()[1]))
@@ -445,7 +479,7 @@ def build_expression(trait):
 
     # Special case: Range
     # Need to add the lower and upper bounds
-    elif trait_item == "Range":
+    elif can_initialize and trait_item == "Range":
 
         if isinstance(trait, traits.CTrait):
             # Debug message

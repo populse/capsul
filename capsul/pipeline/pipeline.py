@@ -575,9 +575,12 @@ class Pipeline(Process):
                 isinstance(source_node, ProcessNode)):
             source_trait = source_node.process.trait(source_plug_name)
             dest_trait = dest_node.process.trait(dest_plug_name)
-            source_trait_desc = trait_ids(source_trait)
-            dest_trait_desc = trait_ids(dest_trait)
-            if sorted(source_trait_desc) != sorted(dest_trait_desc):
+            source_trait_desc = sorted(trait_ids(source_trait))
+            dest_trait_desc = sorted(trait_ids(dest_trait))
+            has_any = (any(["Any" in item for item in source_trait_desc]) or
+                       any(["Any" in item for item in dest_trait_desc]))
+            is_subset = set(source_trait_desc).issubset(dest_trait_desc)
+            if not has_any and not is_subset:
                 raise ValueError("Cannot create link controls '{0}' when "
                                  "involved controls have different "
                                  "types.".format(link))

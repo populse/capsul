@@ -465,7 +465,7 @@ class ProcessNode(Node):
             value = Undefined
         elif is_trait_pathname(self.process.trait(plug_name)) and value is None:
             value = Undefined
-        setattr(self.process, plug_name, value)
+        self.process.set_parameter(plug_name, value)
 
     def get_trait(self, trait_name):
         """ Return the desired trait

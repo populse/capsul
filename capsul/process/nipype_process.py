@@ -22,11 +22,11 @@ from traits.api import Directory, CTrait, Undefined
 
 # CAPSUL import
 from soma.controller.trait_utils import trait_ids
-from soma.controller.trait_utils import build_expression
 from soma.controller.trait_utils import eval_trait
 
 # Capsul import
-from process import NipypeProcess
+from .process import NipypeProcess
+from capsul.utils.trait_utils import build_expression
 
 
 def nipype_factory(nipype_instance):
@@ -392,6 +392,11 @@ def nipype_factory(nipype_instance):
 
         # Add the cloned trait to the process instance
         process_instance.add_trait(trait_name, process_trait)
+
+        # Set nipype trait default value
+        nipype_value = getattr(process_instance._nipype_interface.inputs,
+                               trait_name)
+        setattr(process_instance, trait_name, nipype_value)
 
         # Need to copy all the nipype trait information
         process_instance.trait(trait_name).optional = not trait.mandatory
