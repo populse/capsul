@@ -32,7 +32,9 @@ _type_to_trait_id = {
 _trait_cvt_table = {
     "MultiPath": "List",
     "Dict_Str_Str": "DictStrStr",
-    "OutputList": "List"
+    "OutputList": "List",
+    "OutputMultiPath_TraitCompound": "List",
+    "OutputMultiPath": "List"
 }
 
 
@@ -330,8 +332,7 @@ def trait_ids(trait):
     inner_ids = []
 
     # MultiPath case
-    if main_id in ["InputMultiPath_TraitCompound", "InputMultiPath",
-                   "OutputMultiPath_TraitCompound", "OutputMultiPath"]:
+    if main_id in ["InputMultiPath_TraitCompound", "InputMultiPath"]:
         inner_id = '_'.join((trait_ids(i)[0]
                              for i in handler.inner_traits()))
         return ["List_{0}".format(inner_id), inner_id]

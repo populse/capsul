@@ -581,9 +581,10 @@ class Pipeline(Process):
                        any(["Any" in item for item in dest_trait_desc]))
             is_subset = set(source_trait_desc).issubset(dest_trait_desc)
             if not has_any and not is_subset:
-                raise ValueError("Cannot create link controls '{0}' when "
-                                 "involved controls have different "
-                                 "types.".format(link))
+                raise ValueError(
+                    "Cannot create link controls '{0}' when involved controls "
+                    "have different types '{1}' and '{2}'.".format(
+                        link, source_trait_desc, dest_trait_desc))
             if source_trait.output and not dest_trait.output:
                 dest_trait.connected_output = True
 
