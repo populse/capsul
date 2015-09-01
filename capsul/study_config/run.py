@@ -158,6 +158,7 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
+        logger.setLevel(logging.DEBUG)
         logger.info("Processing information will be logged in file "
                     "'{0}'.".format(log_file))
 
@@ -186,7 +187,7 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
     # The worker function of a capsul.Pocess, invoked in a
     # multiprocessing.Process
     def bbox_worker(workers_bbox, workers_returncode, outputdir=None,
-                    cachedir=None, verbose=0):
+                    cachedir=None, verbose=1):
         """ The worker.
 
         Parameters
@@ -269,7 +270,7 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
     for index in range(cpus):
         process = multiprocessing.Process(
             target=bbox_worker, args=(workers_bbox, workers_returncode,
-                                      outputdir, cachedir, verbose))
+                                      outputdir, cachedir))
         process.deamon = True
         process.start()
         workers.append(process)
