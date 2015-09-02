@@ -216,6 +216,9 @@ def create_controls(proto, func):
         trait = clone_trait(trait_desc)
         trait._metadata = {}
 
+        # Set description
+        trait.desc = control_desc
+
         # Set default values
         if control_name in defaults:
             trait.optional = True
