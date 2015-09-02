@@ -592,8 +592,9 @@ class Process(Controller):
         data = []
         if mandatory_items:
             for trait_name, trait in mandatory_items.iteritems():
-                trait_desc = get_trait_desc(trait_name, trait)
-                data.append(trait_desc)
+                if trait_name != "nodes_activation":
+                    trait_desc = get_trait_desc(trait_name, trait)
+                    data.append(trait_desc)
 
         # If we want to format the output nicely (rst)
         if data != []:
