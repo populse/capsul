@@ -48,7 +48,21 @@ class UseCasesHelperWriter(object):
         """
         return inspect.getsource(function)
 
-    def generate_usecases_doc(self, src_code, module_name):
+    def usecases_tree(self, src_code, module_name):
+        """ Make autodoc documentation of pilots
+
+        Parameters
+        ----------
+        src_code : string
+            pilot source code.
+
+        Returns
+        -------
+        tree : string
+            a dict containing the reST formated documentation.
+        """
+
+    def generate_usecases_doc(self, src_code, module_name, add_code=True):
         """ Make autodoc documentation of pilots
 
         Parameters
@@ -75,7 +89,10 @@ class UseCasesHelperWriter(object):
         line_start_code = 0
         line_end_code = 0
         is_header = True
-        full_code = "# The full use case code: {0}\n".format(module_name)
+        if add_code:
+            full_code = "# The full use case code: {0}\n".format(module_name)
+        else:
+            full_code = "The full use case code::\n\n"
         for code_item in pilot_tree:
             if (isinstance(code_item, ast.Expr) and
                     isinstance(code_item.value, ast.Str)):
@@ -96,8 +113,9 @@ class UseCasesHelperWriter(object):
                     ad += "\n\n"
 
                 # Add expand box with full code in header
-                if is_header:
-                    code = ".. hidden-code-block:: python\n"
+                code = ""
+                if is_header and add_code:
+                    code += ".. hidden-code-block:: python\n"
                     code += "    :starthidden: True\n\n"
                     code += "    $FULL_CODE"
 
@@ -126,9 +144,11 @@ class UseCasesHelperWriter(object):
             ad += "\n\n"
 
         # Insert full use case code
-        ad = ad.replace("$FULL_CODE", full_code)
-
-        return ad
+        if add_code:
+            ad = ad.replace("$FULL_CODE", full_code)
+            return ad
+        else:
+            return ad, full_code
 
     def write_usecases_docs(self, outdir=None, returnrst=False):
         """ Generate Use Cases reST files.
