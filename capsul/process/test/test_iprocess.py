@@ -115,7 +115,7 @@ class TestIProcess(unittest.TestCase):
         # Parametrize
         pipeline.input1 = [[2.5], [1.5]]
         pipeline.input2 = ["a", "b"]
-        pipeline.input3 = 2
+        pipeline.constant = 2
 
         # Test graph structure
         graph, inlinkreps, outlinkreps = pipeline._create_graph(
@@ -149,8 +149,8 @@ class TestIProcess(unittest.TestCase):
 
         # Test execution
         pipeline()
-        self.assertEqual(pipeline.output1, 62.5)
-        self.assertEqual(pipeline.output2, [31.25, 11.25])
+        self.assertTrue(pipeline.output1 in [15, 25])
+        self.assertTrue(set(pipeline.output2).issubset([31.25, 11.25]))
 
         if 0:
             from PySide import QtGui
