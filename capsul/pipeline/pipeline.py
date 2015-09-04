@@ -182,7 +182,6 @@ class Pipeline(Process):
         super(Pipeline, self).add_trait(
             'nodes_activation',
             ControllerTrait(Controller(), output=None, hidden=self.hide_nodes_activation))
-        self.trait("nodes_activation").output = None
 
         # Class attributes
         self.list_process_in_pipeline = []

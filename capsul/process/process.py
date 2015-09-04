@@ -143,6 +143,9 @@ class Process(Controller):
         # Initialize the log file name
         self.log_file = None
 
+        # Define reserved control names
+        self.reserved_controls = ("nodes_activation", "selection_changed")
+
     def add_trait(self, name, trait):
         """Ensure that trait.output and trait.optional are set to a
         boolean value before calling parent class add_trait.
@@ -154,6 +157,16 @@ class Process(Controller):
             trait.output = bool(trait.output)
             trait.optional = bool(trait.optional)
         super(Process, self).add_trait(name, trait)
+
+    def traits(self, **kwargs):
+        """ Returns a dictionary containing the definitions of all of the trait
+        attributes of this object that match the set of *metadata* criteria.
+        """
+        traits = super(Process, self).traits(**kwargs)
+        for name in self.reserved_controls:
+            if name in traits:
+                traits.pop(name)
+        return traits
         
     def __call__(self, **kwargs):
         """ Method to execute the Process.
