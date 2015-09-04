@@ -206,6 +206,7 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
         from socket import getfqdn
         from capsul.study_config.memory import Memory
         from capsul.process.loader import get_process_instance
+        from capsul.study_config.utils import split_name
 
         mem = Memory(cachedir)
         while True:
@@ -230,7 +231,14 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
 
                 # Create a valid process working directory if possible
                 if outputdir is not None:
-                    process_outputdir = os.path.join(outputdir, process_name)
+                    (identifier, box_name, box_exec_name, box_iter_name,
+                     iteration) = split_name(process_name)
+                    if box_iter_name is not None:
+                        process_outputdir = os.path.join(
+                            outputdir, box_exec_name,
+                            box_name.replace(box_exec_name, "")[1:])
+                    else:
+                        process_outputdir = os.path.join(outputdir, box_name)
                     if not os.path.isdir(process_outputdir):
                         os.makedirs(process_outputdir)
 

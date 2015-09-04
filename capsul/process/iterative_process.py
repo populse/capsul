@@ -28,7 +28,7 @@ class IProcess(Controller):
     """ An iterative box that may be used to iterate over a building box.
     """
     iterprefix = "iter"
-    itersep = "&"
+    itersep = "#"
 
     def __init__(self, process, iterinputs=None, iteroutputs=None):
         """ Initialize the Ibox class.
@@ -51,7 +51,7 @@ class IProcess(Controller):
         self.iteroutputs = iteroutputs or []
         self.ispbox = False
         self.iterbox = process
-        if self.iterbox.__class__.__name__ == "Pipeline":
+        if "Pipeline" in [klass.__name__ for klass in process.__class__.__mro__]:
             self.ispbox = True
         self.active = True
 
