@@ -60,8 +60,21 @@ class ProcessMeta(Controller.__metaclass__):
         # Get the process docstring
         docstring = attrs.get("__doc__", "").split("\n")
 
+        # we have to indent the note properly so that the docstring is
+        # properly displayed, and correctly processed by sphinx
+        indent = -1
+        for line in docstring[1:]:
+            lstrip = line.strip()
+            if not lstrip:  # empty lines do not influence indent
+                continue
+            lindent = line.index(line.strip())
+            if indent == -1 or lindent < indent:
+                indent = lindent
+        if indent < 0:
+            indent = 0
+
         # Complete the docstring
-        docstring += [
+        docstring += [' ' * indent + line for line in [
             "",
             ".. note::",
             "",
@@ -72,7 +85,7 @@ class ProcessMeta(Controller.__metaclass__):
             "    * Type '<{0}>.get_output_spec()' for a full description of "
             "this process output trait types.".format(name),
             ""
-        ]
+        ]]
 
         # Update the class docstring with the full process help
         attrs["__doc__"] = "\n".join(docstring)
@@ -94,11 +107,11 @@ class Process(Controller):
 
     Attributes
     ----------
-    `name` : str
+    `name`: str
         the class name.
-    `id` : str
+    `id`: str
         the string description of the class location (ie., module.class).
-    `log_file` : str (default None)
+    `log_file`: str (default None)
         if None, the log will be generated in the current directory
         otherwise it will be written in log_file path.
 
@@ -120,6 +133,7 @@ class Process(Controller):
     get_outputs
     set_parameter
     get_parameter
+
     """
     # Meta class used to complete the class docstring
     __metaclass__ = ProcessMeta
