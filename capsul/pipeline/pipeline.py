@@ -41,6 +41,7 @@ from pipeline_nodes import Switch
 
 # Soma import
 from soma.controller import Controller
+from soma.controller import ControllerTrait
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 
@@ -179,7 +180,7 @@ class Pipeline(Process):
         super(Pipeline, self).__init__(**kwargs)
         super(Pipeline, self).add_trait(
             'nodes_activation',
-            Instance(Controller, hidden=self.hide_nodes_activation))
+            ControllerTrait(Controller(), hidden=self.hide_nodes_activation))
 
         # Class attributes
         self.list_process_in_pipeline = []
@@ -1617,7 +1618,7 @@ class Pipeline(Process):
         if not self.user_traits().has_key('pipeline_steps'):
             super(Pipeline, self).add_trait(
                 'pipeline_steps',
-                Instance(Controller, desc=
+                ControllerTrait(Controller, desc=
                     'Steps are groups of pipeline nodes, which may be disabled '
                     'at runtime. They are normally defined in a logical order '
                     'regarding the workflow streams. They are different from '

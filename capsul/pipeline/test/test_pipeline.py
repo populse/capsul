@@ -27,7 +27,7 @@ class DummyProcess(Process):
         self.add_trait("output_image", File(optional=False, output=True))
         self.add_trait("other_output", Float(optional=True, output=True))
 
-    def __call__(self):
+    def _run_process(self):
         pass
 
 

@@ -175,10 +175,10 @@ class TestSomaWorkflow(unittest.TestCase):
         workflow = workflow_from_pipeline(self.atomic_pipeline)
         dependencies = [(x.name, y.name) for x, y in workflow.dependencies]
         self.assertTrue(len(dependencies) == 4)
-        self.assertTrue(("Process_1", "Process_2") in dependencies)
-        self.assertTrue(("Process_1", "Process_3") in dependencies)
-        self.assertTrue(("Process_2", "Process_4") in dependencies)
-        self.assertTrue(("Process_3", "Process_4") in dependencies)
+        self.assertTrue(("node1", "node2") in dependencies)
+        self.assertTrue(("node1", "node3") in dependencies)
+        self.assertTrue(("node2", "node4") in dependencies)
+        self.assertTrue(("node3", "node4") in dependencies)
         self.assertEqual(workflow.groups, [])
 
     def test_atomic_execution(self):
@@ -197,12 +197,12 @@ class TestSomaWorkflow(unittest.TestCase):
         workflow = workflow_from_pipeline(self.composite_pipeline)
         dependencies = [(x.name, y.name) for x, y in workflow.dependencies]
         self.assertTrue(len(dependencies) == 16)
-        self.assertEqual(dependencies.count(("Process_1", "Process_2")), 1)
-        self.assertEqual(dependencies.count(("Process_1", "Process_3")), 2)
-        self.assertEqual(dependencies.count(("Process_2", "Process_4")), 1)
-        self.assertEqual(dependencies.count(("Process_3", "Process_4")), 2)
-        self.assertEqual(dependencies.count(("Process_1", "node2_input")), 1)
-        self.assertEqual(dependencies.count(("node2_output", "Process_4")), 1)
+        self.assertEqual(dependencies.count(("node1", "node2")), 1)
+        self.assertEqual(dependencies.count(("node1", "node3")), 2)
+        self.assertEqual(dependencies.count(("node2", "node4")), 1)
+        self.assertEqual(dependencies.count(("node3", "node4")), 2)
+        self.assertEqual(dependencies.count(("node1", "node2_input")), 1)
+        self.assertEqual(dependencies.count(("node2_output", "node4")), 1)
         self.assertTrue(len(workflow.groups) == 1)
 
     def test_composite_execution(self):
