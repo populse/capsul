@@ -31,7 +31,7 @@ from capsul.process import Process
 from run import run_process
 from capsul.pipeline.pipeline_workflow import (
     workflow_from_pipeline, local_workflow_run)
-from capsul.pipeline.pipeline_nodes import IterativeNode, Node
+from capsul.pipeline.pipeline_nodes import Node
 
 
 class StudyConfig(Controller):
@@ -313,31 +313,8 @@ class StudyConfig(Controller):
 
             # Execute each process node element
             for process_node in execution_list:
-
-                # Special case: an iterative node
-                # Execute each element of the iterative pipeline
-                if isinstance(process_node, IterativeNode):
-
-                    # Get the iterative pipeline
-                    iterative_pipeline = process_node.process
-
-                    # Generate ordered execution list
-                    iterative_execution_list = (
-                        iterative_pipeline.workflow_ordered_nodes())
-
-                    # Filter process nodes if necessary
-                    if not executer_qc_nodes:
-                        iterative_execution_list = [
-                            node for node in iterative_execution_list
-                            if node.node_type != "view_node"]
-
-                    # Execute the iterative process instances
-                    for iterative_process_node in iterative_execution_list:
-                        self._run(iterative_process_node.process, verbose,
-                                  **kwargs)
-
                 # Execute the process instance contained in the node
-                elif isinstance(process_node, Node):
+                if isinstance(process_node, Node):
                     self._run(process_node.process, verbose, **kwargs)
 
                 # Execute the process instance
