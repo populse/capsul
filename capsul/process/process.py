@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 # Trait import
 from traits.trait_base import _Undefined
 from traits.api import Directory, Undefined
+from traits.trait_handlers import BaseTraitHandler
 
 # Soma import
 from soma.controller import Controller
@@ -76,6 +77,14 @@ class ProcessMeta(Controller.__metaclass__):
         # Update the class docstring with the full process help
         attrs["__doc__"] = "\n".join(docstring)
 
+        # Find all traits definitions in the process class and ensure that
+        # it has a boolean value for attributes "output" and "optional".
+        # If no value is given at construction, False will be used.
+        for n, possible_trait_definition in attrs.iteritems():
+            if isinstance(possible_trait_definition, BaseTraitHandler):
+                possible_trait_definition._metadata['output'] = bool(possible_trait_definition.output)
+                possible_trait_definition._metadata['optional'] = bool(possible_trait_definition.optional)
+        
         return super(ProcessMeta, mcls).__new__(
             mcls, name, bases, attrs)
 
@@ -133,6 +142,18 @@ class Process(Controller):
         # Initialize the log file name
         self.log_file = None
 
+    def add_trait(self, name, trait):
+        """Ensure that trait.output and trait.optional are set to a
+        boolean value before calling parent class add_trait.
+        """
+        if trait._metadata is not None:
+            trait._metadata['output'] = bool(trait.output)
+            trait._metadata['optional'] = bool(trait.optional)
+        else:
+            trait.output = bool(trait.output)
+            trait.optional = bool(trait.optional)
+        super(Process, self).add_trait(name, trait)
+        
     def __call__(self, **kwargs):
         """ Method to execute the Process.
 
