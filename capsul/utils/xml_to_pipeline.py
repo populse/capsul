@@ -560,11 +560,11 @@ class AutoPipeline(Pipeline):
         box_pvalue = eval(set_attributes[self.unit_set[1]])
 
         # Case force copy
-        copy_tag = self.unit_attributes[2]
+        copy_tag = self.unit_set[2]
         if copy_tag in set_attributes:
-            if set_attribute[copy_tag] in ["True", "Temp"]:
+            if set_attributes[copy_tag] in ["True", "Temp"]:
                 to_copy_parameter.append(box_pname)
-            if set_attribute[copy_tag] == "Temp":
+            if set_attributes[copy_tag] == "Temp":
                 to_rm_parameter.append(box_pname)
 
         # Pipeline parameters to be set
