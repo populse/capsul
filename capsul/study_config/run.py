@@ -214,7 +214,8 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
             if inputs == FLAG_ALL_DONE:
                 workers_returncode.put(FLAG_WORKER_FINISHED_PROCESSING)
                 break
-            process_name, box_funcdesc, bbox_inputs = inputs
+            (process_name, box_funcdesc, bbox_inputs, box_copy,
+             box_clean) = inputs
             bbox_returncode = {}
             bbox_returncode[process_name] = {}
             bbox_item = bbox_returncode[process_name]
@@ -228,6 +229,10 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
                 proxy_bbox = mem.cache(bbox, verbose=verbose)
                 for control_name, value in bbox_inputs.items():
                     proxy_bbox.set_parameter(control_name, value)
+                if box_copy is not None:
+                    bbox.inputs_to_copy = box_copy
+                if box_clean is not None:
+                    bbox.inputs_to_clean = box_clean
 
                 # Create a valid process working directory if possible
                 if outputdir is not None:
@@ -306,7 +311,14 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
                     box_inputs = {}
                     for control_name in box.traits(output=False):
                         box_inputs[control_name] = box.get_parameter(control_name)
-                    workers_bbox.put((process_name, box.desc, box_inputs))
+                    box_copy = None
+                    box_clean = None
+                    if (hasattr(box, "inputs_to_copy") and
+                            hasattr(box, "inputs_to_clean")):
+                        box_copy = box.inputs_to_copy
+                        box_clean = box.inputs_to_clean
+                    workers_bbox.put((process_name, box.desc, box_inputs,
+                                      box_copy, box_clean))
 
             # Collect the box returncodes
             wave_returncode = workers_returncode.get()
