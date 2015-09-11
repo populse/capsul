@@ -1031,8 +1031,9 @@ class NipypeProcess(FileCopyProcess):
         results:  ProcessResult object
             contains all execution information
         """
-        # Set the interface output directory just before the execution
-        self._nipype_interface.inputs.output_directory = self.output_directory
+        # Single task worker: change worker current working
+        # directory safely (usefull for nipype spm interfaces)
+        os.chdir(self.output_directory)
 
         # Inheritance
         if self._nipype_interface_name == "spm":
@@ -1088,7 +1089,6 @@ class NipypeProcess(FileCopyProcess):
             the output directory
         """
         self.output_directory = out_dir
-        self._nipype_interface.inputs.output_directory = out_dir
 
     def _run_process(self):
         """ Method that do the processings when the instance is called.

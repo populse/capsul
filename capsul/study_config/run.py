@@ -247,12 +247,6 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
                     if not os.path.isdir(process_outputdir):
                         os.makedirs(process_outputdir)
 
-                    # Update nipype interface accordingly if necessary
-                    if hasattr(bbox, "_nipype_interface"):
-                        if "spm" in bbox._nipype_interface_name:
-                            bbox._nipype_interface.mlab.inputs.prescript += [
-                                "cd('{0}');".format(process_outputdir)]
-
                     # Update the instance output directory accordingly if
                     # necessary
                     if "output_directory" in bbox.user_traits():                   

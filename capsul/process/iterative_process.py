@@ -174,10 +174,13 @@ class IProcess(Controller):
                     value = getattr(self, itercontrol_name)
                     setattr(iterbox, control_name, value[iteritem])
                 for control_name in self.iterbox.traits(output=False):
-                    if (control_name not in self.iterinputs and
-                            control_name != "selection_changed"):
+                    if control_name not in self.iterinputs:
                         setattr(iterbox, control_name,
                                 getattr(self, control_name))
+                if (hasattr(self.iterbox, "inputs_to_copy") and
+                        hasattr(self.iterbox, "inputs_to_clean")):
+                    iterbox.inputs_to_copy = self.iterbox.inputs_to_copy
+                    iterbox.inputs_to_clean = self.iterbox.inputs_to_clean
 
                 node_name = "{0}{1}{2}".format(prefix, self.itersep, iteritem)
                 # Iterate on a pipeline
