@@ -14,14 +14,13 @@ import inspect
 import re
 import importlib
 
+# Trait import
+import traits.api as traits
+
 # Capsul import
 from .description_utils import title_for
 from .description_utils import parse_docstring
-
-# Soma import
-from soma.controller.trait_utils import clone_trait
-
-# Capsul import
+from capsul.utils.trait_utils import clone_trait
 from capsul.process import Process
 
 
@@ -97,7 +96,10 @@ class AutoProcess(Process):
                     "parameter '{1}' has not been defined in function '<{2}>' "
                     "description.".format(self.id, control_name, self.xml_tag))
             # Update namespace
-            namespace[control_name] = self.get_parameter(control_name)
+            value = self.get_parameter(control_name)
+            if value is traits.Undefined:
+                value = None
+            namespace[control_name] = value
             # Create kwargs
             kwargs.append("{0}={0}".format(control_name))
 
@@ -205,7 +207,17 @@ def create_controls(proto, func):
         trait_desc = control_type
         if control_content is not None:
             trait_desc += "_{0}".format(control_content)
-        trait = clone_trait([trait_desc])
+        try:
+            trait_desc = eval(trait_desc)
+        except:
+            pass
+        if not isinstance(trait_desc, list):
+            trait_desc = [trait_desc]
+        trait = clone_trait(trait_desc)
+        trait._metadata = {}
+
+        # Set description
+        trait.desc = control_desc
 
         # Set default values
         if control_name in defaults:

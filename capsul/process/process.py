@@ -36,6 +36,7 @@ from soma.controller.trait_utils import get_trait_desc
 
 # Capsul import
 from capsul.utils.version_utils import get_tool_version
+from capsul.utils.trait_utils import is_trait_either
 
 
 class ProcessMeta(Controller.__metaclass__):
@@ -142,6 +143,9 @@ class Process(Controller):
         # Initialize the log file name
         self.log_file = None
 
+        # Define reserved control names
+        self.reserved_controls = ("nodes_activation", "selection_changed")
+
     def add_trait(self, name, trait):
         """Ensure that trait.output and trait.optional are set to a
         boolean value before calling parent class add_trait.
@@ -153,6 +157,16 @@ class Process(Controller):
             trait.output = bool(trait.output)
             trait.optional = bool(trait.optional)
         super(Process, self).add_trait(name, trait)
+
+    def traits(self, **kwargs):
+        """ Returns a dictionary containing the definitions of all of the trait
+        attributes of this object that match the set of *metadata* criteria.
+        """
+        traits = super(Process, self).traits(**kwargs)
+        for name in self.reserved_controls:
+            if name in traits:
+                traits.pop(name)
+        return traits
         
     def __call__(self, **kwargs):
         """ Method to execute the Process.
@@ -591,8 +605,9 @@ class Process(Controller):
         data = []
         if mandatory_items:
             for trait_name, trait in mandatory_items.iteritems():
-                trait_desc = get_trait_desc(trait_name, trait)
-                data.append(trait_desc)
+                if trait_name != "nodes_activation":
+                    trait_desc = get_trait_desc(trait_name, trait)
+                    data.append(trait_desc)
 
         # If we want to format the output nicely (rst)
         if data != []:
@@ -686,11 +701,9 @@ class Process(Controller):
         value: object (mandatory)
             the trait value we want to set
         """
-        # Detect File and Directory trait types with None value
-        if value is None and is_trait_pathname(self.trait(name)):
-
-            # The None trait value is _Undefined, do the replacement
-            value = _Undefined()
+        # The None trait value is Undefined, do the replacement
+        if value is None:
+            value = Undefined
 
         # Set the new trait value
         setattr(self, name, value)
@@ -952,6 +965,7 @@ class NipypeProcess(FileCopyProcess):
         self._nipype_module = nipype_instance.__class__.__module__
         self._nipype_class = nipype_instance.__class__.__name__
         self._nipype_interface_name = self._nipype_module.split(".")[2]
+        self.desc = self._nipype_module + "." + self._nipype_class
 
         # Inheritance: activate input files copy for spm interfaces.
         if self._nipype_interface_name == "spm":
@@ -1017,8 +1031,9 @@ class NipypeProcess(FileCopyProcess):
         results:  ProcessResult object
             contains all execution information
         """
-        # Set the interface output directory just before the execution
-        self._nipype_interface.inputs.output_directory = self.output_directory
+        # Single task worker: change worker current working
+        # directory safely (usefull for nipype spm interfaces)
+        os.chdir(self.output_directory)
 
         # Inheritance
         if self._nipype_interface_name == "spm":
@@ -1074,7 +1089,6 @@ class NipypeProcess(FileCopyProcess):
             the output directory
         """
         self.output_directory = out_dir
-        self._nipype_interface.inputs.output_directory = out_dir
 
     def _run_process(self):
         """ Method that do the processings when the instance is called.

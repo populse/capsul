@@ -52,6 +52,8 @@
         <link source="p2.output1" destination="p3.parameter3"/>
         <link source="p3.output1" destination="p5.parameter3"/>
         <link source="p4.output1" destination="p5.parameter3"/>
+        <link source="p3.output2" destination="output2"/>
+        <link source="p4.output2" destination="output2"/>
     </links>
     <positions>
         <position unit="inputs" x="8" y="282"/>

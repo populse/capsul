@@ -49,7 +49,10 @@ class TestNipypeWrap(unittest.TestCase):
             nipype_process._nipype_interface._list_outputs()["out_file"],
             os.path.join(os.getcwd(),
                          "test_nipype_wrap_brain%s" % self.output_extension))
+
+        # The change directory is set during the call so the execution
         nipype_process.set_output_directory("/home")
+        self.assertRaises(Exception, nipype_process)
         self.assertEqual(
             nipype_process._nipype_interface._list_outputs()["out_file"],
             os.path.join("/home",

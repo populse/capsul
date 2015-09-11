@@ -158,6 +158,7 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
+        logger.setLevel(logging.DEBUG)
         logger.info("Processing information will be logged in file "
                     "'{0}'.".format(log_file))
 
@@ -186,7 +187,7 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
     # The worker function of a capsul.Pocess, invoked in a
     # multiprocessing.Process
     def bbox_worker(workers_bbox, workers_returncode, outputdir=None,
-                    cachedir=None, verbose=0):
+                    cachedir=None, verbose=1):
         """ The worker.
 
         Parameters
@@ -205,6 +206,7 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
         from socket import getfqdn
         from capsul.study_config.memory import Memory
         from capsul.process.loader import get_process_instance
+        from capsul.study_config.utils import split_name
 
         mem = Memory(cachedir)
         while True:
@@ -212,7 +214,8 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
             if inputs == FLAG_ALL_DONE:
                 workers_returncode.put(FLAG_WORKER_FINISHED_PROCESSING)
                 break
-            process_name, box_funcdesc, bbox_inputs = inputs
+            (process_name, box_funcdesc, bbox_inputs, box_copy,
+             box_clean) = inputs
             bbox_returncode = {}
             bbox_returncode[process_name] = {}
             bbox_item = bbox_returncode[process_name]
@@ -222,27 +225,32 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
                 # Create the box
                 bbox = get_process_instance(box_funcdesc)
     
+                # Decorate and configure the box
+                proxy_bbox = mem.cache(bbox, verbose=verbose)
+                for control_name, value in bbox_inputs.items():
+                    proxy_bbox.set_parameter(control_name, value)
+                if box_copy is not None:
+                    bbox.inputs_to_copy = box_copy
+                if box_clean is not None:
+                    bbox.inputs_to_clean = box_clean
+
                 # Create a valid process working directory if possible
                 if outputdir is not None:
-                    process_outputdir = os.path.join(outputdir, process_name)
+                    (identifier, box_name, box_exec_name, box_iter_name,
+                     iteration) = split_name(process_name)
+                    if box_iter_name is not None:
+                        process_outputdir = os.path.join(
+                            outputdir, box_exec_name,
+                            box_name.replace(box_exec_name, "")[1:])
+                    else:
+                        process_outputdir = os.path.join(outputdir, box_name)
                     if not os.path.isdir(process_outputdir):
                         os.makedirs(process_outputdir)
-
-                    # Update nipype interface accordingly if necessary
-                    if hasattr(bbox, "_nipype_interface"):
-                        if "spm" in bbox._nipype_interface_name:
-                            process_instance._nipype_interface.mlab.inputs.prescript += [
-                                "cd('{0}');".format(process_outputdir)]
 
                     # Update the instance output directory accordingly if
                     # necessary
                     if "output_directory" in bbox.user_traits():                   
                         bbox.output_directory = process_outputdir
-
-                # Decorate and configure the box
-                proxy_bbox = mem.cache(bbox, verbose=verbose)
-                for control_name, value in bbox_inputs.items():
-                    proxy_bbox.set_parameter(control_name, value)
 
                 # Execurte the box
                 process_result = proxy_bbox()
@@ -269,7 +277,7 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
     for index in range(cpus):
         process = multiprocessing.Process(
             target=bbox_worker, args=(workers_bbox, workers_returncode,
-                                      outputdir, cachedir, verbose))
+                                      outputdir, cachedir))
         process.deamon = True
         process.start()
         workers.append(process)
@@ -297,7 +305,14 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
                     box_inputs = {}
                     for control_name in box.traits(output=False):
                         box_inputs[control_name] = box.get_parameter(control_name)
-                    workers_bbox.put((process_name, box.desc, box_inputs))
+                    box_copy = None
+                    box_clean = None
+                    if (hasattr(box, "inputs_to_copy") and
+                            hasattr(box, "inputs_to_clean")):
+                        box_copy = box.inputs_to_copy
+                        box_clean = box.inputs_to_clean
+                    workers_bbox.put((process_name, box.desc, box_inputs,
+                                      box_copy, box_clean))
 
             # Collect the box returncodes
             wave_returncode = workers_returncode.get()

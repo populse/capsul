@@ -459,7 +459,7 @@ class AutoPipeline(Pipeline):
 
         # Set the node type
         qc_tag = self.unit_attributes[5]
-        if qc_tag in box_attributes and box_attributes[qc_tag] == "True":
+        if qc_tag in box_attributes and boxdesc[qc_tag] == "True":
             self.nodes[box_name].node_type = "view_node"
 
         # Set the forced values
@@ -486,7 +486,7 @@ class AutoPipeline(Pipeline):
         linktype: string
             the link type: 'link', 'input' or 'output'.
         """
-        # Check the proper lexic has been specified
+        # Check the proper lexicon has been specified
         link_keys = list(linkdesc.keys())
         issubset = set(link_keys).issubset(self.link_attributes)
         if len(link_keys) != 2 or not issubset:
@@ -506,8 +506,11 @@ class AutoPipeline(Pipeline):
         self._links.append(linkrep)
         if linktype == "output":
             box_name, box_pname = source.split(".")
-            self.export_parameter(box_name, box_pname,
-                                  pipeline_parameter=destination)
+            if destination not in self.user_traits():
+                self.export_parameter(box_name, box_pname,
+                                      pipeline_parameter=destination)
+            else:
+                self.add_link(linkrep)
         elif linktype == "input":
             box_name, box_pname = destination.split(".")
             if source not in self.user_traits():
@@ -557,11 +560,11 @@ class AutoPipeline(Pipeline):
         box_pvalue = eval(set_attributes[self.unit_set[1]])
 
         # Case force copy
-        copy_tag = self.unit_attributes[2]
+        copy_tag = self.unit_set[2]
         if copy_tag in set_attributes:
-            if set_attribute[copy_tag] in ["True", "Temp"]:
+            if set_attributes[copy_tag] in ["True", "Temp"]:
                 to_copy_parameter.append(box_pname)
-            if set_attribute[copy_tag] == "Temp":
+            if set_attributes[copy_tag] == "Temp":
                 to_rm_parameter.append(box_pname)
 
         # Pipeline parameters to be set

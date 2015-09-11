@@ -28,7 +28,7 @@ class IProcess(Controller):
     """ An iterative box that may be used to iterate over a building box.
     """
     iterprefix = "iter"
-    itersep = "&"
+    itersep = "#"
 
     def __init__(self, process, iterinputs=None, iteroutputs=None):
         """ Initialize the Ibox class.
@@ -51,7 +51,7 @@ class IProcess(Controller):
         self.iteroutputs = iteroutputs or []
         self.ispbox = False
         self.iterbox = process
-        if self.iterbox.__class__.__name__ == "Pipeline":
+        if "Pipeline" in [klass.__name__ for klass in process.__class__.__mro__]:
             self.ispbox = True
         self.active = True
 
@@ -174,10 +174,13 @@ class IProcess(Controller):
                     value = getattr(self, itercontrol_name)
                     setattr(iterbox, control_name, value[iteritem])
                 for control_name in self.iterbox.traits(output=False):
-                    if (control_name not in self.iterinputs and
-                            control_name != "selection_changed"):
+                    if control_name not in self.iterinputs:
                         setattr(iterbox, control_name,
                                 getattr(self, control_name))
+                if (hasattr(self.iterbox, "inputs_to_copy") and
+                        hasattr(self.iterbox, "inputs_to_clean")):
+                    iterbox.inputs_to_copy = self.iterbox.inputs_to_copy
+                    iterbox.inputs_to_clean = self.iterbox.inputs_to_clean
 
                 node_name = "{0}{1}{2}".format(prefix, self.itersep, iteritem)
                 # Iterate on a pipeline

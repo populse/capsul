@@ -176,9 +176,7 @@ class TestLoadFromDescription(unittest.TestCase):
             app = QtGui.QApplication(sys.argv)
             view1 = PipelineDevelopperView(pipeline)
             view1.show()
-            app.exec_()
-
-    
+            app.exec_()   
 
 
 def test():

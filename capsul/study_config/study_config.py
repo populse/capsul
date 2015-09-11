@@ -246,7 +246,7 @@ class StudyConfig(Controller):
             self.modules[config_module_name] = module
             return module
 
-    def run(self, process_or_pipeline, executer_qc_nodes=True, verbose=1,
+    def run(self, process_or_pipeline, executer_qc_nodes=True, verbose=0,
             **kwargs):
         """ Method to execute a process or a pipline in a study configuration
          environment.
@@ -322,7 +322,6 @@ class StudyConfig(Controller):
                 if self.generate_logging:
                     log_file = os.path.join(self.output_directory,
                                             process_or_pipeline.id + ".log")
-                verbose = 1
                 if self.use_debug:
                     verbose = 2
                 scheduler(process_or_pipeline,
