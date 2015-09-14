@@ -240,6 +240,7 @@ class IProcess(Controller):
 
             # Create the iterative control
             trait = self.iterbox.trait(control_name)
+            trait_desc = trait.desc
             trait_description = trait_ids(trait)
             itertrait_description = ["List_" + x for x in trait_description]
             itername = "{0}{1}".format(self.iterprefix, control_name)
@@ -247,6 +248,7 @@ class IProcess(Controller):
             self.add_trait(itername, trait)
             self.trait(itername).output = False
             self.trait(itername).optional = False
+            self.trait(itername).desc = trait_desc
 
         # Build output iterative controls
         for control_name in self.iteroutputs:
@@ -262,6 +264,7 @@ class IProcess(Controller):
 
             # Create the iterative control
             trait = self.iterbox.trait(control_name)
+            trait_desc = trait.desc
             trait_description = trait_ids(trait)
             itertrait_description = ["List_" + x for x in trait_description]
             itername = "{0}{1}".format(self.iterprefix, control_name)
@@ -269,6 +272,7 @@ class IProcess(Controller):
             self.add_trait(itername, trait)
             self.trait(itername).output = True
             self.trait(itername).optional = False
+            self.trait(itername).desc = trait_desc
 
         # Copy the input/output controls to the iterative box interface
         for control_name in self.iterbox.traits(output=False):
