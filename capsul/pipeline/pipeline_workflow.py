@@ -560,6 +560,14 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None):
     for format, values in formats.iteritems():
         merged_formats.update(values)
 
+    if not isinstance(pipeline, Pipeline):
+        # "pipeline" is actally a single process (or should, if it is not a
+        # pipeline). Get it into a pipeine (with a single node) to make the
+        # workflow.
+        new_pipeline = Pipeline()
+        new_pipeline.add_process('main', pipeline)
+        new_pipeline.autoexport_nodes_parameters()
+        pipeline = new_pipeline
     temp_map = assign_temporary_filenames(pipeline)
     temp_subst_list = [(x1, x2[0]) for x1, x2 in temp_map.iteritems()]
     temp_subst_map = dict(temp_subst_list)
