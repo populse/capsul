@@ -9,6 +9,7 @@
 # System import
 import os
 import logging
+import subprocess
 
 # TRAITS import
 from traits.api import Directory, File, Bool, Enum, Undefined
