@@ -14,6 +14,7 @@ import logging
 import time
 import tempfile
 import copy
+import json
 import multiprocessing
 
 # CAPSUL import
@@ -22,6 +23,7 @@ from capsul.study_config.memory import Memory
 from capsul.study_config.memory import get_process_signature
 from capsul.process import IProcess
 from .utils import split_name
+from .memory import CapsulResultEncoder
 
 # TRAIT import
 from traits.api import Undefined
@@ -260,7 +262,7 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
                 bbox_item["info"]["inputs"] = process_result.inputs
                 bbox_item["info"]["outputs"] = process_result.outputs
                 bbox_item["debug"]["returncode"] = process_result.returncode          
-                bbox_item["info"]["exitcode"] = 0
+                bbox_item["info"]["exitcode"] = "0"
             except:
                 bbox_item["info"]["inputs"] = bbox_inputs
                 bbox_item["info"]["outputs"] = {}
@@ -382,6 +384,28 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
     duration = time.time() - start_time
     msg = "{0:.1f}s, {1:.1f}min".format(duration, duration / 60.)
     logger.info("\n" + max(0, (80 - len(msg))) * '_' + msg)
+
+    # Save processing status to ease the generated data interpretation if the
+    # 'outputdir' is not None
+    if outputdir is not None:
+        exitcodes = {}
+        parameters = {}
+        for process_name, process_returncode  in returncode.items():
+            (identifier, box_name, box_exec_name, box_iter_name,
+             iteration) = split_name(process_name)
+            parameters[box_name] = {}
+            parameters[box_name]["inputs"] = process_returncode["info"]["inputs"]
+            parameters[box_name]["outputs"] = process_returncode["info"]["outputs"]
+            exitcodes[box_name] = int(process_returncode["info"]["exitcode"].split(
+                " - ")[0])
+        parameters_file = os.path.join(outputdir, "parameters_status.json")
+        with open(parameters_file, "w") as open_file:
+            json.dump(parameters, open_file, indent=4, sort_keys=True,
+                      cls=CapsulResultEncoder)
+        exitcodes_file = os.path.join(outputdir, "exitcodes_status.json")
+        with open(exitcodes_file, "w") as open_file:
+            json.dump(exitcodes, open_file, indent=4, sort_keys=True)
+
 
 
 def available_boxes(graph):
