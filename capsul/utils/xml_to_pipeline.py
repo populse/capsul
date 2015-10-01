@@ -12,6 +12,7 @@ import os
 import re
 import json
 import inspect
+import warnings
 
 # CAPSUL import
 from .description_utils import load_xml_description
@@ -123,11 +124,31 @@ class AutoPipeline(Pipeline):
             self.scene_scale_factor = float(
                 self.proto[self.zoom_tag][0][self.zoom_attributes[0]])
 
-        # Activate manually all nodes and plugs
+        # Check that all the pipeline mandatory plugs are connected and
+        # activate everything
+        unlinked_mandatory_plugs = []
         for node in self.all_nodes():
             node.activated = True
             for plug_name, plug in node.plugs.iteritems():
                 plug.activated = True
+                if not plug.optional:
+                    if node.name == "":
+                        if plug.output and len(plug.links_from) == 0:
+                            unlinked_mandatory_plugs.append(
+                                "{0}.{1}".format(node.name, plug_name))
+                        elif not plug.output and len(plug.links_to) == 0:
+                            unlinked_mandatory_plugs.append(
+                                "{0}.{1}".format(node.name, plug_name))
+                    else:
+                        if plug.output and len(plug.links_to) == 0:
+                            unlinked_mandatory_plugs.append(
+                                "{0}.{1}".format(node.name, plug_name))
+                        elif not plug.output and len(plug.links_from) == 0:
+                            unlinked_mandatory_plugs.append(
+                                "{0}.{1}".format(node.name, plug_name))
+        if len(unlinked_mandatory_plugs) > 0:
+            warnings.warn("Mandatory controls not linked: " +
+                          " - ".join(unlinked_mandatory_plugs), SyntaxWarning)
 
         # Activate the switch by setting the first switch declared value
         for switch_name, switch_item in self._switches.iteritems():
