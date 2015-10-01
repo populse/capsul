@@ -123,6 +123,23 @@ class AutoPipeline(Pipeline):
             self.scene_scale_factor = float(
                 self.proto[self.zoom_tag][0][self.zoom_attributes[0]])
 
+        # Activate manually all nodes and plugs
+        for node in self.all_nodes():
+            node.activated = True
+            for plug_name, plug in node.plugs.iteritems():
+                plug.activated = True
+
+        # Activate the switch by setting the first switch declared value
+        for switch_name, switch_item in self._switches.iteritems():
+            switch_values = switch_item[0].keys()
+            self._anytrait_changed(switch_name, switch_values[0],
+                                   switch_values[0])
+
+    def update_nodes_and_plugs_activation(self):
+        """ Activation is static.
+        """
+        pass
+
     ###########################################################################
     # Private Members
     ###########################################################################
@@ -359,9 +376,6 @@ class AutoPipeline(Pipeline):
                                          *switch_values))
         self._switches[switch_name] = (switch_paths, switch_boxes)
 
-        # Activate the switch
-        self._anytrait_changed(switch_name, switch_values[0], switch_values[0])
-
     def _anytrait_changed(self, name, old, new):
         """ Add an event to the switch trait that enables us to select
         the desired option.
@@ -380,14 +394,15 @@ class AutoPipeline(Pipeline):
 
             # Disable all the boxes in the switch structure
             for box_name in switch_boxes:
-                self.nodes[box_name].enabled = False
-
+                node = self.nodes[box_name]
+                node.enabled = False
+                node.activated = False
+       
             # Activate only the selected path
             for box_name in switch_paths[new]:
-                self.nodes[box_name].enabled = True
-
-            # Update the activation
-            self.update_nodes_and_plugs_activation()
+                node = self.nodes[box_name]
+                node.enabled = True
+                node.activated = True
 
     def _add_box(self, boxdesc):
         """ Add a box in the pipeline from its description.
