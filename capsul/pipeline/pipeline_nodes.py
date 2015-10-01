@@ -445,6 +445,9 @@ class ProcessNode(Node):
         output: object
             the plug value
         """
+        trait = self.get_trait(plug_name)
+        if not hasattr(trait, "handler"):
+            raise Exception("'{0}' plug is not defined.".format(plug_name))
         if not isinstance(self.get_trait(plug_name).handler,
                           traits.Event):
             return getattr(self.process, plug_name)
