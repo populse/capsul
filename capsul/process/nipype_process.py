@@ -67,6 +67,16 @@ def nipype_factory(nipype_instance):
     clone_nipype_trait
     """
 
+    # Monkey patching: change first level masking explicit in postscript
+    def _make_matlab_command(self, content):
+        from nipype.interfaces.spm import Level1Design
+        return super(Level1Design, self)._make_matlab_command(
+            content, postscript=None)
+    if (nipype_instance.__class__.__module__.split(".")[2] == "spm" and
+       nipype_instance.__class__.__name__ == "Level1Design"):
+        nipype_instance._make_matlab_command = types.MethodType(
+            _make_matlab_command, nipype_instance)
+
     # Create new instance derived from Process
     process_instance = NipypeProcess(nipype_instance)
 
