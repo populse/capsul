@@ -14,6 +14,7 @@ import unittest
 from capsul.process import Process
 from capsul.process.loader import get_process_instance
 from capsul.pipeline import Pipeline
+from capsul.utils.trait_utils import is_trait_value_defined
 
 
 def to_warp_func(parameter1, parameter2, parameter3=5):
@@ -74,18 +75,25 @@ class TestLoadFromDescription(unittest.TestCase):
         pipeline.input1 = [2.5]
         pipeline.switch = "path2"
         pipeline()
-        if pipeline.switch == "path2":
+        if pipeline.switch == "path3":
+            self.assertEqual(pipeline.output, 31.25)
+        elif pipeline.switch == "path2":
             self.assertEqual(pipeline.output, 78.125)
-        else:
+        elif pipeline.switch == "path1":
             self.assertEqual(pipeline.output, 195.3125)
-        self.assertEqual(pipeline.output2, "done")
+        if pipeline.switch == "path3":
+            self.assertFalse(is_trait_value_defined(pipeline.output2))
+        else:
+            self.assertEqual(pipeline.output2, "done")
 
         graph, inlinkreps, outlinkreps = pipeline._create_graph(
             pipeline, filter_inactive=True)
         ordered_boxes = [item[0] for item in graph.topological_sort()]
-        if pipeline.switch == "path2":
+        if pipeline.switch == "path3":
+            self.assertEqual(ordered_boxes, ["p1", "p5"])
+        elif pipeline.switch == "path2":
             self.assertEqual(ordered_boxes, ["p1", "p4", "p5"])
-        else:
+        elif pipeline.switch == "path1":
             self.assertEqual(ordered_boxes, ["p1", "p2", "p3", "p5"])
             
         if 0:

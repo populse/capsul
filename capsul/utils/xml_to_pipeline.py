@@ -373,9 +373,16 @@ class AutoPipeline(Pipeline):
         # Create the switch control
         switch_paths = {}
         for pathdesc in switchdesc[self.switch_attributes[1]]:
-            path_name = pathdesc[self.switch_path[0]][0]
-            path_boxes = [box[self.unit_attributes[0]]
-                          for box in pathdesc[self.switch_path[1]]]
+            path_name = pathdesc[self.switch_path[0]]
+            if isinstance(path_name, list):
+                path_name = path_name[0]
+
+            # Switch on different boxes and allowing the do nothing case
+            path_boxes = []
+            if self.switch_path[1] in pathdesc:
+                path_boxes = [box[self.unit_attributes[0]]
+                              for box in pathdesc[self.switch_path[1]]]
+ 
             switch_paths[path_name] = path_boxes
         self._switch(switch_name, switch_paths)
 

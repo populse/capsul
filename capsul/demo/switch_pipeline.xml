@@ -31,7 +31,9 @@
             </path>
             <path name="path2">
                 <unit name="p4"/>
-            </path>   
+            </path>
+            <path name="path3">
+            </path> 
         </switch>
     </units>
     <links>
@@ -52,6 +54,7 @@
         <link source="p2.output1" destination="p3.parameter3"/>
         <link source="p3.output1" destination="p5.parameter3"/>
         <link source="p4.output1" destination="p5.parameter3"/>
+        <link source="p1.output1" destination="p5.parameter3"/>
         <link source="p3.output2" destination="output2"/>
         <link source="p4.output2" destination="output2"/>
     </links>
