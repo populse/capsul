@@ -144,6 +144,31 @@ class AutoPipeline(Pipeline):
     # Private Members
     ###########################################################################
 
+    def _run_process(self):
+        """ Execution of the pipeline.
+
+        Since  no study configuration are set, execute the pipeline in a
+        sequential order, single-processor mode.
+
+        Returns
+        -------
+        returned: list
+            the execution return results of each node in the worflow
+        """
+        # Get all the process nodes to execute
+        graph, inlinkreps, outlinkreps = self._create_graph(
+            self, filter_inactive=True)
+
+        # Go through all processes
+        returned = []
+        for node_name, process in graph.topological_sort():
+
+            # Execute the process
+            node_ret = process()
+            returned.append(node_ret)
+
+        return returned
+
     def _update_graph(self, graph, iter_map, box_map, prefix=""):
         """ Dynamically update the graph representtion of a pipeline.
 
@@ -220,7 +245,7 @@ class AutoPipeline(Pipeline):
         box_names = [name for name in box.nodes if name != ""]
         for box_name in list(box_names):
             inner_box = box.nodes[box_name]
-            if filter_inactive and not inner_box.activated:
+            if filter_inactive and not inner_box.enabled:
                 continue
             inner_box = inner_box.process
             if isinstance(inner_box, Pipeline):
@@ -288,7 +313,7 @@ class AutoPipeline(Pipeline):
                     if add_io:
                         graph.add_link(prefix + "inputs", prefix + dest_box_name)
             elif dest_box_name == "":
-                if filter_inactive and not src_node.activated:
+                if filter_inactive and not src_node.enabled:
                     continue
                 output_linkreps.setdefault(dest_ctrl, []).append(
                     (src_box_name, src_ctrl))
