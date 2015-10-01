@@ -41,7 +41,7 @@ class FSLConfig(StudyConfigModule):
             # If use_fsl is True configuration must be valid otherwise
             # an EnvironmentError is raised
             force_configuration = True
-        
+
         # Get the fsl.sh path from the study configuration elements
         fsl_config_file = self.study_config.fsl_config
 
@@ -60,17 +60,17 @@ class FSLConfig(StudyConfigModule):
                             os.environ[envname] += ":" + envval
                     else:
                         os.environ[envname] = envval
-                
+
                 # No error detected in configuration, set use_fsl to
                 # True
                 self.study_config.use_fsl = True
-        elif force_configuration:
-            raise EnvironmentError("No valid FSL configuration file "
-                                   "specified. It is impossible to configure "
-                                   "FSL.")
         else:
             # Error in configuration, do not let use_fsl = Undefined
             self.study_config.use_fsl = False
+            if force_configuration:
+                raise EnvironmentError(
+                    "No valid FSL configuration file specified. "
+                    "It is impossible to configure FSL.")
 
     def initialize_callbacks(self):
         self.study_config.on_trait_change(self.initialize_module, 'use_fsl')
