@@ -293,6 +293,11 @@ def scheduler(pbox, cpus=1, outputdir=None, cachedir=None, log_file=None,
     global_counter = 1
     workers_finished = 0
     try:
+        # Assert something has to be executed
+        if len(toexec_box_names) == 0:
+            raise Exception("Nothing to execute.")
+
+        # Loop until all the jobs are finished
         while True:
 
             # Add nnil boxes to the input queue
