@@ -237,6 +237,7 @@ class AutoPipeline(Pipeline):
             # Parse link
             src_box_name, src_ctrl, dest_box_name, dest_ctrl = parse_link(
                 linkrep)
+            src_node = box.nodes[src_box_name]
 
             # Pipeline special case: flatening
             psrc_box_name = []
@@ -255,7 +256,7 @@ class AutoPipeline(Pipeline):
                    pdest_box_name.append(
                         "{0}.{1}".format(dest_box_name, sub_box_name))
 
-            # Add an inner link, skip inpout/output links, check that no
+            # Add an inner link, skip input/output links, check that no
             # inactive box is involved in this link
             if src_box_name == "":
                 if pdest_box_name != []:
@@ -270,6 +271,8 @@ class AutoPipeline(Pipeline):
                     if add_io:
                         graph.add_link(prefix + "inputs", prefix + dest_box_name)
             elif dest_box_name == "":
+                if filter_inactive and not src_node.activated:
+                    continue
                 output_linkreps.setdefault(dest_ctrl, []).append(
                     (src_box_name, src_ctrl))
                 if add_io:
