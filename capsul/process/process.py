@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 # Trait import
 from traits.trait_base import _Undefined
 from traits.api import Directory, Undefined
+from traits.trait_handlers import BaseTraitHandler
 
 # Soma import
 from soma.controller import Controller
@@ -59,8 +60,21 @@ class ProcessMeta(Controller.__metaclass__):
         # Get the process docstring
         docstring = attrs.get("__doc__", "").split("\n")
 
+        # we have to indent the note properly so that the docstring is
+        # properly displayed, and correctly processed by sphinx
+        indent = -1
+        for line in docstring[1:]:
+            lstrip = line.strip()
+            if not lstrip:  # empty lines do not influence indent
+                continue
+            lindent = line.index(line.strip())
+            if indent == -1 or lindent < indent:
+                indent = lindent
+        if indent < 0:
+            indent = 0
+
         # Complete the docstring
-        docstring += [
+        docstring += [' ' * indent + line for line in [
             "",
             ".. note::",
             "",
@@ -71,11 +85,19 @@ class ProcessMeta(Controller.__metaclass__):
             "    * Type '<{0}>.get_output_spec()' for a full description of "
             "this process output trait types.".format(name),
             ""
-        ]
+        ]]
 
         # Update the class docstring with the full process help
         attrs["__doc__"] = "\n".join(docstring)
 
+        # Find all traits definitions in the process class and ensure that
+        # it has a boolean value for attributes "output" and "optional".
+        # If no value is given at construction, False will be used.
+        for n, possible_trait_definition in attrs.iteritems():
+            if isinstance(possible_trait_definition, BaseTraitHandler):
+                possible_trait_definition._metadata['output'] = bool(possible_trait_definition.output)
+                possible_trait_definition._metadata['optional'] = bool(possible_trait_definition.optional)
+        
         return super(ProcessMeta, mcls).__new__(
             mcls, name, bases, attrs)
 
@@ -85,11 +107,11 @@ class Process(Controller):
 
     Attributes
     ----------
-    `name` : str
+    `name`: str
         the class name.
-    `id` : str
+    `id`: str
         the string description of the class location (ie., module.class).
-    `log_file` : str (default None)
+    `log_file`: str (default None)
         if None, the log will be generated in the current directory
         otherwise it will be written in log_file path.
 
@@ -111,6 +133,7 @@ class Process(Controller):
     get_outputs
     set_parameter
     get_parameter
+
     """
     # Meta class used to complete the class docstring
     __metaclass__ = ProcessMeta
@@ -133,6 +156,18 @@ class Process(Controller):
         # Initialize the log file name
         self.log_file = None
 
+    def add_trait(self, name, trait):
+        """Ensure that trait.output and trait.optional are set to a
+        boolean value before calling parent class add_trait.
+        """
+        if trait._metadata is not None:
+            trait._metadata['output'] = bool(trait.output)
+            trait._metadata['optional'] = bool(trait.optional)
+        else:
+            trait.output = bool(trait.output)
+            trait.optional = bool(trait.optional)
+        super(Process, self).add_trait(name, trait)
+        
     def __call__(self, **kwargs):
         """ Method to execute the Process.
 
@@ -147,8 +182,15 @@ class Process(Controller):
 
         .. note:
 
-            This method must not modified the class attributes in order
+            This method must not modify the class attributes in order
             to be able to perform smart caching.
+
+        .. node:
+
+            This method should not be overloaded by Process subclasses to
+            perform actual processing. Instead, either the
+            :meth:`_run_process` method or the :meth:`get_commandline` method
+            should be overloaded.
 
         Parameters
         ----------

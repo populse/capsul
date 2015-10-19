@@ -16,9 +16,9 @@ import inspect
 # CAPSUL import
 from capsul.pipeline import Pipeline
 from capsul.pipeline.pipeline_nodes import Switch
-from capsul.pipeline.pipeline_nodes import IterativeNode
 from capsul.pipeline.pipeline_nodes import ProcessNode
 from capsul.pipeline.pipeline_nodes import PipelineNode
+from capsul.pipeline.process_iteration import ProcessIteration
 
 # soma-base import
 # from soma.sorted_dictionary import OrderedDict
@@ -410,7 +410,7 @@ def pipeline_to_xmldict(pipeline):
                 switches = proc_dict.setdefault("switch", [])
                 switch_descr = _switch_description(node)
                 switches.append(switch_descr)
-            elif isinstance(node, IterativeNode):
+            elif isinstance(node, ProcessNode) and isinstance(node.process, ProcessIteration):
                 iternodes = proc_dict.setdefault("iterative", [])
                 iterative.append({"@name": node.name})
             else:

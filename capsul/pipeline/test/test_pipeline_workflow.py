@@ -89,14 +89,17 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.pipeline.enable_all_pipeline_steps()
         wf = pipeline_workflow.workflow_from_pipeline(
             self.pipeline, study_config=self.study_config)
-        self.assertEqual(len(wf.jobs), 4)
-        self.assertEqual(len(wf.dependencies), 3)
+        # 5 jobs including the output directories creation
+        self.assertEqual(len(wf.jobs), 5)
+        # 4 deps (1 additional, dirs->node1)
+        self.assertEqual(len(wf.dependencies), 4)
 
     def test_partial_wf1(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step3 = False
         wf = pipeline_workflow.workflow_from_pipeline(
-            self.pipeline, study_config=self.study_config)
+            self.pipeline, study_config=self.study_config,
+            create_directories=False)
         self.assertEqual(len(wf.jobs), 3)
         self.assertEqual(len(wf.dependencies), 2)
 
@@ -104,7 +107,8 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step2 = False
         wf = pipeline_workflow.workflow_from_pipeline(
-            self.pipeline, study_config=self.study_config)
+            self.pipeline, study_config=self.study_config,
+            create_directories=False)
         self.assertEqual(len(wf.jobs), 3)
         self.assertEqual(len(wf.dependencies), 0)
 

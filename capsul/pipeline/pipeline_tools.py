@@ -26,312 +26,6 @@ from capsul.pipeline import Pipeline, PipelineNode, Switch
 from soma.controller import Controller
 
 
-def disable_node_for_downhill_pipeline(pipeline, node_name):
-    '''
-    Disable the selected node, and keep its downhill nodes active.
-
-    Disable the selected node, and keep its downhill nodes active by
-    exporting their inputs which come from this one on the main pipeline.
-
-    Such exports are "temporary exports" and are recorded in nodes in a
-    "temporary_exports" variable.
-
-    This operation can be reverted using remove_temporary_exports().
-
-    Parameters
-    ----------
-     pipeline: Pipeline (mandatory)
-        pipeline to disbale nodes in.
-    node_name: str (mandatory)
-        name of the node to be disabled.
-    '''
-    node = pipeline.nodes[node_name]
-    # check output plugs to be exported in the following nodes
-    to_export = set()
-    for plug_name, plug in node.plugs.iteritems():
-        if plug.output:
-            to_export.update(plug.links_to)
-    # now check in downhill nodes
-    for link_spec in to_export:
-        if link_spec[2] is pipeline.pipeline_node \
-                or not link_spec[2].activated:
-            # links to the main node are already OK (exported as outputs).
-            # inactive nodes will not export either.
-            continue
-        # they need to be connected (as input) to the main pipeline node
-        from_main = [link for link in link_spec[3].links_from \
-            if link[2] is pipeline.pipeline_node]
-        if len(from_main) == 0:
-            print 'adding export for', link_spec[0], '.', link_spec[1]
-            pipeline.export_parameter(link_spec[0], link_spec[1],
-                '%s_%s' % (link_spec[0], link_spec[1]))
-            if not hasattr(link_spec[2], 'temporary_exports'):
-                temp_exports = []
-                link_spec[2].temporary_exports = temp_exports
-            else:
-                temp_exports = link_spec[2].temporary_exports
-            temp_exports.append(link_spec[1])
-    # disable node
-    setattr(pipeline.nodes_activation, node_name, False)
-    remove_temporary_exports(pipeline, node_name)
-
-
-def disable_node_for_uphill_pipeline(pipeline, node_name):
-    '''
-    Disable the selected node, and keep its uphill nodes active.
-
-    Disable the selected node, and keep its uphill nodes active by
-    exporting their outputs which go to this one on the main pipeline.
-
-    Such exports are "temporary exports" and are recorded in nodes in a
-    "temporary_exports" variable.
-
-    This operation can be reverted using remove_temporary_exports().
-
-    Parameters
-    ----------
-     pipeline: Pipeline (mandatory)
-        pipeline to disbale nodes in.
-    node_name: str (mandatory)
-        name of the node to be disabled.
-    '''
-    node = pipeline.nodes[node_name]
-    # check input plugs to be exported in the preceding nodes
-    to_export = set()
-    for plug_name, plug in node.plugs.iteritems():
-        if not plug.output:
-            to_export.update(plug.links_from)
-    # now check in uphill nodes
-    for link_spec in to_export:
-        if link_spec[2] is pipeline.pipeline_node:
-            # links from the main node are already OK (exported as inputs)
-            continue
-        # they need to be connected (as output) from the main pipeline node
-        to_main = [link for link in link_spec[3].links_to \
-            if link[2] is pipeline.pipeline_node]
-        if len(to_main) == 0:
-            print 'addin export for', link_spec[0], '.', link_spec[1]
-            pipeline.export_parameter(link_spec[0], link_spec[1],
-                '%s_%s' % (link_spec[0], link_spec[1]))
-            if not hasattr(link_spec[2], 'temporary_exports'):
-                temp_exports = []
-                link_spec[2].temporary_exports = temp_exports
-            else:
-                temp_exports = link_spec[2].temporary_exports
-            temp_exports.append(link_spec[1])
-    # disable node
-    setattr(pipeline.nodes_activation, node_name, False)
-    remove_temporary_exports(pipeline, node_name)
-
-
-def remove_temporary_exports(pipeline, node_name):
-    '''
-    Remove the temporary exports made from the selected node.
-
-    Remove the temporary exports made from the selected node through
-    disable_node_for_downhill_pipeline() or disable_node_for_uphill_pipeline().
-
-    Exports in the pipeline, corresponding links, and the "temporary_exports"
-    variable from the node will be cleared.
-
-    Parameters
-    ----------
-     pipeline: Pipeline (mandatory)
-        pipeline to disbale nodes in.
-    node_name: str (mandatory)
-        name of the node to be cleaned.
-    '''
-    node = pipeline.nodes[node_name]
-    if hasattr(node, 'temporary_exports'):
-        for param in node.temporary_exports:
-            plug = node.plugs[param]
-            print 'removing export:', node_name, '.', param
-            pipeline_param = '%s_%s' % (node_name, param)
-            if plug.output:
-                pipeline.remove_link(
-                    '%s.%s->%s' % (node_name, param, pipeline_param))
-            else:
-                pipeline.remove_link(
-                    '%s->%s.%s' % (pipeline_param, node_name, param))
-            pipeline.remove_trait(pipeline_param)
-        del dest_node.temporary_exports
-        pipeline.user_traits_changed = True
-
-
-def reactivate_node(pipeline, node_name, direction=3):
-    '''
-    Re-activate the selected node.
-
-    Re-activate the selected node after disable_node_for_downhill_pipeline() or
-    disable_node_for_uphill_pipeline(), and remove the corresponding temporary
-    exports in otehr nodes.
-
-    Parameters
-    ----------
-     pipeline: Pipeline (mandatory)
-        pipeline to disbale nodes in.
-    node_name: str (mandatory)
-        name of the node to be reactivated.
-    direction: int (optional)
-        bit-wise combination of input (1) and output (2) temporary exports
-        to be cleared. Default is both ways (3).
-
-    To revert disable_node_for_downhill_pipeline(), the direction parameter
-    should strictly be 2 (output).
-    To revert disable_node_for_uphill_pipeline(), the direction parameter
-    should strictly be 1 (intput).
-    '''
-    setattr(pipeline.nodes_activation, node_name, True)
-    # clear temporary exports
-    node = pipeline.nodes[node_name]
-    to_unexport_in = set()
-    to_unexport_out = set()
-    force_update = False
-    for plug_name, plug in node.plugs.iteritems():
-        if plug.output and (direction & 2):
-            to_unexport_out.update(plug.links_to)
-        elif not plug.output and (direction & 1):
-            to_unexport_in.update(plug.links_from)
-    # now check in downhill nodes
-    for link_spec in to_unexport_out:
-        if link_spec[2] is pipeline.pipeline_node:
-            # links to the main node are already OK (exported as outputs)
-            continue
-        if hasattr(link_spec[2], 'temporary_exports'):
-            dest_node_name, param, dest_node = link_spec[0:3]
-            temp_exports = dest_node.temporary_exports
-            if param in temp_exports:
-                print 'removing export:', dest_node_name, '.', param
-                pipeline_param = '%s_%s' % (dest_node_name, param)
-                pipeline.remove_link(
-                    '%s->%s.%s' % (pipeline_param, dest_node_name, param))
-                pipeline.remove_trait(pipeline_param)
-                force_update = True
-                temp_exports.remove(param)
-            if len(temp_exports) == 0:
-                del dest_node.temporary_exports
-    # now check in uphill nodes
-    for link_spec in to_unexport_in:
-        if link_spec[2] is pipeline.pipeline_node:
-            # links to the main node are already OK (exported as outputs)
-            continue
-        if hasattr(link_spec[2], 'temporary_exports'):
-            source_node_name, param, source_node = link_spec[0:3]
-            temp_exports = source_node.temporary_exports
-            if param in temp_exports:
-                print 'removing export:', source_node_name, '.', param
-                pipeline_param = '%s_%s' % (source_node_name, param)
-                pipeline.remove_link(
-                    '%s.%s->%s' % (source_node_name, param, pipeline_param))
-                pipeline.remove_trait(pipeline_param)
-                force_update = True
-                temp_exports.remove(param)
-            if len(temp_exports) == 0:
-                del source_node.temporary_exports
-    if force_update:
-        pipeline.user_traits_changed = True
-
-
-def disable_nodes_with_existing_outputs(pipeline):
-    '''
-    Disable nodes in a pipeline which outputs contain existing files.
-    The aim is to prevent overwriting files which have already been processed,
-    and to allow downstream execution of the remaining steps of the pipeline.
-    Sub-pipelines nodes are disabled the same way, recursively.
-    Outputs in the main pipeline which represent existing files are set to
-    optional.
-
-    This operation can be reverted using reactivate_pipeline().
-
-    Parameters
-    ----------
-    pipeline: Pipeline (mandatory)
-        pipeline to disbale nodes in.
-    '''
-    # make optional output parameters which already exist
-    node = pipeline.nodes['']
-    for plug_name, plug in node.plugs.iteritems():
-        if plug.output and not plug.optional:
-            trait = pipeline.user_traits().get(plug_name)
-            if isinstance(trait.trait_type, traits.File) \
-                    or isinstance(trait.trait_type, traits.Directory):
-                value = getattr(pipeline, plug_name)
-                if value is not None and value is not traits.Undefined \
-                        and os.path.exists(value):
-                    plug.optional = True
-                    if hasattr(node, 'temporary_optional_plugs'):
-                        temp_optional = node.temporary_optional_plugs
-                    else:
-                        temp_optional = []
-                        node.temporary_optional_plugs = temp_optional
-                    temp_optional.append(plug_name)
-    # check every output of every node
-    sub_pipelines = []
-    disabled_nodes = set()
-    for node_name, node in pipeline.nodes.iteritems():
-        if node_name == '' or not hasattr(node, 'process'):
-            # main pipeline node, switch...
-            continue
-        process = node.process
-        for plug_name, plug in node.plugs.iteritems():
-            if plug.output and not plug.optional:
-                trait = process.user_traits().get(plug_name)
-                if isinstance(trait.trait_type, traits.File) \
-                        or isinstance(trait.trait_type, traits.Directory):
-                    value = getattr(process, plug_name)
-                    if value is not None and value is not traits.Undefined \
-                            and os.path.exists(value):
-                        disabled_nodes.add(node_name)
-                        break
-        if isinstance(node, PipelineNode) and node_name not in disabled_nodes:
-            # pipelines will be dealt recursively
-            sub_pipelines.append(process)
-    if disabled_nodes:
-        print 'disabling nodes:', disabled_nodes
-    if sub_pipelines:
-        print 'checking pipelines:', sub_pipelines
-    for node_name in disabled_nodes:
-        # disable nodes first, so that those nodes will not have exported
-        # inputs
-        setattr(pipeline.nodes_activation, node_name, False)
-    # then export downhill inputs
-    for node_name in disabled_nodes:
-        disable_node_for_downhill_pipeline(pipeline, node_name)
-    for sub_pipeline in sub_pipelines:
-        disable_nodes_with_existing_outputs(sub_pipeline)
-
-
-def reactivate_pipeline(pipeline):
-    '''
-    Reactivate pipeline nodes and optional plugs.
-
-    Reactivate pipeline nodes and optional plugs after
-    disable_nodes_with_existing_outputs() have been used.
-    Sub-pipelines will be processed recursively.
-
-    Parameters
-    ----------
-    pipeline: Pipeline (mandatory)
-        pipeline to reactive nodes in.
-    '''
-    node = pipeline.nodes['']
-    if hasattr(node, 'temporary_optional_plugs'):
-        for plug_name in node.temporary_optional_plugs:
-            node.plugs[plug_name].optional = False
-        del node.temporary_optional_plugs
-    # check every node
-    sub_pipelines = []
-    for node_name, node in pipeline.nodes.iteritems():
-        if node_name == '':
-            continue # main pipeline
-        if isinstance(node, PipelineNode):
-            sub_pipelines.append(node.process)
-        if not node.activated:
-            reactivate_node(pipeline, node_name)
-    for sub_pipeline in sub_pipelines:
-        reactivate_pipeline(sub_pipeline)
-
-
 def pipeline_node_colors(pipeline, node):
     '''
     Node color to display boxes in GUI and graphviz graphs. Depending on the
@@ -403,11 +97,10 @@ def pipeline_node_colors(pipeline, node):
         color_1, color_2, color_3 = _colors[style][0:3]
     else:
         color_1, color_2, color_3 = _colors[style][3:6]
-    # TODO: reactivate this later when disabled_pipeline_steps_nodes() exists
-    #if node in pipeline.disabled_pipeline_steps_nodes():
-        #color_1 = _color_disabled(color_1)
-        #color_2 = _color_disabled(color_2)
-        #color_3 = _color_disabled(color_3)
+    if node in pipeline.disabled_pipeline_steps_nodes():
+        color_1 = _color_disabled(color_1)
+        color_2 = _color_disabled(color_2)
+        color_3 = _color_disabled(color_3)
     return color_1, color_2, color_3, style
 
 
@@ -763,6 +456,7 @@ def save_dot_image(pipeline, filename, nodes_sizes={}, use_nodes_pos=False,
     subprocess.check_call(cmd)
     os.unlink(dot_filename)
 
+
 def disable_runtime_steps_with_existing_outputs(pipeline):
     '''
     Disable steps in a pipeline which outputs contain existing files. This
@@ -794,13 +488,14 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
                     if value is not None and value is not traits.Undefined \
                             and os.path.exists(value):
                         # disable step
-                        print 'disable step', step, 'because of:', node_name, '.', param
+                        print 'disable step', step, 'because of:', node_name, \
+                            '.', param
                         setattr(steps, step, False)
                         break  # no need to iterate other nodes in same step
 
 
 def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
-                                recursive=False):
+                                recursive=False, exclude_inputs=True):
     '''
     Checks nodes in a pipeline which outputs contain existing files on the
     filesystem. Such nodes, maybe, should not run again. Only nodes which
@@ -816,9 +511,18 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
         disabled runtime step.
         Default: True
     recursive: bool (optional)
-        if this option is set, sub-pipelines will not be returned as a whole but
-        will be parsed recursively to select individual leaf nodes.
+        if this option is set, sub-pipelines will not be returned as a whole
+        but will be parsed recursively to select individual leaf nodes.
         Default: False
+    exclude_inputs: bool (optional, default: True)
+        Some processes or pipelines have input/output files: files taken as
+        inputs which are re-written as outputs, or may carry an input file to
+        the outputs through a switch selection (in the case of preprocessing
+        steps, for instance).
+        If this option is set, such outputs which also appear in the same node
+        inputs will not be listed in the existing outputs, so that they will
+        not be erased by a cleaning operation, and will not prevent execution
+        of these nodes.
 
     Returns
     -------
@@ -840,25 +544,36 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
         if node_name == '' or not hasattr(node, 'process'):
             # main pipeline node, switch...
             continue
-        if exclude_inactive:
-            if not node.enabled or not node.activated or node in disabled_nodes:
-                continue
+        if not node.enabled or not node.activated \
+                or (exclude_inactive and node_name in disabled_nodes):
+            continue
         process = node.process
         if recursive and isinstance(process, Pipeline):
             nodes += [('%s.%s' % (node_name, new_name), new_node)
                       for new_name, new_node in process.nodes.iteritems()
                       if new_name != '']
             continue
+        plug_list = []
+        input_files_list = set()
         for plug_name, plug in node.plugs.iteritems():
-            if plug.output:
-                trait = process.trait(plug_name)
-                if isinstance(trait.trait_type, traits.File) \
-                        or isinstance(trait.trait_type, traits.Directory):
-                    value = getattr(process, plug_name)
-                    if value is not None and value is not traits.Undefined \
-                            and os.path.exists(value):
-                        plug_list = selected_nodes.setdefault(node_name, [])
+            trait = process.trait(plug_name)
+            if isinstance(trait.trait_type, traits.File) \
+                    or isinstance(trait.trait_type, traits.Directory) \
+                    or isinstance(trait.trait_type, traits.Any):
+                value = getattr(process, plug_name)
+                if isinstance(value, basestring) \
+                        and os.path.exists(value) \
+                        and value not in input_files_list:
+                    if plug.output:
                         plug_list.append((plug_name, value))
+                    elif exclude_inputs:
+                        input_files_list.add(value)
+        if exclude_inputs:
+            new_plug_list = [item for item in plug_list
+                             if item[1] not in input_files_list]
+            plug_list = new_plug_list
+        if plug_list:
+            selected_nodes[node_name] = plug_list
     return selected_nodes
 
 
@@ -874,10 +589,10 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
     pipeline: Pipeline (mandatory)
         pipeline to disbale nodes in.
     recursive: bool (optional)
-        if this option is set, sub-pipelines will not be returned as a whole but
-        will be parsed recursively to select individual leaf nodes. Note that if
-        not set, a pipeline is regarded as a process, but pipelines may not use
-        all their inputs/outputs so the result might be inaccurate.
+        if this option is set, sub-pipelines will not be returned as a whole
+        but will be parsed recursively to select individual leaf nodes. Note
+        that if not set, a pipeline is regarded as a process, but pipelines may
+        not use all their inputs/outputs so the result might be inaccurate.
         Default: True
 
     Returns
@@ -955,10 +670,10 @@ def where_is_plug_value_from(plug, recursive=True):
     plug: Plug instance (mandatory)
         the plug to find source connection with
     recursive: bool (optional)
-        if this option is set, sub-pipelines will not be returned as a whole but
-        will be parsed recursively to select individual leaf nodes. Note that if
-        not set, a pipeline is regarded as a process, but pipelines may not use
-        all their inputs/outputs so the result might be inaccurate.
+        if this option is set, sub-pipelines will not be returned as a whole
+        but will be parsed recursively to select individual leaf nodes. Note
+        that if not set, a pipeline is regarded as a process, but pipelines may
+        not use all their inputs/outputs so the result might be inaccurate.
         Default: True
 
     Returns
@@ -1002,4 +717,234 @@ def where_is_plug_value_from(plug, recursive=True):
             return node, param_name, parent
     # not found
     return None, None, None
+
+def dump_pipeline_state_as_dict(pipeline):
+    '''
+    Get a pipeline state (parameters values, nodes activation, selected
+    steps... in a dictionary.
+
+    The returned dict may contain sub-pipelines state also.
+
+    The dict may be saved, and used to restore a pipeline state, using
+    :py:func:`set_pipeline_state_from_dict`.
+
+    Note that
+:py:meth:`pipeline.export_to_dict <soma.controller.controller.export_to_dict>`
+    would almost do the job, but does not include the recursive aspect.
+
+    Parameters
+    ----------
+    pipeline: Pipeline (or Process) instance
+        pipeline (or process) to get state from
+
+    Returns
+    -------
+    state_dict: dict
+        pipeline state
+    '''
+    def should_keep_value(node, plug, components):
+        '''
+        Tells if a plug has already been taken into account in the plugs graph.
+
+        Also filters out switches outputs, which should rather be set via their
+        inputs.
+
+        To do so, a connected components map has to be built for the plugs
+        graph, which is done is a semi-lazy way in components.
+
+        Parameters
+        ----------
+        node: Node
+            pipeline node the pluge belongs to
+        plug: Plug
+            the plug to test
+        components: list of sets of plugs
+            connected components will be added to this components list.
+
+        Returns
+        -------
+        True if the plug value is a "new" one and should be recorded in the
+        pipeline state. Otherwise it should be discarded (set from another
+        connected plug).
+        '''
+        def _component(plug, components):
+            for comp in components:
+                if plug in comp:
+                    return comp
+            return None
+
+        comp = _component(plug, components)
+        if comp:
+            # already done
+            return False
+        comp = set()
+        todo = []
+        todo.append(plug)
+        allowed = True
+        # propagate
+        while todo:
+            plug = todo.pop(0)
+            comp.add(plug)
+            # switches outputs should not be set (they will be through their
+            # inputs)
+            if plug.output and isinstance(node, Switch):
+                allowed = False
+            todo += [link[3] for link in plug.links_from
+                     if link[3] not in comp]
+            todo += [link[3] for link in plug.links_to
+                     if link[3] not in comp]
+        components.append(comp)
+        return allowed
+
+    def prune_empty_dicts(state_dict):
+        '''
+        Remove empty dictionaries, and nodes containing empty dicts in pipeline
+        state dictionary
+
+        Parameters
+        ----------
+        state_dict: dict
+            the state_dict is parsed, and modified.
+        '''
+        if state_dict.get('nodes') is None:
+            return
+        todo = [(state_dict, None, None, True)]
+        while todo:
+            current_dict, parent, parent_key, recursive = todo.pop(0)
+            nodes = current_dict.get('nodes')
+            modified = False
+            if nodes:
+                if len(nodes) == 0:
+                    del current_dict['nodes']
+                    modified = True
+                elif recursive:
+                    todo = [(value, nodes, key, True)
+                            for key, value in nodes.iteritems()] + todo
+                    modified = True
+            if len(current_dict) == 0 and parent is not None:
+                del parent[parent_key]
+            elif modified:
+                todo.append((current_dict, parent, parent_key, False))
+
+    state_dict = {}
+    nodes = [(None, pipeline.pipeline_node, state_dict)]
+    components = []
+    while nodes:
+        node_name, node, current_dict = nodes.pop(0)
+        proc = node
+        if hasattr(node, 'process'):
+            proc = node.process
+        node_dict = proc.export_to_dict()
+        # filter out forbidden and already used plugs
+        for plug_name, plug in node.plugs.iteritems():
+            if not should_keep_value(node, plug, components):
+                del node_dict[plug_name]
+        if node_name is None:
+            if len(node_dict) != 0:
+                current_dict['state'] = node_dict
+            child_dict = current_dict
+        else:
+            child_dict = {}
+            current_dict.setdefault('nodes', {})[node_name] = child_dict
+            if len(node_dict) != 0:
+                child_dict['state'] = node_dict
+        if hasattr(proc, 'nodes'):
+            nodes += [(child_node_name, child_node, child_dict)
+                      for child_node_name, child_node
+                      in proc.nodes.iteritems() if child_node_name != '']
+
+    prune_empty_dicts(state_dict)
+    return state_dict
+
+def set_pipeline_state_from_dict(pipeline, state_dict):
+    '''
+    Set a pipeline (or process) state from a dict description.
+
+    State includes parameters values, nodes activation, steps selection etc.
+    The state is generally taken using :py:func:`dump_pipeline_state_as_dict`.
+
+    Parameters
+    ----------
+    pipeline: Pipeline or Process instance
+        process to set state in
+    state_dict: dict (mapping object)
+        state dictionary
+    '''
+    nodes = [(pipeline, state_dict)]
+    while nodes:
+        node, current_dict = nodes.pop(0)
+        if hasattr(node, 'process'):
+            proc = node.process
+        else:
+            proc = node
+        proc.import_from_dict(current_dict.get('state', {}))
+        sub_nodes = current_dict.get('nodes')
+        if sub_nodes:
+            nodes += [(proc.nodes[node_name], sub_dict)
+                      for node_name, sub_dict in sub_nodes.iteritems()]
+
+def get_output_directories(process):
+    '''
+    Get output directories for a process, pipeline, or node
+
+    Returns
+    -------
+    dirs: dict
+        organized directories list: a dict with recursive nodes mapping.
+        In each element, the "directories" key holds a directories names set,
+        and "nodes" is a dict with sub-nodes (node_name, dict mapping,
+        organized the same way)
+    flat_dirs: set
+        set of all directories in the pipeline, as a flat set.
+    '''
+    all_dirs = set()
+    root_dirs = {}
+    nodes = [(process, '', root_dirs)]
+    disabled_nodes = set()
+    if isinstance(process, Pipeline):
+        disabled_nodes = set(process.disabled_pipeline_steps_nodes())
+    elif isinstance(process, PipelineNode):
+        disabled_nodes = set(process.process.disabled_pipeline_steps_nodes())
+
+    while nodes:
+        node, node_name, dirs = nodes.pop(0)
+        plugs = getattr(node, 'plugs', None)
+        if plugs is None:
+            plugs = node.user_traits()
+        if hasattr(node, 'process'):
+            process = node.process
+        else:
+            process = node
+        dirs_set = set()
+        dirs['directories'] = dirs_set
+        for param_name in plugs:
+            trait = process.trait(param_name)
+            if trait.output and isinstance(trait.trait_type, traits.File) \
+                    or isinstance(trait.trait_type, traits.Directory):
+                value = getattr(process, param_name)
+                if value is not None and value is not traits.Undefined:
+                    directory = os.path.dirname(value)
+                    if directory not in ('', '.'):
+                        all_dirs.add(directory)
+                        dirs_set.add(directory)
+        sub_nodes = getattr(process, 'nodes', None)
+        if sub_nodes:
+            # TODO: handle disabled steps
+            sub_dict = {}
+            dirs['nodes'] = sub_dict
+            for node_name, node in sub_nodes.iteritems():
+                if node_name != '' and node.activated and node.enabled \
+                        and not node in disabled_nodes:
+                    sub_node_dict = {}
+                    sub_dict[node_name] = sub_node_dict
+                    nodes.append((node, node_name, sub_node_dict))
+    return root_dirs, all_dirs
+
+def create_output_directories(process):
+    '''
+    Create output directories for a process, pipeline or node.
+    '''
+    for directory in get_output_directories(process)[1]:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
 
