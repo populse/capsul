@@ -2,7 +2,8 @@ import json
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.controller import Controller
-from soma.qt_gui.controller_widget import ControllerWidget
+from soma.qt_gui.controller_widget \
+    import ControllerWidget, ScrollControllerWidget
 from traits.api import File, HasTraits, Any, Directory, Undefined
 
 
@@ -37,18 +38,11 @@ class ProcessWithFomWidget(QtGui.QWidget):
                 #c.on_trait_change(self.on_input_filename_changed,
                                   #'attributes_from_output_filename')
 
-        # Scroll area to show attributs
+        # groupbox area to show attributs
         attrib_widget = QtGui.QGroupBox('Attributes:')
         attrib_widget.setAlignment(QtCore.Qt.AlignLeft)
-        self.scroll_area2 = QtGui.QScrollArea(parent=attrib_widget)
-        #self.scroll_area2.setWidget(attrib_widget)
         attrib_widget.setLayout(QtGui.QVBoxLayout())
-        attrib_widget.layout().addWidget(self.scroll_area2)
         self.attrib_widget = attrib_widget
-
-        self.scroll_area2.setWidgetResizable( True )
-        self.scroll_area2.setSizePolicy(QtGui.QSizePolicy(
-            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred))
         self.layout().addWidget(attrib_widget)
 
         hlay = QtGui.QHBoxLayout()
@@ -66,30 +60,25 @@ class ProcessWithFomWidget(QtGui.QWidget):
         hlay.addWidget(self.btn_show_completion)
         self.btn_show_completion.stateChanged.connect(self.on_show_completion)
 
-        # Scroll area to show completion
+        # groupbox area to show completion
         param_widget = QtGui.QGroupBox('Parameters:')
         param_widget.setAlignment(QtCore.Qt.AlignLeft)
-        self.scroll_area = QtGui.QScrollArea(parent=param_widget)
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setSizePolicy(QtGui.QSizePolicy(
-            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
         self.layout().addWidget(param_widget)
         param_widget.setLayout(QtGui.QVBoxLayout())
-        param_widget.layout().addWidget(self.scroll_area)
 
         # Create controller widget for process and object_attribute
         process = process_with_fom.process
-        self.controller_widget = ControllerWidget(process, live=True,
-            parent=self.scroll_area)
-        self.controller_widget2 = ControllerWidget(self.process_with_fom,
-            live=True, parent=self.scroll_area2)
+        self.controller_widget = ScrollControllerWidget(process, live=True,
+            parent=param_widget)
+        self.controller_widget2 = ScrollControllerWidget(self.process_with_fom,
+            live=True, parent=attrib_widget)
         self.process_with_fom.on_trait_change(
             self.process_with_fom.attributes_changed, 'anytrait')
 
         # Set controller of attributs and controller of process for each
         # corresponding area
-        self.scroll_area2.setWidget(self.controller_widget2)
-        self.scroll_area.setWidget(self.controller_widget)
+        param_widget.layout().addWidget(self.controller_widget)
+        attrib_widget.layout().addWidget(self.controller_widget2)
 
         io_lay = QtGui.QHBoxLayout()
         self.layout().addLayout(io_lay)
@@ -205,7 +194,7 @@ class ProcessWithFomWidget(QtGui.QWidget):
         '''
 
         for control_name, control in \
-                self.controller_widget._controls.iteritems():
+                self.controller_widget.controller_widget._controls.iteritems():
             trait, control_class, control_instance, control_label = control
             if not isinstance(trait.trait_type, File) \
                     and not isinstance(trait.trait_type, Any) \
