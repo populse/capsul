@@ -9,7 +9,8 @@ from traits.api import File, HasTraits, Any, Directory, Undefined
 
 class ProcessWithFomWidget(QtGui.QWidget):
     """Process interface with FOM handling, and execution running"""
-    def __init__(self, process_with_fom, enable_attr_from_filename=False):
+    def __init__(self, process_with_fom, enable_attr_from_filename=False,
+                 enable_load_buttons=False):
         """
         Parameters
         ----------
@@ -87,14 +88,15 @@ class ProcessWithFomWidget(QtGui.QWidget):
         param_widget.layout().addWidget(self.controller_widget)
         attrib_widget.layout().addWidget(self.controller_widget2)
 
-        io_lay = QtGui.QHBoxLayout()
-        self.layout().addLayout(io_lay)
-        self.btn_load_json = QtGui.QPushButton('Load attributes')
-        io_lay.addWidget(self.btn_load_json)
-        self.btn_load_json.clicked.connect(self.on_btn_load_json)
-        self.btn_save_json = QtGui.QPushButton('Save attributes')
-        io_lay.addWidget(self.btn_save_json)
-        self.btn_save_json.clicked.connect(self.on_btn_save_json)
+        if enable_load_buttons:
+            io_lay = QtGui.QHBoxLayout()
+            self.layout().addLayout(io_lay)
+            self.btn_load_json = QtGui.QPushButton('Load attributes')
+            io_lay.addWidget(self.btn_load_json)
+            self.btn_load_json.clicked.connect(self.on_btn_load_json)
+            self.btn_save_json = QtGui.QPushButton('Save attributes')
+            io_lay.addWidget(self.btn_save_json)
+            self.btn_save_json.clicked.connect(self.on_btn_save_json)
 
         self.show_completion(False) # hide file parts
 
