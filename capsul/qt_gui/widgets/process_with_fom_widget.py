@@ -31,6 +31,8 @@ class ProcessWithFomWidget(QtGui.QWidget):
             self.input_filename_controller = c
             c.on_trait_change(self.on_input_filename_changed,
                               'attributes_from_input_filename')
+            cw.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                             QtGui.QSizePolicy.Fixed)
 
             #if self.process_with_fom.study_config.input_fom \
                     #!= self.process_with_fom.study_config.output_fom:
@@ -44,6 +46,8 @@ class ProcessWithFomWidget(QtGui.QWidget):
         attrib_widget.setLayout(QtGui.QVBoxLayout())
         self.attrib_widget = attrib_widget
         self.layout().addWidget(attrib_widget)
+        attrib_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                    QtGui.QSizePolicy.Preferred)
 
         hlay = QtGui.QHBoxLayout()
         self.layout().addLayout(hlay)
@@ -65,11 +69,14 @@ class ProcessWithFomWidget(QtGui.QWidget):
         param_widget.setAlignment(QtCore.Qt.AlignLeft)
         self.layout().addWidget(param_widget)
         param_widget.setLayout(QtGui.QVBoxLayout())
+        param_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                   QtGui.QSizePolicy.Expanding)
 
         # Create controller widget for process and object_attribute
         process = process_with_fom.process
         self.controller_widget = ScrollControllerWidget(process, live=True,
             parent=param_widget)
+
         self.controller_widget2 = ScrollControllerWidget(self.process_with_fom,
             live=True, parent=attrib_widget)
         self.process_with_fom.on_trait_change(
@@ -168,8 +175,14 @@ class ProcessWithFomWidget(QtGui.QWidget):
             self.attrib_widget.show()
 
         else:
-            self.checkbox_fom.setChecked(False)
+            # reset it in a timer callback, otherwise the checkbox state is not
+            # correctly recorded, and next time its state change will not
+            # trigger the on_use_fom_change slot.
+            QtCore.QTimer.singleShot(0, self._reset_fom_checkbox)
 
+
+    def _reset_fom_checkbox(self):
+        self.checkbox_fom.setChecked(False)
 
     def on_use_fom_change(self, state):
         '''
@@ -182,6 +195,7 @@ class ProcessWithFomWidget(QtGui.QWidget):
             self.process_with_fom.on_trait_change(
                 self.process_with_fom.attributes_changed, 'anytrait',
                 remove=True)
+            self.btn_show_completion.setChecked(True)
 
     def show_completion(self, visible=None):
         '''
