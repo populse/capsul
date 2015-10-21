@@ -26,7 +26,7 @@ class ProcessWithFomWidget(QtGui.QWidget):
 
         if enable_attr_from_filename:
             c = Controller()
-            c.add_trait('attributes_from_input_filename', File())
+            c.add_trait('attributes_from_input_filename', File(optional=True))
             cw = ControllerWidget(c, live=True)
             self.layout().addWidget(cw)
             self.input_filename_controller = c
