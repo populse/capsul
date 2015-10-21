@@ -1,74 +1,88 @@
 import json
+from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui, QtCore
-from capsul.qt_gui.controller_widget import ControllerWidget
-from soma.qt_gui.widgets.file_selection_widget import FileSelectionWidget
+from soma.controller import Controller
+from soma.qt_gui.controller_widget import ControllerWidget
 from traits.api import File, HasTraits, Any, Directory, Undefined
 
 
 class ProcessWithFomWidget(QtGui.QWidget):
     """Process interface with FOM handling, and execution running"""
-    def __init__(self, process_with_fom):
+    def __init__(self, process_with_fom, enable_attr_from_filename=False):
         """
         Parameters
         ----------
         process_with_fom: ProcessWithFom instance
             process with FOM to be displayed
+        enable_attr_from_filename: bool (optional)
+            if enabled, it will be possible to specify an input filename to
+            build FOM attributes from
         """
         super(ProcessWithFomWidget, self).__init__()
-        self.setLayout( QtGui.QVBoxLayout() )
+        self.setLayout(QtGui.QVBoxLayout())
         self.process_with_fom = process_with_fom
 
-        # To show output directory and select file
-        self.lineedit_input = FileSelectionWidget(
-            'File','Input file to guess attributes', 165)
-        self.connect(self.lineedit_input,
-            QtCore.SIGNAL("editChanged(const QString & )"), self.on_lineedit)
-        self.lineedit_input.setSizePolicy(QtGui.QSizePolicy(
-            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed))
+        if enable_attr_from_filename:
+            c = Controller()
+            c.add_trait('attributes_from_input_filename', File())
+            cw = ControllerWidget(c, live=True)
+            self.layout().addWidget(cw)
+            self.input_filename_controller = c
+            c.on_trait_change(self.on_input_filename_changed,
+                              'attributes_from_input_filename')
 
-        self.layout().addWidget(self.lineedit_input)
-        if self.process_with_fom.study_config.input_fom \
-                != self.process_with_fom.study_config.output_fom:
-            self.lineedit_output = FileSelectionWidget(
-                'File','Output file to guess attributes', 165)
-            self.lineedit_output.setSizePolicy(QtGui.QSizePolicy(
-                QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed))
-            self.layout().addWidget(self.lineedit_output)
-            self.connect(self.lineedit_output,
-                QtCore.SIGNAL("editChanged(const QString & )"),
-                self.on_lineedit)
+            #if self.process_with_fom.study_config.input_fom \
+                    #!= self.process_with_fom.study_config.output_fom:
+                #c.add_trait('attributes_from_output_filename', File())
+                #c.on_trait_change(self.on_input_filename_changed,
+                                  #'attributes_from_output_filename')
 
         # Scroll area to show attributs
-        self.scroll_area2 = QtGui.QScrollArea( parent=self )
+        attrib_widget = QtGui.QGroupBox('Attributes:')
+        attrib_widget.setAlignment(QtCore.Qt.AlignLeft)
+        self.scroll_area2 = QtGui.QScrollArea(parent=attrib_widget)
+        #self.scroll_area2.setWidget(attrib_widget)
+        attrib_widget.setLayout(QtGui.QVBoxLayout())
+        attrib_widget.layout().addWidget(self.scroll_area2)
+        self.attrib_widget = attrib_widget
+
         self.scroll_area2.setWidgetResizable( True )
         self.scroll_area2.setSizePolicy(QtGui.QSizePolicy(
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred))
-        self.layout().addWidget( self.scroll_area2 )
+        self.layout().addWidget(attrib_widget)
 
+        hlay = QtGui.QHBoxLayout()
+        self.layout().addLayout(hlay)
         # CheckBox to foms rules or not
         self.checkbox_fom = QtGui.QCheckBox('Follow FOM rules')
         self.checkbox_fom.setChecked(True)
-        self.checkbox_fom.stateChanged.connect(self.on_checkbox_change)
-        self.layout().addWidget(self.checkbox_fom)
+        self.checkbox_fom.stateChanged.connect(self.on_use_fom_change)
+        hlay.addWidget(self.checkbox_fom)
 
         # Button Show/Hide completion
-        self.btn_show_completion=QtGui.QPushButton('Show/Hide completion')
-        self.layout().addWidget(self.btn_show_completion)
-        self.btn_show_completion.clicked.connect(self.on_show_completion)
+        self.btn_show_completion = QtGui.QCheckBox('Show completion')
+        self.btn_show_completion.setSizePolicy(QtGui.QSizePolicy.Fixed,
+                                               QtGui.QSizePolicy.Fixed)
+        hlay.addWidget(self.btn_show_completion)
+        self.btn_show_completion.stateChanged.connect(self.on_show_completion)
 
         # Scroll area to show completion
-        self.scroll_area = QtGui.QScrollArea( parent=self )
-        self.scroll_area.setWidgetResizable( True )
+        param_widget = QtGui.QGroupBox('Parameters:')
+        param_widget.setAlignment(QtCore.Qt.AlignLeft)
+        self.scroll_area = QtGui.QScrollArea(parent=param_widget)
+        self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setSizePolicy(QtGui.QSizePolicy(
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
-        self.layout().addWidget( self.scroll_area )
+        self.layout().addWidget(param_widget)
+        param_widget.setLayout(QtGui.QVBoxLayout())
+        param_widget.layout().addWidget(self.scroll_area)
 
         # Create controller widget for process and object_attribute
         process = process_with_fom.process
-        self.controller_widget = ControllerWidget( process, live=True,
-            parent=self.scroll_area )
-        self.controller_widget2=ControllerWidget( self.process_with_fom,
-            live=True, parent=self.scroll_area2 )
+        self.controller_widget = ControllerWidget(process, live=True,
+            parent=self.scroll_area)
+        self.controller_widget2 = ControllerWidget(self.process_with_fom,
+            live=True, parent=self.scroll_area2)
         self.process_with_fom.on_trait_change(
             self.process_with_fom.attributes_changed, 'anytrait')
 
@@ -76,20 +90,16 @@ class ProcessWithFomWidget(QtGui.QWidget):
         # corresponding area
         self.scroll_area2.setWidget(self.controller_widget2)
         self.scroll_area.setWidget(self.controller_widget)
-        #self.scroll_area.hide()
 
         io_lay = QtGui.QHBoxLayout()
         self.layout().addLayout(io_lay)
-        self.btn_load_json = QtGui.QPushButton('Load Json')
+        self.btn_load_json = QtGui.QPushButton('Load attributes')
         io_lay.addWidget(self.btn_load_json)
         self.btn_load_json.clicked.connect(self.on_btn_load_json)
-        self.btn_save_json = QtGui.QPushButton('Save Json')
+        self.btn_save_json = QtGui.QPushButton('Save attributes')
         io_lay.addWidget(self.btn_save_json)
         self.btn_save_json.clicked.connect(self.on_btn_save_json)
 
-        self.btn_run=QtGui.QPushButton('Run', parent=self)
-        self.btn_run.clicked.connect(self.on_run)
-        self.layout().addWidget(self.btn_run)
         self.show_completion(False) # hide file parts
 
     def __del__(self):
@@ -97,19 +107,25 @@ class ProcessWithFomWidget(QtGui.QWidget):
             self.process_with_fom.attributes_changed, 'anytrait',
             remove=True)
 
-    def on_lineedit(self, text):
+    def on_input_filename_changed(self, text):
         '''
         Input file path to guess FOM attributes changed: update FOM attributes
         '''
         print 'set attributes from path:', text
-        self.process_with_fom.find_attributes(unicode(text))
+        try:
+            self.process_with_fom.find_attributes(unicode(text))
+        except ValueError, e:
+            print e
+            import traceback
+            traceback.print_stack()
 
 
     def on_btn_load_json(self):
         """Load attributes from a json file"""
         # ask for a file name
-        filename = QtGui.QFileDialog.getOpenFileName(
-            self, 'Select a .json FOM attributes file', '', '*.json')
+        filename = qt_backend.getOpenFileName(
+            self, 'Select a .json FOM attributes file', '',
+            'JSON files (*.json)')
         if filename is None:
             return
         print 'load', filename
@@ -122,8 +138,9 @@ class ProcessWithFomWidget(QtGui.QWidget):
     def on_btn_save_json(self):
         """Save attributes in a json file"""
         # ask for a file name
-        filename = QtGui.QFileDialog.getSaveFileName(
-            self, 'Select a .json FOM attributes file', '', '*.json')
+        filename = qt_backend.getSaveFileName(
+            self, 'Select a .json FOM attributes file', '',
+            'JSON files (*.json)')
         if filename is None:
             return
         json.dump(self.process_with_fom.attributes, open(filename, 'w'))
@@ -141,32 +158,38 @@ class ProcessWithFomWidget(QtGui.QWidget):
             process = self.process_with_fom.process
             self.process_with_fom.on_trait_change(
                 self.process_with_fom.attributes_changed, 'anytrait')
-            # WARNING: is it necessary to reset all this ?
-            # create_completion() will do the job anyway ?
-            for name, trait in process.user_traits().iteritems():
-                if trait.is_trait_type(File) \
-                        or trait.is_trait_type(Directory):
-                    setattr(process,name, Undefined)
-            self.process_with_fom.create_completion()
+            try:
+                # WARNING: is it necessary to reset all this ?
+                # create_completion() will do the job anyway ?
+                #for name, trait in process.user_traits().iteritems():
+                    #if trait.is_trait_type(File) \
+                            #or trait.is_trait_type(Directory):
+                        #setattr(process,name, Undefined)
+                self.process_with_fom.create_completion()
 
-            print self.process_with_fom.attributes
-            if self.lineedit_input.lineedit.text() != '':
-                self.process_with_fom.find_attributes(
-                    self.lineedit_input.lineedit.text())
-            self.scroll_area2.show()
+                print self.process_with_fom.attributes
+                if self.input_filename_controller.attributes_from_input_filename \
+                        != '':
+                    self.process_with_fom.find_attributes(
+                        self.input_filename_controller.attributes_from_input_filename)
+            except Exception, e:
+                print e
+                import traceback
+                traceback.print_stack()
+            self.attrib_widget.show()
 
         else:
             self.checkbox_fom.setChecked(False)
 
 
-    def on_checkbox_change(self, state):
+    def on_use_fom_change(self, state):
         '''
         Use FOM checkbox callabck
         '''
         if state == QtCore.Qt.Checked:
             self.set_use_fom()
         else:
-            self.scroll_area2.hide()
+            self.attrib_widget.hide()
             self.process_with_fom.on_trait_change(
                 self.process_with_fom.attributes_changed, 'anytrait',
                 remove=True)
@@ -202,17 +225,5 @@ class ProcessWithFomWidget(QtGui.QWidget):
         Toggle the visibility of paths parameters
         '''
         self.show_completion(None)
-
-    #Run excecution of the process
-    def on_run(self):
-        '''
-        Run the process or pipeline
-        '''
-        print 'IN THE RUN FUNCTION'
-        #To execute the process
-        self.process()
-        #How pass atributes
-        # FIXME
-        #self.study_config.save_run(self.process_with_fom.attributes,self.process)
 
 
