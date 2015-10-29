@@ -1190,10 +1190,9 @@ class Pipeline(Process):
                 continue
             trait = node.get_trait(plug_name)
             if not trait.output \
-                    or (not isinstance(trait.trait_type,
-                                        traits.File) \
+                    or (not isinstance(trait.trait_type, traits.File)
                         and not isinstance(trait.trait_type,
-                                            traits.Directory)) \
+                                           traits.Directory)) \
                     or len(plug.links_to) == 0:
                 continue
             # check that it is really temporary: not exported
