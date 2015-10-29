@@ -1187,30 +1187,33 @@ class Pipeline(Process):
                 # check temporary outputs and allocate files
                 for plug_name, plug in node.plugs.iteritems():
                     value = node.get_plug_value(plug_name)
-                    if plug.activated and plug.enabled \
-                            and value in (traits.Undefined, ''):
-                        trait = node.get_trait(plug_name)
-                        print (isinstance(trait.trait_type,
-                                                traits.File) \
-                                    or isinstance(trait.trait_type,
-                                                  traits.Directory))
-                        if trait.output \
-                                and (isinstance(trait.trait_type,
-                                                traits.File) \
-                                    or isinstance(trait.trait_type,
-                                                  traits.Directory)) \
-                                and len(plug.links_to) != 0:
-                            if trait.trait_type is traits.Directory:
-                                tmpdir = tempfile.mkdtemp(suffix='capsul_run')
-                                temp_files.append((node, plug_name, tmpdir,
-                                                   value))
-                                node.set_plug_value(plug_name, tmpdir)
-                            else:
-                                tmpfile = tempfile.mkstemp(suffix='capsul')
-                                node.set_plug_value(plug_name, tmpfile[1])
-                                os.close(tmpfile[0])
-                                temp_files.append((node, plug_name,
-                                                   tmpfile[1], value))
+                    if not plug.activated or not plug.enabled \
+                            or value not in (traits.Undefined, ''):
+                        continue
+                    trait = node.get_trait(plug_name)
+                    if not trait.output \
+                            or (not isinstance(trait.trait_type,
+                                               traits.File) \
+                                and not isinstance(trait.trait_type,
+                                                   traits.Directory)) \
+                            or len(plug.links_to) == 0:
+                        continue
+                    # check that it is really temporary: not exported
+                    # to the main pipeline
+                    if self.pipeline_node in [link[2]
+                                              for link in plug.links_to]:
+                        # it is visible out of the pipeline: not temporary
+                        continue
+                    # if we get here, we are a temporary.
+                    if trait.trait_type is traits.Directory:
+                        tmpdir = tempfile.mkdtemp(suffix='capsul_run')
+                        temp_files.append((node, plug_name, tmpdir, value))
+                        node.set_plug_value(plug_name, tmpdir)
+                    else:
+                        tmpfile = tempfile.mkstemp(suffix='capsul')
+                        node.set_plug_value(plug_name, tmpfile[1])
+                        os.close(tmpfile[0])
+                        temp_files.append((node, plug_name, tmpfile[1], value))
 
                 # Execute the process contained in the node
                 node_ret = node.process()
