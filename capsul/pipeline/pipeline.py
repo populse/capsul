@@ -13,6 +13,7 @@ from copy import deepcopy
 import types
 import tempfile
 import os
+import shutil
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -1176,14 +1177,65 @@ class Pipeline(Process):
         """
         # Get all the process nodes to execute
         nodes_list = self.workflow_ordered_nodes()
+        temp_files = []
 
-        # Go through all process nodes
-        returned = []
-        for node in nodes_list:
+        try:
+            # Go through all process nodes
+            returned = []
+            for node in nodes_list:
 
-            # Execute the process contained in the node
-            node_ret = node.process()
-            returned.append(node_ret)
+                # check temporary outputs and allocate files
+                for plug_name, plug in node.plugs.iteritems():
+                    value = node.get_plug_value(plug_name)
+                    if plug.activated and plug.enabled \
+                            and value in (traits.Undefined, ''):
+                        trait = node.get_trait(plug_name)
+                        print (isinstance(trait.trait_type,
+                                                traits.File) \
+                                    or isinstance(trait.trait_type,
+                                                  traits.Directory))
+                        if trait.output \
+                                and (isinstance(trait.trait_type,
+                                                traits.File) \
+                                    or isinstance(trait.trait_type,
+                                                  traits.Directory)) \
+                                and len(plug.links_to) != 0:
+                            if trait.trait_type is traits.Directory:
+                                tmpdir = tempfile.mkdtemp(suffix='capsul_run')
+                                temp_files.append((node, plug_name, tmpdir,
+                                                   value))
+                                node.set_plug_value(plug_name, tmpdir)
+                            else:
+                                tmpfile = tempfile.mkstemp(suffix='capsul')
+                                node.set_plug_value(plug_name, tmpfile[1])
+                                os.close(tmpfile[0])
+                                temp_files.append((node, plug_name,
+                                                   tmpfile[1], value))
+
+                # Execute the process contained in the node
+                node_ret = node.process()
+                returned.append(node_ret)
+
+        finally:
+            # delete and reset temp files
+            for node, plug_name, tmpfile, value in temp_files:
+                node.set_plug_value(plug_name, value)
+                if os.path.isdir(tmpfile):
+                    try:
+                        shutil.rmtree(tmpfile)
+                    except:
+                        pass
+                else:
+                    try:
+                        os.unlink(tmpfile)
+                    except:
+                        pass
+                # handle additional files (.hdr, .minf...)
+                if os.path.exists(tmpfile + '.minf'):
+                    try:
+                        os.unlink(tmpfile + '.minf')
+                    except:
+                        pass
 
         return returned
 
