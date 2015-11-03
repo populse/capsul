@@ -83,7 +83,7 @@ class StudyConfig(Controller):
 
     default_modules = ['FSLConfig', 'MatlabConfig', 'SmartCachingConfig',
                        'SomaWorkflowConfig', 'SPMConfig']
-    _user_config_directory = "~/.config/capsul"
+    _user_config_directory = os.path.join("~", ".config", "capsul")
 
     study_name = String(
         None,
@@ -411,7 +411,7 @@ class StudyConfig(Controller):
             study_config_file = \
                 os.path.expanduser(
                     os.path.join(self._user_config_directory,
-                                 "%s/config.json") % str(self.study_name))
+                                 "%s", "config.json") % str(self.study_name))
             if os.path.exists(study_config_file):
                 study_config = json.load(open(study_config_file))
                 self.study_config_file = study_config_file
