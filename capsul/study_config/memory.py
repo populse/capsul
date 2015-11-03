@@ -11,6 +11,7 @@
 
 # System import
 from __future__ import with_statement
+import codecs
 import os
 import hashlib
 import time
@@ -280,7 +281,7 @@ class MemorizedProcess(object):
                 self._copy_files_to_memory(output_parameters, process_dir,
                                            file_mapping)
                 map_fname = os.path.join(process_dir, "file_mapping.json")
-                with open(map_fname, "w") as open_file:
+                with codecs.open(map_fname, "w", "utf-8") as open_file:
                     open_file.write(json.dumps(file_mapping))
 
             except:
@@ -291,7 +292,7 @@ class MemorizedProcess(object):
         else:
             # Restore the memorized files
             map_fname = os.path.join(process_dir, "file_mapping.json")
-            with open(map_fname) as json_data:
+            with codecs.open(map_fname, "r", "utf-8") as json_data:
                 file_mapping = json.load(json_data)
 
             # Go through all mapping files
@@ -377,7 +378,7 @@ class MemorizedProcess(object):
                                check_circular=True, indent=4,
                                cls=CapsulResultEncoder)
         result_fname = os.path.join(process_dir, "result.json")
-        with open(result_fname, "w") as open_file:
+        with codecs.open(result_fname, "w", "utf-8") as open_file:
             open_file.write(json_data)
 
         # Information message
@@ -413,7 +414,7 @@ class MemorizedProcess(object):
             raise KeyError(
                 "Non-existing cache value (may have been cleared).\n"
                 "File {0} does not exist.".format(result_fname))
-        with open(result_fname) as json_data:
+        with codecs.open(result_fname, "r", "utf-8") as json_data:
             result_dict = json.load(json_data, cls=CapsulResultDecoder)
 
         # Generate the ProcessResult
