@@ -33,8 +33,9 @@ class DummyProcess(Process):
         # Inputs
         self.add_trait("input_image", String(optional=False, output=False))
         self.add_trait("other_input", Float(optional=False, output=False))
-        self.add_trait("dynamic_parameter", Float(optional=False, output=False))
-        
+        self.add_trait("dynamic_parameter",
+                       Float(optional=False, output=False))
+
         # Outputs
         self.add_trait("output_image", String(optional=False, output=True))
         self.add_trait("other_output", Float(optional=False, output=True))
@@ -125,7 +126,7 @@ class TestPipeline(unittest.TestCase):
         self.big_pipeline.input_image = [["toto", "tutu"],
                                          ["tata", "titi", "tete"]]
         self.big_pipeline.dynamic_parameter = [[1, 2], [3, 4, 5]]
-        self.pipeline.other_input = 5
+        self.big_pipeline.other_input = 5
         self.big_pipeline.output_image = [['/tmp/toto_out', '/tmp/tutu_out'],
                                           ['/tmp/tata_out', '/tmp/titi_out',
                                            '/tmp/tete_out']]
@@ -136,7 +137,7 @@ class TestPipeline(unittest.TestCase):
         for job in workflow.jobs:
             kwargs = eval(re.match('^.*kwargs=({.*}); kwargs.update.*$',
                                    job.command[2]).group(1))
-            #self.assertEqual(kwargs["other_input"], 5)
+            self.assertEqual(kwargs["other_input"], 5)
             subjects.add(kwargs["input_image"])
             self.assertIn(kwargs["input_image"],
                           ["toto", "tutu", "tata", "titi", "tete"])

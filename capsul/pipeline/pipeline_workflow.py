@@ -610,7 +610,6 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 setattr(it_process, parameter, value)
         else:
             for iteration in xrange(size):
-                print 'iterate', iteration
                 for parameter in it_process.iterative_parameters:
                     setattr(it_process.process, parameter,
                             getattr(it_process, parameter)[iteration])
@@ -721,10 +720,6 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                         process, step_name, temp_map,
                         shared_map, transfers, shared_paths, disabled_nodes,
                         {}, steps, study_config={})
-                    #for workflow in sub_workflows:
-                        #(sub_jobs, sub_deps, sub_groups, sub_root_jobs) = \
-                        #(workflow.jobs, workflow.dependencies, workflow.groups,
-                         #workflow.root_group)
                     (sub_jobs, sub_deps, sub_groups, sub_root_jobs) = \
                         sub_workflows
                     group = build_group(node_name, sub_root_jobs.values())
