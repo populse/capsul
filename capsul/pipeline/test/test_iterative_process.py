@@ -139,8 +139,12 @@ class TestPipeline(unittest.TestCase):
                                    job.command[2]).group(1))
             self.assertEqual(kwargs["other_input"], 5)
             subjects.add(kwargs["input_image"])
-            self.assertIn(kwargs["input_image"],
-                          ["toto", "tutu", "tata", "titi", "tete"])
+            if sys.version_info >= (2, 7):
+                self.assertIn(kwargs["input_image"],
+                              ["toto", "tutu", "tata", "titi", "tete"])
+            else:
+                self.assertTrue(kwargs["input_image"] in
+                                ["toto", "tutu", "tata", "titi", "tete"])
         self.assertEqual(subjects,
                          set(["toto", "tutu", "tata", "titi", "tete"]))
 
