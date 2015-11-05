@@ -8,6 +8,8 @@
 ##########################################################################
 
 import unittest
+import tempfile
+import os
 from traits.api import File, Float
 from capsul.process import Process
 from capsul.pipeline import Pipeline
@@ -21,15 +23,14 @@ class DummyProcess(Process):
 
         # inputs
         self.add_trait("input_image", File(optional=False))
-        self.add_trait("other_input", Float(optional=True))
 
         # outputs
         self.add_trait("output_image", File(optional=False, output=True))
-        self.add_trait("other_output", Float(optional=True, output=True))
 
     def _run_process(self):
-        open(self.output_image, 'w').write('dummy output.\n')
-        self.other_output = 24.6
+        # copy input contents to output
+        print self.name, ':', self.input_image, '->', self.output_image
+        open(self.output_image, 'w').write(open(self.input_image).read())
 
 
 class MyPipeline(Pipeline):
@@ -38,47 +39,58 @@ class MyPipeline(Pipeline):
     def pipeline_definition(self):
 
         # Create processes
-        self.add_process("constant",
-            "capsul.pipeline.test.test_pipeline.DummyProcess",
-            do_not_export=['input_image', 'other_input'],
-            make_optional=['input_image', 'other_input'],)
         self.add_process("node1",
-            "capsul.pipeline.test.test_pipeline.DummyProcess")
+            "capsul.pipeline.test.test_pipeline_with_temp.DummyProcess")
         self.add_process("node2",
-            "capsul.pipeline.test.test_pipeline.DummyProcess")
+            "capsul.pipeline.test.test_pipeline_with_temp.DummyProcess")
 
         # Links
         self.add_link("node1.output_image->node2.input_image")
-        self.add_link("node1.other_output->node2.other_input")
-        self.add_link("constant.output_image->node2.input_image")
 
         # Outputs
         self.export_parameter("node1", "input_image")
-        self.export_parameter("node1", "other_input")
         self.export_parameter("node2", "output_image")
-        self.export_parameter("node2", "other_output")
 
 
-class TestPipeline(unittest.TestCase):
+class TestPipelineWithTemp(unittest.TestCase):
 
     def setUp(self):
         self.pipeline = MyPipeline()
 
-    def test_constant(self):
-        self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr,
-                         "constant->node1->node2")
+    def test_pipeline_with_temp(self):
+        input_f = tempfile.mkstemp(suffix='capsul_input.txt')
+        os.close(input_f[0])
+        input_name = input_f[1]
+        open(input_name, 'w').write('this is my input data\n')
+        output_f = tempfile.mkstemp(suffix='capsul_output.txt')
+        os.close(output_f[0])
+        output_name = output_f[1]
+        #os.unlink(output_name)
 
-    def test_enabled(self):
-        setattr(self.pipeline.nodes_activation, "node2", False)
-        self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr, "")
+        try:
+            self.pipeline.input_image = input_name
+            self.pipeline.output_image = output_name
+
+            # run sequentially
+            self.pipeline()
+
+            # test
+            self.assertTrue(os.path.exists(output_name))
+            self.assertEqual(open(input_name).read(), open(output_name).read())
+
+        finally:
+            try:
+                os.unlink(input_name)
+            except: pass
+            try:
+                os.unlink(output_name)
+            except: pass
 
 
 def test():
     """ Function to execute unitest
     """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipelineWithTemp)
     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
     return runtime.wasSuccessful()
 
@@ -88,12 +100,13 @@ if __name__ == "__main__":
 
     if 1:
         import sys
-        from PySide import QtGui
+        from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 
         app = QtGui.QApplication(sys.argv)
         pipeline = MyPipeline()
-        setattr(pipeline.nodes_activation, "node2", False)
+        pipeline.input_image = '/data/file.txt'
+        pipeline.output_image = '/data/output_file.txt'
         view1 = PipelineDevelopperView(pipeline)
         view1.show()
         app.exec_()
