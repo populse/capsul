@@ -484,6 +484,15 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                          shared_map, transfers, shared_paths,
                          disabled_nodes, remove_temp,
                          steps, study_config, iteration):
+        '''
+        Build a workflow for a single iteration step of a process/sub-pipeline
+
+        is called for each iteration by build_iteration()
+
+        Returns
+        -------
+        (jobs, dependencies, groups, root_jobs)
+        '''
         if isinstance(process, Pipeline):
             temp_map2 = assign_temporary_filenames(process)
             temp_subst_list = [(x1, x2[0]) for x1, x2 in temp_map2.iteritems()]
@@ -523,6 +532,13 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                         shared_map, transfers, shared_paths, disabled_nodes,
                         remove_temp, steps, study_config={}):
         '''
+        Build workflow for an iterative process: the process / sub-pipeline is
+        filled with appropriate parameters for each iteration, and its
+        workflow is generated.
+
+        Returns
+        -------
+        (jobs, dependencies, groups, root_jobs)
         '''
         no_output_value = None
         size = None
