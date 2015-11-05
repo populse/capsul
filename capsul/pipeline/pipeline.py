@@ -31,7 +31,7 @@ except ImportError:
         List, Tuple, Instance, Any, Event, CTrait, Directory, Trait)
 
 # Capsul import
-from capsul.process import Process
+from capsul.process import Process, NipypeProcess
 from capsul.process import get_process_instance
 from topological_sort import GraphNode
 from topological_sort import Graph
@@ -1183,6 +1183,12 @@ class Pipeline(Process):
             list of temporary files for the pipeline execution. The list will
             be modified (completed).
         """
+        process = getattr(node, 'process', None)
+        if process is not None and isinstance(process, NipypeProcess):
+            #nipype processes do not use temporaries, they produce output
+            # file names
+            return
+
         for plug_name, plug in node.plugs.iteritems():
             value = node.get_plug_value(plug_name)
             if not plug.activated or not plug.enabled \
