@@ -23,6 +23,7 @@ from capsul.process import Process
 from capsul.pipeline.topological_sort import Graph
 from traits.api import Directory, Undefined, File, Str, Any
 from soma.sorted_dictionary import OrderedDict
+from .process_iteration import ProcessIteration
 
 
 def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
@@ -479,10 +480,163 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                         remove_temp.add(path)
         return move_to_input, remove_temp
 
+    def iter_to_workflow(process, node_name, step_name, temp_map,
+                         shared_map, transfers, shared_paths,
+                         disabled_nodes, remove_temp,
+                         steps, study_config, iteration):
+        if isinstance(process, Pipeline):
+            temp_map2 = assign_temporary_filenames(process)
+            temp_subst_list = [(x1, x2[0]) for x1, x2 in temp_map2.iteritems()]
+            temp_subst_map = dict(temp_subst_list)
+            try:
+                graph = process.workflow_graph()
+                (jobs, dependencies, groups, sub_root_jobs) = \
+                    workflow_from_graph(
+                        graph, temp_subst_map, shared_map, transfers,
+                        shared_paths, disabled_nodes=disabled_nodes,
+                        forbidden_temp=remove_temp, steps=steps,
+                        study_config=study_config)
+                group = build_group(node_name, sub_root_jobs.values())
+                groups[(process, iteration)] = group
+                root_jobs = {(process, iteration): group}
+            finally:
+                restore_empty_filenames(temp_map2)
+        elif isinstance(process, ProcessIteration):
+            # sub-iteration
+            return build_iteration(process, step_name, study_config)
+        else:
+            # single process
+            job = build_job(process, temp_map, shared_map,
+                            transfers, shared_paths,
+                            forbidden_temp=remove_temp,
+                            name=node_name,
+                            priority=jobs_priority,
+                            step_name=step_name)
+            jobs = {(process, iteration): job}
+            groups = {}
+            dependencies = {}
+            root_jobs = {(process, iteration): job}
+
+        return (jobs, dependencies, groups, root_jobs)
+
+    def build_iteration(it_process, step_name, temp_map,
+                        shared_map, transfers, shared_paths, disabled_nodes,
+                        remove_temp, steps, study_config={}):
+        '''
+        '''
+        no_output_value = None
+        size = None
+        size_error = False
+        for parameter in it_process.iterative_parameters:
+            trait = it_process.trait(parameter)
+            psize = len(getattr(it_process, parameter))
+            if psize:
+                if size is None:
+                    size = psize
+                elif size != psize:
+                    size_error = True
+                    break
+                if trait.output:
+                    if no_output_value is None:
+                        no_output_value = False
+                    elif no_output_value:
+                        size_error = True
+                        break
+            else:
+                if trait.output:
+                    if no_output_value is None:
+                        no_output_value = True
+                    elif not no_output_value:
+                        size_error = True
+                        break
+                else:
+                    if size is None:
+                        size = psize
+                    elif size != psize:
+                        size_error = True
+                        break
+
+        if size_error:
+            raise ValueError('Iterative parameter values must be lists of the '
+                'same size: %s' % ','.join('%s=%d'
+                    % (n, len(getattr(it_process, n)))
+                    for n in it_process.iterative_parameters))
+        if size == 0:
+            return []
+
+        jobs = {}
+        workflows = []
+        for parameter in it_process.regular_parameters:
+            setattr(it_process.process, parameter,
+                    getattr(it_process, parameter))
+
+        jobs = {}
+        dependencies = set()
+        groups = {}
+        root_jobs = {}
+
+        if no_output_value:
+            # this case is a "really" dynamic iteration, the number of
+            # iterations and parameters are determined in runtime, so we
+            # cannot handle it at the moment.
+            raise ValueError('Dynamic iteration is not handled in this '
+                'version of CAPSUL / Soma-Workflow')
+
+            for parameter in it_process.iterative_parameters:
+                trait = it_process.trait(parameter)
+                if trait.output:
+                    setattr(it_process, parameter, [])
+            outputs = {}
+            for iteration in xrange(size):
+                for parameter in it_process.iterative_parameters:
+                    if not no_output_value \
+                            or not it_process.trait(parameter).output:
+                        setattr(it_process.process, parameter,
+                                getattr(it_process, parameter)[iteration])
+
+                # TODO FIXME: operate completion... how ?
+
+                #workflow = workflow_from_pipeline(it_process.process,
+                                                  #study_config=study_config)
+                #workflows.append(workflow)
+
+                for parameter in it_process.iterative_parameters:
+                    trait = it_process.trait(parameter)
+                    if trait.output:
+                        outputs.setdefault(
+                            parameter,[]).append(getattr(it_process.process,
+                                                         parameter))
+            for parameter, value in outputs.iteritems():
+                setattr(it_process, parameter, value)
+        else:
+            for iteration in xrange(size):
+                print 'iterate', iteration
+                for parameter in it_process.iterative_parameters:
+                    setattr(it_process.process, parameter,
+                            getattr(it_process, parameter)[iteration])
+
+                # TODO FIXME: operate completion... how ?
+
+                process_name = it_process.process.name + '_%d' % iteration
+                (sub_jobs, sub_dependencies, sub_groups, sub_root_jobs) = \
+                    iter_to_workflow(it_process.process, process_name,
+                        step_name,
+                        temp_map, shared_map, transfers,
+                        shared_paths, disabled_nodes, remove_temp, steps,
+                        study_config, iteration)
+                jobs.update(dict([((p, iteration), j)
+                                  for p, j in sub_jobs.iteritems()]))
+                dependencies.update(sub_dependencies)
+                groups.update(sub_groups)
+                root_jobs.update(sub_root_jobs)
+
+        return (jobs, dependencies, groups, root_jobs)
+
     def workflow_from_graph(graph, temp_map={}, shared_map={},
                             transfers=[{}, {}], shared_paths={},
                             disabled_nodes=set(), forbidden_temp=set(),
-                            jobs_priority=0, steps={}, current_step=''):
+                            jobs_priority=0, steps={}, current_step='',
+                            study_config={}):
         """ Convert a CAPSUL graph to a soma-workflow workflow
 
         Parameters
@@ -507,11 +661,14 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             node name -> step name dict
         current_step: str (optional)
             the parent node step name
+        study_config: StydyConfig instance (optional)
+            used only for iterative nodes, to be passed to create sub-workflows
 
         Returns
         -------
-        workflow: Workflow
-            the corresponding soma-workflow workflow
+        workflow: tuple (jobs, dependencies, groups, root_jobs)
+            the corresponding soma-workflow workflow definition (to be passed
+            to Workflow constructor)
         """
         jobs = {}
         groups = {}
@@ -534,61 +691,97 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 sub_jobs = {}
                 for pipeline_node in node.meta:
                     process = pipeline_node.process
-                    if (not isinstance(process, Pipeline) and
-                            isinstance(process, Process) and
-                            pipeline_node not in disabled_nodes):
+                    if pipeline_node in disabled_nodes:
+                        continue
+                    step_name = current_step or steps.get(pipeline_node.name)
+                    if isinstance(process, ProcessIteration):
+                        # iterative node
+                        group_nodes.setdefault(
+                            node_name, []).append(pipeline_node)
+                    elif (not isinstance(process, Pipeline) and
+                            isinstance(process, Process)):
                         job = build_job(process, temp_map, shared_map,
                                         transfers, shared_paths,
                                         forbidden_temp=forbidden_temp,
                                         name=pipeline_node.name,
                                         priority=jobs_priority,
-                                        step_name=current_step or
-                                            steps.get(pipeline_node.name))
+                                        step_name=step_name)
                         sub_jobs[process] = job
-                        root_jobs[process] = job
-                       #node.job = job
+                        root_jobs[process] = [job]
+                        #node.job = job
                 jobs.update(sub_jobs)
 
-        # Recurence on graph node
+        # Recurrence on graph node
         for node_name, node in group_nodes.iteritems():
-            wf_graph = node.meta
-            step_name = current_step or steps.get(node_name, '')
-            (sub_jobs, sub_deps, sub_groups, sub_root_jobs) \
-                = workflow_from_graph(
-                    wf_graph, temp_map, shared_map, transfers,
-                    shared_paths, disabled_nodes, jobs_priority=jobs_priority,
-                    steps=steps, current_step=step_name)
-            group = build_group(node_name, sub_root_jobs.values())
-            groups[node.meta] = group
-            root_jobs[node.meta] = group
-            jobs.update(sub_jobs)
-            groups.update(sub_groups)
-            dependencies.update(sub_deps)
+            if isinstance(node, list):
+                # iterative nodes
+                for i, it_node in enumerate(node):
+                    process = it_node.process
+                    sub_workflows = build_iteration(
+                        process, step_name, temp_map,
+                        shared_map, transfers, shared_paths, disabled_nodes,
+                        {}, steps, study_config={})
+                    #for workflow in sub_workflows:
+                        #(sub_jobs, sub_deps, sub_groups, sub_root_jobs) = \
+                        #(workflow.jobs, workflow.dependencies, workflow.groups,
+                         #workflow.root_group)
+                    (sub_jobs, sub_deps, sub_groups, sub_root_jobs) = \
+                        sub_workflows
+                    group = build_group(node_name, sub_root_jobs.values())
+                    groups.setdefault(process, []).append(group)
+                    root_jobs.setdefault(process, []).append(group)
+                    groups.update(sub_groups)
+                    jobs.update(sub_jobs)
+                    dependencies.update(sub_deps)
+            else:
+                # sub-pipeline
+                wf_graph = node.meta
+                step_name = current_step or steps.get(node_name, '')
+                (sub_jobs, sub_deps, sub_groups, sub_root_jobs) \
+                    = workflow_from_graph(
+                        wf_graph, temp_map, shared_map, transfers,
+                        shared_paths, disabled_nodes,
+                        jobs_priority=jobs_priority,
+                        steps=steps, current_step=step_name)
+                group = build_group(node_name, sub_root_jobs.values())
+                groups[node.meta] = group
+                root_jobs[node.meta] = [group]
+                jobs.update(sub_jobs)
+                groups.update(sub_groups)
+                dependencies.update(sub_deps)
 
         # Add dependencies between a source job and destination jobs
         for node_name, node in graph._nodes.iteritems():
             # Source job
             if isinstance(node.meta, list):
-                if node.meta[0].process in jobs:
-                    sjob = jobs[node.meta[0].process]
+                if isinstance(node.meta[0].process, ProcessIteration):
+                    sjobs = groups.get(node.meta[0].process)
+                    if not sjobs:
+                        continue # disabled
+                elif node.meta[0].process in jobs:
+                    sjobs = [jobs[node.meta[0].process]]
                 else:
                     continue # disabled node
             else:
-                sjob = groups[node.meta]
+                sjobs = [groups[node.meta]]
             # Destination jobs
             for dnode in node.links_to:
                 if isinstance(dnode.meta, list):
                     if dnode.meta[0].process in jobs:
-                        djob = jobs[dnode.meta[0].process]
+                        djobs = [jobs[dnode.meta[0].process]]
                     else:
                         continue # disabled node
                 else:
-                    djob = groups[dnode.meta]
-                dependencies.add((sjob, djob))
+                    djobs = groups[dnode.meta]
+                    if not isinstance(djobs, list):
+                        djobs = [djobs]
+                for djob in djobs:
+                    dependencies.update([(sjob, djob) for sjob in sjobs])
 
         # sort root jobs/groups
-        root_jobs_list = [(proc_keys[p], p, j)
-                          for p, j in root_jobs.iteritems()]
+        root_jobs_list = []
+        for p, js in root_jobs.iteritems():
+            root_jobs_list.extend([(proc_keys[p], p, j) for j in js])
         root_jobs_list.sort()
         root_jobs = OrderedDict([x[1:] for x in root_jobs_list])
         return jobs, dependencies, groups, root_jobs
@@ -683,9 +876,9 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     try:
         graph = pipeline.workflow_graph()
         (jobs, dependencies, groups, root_jobs) = workflow_from_graph(
-                  graph, temp_subst_map, shared_map, transfers, swf_paths[1],
-                  disabled_nodes=disabled_nodes, forbidden_temp=remove_temp,
-                  steps=steps)
+            graph, temp_subst_map, shared_map, transfers, swf_paths[1],
+            disabled_nodes=disabled_nodes, forbidden_temp=remove_temp,
+            steps=steps, study_config=study_config)
     finally:
         restore_empty_filenames(temp_map)
 
