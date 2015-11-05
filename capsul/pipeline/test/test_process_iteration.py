@@ -30,7 +30,11 @@ class WriteOutput(Process):
     
     def _run_process(self):
         # Copy input_image in output_image
-        open(self.output_image,'wb').write(open(self.input_image,'rb').read())
+        i = open(self.input_image,'rb')
+        o = open(self.output_image,'wb')
+        o.write(i.read())
+        o.close()
+        i.close()
 
 
 class ProcessSlice(Process):
@@ -98,11 +102,13 @@ class TestPipeline(unittest.TestCase):
 
         # Set some input parameters
         self.parallel_processes = 10
-        self.input_file = NamedTemporaryFile()
+        self.input_file = NamedTemporaryFile(delete = False)
         self.input_file.write('\x00\x00' * self.parallel_processes)
         self.input_file.flush()
+        self.input_file.close()
         self.pipeline.input_image = self.input_file.name
         self.output_file = NamedTemporaryFile()
+        self.output_file.close()
         self.pipeline.output_image = self.output_file.name
 
     def test_iterative_pipeline_connection(self):
