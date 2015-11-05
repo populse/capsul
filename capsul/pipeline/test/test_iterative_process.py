@@ -10,6 +10,7 @@
 # System import
 import sys
 import unittest
+import re
 
 # Trait import
 from traits.api import String, Float
@@ -17,6 +18,7 @@ from traits.api import String, Float
 # Capsul import
 from capsul.process import Process
 from capsul.pipeline import Pipeline
+from capsul.pipeline import pipeline_workflow
 
 
 class DummyProcess(Process):
@@ -58,13 +60,25 @@ class MyPipeline(Pipeline):
         """
         # Create an iterative processe
         self.add_iterative_process(
-            "iterative", "capsul.pipeline.test.test_iterative_process.DummyProcess",
+            "iterative",
+            "capsul.pipeline.test.test_iterative_process.DummyProcess",
             iterative_plugs=[
                 "input_image", "output_image", "dynamic_parameter",
                 "other_output"])
 
         # Set the pipeline view scale factor
         self.scene_scale_factor = 1.0
+
+
+class MyBigPipeline(Pipeline):
+    '''bigger pipeline with several levels'''
+    def pipeline_definition(self):
+        self.add_iterative_process(
+            "main_level",
+            "capsul.pipeline.test.test_iterative_process.MyPipeline",
+            iterative_plugs=[
+                "input_image", "output_image", "dynamic_parameter",
+                "other_output"])
 
 
 class TestPipeline(unittest.TestCase):
@@ -81,6 +95,9 @@ class TestPipeline(unittest.TestCase):
         self.pipeline.dynamic_parameter = [3, 1]
         self.pipeline.other_input = 5
 
+        # build a bigger pipeline with several levels
+        self.big_pipeline = MyBigPipeline()
+
     def test_iterative_pipeline_connection(self):
         """ Method to test if an iterative process work correctly
         """
@@ -95,7 +112,36 @@ class TestPipeline(unittest.TestCase):
             self.assertTrue("toto:5.0:3.0" in self.pipeline.output_image)
             self.assertTrue("tutu:5.0:1.0" in self.pipeline.output_image)
         self.assertEqual(self.pipeline.other_output, 
-                         [self.pipeline.other_input, self.pipeline.other_input])
+                         [self.pipeline.other_input,
+                          self.pipeline.other_input])
+
+    def test_iterative_pipeline_workflow(self):
+        self.pipeline.output_image = ['/tmp/toto_out', '/tmp/tutu_out']
+        self.pipeline.other_output = [1., 2.]
+        workflow = pipeline_workflow.workflow_from_pipeline(self.pipeline)
+        self.assertTrue(len(workflow.jobs) == 2)
+
+    def test_iterative_big_pipeline_workflow(self):
+        self.big_pipeline.input_image = [["toto", "tutu"],
+                                         ["tata", "titi", "tete"]]
+        self.big_pipeline.dynamic_parameter = [[1, 2], [3, 4, 5]]
+        self.pipeline.other_input = 5
+        self.big_pipeline.output_image = [['/tmp/toto_out', '/tmp/tutu_out'],
+                                          ['/tmp/tata_out', '/tmp/titi_out',
+                                           '/tmp/tete_out']]
+        self.big_pipeline.other_output = [[1.1, 2.1], [3.1, 4.1, 5.1]]
+        workflow = pipeline_workflow.workflow_from_pipeline(self.big_pipeline)
+        self.assertTrue(len(workflow.jobs) == 5)
+        subjects = set()
+        for job in workflow.jobs:
+            kwargs = eval(re.match('^.*kwargs=({.*}); kwargs.update.*$',
+                                   job.command[2]).group(1))
+            #self.assertEqual(kwargs["other_input"], 5)
+            subjects.add(kwargs["input_image"])
+            self.assertIn(kwargs["input_image"],
+                          ["toto", "tutu", "tata", "titi", "tete"])
+        self.assertEqual(subjects,
+                         set(["toto", "tutu", "tata", "titi", "tete"]))
 
 
 def test():
