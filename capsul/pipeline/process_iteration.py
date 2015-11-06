@@ -18,22 +18,28 @@ class ProcessIteration(Process):
         self.process = get_process_instance(process)
         self.regular_parameters = set()
         self.iterative_parameters = set(iterative_parameters)
-        
+
         # Check that all iterative parameters are valid process parameters
         user_traits = self.process.user_traits()
         for parameter in self.iterative_parameters:
             if parameter not in user_traits:
-                raise ValueError('Cannot iterate on parameter %s that is not a parameter of process %s' % (parameter, self.process.id))
+                raise ValueError('Cannot iterate on parameter %s '
+                  'that is not a parameter of process %s'
+                  % (parameter, self.process.id))
 
         # Create iterative process parameters by copying process parameter
         # and changing iterative parameters to list
         for name, trait in user_traits.iteritems():
             if name in iterative_parameters:
-                self.add_trait(name, List(trait, output=trait.output, optional=trait.optional))
+                self.add_trait(name, List(trait, output=trait.output,
+                                          optional=trait.optional))
             else:
                 self.regular_parameters.add(name)
                 self.add_trait(name, trait)
-                
+                # copy initial value of the underlying process to self
+                # Note: should be this be done via a links system ?
+                setattr(self, name, getattr(self.process, name))
+
     def _run_process(self):
         # Check that all iterative parameter value have the same size
         no_output_value = None

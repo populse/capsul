@@ -398,8 +398,8 @@ class Pipeline(Process):
         # Otherwise, need to create a dynamic structure
         else:
             from .process_iteration import ProcessIteration
-            self.add_process(name, ProcessIteration(process,iterative_plugs), do_not_export,
-                             make_optional, **kwargs)
+            self.add_process(name, ProcessIteration(process,iterative_plugs),
+                             do_not_export, make_optional, **kwargs)
             return
 
     def add_switch(self, name, inputs, outputs, export_switch=True,
