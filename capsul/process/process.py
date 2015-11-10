@@ -210,7 +210,8 @@ class Process(Controller):
             "start_time": datetime.isoformat(datetime.utcnow()),
             "cwd": os.getcwd(),
             "returncode": None,
-            "environ": deepcopy(os.environ.data),
+            "environ": dict([(k, unicode(v))
+                             for k, v in os.environ.data.iteritems()]),
             "end_time": None,
             "hostname": getfqdn(),
         }
