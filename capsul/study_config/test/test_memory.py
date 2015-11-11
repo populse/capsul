@@ -121,7 +121,7 @@ class TestMemory(unittest.TestCase):
                                    os.path.basename(__file__))
         self.assertEqual(
             proxy_process.s,
-            "{{'i': '{0}', 'l': ['{0}'], 'f': 2.5}}".format(copied_file))
+            "{{'i': {0}, 'l': [{0}], 'f': 2.5}}".format(repr(copied_file)))
 
 if 0:
     # Configure the environment
