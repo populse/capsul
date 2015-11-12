@@ -73,12 +73,12 @@ class ProcessIteration(Process):
                     elif size != psize:
                         size_error = True
                         break
-                    
+
         if size_error:
             raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
         if size == 0:
             return
-            
+
         for parameter in self.regular_parameters:
             setattr(self.process, parameter, getattr(self, parameter))
         if no_output_value:
@@ -90,12 +90,16 @@ class ProcessIteration(Process):
             for iteration in xrange(size):
                 for parameter in self.iterative_parameters:
                     if not no_output_value or not self.trait(parameter).output:
-                        setattr(self.process, parameter, getattr(self, parameter)[iteration])
+                        setattr(self.process, parameter,
+                                getattr(self, parameter)[iteration])
                 self.process()
                 for parameter in self.iterative_parameters:
                     trait = self.trait(parameter)
                     if trait.output:
-                        outputs.setdefault(parameter,[]).append(getattr(self.process, parameter))
+                        outputs.setdefault(parameter,[]).append(
+                            getattr(self.process, parameter))
+                        # reset empty value
+                        setattr(self.process, parameter, Undefined)
             for parameter, value in outputs.iteritems():
                 setattr(self, parameter, value)
         else:
