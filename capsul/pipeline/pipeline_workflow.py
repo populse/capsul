@@ -778,7 +778,11 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             # Destination jobs
             for dnode in node.links_to:
                 if isinstance(dnode.meta, list):
-                    if dnode.meta[0].process in jobs:
+                    if isinstance(dnode.meta[0].process, ProcessIteration):
+                        djobs = groups.get(dnode.meta[0].process)
+                        if not djobs:
+                            continue # disabled
+                    elif dnode.meta[0].process in jobs:
                         djobs = [jobs[dnode.meta[0].process]]
                     else:
                         continue # disabled node
