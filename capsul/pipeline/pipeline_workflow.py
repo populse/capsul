@@ -823,7 +823,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         # use a python command to avoid the shell command mkdir
         cmdline = [
             'python', '-c',
-            'import sys, os; [os.makedirs(path) for path in sys.argv[1:]]'] \
+            'import sys, os; [os.makedirs(path) for path in sys.argv[1:] '
+            'if not os.path.exists(path)]'] \
             + paths
         job = swclient.Job(
             name='output directories creation',
