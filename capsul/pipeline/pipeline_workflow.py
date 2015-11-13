@@ -820,8 +820,11 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         for path in directories:
             new_path = _translated_path(path, shared_map, shared_paths)
             paths.append(new_path or path)
-        # FIXME: maybe use a python command to avoid the shell command mkdir
-        cmdline = ['mkdir', '-p'] + paths
+        # use a python command to avoid the shell command mkdir
+        cmdline = [
+            'python', '-c',
+            'import sys, os; [os.makedirs(path) for path in sys.argv[1:]]'] \
+            + paths
         job = swclient.Job(
             name='output directories creation',
             command=cmdline,
