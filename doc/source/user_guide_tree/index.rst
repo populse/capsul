@@ -11,7 +11,7 @@ The main documentation of all the proposed scripts.
 Tutorial
 ########
 
-Different tutorials are available as `IPython notebooks <ipython.org/notebook.html>`_.
+Different tutorials are available as `IPython notebooks <http://ipython.org/notebook.html>`_.
 Capsul may be used in two ways:
 
 * a descriptive interface allows to develop processing bricks using simple Python functions and pipelines using a XML text description. :download:`See this notebook to demonstrate this approach <../_static/tutorial/capsul_descriptive_tutorial.ipynb>`.
