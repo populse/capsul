@@ -24,6 +24,12 @@ _version_extra = version_extra
 __version__ = "{0}.{1}.{2}{3}".format(
     version_major, version_minor, version_micro, version_extra)
 
+brainvisa_dependencies = [
+    'soma-base',
+    ('RUN', 'RECOMMENDS', 'python-qt4', 'RUN'),
+    ('RUN', 'RECOMMENDS', 'graphviz', 'RUN'),
+]
+
 # Expected by setup.py: the status of the project
 CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "Environment :: Console",
