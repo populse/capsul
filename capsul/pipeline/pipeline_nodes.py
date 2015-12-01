@@ -8,7 +8,6 @@
 ##########################################################################
 
 # System import
-import numpy
 import logging
 
 # Define the logger
