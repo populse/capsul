@@ -26,6 +26,7 @@ __version__ = "{0}.{1}.{2}{3}".format(
 
 brainvisa_dependencies = [
     'soma-base',
+    'soma-workflow',
     ('RUN', 'RECOMMENDS', 'python-qt4', 'RUN'),
     ('RUN', 'RECOMMENDS', 'graphviz', 'RUN'),
 ]
