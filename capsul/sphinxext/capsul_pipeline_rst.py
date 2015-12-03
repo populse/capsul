@@ -34,6 +34,11 @@ parser.add_option("-o", "--outdir",
                   "sub-directories there, named by their module names. "
                   "default: {0}".format(
                       default_output_dir))
+parser.add_option("-s", "--short", action="append", dest="short_names",
+                  default=[],
+                  help="use short prefix names for modules names. "
+                  "Ex: morphologist.capsul.morphologist=morpho. "
+                  "Several -s options may be specified.")
 (options, args) = parser.parse_args()
 if options.module is None:
     parser.error("Wrong number of arguments.")
@@ -52,6 +57,7 @@ else:
             logger.name))
 
 base_outdir = options.outdir
+short_names = dict([x.split("=") for x in options.short_names])
 
 # Capsul import
 from capsul.qt_apps.utils.find_pipelines import find_pipeline_and_process
@@ -98,12 +104,15 @@ for sorted_modules, dtype in ([sorted_pipelines, "pipeline"],
     # Go through all modules
     for module_name, modules in sorted_modules.items():
 
+        # Generate the writer object
+        docwriter = PipelineHelpWriter(modules, short_names=short_names)
+
         # Where the documentation will be written: a relative path from the
         # makefile
-        outdir = os.path.join(base_outdir, module_name, dtype)
+        short_name = docwriter.get_short_name(module_name)
+        outdir = os.path.join(base_outdir, short_name, dtype)
+        print 'short name:', short_name, ', outdir:', outdir
 
-        # Generate the writer object
-        docwriter = PipelineHelpWriter(modules)
         docwriter.write_api_docs(outdir)
 
         # Create an index that will be inserted in the module main index.
@@ -111,7 +120,7 @@ for sorted_modules, dtype in ([sorted_pipelines, "pipeline"],
         # prevent Sphinx to convert such files
         docwriter.write_index(
             outdir, "index",
-            relative_to=os.path.join(base_outdir, module_name),
+            relative_to=os.path.join(base_outdir, short_name),
             rst_extension=".txt")
 
         # Just print a summary
@@ -129,11 +138,14 @@ modules = set(sorted_processes.keys() + sorted_pipelines.keys())
 # Go through all unique modules
 for module_name in modules:
 
-    # Where the index will be written: a relative path from the makefile
-    outdir = os.path.join(base_outdir, module_name)
-
     # Generate an empty writer object
-    docwriter = PipelineHelpWriter([])
+    docwriter = PipelineHelpWriter([], short_names=short_names)
+
+    # Where the index will be written: a relative path from the makefile
+    short_name = docwriter.get_short_name(module_name)
+    outdir = os.path.join(base_outdir, short_name)
+    print 'short name:', short_name, ', outdir:', outdir
+
     docwriter.write_main_index(outdir, module_name, options.module)
     logger.info("Index: an index has been written for module '{0}' at "
                 "location {1}.".format(module_name, os.path.abspath(outdir)))

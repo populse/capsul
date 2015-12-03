@@ -26,7 +26,7 @@ class PipelineHelpWriter(object):
     # Only separating first two levels
     rst_section_levels = ['*', '=', '-', '~', '^']
 
-    def __init__(self, pipelines, rst_extension=".rst"):
+    def __init__(self, pipelines, rst_extension=".rst", short_names={}):
         """ Initialize package for parsing
 
         Parameters
@@ -35,9 +35,12 @@ class PipelineHelpWriter(object):
             list of pipeline class
         rst_extension : string (optional)
             extension for reST files, default '.rst'
+        short_names : dict (optional)
+            translation dict for module/pipeline file names
         """
         self.pipelines = sorted(pipelines)
         self.rst_extension = rst_extension
+        self.short_names = short_names
 
     def generate_api_doc(self, pipeline, schema):
         """ Make autodoc documentation for a pipeline python module
@@ -137,10 +140,11 @@ class PipelineHelpWriter(object):
             # Information message
             logger.info("Processing pipeline '{0}'...".format(pipeline))
 
+            pipeline_short = self.get_short_name(pipeline)
             # Check if an image representation of the pipeline exists
             if returnrst is False:
                 schema = os.path.join(os.pardir, "schema",
-                                      pipeline + ".png")
+                                      pipeline_short + ".png")
                 if not os.path.isfile(os.path.join(outdir, schema)):
                     schema = None
             else:
@@ -153,7 +157,8 @@ class PipelineHelpWriter(object):
 
             # Write to file
             if returnrst is False:
-                outfile = os.path.join(outdir, pipeline + self.rst_extension)
+                outfile = os.path.join(outdir,
+                                       pipeline_short + self.rst_extension)
                 fileobj = open(outfile, "wt")
                 fileobj.write(api_str)
                 fileobj.close()
@@ -168,6 +173,24 @@ class PipelineHelpWriter(object):
 
         if returnrst is True:
             return rstdoc
+
+    def get_short_name(self, name):
+        """
+        Get a short file name prefix for module/process in the
+        short_names dict. Used to build "reasonably short" path/file names.
+        """
+        short_name = self.short_names.get(name)
+        if short_name:
+            return short_name
+        # look for a shorter name for the longest module prefix
+        modules = name.split(".")
+        for i in range(len(modules)-1, 0, -1):
+            path = '.'.join(modules[:i])
+            short_path = self.short_names.get(path)
+            if short_path:
+                return '.'.join([short_path] + modules[i+1:])
+        # not found
+        return name
 
     def write_index(self, outdir, froot="index", relative_to=None,
                     rst_extension=".rst"):
@@ -200,6 +223,7 @@ class PipelineHelpWriter(object):
             relpath = outdir.replace(relative_to + os.path.sep, "")
         else:
             relpath = outdir
+        print 'relpath:', relpath
 
         # Information message
         logger.info("Wrting index at location '{0}'...".format(
@@ -225,8 +249,12 @@ class PipelineHelpWriter(object):
 
         # Add all modules
         for title_str, f in self.written_modules:
+            pipeline_short = self.get_short_name(f)
+            print 'title_str:', title_str, ', f:', f
             relative_pipeline = ".".join(f.split(".")[2:])
-            ref = os.path.join(relpath, f + ".html")
+            print 'relative_pipeline:', relative_pipeline
+            ref = os.path.join(relpath, pipeline_short + ".html")
+            print 'ref:', ref
             table.append("<tr class='row-odd'>")
             table.append(
                 "<td><a class='reference internal' href='{0}'>"
