@@ -37,6 +37,11 @@ parser.add_option("-o", "--outdir",
                   "sub-directories there, named by their module names. "
                   "default: {0}".format(
                       default_output_dir))
+parser.add_option("-s", "--short", action="append", dest="short_names",
+                  default=[],
+                  help="use short prefix names for modules names. "
+                  "Ex: morphologist.capsul.morphologist=morpho. "
+                  "Several -s options may be specified.")
 (options, args) = parser.parse_args()
 if options.module is None:
     parser.error("Wrong number of arguments.")
@@ -55,6 +60,7 @@ else:
             logger.name))
 
 base_outdir = options.outdir
+short_names = dict([x.split("=") for x in options.short_names])
 
 # Capsul import
 from capsul.qt_apps.utils.find_pipelines import find_pipeline_and_process
