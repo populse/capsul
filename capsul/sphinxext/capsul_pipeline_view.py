@@ -66,6 +66,7 @@ short_names = dict([x.split("=") for x in options.short_names])
 from capsul.qt_apps.utils.find_pipelines import find_pipeline_and_process
 from capsul.process import get_process_instance
 from capsul.pipeline import pipeline_tools
+from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 
 
 # Get all caps pipelines
@@ -87,9 +88,15 @@ for pipeline in pipelines:
 # Generate a png representation of each pipeline.
 for module_name, module_pipelines in sorted_pipelines.items():
 
+    # this docwriter is juste used to manage short names
+    docwriter = PipelineHelpWriter([], short_names=short_names)
+
     # Where the documentation will be written: a relative path from the
     # makefile
-    outdir = os.path.join(base_outdir, module_name, "schema")
+    short_name = docwriter.get_short_name(module_name)
+    outdir = os.path.join(base_outdir, short_name,  "schema")
+    if not os.path.isdir(outdir):
+        os.makedirs(outdir)
 
     # Go through all pipeline
     for module_pipeline in module_pipelines:
@@ -98,9 +105,8 @@ for module_name, module_pipelines in sorted_pipelines.items():
         pipeline_instance = get_process_instance(module_pipeline)
 
         # Get output files
-        if not os.path.isdir(outdir):
-            os.makedirs(outdir)
-        image_name = os.path.join(outdir, module_pipeline + ".png")
+        short_pipeline = docwriter.get_short_name(module_pipeline)
+        image_name = os.path.join(outdir, short_pipeline + ".png")
         pipeline_tools.save_dot_image(
             pipeline_instance, image_name, nodesep=0.1, include_io=False,
             rankdir='TB')
