@@ -61,7 +61,49 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     class TempFile(unicode):
         # class needed temporary to identify temporary paths in the pipeline.
         # must inerit a string type since it is used as a trait value
-        pass
+        def __init__(self, string):
+            super(unicode, self).__init__(string)
+            if isinstance(string, TempFile):
+                self.pattern = string.pattern
+                self.value = string.value
+            else:
+                self.pattern = u'%s'
+                self.value = string
+
+        def __add__(self, other):
+            res = TempFile(unicode(self) + unicode(other))
+            res.pattern = self.pattern + unicode(other)
+            res.value = self.value
+            return res
+
+        def __radd__(self, other):
+            res = TempFile(unicode(other) + unicode(self))
+            res.pattern = unicode(other) + u'%s'
+            res.value = self.value
+            return res
+
+        def __iadd__(self, other):
+            self.pattern += u'%s' + unicode(other)
+            super(unicode, self).__iadd__(unicode(other))
+
+        def __str__(self):
+            return self.pattern % self.value
+
+        def __repr__(self):
+            return repr(self.pattern % self.value)
+
+        def __eq__(self, other):
+            return self.__str__().__eq__(other)
+
+        def __ne__(self, other):
+            return self.__str__().__ne__(other)
+
+        def __gt__(self, other):
+            return self.__str__().__gt__(other)
+
+        def __le__(self, other):
+            return self.__str__().__le__(other)
+
 
     def _files_group(path, merged_formats):
         bname = os.path.basename(path)
