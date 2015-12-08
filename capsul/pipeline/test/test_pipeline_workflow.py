@@ -37,10 +37,18 @@ class DummyPipeline(Pipeline):
 
     def pipeline_definition(self):
         # Create processes
-        self.add_process("node1", DummyProcess)
-        self.add_process("node2", DummyProcess)
-        self.add_process("node3", DummyProcess)
-        self.add_process("node4", DummyProcess)
+        self.add_process(
+            "node1",
+            'capsul.pipeline.test.test_pipeline_workflow.DummyProcess')
+        self.add_process(
+            "node2",
+            'capsul.pipeline.test.test_pipeline_workflow.DummyProcess')
+        self.add_process(
+            "node3",
+            'capsul.pipeline.test.test_pipeline_workflow.DummyProcess')
+        self.add_process(
+            "node4",
+            'capsul.pipeline.test.test_pipeline_workflow.DummyProcess')
         # Links
         self.add_link("node1.output->node2.input")
         self.add_link("node2.output->node3.input")
