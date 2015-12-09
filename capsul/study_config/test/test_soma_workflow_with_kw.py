@@ -28,53 +28,45 @@ class EchoProcess(Process):
     """ Dummy Echo Process
     """
     def get_commandline(self):
-        cmdline = ['echo', ]
+        cmdline = ['echo']
         for parameter in self.user_traits():
-            cmdline.append(parameter + '=' + repr(getattr(self, parameter)))
-            value = getattr(self, parameter)
-            if hasattr(value, 'pattern'):
-                print('value with pattern:', parameter, ':', value,
-                      type(value))
-                print('arg:', parameter + '=' + repr(getattr(self, parameter)))
-                print('type:', type(parameter + '=' + repr(getattr(self, parameter))))
-                print(type(value))
-                print(type(repr(value)))
-                print(type('toto' + value))
+            cmdline.append(self.make_commandline_argument(
+                parameter, '=', getattr(self, parameter)))
+        return cmdline
+
+class CopyProcess(Process):
+    def __init__(self):
+        super(Process, self).__init__()
+        # Inputs
+        self.add_trait("input_image", File(optional=True))
+        # Outputs
+        self.add_trait("output_image", File(optional=True, output=True))
+
+    def get_commandline(self):
+        cpcmd = 'cp'
+        if sys.platform.startswith('win'):
+            cpcmd = 'copy'
+        cmdline = [cpcmd, self.input_image, self.output_image]
         return cmdline
 
 
-class Process_1(EchoProcess):
+class Process_1(CopyProcess):
     """ Dummy Test Process
     """
-    def __init__(self):
-        super(Process_1, self).__init__()
-        # Inputs
-        self.add_trait("input_image", File(optional=True))
-        # Outputs
-        self.add_trait("output_image", File(optional=True, output=True))
+    pass
 
 
-class Process_2(EchoProcess):
+class Process_2(CopyProcess):
     """ Dummy Test Process
     """
-    def __init__(self):
-        super(Process_2, self).__init__()
-        # Inputs
-        self.add_trait("input_image", File(optional=True))
-        # Outputs
-        self.add_trait("output_image", File(optional=True, output=True))
+    pass
 
-class Process_3(EchoProcess):
+class Process_3(CopyProcess):
     """ Dummy Test Process
     """
-    def __init__(self):
-        super(Process_3, self).__init__()
-        # Inputs
-        self.add_trait("input_image", File(optional=True))
-        # Outputs
-        self.add_trait("output_image", File(optional=True, output=True))
+    pass
 
-class Process_4(EchoProcess):
+class Process_4(Process):
     """ Dummy Test Process
     """
     def __init__(self):
@@ -84,6 +76,14 @@ class Process_4(EchoProcess):
         self.add_trait("other_image", File(optional=True))
         # Outputs
         self.add_trait("output_image", File(optional=True, output=True))
+
+    def get_commandline(self):
+        cmdline = ['python', '-c',
+                   'import os; import sys; f = open(sys.argv[3], "w"); '
+                   'f.write(open(sys.argv[1]).read()); '
+                   'f.write(open(sys.argv[2]).read())',
+                   self.input_image, self.other_image, self.output_image]
+        return cmdline
 
 
 class MyAtomicPipeline(Pipeline):
@@ -182,7 +182,20 @@ class TestSomaWorkflow(unittest.TestCase):
             self.assertTrue(self.atomic_pipeline.workflow_repr in \
                 ('node1->node3->node2->node4',
                 'node1->node2->node3->node4'))
+        tmp1 = tempfile.mkstemp('', prefix='capsul_swf')
+        os.write(tmp1[0], 'bidibidi')
+        os.close(tmp1[0])
+        tmp2 = tempfile.mkstemp('', prefix='capsul_swf_out')
+        os.close(tmp2[0])
+        os.unlink(tmp2[1])
+        self.atomic_pipeline.input_image = tmp1[1]
+        self.atomic_pipeline.output_image = tmp2[1]
         self.study_config.run(self.atomic_pipeline)
+        self.assertTrue(os.path.exists(tmp2[1]))
+        content = open(tmp2[1]).read()
+        self.assertEqual(content, 'bidibidibidibidi')
+        os.unlink(tmp1[1])
+        os.unlink(tmp2[1])
 
     def test_composite_dependencies(self):
         workflow = workflow_from_pipeline(self.composite_pipeline)
@@ -200,7 +213,20 @@ class TestSomaWorkflow(unittest.TestCase):
         self.composite_pipeline.workflow_ordered_nodes()
         self.assertEqual(self.composite_pipeline.workflow_repr,
                          "node1->node3->node2->node4")
+        tmp1 = tempfile.mkstemp('', prefix='capsul_swf')
+        os.write(tmp1[0], 'bidibidi')
+        os.close(tmp1[0])
+        tmp2 = tempfile.mkstemp('', prefix='capsul_swf_out')
+        os.close(tmp2[0])
+        os.unlink(tmp2[1])
+        self.composite_pipeline.input_image = tmp1[1]
+        self.composite_pipeline.output_image = tmp2[1]
         self.study_config.run(self.composite_pipeline)
+        self.assertTrue(os.path.exists(tmp2[1]))
+        content = open(tmp2[1]).read()
+        self.assertEqual(content, 'bidibidibidibidibidibidi')
+        os.unlink(tmp1[1])
+        os.unlink(tmp2[1])
 
 
 def test():
