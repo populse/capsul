@@ -18,13 +18,16 @@ install:
     - source activate testenv
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install ordereddict; fi
     - conda install --yes numpy scipy nose traits networkx dateutil
+    # until we release soma-workflow 2.8
+    - git clone https://github.com/neurospin/soma-workflow.git /tmp/soma-workflow
+    - python /tmp/soma-workflow/setup.py install
     - pip install argparse
     - pip install importlib
     - pip install nibabel
     - pip install nose-cov
     - python -c 'import sys; sys.exit(sys.version_info >= [2, 7])' && pip install nipype || pip install nipype==0.10.0
     - pip install xmltodict
-    - pip install soma-workflow
+    #- pip install soma-workflow
     - python setup.py install
 
 script:
