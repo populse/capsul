@@ -58,10 +58,57 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         a soma-workflow workflow
     """
 
-    class TempFile(unicode):
+    class TempFile(str):
         # class needed temporary to identify temporary paths in the pipeline.
         # must inerit a string type since it is used as a trait value
-        pass
+        def __init__(self, string):
+            super(TempFile, self).__init__(string)
+            if isinstance(string, TempFile):
+                self.pattern = string.pattern
+                self.value = string.value
+                self.ref = string.ref if string.ref else string
+            else:
+                self.pattern = '%s'
+                self.value = string
+                self.ref = None
+
+        def referent(self):
+            return self.ref if self.ref else self
+
+        def get_value(self):
+            return self.referent().value
+
+        def __add__(self, other):
+            res = TempFile(str(self) + str(other))
+            res.pattern = self.pattern + str(other)
+            res.value = self.value
+            res.ref = self.referent()
+            return res
+
+        def __radd__(self, other):
+            res = TempFile(str(other) + str(self))
+            res.pattern = str(other) + self.pattern
+            res.value = self.value
+            res.ref = self.referent()
+            return res
+
+        def __iadd__(self, other):
+            self.pattern += str(other)
+            str(TempFile, self).__iadd__(str(other))
+
+        def __str__(self):
+            return self.pattern % self.get_value()
+
+        def __hash__(self):
+            if self.ref:
+                return self.referent().__hash__()
+            return super(TempFile, self).__hash__()
+
+        def __eq__(self, other):
+            if not isinstance(other, TempFile):
+                return False
+            return self.referent() is other.referent()
+
 
     def _files_group(path, merged_formats):
         bname = os.path.basename(path)
@@ -143,6 +190,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                     deeperlist = list(item)
                     _replace_in_list(deeperlist, temp_map)
                     rlist[i] = deeperlist
+                elif item is Undefined:
+                    rlist[i] = ''
 
         def _replace_transfers(rlist, process, itransfers, otransfers):
             param_name = None
@@ -167,8 +216,6 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                     param_name = None
                 i += 1
 
-        # Get the process command line
-        process_cmdline = process.get_commandline()
         job_name = name
         if not job_name:
             job_name = process.name
@@ -180,19 +227,25 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             if param_name not in ('nodes_activation', 'selection_changed'):
                 value = getattr(process, param_name)
                 if isinstance(value, TempFile):
+                    # duplicate swf temp and copy pattern into it
+                    tval = temp_map[value]
+                    tval = tval.__class__(tval)
+                    tval.pattern = value.pattern
                     if parameter.output:
-                        output_replaced_paths.append(temp_map[value])
+                        output_replaced_paths.append(tval)
                     else:
                         if value in forbidden_temp:
                             raise ValueError(
                                 'Temporary value used cannot be generated in '
                                 'the workflkow: %s.%s'
                                 % (job_name, param_name))
-                        input_replaced_paths.append(temp_map[value])
+                        input_replaced_paths.append(tval)
                 else:
                     _translated_path(value, shared_map, shared_paths,
                                      parameter)
 
+        # Get the process command line
+        process_cmdline = process.get_commandline()
         # and replace in commandline
         iproc_transfers = transfers[0].get(process, {})
         oproc_transfers = transfers[1].get(process, {})
