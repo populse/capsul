@@ -442,6 +442,34 @@ class Process(Controller):
 
         return commandline
 
+    def make_commandline_argument(self, *args):
+        """This helper function may be used to build non-trivial commandline
+        arguments in get_commandline implementations.
+        Basically it concatenates arguments, but it also takes care of keeping
+        track of temporary file objects (if any), and converts non-string
+        arguments to strings (using repr()).
+
+        Ex:
+
+        >>> process.make_commandline_argument('param=', self.param)
+
+        will return the same as:
+
+        >>> 'param=' + self.param
+
+        if self.param is a string (file name) or a temporary path.
+        """
+        built_arg = ""
+        temp = None
+        for arg in args:
+            if hasattr(arg, 'pattern'): # tempfile
+                built_arg = built_arg + arg
+            elif isinstance(arg, basestring):
+                built_arg += arg
+            else:
+                built_arg = built_arg + repr(arg)
+        return built_arg
+
     def get_log(self):
         """ Load the logging file.
 
