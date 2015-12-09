@@ -58,7 +58,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         a soma-workflow workflow
     """
 
-    class TempFile(unicode):
+    class TempFile(str):
         # class needed temporary to identify temporary paths in the pipeline.
         # must inerit a string type since it is used as a trait value
         def __init__(self, string):
@@ -68,7 +68,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 self.value = string.value
                 self.ref = string.ref if string.ref else string
             else:
-                self.pattern = u'%s'
+                self.pattern = '%s'
                 self.value = string
                 self.ref = None
 
@@ -79,45 +79,35 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             return self.referent().value
 
         def __add__(self, other):
-            res = TempFile(unicode(self) + unicode(other))
-            res.pattern = self.pattern + unicode(other)
+            res = TempFile(str(self) + str(other))
+            res.pattern = self.pattern + str(other)
             res.value = self.value
             res.ref = self.referent()
             return res
 
         def __radd__(self, other):
-            res = TempFile(unicode(other) + unicode(self))
-            res.pattern = unicode(other) + self.pattern
+            res = TempFile(str(other) + str(self))
+            res.pattern = str(other) + self.pattern
             res.value = self.value
             res.ref = self.referent()
             return res
 
         def __iadd__(self, other):
-            self.pattern += unicode(other)
-            super(TempFile, self).__iadd__(unicode(other))
+            self.pattern += str(other)
+            str(TempFile, self).__iadd__(str(other))
 
         def __str__(self):
             return self.pattern % self.get_value()
 
-        def __repr__(self):
-            return self #repr(self.pattern % self.get_value())
-
         def __hash__(self):
             if self.ref:
-                return self.referent().__hash__
+                return self.referent().__hash__()
             return super(TempFile, self).__hash__()
 
-        #def __eq__(self, other):
-            #return self.__str__().__eq__(other)
-
-        #def __ne__(self, other):
-            #return self.__str__().__ne__(other)
-
-        #def __gt__(self, other):
-            #return self.__str__().__gt__(other)
-
-        #def __le__(self, other):
-            #return self.__str__().__le__(other)
+        def __eq__(self, other):
+            if not isinstance(other, TempFile):
+                return False
+            return self.referent() is other.referent()
 
 
     def _files_group(path, merged_formats):
@@ -195,12 +185,13 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             for i, item in enumerate(rlist):
                 if item in temp_map:
                     value = temp_map[item]
-
                     rlist[i] = value
                 elif isinstance(item, list) or isinstance(item, tuple):
                     deeperlist = list(item)
                     _replace_in_list(deeperlist, temp_map)
                     rlist[i] = deeperlist
+                elif item is Undefined:
+                    rlist[i] = ''
 
         def _replace_transfers(rlist, process, itransfers, otransfers):
             param_name = None
