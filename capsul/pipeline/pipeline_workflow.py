@@ -62,47 +62,62 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         # class needed temporary to identify temporary paths in the pipeline.
         # must inerit a string type since it is used as a trait value
         def __init__(self, string):
-            super(unicode, self).__init__(string)
+            super(TempFile, self).__init__(string)
             if isinstance(string, TempFile):
                 self.pattern = string.pattern
                 self.value = string.value
+                self.ref = string.ref if string.ref else string
             else:
                 self.pattern = u'%s'
                 self.value = string
+                self.ref = None
+
+        def referent(self):
+            return self.ref if self.ref else self
+
+        def get_value(self):
+            return self.referent().value
 
         def __add__(self, other):
             res = TempFile(unicode(self) + unicode(other))
             res.pattern = self.pattern + unicode(other)
             res.value = self.value
+            res.ref = self.referent()
             return res
 
         def __radd__(self, other):
             res = TempFile(unicode(other) + unicode(self))
-            res.pattern = unicode(other) + u'%s'
+            res.pattern = unicode(other) + self.pattern
             res.value = self.value
+            res.ref = self.referent()
             return res
 
         def __iadd__(self, other):
-            self.pattern += u'%s' + unicode(other)
-            super(unicode, self).__iadd__(unicode(other))
+            self.pattern += unicode(other)
+            super(TempFile, self).__iadd__(unicode(other))
 
         def __str__(self):
-            return self.pattern % self.value
+            return self.pattern % self.get_value()
 
         def __repr__(self):
-            return repr(self.pattern % self.value)
+            return self #repr(self.pattern % self.get_value())
 
-        def __eq__(self, other):
-            return self.__str__().__eq__(other)
+        def __hash__(self):
+            if self.ref:
+                return self.referent().__hash__
+            return super(TempFile, self).__hash__()
 
-        def __ne__(self, other):
-            return self.__str__().__ne__(other)
+        #def __eq__(self, other):
+            #return self.__str__().__eq__(other)
 
-        def __gt__(self, other):
-            return self.__str__().__gt__(other)
+        #def __ne__(self, other):
+            #return self.__str__().__ne__(other)
 
-        def __le__(self, other):
-            return self.__str__().__le__(other)
+        #def __gt__(self, other):
+            #return self.__str__().__gt__(other)
+
+        #def __le__(self, other):
+            #return self.__str__().__le__(other)
 
 
     def _files_group(path, merged_formats):
@@ -180,6 +195,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             for i, item in enumerate(rlist):
                 if item in temp_map:
                     value = temp_map[item]
+
                     rlist[i] = value
                 elif isinstance(item, list) or isinstance(item, tuple):
                     deeperlist = list(item)
@@ -209,8 +225,6 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                     param_name = None
                 i += 1
 
-        # Get the process command line
-        process_cmdline = process.get_commandline()
         job_name = name
         if not job_name:
             job_name = process.name
@@ -222,19 +236,25 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             if param_name not in ('nodes_activation', 'selection_changed'):
                 value = getattr(process, param_name)
                 if isinstance(value, TempFile):
+                    # duplicate swf temp and copy pattern into it
+                    tval = temp_map[value]
+                    tval = tval.__class__(tval)
+                    tval.pattern = value.pattern
                     if parameter.output:
-                        output_replaced_paths.append(temp_map[value])
+                        output_replaced_paths.append(tval)
                     else:
                         if value in forbidden_temp:
                             raise ValueError(
                                 'Temporary value used cannot be generated in '
                                 'the workflkow: %s.%s'
                                 % (job_name, param_name))
-                        input_replaced_paths.append(temp_map[value])
+                        input_replaced_paths.append(tval)
                 else:
                     _translated_path(value, shared_map, shared_paths,
                                      parameter)
 
+        # Get the process command line
+        process_cmdline = process.get_commandline()
         # and replace in commandline
         iproc_transfers = transfers[0].get(process, {})
         oproc_transfers = transfers[1].get(process, {})
