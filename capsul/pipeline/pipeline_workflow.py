@@ -341,14 +341,14 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     def _get_swf_paths(study_config):
         computing_resource = getattr(
             study_config, 'somaworkflow_computing_resource', None)
-        if computing_resource is None:
+        if computing_resource in (None, Undefined):
             return [], {}
         resources_conf = getattr(
             study_config, 'somaworkflow_computing_resources_config', None)
-        if resources_conf is None:
+        if resources_conf in (None, Undefined):
             return [], {}
         resource_conf = getattr(resources_conf, computing_resource, None)
-        if resource_conf is None:
+        if resource_conf in (None, Undefined):
             return [], {}
         return (resource_conf.transfer_paths,
                 resource_conf.path_translations.export_to_dict())
