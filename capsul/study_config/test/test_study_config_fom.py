@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import unittest
 from capsul.study_config.study_config import StudyConfig
 from capsul.study_config.config_modules.fom_config import FomConfig

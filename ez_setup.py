@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Bootstrap setuptools installation
 
 To use setuptools in your package's setup.py, include this

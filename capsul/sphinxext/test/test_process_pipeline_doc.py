@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 ##########################################################################
 # Capsul - Copyright (C) CEA, 2014
 # Distributed under the terms of the CeCILL-B license, as published by
