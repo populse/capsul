@@ -1,0 +1,30 @@
+<pipeline>
+    <doc>
+        Auto Generated Pipeline Test
+    </doc>
+    <process name="p1">
+        <module>capsul.utils.test.process.AFunctionToWrap</module>
+        <set name="reference" value="['test']"/>
+    </process>
+    <process name="p2">
+        <module>capsul.utils.test.process.AFunctionToWrap</module>
+    </process>
+    <link source="p1.string" dest="p2.fname"/>
+    <link source="pdirectory" dest="p2.directory"/>
+    <link source="value" dest="p2.value"/>
+    <link source="enum" dest="p2.enum"/>
+    <link source="list_of_str" dest="p2.list_of_str"/>
+    <link source="value" dest="p1.value"/>
+    <link source="enum" dest="p1.enum"/>
+    <link source="list_of_str" dest="p1.list_of_str"/>
+    <link source="pdirectory" dest="p1.directory"/>
+    <link dest="out1" source="p2.string"/>
+    <link dest="out2" source="p2.reference"/>
+    <gui>
+        <position process="inputs" x="0" y="0"/>
+        <position process="p1" x="200" y="200"/>
+        <position process="p2" x="400" y="-200"/>
+        <position process="outputs" x="600" y="0"/>
+        <zoom factor="1"/> 
+    </gui>
+</pipeline>

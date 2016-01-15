@@ -15,15 +15,34 @@ from capsul.process.loader import get_process_instance
 from capsul.pipeline import Pipeline
 
 
+def a_function_to_wrap(fname, directory, value, enum, list_of_str):
+    """ A dummy fucntion that just print all its parameters.
+
+    <process>
+        <return name="string" type="string" doc="test" />
+        <input name="fname" type="File" doc="test" />
+        <input name="directory" type="Directory" doc="test" />
+        <input name="value" type="Float" doc="test" />
+        <input name="enum" type="Str" doc="test" />
+        <input name="list_of_str" type="List_Str" doc="test" />
+    </process>
+    """
+    string = "ALL FUNCTION PARAMETERS::\n\n"
+    for input_parameter in (fname, directory, value, enum, list_of_str):
+        string += str(input_parameter)
+    return string
+
 def to_warp_func(parameter1, parameter2, parameter3):
     """ Test function.
 
     <process>
-        <return name="output1" type="Float" desc="an output."/>
-        <return name="output2" type="String" desc="an output."/>
         <input name="parameter1" type="Float" desc="a parameter."/>
         <input name="parameter2" type="String" desc="a parameter."/>
         <input name="parameter3" type="Int" desc="a parameter."/>
+        <return>
+            <output name="output1" type="Float" desc="an output."/>
+            <output name="output2" type="String" desc="an output."/>
+        </return>
     </process>
     """
     output1 = 1
@@ -51,19 +70,46 @@ class TestLoadFromDescription(unittest.TestCase):
     def test_pipeline_warpping(self):
         """ Method to test the xml description to pipeline on the fly warpping.
         """
-        pipeline = get_process_instance("capsul.utils.test.xml_pipeline.xml")
+        pipeline = get_process_instance("capsul.process.test.xml_pipeline")
         self.assertTrue(isinstance(pipeline, Pipeline))
         for node_name in ["", "p1", "p2"]:
             self.assertTrue(node_name in pipeline.nodes)
 
+class TestProcessWrap(unittest.TestCase):
+    """ Class to test the function used to wrap a function to a process
+    """
+    def setUp(self):
+        """ In the setup construct set some process input parameters.
+        """
+        # Get the wraped test process process
+        self.process = get_process_instance(
+            "capsul.process.test.test_load_from_description.a_function_to_warp")
+
+        # Set some input parameters
+        self.process.fname = "fname"
+        self.process.directory = "directory"
+        self.process.value = 1.2
+        self.process.enum = "choice1"
+        self.process.list_of_str = ["a_string"]
+
+    def test_process_wrap(self):
+        """ Method to test if the process has been wraped properly.
+        """
+        # Execute the process
+        self.process()
+        self.assertEqual(
+            getattr(self.process, "string"),
+            "ALL FUNCTION PARAMETERS::\n\nfnamedirectory1.2choice1['a_string']")
 
 def test():
     """ Function to execute unitest
     """
-    suite = unittest.TestLoader().loadTestsFromTestCase(
+    suite1 = unittest.TestLoader().loadTestsFromTestCase(
         TestLoadFromDescription)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
+    runtime1 = unittest.TextTestRunner(verbosity=2).run(suite1)
+    suite2 = unittest.TestLoader().loadTestsFromTestCase(TestProcessWrap)
+    runtime2 = unittest.TextTestRunner(verbosity=2).run(suite2)
+    return runtime1.wasSuccessful() and runtime2.wasSuccessful()
 
 
 if __name__ == "__main__":
