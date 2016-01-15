@@ -875,11 +875,12 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             new_path = _translated_path(path, shared_map, shared_paths)
             paths.append(new_path or path)
         # use a python command to avoid the shell command mkdir
-        cmdline = [
-            'python', '-c',
-            'import sys, os; [os.makedirs(path) for path in sys.argv[1:] '
-            'if not os.path.exists(path)]'] \
-            + paths
+        cmdline = ['python', '-c',
+                   'import sys, os; [os.makedirs(p) if not os.path.exists(p) '
+                   'else None '
+                   'for p in sys.argv[1:]]'] \
+                  + paths
+
         job = swclient.Job(
             name='output directories creation',
             command=cmdline,
