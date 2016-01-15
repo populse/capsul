@@ -20,11 +20,11 @@ def a_function_to_wrap(fname, directory, value, enum, list_of_str):
 
     <process>
         <return name="string" type="string" doc="test" />
-        <input name="fname" type="File" doc="test" />
-        <input name="directory" type="Directory" doc="test" />
-        <input name="value" type="Float" doc="test" />
-        <input name="enum" type="Str" doc="test" />
-        <input name="list_of_str" type="List_Str" doc="test" />
+        <input name="fname" type="file" doc="test" />
+        <input name="directory" type="directory" doc="test" />
+        <input name="value" type="float" doc="test" />
+        <input name="enum" type="string" doc="test" />
+        <input name="list_of_str" type="list_string" doc="test" />
     </process>
     """
     string = "ALL FUNCTION PARAMETERS::\n\n"
@@ -36,12 +36,12 @@ def to_warp_func(parameter1, parameter2, parameter3):
     """ Test function.
 
     <process>
-        <input name="parameter1" type="Float" desc="a parameter."/>
-        <input name="parameter2" type="String" desc="a parameter."/>
-        <input name="parameter3" type="Int" desc="a parameter."/>
+        <input name="parameter1" type="float" desc="a parameter."/>
+        <input name="parameter2" type="string" desc="a parameter."/>
+        <input name="parameter3" type="int" desc="a parameter."/>
         <return>
-            <output name="output1" type="Float" desc="an output."/>
-            <output name="output2" type="String" desc="an output."/>
+            <output name="output1" type="float" desc="an output."/>
+            <output name="output2" type="string" desc="an output."/>
         </return>
     </process>
     """

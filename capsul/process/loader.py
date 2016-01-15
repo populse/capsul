@@ -7,15 +7,16 @@
 ##########################################################################
 
 # System import
-import logging
-
-# Define the logger
-logger = logging.getLogger(__name__)
+import sys
+import os.path as osp
+import importlib
+import types
+import re
 
 # Caspul import
-from process import Process
-from nipype_process import nipype_factory
-from capsul.utils.loader import load_objects
+from capsul.process.process import Process
+from capsul.process.nipype_process import nipype_factory
+from capsul.process.xml import create_xml_process
 
 # Nipype import
 try:
@@ -24,6 +25,8 @@ try:
 except ImportError:
     Interface = type("Interface", (object, ), {})
 
+
+process_xml_re = re.compile(r'<process>.*</process>', re.DOTALL)
 
 def get_process_instance(process_or_id, **kwargs):
     """ Return a Process instance given an identifier.
@@ -65,6 +68,7 @@ def get_process_instance(process_or_id, **kwargs):
     result: Process
         an initialized process instance.
     """
+    result = None
     # If the function 'process_or_id' parameter is already a Process
     # instance.
     if isinstance(process_or_id, Process):
@@ -88,40 +92,49 @@ def get_process_instance(process_or_id, **kwargs):
     # If the function 'process_or_id' parameter is a class string
     # description
     elif isinstance(process_or_id, basestring):
-
-        # Get the class and module names from the class string description
-        id_list = process_or_id.split(".")
-        if id_list[-1] == "xml":
-            module_name = ".".join(id_list[:-2])
-            object_name = ".".join(id_list[-2:])
+        module_name, object_name = process_or_id.rsplit('.', 1)
+        importlib.import_module(module_name)
+        module = sys.modules[module_name]
+        module_object = getattr(module, object_name, None)
+        if module_object is None:
+            xml = osp.join(osp.dirname(module.__file__), object_name + '.xml')
+            if osp.exists(xml):
+                # TODO
+                return xml
+            ## Go through all the module items
+            #for item_name in dir(module):
+                ## Do not consider private items
+                #if item_name.startswith("_"):
+                    #continue
+                #item = getattr(module, item_name)
+                #selected = None
+                #for possible_class in (Process, Interface):
+                    #if isinstance(item, type) and item is not possible_class:
+                        #if selected is None:
+                            #selected = item
+                        #else:
+                            #raise ValueError('More than one %s defined in %s' % (possible_class.__name__, module_name)
+                ## If the current tool is a subclass of one allowed instances,
+                ## add this object to the final list.
+                #for check_instance in allowed_instances:
+                    #if issubclass(tool, check_instance):
+                        #tools.append(tool)
+                        #break
         else:
-            module_name = ".".join(id_list[:-1])
-            object_name = id_list[-1]
+            if isinstance(module_object, Process):
+                result = module_object()
+            elif isinstance(module_object, Interface):
+                # If we have a Nipype interface, wrap this structure in a Process
+                # class
+                result = nipype_factory(result)
+            elif isinstance(module_object, types.FunctionType):
+                # Check docstring
+                match = process_xml_re.search(module_object.__doc__)
+                if match:
+                    xml = match.group(0)
+                    result = create_xml_process(module_name, object_name, module_object, xml)()
 
-        # Try to load the class
-        module_objects = load_objects(
-            module_name, object_name,
-            allowed_instances=[Process, Interface])
-
-        # Expect only one Process
-        if len(module_objects) != 1:
-            raise ImportError(
-                "Found '{0}' process(es) declared in '{1}' when looking for "
-                "'{2}' class/function/pipeline.".format(
-                    len(module_objects), module_name, object_name))
-
-        # Get the target Process
-        process_class = module_objects[0]
-
-        # Get the process class instance
-        result = process_class()
-
-        # If we have a Nipype interface, wrap this structure in a Process
-        # class
-        if isinstance(result, Interface):
-            result = nipype_factory(result)
-
-    else:
+    if result is None:
         raise ValueError("Invalid process_or_id argument. "
                          "Got '{0}' and expect a Process instance/string "
                          "description or an Interface instance/string "
