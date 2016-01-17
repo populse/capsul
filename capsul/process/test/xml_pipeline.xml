@@ -2,13 +2,12 @@
     <doc>
         Auto Generated Pipeline Test
     </doc>
-    <process name="p1">
-        <module>capsul.utils.test.process.AFunctionToWrap</module>
-        <set name="reference" value="['test']"/>
+    <process name="p1"
+             module="capsul.process.test.test_load_from_description.a_function_to_wrap">
+        <set name="list_of_str" value="['test']"/>
     </process>
-    <process name="p2">
-        <module>capsul.utils.test.process.AFunctionToWrap</module>
-    </process>
+    <process name="p2"
+             module="capsul.process.test.test_load_from_description.a_function_to_wrap"/>
     <link source="p1.string" dest="p2.fname"/>
     <link source="pdirectory" dest="p2.directory"/>
     <link source="value" dest="p2.value"/>
@@ -19,7 +18,6 @@
     <link source="list_of_str" dest="p1.list_of_str"/>
     <link source="pdirectory" dest="p1.directory"/>
     <link dest="out1" source="p2.string"/>
-    <link dest="out2" source="p2.reference"/>
     <gui>
         <position process="inputs" x="0" y="0"/>
         <position process="p1" x="200" y="200"/>

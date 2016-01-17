@@ -1118,6 +1118,18 @@ class NipypeProcess(FileCopyProcess):
         self.output_directory = out_dir
         self._nipype_interface.inputs.output_directory = out_dir
 
+    def set_usedefault(self, parameter, value):
+        """ Set the value of the usedefault attribute on a given parameter.
+
+        Parameters
+        ----------
+        parameter: str (mandatory)
+            name of the parameter to modify.
+        value: bool (mandatory)
+            value set to the usedefault attribute
+        """
+        setattr(self._nipype_interface.inputs, parameter, value)
+
     def _run_process(self):
         """ Method that do the processings when the instance is called.
 

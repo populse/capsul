@@ -17,6 +17,7 @@ import re
 from capsul.process.process import Process
 from capsul.process.nipype_process import nipype_factory
 from capsul.process.xml import create_xml_process
+from capsul.pipeline.xml import create_xml_pipeline
 
 # Nipype import
 try:
@@ -93,14 +94,16 @@ def get_process_instance(process_or_id, **kwargs):
     # description
     elif isinstance(process_or_id, basestring):
         module_name, object_name = process_or_id.rsplit('.', 1)
-        importlib.import_module(module_name)
+        try:
+            importlib.import_module(module_name)
+        except ImportError as e:
+            raise ImportError('Cannot import %s: %s' % (module_name, str(e)))
         module = sys.modules[module_name]
         module_object = getattr(module, object_name, None)
         if module_object is None:
-            xml = osp.join(osp.dirname(module.__file__), object_name + '.xml')
-            if osp.exists(xml):
-                # TODO
-                return xml
+            xml_file = osp.join(osp.dirname(module.__file__), object_name + '.xml')
+            if osp.exists(xml_file):
+                result = create_xml_pipeline(module_name, object_name, xml_file)()
             ## Go through all the module items
             #for item_name in dir(module):
                 ## Do not consider private items

@@ -10,9 +10,9 @@
 import unittest
 
 # Capsul import
-from capsul.process import Process
-from capsul.process.loader import get_process_instance
-from capsul.pipeline import Pipeline
+from capsul.api import Process
+from capsul.api import get_process_instance
+from capsul.api import Pipeline
 
 
 def a_function_to_wrap(fname, directory, value, enum, list_of_str):

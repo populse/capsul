@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import absolute_import
+
 # System import
 import logging
 from copy import deepcopy
@@ -30,14 +32,13 @@ except ImportError:
         List, Tuple, Instance, Any, Event, CTrait, Directory, Trait)
 
 # Capsul import
-from capsul.process import Process, NipypeProcess
-from capsul.process import get_process_instance
-from topological_sort import GraphNode
-from topological_sort import Graph
-from pipeline_nodes import Plug
-from pipeline_nodes import ProcessNode
-from pipeline_nodes import PipelineNode
-from pipeline_nodes import Switch
+from capsul.process.process import Process, NipypeProcess
+from .topological_sort import GraphNode
+from .topological_sort import Graph
+from .pipeline_nodes import Plug
+from .pipeline_nodes import ProcessNode
+from .pipeline_nodes import PipelineNode
+from .pipeline_nodes import Switch
 
 # Soma import
 from soma.controller import Controller
@@ -162,12 +163,17 @@ class Pipeline(Process):
     """
 
     selection_changed = Event()
-
+    
+    # The default value for autoexport_nodes_parameters is stored in the
+    # pipeline class. This makes it possible to changes this default value
+    # in derived classes (for instance in DynamicPipeline).
+    autoexport_nodes_parameters = True
+    
     # By default nodes_activation trait is hidden in user interface. Changing
     # this value to False will make it visible.
     hide_nodes_activation = True
 
-    def __init__(self, autoexport_nodes_parameters=True, **kwargs):
+    def __init__(self, autoexport_nodes_parameters=None, **kwargs):
         """ Initialize the Pipeline class
 
         Parameters
@@ -187,7 +193,13 @@ class Pipeline(Process):
         self.attributes = {}
         self.nodes_activation = Controller()
         self.nodes = SortedDictionary()
-        self.node_position = {}
+        # Get node_position from the Pipeline class if it is
+        # defined
+        node_position = getattr(self,'node_position', None)
+        if node_position:
+            self.node_position = node_position.copy()
+        else:
+            self.node_position = {}
         self.pipeline_node = PipelineNode(self, '', self)
         self.nodes[''] = self.pipeline_node
         self.do_not_export = set()
@@ -199,6 +211,8 @@ class Pipeline(Process):
         self.workflow_repr = ""
         self.workflow_list = []
 
+        if autoexport_nodes_parameters is None:
+            autoexport_nodes_parameters = self.autoexport_nodes_parameters
         if autoexport_nodes_parameters:
             self.autoexport_nodes_parameters()
 
@@ -319,6 +333,11 @@ class Pipeline(Process):
             raise ValueError("Pipeline cannot have two nodes with the"
                              "same name : {0}".format(name))
 
+        # It is necessary not to import capsul.loader at the module level
+        # because there are circular dependencies between modules. For
+        # instance, Pipeline class needs get_process_instance
+        # which needs create_xml_pipeline which needs Pipeline class.
+        from capsul.process.loader import get_process_instance
         # Create a process node
         process = get_process_instance(process, **kwargs)
 
@@ -401,6 +420,21 @@ class Pipeline(Process):
                              do_not_export, make_optional, **kwargs)
             return
 
+    def call_process_method(self, process_name, method,
+                            *args, **kwargs):
+        """ Call a method of a process previously added
+        with add_process or add_iterative_process.
+
+        Parameters
+        ----------
+        process_name: str (mandatory)
+            name given to the process node.
+        method: str (mandatory)
+            name of the method to call.
+        """
+        return getattr(self.nodes[process_name].process, method)(*args, 
+                                                                 **kwargs)
+    
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=()):
         """ Add a switch node in the pipeline
@@ -1761,4 +1795,3 @@ class Pipeline(Process):
         steps = getattr(self, 'pipeline_steps', Controller())
         for step, trait in steps.user_traits().iteritems():
             setattr(steps, step, True)
-

@@ -10,7 +10,7 @@ from __future__ import absolute_import
 
 from soma.controller.trait_utils import clone_trait
 
-from capsul.process import Process
+from capsul.process.process import Process
 
 import xml.etree.cElementTree as ET
 from traits.api import Int, Float, String, Unicode, File, Directory, Enum, List
@@ -109,7 +109,7 @@ def create_xml_process(module, name, function, xml):
                     class_kwargs[name] = trait
                     function_outputs.append(name)
         else:
-            raise ValueError('Invalid tag in <process>: %s' % tag)
+            raise ValueError('Invalid tag in <process>: %s' % child.tag)
     class_kwargs['_function'] = staticmethod(function)
     class_kwargs['_function_inputs'] = function_inputs
     class_kwargs['_function_outputs'] = function_outputs
