@@ -104,27 +104,9 @@ def get_process_instance(process_or_id, **kwargs):
             xml_file = osp.join(osp.dirname(module.__file__), object_name + '.xml')
             if osp.exists(xml_file):
                 result = create_xml_pipeline(module_name, object_name, xml_file)()
-            ## Go through all the module items
-            #for item_name in dir(module):
-                ## Do not consider private items
-                #if item_name.startswith("_"):
-                    #continue
-                #item = getattr(module, item_name)
-                #selected = None
-                #for possible_class in (Process, Interface):
-                    #if isinstance(item, type) and item is not possible_class:
-                        #if selected is None:
-                            #selected = item
-                        #else:
-                            #raise ValueError('More than one %s defined in %s' % (possible_class.__name__, module_name)
-                ## If the current tool is a subclass of one allowed instances,
-                ## add this object to the final list.
-                #for check_instance in allowed_instances:
-                    #if issubclass(tool, check_instance):
-                        #tools.append(tool)
-                        #break
         else:
-            if isinstance(module_object, Process):
+            if (isinstance(module_object, type) and
+                issubclass(module_object, Process)):
                 result = module_object()
             elif isinstance(module_object, Interface):
                 # If we have a Nipype interface, wrap this structure in a Process
