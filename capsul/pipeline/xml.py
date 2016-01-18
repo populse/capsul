@@ -44,7 +44,7 @@ class DynamicPipeline(Pipeline):
                 l = [repr(i) for i in args]
                 l.extend('%s=%s' % (k, repr(v)) for k, v in kwargs.items())
                 m = '%s(%s)' % (method_name, ', '.join(l))
-                raise e.__class__('%s (in pipeline %s when calling %s)' % (str(e), self.id, m))
+                raise RuntimeError('%s: %s (in pipeline %s when calling %s)' % (e.__class__.__name__, str(e), self.id, m))
             
 
 def create_xml_pipeline(module, name, xml_file):
@@ -73,6 +73,7 @@ def create_xml_pipeline(module, name, xml_file):
             args = (process_name, module)
             kwargs = {}
             nipype_usedefault = []
+            iterate = []
             for process_child in child:
                 if process_child.tag == 'set':
                     name = process_child.get('name')
@@ -81,6 +82,9 @@ def create_xml_pipeline(module, name, xml_file):
                     if value is not None:
                         kwargs[name] = value
                     kwargs.setdefault('make_optional',[]).append(name)
+                elif process_child.tag == 'iterate':
+                    name = process_child.get('name')
+                    iterate.append(name)
                 elif process_child.tag == 'nipype':
                     name = process_child.get('name')
                     usedefault = process_child.get('usedefault')
@@ -94,7 +98,11 @@ def create_xml_pipeline(module, name, xml_file):
                         kwargs.setdefault('inputs_to_clean', []).append(name)
                 else:
                     raise ValueError('Invalid tag in <process>: %s' % process_child.tag)
-            builder.add_process(*args, **kwargs)
+            if iterate:
+                kwargs['iterative_plugs'] = iterate
+                builder.add_iterative_process(*args, **kwargs)
+            else:
+                builder.add_process(*args, **kwargs)
             for name in nipype_usedefault:
                 builder.call_process_method(process_name, 'set_usedefault', name, True)
         elif child.tag == 'link':
