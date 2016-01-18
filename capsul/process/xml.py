@@ -8,13 +8,29 @@
 
 from __future__ import absolute_import
 
-from soma.controller.trait_utils import clone_trait
+import xml.etree.cElementTree as ET
+from ast import literal_eval
 
 from capsul.process.process import Process
 
-import xml.etree.cElementTree as ET
+from soma.controller.trait_utils import clone_trait
+
+
 from traits.api import (Int, Float, String, Unicode, File, Directory, Enum, 
-                        Bool, List, Any)
+                        Bool, List, Any, Undefined)
+
+_known_values = {
+    'Undefined': Undefined,
+}
+    
+def string_to_value(string):
+    value = _known_values.get(string)
+    if value is None:
+        try:
+            value = literal_eval(string)
+        except ValueError as e:
+            raise ValueError('%s: %s' % (str(e), repr(string)))
+    return value
 
 class AutoProcess(Process):
     """ Process class  generated dynamically.
@@ -63,7 +79,9 @@ def trait_from_xml(element):
     if t:
         trait_class, trait_kwargs = t
     elif type == 'enum':
-        trait_args = element.get('values').split(',')
+        trait_class = Enum
+        trait_args = string_to_value(element.get('values'))
+        trait_kwargs = {}
     else:
         raise ValueError('Invalid parameter type: %s' % type)
     trait_kwargs = trait_kwargs.copy()
@@ -77,9 +95,10 @@ def create_xml_process(module, name, function, xml):
     xml_process = ET.fromstring(xml)
     
     class_kwargs = {
-        '__doc__': function.__doc__,
         "__module__": module,
     }
+    if function.__doc__:
+        class_kwargs['__doc__'] = function.__doc__
     
     version = xml_process.get('capsul_xml')
     if version and version != '2.0':
@@ -124,3 +143,13 @@ def create_xml_process(module, name, function, xml):
     process_class = (
         type(name, (AutoProcess, ), class_kwargs))
     return process_class
+
+
+def xml_process(xml):
+    '''Decorator used to associate a Python function to its Process XML
+    representation.
+    '''
+    def set_capsul_xml(function):
+        function.capsul_xml = xml
+        return function
+    return set_capsul_xml

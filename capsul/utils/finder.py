@@ -51,7 +51,7 @@ def find_processes(module_name, ignore_import_error=True):
                 yield '%s.%s' % (module_name, name)
             elif isinstance(item, types.FunctionType):
                 # Check docstring
-                if item.__doc__ and process_xml_re.search(item.__doc__):
+                if getattr(item, 'capsul_xml', None) or (item.__doc__ and process_xml_re.search(item.__doc__)):
                     yield '%s.%s' % (module_name, name)
         module_dir = osp.dirname(module.__file__)
         for f in glob(osp.join(module_dir, '*.xml')):

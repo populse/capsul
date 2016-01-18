@@ -9,24 +9,14 @@
 from __future__ import absolute_import
 
 import xml.etree.cElementTree as ET
-from ast import literal_eval
 
 from capsul.pipeline.pipeline import Pipeline
+from capsul.process.xml import string_to_value
+
+from soma.sorted_dictionary import OrderedDict
 
 from traits.api import Undefined, Directory
 
-_known_values = {
-    'Undefined': Undefined,
-}
-    
-def string_to_value(string):
-    value = _known_values.get(string)
-    if value is None:
-        try:
-            value = literal_eval(string)
-        except ValueError as e:
-            raise ValueError('%s: %s' % (str(e), repr(string)))
-    return value
 
 class PipelineBuilder(object):
     class RegisterMethod(object):
@@ -54,7 +44,7 @@ class DynamicPipeline(Pipeline):
                 l = [repr(i) for i in args]
                 l.extend('%s=%s' % (k, repr(v)) for k, v in kwargs.items())
                 m = '%s(%s)' % (method_name, ', '.join(l))
-                raise e.__class__('%s (in pipeline %s when calling %s)' % (e.message, self.id, m))
+                raise e.__class__('%s (in pipeline %s when calling %s)' % (str(e), self.id, m))
             
 
 def create_xml_pipeline(module, name, xml_file):
@@ -126,7 +116,20 @@ def create_xml_pipeline(module, name, xml_file):
                 builder.export_parameter(node, plug, source)
                 exported_parameters.add(source)
         elif child.tag == 'processes_selection':
-            pass #TODO
+            selection_parameter = child.get('name')
+            selection_groups = OrderedDict()
+            for select_child in child:
+                if select_child.tag == 'processes_group':
+                    group_name = select_child.get('name')
+                    group = selection_groups[group_name] = []
+                    for group_child in select_child:
+                        if group_child.tag == 'process':
+                            group.append(group_child.get('name'))
+                        else:
+                            raise ValueError('Invalid tag in <processes_group><process>: %s' % group_child.tag)
+                else:
+                    raise ValueError('Invalid tag in <processes_selection>: %s' % select_child.tag)
+            builder.add_processes_selection(selection_parameter, selection_groups)
         elif child.tag == 'gui':
             pipeline.node_position = {}
             for gui_child in child:

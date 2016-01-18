@@ -13,6 +13,7 @@ import unittest
 from capsul.api import Process
 from capsul.api import get_process_instance
 from capsul.api import Pipeline
+from capsul.process.xml import xml_process
 
 
 def a_function_to_wrap(fname, directory, value, enum, list_of_str):
@@ -48,6 +49,30 @@ def to_warp_func(parameter1, parameter2, parameter3):
     output1 = 1
     output2 = "done"
     return output1, output2
+
+
+@xml_process('''
+<process>
+    <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
+    <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" 
+     doc="Mehod for thresolding."/>
+    <input name="threshold" type="float" doc="Threshold value."/>
+    <output name="output_image" type="file" doc="Output file name."/>
+    <return name="output_image" type="file" doc="Name of the output image."/>
+</process>
+''')
+def threshold(input_image, output_image, method='gt', threshold=0):
+     pass
+
+@xml_process('''
+<process>
+    <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
+    <input name="mask" type="file" doc="Path of mask binary image."/>
+    <output name="output_image" type="file" doc="Output file name."/>
+</process>
+''')
+def mask(input_image, mask, output_location=None):
+     pass
 
 
 class TestLoadFromDescription(unittest.TestCase):
@@ -113,4 +138,17 @@ def test():
 
 
 if __name__ == "__main__":
-    test()
+    #print "RETURNCODE: ", test()
+
+    if True:
+        import sys
+        from PyQt4 import QtGui
+        from capsul.qt_gui.widgets import PipelineDevelopperView
+
+        app = QtGui.QApplication(sys.argv)
+        pipeline = get_process_instance('capsul.process.test.test_pipeline')
+        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+                                       allow_open_controller=True)
+        view1.show()
+        app.exec_()
+        del view1

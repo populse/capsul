@@ -840,11 +840,11 @@ class Pipeline(Process):
             deactivated
         """
         def check_plug_activation(plug, links):
-            # After th next fo loop, plug_activated can have three
+            # After the following for loop, plug_activated can have three
             # values:
             #  True  if there is a non weak link connected to an
             #        activated plug
-            #  False if there are non weak links that ar all connected
+            #  False if there are non weak links that are all connected
             #        to inactive plugs
             #  None if there is no non weak links
             plug_activated = None
@@ -1795,3 +1795,18 @@ class Pipeline(Process):
         steps = getattr(self, 'pipeline_steps', Controller())
         for step, trait in steps.user_traits().iteritems():
             setattr(steps, step, True)
+    
+    def _change_processes_selection(self, selection_name, selection_group):
+        for group, processes in self.processes_selection[selection_name].iteritems():
+            enabled = (group == selection_group)
+            for node_name in processes: 
+                self.nodes[node_name].enabled = enabled
+                
+    def add_processes_selection(self, selection_parameter, selection_groups):
+        self.add_trait(selection_parameter, Enum(*selection_groups))
+        self.nodes[''].plugs[selection_parameter].has_default_value = True
+        self.user_traits_changed = True
+        self.processes_selection = getattr(self, 'processes_selection', {})
+        self.processes_selection[selection_parameter] = selection_groups
+        self.on_trait_change(self._change_processes_selection, selection_parameter)
+        self._change_processes_selection(selection_parameter, getattr(self, selection_parameter))
