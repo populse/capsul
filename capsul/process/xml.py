@@ -13,7 +13,8 @@ from soma.controller.trait_utils import clone_trait
 from capsul.process.process import Process
 
 import xml.etree.cElementTree as ET
-from traits.api import Int, Float, String, Unicode, File, Directory, Enum, List
+from traits.api import (Int, Float, String, Unicode, File, Directory, Enum, 
+                        Bool, List, Any)
 
 class AutoProcess(Process):
     """ Process class  generated dynamically.
@@ -42,14 +43,18 @@ string_to_trait = {
     'float': (Float, {}),
     'string': (String, {}),
     'unicode': (Unicode, {}),
+    'bool': (Bool, {}),
     'file': (File, {}),
     'directory': (Directory, {}),
+    'any': (Any, {}),
     'list_int': (List, {'trait': Int}),
     'list_float': (List, {'trait': Float}),
     'list_string': (List, {'trait': String}),
     'list_unicode': (List, {'trait': Unicode}),
+    'list_bool': (List, {'trait': Bool}),
     'list_file': (List, {'trait': File}),
     'list_directory': (List, {'trait': Directory}),
+    'list_any': (List, {'trait': Any}),
 }
 def trait_from_xml(element):
     type = element.get('type')

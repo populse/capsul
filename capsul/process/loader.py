@@ -27,7 +27,7 @@ except ImportError:
     Interface = type("Interface", (object, ), {})
 
 
-process_xml_re = re.compile(r'<process>.*</process>', re.DOTALL)
+process_xml_re = re.compile(r'<process.*</process>', re.DOTALL)
 
 def get_process_instance(process_or_id, **kwargs):
     """ Return a Process instance given an identifier.
@@ -112,12 +112,16 @@ def get_process_instance(process_or_id, **kwargs):
                 # If we have a Nipype interface, wrap this structure in a Process
                 # class
                 result = nipype_factory(result)
+            elif (isinstance(module_object, type) and
+                issubclass(module_object, Interface)):
+                result = nipype_factory(module_object())
             elif isinstance(module_object, types.FunctionType):
                 # Check docstring
-                match = process_xml_re.search(module_object.__doc__)
-                if match:
-                    xml = match.group(0)
-                    result = create_xml_process(module_name, object_name, module_object, xml)()
+                if module_object.__doc__:
+                    match = process_xml_re.search(module_object.__doc__)
+                    if match:
+                        xml = match.group(0)
+                        result = create_xml_process(module_name, object_name, module_object, xml)()
 
     if result is None:
         raise ValueError("Invalid process_or_id argument. "

@@ -15,3 +15,5 @@ from capsul.pipeline.pipeline_nodes import ProcessNode
 from capsul.pipeline.pipeline_nodes import PipelineNode
 from capsul.pipeline.pipeline_nodes import Switch
 from capsul.process.loader import get_process_instance
+from capsul.utils.finder import find_processes
+

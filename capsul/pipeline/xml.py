@@ -13,6 +13,21 @@ from ast import literal_eval
 
 from capsul.pipeline.pipeline import Pipeline
 
+from traits.api import Undefined, Directory
+
+_known_values = {
+    'Undefined': Undefined,
+}
+    
+def string_to_value(string):
+    value = _known_values.get(string)
+    if value is None:
+        try:
+            value = literal_eval(string)
+        except ValueError as e:
+            raise ValueError('%s: %s' % (str(e), repr(string)))
+    return value
+
 class PipelineBuilder(object):
     class RegisterMethod(object):
         def __init__(self, methods, method_name):
@@ -32,8 +47,14 @@ class PipelineBuilder(object):
 class DynamicPipeline(Pipeline):
     def pipeline_definition(self):
         for method_name, args, kwargs in self.pipeline_definition_methods:
-            method = getattr(self, method_name)
-            method(*args, **kwargs)
+            try:
+                method = getattr(self, method_name)
+                method(*args, **kwargs)
+            except Exception as e:
+                l = [repr(i) for i in args]
+                l.extend('%s=%s' % (k, repr(v)) for k, v in kwargs.items())
+                m = '%s(%s)' % (method_name, ', '.join(l))
+                raise e.__class__('%s (in pipeline %s when calling %s)' % (e.message, self.id, m))
             
 
 def create_xml_pipeline(module, name, xml_file):
@@ -45,7 +66,9 @@ def create_xml_pipeline(module, name, xml_file):
     class_kwargs = {
         '__module__': module,
         'pipeline_definition_methods': [],
-        'autoexport_nodes_parameters': False
+        'autoexport_nodes_parameters': False,
+        'output_directory': Directory(Undefined, exists=True,
+                                      optional=True),
     }
     pipeline = type(name, (DynamicPipeline,), class_kwargs)
     builder = PipelineBuilder(pipeline)
@@ -64,8 +87,9 @@ def create_xml_pipeline(module, name, xml_file):
                 if process_child.tag == 'set':
                     name = process_child.get('name')
                     value = process_child.get('value')
-                    value = literal_eval(value)
-                    kwargs[name] = value
+                    value = string_to_value(value)
+                    if value is not None:
+                        kwargs[name] = value
                     kwargs.setdefault('make_optional',[]).append(name)
                 elif process_child.tag == 'nipype':
                     name = process_child.get('name')
@@ -113,7 +137,7 @@ def create_xml_pipeline(module, name, xml_file):
                     pipeline.node_position[name] = (x,y)
                 elif gui_child.tag == 'zoom':
                     pipeline.scene_scale_factor = \
-                        float(gui_child.get('factor'))
+                        float(gui_child.get('level'))
                 else:
                     raise ValueError('Invalid tag in <gui>: %s' % gui_child.tag)
         else:
