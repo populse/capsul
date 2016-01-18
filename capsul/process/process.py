@@ -137,7 +137,7 @@ class Process(Controller):
     # Meta class used to complete the class docstring
     __metaclass__ = ProcessMeta
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """ Initialize the Process class.
         """
         # Inheritance
@@ -154,6 +154,14 @@ class Process(Controller):
 
         # Initialize the log file name
         self.log_file = None
+        
+        default_values = getattr(self, 'default_values', None)
+        if default_values:
+            self.default_values = default_values.copy()
+        else:
+            self.default_values = {}
+        for k, v in kwargs.iteritems():
+            self.default_values[k] = v
 
     def add_trait(self, name, trait):
         """Ensure that trait.output and trait.optional are set to a

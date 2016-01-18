@@ -6,6 +6,7 @@ from StringIO import StringIO
 import tempfile
 from collections import OrderedDict
 import codecs
+from ast import literal_eval
 
 type_map = {
     'Int': 'int',
@@ -14,16 +15,17 @@ type_map = {
     'String': 'string',
     'Bool': 'bool',
     'Any': 'any',
+    'File': 'file',
+    'Directory': 'directory',
+    'List_File': 'list_file',
 }
 def get_type(type, dict):
     if type in type_map:
         return type_map[type]
-    elif type == 'File':
-        return 'file'
-    elif type == 'Directory':
-        return 'directory'
     elif type == 'List':
         return 'list_%s' % get_type(dict.pop('@content'), None)
+    elif type.startswith('['):
+        return '|'.join(get_type(i, {}) for i in literal_eval(type))
     else:
         raise ValueError('Unsuported parameter type: %s' % type)                
     

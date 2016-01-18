@@ -341,6 +341,11 @@ class Pipeline(Process):
         # Create a process node
         process = get_process_instance(process, **kwargs)
 
+        # Update the kwargs parameters values according to process 
+        # default values
+        for k, v in process.default_values.iteritems():
+            kwargs.setdefault(k, v)
+
         # Update the list of files item to copy
         if inputs_to_copy is not None and hasattr(process, "inputs_to_copy"):
             process.inputs_to_copy.extend(inputs_to_copy)

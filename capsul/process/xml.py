@@ -14,7 +14,7 @@ from ast import literal_eval
 from capsul.process.process import Process
 
 from soma.controller.trait_utils import clone_trait
-
+from soma.utils.functiontools import getArgumentsSpecification
 
 from traits.api import (Int, Float, String, Unicode, File, Directory, Enum, 
                         Bool, List, Any, Undefined)
@@ -34,7 +34,7 @@ def string_to_value(string):
 
 class AutoProcess(Process):
     """ Process class  generated dynamically.
-    """
+    """    
     def _run_process(self):
         """ Execute the AutoProcess class.
         """
@@ -89,6 +89,9 @@ def trait_from_xml(element):
     doc = element.get('doc')
     if doc:
         trait_kwargs['desc'] = doc
+    optional = element.get('optional')
+    if optional is not None:
+        trait_kwargs['optional'] = bool(optional == 'true')
     return trait_class(*trait_args, **trait_kwargs)
 
 def create_xml_process(module, name, function, xml):
@@ -100,6 +103,12 @@ def create_xml_process(module, name, function, xml):
     if function.__doc__:
         class_kwargs['__doc__'] = function.__doc__
     
+    args, varargs, varkw, defaults = getArgumentsSpecification(function)
+    if defaults:
+        default_values = dict((args[-1-i], defaults[-1-i]) for i in range(len(defaults)))
+    else:
+        default_values = {}
+    class_kwargs['default_values'] = default_values
     version = xml_process.get('capsul_xml')
     if version and version != '2.0':
         raise ValueError('Only Capsul XML 2.0 is supported, not %s' % version)
