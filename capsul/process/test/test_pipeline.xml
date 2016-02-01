@@ -86,5 +86,19 @@
         <position name="mask_100" x="826.0" y="451.0"/>
         <position name="threshold_lt_1" x="570.0" y="6.0"/>
         <position name="threshold_lt_10" x="568.0" y="145.0"/>
+
+        <!--
+        <position name="threshold_gt_100" x="182.35615" y="658.8043">
+        <position name="mask_1" x="348.3267625" y="205.125">
+        <position name="threshold_gt_10" x="183.6139625" y="329.3854">
+        <position name="inputs" x="0.0" y="488.9169">
+        <position name="outputs" x="512.08755" y="488.9169">
+        <position name="mask_100" x="348.3267625" y="744.8167">
+        <position name="threshold_lt_1" x="183.6139625" y="146.998">
+        <position name="threshold_gt_1" x="183.6139625" y="0.0">
+        <position name="threshold_lt_100" x="183.6139625" y="805.8291">
+        <position name="mask_10" x="348.3267625" y="488.9169">
+        <position name="threshold_lt_10" x="183.6139625" y="476.4169">
+        -->
     </gui>
 </pipeline>

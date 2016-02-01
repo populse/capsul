@@ -1,3 +1,6 @@
+# Temporary script to ease pipeline conversion. It will be removed when
+# Capsul XML 2.0 is validated.
+
 import sys
 import re
 import xmltodict
@@ -177,7 +180,7 @@ def convert_pipeline(source_pipeline):
             if not isinstance(position, list):
                 position = [position]
             for p in position:
-                p['@process'] = p.pop('@unit')
+                p['@name'] = p.pop('@unit')
             pipeline.setdefault('gui',{})['position'] = position
             if c:
                 raise ValueError('Invalid keys in <%s>: %s' % (tag, ', '.join(c.keys())))
