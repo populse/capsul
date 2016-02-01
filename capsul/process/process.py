@@ -222,12 +222,12 @@ class Process(Controller):
             # Go through all the extra parameters
             for arg_name, arg_val in kwargs.iteritems():
 
-                # If the extra parameter name do not match with a user
+                # If the extra parameter name does not match with a user
                 # trait paameter name, raise a TypeError
                 if arg_name not in self.user_traits():
                     raise TypeError(
                         "Process __call__ got an unexpected keyword "
-                        "argument '{0}'".foramt(arg_name))
+                        "argument '{0}'".format(arg_name))
 
                 # Set the extra parameter value
                 setattr(self, arg_name, arg_val)
