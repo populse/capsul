@@ -1212,7 +1212,11 @@ class Pipeline(Process):
                 temp_files.append((node, plug_name, tmpdir, value))
                 node.set_plug_value(plug_name, tmpdir)
             else:
-                tmpfile = tempfile.mkstemp(suffix='capsul')
+                if trait.allowed_extensions:
+                    suffix = 'capsul' + trait.allowed_extensions[0]
+                else:
+                    suffix = 'capsul'
+                tmpfile = tempfile.mkstemp(suffix=suffix)
                 node.set_plug_value(plug_name, tmpfile[1])
                 os.close(tmpfile[0])
                 temp_files.append((node, plug_name, tmpfile[1], value))
