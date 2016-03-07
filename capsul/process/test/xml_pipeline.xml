@@ -23,6 +23,6 @@
         <position process="p1" x="200" y="200"/>
         <position process="p2" x="400" y="-200"/>
         <position process="outputs" x="600" y="0"/>
-        <zoom factor="1"/> 
+        <zoom level="1"/> 
     </gui>
 </pipeline>

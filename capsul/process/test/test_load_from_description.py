@@ -108,7 +108,7 @@ class TestProcessWrap(unittest.TestCase):
         """
         # Get the wraped test process process
         self.process = get_process_instance(
-            "capsul.process.test.test_load_from_description.a_function_to_warp")
+            "capsul.process.test.test_load_from_description.a_function_to_wrap")
 
         # Set some input parameters
         self.process.fname = "fname"
@@ -138,7 +138,7 @@ def test():
 
 
 if __name__ == "__main__":
-    #print "RETURNCODE: ", test()
+    print "RETURNCODE: ", test()
 
     if True:
         import sys

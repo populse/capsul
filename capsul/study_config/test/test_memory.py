@@ -13,9 +13,9 @@ import tempfile
 import shutil
 
 # Capsul import
-from capsul.process import Process
-from capsul.process import FileCopyProcess
-from capsul.process import get_process_instance
+from capsul.api import Process
+from capsul.api import FileCopyProcess
+from capsul.api import get_process_instance
 from capsul.study_config.memory import Memory
 
 # Trait import

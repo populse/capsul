@@ -16,8 +16,8 @@ import tempfile
 import StringIO
 from traits.api import File
 from capsul.study_config import StudyConfig
-from capsul.process import Process
-from capsul.pipeline import Pipeline
+from capsul.api import Process
+from capsul.api import Pipeline
 from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline_workflow import workflow_from_pipeline
 from soma_workflow import configuration as swconfig

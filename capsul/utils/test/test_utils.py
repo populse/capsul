@@ -10,7 +10,10 @@
 import unittest
 
 # Nipype impoort
-import nipype.interfaces.spm as spm
+try:
+    import nipype.interfaces.spm as spm
+except ImportError:
+    raise Warning('test not performed because Nipype is not installed')
 
 # Trait import
 from traits.api import Float, CTrait, File, Directory
