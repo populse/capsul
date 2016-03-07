@@ -28,7 +28,6 @@ from soma.controller.trait_utils import (
 import capsul
 from capsul.utils.version_utils import get_tool_version
 from capsul.utils.version_utils import get_nipype_interfaces_versions
-from capsul.utils.loader import load_objects
 
 
 class TestUtils(unittest.TestCase):
@@ -137,18 +136,6 @@ class TestUtils(unittest.TestCase):
         handler = clone_trait(trait_description)
         trait = handler.as_ctrait()
         self.assertEqual(trait_description, trait_ids(trait))
-
-    def test_load_module_objects(self):
-        """ Method to test module objects import from string description.
-        """
-        from capsul.pipeline.pipeline_nodes import Node
-        node_sub_class = load_objects(
-            "capsul.pipeline.pipeline_nodes", allowed_instances=[Node])
-        for sub_class in node_sub_class:
-            self.assertTrue(issubclass(sub_class, Node))
-        node_class = load_objects(
-            "capsul.pipeline.pipeline_nodes", object_name="Node")[0]
-        self.assertTrue(type(node_class) is type(Node))
 
 
 def test():
