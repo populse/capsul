@@ -49,6 +49,7 @@ else:
     scripts = []
     pkgdata = {
         "capsul.utils.test": ["*.xml"],
+        "capsul.process.test": ["*.xml"],
         "capsul.pipeline.test": ["*.json"]
     }
     release_info = {}
