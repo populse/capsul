@@ -8,8 +8,8 @@
 
 from traits.api import List, Undefined
 
-from capsul.process import Process
-from capsul.process import get_process_instance
+from capsul.process.process import Process
+from capsul.process.loader import get_process_instance
 
 class ProcessIteration(Process):
     def __init__(self, process, iterative_parameters):

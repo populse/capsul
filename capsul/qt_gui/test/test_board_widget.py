@@ -14,13 +14,19 @@ import sys
 from traits.api import File
 
 # Capsul import
-from capsul.process import Process
-from capsul.pipeline import Pipeline
-from capsul.qt_gui.board_widget import BoardWidget
+from capsul.api import Process
+from capsul.api import Pipeline
 
 # Soma import
-from soma.qt_gui.qt_backend import QtGui, QtCore
+try:
+    from soma.qt_gui.qt_backend import QtGui, QtCore
+    import_tests = True
+except ImportError:
+    raise Warning('Skipping tests because no Qt GUI module can be imported')
+    import_tests = False
 
+# Capsul import involving GUI    
+from capsul.qt_gui.board_widget import BoardWidget
 
 class DummyProcess(Process):
     """ Dummy Test Process
@@ -58,11 +64,11 @@ class MySubPipeline(Pipeline):
 
         # Create processes
         self.add_process("subprocess",
-                         "capsul.qt_gui.test.test_board_widget.DummyProcess")
+                        "capsul.qt_gui.test.test_board_widget.DummyProcess")
         self.add_process("viewer1",
-                         "capsul.qt_gui.test.test_board_widget.DummyViewer")
+                        "capsul.qt_gui.test.test_board_widget.DummyViewer")
         self.add_process("viewer2",
-                         "capsul.qt_gui.test.test_board_widget.DummyViewer")
+                        "capsul.qt_gui.test.test_board_widget.DummyViewer")
 
         # Links
         self.add_link("subprocess.output->viewer1.input")
@@ -83,11 +89,11 @@ class MyPipeline(Pipeline):
 
         # Create processes
         self.add_process("process",
-                         "capsul.qt_gui.test.test_board_widget.MySubPipeline")
+                        "capsul.qt_gui.test.test_board_widget.MySubPipeline")
         self.add_process("viewer1",
-                         "capsul.qt_gui.test.test_board_widget.DummyViewer")
+                        "capsul.qt_gui.test.test_board_widget.DummyViewer")
         self.add_process("viewer2",
-                         "capsul.qt_gui.test.test_board_widget.DummyViewer")
+                        "capsul.qt_gui.test.test_board_widget.DummyViewer")
 
         # Links
         self.add_link("process.output->viewer1.input")

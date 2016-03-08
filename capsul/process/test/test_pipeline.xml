@@ -1,0 +1,104 @@
+<pipeline capsul_xml="2.0">
+    <process name="threshold_gt_1" 
+     module="capsul.process.test.test_load_from_description.threshold">
+        <set name="threshold" value="1"/>
+        <set name="method" value="'gt'"/>
+    </process>
+    <process name="threshold_gt_10" 
+     module="capsul.process.test.test_load_from_description.threshold">
+        <set name="threshold" value="10"/>
+        <set name="method" value="'gt'"/>
+    </process>
+    <process name="threshold_gt_100" 
+     module="capsul.process.test.test_load_from_description.threshold">
+        <set name="threshold" value="100"/>
+        <set name="method" value="'gt'"/>
+    </process>
+    <process name="threshold_lt_1" 
+     module="capsul.process.test.test_load_from_description.threshold">
+        <set name="threshold" value="1"/>
+        <set name="method" value="'lt'"/>
+    </process>
+    <process name="threshold_lt_10" 
+     module="capsul.process.test.test_load_from_description.threshold">
+        <set name="threshold" value="10"/>
+        <set name="method" value="'lt'"/>
+    </process>
+    <process name="threshold_lt_100" 
+     module="capsul.process.test.test_load_from_description.threshold">
+        <set name="threshold" value="100"/>
+        <set name="method" value="'lt'"/>
+    </process>
+    <process name="mask_1" 
+     module="capsul.process.test.test_load_from_description.mask">
+    </process>
+    <process name="mask_10" 
+     module="capsul.process.test.test_load_from_description.mask">
+    </process>
+    <process name="mask_100" 
+     module="capsul.process.test.test_load_from_description.mask">
+    </process>
+
+    <link source="input_image" dest="threshold_gt_1.input_image"/>
+    <link source="input_image" dest="threshold_gt_10.input_image"/>
+    <link source="input_image" dest="threshold_gt_100.input_image"/>
+    
+    <link source="input_image" dest="threshold_lt_1.input_image"/>
+    <link source="input_image" dest="threshold_lt_10.input_image"/>
+    <link source="input_image" dest="threshold_lt_100.input_image"/>
+
+    <link source="input_image" dest="mask_1.input_image"/>
+    <link source="input_image" dest="mask_10.input_image"/>
+    <link source="input_image" dest="mask_100.input_image"/>
+
+    <link source="threshold_gt_1.output_image" dest="mask_1.mask"/>
+    <link source="threshold_gt_10.output_image" dest="mask_10.mask"/>
+    <link source="threshold_gt_100.output_image" dest="mask_100.mask"/>
+    <link source="threshold_lt_1.output_image" dest="mask_1.mask"/>
+    <link source="threshold_lt_10.output_image" dest="mask_10.mask"/>
+    <link source="threshold_lt_100.output_image" dest="mask_100.mask"/>
+
+    <link source="mask_1.output_image" dest="output_1"/>
+    <link source="mask_10.output_image" dest="output_10"/>
+    <link source="mask_100.output_image" dest="output_100"/>
+
+    <processes_selection name="select_method">
+        <processes_group name="greater than">
+            <process name="threshold_gt_1"/>
+            <process name="threshold_gt_10"/>
+            <process name="threshold_gt_100"/>
+        </processes_group>
+        <processes_group name="lower than">
+            <process name="threshold_lt_1"/>
+            <process name="threshold_lt_10"/>
+            <process name="threshold_lt_100"/>
+        </processes_group>
+    </processes_selection>
+    
+    <gui>
+        <position name="threshold_gt_100" x="386.0" y="403.0"/>
+        <position name="inputs" x="50.0" y="50.0"/>
+        <position name="mask_1" x="815.0" y="153.0"/>
+        <position name="threshold_gt_10" x="374.0" y="242.0"/>
+        <position name="threshold_lt_100" x="556.0" y="314.0"/>
+        <position name="threshold_gt_1" x="371.0" y="88.0"/>
+        <position name="mask_10" x="820.0" y="293.0"/>
+        <position name="mask_100" x="826.0" y="451.0"/>
+        <position name="threshold_lt_1" x="570.0" y="6.0"/>
+        <position name="threshold_lt_10" x="568.0" y="145.0"/>
+
+        <!--
+        <position name="threshold_gt_100" x="182.35615" y="658.8043">
+        <position name="mask_1" x="348.3267625" y="205.125">
+        <position name="threshold_gt_10" x="183.6139625" y="329.3854">
+        <position name="inputs" x="0.0" y="488.9169">
+        <position name="outputs" x="512.08755" y="488.9169">
+        <position name="mask_100" x="348.3267625" y="744.8167">
+        <position name="threshold_lt_1" x="183.6139625" y="146.998">
+        <position name="threshold_gt_1" x="183.6139625" y="0.0">
+        <position name="threshold_lt_100" x="183.6139625" y="805.8291">
+        <position name="mask_10" x="348.3267625" y="488.9169">
+        <position name="threshold_lt_10" x="183.6139625" y="476.4169">
+        -->
+    </gui>
+</pipeline>

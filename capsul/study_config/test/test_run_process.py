@@ -12,7 +12,7 @@ import tempfile
 import shutil
 
 # Capsul import
-from capsul.process import Process
+from capsul.api import Process
 from capsul.study_config.run import run_process
 
 # Trait import

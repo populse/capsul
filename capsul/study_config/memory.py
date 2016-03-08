@@ -19,8 +19,7 @@ import numpy
 import logging
 
 # CAPSUL import
-from capsul.process import Process
-from capsul.process import ProcessResult
+from capsul.process.process import Process, ProcessResult
 
 # NIPYPE import
 try:

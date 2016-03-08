@@ -22,7 +22,7 @@ except ImportError:
     from enthought.traits import api as traits
 
 # Capsul import
-from capsul.pipeline import Pipeline, PipelineNode, Switch
+from capsul.pipeline.pipeline import Pipeline, PipelineNode, Switch
 from soma.controller import Controller
 
 

@@ -16,12 +16,9 @@ import tempfile
 from traits.api import File
 
 # Capsul import
-from capsul.process import Process
-from capsul.pipeline import Pipeline
+from capsul.api import Process
+from capsul.api import Pipeline
 from capsul.study_config import StudyConfig
-
-# Soma import
-from soma.qt_gui.qt_backend import QtGui, QtCore
 
 
 class DummyProcess(Process):

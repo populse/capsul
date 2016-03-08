@@ -9,8 +9,8 @@
 import unittest
 import os
 from traits.api import Str, Float
-from capsul.process import Process
-from capsul.pipeline import Pipeline, PipelineNode
+from capsul.api import Process
+from capsul.api import Pipeline, PipelineNode
 
 
 class DummyProcess(Process):

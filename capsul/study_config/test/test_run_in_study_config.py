@@ -13,7 +13,7 @@ import shutil
 import os
 
 # Capsul import
-from capsul.process import Process
+from capsul.api import Process
 from capsul.study_config.study_config import StudyConfig
 
 # Trait import

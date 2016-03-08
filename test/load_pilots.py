@@ -51,11 +51,17 @@ def load_pilots(root, path):
 
             try:
                 __import__(module_name)
+            except Warning, e:
+                # A test specific warning is raised.
+                # For instance, it happens when non mandatory
+                # modules (such as Qt or Nipype) cannot be imported 
+                # for a test.
+                pilots[module_name] = e
+                continue
             except ImportError, e:
                 # An api exists, but it cannot be imported
-                logging.debug("Could not import {0}:"
-                              "{1}".format(module_name, e))
-                return pilots
+                pilots[module_name] = e
+                continue
 
             module = sys.modules[module_name]
 

@@ -8,8 +8,8 @@
 
 import unittest
 from traits.api import File, Float
-from capsul.process import Process
-from capsul.pipeline import Pipeline
+from capsul.api import Process
+from capsul.api import Pipeline
 
 
 class DummyProcess(Process):

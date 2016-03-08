@@ -18,8 +18,8 @@ import struct
 from traits.api import String, Int, List, File
 
 # Capsul import
-from capsul.process import Process
-from capsul.pipeline import Pipeline
+from capsul.api import Process
+from capsul.api import Pipeline
 from capsul.pipeline.process_iteration import ProcessIteration
 
 

@@ -10,8 +10,8 @@ import unittest
 import os
 import sys
 from traits.api import File
-from capsul.process import Process
-from capsul.pipeline import Pipeline, PipelineNode
+from capsul.api import Process
+from capsul.api import Pipeline, PipelineNode
 from capsul.pipeline import pipeline_workflow
 from capsul.study_config.study_config import StudyConfig
 

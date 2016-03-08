@@ -5,10 +5,3 @@
 # http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 # for details.
 ##########################################################################
-
-from pipeline import Pipeline
-from pipeline_nodes import Plug
-from pipeline_nodes import Node
-from pipeline_nodes import ProcessNode
-from pipeline_nodes import PipelineNode
-from pipeline_nodes import Switch
