@@ -1,11 +1,11 @@
 # Makefile for capsul
 #
 
-PYTHON       ?= python
+PYTHON       ?= python2
 NOSETESTS    ?= nosetests
 CTAGS        ?= ctags
 DOCSRC_DIR    = doc
-CAPS          = $(shell python -c "import caps; print caps.__path__[0]" 2>&1)
+CAPS          = $(shell $(PYTHON) -c "import caps; print caps.__path__[0]" 2>&1)
 UPLAOD        = $(CAPS)/sphinx_resources/upload/
 
 # Remove temporary files.
@@ -28,15 +28,15 @@ clean: clean-doc-build clean-pyc clean-so clean-tmp
 
 # Upload source tarball on pypi server.
 upload-pypi:
-	python setup.py sdist register upload -r pypi
+	$(PYTHON) setup.py sdist register upload -r pypi
 
 # Register project on pypi server.
 register-pypi:
-	python setup.py register -r pypi
+	$(PYTHON) setup.py register -r pypi
 
 # Build dependencies inplace.
 build-inplace:
-	python setup.py build_ext --inplace
+	$(PYTHON) setup.py build_ext --inplace
 
 # Build and upload doc on pypi server.
 # Requires "pip install sphinx-pypi-upload".
@@ -47,4 +47,4 @@ upload-pypidoc:
 # Build and upload doc on cea server.
 upload-ceadoc:
 	cd doc; make html
-	python $(UPLAOD)/webdav_upload.py -i capsul
+	$(PYTHON) $(UPLAOD)/webdav_upload.py -i capsul
