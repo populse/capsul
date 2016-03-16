@@ -26,9 +26,9 @@ from traits.api import Directory, Bool, String, Undefined
 from soma.controller import Controller
 
 # Capsul import
-from capsul.pipeline import Pipeline
-from capsul.process import Process
-from run import run_process
+from capsul.pipeline.pipeline import Pipeline
+from capsul.process.process import Process
+from capsul.study_config.run import run_process
 from capsul.pipeline.pipeline_workflow import (
     workflow_from_pipeline, local_workflow_run)
 from capsul.pipeline.pipeline_nodes import Node

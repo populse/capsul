@@ -10,7 +10,7 @@
 import unittest
 
 # Capsul import
-from capsul.process import Process
+from capsul.api import Process
 
 # Trait import
 from traits.api import Float

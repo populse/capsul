@@ -10,25 +10,69 @@
 import unittest
 
 # Capsul import
-from capsul.process import Process
-from capsul.process.loader import get_process_instance
-from capsul.pipeline import Pipeline
+from capsul.api import Process
+from capsul.api import get_process_instance
+from capsul.api import Pipeline
+from capsul.process.xml import xml_process
 
+
+def a_function_to_wrap(fname, directory, value, enum, list_of_str):
+    """ A dummy fucntion that just print all its parameters.
+
+    <process>
+        <return name="string" type="string" doc="test" />
+        <input name="fname" type="file" doc="test" />
+        <input name="directory" type="directory" doc="test" />
+        <input name="value" type="float" doc="test" />
+        <input name="enum" type="string" doc="test" />
+        <input name="list_of_str" type="list_string" doc="test" />
+    </process>
+    """
+    string = "ALL FUNCTION PARAMETERS::\n\n"
+    for input_parameter in (fname, directory, value, enum, list_of_str):
+        string += str(input_parameter)
+    return string
 
 def to_warp_func(parameter1, parameter2, parameter3):
     """ Test function.
 
     <process>
-        <return name="output1" type="Float" desc="an output."/>
-        <return name="output2" type="String" desc="an output."/>
-        <input name="parameter1" type="Float" desc="a parameter."/>
-        <input name="parameter2" type="String" desc="a parameter."/>
-        <input name="parameter3" type="Int" desc="a parameter."/>
+        <input name="parameter1" type="float" desc="a parameter."/>
+        <input name="parameter2" type="string" desc="a parameter."/>
+        <input name="parameter3" type="int" desc="a parameter."/>
+        <return>
+            <output name="output1" type="float" desc="an output."/>
+            <output name="output2" type="string" desc="an output."/>
+        </return>
     </process>
     """
     output1 = 1
     output2 = "done"
     return output1, output2
+
+
+@xml_process('''
+<process>
+    <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
+    <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" 
+     doc="Mehod for thresolding."/>
+    <input name="threshold" type="float" doc="Threshold value."/>
+    <output name="output_image" type="file" doc="Output file name."/>
+    <return name="output_image" type="file" doc="Name of the output image."/>
+</process>
+''')
+def threshold(input_image, output_image, method='gt', threshold=0):
+     pass
+
+@xml_process('''
+<process>
+    <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
+    <input name="mask" type="file" doc="Path of mask binary image."/>
+    <output name="output_image" type="file" doc="Output file name."/>
+</process>
+''')
+def mask(input_image, mask, output_location=None):
+     pass
 
 
 class TestLoadFromDescription(unittest.TestCase):
@@ -51,20 +95,60 @@ class TestLoadFromDescription(unittest.TestCase):
     def test_pipeline_warpping(self):
         """ Method to test the xml description to pipeline on the fly warpping.
         """
-        pipeline = get_process_instance("capsul.utils.test.xml_pipeline.xml")
+        pipeline = get_process_instance("capsul.process.test.xml_pipeline")
         self.assertTrue(isinstance(pipeline, Pipeline))
         for node_name in ["", "p1", "p2"]:
             self.assertTrue(node_name in pipeline.nodes)
 
+class TestProcessWrap(unittest.TestCase):
+    """ Class to test the function used to wrap a function to a process
+    """
+    def setUp(self):
+        """ In the setup construct set some process input parameters.
+        """
+        # Get the wraped test process process
+        self.process = get_process_instance(
+            "capsul.process.test.test_load_from_description.a_function_to_wrap")
+
+        # Set some input parameters
+        self.process.fname = "fname"
+        self.process.directory = "directory"
+        self.process.value = 1.2
+        self.process.enum = "choice1"
+        self.process.list_of_str = ["a_string"]
+
+    def test_process_wrap(self):
+        """ Method to test if the process has been wraped properly.
+        """
+        # Execute the process
+        self.process()
+        self.assertEqual(
+            getattr(self.process, "string"),
+            "ALL FUNCTION PARAMETERS::\n\nfnamedirectory1.2choice1['a_string']")
 
 def test():
     """ Function to execute unitest
     """
-    suite = unittest.TestLoader().loadTestsFromTestCase(
+    suite1 = unittest.TestLoader().loadTestsFromTestCase(
         TestLoadFromDescription)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
+    runtime1 = unittest.TextTestRunner(verbosity=2).run(suite1)
+    suite2 = unittest.TestLoader().loadTestsFromTestCase(TestProcessWrap)
+    runtime2 = unittest.TextTestRunner(verbosity=2).run(suite2)
+    return runtime1.wasSuccessful() and runtime2.wasSuccessful()
 
 
 if __name__ == "__main__":
-    test()
+    print "RETURNCODE: ", test()
+
+    if True:
+        import sys
+        from PyQt4 import QtGui
+        from capsul.qt_gui.widgets import PipelineDevelopperView
+
+        app = QtGui.QApplication(sys.argv)
+        pipeline = get_process_instance('capsul.process.test.test_pipeline')
+        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+                                       allow_open_controller=True)
+        view1.show()
+        app.exec_()
+        del view1

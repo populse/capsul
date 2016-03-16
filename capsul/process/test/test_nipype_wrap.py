@@ -11,8 +11,8 @@ import os
 import unittest
 
 # Capsul import
-from capsul.process import get_process_instance
-from capsul.process import NipypeProcess
+from capsul.api import get_process_instance
+from capsul.api import NipypeProcess
 
 
 class TestNipypeWrap(unittest.TestCase):

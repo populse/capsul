@@ -10,8 +10,8 @@ import unittest
 import os
 import json
 from traits.api import Str
-from capsul.process import Process
-from capsul.pipeline import Pipeline, PipelineNode
+from capsul.api import Process
+from capsul.api import Pipeline, PipelineNode
 
 
 class DummyProcess(Process):

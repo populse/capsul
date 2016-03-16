@@ -6,10 +6,11 @@
 # for details.
 ##########################################################################
 
+from __future__ import absolute_import
+
 # System import
 import logging
 from copy import deepcopy
-import types
 import tempfile
 import os
 import shutil
@@ -20,24 +21,21 @@ logger = logging.getLogger(__name__)
 # Trait import
 try:
     import traits.api as traits
-    from traits.trait_base import _Undefined
-    from traits.api import (File, Float, Enum, Str, Int, Bool, List, Tuple,
-        Instance, Any, Event, CTrait, Directory, Trait)
+    from traits.api import (File, Enum, Bool,
+                            Event, Directory, Trait)
 except ImportError:
     import enthought.traits.api as traits
-    from enthought.traits.trait_base import _Undefined
-    from enthought.traits.api import (File, Float, Enum, Str, Int, Bool,
-        List, Tuple, Instance, Any, Event, CTrait, Directory, Trait)
+    from enthought.traits.api import (File, Enum, Bool,
+                                      Event, Directory, Trait)
 
 # Capsul import
-from capsul.process import Process, NipypeProcess
-from capsul.process import get_process_instance
-from topological_sort import GraphNode
-from topological_sort import Graph
-from pipeline_nodes import Plug
-from pipeline_nodes import ProcessNode
-from pipeline_nodes import PipelineNode
-from pipeline_nodes import Switch
+from capsul.process.process import Process, NipypeProcess
+from .topological_sort import GraphNode
+from .topological_sort import Graph
+from .pipeline_nodes import Plug
+from .pipeline_nodes import ProcessNode
+from .pipeline_nodes import PipelineNode
+from .pipeline_nodes import Switch
 
 # Soma import
 from soma.controller import Controller
@@ -87,13 +85,15 @@ class Pipeline(Process):
 
     * process nodes (:py:class:`pipeline_nodes.ProcessNode`) are the leaf nodes
       which represent actual processing bricks.
-    * pipeline nodes (:py:class:`pipeline_nodes.PipelineNode`) are sub-pipelines
-      which allow to reuse an existing pipeline within another one
+    * pipeline nodes (:py:class:`pipeline_nodes.PipelineNode`) are
+      sub-pipelines which allow to reuse an existing pipeline within another
+      one
     * switch nodes (:py:class:`pipeline_nodes.Switch`) allows to select values
-      between several possible inputs. The switch mechanism also allows to select
-      between several alternative processes or processing branchs.
+      between several possible inputs. The switch mechanism also allows to
+      select between several alternative processes or processing branchs.
     * iterative process (:py:class:process_iteration.ProcessIteration`)
-      represent parallel processing of the same pipeline on a set of parameters.
+      represent parallel processing of the same pipeline on a set of
+      parameters.
 
     .. currentmodule:: capsul.pipeline.pipeline
 
@@ -113,8 +113,9 @@ class Pipeline(Process):
 
     **Pipeline steps**
 
-    Pipelines may define execution steps: they are user-oriented groups of nodes
-    that are to be run together, or disabled together for runtime execution.
+    Pipelines may define execution steps: they are user-oriented groups of
+    nodes that are to be run together, or disabled together for runtime
+    execution.
     They are intended to allow partial, or step-by-step execution. They do not
     work like the nodes enabling mechanism described above.
 
@@ -162,12 +163,17 @@ class Pipeline(Process):
     """
 
     selection_changed = Event()
-
+    
+    # The default value for autoexport_nodes_parameters is stored in the
+    # pipeline class. This makes it possible to changes this default value
+    # in derived classes (for instance in DynamicPipeline).
+    autoexport_nodes_parameters = True
+    
     # By default nodes_activation trait is hidden in user interface. Changing
     # this value to False will make it visible.
     hide_nodes_activation = True
 
-    def __init__(self, autoexport_nodes_parameters=True, **kwargs):
+    def __init__(self, autoexport_nodes_parameters=None, **kwargs):
         """ Initialize the Pipeline class
 
         Parameters
@@ -187,7 +193,13 @@ class Pipeline(Process):
         self.attributes = {}
         self.nodes_activation = Controller()
         self.nodes = SortedDictionary()
-        self.node_position = {}
+        # Get node_position from the Pipeline class if it is
+        # defined
+        node_position = getattr(self,'node_position', None)
+        if node_position:
+            self.node_position = node_position.copy()
+        else:
+            self.node_position = {}
         self.pipeline_node = PipelineNode(self, '', self)
         self.nodes[''] = self.pipeline_node
         self.do_not_export = set()
@@ -199,6 +211,8 @@ class Pipeline(Process):
         self.workflow_repr = ""
         self.workflow_list = []
 
+        if autoexport_nodes_parameters is None:
+            autoexport_nodes_parameters = self.autoexport_nodes_parameters
         if autoexport_nodes_parameters:
             self.autoexport_nodes_parameters()
 
@@ -232,8 +246,8 @@ class Pipeline(Process):
                     continue
                 if (((node_name, parameter_name) not in self.do_not_export and
                     ((plug.output and not plug.links_to) or
-                     (not plug.output and not plug.links_from)) and
-                    not self.nodes[node_name].get_trait(parameter_name).optional)):
+                     (not plug.output and not plug.links_from)) and not
+                     self.nodes[node_name].get_trait(parameter_name).optional)):
 
                     self.export_parameter(node_name, parameter_name)
 
@@ -308,7 +322,7 @@ class Pipeline(Process):
             a list of item to copy.
         inputs_to_clean: list of str (optional)
             a list of temporary items.
-        """      
+        """
         # Unique constrains
         make_optional = set(make_optional or [])
         do_not_export = set(do_not_export or [])
@@ -319,8 +333,18 @@ class Pipeline(Process):
             raise ValueError("Pipeline cannot have two nodes with the"
                              "same name : {0}".format(name))
 
+        # It is necessary not to import capsul.loader at the module level
+        # because there are circular dependencies between modules. For
+        # instance, Pipeline class needs get_process_instance
+        # which needs create_xml_pipeline which needs Pipeline class.
+        from capsul.process.loader import get_process_instance
         # Create a process node
         process = get_process_instance(process, **kwargs)
+
+        # Update the kwargs parameters values according to process
+        # default values
+        for k, v in process.default_values.iteritems():
+            kwargs.setdefault(k, v)
 
         # Update the list of files item to copy
         if inputs_to_copy is not None and hasattr(process, "inputs_to_copy"):
@@ -397,10 +421,25 @@ class Pipeline(Process):
         # Otherwise, need to create a dynamic structure
         else:
             from .process_iteration import ProcessIteration
-            self.add_process(name, ProcessIteration(process,iterative_plugs),
+            self.add_process(name, ProcessIteration(process, iterative_plugs),
                              do_not_export, make_optional, **kwargs)
             return
 
+    def call_process_method(self, process_name, method,
+                            *args, **kwargs):
+        """ Call a method of a process previously added
+        with add_process or add_iterative_process.
+
+        Parameters
+        ----------
+        process_name: str (mandatory)
+            name given to the process node.
+        method: str (mandatory)
+            name of the method to call.
+        """
+        return getattr(self.nodes[process_name].process, method)(*args,
+                                                                 **kwargs)
+    
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=()):
         """ Add a switch node in the pipeline
@@ -806,11 +845,11 @@ class Pipeline(Process):
             deactivated
         """
         def check_plug_activation(plug, links):
-            # After th next fo loop, plug_activated can have three
+            # After the following for loop, plug_activated can have three
             # values:
             #  True  if there is a non weak link connected to an
             #        activated plug
-            #  False if there are non weak links that ar all connected
+            #  False if there are non weak links that are all connected
             #        to inactive plugs
             #  None if there is no non weak links
             plug_activated = None
@@ -951,7 +990,8 @@ class Pipeline(Process):
                     if debug:
                         print >> debug, '%d+%s:%s' % (
                             iteration, node.full_name, plug_name)
-                    for nn, pn, n, p, weak_link in plug.links_to.union(plug.links_from):
+                    for nn, pn, n, p, weak_link in \
+                            plug.links_to.union(plug.links_from):
                         if not weak_link and p.enabled:
                             new_nodes_to_check.add(n)
                 if (not node_activated) and node.activated:
@@ -976,7 +1016,8 @@ class Pipeline(Process):
                         if debug:
                             print >> debug, '%d-%s:%s' % (
                                 iteration, node.full_name, plug_name)
-                        for nn, pn, n, p, weak_link in plug.links_from.union(plug.links_to):
+                        for nn, pn, n, p, weak_link in \
+                                plug.links_from.union(plug.links_to):
                             if p.activated:
                                 new_nodes_to_check.add(n)
                     if not node.activated:
@@ -992,7 +1033,8 @@ class Pipeline(Process):
                                 if debug:
                                     print >> debug, '%d=%s:%s' % (
                                         iteration, node.full_name, plug_name)
-                                for nn, pn, n, p, weak_link in plug.links_from.union(plug.links_to):
+                                for nn, pn, n, p, weak_link in \
+                                        plug.links_from.union(plug.links_to):
                                     if p.activated:
                                         new_nodes_to_check.add(n)
             nodes_to_check = new_nodes_to_check
@@ -1295,17 +1337,17 @@ class Pipeline(Process):
         """
         empty_params = []
         # walk all activated nodes, recursively
-        nodes = [(node_name, node) \
-            for node_name, node in self.nodes.iteritems() \
-            if node_name != '' and node.enabled and node.activated]
+        nodes = [(node_name, node)
+                 for node_name, node in self.nodes.iteritems()
+                 if node_name != '' and node.enabled and node.activated]
         while nodes:
             node_name, node = nodes.pop(0)
             if hasattr(node, 'process'):
                 process = node.process
                 if isinstance(process, Pipeline):
-                    nodes += [(cnode_name, cnode) \
-                        for cnode_name, cnode in process.nodes.iteritems() \
-                        if cnode_name != '' and cnode.enabled \
+                    nodes += [(cnode_name, cnode)
+                        for cnode_name, cnode in process.nodes.iteritems()
+                        if cnode_name != '' and cnode.enabled
                         and cnode.activated]
             else:
                 process = node
@@ -1361,8 +1403,8 @@ class Pipeline(Process):
         """
         nodes = self.nodes.values()
         plugs_count = 0
-        params_count = len([param \
-            for param_name, param in self.user_traits().iteritems() \
+        params_count = len([param
+            for param_name, param in self.user_traits().iteritems()
             if param_name not in ('nodes_activation', 'selection_changed')])
         nodes_count = 0
         links_count = 0
@@ -1378,14 +1420,14 @@ class Pipeline(Process):
             if node.enabled and node.activated:
                 enabled_nodes_count += 1
             plugs_count += len(node.plugs)
-            links_count += sum([len(plug.links_to) + len(plug.links_from) \
+            links_count += sum([len(plug.links_to) + len(plug.links_from)
                 for plug in node.plugs.itervalues()])
             enabled_links_count += sum(
-                [len([pend for pend in plug.links_to \
-                        if pend[3].enabled and pend[3].activated]) \
+                [len([pend for pend in plug.links_to
+                        if pend[3].enabled and pend[3].activated])
                     + len([pend for pend in plug.links_from
-                        if pend[3].enabled and pend[3].activated]) \
-                    for plug in node.plugs.itervalues() \
+                        if pend[3].enabled and pend[3].activated])
+                    for plug in node.plugs.itervalues()
                     if plug.enabled and plug.activated])
             if hasattr(node, 'nodes'):
                 sub_nodes = [sub_node
@@ -1398,9 +1440,9 @@ class Pipeline(Process):
                 procs.add(node.process)
                 if node.enabled and node.activated:
                     enabled_procs_count += 1
-                params_count += len([param \
-                    for param_name, param \
-                    in node.process.user_traits().iteritems() \
+                params_count += len([param
+                    for param_name, param
+                    in node.process.user_traits().iteritems()
                     if param_name not in (
                         'nodes_activation', 'selection_changed')])
                 if hasattr(node.process, 'nodes'):
@@ -1409,8 +1451,8 @@ class Pipeline(Process):
                         if sub_node not in nodeset and sub_node not in nodes]
                     nodes += sub_nodes
             elif hasattr(node, 'user_traits'):
-                params_count += len([param \
-                    for param_name, param in node.user_traits().iteritems() \
+                params_count += len([param
+                    for param_name, param in node.user_traits().iteritems()
                     if param_name not in (
                         'nodes_activation', 'selection_changed', 'activated',
                         'enabled', 'name')])
@@ -1447,17 +1489,18 @@ class Pipeline(Process):
                                  has_default_value=plug.has_default_value,
                                  links_to=links_to_dict,
                                  links_from=links_from_dict)
-                plugs_list.append((plug_name,plug_dict))
+                plugs_list.append((plug_name, plug_dict))
                 for nn, pn, n, p, weak_link in plug.links_to:
-                    link_name = '%s:%s' % (n.full_name,pn)
+                    link_name = '%s:%s' % (n.full_name, pn)
                     links_to_dict[link_name] = weak_link
                 for nn, pn, n, p, weak_link in plug.links_from:
-                    link_name = '%s:%s' % (n.full_name,pn)
+                    link_name = '%s:%s' % (n.full_name, pn)
                     links_from_dict[link_name] = weak_link
         return result
 
     def compare_to_state(self, pipeline_state):
-        """ Returns the differences between this pipeline and a previously recorded state.
+        """ Returns the differences between this pipeline and a previously
+        recorded state.
 
         Returns
         -------
@@ -1466,26 +1509,29 @@ class Pipeline(Process):
             (e.g. 'node "my_process" is missing')
         """
         result = []
+        
         def compare_dict(ref_dict, other_dict):
             for ref_key, ref_value in ref_dict.iteritems():
                 if ref_key not in other_dict:
-                    yield '%s = %s is missing' % (ref_key,repr(ref_value))
+                    yield '%s = %s is missing' % (ref_key, repr(ref_value))
                 else:
                     other_value = other_dict.pop(ref_key)
                     if ref_value != other_value:
-                        yield '%s = %s differs from %s' % (ref_key, repr(ref_value), repr(other_value))
+                        yield '%s = %s differs from %s' % (ref_key,
+                                                           repr(ref_value),
+                                                           repr(other_value))
             for other_key, other_value in other_dict.iteritems():
-                yield '%s=%s is new' % (other_key,repr(other_value))
+                yield '%s=%s is new' % (other_key, repr(other_value))
 
         pipeline_state = deepcopy(pipeline_state)
         for node in self.all_nodes():
             node_name = node.full_name
-            node_dict = pipeline_state.pop(node_name,None)
+            node_dict = pipeline_state.pop(node_name, None)
             if node_dict is None:
                 result.append('node "%s" is missing' % node_name)
             else:
                 plugs_list = node_dict.pop('plugs')
-                result.extend('in node "%s": %s' % (node_name,i) for i in
+                result.extend('in node "%s": %s' % (node_name, i) for i in
                               compare_dict(dict(name=node.name,
                                                 enabled=node.enabled,
                                                 activated=node.activated),
@@ -1495,12 +1541,12 @@ class Pipeline(Process):
                 if ref_plug_names != other_plug_names:
                     if sorted(ref_plug_names) == sorted(other_plug_names):
                         result.append('in node "%s": plugs order = %s '
-                                      'differs from %s' % \
+                                      'differs from %s' %
                                       (node_name, repr(ref_plug_names),
                                        repr(other_plug_names)))
                     else:
                         result.append('in node "%s": plugs list = %s '
-                                      'differs from %s' % \
+                                      'differs from %s' %
                                       (node_name, repr(ref_plug_names),
                                        repr(other_plug_names)))
                         # go to next node
@@ -1510,33 +1556,51 @@ class Pipeline(Process):
                     del plugs_list[0]
                     links_to_dict = plug_dict.pop('links_to')
                     links_from_dict = plug_dict.pop('links_from')
-                    result.extend('in plug "%s:%s": %s' % (node_name,plug_name,i) for i in
-                                  compare_dict(dict(enabled=plug.enabled,
-                                                    activated=plug.activated,
-                                                    output=plug.output,
-                                                    optional=plug.optional,
-                                                    has_default_value=plug.has_default_value),
-                                               plug_dict))
+                    result.extend('in plug "%s:%s": %s' %
+                        (node_name,plug_name,i) for i in
+                        compare_dict(dict(enabled=plug.enabled,
+                                          activated=plug.activated,
+                                          output=plug.output,
+                                          optional=plug.optional,
+                                          has_default_value=
+                                              plug.has_default_value),
+                                          plug_dict))
                     for nn, pn, n, p, weak_link in plug.links_to:
-                        link_name = '%s:%s' % (n.full_name,pn)
+                        link_name = '%s:%s' % (n.full_name, pn)
                         if link_name not in links_to_dict:
-                            result.append('in plug "%s:%s": missing link to %s' % (node_name,plug_name,link_name))
+                            result.append('in plug "%s:%s": missing link to %s'
+                                          % (node_name, plug_name, link_name))
                         else:
                             other_weak_link = links_to_dict.pop(link_name)
                             if weak_link != other_weak_link:
-                                result.append('in plug "%s:%s": link to %s is%sweak' % (node_name,plug_name,link_name,(' not' if weak_link else '')))
+                                result.append('in plug "%s:%s": link to %s is'
+                                              '%sweak' % (node_name, plug_name,
+                                                          link_name, (' not'
+                                                          if weak_link else 
+                                                          '')))
                     for link_name, weak_link in links_to_dict.iteritems():
-                        result.append('in plug "%s:%s": %slink to %s is new' % (node_name,plug_name,(' weak' if weak_link else ''),link_name))
+                        result.append('in plug "%s:%s": %slink to %s is new' %
+                            (node_name,plug_name, (' weak' if weak_link else 
+                            ''),link_name))
                     for nn, pn, n, p, weak_link in plug.links_from:
-                        link_name = '%s:%s' % (n.full_name,pn)
+                        link_name = '%s:%s' % (n.full_name, pn)
                         if link_name not in links_from_dict:
-                            result.append('in plug "%s:%s": missing link from %s' % (node_name,plug_name,link_name))
+                            result.append('in plug "%s:%s": missing link from '
+                                          '%s' % (node_name,
+                                                  plug_name, link_name))
                         else:
                             other_weak_link = links_from_dict.pop(link_name)
                             if weak_link != other_weak_link:
-                                result.append('in plug "%s:%s": link from %s is%sweak' % (node_name,plug_name,link_name,(' not' if weak_link else '')))
+                                result.append('in plug "%s:%s": link from %s '
+                                              'is%sweak' % (node_name, 
+                                                            plug_name,
+                                                            link_name,(' not'
+                                                            if weak_link else
+                                                            '')))
                     for link_name, weak_link in links_from_dict.iteritems():
-                        result.append('in plug "%s:%s": %slink from %s is new' % (node_name,plug_name,(' weak' if weak_link else ''),link_name))
+                        result.append('in plug "%s:%s": %slink from %s is new'
+                                      % (node_name,plug_name,(' weak' if
+                                          weak_link else ''),link_name))
 
         for node_name in pipeline_state:
             result.append('node "%s" is new' % node_name)
@@ -1616,7 +1680,8 @@ class Pipeline(Process):
                 for element, callback in callbacks:
                     source_plug_name, dest_node, dest_plug_name = element
                     value_callback = SomaPartial(
-                        custom_handler, log_file, node_prefix, source_plug_name,
+                        custom_handler, log_file, node_prefix,
+                        source_plug_name,
                         dest_node, dest_plug_name)
                     node.remove_callback_from_plug(source_plug_name, callback)
                     node._callbacks[element] = value_callback
@@ -1698,9 +1763,9 @@ class Pipeline(Process):
         streams. They are different from pipelines in that steps are purely
         virtual groups, they do not have parameters.
 
-        Disabling a step acts differently as the pipeline node activation: other
-        nodes are not inactivated according to their dependencies. Instead,
-        those steps are not run.
+        Disabling a step acts differently as the pipeline node activation: 
+        other nodes are not inactivated according to their dependencies.
+        Instead, those steps are not run.
 
         Parameters
         ----------
@@ -1765,4 +1830,21 @@ class Pipeline(Process):
         steps = getattr(self, 'pipeline_steps', Controller())
         for step, trait in steps.user_traits().iteritems():
             setattr(steps, step, True)
-
+    
+    def _change_processes_selection(self, selection_name, selection_group):
+        for group, processes in \
+                self.processes_selection[selection_name].iteritems():
+            enabled = (group == selection_group)
+            for node_name in processes: 
+                self.nodes[node_name].enabled = enabled
+                
+    def add_processes_selection(self, selection_parameter, selection_groups):
+        self.add_trait(selection_parameter, Enum(*selection_groups))
+        self.nodes[''].plugs[selection_parameter].has_default_value = True
+        self.user_traits_changed = True
+        self.processes_selection = getattr(self, 'processes_selection', {})
+        self.processes_selection[selection_parameter] = selection_groups
+        self.on_trait_change(self._change_processes_selection,
+                             selection_parameter)
+        self._change_processes_selection(selection_parameter,
+                                         getattr(self, selection_parameter))

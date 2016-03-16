@@ -14,7 +14,7 @@ import logging
 logger = logging.getLogger(__file__)
 
 # Capsul import
-from capsul.process import get_process_instance
+from capsul.api import get_process_instance
 
 
 class PipelineHelpWriter(object):

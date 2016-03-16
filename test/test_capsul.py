@@ -28,7 +28,7 @@ error_message = """
 valid_message = """
 
 ##################################
-#        MODULE TEST PASSED      #
+#         ALL TESTS PASSED       #
 ##################################
 
               +---+
@@ -38,7 +38,22 @@ valid_message = """
                   |  |
                   | / \\
            ==============
-            """
+"""
+
+partial_message = """
+
+##################################
+#     AVAILABLE TESTS PASSED     #
+##################################
+
+              +---+
+              |   |
+                  |
+                  |  O 
+                  | |||
+                  | / \\
+           ==============
+"""
 
 
 def run_all_tests():
@@ -52,19 +67,32 @@ def run_all_tests():
     """
     module_path = capsul.__path__[0]
     tests = load_pilots(module_path, module_path)
-
+    has_warnings = False
     is_valid = True
     for module, ltest in tests.items():
-        for test in ltest:
-            is_valid = test() and is_valid
-
-    return is_valid
+        if isinstance(ltest, Warning):
+            print '=' * 60
+            print "WARNING when loading module {0}: {1}".format(module, ltest)
+            print '=' * 60
+            has_warnings = True
+        elif isinstance(ltest, Exception):
+            print '=' * 60
+            print "ERROR when loading module {0}: {1}".format(module, ltest)
+            print '=' * 60
+            is_valid = False
+        else:
+            for test in ltest:
+                is_valid = test() and is_valid
+    return is_valid, has_warnings
 
 
 def is_valid_module():
-    is_valid = run_all_tests()
+    is_valid, has_warnings = run_all_tests()
     if is_valid:
-        print valid_message
+        if has_warnings:
+            print partial_message
+        else:
+            print valid_message
     else:
         print error_message
     return is_valid

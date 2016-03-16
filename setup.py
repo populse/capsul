@@ -16,12 +16,16 @@ import sys
 
 # Select appropriate modules
 modules = find_packages()
+
 scripts = ["capsul/qt_apps/capsulview"]
 pkgdata = {
-"capsul.qt_apps.resources": ["*.ui", "*.png", "*.gif", "*.qrc", "*.txt"],
-"capsul.utils.test": ["*.xml"],
-"capsul.pipeline.test": ["*.json"]
+    "capsul.qt_apps.resources":
+        ["*.ui", "*.png", "*.gif", "*.qrc", "*.txt"],
+    "capsul.utils.test": ["*.xml"],
+    "capsul.process.test": ["*.xml"],
+    "capsul.pipeline.test": ["*.json"]
 }
+
 release_info = {}
 execfile(os.path.join("capsul", "info.py"), release_info)
 

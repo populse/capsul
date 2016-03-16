@@ -19,8 +19,9 @@ from soma.qt_gui.qt_backend import QtCore, QtGui
 from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline import Switch, PipelineNode
 from capsul.pipeline import pipeline_tools
-from capsul.pipeline import Pipeline
-from capsul.process import get_process_instance, Process
+from capsul.pipeline.pipeline import Pipeline
+from capsul.process.process import Process
+from capsul.process.loader import get_process_instance
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 from soma.controller import Controller
