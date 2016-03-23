@@ -16,21 +16,22 @@ import distutils.spawn
 import importlib
 import sys
 import types
+import inspect
 
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui
 from soma.sorted_dictionary import SortedDictionary
-from capsul.pipeline.pipeline import Switch, PipelineNode
+from capsul.api import Switch, PipelineNode
 from capsul.pipeline import pipeline_tools
-from capsul.pipeline.pipeline import Pipeline
-from capsul.process.process import Process
+from capsul.api import Pipeline
+from capsul.api import Process
 from capsul.process.loader import get_process_instance
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
-from capsul.utils.loader import load_objects
+from capsul.process import loader
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
-from capsul.utils import xml_to_pipeline
+#from capsul.utils import xml_to_pipeline
 try:
     from traits import api as traits
 except ImportError:
@@ -2256,9 +2257,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                                 '__init__.py'):
                             paths = [os.path.dirname(mod.__file__)]
                         # add process/pipeline objects in current_mod
-                        procs = load_objects(
-                            current_mod, allowed_instances=[
-                                Process, Pipeline, types.ModuleType])
+                        procs = [item for k, item in mod.__dict__.iteritems()
+                                 if isinstance(item, types.ModuleType)
+                                 or (inspect.isclass(item)
+                                     and issubclass(item, (Process, Pipeline))
+                                     and item not in (Process, Pipeline))]
                         compl.update(['.'.join([current_mod, c.__name__])
                                       for c in procs])
                 else:
@@ -2613,6 +2616,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                             for key, value in self.scene.pos.iteritems()])
             old_pos = pipeline.node_position
             pipeline.node_position = posdict
+            # FIXME: save implementation has gone...
             xml_to_pipeline.pipeline_to_xml(pipeline, open(filename, 'w'))
             self._pipeline_filename = unicode(filename)
             pipeline.node_position = old_pos
