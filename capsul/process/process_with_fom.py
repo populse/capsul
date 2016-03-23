@@ -6,7 +6,7 @@ except ImportError:
     from enthought.traits.api import Str
 
 from soma.controller import Controller
-from capsul.pipeline import Pipeline
+from capsul.api import Pipeline
 from soma.application import Application
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
