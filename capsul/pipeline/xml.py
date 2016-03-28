@@ -195,14 +195,35 @@ def save_xml_pipeline(pipeline, xml_file):
             elem = ET.SubElement(procnode, 'iterate')
             elem.set('name', param)
 
+    def _write_switch(switch, parent, name):
+        swnode = ET.SubElement(parent, 'switch')
+        swnode.set('name', name)
+        inputs = set()
+        for plug_name, plug in switch.plugs.iteritems():
+            if plug.output:
+                elem = ET.SubElement(swnode, 'output')
+                elem.set('name', plug_name)
+                if plug.optional:
+                    elem.set('optional', 'true')
+            else:
+                name_parts = plug_name.split("_switch_")
+                if len(name_parts) == 2 \
+                        and name_parts[0] not in inputs:
+                    inputs.add(name_parts[0])
+                    elem = ET.SubElement(swnode, 'input')
+                    elem.set('name', name_parts[0])
+                    if plug.optional:
+                        elem.set('optional', 'true')
+        swnode.set('switch_value', unicode(switch.switch))
+        return swnode
+
     def _write_processes(pipeline, root):
         proc_dict = pipeline_dict.setdefault("processes", OrderedDict())
         for node_name, node in pipeline.nodes.iteritems():
             if node_name == "":
                 continue
             if isinstance(node, Switch):
-                switch = ET.SubElement(root, 'switch')
-                #switch_descr = _switch_description(node)
+                _write_switch(node, root, node_name)
             elif isinstance(node, ProcessNode) \
                     and isinstance(node.process, ProcessIteration):
                 _write_iteration(node.process, root, node_name)
