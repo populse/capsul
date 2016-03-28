@@ -151,13 +151,49 @@ def save_xml_pipeline(pipeline, xml_file):
     from capsul.api import Process, Pipeline
     from capsul.pipeline.pipeline_nodes import ProcessNode, Switch
     from capsul.pipeline.process_iteration import ProcessIteration
+    from capsul.process.process import NipypeProcess
 
-    def _write_process(process, parent):
+    def _write_process(process, parent, name):
         procnode = ET.SubElement(parent, 'process')
         mod = process.__module__
-        classname = process.__class__.__name__
+        # if process is a function with XML decorator, we need to
+        # retreive the original function name.
+        func = getattr(process, '_function', None)
+        if func:
+            classname = func.__name__
+        else:
+            classname = process.__class__.__name__
         procnode.set('module', "%s.%s" % (mod, classname))
+        procnode.set('name', name)
+        if isinstance(process, NipypeProcess):
+            # WARNING: not sure I'm doing the right things for nipype. To be
+            # fixed if needed.
+            for param in process.inputs_to_copy:
+                elem = ET.SubElement(procnode, 'nipype')
+                elem.set('name', param)
+                if param in proces.inputs_to_clean:
+                    elem.set('copyfile', 'discard')
+                else:
+                    elem.set('copyfile', 'true')
+                np_input = getattr(process._nipype_interface.inputs, param)
+                if np_input:
+                    use_default = getattr(np_input, 'usedefault', False) # is it that?
+                    if use_default:
+                        elem.set('use_default', 'true')
+            for param, np_input in \
+                    process._nipype_interface.inputs.__dict__.iteritems():
+                use_default = getattr(np_input, 'usedefault', False) # is it that?
+                if use_default and param not in process.inputs_to_copy:
+                    elem = ET.SubElement(procnode, 'nipype')
+                    elem.set('name', param)
+                    elem.set('use_default', 'true')
         return procnode
+
+    def _write_iteration(process_iter, parent, name):
+        procnode = _write_process(process_iter.process, parent, name)
+        for param in process_iter.iterative_parameters:
+            elem = ET.SubElement(procnode, 'iterate')
+            elem.set('name', param)
 
     def _write_processes(pipeline, root):
         proc_dict = pipeline_dict.setdefault("processes", OrderedDict())
@@ -169,10 +205,9 @@ def save_xml_pipeline(pipeline, xml_file):
                 #switch_descr = _switch_description(node)
             elif isinstance(node, ProcessNode) \
                     and isinstance(node.process, ProcessIteration):
-                iternode = ET.SubElement(root, 'process_iteration')
-                iterproc = _write_process(node.process.process, iternode)
+                _write_iteration(node.process, root, node_name)
             else:
-                procnode = _write_process(node.process, root)
+                _write_process(node.process, root, node_name)
 
     def _write_links(pipeline, root):
         for node_name, node in pipeline.nodes.iteritems():
@@ -197,7 +232,7 @@ def save_xml_pipeline(pipeline, xml_file):
 
     def _write_nodes_positions(pipeline, root):
         gui = None
-        if hasattr(pipeline, "node_position"):
+        if hasattr(pipeline, "node_position") and pipeline.node_position:
             gui = ET.SubElement(root, 'gui')
             for node_name, pos in pipeline.node_position.iteritems():
                 node_pos = ET.SubElement(gui, 'position')
