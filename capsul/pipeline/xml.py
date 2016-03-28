@@ -134,3 +134,111 @@ def create_xml_pipeline(module, name, xml_file):
         else:
             raise ValueError('Invalid tag in <pipeline>: %s' % child.tag)
     return builder.pipeline
+
+
+def save_xml_pipeline(pipeline, xml_file):
+    '''
+    Save a pipeline in an XML file
+
+    Parameters
+    ----------
+    pipeline: Pipeline instance
+        pipeline to save
+    xml_file: str
+        XML file to save the pipeline in
+    '''
+    # imports are done locally to avoid circular imports
+    from capsul.api import Process, Pipeline
+    from capsul.pipeline.pipeline_nodes import ProcessNode, Switch
+    from capsul.pipeline.process_iteration import ProcessIteration
+
+    def _write_process(process, parent):
+        procnode = ET.SubElement(parent, 'process')
+        mod = process.__module__
+        classname = process.__class__.__name__
+        procnode.set('module', "%s.%s" % (mod, classname))
+        return procnode
+
+    def _write_processes(pipeline, root):
+        proc_dict = pipeline_dict.setdefault("processes", OrderedDict())
+        for node_name, node in pipeline.nodes.iteritems():
+            if node_name == "":
+                continue
+            if isinstance(node, Switch):
+                switch = ET.SubElement(root, 'switch')
+                #switch_descr = _switch_description(node)
+            elif isinstance(node, ProcessNode) \
+                    and isinstance(node.process, ProcessIteration):
+                iternode = ET.SubElement(root, 'process_iteration')
+                iterproc = _write_process(node.process.process, iternode)
+            else:
+                procnode = _write_process(node.process, root)
+
+    def _write_links(pipeline, root):
+        for node_name, node in pipeline.nodes.iteritems():
+            for plug_name, plug in node.plugs.iteritems():
+                if (node_name == "" and not plug.output) \
+                        or (node_name != "" and plug.output):
+                    links = plug.links_to
+                    for link in links:
+                        if node_name == "":
+                            src = plug_name
+                        else:
+                            src = "%s.%s" % (node_name, plug_name)
+                        if link[0] == "":
+                            dst = link[1]
+                        else:
+                            dst = "%s.%s" % (link[0], link[1])
+                        linkelem = ET.SubElement(root, 'link')
+                        linkelem.set('source', src)
+                        linkelem.set('dest', dst)
+                        if link[-1]:
+                            linkelem.set('weak', 1)
+
+    def _write_nodes_positions(pipeline, root):
+        gui = None
+        if hasattr(pipeline, "node_position"):
+            gui = ET.SubElement(root, 'gui')
+            for node_name, pos in pipeline.node_position.iteritems():
+                node_pos = ET.SubElement(gui, 'position')
+                node_pos.set('name', node_name)
+                node_pos.set('x', unicode(pos[0]))
+                node_pos.set('y', unicode(pos[1]))
+        return gui
+
+    root = ET.Element('pipeline')
+    class_name = pipeline.__class__.__name__
+    if pipeline.__class__ is Pipeline:
+        # if directly a Pipeline, then use a default new name
+        class_name = 'CustomPipeline'
+    root.set('name', class_name)
+    pipeline_dict = OrderedDict([("@class_name", class_name)])
+    xml_dict = OrderedDict([("pipeline", pipeline_dict)])
+
+    if hasattr(pipeline, "__doc__"):
+        docstr = pipeline.__doc__
+        if docstr == Pipeline.__doc__:
+            docstr = ""  # don't use the builtin Pipeline help
+        else:
+            # remove automatically added doc
+            autodocpos = docstr.find(
+                ".. note::\n\n    * Type '{0}.help()'".format(
+                    pipeline.__class__.__name__))
+            if autodocpos >= 0:
+                docstr = docstr[:autodocpos]
+    else:
+        docstr = ""
+    root.set('doc', docstr)
+    _write_processes(pipeline, root)
+    _write_links(pipeline, root)
+    gui_node = _write_nodes_positions(pipeline, root)
+
+    if hasattr(pipeline, "scene_scale_factor"):
+        if gui_node is None:
+            gui_node = ET.SubElement(root, 'gui')
+        scale_node = ET.SubElement(gui_node, 'zoom')
+        scale_node.set('level', unicode(pipeline.scene_scale_factor))
+
+    tree = ET.ElementTree(root)
+    tree.write(xml_file)
+
