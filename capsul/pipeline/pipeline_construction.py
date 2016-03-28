@@ -113,6 +113,11 @@ class PipelineConstructor(object):
         """
         self.pipeline.scene_scale_factor = scale
 
+    def add_switch(self, *args, **kwargs):
+        """ Adds a switch to the pipeline
+        """
+        self._calls.append(('add_switch', args, kwargs))
+
 
 class ConstructedPipeline(Pipeline):
     """

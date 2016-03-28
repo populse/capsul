@@ -82,6 +82,25 @@ def create_xml_pipeline(module, name, xml_file):
             for name in nipype_usedefault:
                 builder.call_process_method(process_name, 'set_usedefault',
                                             name, True)
+        elif child.tag == 'switch':
+            switch_name = child.get('name')
+            value = child.get('switch_value')
+            kwargs = {'export_switch': False}
+            if value:
+                kwargs['switch_value'] = value
+            inputs = []
+            outputs = []
+            for process_child in child:
+                if process_child.tag == 'input':
+                    name = process_child.get('name')
+                    inputs.append(name)
+                elif process_child.tag == 'output':
+                    name = process_child.get('name')
+                    outputs.append(name)
+                    optional = process_child.get('optional')
+                    if optional == 'true':
+                        kwargs.setdefault('make_optional', []).append(name)
+            builder.add_switch(switch_name, inputs, outputs, **kwargs)
         elif child.tag == 'link':
             source = child.get('source')
             dest = child.get('dest')
