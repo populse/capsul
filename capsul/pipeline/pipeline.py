@@ -441,7 +441,7 @@ class Pipeline(Process):
                                                                  **kwargs)
     
     def add_switch(self, name, inputs, outputs, export_switch=True,
-                   make_optional=()):
+                   make_optional=(), switch_value=None):
         """ Add a switch node in the pipeline
 
         Parameters
@@ -464,6 +464,9 @@ class Pipeline(Process):
             list of optional outputs.
             These outputs will be made optional in the switch output. By
             default they are mandatory.
+        switch_value: str (optional)
+            Initial value of the switch parameter (one of the inputs names).
+            Defaults to 1st input.
 
         Examples
         --------
@@ -491,6 +494,9 @@ class Pipeline(Process):
         # Export the switch controller to the pipeline node
         if export_switch:
             self.export_parameter(name, "switch", name)
+
+        if switch_value:
+            node.switch = switch_value
 
     def parse_link(self, link):
         """ Parse a link comming from export_parameter method.
