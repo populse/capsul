@@ -164,10 +164,10 @@ class Pipeline(Process):
 
     selection_changed = Event()
     
-    # The default value for autoexport_nodes_parameters is stored in the
-    # pipeline class. This makes it possible to changes this default value
+    # The default value for do_autoexport_nodes_parameters is stored in the
+    # pipeline class. This makes it possible to change this default value
     # in derived classes (for instance in DynamicPipeline).
-    autoexport_nodes_parameters = True
+    do_autoexport_nodes_parameters = True
     
     # By default nodes_activation trait is hidden in user interface. Changing
     # this value to False will make it visible.
@@ -212,7 +212,7 @@ class Pipeline(Process):
         self.workflow_list = []
 
         if autoexport_nodes_parameters is None:
-            autoexport_nodes_parameters = self.autoexport_nodes_parameters
+            autoexport_nodes_parameters = self.do_autoexport_nodes_parameters
         if autoexport_nodes_parameters:
             self.autoexport_nodes_parameters()
 
