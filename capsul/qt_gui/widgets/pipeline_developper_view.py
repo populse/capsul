@@ -28,6 +28,7 @@ from capsul.api import Process
 from capsul.process.loader import get_process_instance
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
+import capsul.pipeline.xml as capsulxml
 from capsul.process import loader
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
@@ -2617,7 +2618,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             old_pos = pipeline.node_position
             pipeline.node_position = posdict
             # FIXME: save implementation has gone...
-            xml_to_pipeline.pipeline_to_xml(pipeline, open(filename, 'w'))
+            capsulxml.save_xml_pipeline(pipeline, filename)
             self._pipeline_filename = unicode(filename)
             pipeline.node_position = old_pos
 
