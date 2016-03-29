@@ -8,12 +8,17 @@
 
 # System import
 import unittest
+import tempfile
+import os
+import sys
+import shutil
 
 # Capsul import
 from capsul.api import Process
 from capsul.api import get_process_instance
 from capsul.api import Pipeline
 from capsul.process.xml import xml_process
+from capsul.pipeline.xml import save_xml_pipeline
 
 
 def a_function_to_wrap(fname, directory, value, enum, list_of_str):
@@ -99,6 +104,47 @@ class TestLoadFromDescription(unittest.TestCase):
         self.assertTrue(isinstance(pipeline, Pipeline))
         for node_name in ["", "p1", "p2"]:
             self.assertTrue(node_name in pipeline.nodes)
+
+    def test_pipeline_writing(self):
+        """ Method to test the xml description saving and reloading
+        """
+        # get a pipeline
+        pipeline1 = get_process_instance("capsul.process.test.xml_pipeline")
+        # save it in a temp directory
+        tmpdir = tempfile.mkdtemp()
+        pdir = os.path.join(tmpdir, "pipeline_mod")
+        os.mkdir(pdir)
+        save_xml_pipeline(pipeline1, os.path.join(pdir, "test_pipeline.xml"))
+        # make this dir become a python module
+        open(os.path.join(pdir, "__init__.py"), "w")
+        # point the path to it
+        sys.path.append(tmpdir)
+        # reload the saved pipeline
+        pipeline2 = get_process_instance("pipeline_mod.test_pipeline")
+        self.assertEqual(sorted(pipeline1.nodes.keys()),
+                         sorted(pipeline2.nodes.keys()))
+        for node_name, node1 in pipeline1.nodes.iteritems():
+            node2 = pipeline2.nodes[node_name]
+            self.assertEqual(node1.enabled, node2.enabled)
+            self.assertEqual(node1.activated, node2.activated)
+            self.assertEqual(sorted(node1.plugs.keys()),
+                             sorted(node2.plugs.keys()))
+            for plug_name, plug1 in node1.plugs.iteritems():
+                plug2 = node2.plugs[plug_name]
+                self.assertEqual(len(plug1.links_from),
+                                 len(plug2.links_from))
+                self.assertEqual(len(plug1.links_to),
+                                 len(plug2.links_to))
+                links1 = [l[:2] + (l[4],)
+                          for l in sorted(plug1.links_from)
+                              + sorted(plug1.links_to)]
+                links2 = [l[:2] + (l[4],)
+                          for l in sorted(plug2.links_from)
+                              + sorted(plug2.links_to)]
+                self.assertEqual(links1, links2)
+        sys.path.pop(-1)
+        shutil.rmtree(tmpdir)
+
 
 class TestProcessWrap(unittest.TestCase):
     """ Class to test the function used to wrap a function to a process
