@@ -48,7 +48,7 @@ class PipelineConstructor(object):
         class_kwargs = {
             '__module__': module,
             '_pipeline_definition_calls': [],
-            'autoexport_nodes_parameters': False,
+            'do_autoexport_nodes_parameters': False,
             'output_directory': Directory(Undefined, exists=True,
                                           optional=True),
             'node_position': {}
