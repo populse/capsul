@@ -1761,7 +1761,7 @@ class Pipeline(Process):
         for step_name, nodes in steps.iteritems():
             self.add_pipeline_step(step_name, nodes)
 
-    def add_pipeline_step(self, step_name, nodes):
+    def add_pipeline_step(self, step_name, nodes, enabled=True):
         '''Add a step definiton to the pipeline (see also define_steps).
 
         Steps are groups of pipeline nodes, which may be disabled at runtime.
@@ -1779,6 +1779,8 @@ class Pipeline(Process):
             name of the new step
         nodes: list ore sequence
             nodes contained in the step (Node instances)
+        enabled: bool (optional)
+            initial state of the step
         '''
         if not self.user_traits().has_key('pipeline_steps'):
             super(Pipeline, self).add_trait(
@@ -1798,7 +1800,7 @@ class Pipeline(Process):
         self.pipeline_steps.add_trait(step_name, Bool)
         trait = self.pipeline_steps.trait(step_name)
         trait.nodes = nodes
-        setattr(self.pipeline_steps, step_name, True)
+        setattr(self.pipeline_steps, step_name, enabled)
 
     def remove_pipeline_step(self, step_name):
         '''Remove the given step
