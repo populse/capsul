@@ -82,6 +82,9 @@ def create_xml_pipeline(module, name, xml_file):
             for name in nipype_usedefault:
                 builder.call_process_method(process_name, 'set_usedefault',
                                             name, True)
+            enabled = child.get('enabled')
+            if enabled == 'false':
+                builder.set_node_enabled(process_name, False)
         elif child.tag == 'switch':
             switch_name = child.get('name')
             value = child.get('switch_value')
@@ -101,23 +104,35 @@ def create_xml_pipeline(module, name, xml_file):
                     if optional == 'true':
                         kwargs.setdefault('make_optional', []).append(name)
             builder.add_switch(switch_name, inputs, outputs, **kwargs)
+            enabled = child.get('enabled')
+            if enabled == 'false':
+                builder.set_node_enabled(switch_name, False)
         elif child.tag == 'link':
             source = child.get('source')
             dest = child.get('dest')
+            weak_link = child.get('weak_link')
+            if weak_link == 'true':
+                weak_link = True
+            else:
+                weak_link = False
             if '.' in source:
                 if '.' in dest:
-                    builder.add_link('%s->%s' % (source, dest))
+                    builder.add_link('%s->%s' % (source, dest),
+                                     weak_link=weak_link)
                 elif dest in exported_parameters:
-                    builder.add_link('%s->%s' % (source, dest))
+                    builder.add_link('%s->%s' % (source, dest),
+                                     weak_link=weak_link)
                 else:
                     node, plug = source.rsplit('.', 1)
-                    builder.export_parameter(node, plug, dest)
+                    builder.export_parameter(node, plug, dest,
+                                             weak_link=weak_link)
                     exported_parameters.add(dest)
             elif source in exported_parameters:
                 builder.add_link('%s->%s' % (source, dest))
             else:
                 node, plug = dest.rsplit('.', 1)
-                builder.export_parameter(node, plug, source)
+                builder.export_parameter(node, plug, source,
+                                         weak_link=weak_link)
                 exported_parameters.add(source)
         elif child.tag == 'processes_selection':
             selection_parameter = child.get('name')
@@ -137,6 +152,18 @@ def create_xml_pipeline(module, name, xml_file):
                                      % select_child.tag)
             builder.add_processes_selection(selection_parameter,
                                             selection_groups)
+        elif child.tag == 'pipeline_steps':
+            for step_child in child:
+                step_name = step_child.get('name')
+                enabled = step_child.get('enabled')
+                if enabled == 'false':
+                    enabled = False
+                else:
+                    enabled = True
+                nodes = []
+                for step_node in step_child:
+                    nodes.append(step_node.get('name'))
+                builder.add_pipeline_step(step_name, nodes, enabled)
         elif child.tag == 'gui':
             for gui_child in child:
                 if gui_child.tag == 'position':
@@ -213,6 +240,7 @@ def save_xml_pipeline(pipeline, xml_file):
         for param in process_iter.iterative_parameters:
             elem = ET.SubElement(procnode, 'iterate')
             elem.set('name', param)
+        return procnode
 
     def _write_switch(switch, parent, name):
         swnode = ET.SubElement(parent, 'switch')
@@ -237,17 +265,18 @@ def save_xml_pipeline(pipeline, xml_file):
         return swnode
 
     def _write_processes(pipeline, root):
-        proc_dict = pipeline_dict.setdefault("processes", OrderedDict())
         for node_name, node in pipeline.nodes.iteritems():
             if node_name == "":
                 continue
             if isinstance(node, Switch):
-                _write_switch(node, root, node_name)
+                xmlnode = _write_switch(node, root, node_name)
             elif isinstance(node, ProcessNode) \
                     and isinstance(node.process, ProcessIteration):
-                _write_iteration(node.process, root, node_name)
+                xmlnode = _write_iteration(node.process, root, node_name)
             else:
-                _write_process(node.process, root, node_name)
+                xmlnode = _write_process(node.process, root, node_name)
+            if not node.enabled:
+                xmlnode.set('enabled', 'false')
 
     def _write_links(pipeline, root):
         for node_name, node in pipeline.nodes.iteritems():
@@ -268,7 +297,25 @@ def save_xml_pipeline(pipeline, xml_file):
                         linkelem.set('source', src)
                         linkelem.set('dest', dst)
                         if link[-1]:
-                            linkelem.set('weak', 1)
+                            linkelem.set('weak_link', "true")
+
+    def _write_steps(pipeline, root):
+        steps = pipeline.trait('pipeline_steps')
+        steps_node = None
+        if steps:
+            steps_node = ET.SubElement(root, 'pipeline_steps')
+            for step_name, step \
+                    in pipeline.pipeline_steps.user_traits().iteritems():
+                step_node = ET.SubElement(steps_node, 'step')
+                step_node.set('name', step_name)
+                enabled = getattr(pipeline.pipeline_steps, step_name)
+                if not enabled:
+                    step_node.set('enabled', 'false')
+                nodes = step.nodes
+                for node in nodes:
+                    node_item = ET.SubElement(step_node, 'node')
+                    node_item.set('name', node)
+        return steps_node
 
     def _write_nodes_positions(pipeline, root):
         gui = None
@@ -306,6 +353,7 @@ def save_xml_pipeline(pipeline, xml_file):
     root.set('doc', docstr)
     _write_processes(pipeline, root)
     _write_links(pipeline, root)
+    _write_steps(pipeline, root)
     gui_node = _write_nodes_positions(pipeline, root)
 
     if hasattr(pipeline, "scene_scale_factor"):
