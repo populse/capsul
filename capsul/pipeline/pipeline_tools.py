@@ -22,7 +22,9 @@ except ImportError:
     from enthought.traits import api as traits
 
 # Capsul import
-from capsul.pipeline.pipeline import Pipeline, PipelineNode, Switch
+from capsul.pipeline.pipeline import Pipeline, PipelineNode, Switch, \
+    ProcessNode
+from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller
 
 
@@ -79,6 +81,13 @@ def pipeline_node_colors(pipeline, node):
     DEEP_PURPLE_2 = (0.6, 0.5, 0.6)
     DEEP_PURPLE_3 = (0.4, 0.35, 0.4)
 
+    GREEN_1 = (0.7, 0.9, 0.7)
+    GREEN_2 = (0.5, 0.7, 0.5)
+    GREEN_3 = (0.2, 0.4, 0.2)
+    LIGHT_GREEN_1 = (0.95, 1., 0.95)
+    LIGHT_GREEN_2 = (0.85, 0.9, 0.85)
+    LIGHT_GREEN_3 = (0.3, 0.5, 0.3)
+
     _colors = {
         'default': (BLUE_1, BLUE_2, BLUE_3, LIGHT_BLUE_1, LIGHT_BLUE_2,
                     LIGHT_BLUE_3),
@@ -86,11 +95,16 @@ def pipeline_node_colors(pipeline, node):
                    LIGHT_SAND_3),
         'pipeline': (DEEP_PURPLE_1, DEEP_PURPLE_2, DEEP_PURPLE_3, PURPLE_1,
                      PURPLE_2, PURPLE_3),
+        'iteration': (GREEN_1, GREEN_2, GREEN_3, LIGHT_GREEN_1, LIGHT_GREEN_2,
+                      LIGHT_GREEN_3),
     }
     if isinstance(node, Switch):
         style = 'switch'
     elif isinstance(node, PipelineNode) and node is not pipeline.pipeline_node:
         style = 'pipeline'
+    elif isinstance(node, ProcessNode) \
+            and isinstance(node.process, ProcessIteration):
+        style = 'iteration'
     else:
         style = 'default'
     if node.activated and node.enabled:

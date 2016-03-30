@@ -25,7 +25,8 @@ from capsul.api import Switch, PipelineNode
 from capsul.pipeline import pipeline_tools
 from capsul.api import Pipeline
 from capsul.api import Process
-from capsul.process.loader import get_process_instance
+from capsul.api import get_process_instance
+from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 import capsul.pipeline.xml as capsulxml
@@ -152,7 +153,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
     def __init__(self, name, parameters, pipeline,
                  parent=None, process=None, sub_pipeline=None,
                  colored_parameters=True,
-                 logical_view=False):
+                 logical_view=False, labels=[]):
         super(NodeGWidget, self).__init__(parent)
         self.style = 'default'
         self.name = name
@@ -168,6 +169,25 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.colored_parameters = colored_parameters
         self.logical_view = logical_view
         self.pipeline = pipeline
+
+        self.labels = []
+        self.label_items = []
+        my_labels = []
+        steps = getattr(pipeline, 'pipeline_steps', None)
+        if steps:
+            for step_name, step in steps.user_traits().iteritems():
+                step_nodes = step.nodes
+                if name in step_nodes:
+                    my_labels.append('step: %s' % step_name)
+        selects = pipeline.get_processes_selections()
+        for sel_plug in selects:
+            groups = pipeline.get_processes_selection_groups(sel_plug)
+            for group, nodes in groups.iteritems():
+                if name in nodes:
+                    my_labels.append('select:%s' % sel_plug)
+
+        for label in my_labels:
+            self.make_label(label, labels)
 
         self._set_brush()
         self.setAcceptedMouseButtons(
@@ -187,6 +207,46 @@ class NodeGWidget(QtGui.QGraphicsItem):
             return self.name
         else:
             return "[{0}]".format(self.name)
+
+    def make_label(self, label, labels):
+        class Label(object):
+            def __init__(self, label, color):
+                self.text = label
+                self.color = color
+        for l in labels:
+            if label == l.text:
+                if l not in self.labels:
+                    self.labels.append(l)
+                return l
+        color = self.new_color(len(labels))
+        label_item = Label(label, color)
+        self.labels.append(label_item)
+        labels.append(label_item)
+        return label_item
+
+    def new_color(self, num):
+        colors = [[1, 0.3, 0.3],
+                  [0.3, 1, 0.3],
+                  [0.3, 0.3, 1],
+                  [1, 1, 0],
+                  [0, 1, 1],
+                  [1, 0, 1],
+                  [1, 1, 1],
+                  [1, 0.7, 0],
+                  [1, 0, 0.7],
+                  [1, 0.7, 0.7],
+                  [0.7, 1, 0],
+                  [0., 1., 0.7],
+                  [0.7, 1, 0.7],
+                  [0.7, 0, 1],
+                  [0., 0.7, 1],
+                  [0.7, 0.7, 1],
+                  [1, 1, 0.5],
+                  [0.5, 1, 1],
+                  [1, 0.5, 1]]
+        c = colors[num % len(colors)]
+        code = (int(c[0] * 255), int(c[1] * 255), int(c[2] * 255))
+        return code
 
     def _repaint_parameter(self, param_name, new_value):
         if self.logical_view or param_name not in self.parameters:
@@ -211,6 +271,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             self._build_logical_view_plugs()
         else:
             self._build_regular_view_plugs()
+        self._create_label_makrs()
 
         self.box = QtGui.QGraphicsRectItem(self)
         self.box.setBrush(self.bg_brush)
@@ -330,6 +391,48 @@ class NodeGWidget(QtGui.QGraphicsItem):
             self.out_plugs['outputs'] = plug
             self.out_params['outputs'] = param_name
 
+    def _create_label_makrs(self):
+        labels = getattr(self, 'labels')
+        if labels:
+            margin = 5
+            plug_width = 12
+            xpos = margin + plug_width
+            ypos = 0
+            if self.out_params:
+                params = self.out_params
+            elif self.in_params:
+                params = self.in_params
+            if params:
+                ypos = max([p.boundingRect().bottom()
+                            for p in params.values()])
+            else:
+                ypos = margin * 2 + self.title.boundingRect().size().height()
+            child = self.childItems()[-1]
+            item_rect = self.mapRectFromItem(child, child.boundingRect())
+            ypos = item_rect.bottom()
+            for label in labels:
+                color = label.color
+                text = label.text
+                # I can't make rounded borders with appropriate padding
+                # without using 2 QLabels. This is probably overkill. We could
+                # replace this code of we find a simpler way.
+                label_w = QtGui.QLabel('')
+                label_w.setStyleSheet("background: rgba(255, 255, 255, 0);")
+                lay = QtGui.QVBoxLayout()
+                lay.setContentsMargins(2, 2, 2, 2)
+                label_w.setLayout(lay)
+                label2 = QtGui.QLabel(text)
+                label2.setStyleSheet(
+                    "background: rgba({0}, {1}, {2}, 255); "
+                    "border-radius: 7px; border: 0px solid; "
+                    "padding: 1px;".format(*color))
+                lay.addWidget(label2)
+                label_item = QtGui.QGraphicsProxyWidget(self)
+                label_item.setWidget(label_w)
+                label_item.setPos(xpos, ypos)
+                label_item.setParentItem(self)
+                self.label_items.append(label_item)
+
     def clear_plugs(self):
         for plugs, params in ((self.in_plugs, self.in_params),
                               (self.out_plugs, self.out_params)):
@@ -432,38 +535,53 @@ class NodeGWidget(QtGui.QGraphicsItem):
         margin = 5
         if not self.in_params:
             if not self.out_params:
-                return # nothing to do.
+                param_item = None
             else:
                 param_item = self.out_params.values()[0]
         else:
             param_item = self.in_params.values()[0]
         ni = 0
         no = 0
-        for param_name, pipeline_plug in self.parameters.iteritems():
-            output = (not pipeline_plug.output if self.name in (
-                'inputs', 'outputs') else pipeline_plug.output)
-            if output:
-                params = self.out_params
-                plugs = self.out_plugs
-                npos = no + len(self.in_params)
-                no += 1
+        bottom_pos = 0
+        if param_item:
+            for param_name, pipeline_plug in self.parameters.iteritems():
+                output = (not pipeline_plug.output if self.name in (
+                    'inputs', 'outputs') else pipeline_plug.output)
+                if output:
+                    params = self.out_params
+                    plugs = self.out_plugs
+                    npos = no + len(self.in_params)
+                    no += 1
+                else:
+                    params = self.in_params
+                    plugs = self.in_plugs
+                    npos = ni
+                    ni += 1
+                pos = margin * 2 + self.title.boundingRect().size().height() \
+                    + param_item.boundingRect().size().height() * npos
+                new_param_item = params.get(param_name)
+                if new_param_item is None:
+                    continue
+                param_item = new_param_item
+                plug = plugs[param_name]
+                ppos = param_item.pos()
+                param_item.setPos(ppos.x(), pos)
+                ppos = plug.pos()
+                plug.setPos(ppos.x(), pos)
+                pos += param_item.boundingRect().size().height()
+                bottom_pos = max(pos, bottom_pos)
+            if self.logical_view:
+                nparams = 1
             else:
-                params = self.in_params
-                plugs = self.in_plugs
-                npos = ni
-                ni += 1
+                nparams = len(self.in_params) + len(self.out_params)
             pos = margin * 2 + self.title.boundingRect().size().height() \
-                + param_item.boundingRect().size().height() * npos
-            new_param_item = params.get(param_name)
-            if new_param_item is None:
-                continue
-            param_item = new_param_item
-            plug = plugs[param_name]
-            ppos = param_item.pos()
-            param_item.setPos(ppos.x(), pos)
-            ppos = plug.pos()
-            plug.setPos(ppos.x(), pos)
-            pos += param_item.boundingRect().size().height()
+                + param_item.boundingRect().size().height() * nparams
+        else:
+            pos = margin * 2 + self.title.boundingRect().size().height()
+        for label_item in self.label_items:
+            ppos = label_item.pos()
+            label_item.setPos(ppos.x(), pos)
+            pos += label_item.boundingRect().size().height()
 
     def _remove_parameter(self, param_name):
         if param_name in self.in_params:
@@ -540,6 +658,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
                     to_remove.append(param)
             for param in to_remove:
                 self._remove_parameter(param)
+
+        self._shift_params()
+
         rect = self.title.mapRectToParent(self.title.boundingRect())
         margin = 5
         brect = self.boundingRect()
@@ -779,6 +900,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.colored_parameters = True
         self.logical_view = False
         self._enable_edition = False
+        self.labels = []
 
         self.changed.connect(self.update_paths)
 
@@ -805,7 +927,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             node_name, node.plugs, self.pipeline,
             sub_pipeline=sub_pipeline, process=process,
             colored_parameters=self.colored_parameters,
-            logical_view=self.logical_view)
+            logical_view=self.logical_view, labels=self.labels)
         self._add_node(node_name, gnode)
         return gnode
 
@@ -885,6 +1007,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 
     def set_pipeline(self, pipeline):
         self.pipeline = pipeline
+        self.labels = []
         pipeline_inputs = SortedDictionary()
         pipeline_outputs = SortedDictionary()
         for name, plug in pipeline.nodes[''].plugs.iteritems():
