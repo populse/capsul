@@ -155,7 +155,7 @@ def get_process_instance(process_or_id, **kwargs):
                 xml_file = osp.join(osp.dirname(module.__file__),
                                     object_name + '.xml')
                 if osp.exists(xml_file):
-                    result = create_xml_pipeline(module_name, object_name,
+                    result = create_xml_pipeline(module_name, None,
                                                  xml_file)()
 
     if result is None:

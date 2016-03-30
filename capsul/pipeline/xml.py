@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import
 
+import os
 import xml.etree.cElementTree as ET
 
 from soma.sorted_dictionary import OrderedDict
@@ -43,10 +44,12 @@ def create_xml_pipeline(module, name, xml_file):
         elif name != class_name:
             raise KeyError('pipeline name (%s) and requested object name '
                            '(%s) differ.' % (class_name, name))
+    elif name is None:
+        name = os.path.basename(xml_file).rsplit('.', 1)[0]
 
     builder = PipelineConstructor(module, name)
     exported_parameters = set()
-    
+
     for child in xml_pipeline:
         if child.tag == 'doc':
             builder.set_documentation(child.text.strip())
