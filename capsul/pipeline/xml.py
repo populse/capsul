@@ -278,6 +278,22 @@ def save_xml_pipeline(pipeline, xml_file):
             if not node.enabled:
                 xmlnode.set('enabled', 'false')
 
+    def _write_processes_selections(pipeline, root):
+        selection_parameters = []
+        if hasattr(pipeline, 'processes_selection'):
+            for selector_name, groups \
+                    in pipeline.processes_selection.iteritems():
+                selection_parameters.append(selector_name)
+                sel_node = ET.SubElement(root, 'processes_selection')
+                sel_node.set('name', selector_name)
+                for group_name, group in groups.iteritems():
+                    grp_node = ET.SubElement(sel_node, 'processes_group')
+                    grp_node.set('name', group_name)
+                    for node in group:
+                        proc_node = ET.SubElement(grp_node, 'process')
+                        proc_node.set('name', node)
+        return selection_parameters
+
     def _write_links(pipeline, root):
         for node_name, node in pipeline.nodes.iteritems():
             for plug_name, plug in node.plugs.iteritems():
@@ -329,13 +345,12 @@ def save_xml_pipeline(pipeline, xml_file):
         return gui
 
     root = ET.Element('pipeline')
+    root.set('capsul_xml', '2.0')
     class_name = pipeline.__class__.__name__
     if pipeline.__class__ is Pipeline:
         # if directly a Pipeline, then use a default new name
         class_name = 'CustomPipeline'
     root.set('name', class_name)
-    pipeline_dict = OrderedDict([("@class_name", class_name)])
-    xml_dict = OrderedDict([("pipeline", pipeline_dict)])
 
     if hasattr(pipeline, "__doc__"):
         docstr = pipeline.__doc__
@@ -349,10 +364,13 @@ def save_xml_pipeline(pipeline, xml_file):
             if autodocpos >= 0:
                 docstr = docstr[:autodocpos]
     else:
-        docstr = ""
+        docstr = ''
+    if docstr.strip() == '':
+        docstr = ''
     root.set('doc', docstr)
     _write_processes(pipeline, root)
     _write_links(pipeline, root)
+    _write_processes_selections(pipeline, root)
     _write_steps(pipeline, root)
     gui_node = _write_nodes_positions(pipeline, root)
 
