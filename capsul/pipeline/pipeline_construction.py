@@ -113,6 +113,21 @@ class PipelineConstructor(object):
         """
         self.pipeline.scene_scale_factor = scale
 
+    def add_switch(self, *args, **kwargs):
+        """ Adds a switch to the pipeline
+        """
+        self._calls.append(('add_switch', args, kwargs))
+
+    def set_node_enabled(self, name, state):
+        """ Enables or disabled a node
+        """
+        self._calls.append(('_set_process_enabled', name, state))
+
+    def add_pipeline_step(self, step_name, nodes, enabled):
+        """ Defines a pipeline step
+        """
+        self._calls.append(('add_pipeline_step', step_name, nodes, enabled))
+
 
 class ConstructedPipeline(Pipeline):
     """
