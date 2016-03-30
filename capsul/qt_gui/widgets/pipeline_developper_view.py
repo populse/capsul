@@ -171,6 +171,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.pipeline = pipeline
 
         self.labels = []
+        self.scene_labels = labels
         self.label_items = []
         my_labels = []
         steps = getattr(pipeline, 'pipeline_steps', None)
@@ -184,10 +185,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
             groups = pipeline.get_processes_selection_groups(sel_plug)
             for group, nodes in groups.iteritems():
                 if name in nodes:
-                    my_labels.append('select:%s' % sel_plug)
+                    my_labels.append('select: %s' % sel_plug)
 
         for label in my_labels:
-            self.make_label(label, labels)
+            self._get_label(label)
 
         self._set_brush()
         self.setAcceptedMouseButtons(
@@ -208,20 +209,21 @@ class NodeGWidget(QtGui.QGraphicsItem):
         else:
             return "[{0}]".format(self.name)
 
-    def make_label(self, label, labels):
+    def _get_label(self, label, register=True):
         class Label(object):
             def __init__(self, label, color):
                 self.text = label
                 self.color = color
-        for l in labels:
+        for l in self.scene_labels:
             if label == l.text:
-                if l not in self.labels:
+                if register and l not in self.labels:
                     self.labels.append(l)
                 return l
-        color = self.new_color(len(labels))
+        color = self.new_color(len(self.scene_labels))
         label_item = Label(label, color)
-        self.labels.append(label_item)
-        labels.append(label_item)
+        if register:
+            self.labels.append(label_item)
+        self.scene_labels.append(label_item)
         return label_item
 
     def new_color(self, num):
@@ -255,7 +257,12 @@ class NodeGWidget(QtGui.QGraphicsItem):
         param_item = self.in_params.get(param_name)
         if param_item is None:
             param_item = self.out_params[param_name]
-        param_item.setHtml(param_text)
+        if isinstance(param_item, QtGui.QGraphicsProxyWidget):
+            # colored parameters are widgets
+            param_item.widget().findChild(
+                QtGui.QLabel, 'label').setText(param_text)
+        else:
+            param_item.setHtml(param_text)
 
     def _build(self):
         margin = 5
@@ -271,7 +278,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             self._build_logical_view_plugs()
         else:
             self._build_regular_view_plugs()
-        self._create_label_makrs()
+        self._create_label_marks()
 
         self.box = QtGui.QGraphicsRectItem(self)
         self.box.setBrush(self.bg_brush)
@@ -290,10 +297,38 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.box_title.setPen(QtGui.QPen(QtCore.Qt.NoPen))
         self.box_title.setParentItem(self)
 
+    def _colored_text_item(self, label, text=None, margin=2):
+        labelc = self._get_label(label, False)
+        color = labelc.color
+        if text is None:
+            text = label
+        # I can't make rounded borders with appropriate padding
+        # without using 2 QLabels. This is probably overkill. We could
+        # replace this code of we find a simpler way.
+        label_w = QtGui.QLabel('')
+        label_w.setStyleSheet("background: rgba(255, 255, 255, 0);")
+        lay = QtGui.QVBoxLayout()
+        lay.setContentsMargins(margin, margin, margin, margin)
+        label_w.setLayout(lay)
+        label2 = QtGui.QLabel(text)
+        label2.setObjectName('label')
+        label2.setStyleSheet(
+            "background: rgba({0}, {1}, {2}, 255); "
+            "border-radius: 7px; border: 0px solid; "
+            "padding: 1px;".format(*color))
+        lay.addWidget(label2)
+        label_item = QtGui.QGraphicsProxyWidget(self)
+        label_item.setWidget(label_w)
+        return label_item
+
     def _build_regular_view_plugs(self):
         margin = 5
         plug_width = 12
         pos = margin + margin + self.title.boundingRect().size().height()
+        if self.name == 'inputs':
+            selections = self.pipeline.get_processes_selections()
+        else:
+            selections = []
 
         for in_param, pipeline_plug in self.parameters.iteritems():
             output = (not pipeline_plug.output if self.name in (
@@ -303,6 +338,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_text = self._parameter_text(in_param)
             param_name = QtGui.QGraphicsTextItem(self)
             param_name.setHtml(param_text)
+
             plug_name = '%s:%s' % (self.name, in_param)
             plug = Plug(plug_name,
                         param_name.boundingRect().size().height(),
@@ -323,8 +359,13 @@ class NodeGWidget(QtGui.QGraphicsItem):
             if not output:
                 continue
             param_text = self._parameter_text(out_param)
-            param_name = QtGui.QGraphicsTextItem(self)
-            param_name.setHtml(param_text)
+            if out_param in selections:
+                param_name = self._colored_text_item('select: ' + out_param,
+                                                     param_text, 0)
+            else:
+                param_name = QtGui.QGraphicsTextItem(self)
+                param_name.setHtml(param_text)
+
             plug_name = '%s:%s' % (self.name, out_param)
             plug = Plug(plug_name,
                         param_name.boundingRect().size().height(),
@@ -391,8 +432,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
             self.out_plugs['outputs'] = plug
             self.out_params['outputs'] = param_name
 
-    def _create_label_makrs(self):
-        labels = getattr(self, 'labels')
+    def _create_label_marks(self):
+        labels = self.labels
         if labels:
             margin = 5
             plug_width = 12
@@ -413,22 +454,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             for label in labels:
                 color = label.color
                 text = label.text
-                # I can't make rounded borders with appropriate padding
-                # without using 2 QLabels. This is probably overkill. We could
-                # replace this code of we find a simpler way.
-                label_w = QtGui.QLabel('')
-                label_w.setStyleSheet("background: rgba(255, 255, 255, 0);")
-                lay = QtGui.QVBoxLayout()
-                lay.setContentsMargins(2, 2, 2, 2)
-                label_w.setLayout(lay)
-                label2 = QtGui.QLabel(text)
-                label2.setStyleSheet(
-                    "background: rgba({0}, {1}, {2}, 255); "
-                    "border-radius: 7px; border: 0px solid; "
-                    "padding: 1px;".format(*color))
-                lay.addWidget(label2)
-                label_item = QtGui.QGraphicsProxyWidget(self)
-                label_item.setWidget(label_w)
+                label_item = self._colored_text_item(label.text, label.text)
                 label_item.setPos(xpos, ypos)
                 label_item.setParentItem(self)
                 self.label_items.append(label_item)
@@ -493,8 +519,14 @@ class NodeGWidget(QtGui.QGraphicsItem):
             else:
                 param_name = 'inputs'
         param_text = self._parameter_text(param_name)
-        param_name_item = QtGui.QGraphicsTextItem(self)
-        param_name_item.setHtml(param_text)
+        if self.name == 'inputs' and not self.logical_view \
+                and 'select: ' + param_name in \
+                    [l.text for l in self.scene_labels]:
+            param_name_item = self._colored_text_item('select: ' + param_name,
+                                                      param_text, 0)
+        else:
+            param_name_item = QtGui.QGraphicsTextItem(self)
+            param_name_item.setHtml(param_text)
         plug_name = '%s:%s' % (self.name, param_name)
         plug = Plug(plug_name,
                     param_name_item.boundingRect().size().height(),
@@ -645,7 +677,13 @@ class NodeGWidget(QtGui.QGraphicsItem):
             if not self.logical_view:
                 gplug.update_plug(pipeline_plug.activated,
                                   pipeline_plug.optional)
-                params[param].setHtml(self._parameter_text(param))
+                if isinstance(params[param], QtGui.QGraphicsProxyWidget):
+                    # colored parameters are widgets
+                    params[param].widget().findChild(
+                        QtGui.QLabel, 'label').setText(
+                            self._parameter_text(param))
+                else:
+                    params[param].setHtml(self._parameter_text(param))
 
         if not self.logical_view:
             # check removed params
