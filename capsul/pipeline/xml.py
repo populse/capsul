@@ -36,6 +36,14 @@ def create_xml_pipeline(module, name, xml_file):
     if version and version != '2.0':
         raise ValueError('Only Capsul XML 2.0 is supported, not %s' % version)
 
+    class_name = xml_pipeline.get('name')
+    if class_name:
+        if name is None:
+            name = class_name
+        elif name != class_name:
+            raise KeyError('pipeline name (%s) and requested object name '
+                           '(%s) differ.' % (class_name, name))
+
     builder = PipelineConstructor(module, name)
     exported_parameters = set()
     
@@ -318,7 +326,7 @@ def save_xml_pipeline(pipeline, xml_file):
     def _write_steps(pipeline, root):
         steps = pipeline.trait('pipeline_steps')
         steps_node = None
-        if steps:
+        if steps and getattr(pipeline, 'pipeline_steps'):
             steps_node = ET.SubElement(root, 'pipeline_steps')
             for step_name, step \
                     in pipeline.pipeline_steps.user_traits().iteritems():
