@@ -121,12 +121,13 @@ class PipelineConstructor(object):
     def set_node_enabled(self, name, state):
         """ Enables or disabled a node
         """
-        self._calls.append(('_set_process_enabled', name, state))
+        self._calls.append(('_set_node_enabled', (name, state), {}))
 
     def add_pipeline_step(self, step_name, nodes, enabled):
         """ Defines a pipeline step
         """
-        self._calls.append(('add_pipeline_step', step_name, nodes, enabled))
+        self._calls.append(('add_pipeline_step', (step_name, nodes, enabled),
+                            {}))
 
 
 class ConstructedPipeline(Pipeline):

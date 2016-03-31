@@ -1777,7 +1777,7 @@ class Pipeline(Process):
         ----------
         step_name: string (mandatory)
             name of the new step
-        nodes: list ore sequence
+        nodes: list or sequence
             nodes contained in the step (Node instances)
         enabled: bool (optional)
             initial state of the step
@@ -1838,15 +1838,38 @@ class Pipeline(Process):
         steps = getattr(self, 'pipeline_steps', Controller())
         for step, trait in steps.user_traits().iteritems():
             setattr(steps, step, True)
-    
+
     def _change_processes_selection(self, selection_name, selection_group):
         for group, processes in \
                 self.processes_selection[selection_name].iteritems():
             enabled = (group == selection_group)
             for node_name in processes: 
                 self.nodes[node_name].enabled = enabled
-                
-    def add_processes_selection(self, selection_parameter, selection_groups):
+
+    def add_processes_selection(self, selection_parameter, selection_groups,
+                                value=None):
+        '''Add a processes selection switch definiton to the pipeline.
+
+        Selectors are a "different" kind of switch: one pipeline node set in a
+        group is enabled, the others are disabled.
+
+        The selector has 2 levels:
+
+        selection_parameter selects a group.
+
+        A group contains a set of nodes which will be activated together.
+        Groups are mutually exclusive.
+
+        Parameters
+        ----------
+        selection_parameter: string (mandatory)
+            name of the selector parameter: the parameter is added in the
+            pipeline, and its value is the name of the selected group.
+        selection_groups: dict or OrderedDict
+            nodes groups contained in the selector : {group_name: [Node names]}
+        value: str (optional)
+            initial state of the selector (default: 1st group)
+        '''
         self.add_trait(selection_parameter, Enum(*selection_groups))
         self.nodes[''].plugs[selection_parameter].has_default_value = True
         self.user_traits_changed = True
@@ -1856,3 +1879,25 @@ class Pipeline(Process):
                              selection_parameter)
         self._change_processes_selection(selection_parameter,
                                          getattr(self, selection_parameter))
+        if value is not None:
+            setattr(self, selection_parameter, value)
+
+    def get_processes_selections(self):
+        '''Get process_selection groups names (corresponding to selection
+        parameters on the pipeline)
+        '''
+        if not hasattr(self, 'processes_selection'):
+            return []
+        return self.processes_selection.keys()
+
+    def get_processes_selection_groups(self, selection_parameter):
+        '''Get groups names involved in a processes selection switch
+        '''
+        return self.processes_selection[selection_parameter]
+
+    def get_processes_selection_nodes(self, selection_parameter, group):
+        '''Get nodes names involved in a processes selection switch with
+        value group
+        '''
+        return self.processes_selection.get(selection_parameter, {}).get(group)
+
