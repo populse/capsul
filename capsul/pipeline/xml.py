@@ -60,6 +60,9 @@ def create_xml_pipeline(module, name, xml_file):
             kwargs = {}
             nipype_usedefault = []
             iterate = []
+            iteration = child.get('iteration')
+            if iteration:
+                iterate = [x.strip() for x in iteration.split(',')]
             for process_child in child:
                 if process_child.tag == 'set':
                     name = process_child.get('name')
@@ -68,9 +71,6 @@ def create_xml_pipeline(module, name, xml_file):
                     if value is not None:
                         kwargs[name] = value
                     kwargs.setdefault('make_optional', []).append(name)
-                elif process_child.tag == 'iterate':
-                    name = process_child.get('name')
-                    iterate.append(name)
                 elif process_child.tag == 'nipype':
                     name = process_child.get('name')
                     usedefault = process_child.get('usedefault')
@@ -248,9 +248,8 @@ def save_xml_pipeline(pipeline, xml_file):
 
     def _write_iteration(process_iter, parent, name):
         procnode = _write_process(process_iter.process, parent, name)
-        for param in process_iter.iterative_parameters:
-            elem = ET.SubElement(procnode, 'iterate')
-            elem.set('name', param)
+        iteration_params = ', '.join(process_iter.iterative_parameters)
+        procnode.set('iteration', iteration_params)
         return procnode
 
     def _write_switch(switch, parent, name):
@@ -329,7 +328,7 @@ def save_xml_pipeline(pipeline, xml_file):
     def _write_steps(pipeline, root):
         steps = pipeline.trait('pipeline_steps')
         steps_node = None
-        if steps and getattr(pipeline, 'pipeline_steps'):
+        if steps and getattr(pipeline, 'pipeline_steps', None):
             steps_node = ET.SubElement(root, 'pipeline_steps')
             for step_name, step \
                     in pipeline.pipeline_steps.user_traits().iteritems():

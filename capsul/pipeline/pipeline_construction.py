@@ -49,8 +49,6 @@ class PipelineConstructor(object):
             '__module__': module,
             '_pipeline_definition_calls': [],
             'do_autoexport_nodes_parameters': False,
-            'output_directory': Directory(Undefined, exists=True,
-                                          optional=True),
             'node_position': {}
         }
         self.pipeline = type(name, (ConstructedPipeline,), class_kwargs)
