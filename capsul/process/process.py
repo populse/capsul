@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 # Trait import
 from traits.trait_base import _Undefined
-from traits.api import Directory, Undefined
+from traits.api import Directory, Undefined, Int
 from traits.trait_handlers import BaseTraitHandler
 
 # Soma import
@@ -237,7 +237,7 @@ class Process(Controller):
                         "argument '{0}'".format(arg_name))
 
                 # Set the extra parameter value
-                setattr(self, arg_name, arg_val)
+                self.set_parameter(arg_name, arg_val)
 
         # Execute the process
         returncode = self._run_process()
@@ -736,10 +736,8 @@ class Process(Controller):
         value: object (mandatory)
             the trait value we want to set
         """
-        # Detect File and Directory trait types with None value
-        if value is None and is_trait_pathname(self.trait(name)):
-
-            # The None trait value is _Undefined, do the replacement
+        # The None trait value is _Undefined, do the replacement
+        if value is None:
             value = _Undefined()
 
         # Set the new trait value
@@ -979,7 +977,7 @@ class NipypeProcess(FileCopyProcess):
         NipypeProcess instance get automatically an additional user trait
         'output_directory'.
 
-        This class also fix also some lake of the nipye version '0.9.2'.
+        This class also fix also some lake of the nipye version '0.10.0'.
 
         Parameters
         ----------
@@ -1040,6 +1038,10 @@ class NipypeProcess(FileCopyProcess):
             "output_directory", Directory(Undefined, exists=True,
                                           optional=True))
 
+        # Add a 'synchronize' nipype input trait that will be used to trigger
+        # manually the output nipype/capsul traits sync.
+        super(Process, self).add_trait("synchronize", Int(0, optional=True))
+
     def __call__(self, **kwargs):
         """ Method to execute the NipypeProcess.
 
@@ -1068,7 +1070,9 @@ class NipypeProcess(FileCopyProcess):
             contains all execution information
         """
         # Set the interface output directory just before the execution
-        self._nipype_interface.inputs.output_directory = self.output_directory
+        cwd = os.getcwd()
+        os.chdir(self.output_directory)
+        self.synchronize += 1
 
         # Inheritance
         if self._nipype_interface_name == "spm":
@@ -1113,6 +1117,9 @@ class NipypeProcess(FileCopyProcess):
             for x in returncode.outputs.get().iteritems())
         results.outputs = outputs
 
+        # Restore cwd
+        os.chdir(cwd)
+
         return results
 
     def set_output_directory(self, out_dir):
@@ -1124,7 +1131,6 @@ class NipypeProcess(FileCopyProcess):
             the output directory
         """
         self.output_directory = out_dir
-        self._nipype_interface.inputs.output_directory = out_dir
 
     def set_usedefault(self, parameter, value):
         """ Set the value of the usedefault attribute on a given parameter.

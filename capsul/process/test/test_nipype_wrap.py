@@ -48,12 +48,6 @@ class TestNipypeWrap(unittest.TestCase):
             nipype_process._nipype_interface._list_outputs()["out_file"],
             os.path.join(os.getcwd(),
                          "test_nipype_wrap_brain%s" % self.output_extension))
-        nipype_process.set_output_directory("/home")
-        self.assertEqual(
-            nipype_process._nipype_interface._list_outputs()["out_file"],
-            os.path.join("/home",
-                         "test_nipype_wrap_brain%s" % self.output_extension))
-
 
 def test():
     """ Function to execute unitest
