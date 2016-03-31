@@ -33,7 +33,6 @@ import capsul.pipeline.xml as capsulxml
 from capsul.process import loader
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
-#from capsul.utils import xml_to_pipeline
 try:
     from traits import api as traits
 except ImportError:
@@ -959,6 +958,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             process = node.process
         if isinstance(node, PipelineNode):
             sub_pipeline = node.process
+        elif process and isinstance(process, ProcessIteration):
+            sub_pipeline = process.process
         else:
             sub_pipeline = None
         gnode = NodeGWidget(
@@ -2428,7 +2429,18 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                                       for c in procs])
                 else:
                     # no current module
-                    paths = sys.path
+                    # is it a path name ?
+                    pathname, filename = os.path.split(str(text))
+                    if os.path.isdir(pathname):
+                        # look for matching xml files
+                        for f in os.listdir(pathname):
+                            if (f.endswith('.xml')
+                                    or os.path.isdir(os.path.join(pathname,
+                                                                  f))) \
+                                    and f.startswith(filename):
+                                compl.add(os.path.join(pathname, f))
+                    else:
+                        paths = sys.path
                 for path in paths:
                     if path == '':
                         path = '.'
@@ -2438,6 +2450,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                                 sel.add(f[:-3])
                             elif f.endswith('.pyc') or f.endswith('.pyo'):
                                 sel.add(f[:-4])
+                            elif f.endswith('.xml'):
+                                sel.add(f)
                             elif '.' not in f \
                                     and os.path.isdir(os.path.join(
                                         path, f)):
