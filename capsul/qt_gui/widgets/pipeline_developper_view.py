@@ -2429,7 +2429,18 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                                       for c in procs])
                 else:
                     # no current module
-                    paths = sys.path
+                    # is it a path name ?
+                    pathname, filename = os.path.split(str(text))
+                    if os.path.isdir(pathname):
+                        # look for matching xml files
+                        for f in os.listdir(pathname):
+                            if (f.endswith('.xml')
+                                    or os.path.isdir(os.path.join(pathname,
+                                                                  f))) \
+                                    and f.startswith(filename):
+                                compl.add(os.path.join(pathname, f))
+                    else:
+                        paths = sys.path
                 for path in paths:
                     if path == '':
                         path = '.'
@@ -2439,6 +2450,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                                 sel.add(f[:-3])
                             elif f.endswith('.pyc') or f.endswith('.pyo'):
                                 sel.add(f[:-4])
+                            elif f.endswith('.xml'):
+                                sel.add(f)
                             elif '.' not in f \
                                     and os.path.isdir(os.path.join(
                                         path, f)):
