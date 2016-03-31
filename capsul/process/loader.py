@@ -41,6 +41,7 @@ def get_process_instance(process_or_id, **kwargs):
         * a string description of the class `<module>.<class>`.
         * a string description of a function to warp `<module>.<function>`.
         * a string description of a pipeline `<module>.<fname>.xml`.
+        * an XML filename for a pipeline
 
     Default values of the process instance are passed as additional parameters.
 
@@ -106,20 +107,31 @@ def get_process_instance(process_or_id, **kwargs):
             xml_url = process_or_id + '.xml'
             if osp.exists(xml_url):
                 object_name = None
+            elif process_or_id.endswith('.xml') and osp.exists(process_or_id):
+                xml_url = process_or_id
+                object_name = None
             else:
                 # maybe XML file with pipeline name in it
                 xml_url = module_name + '.xml'
+                if not osp.exists(xml_url) and module_name.endswith('.xml') \
+                        and osp.exists(module_name):
+                    xml_url = module_name
                 if not osp.exists(xml_url):
                     # try XML file in a module directory + class name
-                    module_name2, basename = module_name.rsplit('.', 1)
-                    try:
-                        importlib.import_module(module_name2)
-                        xml_url = osp.join(
-                            osp.dirname(sys.modules[module_name2].__file__),
-                            basename + '.xml')
-                    except ImportError as e:
-                        raise ImportError('Cannot import %s: %s'
-                                          % (module_name, str(e)))
+                    elements = module_name.rsplit('.', 1)
+                    if len(elements) == 2:
+                        module_name2, basename = elements
+                        try:
+                            importlib.import_module(module_name2)
+                            mod_dirname = osp.dirname(
+                                sys.modules[module_name2].__file__)
+                            xml_url = osp.join(mod_dirname, basename + '.xml')
+                            if not osp.exists(xml_url):
+                                # if basename includes .xml extension
+                                xml_url = osp.join(mod_dirname, basename)
+                        except ImportError as e:
+                            raise ImportError('Cannot import %s: %s'
+                                              % (module_name, str(e)))
             as_xml = True
             if osp.exists(xml_url):
                 result = create_xml_pipeline(module_name, object_name,
