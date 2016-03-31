@@ -33,7 +33,6 @@ import capsul.pipeline.xml as capsulxml
 from capsul.process import loader
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
-#from capsul.utils import xml_to_pipeline
 try:
     from traits import api as traits
 except ImportError:
@@ -959,6 +958,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             process = node.process
         if isinstance(node, PipelineNode):
             sub_pipeline = node.process
+        elif process and isinstance(process, ProcessIteration):
+            sub_pipeline = process.process
         else:
             sub_pipeline = None
         gnode = NodeGWidget(
