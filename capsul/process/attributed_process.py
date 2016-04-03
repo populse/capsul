@@ -38,24 +38,28 @@ class AttributedProcess(Process):
     capsul_attributes = ControllerTrait(Controller())
 
 
-    def __init__(self, process, study_config):
+    def __init__(self, process, study_config, name=None):
         ''' Build an AttributedProcess instance from an existing Process
         instance and a StudyConfig.
         '''
         super(AttributedProcess, self).__init__()
-        self.proxy_process = process
+        self.process = process
         self.study_config = study_config
+        if name is None:
+            self.name = process.name
+        else:
+            self.name = name
 
 
     def __getattr__(self, attribute):
         ''' __getattr__() is overloaded to make a proxy for the underlying
         process.
         '''
-        if 'proxy_process' not in self.__dict__:
-            # in case it is invoked before proxy_process is setup in self
+        if 'process' not in self.__dict__:
+            # in case it is invoked before process is setup in self
             raise AttributeError("'%s' object has no attribute '%s'"
                                  % (self.__class__.__name__, attribute))
-        process = self.proxy_process
+        process = self.process
         return getattr(process, attribute)
 
 
@@ -66,8 +70,8 @@ class AttributedProcess(Process):
         if attribute in self.__dict__:
             super(AttributedProcess, self).__setattr__(attribute, value)
             return
-        if 'proxy_process' in self.__dict__:
-            process = self.proxy_process
+        if 'process' in self.__dict__:
+            process = self.process
             if hasattr(process, attribute):
                 setattr(process, attribute, value)
                 return
@@ -81,7 +85,7 @@ class AttributedProcess(Process):
         '''
         traits = SortedDictionary()
         traits.update(super(AttributedProcess, self).user_traits())
-        traits.update(self.proxy_process.user_traits())
+        traits.update(self.process.user_traits())
         return traits
 
 
@@ -91,7 +95,7 @@ class AttributedProcess(Process):
         '''
         tr = super(AttributedProcess, self).trait(trait_name)
         if tr is None:
-            tr = self.proxy_process.trait(trait_name)
+            tr = self.process.trait(trait_name)
         return tr
 
 
