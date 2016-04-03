@@ -49,6 +49,7 @@ class AttributedProcess(Process):
             self.name = process.name
         else:
             self.name = name
+        self.completion_ongoing = False
 
 
     def __getattr__(self, attribute):
@@ -99,6 +100,26 @@ class AttributedProcess(Process):
         return tr
 
 
+    def set_parameters(self, process_inputs):
+        ''' Set the given parameters dict to the current process.
+        process_inputs may include regular parameters of the underlying
+        process, and attributes (capsul_attributes: dict).
+
+        This convenience method only differs from the Controller
+        import_from_dict() method in the way that capsul_attributes items
+        will not completely replace the all attributes values, but only set
+        those specified here, and leave the others in place.
+        '''
+        attributes = process_inputs.get('capsul_attributes')
+        if attributes:
+            # calling directly self.import_from_dict() will erase existing
+            # attributes
+            self.capsul_attributes.import_from_dict(attributes)
+            process_inputs = dict((k, v) for k, v in process_inputs.iteritems()
+                                  if k != 'capsul_attributes')
+        self.import_from_dict(process_inputs)
+
+
     def complete_parameters(self, process_inputs={}):
         ''' Completes file parameters from given inputs parameters, which may
         include both "regular" process parameters (file names) and attributes.
@@ -106,7 +127,8 @@ class AttributedProcess(Process):
         The default implementation in AttributedProcess does nothing. Consider
         it as a "pure virtual" method.
         '''
-        pass
+        self.set_parameters(process_inputs)
+        # complete...
 
 
     def path_attributes(self, filename, parameter=None):
@@ -134,4 +156,31 @@ class AttributedProcess(Process):
         '''
         return self.capsul_attributes
 
+
+    def attributes_changed(self, obj, name, old, new):
+        ''' Traits changed callback which triggers parameters update.
+
+        This method basically calls complete_parameters() (after some checks).
+        It is normally used as a traits notification callback for the
+        attributes controller, so that changes in attributes will automatically
+        trigger parameters completion for file paths.
+
+        It can be plugged this way:
+
+        ::
+            attributed_process.get_attributes_controller().on_trait_change(
+                attributed_process.attributes_changed, 'anytrait')
+
+        Then it can be disabled this way:
+
+        ::
+            attributed_process.get_attributes_controller().on_trait_change(
+                attributed_process.attributes_changed, 'anytrait', remove=True)
+        '''
+        if name != 'trait_added' and name != 'user_traits_changed' \
+                and self.completion_ongoing is False:
+            #setattr(self.capsul_attributes, name, new)
+            self.completion_ongoing = True
+            self.complete_parameters({'capsul_attributes': {name: new}})
+            self.completion_ongoing = False
 

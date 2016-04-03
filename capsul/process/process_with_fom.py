@@ -65,7 +65,6 @@ class ProcessWithFom(AttributedProcess):
         super(ProcessWithFom, self).__init__(process, study_config, name)
         self.list_process_iteration = []
         self.create_attributes_with_fom()
-        self.completion_ongoing = False
 
     def iteration(self, process, newfile):
         # FIXME: what is newfile ?
@@ -192,7 +191,7 @@ class ProcessWithFom(AttributedProcess):
         The default implementation in AttributedProcess does nothing. Consider
         it as a "pure virtual" method.
         '''
-        self.import_from_dict(process_inputs)
+        self.set_parameters(process_inputs)
         self.create_completion()
 
 
@@ -290,19 +289,4 @@ class ProcessWithFom(AttributedProcess):
                 d['fom_format'] = 'fom_prefered'
                 for h in atp.find_paths(d):
                     setattr(process, parameter, h[0])
-
-
-    def attributes_changed(self, obj, name, old, new):
-        # FIXME: what is obj for ?
-        #print 'attributes changed', name
-        #print self.completion_ongoing
-        if name != 'trait_added' and name != 'user_traits_changed' \
-                and self.completion_ongoing is False:
-            setattr(self.capsul_attributes, name, new)
-            self.completion_ongoing = True
-            self.create_completion()
-            self.completion_ongoing = False
-
-
-
 
