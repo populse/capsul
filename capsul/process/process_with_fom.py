@@ -64,7 +64,6 @@ class ProcessWithFom(AttributedProcess):
     def __init__(self, process, study_config, name=None):
         super(ProcessWithFom, self).__init__(process, study_config, name)
         self.list_process_iteration = []
-        self.attributes = {}
         self.create_attributes_with_fom()
         self.completion_ongoing = False
 
@@ -124,8 +123,8 @@ class ProcessWithFom(AttributedProcess):
                 default_value \
                     = input_fom.attribute_definitions[att].get(
                         'default_value')
-                self.attributes[att] = default_value
-                self.add_trait(att, Str(self.attributes[att]))
+                self.capsul_attributes.add_trait(att,
+                                                 Str(default_value))
 
         # Only search other attributes if fom not the same (by default merge
         # attributes of the same foms)
@@ -143,28 +142,28 @@ class ProcessWithFom(AttributedProcess):
                         = output_fom.attribute_definitions[att].get(
                             'default_value')
                     if att in process_attributes \
-                            and default_value != self.attributes[att]:
+                            and default_value != getattr(
+                                self.capsul_attributes, att):
                         print 'same attribute but not same default value so ' \
                             'nothing is displayed'
                     else:
-                        self.attributes[att] = default_value
-                        self.add_trait(att, Str(self.attributes[att]))
+                        setattr(self.capsul_attributes, att, default_value)
 
 
-    def find_attributes(self, value):
+    def path_attributes(self, filename, parameter=None):
         """By the path, find value of attributes"""
 
         pta = self.study_config.modules_data.fom_pta['input']
 
         # Extract the attributes from the first result returned by
         # parse_directory
-        liste = split_path(value)
+        liste = split_path(filename)
         len_element_to_delete = 1
         for element in liste:
             if element != os.sep:
                 len_element_to_delete \
                     = len_element_to_delete + len(element) + 1
-                new_value = value[len_element_to_delete:len(value)]
+                new_value = filename[len_element_to_delete:len(filename)]
                 try:
                     #import logging
                     #logging.root.setLevel( logging.DEBUG )
@@ -181,8 +180,20 @@ class ProcessWithFom(AttributedProcess):
                                 % ( new_value,None, self.process.name ) )
 
         for att in attributes:
-            if att in self.attributes:
-                setattr(self, att, attributes[att])
+            if att in self.capsul_attributes.user_traits().keys():
+                setattr(self.capsul_attributes, att, attributes[att])
+        return attributes
+
+
+    def complete_parameters(self, process_inputs):
+        ''' Completes file parameters from given inputs parameters, which may
+        include both "regular" process parameters (file names) and attributes.
+
+        The default implementation in AttributedProcess does nothing. Consider
+        it as a "pure virtual" method.
+        '''
+        self.import_from_dict(process_inputs)
+        self.create_completion()
 
 
     def create_completion(self):
@@ -258,6 +269,7 @@ class ProcessWithFom(AttributedProcess):
             raise KeyError('Process not found in FOMs amongst %s' \
                 % repr(names_search_list))
 
+        allowed_attributes = set(self.capsul_attributes.user_traits().keys())
         for parameter in fom_patterns:
             # Select only the attributes that are discriminant for this
             # parameter otherwise other attibutes can prevent the appropriate
@@ -269,8 +281,8 @@ class ProcessWithFom(AttributedProcess):
                     atp = input_atp
                 parameter_attributes = atp.find_discriminant_attributes(
                     fom_parameter=parameter)
-                d = dict((i, self.attributes[i]) \
-                    for i in parameter_attributes if i in self.attributes)
+                d = dict((i, getattr(self.capsul_attributes, i)) \
+                    for i in parameter_attributes if i in allowed_attributes)
                 #d = dict( ( i, getattr(self, i) or self.attributes[ i ] ) \
                 #    for i in parameter_attributes if i in self.attributes )
                 d['fom_process'] = name
@@ -286,7 +298,7 @@ class ProcessWithFom(AttributedProcess):
         print self.completion_ongoing
         if name != 'trait_added' and name != 'user_traits_changed' \
                 and self.completion_ongoing is False:
-            self.attributes[name] = new
+            setattr(self.capsul_attributes, name, new)
             self.completion_ongoing = True
             self.create_completion()
             self.completion_ongoing = False
