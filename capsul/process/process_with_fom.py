@@ -7,13 +7,14 @@ except ImportError:
 
 from soma.controller import Controller
 from capsul.api import Pipeline
+from capsul.process.attributed_process import AttributedProcess
 from soma.application import Application
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
 from capsul.study_config.study_config import StudyConfig
 
 
-class ProcessWithFom(Controller):
+class ProcessWithFom(AttributedProcess):
     """
     Class who creates attributes and completion
     Associates a Process and FOMs.
@@ -61,13 +62,7 @@ class ProcessWithFom(Controller):
     create_attributes_with_fom
     """
     def __init__(self, process, study_config, name=None):
-        super(ProcessWithFom, self).__init__()
-        self.process = process
-        if name is None:
-            self.name = process.name
-        else:
-            self.name = name
-        self.study_config = study_config
+        super(ProcessWithFom, self).__init__(process, study_config, name)
         self.list_process_iteration = []
         self.attributes = {}
         self.create_attributes_with_fom()
