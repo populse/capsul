@@ -163,7 +163,7 @@ class ProcessWithFomWidget(QtGui.QWidget):
                     #if trait.is_trait_type(File) \
                             #or trait.is_trait_type(Directory):
                         #setattr(process,name, Undefined)
-                self.process_with_fom.create_completion()
+                self.process_with_fom.complete_parameters()
 
                 print self.process_with_fom.get_attributes_controller().export_to_dict()
                 if self.input_filename_controller.attributes_from_input_filename \

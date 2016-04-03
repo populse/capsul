@@ -99,7 +99,7 @@ class AttributedProcess(Process):
         return tr
 
 
-    def complete_parameters(self, process_inputs):
+    def complete_parameters(self, process_inputs={}):
         ''' Completes file parameters from given inputs parameters, which may
         include both "regular" process parameters (file names) and attributes.
 

@@ -185,7 +185,7 @@ class ProcessWithFom(AttributedProcess):
         return attributes
 
 
-    def complete_parameters(self, process_inputs):
+    def complete_parameters(self, process_inputs={}):
         ''' Completes file parameters from given inputs parameters, which may
         include both "regular" process parameters (file names) and attributes.
 
@@ -294,8 +294,8 @@ class ProcessWithFom(AttributedProcess):
 
     def attributes_changed(self, obj, name, old, new):
         # FIXME: what is obj for ?
-        print 'attributes changed', name
-        print self.completion_ongoing
+        #print 'attributes changed', name
+        #print self.completion_ongoing
         if name != 'trait_added' and name != 'user_traits_changed' \
                 and self.completion_ongoing is False:
             setattr(self.capsul_attributes, name, new)
