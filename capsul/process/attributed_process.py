@@ -14,6 +14,7 @@ from capsul.api import Process
 # soma-base imports
 from soma.controller import Controller, ControllerTrait
 from soma.sorted_dictionary import SortedDictionary
+from soma.singleton import Singleton
 
 
 class AttributedProcess(Process):
@@ -183,4 +184,54 @@ class AttributedProcess(Process):
             self.completion_ongoing = True
             self.complete_parameters({'capsul_attributes': {name: new}})
             self.completion_ongoing = False
+
+
+class AttributedProcessFactory(Singleton):
+    '''
+    '''
+    def __singleton_init__(self):
+        super(AttributedProcessFactory, self).__init__()
+        self.factories = {100000: [self._default_factory]}
+
+
+    def get_attributed_process(self, process, study_config):
+        '''
+        Factory for AttributedProcess: get an AttributedProcess instance for a
+        process in the context of a given StudyConfig.
+
+        The study_config should specify which completion system(s) is (are)
+        used (FOM, ...)
+        If nothing is configured, an AttributedProcess base instance will be
+        returned. It will not be able to perform completion at all, but will
+        conform to the API.
+        '''
+        for priority in sorted(self.factories.keys()):
+            factories = self.factories[priority]
+            for factory in factories:
+                attributed_process = factory(process, study_config)
+                if attributed_process is not None:
+                    return attributed_process
+        raise RuntimeError('No factory could produce an AttributedProcess '
+            'instance for the process %s. This is a bug, it should not happen.'
+            %process.id)
+
+
+    def register_factory(self, factory_function, priority):
+        '''
+        '''
+        self.unregister_factory(factory_function)
+        self.factories.setdefault(priority, []).append(factory_function)
+
+
+    def unregister_factory(self, factory_function):
+        '''
+        '''
+        for priority, factories in self.factories.iteritems():
+            if factory_function in factories:
+                factory_function.remove(factory_function)
+
+
+    @staticmethod
+    def _default_factory(process, study_config):
+        return AttributedProcess(process, study_config)
 

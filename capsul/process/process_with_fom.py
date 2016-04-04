@@ -7,7 +7,8 @@ except ImportError:
 
 from soma.controller import Controller
 from capsul.api import Pipeline
-from capsul.process.attributed_process import AttributedProcess
+from capsul.process.attributed_process import AttributedProcess, \
+    AttributedProcessFactory
 from soma.application import Application
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
@@ -290,3 +291,21 @@ class ProcessWithFom(AttributedProcess):
                 for h in atp.find_paths(d):
                     setattr(process, parameter, h[0])
 
+    @staticmethod
+    def _process_with_fom_factory(process, study_config):
+        ''' Facroty inserted in attributed_processFactory
+        '''
+        if 'FomConfig' not in study_config.modules:
+            return None  # Non Fom config, no way it could work
+        try:
+            pfom = ProcessWithFom(process, study_config)
+            if pfom is not None:
+                return pfom
+        except:
+            pass
+        return None
+
+
+# register ProcessWithFom factory into AttributedProcessFactory
+AttributedProcessFactory().register_factory(
+    ProcessWithFom._process_with_fom_factory, 10000)
