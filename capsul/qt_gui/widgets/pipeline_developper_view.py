@@ -27,6 +27,9 @@ from capsul.api import Pipeline
 from capsul.api import Process
 from capsul.api import get_process_instance
 from capsul.pipeline.process_iteration import ProcessIteration
+from capsul.process.attributed_process import AttributedProcess, \
+    AttributedProcessFactory
+from capsul.process import attributed_process_iteration
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 import capsul.pipeline.xml as capsulxml
@@ -956,7 +959,9 @@ class PipelineScene(QtGui.QGraphicsScene):
             process = node
         if hasattr(node, 'process'):
             process = node.process
-        if isinstance(node, PipelineNode):
+        if process and isinstance(process, AttributedProcess):
+            sub_pipeline = process.process
+        elif isinstance(node, PipelineNode):
             sub_pipeline = node.process
         elif process and isinstance(process, ProcessIteration):
             sub_pipeline = process.process
@@ -1680,7 +1685,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 pipeline.node_position["inputs"] = (0., 0.)
                 pipeline.node_position[process.name] = (300., 0.)
                 pipeline.node_position["outputs"] = (600., 0.)
-                pipeline.scene_scale_factor = 0.5
+                #pipeline.scene_scale_factor = 0.5
             else:
                 raise Exception("Expect a Pipeline or a Process, not a "
                                 "'{0}'.".format(repr(pipeline)))
