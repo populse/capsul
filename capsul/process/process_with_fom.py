@@ -233,6 +233,9 @@ class ProcessWithFom(AttributedProcess):
         input_atp = self.study_config.modules_data.fom_atp['input']
         output_atp = self.study_config.modules_data.fom_atp['output']
 
+        # TODO: here we could just call AttributedProcess.complete_parameters()
+        # which does this recursion
+
         # if process is a pipeline, create completions for its nodes and
         # sub-pipelines.
         #
@@ -250,9 +253,15 @@ class ProcessWithFom(AttributedProcess):
                     continue
                 if hasattr(node, 'process'):
                     subprocess = node.process
+                    pname = '.'.join([name, node_name])
+                    subprocess_attr \
+                        = AttributedProcessFactory().get_attributed_process(
+                            subprocess, self.study_config, pname)
                     try:
-                        pname = '.'.join([name, node_name])
-                        self.process_completion(subprocess, pname)
+                        #self.process_completion(subprocess, pname)
+                        subprocess_attr.complete_parameters(
+                            {'capsul_attributes':
+                             self.capsul_attributes.export_to_dict()})
                     except Exception, e:
                         if verbose:
                             print 'warning, node %s could not complete FOM' \
@@ -292,13 +301,13 @@ class ProcessWithFom(AttributedProcess):
                     setattr(process, parameter, h[0])
 
     @staticmethod
-    def _process_with_fom_factory(process, study_config):
+    def _process_with_fom_factory(process, study_config, name):
         ''' Facroty inserted in attributed_processFactory
         '''
         if 'FomConfig' not in study_config.modules:
             return None  # Non Fom config, no way it could work
         try:
-            pfom = ProcessWithFom(process, study_config)
+            pfom = ProcessWithFom(process, study_config, name)
             if pfom is not None:
                 return pfom
         except:

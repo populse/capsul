@@ -9,7 +9,7 @@
 # System import
 
 # CAPSUL import
-from capsul.api import Process
+from capsul.api import Process, Pipeline
 
 # soma-base imports
 from soma.controller import Controller, ControllerTrait
@@ -125,11 +125,43 @@ class AttributedProcess(Process):
         ''' Completes file parameters from given inputs parameters, which may
         include both "regular" process parameters (file names) and attributes.
 
-        The default implementation in AttributedProcess does nothing. Consider
-        it as a "pure virtual" method.
+        The default implementation in AttributedProcess does nothing for a
+        single Process instance, and calls complete_parameters() on subprocess
+        nodes if the process is a pipeline.
         '''
         self.set_parameters(process_inputs)
-        # complete...
+        # if process is a pipeline, create completions for its nodes and
+        # sub-pipelines.
+        #
+        # Note: for now we do so first, so that parameters can be overwritten
+        # afterwards by the higher-level pipeline FOM.
+        # Ideally we should process the other way: complete high-level,
+        # specific parameters first, then complete with lower-level, more
+        # generic ones, while blocking already set ones.
+        # as this blocking mechanism does not exist yet, we do it this way for
+        # now, but it is sub-optimal since many parameters will be set many
+        # times.
+        if isinstance(self.process, Pipeline):
+            name = self.name
+            for node_name, node in self.process.nodes.iteritems():
+                if node_name == '':
+                    continue
+                if hasattr(node, 'process'):
+                    subprocess = node.process
+                    pname = '.'.join([name, node_name])
+                    subprocess_attr \
+                        = AttributedProcessFactory().get_attributed_process(
+                            subprocess, self.study_config, pname)
+                    try:
+                        #self.process_completion(subprocess, pname)
+                        subprocess_attr.complete_parameters(
+                            {'capsul_attributes':
+                             self.capsul_attributes.export_to_dict()})
+                    except Exception, e:
+                        if verbose:
+                            print 'warning, node %s could not complete FOM' \
+                                % node_name
+                            print e
 
 
     def path_attributes(self, filename, parameter=None):
@@ -194,7 +226,7 @@ class AttributedProcessFactory(Singleton):
         self.factories = {100000: [self._default_factory]}
 
 
-    def get_attributed_process(self, process, study_config):
+    def get_attributed_process(self, process, study_config, name=None):
         '''
         Factory for AttributedProcess: get an AttributedProcess instance for a
         process in the context of a given StudyConfig.
@@ -208,7 +240,7 @@ class AttributedProcessFactory(Singleton):
         for priority in sorted(self.factories.keys()):
             factories = self.factories[priority]
             for factory in factories:
-                attributed_process = factory(process, study_config)
+                attributed_process = factory(process, study_config, name)
                 if attributed_process is not None:
                     return attributed_process
         raise RuntimeError('No factory could produce an AttributedProcess '
@@ -232,6 +264,6 @@ class AttributedProcessFactory(Singleton):
 
 
     @staticmethod
-    def _default_factory(process, study_config):
-        return AttributedProcess(process, study_config)
+    def _default_factory(process, study_config, name):
+        return AttributedProcess(process, study_config, name)
 
