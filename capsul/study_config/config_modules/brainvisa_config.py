@@ -24,13 +24,4 @@ class BrainVISAConfig(StudyConfigModule):
             output=False,
             desc='Study shared directory'))
 
-        if bv_share_config is not None:
-            # take 2 fist digits in version
-            bv_share_version = '.'.join(bv_share_config.version.split('.')[:2])
-        else:
-            # brainvisa_share.config cannot be imported: sounds bad, but
-            # fallback to soma.config version (which may be different)
-            bv_share_version = soma_config.short_version
-        study_config.shared_directory = os.path.join(
-            soma_config.BRAINVISA_SHARE, 'brainvisa-share-%s' \
-                % bv_share_version)
+        study_config.shared_directory = soma_config.BRAINVISA_SHARE
