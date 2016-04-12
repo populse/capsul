@@ -19,13 +19,14 @@ logger = logging.getLogger(__name__)
 # Trait import
 from traits.api import Directory, CTrait, Undefined
 
-# CAPSUL import
+# Soma import
 from soma.controller.trait_utils import trait_ids
-from soma.controller.trait_utils import build_expression
+#from soma.controller.trait_utils import build_expression
 from soma.controller.trait_utils import eval_trait
 
 # Capsul import
 from process import NipypeProcess
+from capsul.utils.nipype_utils import build_expression
 
 
 def nipype_factory(nipype_instance):
@@ -42,7 +43,7 @@ def nipype_factory(nipype_instance):
 
     It also monkey patch some nipype functions in order to execute the
     process in a specific directory:
-    the monkey patching has been written for Nipype version '0.9.2'.
+    the monkey patching has been written for Nipype version '0.10.0'.
 
     Parameters
     ----------
@@ -70,170 +71,15 @@ def nipype_factory(nipype_instance):
     # Monkey patching for Nipype version '0.9.2'.
     ####################################################################
 
-    # Modify the nipype interface to dynamically update the working dir
-    def _run_interface(self, runtime):
-        """ Method to execute nipype interface.
-
-        Parameters
-        ----------
-        runtime: Bunch (mandatory)
-            the configuration structure
-        """
-        runtime.cwd = self.inputs.output_directory
-        return self._run_interface_core(runtime)
-
-    def _list_outputs(self):
-        """ Method to list all the interface outputs.
-
-        Returns
-        -------
-        outputs: dict
-            all the interface outputs
-        """
-        # Get the outputs from the nipype method
-        outputs = self._list_outputs_core()
-
-        # Modify the output paths
-        corrected_outputs = {}
-        for trait_name, trait_value in outputs.iteritems():
-            trait_desc = trait_ids(self.output_spec().trait(trait_name))
-            if len(trait_desc) != 1:
-                raise ValueError("Do not deal for the moment with Either "
-                                 "nipype output traits.")
-            corrected_outputs[trait_name] = self._modify_path(
-                trait_value, trait_desc[0].split("_"))
-        return corrected_outputs
-
-    def _modify_path(self, item, trait_ids):
-        """ Recursive method that will change file and directory path.
-
-        Parameters
-        ----------
-        item: object
-            a python object.
-        trait_ids: list of str
-            the trait string description to detect files and directories.
-
-        Returns
-        -------
-        out: object
-            the input object with modified files and directories.
-        """
-        if isinstance(item, list):
-            out = [self._modify_path(subitem, trait_ids[1:]) for subitem in item]
-        elif isinstance(item, dict):
-            out = dict((key, self._modify_path(value, trait_ids[1:]))
-                        for key, value in item.items())
-        elif trait_ids[0] in ["File", "Directory"] and item is not Undefined:
-            out = os.path.join(self.inputs.output_directory,
-                               os.path.basename(item))
-        else:
-            out = item
-        return out
-
-    def _list_fsl_split_outputs(self):
-        """ Method to list the fsl split interface outputs
-
-        Returns
-        -------
-        outputs: dict
-            all the interface outputs
-        """
-        from glob import glob
-        from nipype.interfaces.fsl.base import Info
-        from nipype.interfaces.base import isdefined
-
-        # Get the nipype outputs
-        outputs = self._outputs().get()
-
-        # Modify the path outputs
-        ext = Info.output_type_to_ext(self.inputs.output_type)
-        outbase = 'vol*'
-        if isdefined(self.inputs.out_base_name):
-            outbase = '%s*' % self.inputs.out_base_name
-        outputs['out_files'] = sorted(glob(
-            os.path.join(self.inputs.output_directory, outbase + ext)))
-
-        return outputs
-
-    def _gen_filename(self, name):
-        """ Method to generate automatically the output file name.
-
-        Used by: nipype.interfaces.base.CommandLine._parse_inputs
-
-        Returns
-        -------
-        outputs: str
-            the generated output file name
-        """
-        # Get the nipype generated filename
-        output = self._gen_filename_core(name)
-
-        # Modify the path of this file
-        if output:
-            if os.path.isdir(output):
-                corrected_output = self.inputs.output_directory
-            else:
-                corrected_output = os.path.join(self.inputs.output_directory,
-                                                os.path.basename(output))
-
-        return corrected_output
-
-    def _parse_inputs(self, skip=None):
-        """Parse all inputs using the ``argstr`` format string in the Trait.
-
-        Any inputs that are assigned (not the default_value) are formatted
-        to be added to the command line.
-
-        Returns
-        -------
-        all_args : list
-            A list of all inputs formatted for the command line.
-        """
-        # Reset input traits that has to be autogenerated
-        #metadata = dict(argstr=lambda t: t is not None)
-        #for name, spec in sorted(self.inputs.traits(**metadata).items()):
-        #    if spec.genfile or spec.name_source:
-        #        setattr(self.inputs, name, _Undefined())
-        return self._parse_inputs_core()
-
-    # Apply the monkey patching for Nipype version '0.9.2'.
-    # The original nipype 'method' is stored in 'method_core' new method
-    # Add an 'output_directory' nipype input trait.
-    nipype_instance.inputs.add_trait(
-        "output_directory", Directory(os.getcwd()))
-
-    # Monkey patching: '_list_outputs'
-    nipype_instance._list_outputs_core = nipype_instance._list_outputs
-    # Special case for the fsl Split interface: use the redefined
-    # '_list_fsl_split_outputs'
-    if (nipype_instance.__class__.__module__.split(".")[2] == "fsl" and
-       nipype_instance.__class__.__name__ == "Split"):
-        nipype_instance._list_outputs = types.MethodType(
-            _list_fsl_split_outputs, nipype_instance)
-    # Standard case: use the redefined '_list_outputs'
-    else:
-        nipype_instance._list_outputs = types.MethodType(_list_outputs,
-                                                         nipype_instance)
-    nipype_instance._modify_path = types.MethodType(_modify_path,
-                                                    nipype_instance)
-
-    # Monkey patching: '_run_interface'
-    nipype_instance._run_interface_core = nipype_instance._run_interface
-    nipype_instance._run_interface = types.MethodType(_run_interface,
-                                                      nipype_instance)
-
-    # Monkey patching: '_parse_inputs'
-    nipype_instance._parse_inputs_core = nipype_instance._parse_inputs
-    nipype_instance._parse_inputs = types.MethodType(_parse_inputs,
-                                                     nipype_instance)
-
-    # Monkey patching: '_gen_filename'  for fsl and dcm2nii interface only
-    if ("fsl" in nipype_instance.__class__.__module__ or
-            "dcm2nii" in nipype_instance.__class__.__module__):
-        nipype_instance._gen_filename_core = nipype_instance._gen_filename
-        nipype_instance._gen_filename = types.MethodType(_gen_filename,
-                                                         nipype_instance)
+    # Change first level masking explicit in postscript
+    def _make_matlab_command(self, content):
+        from nipype.interfaces.spm import Level1Design
+        return super(Level1Design, self)._make_matlab_command(
+            content, postscript=None)
+    if (nipype_instance.__class__.__module__.split(".")[2] == "spm" and
+       nipype_instance.__class__.__name__ == "Level1Design"):
+        nipype_instance._make_matlab_command = types.MethodType(
+            _make_matlab_command, nipype_instance)
 
     # Create new instance derived from Process
     process_instance = NipypeProcess(nipype_instance)
@@ -306,8 +152,9 @@ def nipype_factory(nipype_instance):
         input_traits = process_instance.traits(output=False)
 
         # Try to update all the output process instance traits values when
-        # a process instance input trait is modified.
-        if name in input_traits:
+        # a process instance input trait is modified or when the dedicated
+        # 'synchronize' trait value is modified
+        if name in input_traits or name == "synchronize":
 
             # Try to set all the process instance output traits values from
             # the nipype autocompleted traits values
@@ -324,13 +171,8 @@ def nipype_factory(nipype_instance):
                         trait(out_name))
 
                     # Set the output process trait value
-                    # If we have a file check that the file exists before
-                    # setting the new value
-                    if (trait_type[0] is not "File" or
-                       os.path.isfile(repr(out_value))):
-
-                        process_instance.set_parameter(
-                            "_" + out_name, out_value)
+                    process_instance.set_parameter(
+                        "_" + out_name, out_value)
 
             # If we can't update the output process instance traits values,
             # print a logging debug message.
@@ -400,9 +242,6 @@ def nipype_factory(nipype_instance):
         # Add the callback to update nipype traits when a process input
         # trait is modified
         process_instance.on_trait_change(sync_nypipe_traits, name=trait_name)
-
-    # Syncronized also the output_directory input
-    process_instance.on_trait_change(sync_nypipe_traits, name="output_directory")
 
     # Add callback to synchronize output process instance traits with nipype
     # autocompleted output traits

@@ -21,6 +21,7 @@ from traits.api import (Int, Float, String, Unicode, File, Directory, Enum,
 
 _known_values = {
     'Undefined': Undefined,
+    'None': Undefined
 }
     
 def string_to_value(string):
@@ -50,7 +51,7 @@ class XMLProcess(Process):
             # Process was declared to return a single value
             setattr(self, self._function_return, result)
         elif self._function_outputs:
-            # Process was declared to return several output values 
+            # Process was declared to return several output values
             if isinstance(result, (list, tuple)):
                 # Return value is a list, maps the output parameter names in
                 # their declaration order
@@ -59,8 +60,11 @@ class XMLProcess(Process):
                                      'returned by process %s' % 
                                      (len(result), len(self._function_outputs),
                                       self.id))
-                for i in xrange(len(self._function_outputs)):
-                    setattr(self, self._function_outputs[i], result[i])
+                if len(self._function_outputs) == 1:
+                    setattr(self, self._function_outputs[0], result)
+                else:
+                    for i in xrange(len(self._function_outputs)):
+                        setattr(self, self._function_outputs[i], result[i])
             elif isinstance(result, dict):
                 # Return value is a dict, set the output parameter values.
                 for i in self._function_outputs:
@@ -188,8 +192,7 @@ def create_xml_process(module, name, function, xml):
     class_kwargs['_function_return'] = function_return
     
     # Get the process instance associated to the function
-    process_class = (
-        type(name, (XMLProcess, ), class_kwargs))
+    process_class = type(name, (XMLProcess, ), class_kwargs)
     return process_class
 
 
