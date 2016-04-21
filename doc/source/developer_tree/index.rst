@@ -27,18 +27,6 @@ Pipeline nodes sorting and workflow helper
     topological_sort.GraphNode
     topological_sort.Graph
 
-Nodes
------
-
-Iterative node building blocks.
-
-.. autosummary::
-    :toctree: generated/capsul-pipeline/
-    :template: class.rst
-
-    pipeline_iterative.IterativeManager
-    pipeline_iterative.IterativePipeline
-
 
 :mod:`capsul.process`: Process
 ===============================
