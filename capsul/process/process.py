@@ -16,6 +16,7 @@ import json
 import subprocess
 import logging
 import shutil
+import six
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ from soma.controller.trait_utils import get_trait_desc
 from capsul.utils.version_utils import get_tool_version
 
 
-class ProcessMeta(Controller.__metaclass__):
+class ProcessMeta(Controller.__class__):
     """ Class used to complete a process docstring
 
     Use a class and not a function for inheritance.
@@ -101,7 +102,7 @@ class ProcessMeta(Controller.__metaclass__):
             mcls, name, bases, attrs)
 
 
-class Process(Controller):
+class Process(six.with_metaclass(ProcessMeta, Controller)):
     """ A process is an atomic component that contains a processing.
 
     Attributes
@@ -134,8 +135,6 @@ class Process(Controller):
     get_parameter
 
     """
-    # Meta class used to complete the class docstring
-    __metaclass__ = ProcessMeta
 
     def __init__(self, **kwargs):
         """ Initialize the Process class.
