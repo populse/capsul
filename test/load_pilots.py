@@ -6,6 +6,7 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
 import os, sys
 import logging
 
@@ -51,14 +52,14 @@ def load_pilots(root, path):
 
             try:
                 __import__(module_name)
-            except Warning, e:
+            except Warning as e:
                 # A test specific warning is raised.
                 # For instance, it happens when non mandatory
                 # modules (such as Qt or Nipype) cannot be imported 
                 # for a test.
                 pilots[module_name] = e
                 continue
-            except ImportError, e:
+            except ImportError as e:
                 # An api exists, but it cannot be imported
                 pilots[module_name] = e
                 continue
@@ -79,4 +80,4 @@ if __name__ == "__main__":
 
     import soma
     module_path = soma.__path__[0]
-    print load_pilots(module_path, module_path)
+    print(load_pilots(module_path, module_path))

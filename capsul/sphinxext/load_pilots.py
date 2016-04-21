@@ -72,7 +72,7 @@ def load_pilots(root, path, root_module_name):
                             getattr(module, function))
 
             # An api exists, but it cannot be imported
-            except ImportError, e:
+            except ImportError as e:
                 logging.debug(
                     "Could not import {0}: {1}".format(module_name, e))
                 raise

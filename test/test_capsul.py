@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 from load_pilots import load_pilots
 import capsul
 import sys
@@ -90,11 +92,11 @@ def is_valid_module():
     is_valid, has_warnings = run_all_tests()
     if is_valid:
         if has_warnings:
-            print partial_message
+            print(partial_message)
         else:
-            print valid_message
+            print(valid_message)
     else:
-        print error_message
+        print(error_message)
     return is_valid
 
 
