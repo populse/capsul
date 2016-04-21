@@ -6,6 +6,7 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
 # System import
 import unittest
 import sys
@@ -157,5 +158,5 @@ def test():
 
 
 if __name__ == "__main__":
-    print "RETURNCODE: ", test()
+    print("RETURNCODE: ", test())
 

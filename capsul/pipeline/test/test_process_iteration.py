@@ -6,6 +6,7 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
 # System import
 import sys
 import os
@@ -146,5 +147,5 @@ if __name__ == "__main__":
     view1.show()
     app.exec_()
     del view1
-    print '---'
-    
+    print('---')
+

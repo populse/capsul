@@ -6,6 +6,7 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
 import unittest
 import os
 import json
@@ -233,13 +234,13 @@ def test():
 
 
 if __name__ == "__main__":
-    print "RETURNCODE: ", test()
+    print("RETURNCODE: ", test())
 
     if 0:
         def write_state():
             state_file_name = '/tmp/state.json'
             json.dump(pipeline.pipeline_state(), open(state_file_name,'w'))
-            print 'Wrote', state_file_name
+            print('Wrote', state_file_name)
 
         import sys
         #from PySide import QtGui
