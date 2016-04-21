@@ -16,15 +16,6 @@ the docstrings.
 
 .. currentmodule:: capsul.qt_apps
 
-Classes
--------
-.. autosummary::
-    :toctree: generated/capsul-apps/
-    :template: class.rst
-
-    main_window.CapsulMainWindow
-    pipeline_viewer_app.PipelineViewerApp
-
 
 :mod:`capsul.qt_apps.utils`: Utils
 ==================================
@@ -47,44 +38,9 @@ Functions
     :toctree: generated/capsul-apps-utils/
     :template: function.rst
 
-    find_pipelines.find_pipelines_from_description
-    find_pipelines.find_pipeline_and_process
-    find_pipelines.lists2dict
     fill_treectrl.fill_treectrl
     fill_treectrl.add_tree_nodes
     fill_treectrl.search_in_menu
-
-
-:mod:`capsul.qt_gui`: Controller Widgets
-========================================
-
-.. currentmodule:: capsul.qt_gui
-
-Classes
--------
-.. autosummary::
-    :toctree: generated/capsul-gui/
-    :template: class.rst
-
-    controller_widget.ScrollControllerWidget
-    controller_widget.ControllerWidget    
-
-.. currentmodule:: capsul.qt_gui.controls
-
-Controls
---------
-.. autosummary::
-    :toctree: generated/capsul-gui-controls/
-    :template: class.rst
-
-    Str.StrControlWidget
-    File.FileControlWidget
-    Bool.BoolControlWidget
-    Float.FloatControlWidget
-    Directory.DirectoryControlWidget
-    Enum.EnumControlWidget
-    Int.IntControlWidget
-    List.ListControlWidget
 
 
 :mod:`capsul.qt_gui.widgets`: Pipeline Viewers
@@ -100,5 +56,4 @@ Classes
 
     PipelineDevelopperView
     PipelineUserView
-    activation_inspector.ActivationInspector
 
