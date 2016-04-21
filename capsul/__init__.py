@@ -7,4 +7,4 @@
 # for details.
 ##########################################################################
 
-from info import __version__
+from .info import __version__

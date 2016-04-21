@@ -9,6 +9,7 @@
 
 # System import
 import types
+import sys
 
 
 def pilotfunction(pilot_func):
@@ -27,7 +28,10 @@ def pilotfunction(pilot_func):
     decorated_func: @func
         the same input function, with the function's global variables removed.
     """
-    func = types.FunctionType(
-        pilot_func.func_code, {"__builtins__": __builtins__})
+    if sys.version_info[0] >= 3:
+        func_code = pilot_func.__code__
+    else:
+        func_code = pilot_func.func_code
+    func = types.FunctionType(func_code, {"__builtins__": __builtins__})
     func.__module__ = pilot_func.__module__
     return func
