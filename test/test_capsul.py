@@ -73,14 +73,14 @@ def run_all_tests():
     is_valid = True
     for module, ltest in tests.items():
         if isinstance(ltest, Warning):
-            print '=' * 60
-            print "WARNING when loading module {0}: {1}".format(module, ltest)
-            print '=' * 60
+            print('=' * 60)
+            print("WARNING when loading module {0}: {1}".format(module, ltest))
+            print('=' * 60)
             has_warnings = True
         elif isinstance(ltest, Exception):
-            print '=' * 60
-            print "ERROR when loading module {0}: {1}".format(module, ltest)
-            print '=' * 60
+            print('=' * 60)
+            print("ERROR when loading module {0}: {1}".format(module, ltest))
+            print('=' * 60)
             is_valid = False
         else:
             for test in ltest:
