@@ -93,7 +93,7 @@ class ProcessMeta(Controller.__class__):
         # Find all traits definitions in the process class and ensure that
         # it has a boolean value for attributes "output" and "optional".
         # If no value is given at construction, False will be used.
-        for n, possible_trait_definition in attrs.iteritems():
+        for n, possible_trait_definition in six.iteritems(attrs):
             if isinstance(possible_trait_definition, BaseTraitHandler):
                 possible_trait_definition._metadata['output'] = bool(possible_trait_definition.output)
                 possible_trait_definition._metadata['optional'] = bool(possible_trait_definition.optional)
@@ -159,7 +159,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             self.default_values = default_values.copy()
         else:
             self.default_values = {}
-        for k, v in kwargs.iteritems():
+        for k, v in six.iteritems(kwargs):
             self.default_values[k] = v
 
     def add_trait(self, name, trait):
@@ -217,7 +217,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             "cwd": os.getcwd(),
             "returncode": None,
             "environ": dict([(k, unicode(v))
-                             for k, v in os.environ.data.iteritems()]),
+                             for k, v in six.iteritems(os.environ.data)]),
             "end_time": None,
             "hostname": getfqdn(),
         }
@@ -226,7 +226,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         if kwargs:
 
             # Go through all the extra parameters
-            for arg_name, arg_val in kwargs.iteritems():
+            for arg_name, arg_val in six.iteritems(kwargs):
 
                 # If the extra parameter name does not match with a user
                 # trait paameter name, raise a TypeError
@@ -310,7 +310,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # Need to take the representation of undefined input or outputs
         # traits
         for parameter_type in ["inputs", "outputs"]:
-            for key, value in log[parameter_type].iteritems():
+            for key, value in six.iteritems(log[parameter_type]):
                 if value is Undefined:
                     log[parameter_type][key] = repr(value)
 
@@ -416,7 +416,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         reserved_params = ("nodes_activation", "selection_changed")
         args = [
             (trait_name, is_trait_pathname(trait))
-            for trait_name, trait in self.user_traits().iteritems()
+            for trait_name, trait in six.iteritems(self.user_traits())
             if (trait_name not in reserved_params and
                 is_trait_value_defined(getattr(self, trait_name)))]
 
@@ -504,7 +504,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         """
         output = "\nINPUT SPECIFICATIONS\n\n"
         # self.traits(output=False) skips params with no output property
-        for trait_name, trait in self.user_traits().iteritems():
+        for trait_name, trait in six.iteritems(self.user_traits()):
             if not trait.output:
                 output += "{0}: {1}\n".format(
                     trait_name, trait_ids(self.trait(trait_name)))
@@ -519,7 +519,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             a string representation of all the output trait specifications.
         """
         output = "\nOUTPUT SPECIFICATIONS\n\n"
-        for trait_name, trait in self.traits(output=True).iteritems():
+        for trait_name, trait in six.iteritems(self.traits(output=True)):
             output += "{0}: {1}\n".format(
                 trait_name, trait_ids(self.trait(trait_name)))
         return output
@@ -533,7 +533,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             a dictionary with all the input trait names and values.
         """
         output = {}
-        for trait_name, trait in self.user_traits().iteritems():
+        for trait_name, trait in six.iteritems(self.user_traits()):
             if not trait.output:
                 output[trait_name] = getattr(self, trait_name)
         return output
@@ -547,7 +547,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             a dictionary with all the output trait names and values.
         """
         output = {}
-        for trait_name, trait in self.traits(output=True).iteritems():
+        for trait_name, trait in six.iteritems(self.traits(output=True)):
             output[trait_name] = getattr(self, trait_name)
         return output
 
@@ -631,7 +631,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         manhelpstr = ["[Mandatory]", ""]
 
         # Get all the mandatory input traits
-        mandatory_items = dict([x for x in self.user_traits().iteritems()
+        mandatory_items = dict([x for x in six.iteritems(self.user_traits())
                                 if not x[1].output and not x[1].optional])
         mandatory_items.update(self.traits(output=None, optional=False))
 
@@ -639,7 +639,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # descriptions
         data = []
         if mandatory_items:
-            for trait_name, trait in mandatory_items.iteritems():
+            for trait_name, trait in six.iteritems(mandatory_items):
                 trait_desc = get_trait_desc(trait_name, trait)
                 data.append(trait_desc)
 
@@ -662,7 +662,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # descriptions
         data = []
         if optional_items:
-            for trait_name, trait in optional_items.iteritems():
+            for trait_name, trait in six.iteritems(optional_items):
                 data.append(
                     get_trait_desc(trait_name, trait))
 
@@ -708,7 +708,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # If we have some outputs, get the corresponding string
         # descriptions
         data = []
-        for trait_name, trait in items.iteritems():
+        for trait_name, trait in six.iteritems(items):
             data.append(
                 get_trait_desc(trait_name, trait))
 
@@ -817,7 +817,7 @@ class FileCopyProcess(Process):
         if self.activate_copy:
 
             # Set the process inputs
-            for name, value in kwargs.iteritems():
+            for name, value in six.iteritems(kwargs):
                 self.process.set_parameter(name, value)
 
             # Copy the desired items
@@ -945,7 +945,7 @@ class FileCopyProcess(Process):
         input_parameters = {}
 
         # Go through all the user traits
-        for name, trait in self.user_traits().iteritems():
+        for name, trait in six.iteritems(self.user_traits()):
 
             # Check if the target parameter is in the check list
             if name in self.inputs_to_copy:
@@ -1113,7 +1113,7 @@ class NipypeProcess(FileCopyProcess):
         # Set the nipype outputs to the execution report
         outputs = dict(
             ("_" + x[0], self._nipype_interface._list_outputs()[x[0]])
-            for x in returncode.outputs.get().iteritems())
+            for x in six.iteritems(returncode.outputs.get()))
         results.outputs = outputs
 
         # Restore cwd

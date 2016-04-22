@@ -8,6 +8,7 @@
 
 # System import
 import logging
+import six
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -127,8 +128,8 @@ class Node(Controller):
         # generate a list with all the inputs and outputs
         # the second parameter (parameter_type) is False for an input,
         # True for an output
-        parameters = zip(inputs, [False, ] * len(inputs))
-        parameters.extend(zip(outputs, [True, ] * len(outputs)))
+        parameters = list(zip(inputs, [False, ] * len(inputs)))
+        parameters.extend(list(zip(outputs, [True, ] * len(outputs))))
         for parameter, parameter_type in parameters:
             # check if parameter is a dictionary as specified in the
             # docstring
@@ -290,7 +291,7 @@ class Node(Controller):
         state['_callbacks'] = dict((i, SomaPartial(self._value_callback, *i))
                                    for i in state['_callbacks'])
         super(Node, self).__setstate__(state)
-        for callback_key, value_callback in self._callbacks.iteritems():
+        for callback_key, value_callback in six.iteritems(self._callbacks):
             self.set_callback_on_plug(callback_key[0], value_callback)
 
     def set_callback_on_plug(self, plug_name, callback):
@@ -393,7 +394,7 @@ class ProcessNode(Node):
         self.kwargs = kwargs
         inputs = []
         outputs = []
-        for parameter, trait in self.process.user_traits().iteritems():
+        for parameter, trait in six.iteritems(self.process.user_traits()):
             if parameter in ('nodes_activation', 'selection_changed'):
                 continue
             if trait.output:

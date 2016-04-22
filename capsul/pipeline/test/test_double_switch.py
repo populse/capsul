@@ -6,6 +6,7 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
 import unittest
 import os
 from traits.api import Str, Float
@@ -110,7 +111,7 @@ def test():
 
 
 if __name__ == "__main__":
-    print "RETURNCODE: ", test()
+    print("RETURNCODE: ", test())
 
     if 0:
         import sys

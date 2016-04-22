@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
 import os
 from pprint import pprint
@@ -1869,8 +1871,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                     self.add_embedded_subpipeline(node_name)
                     return
                 except KeyError:
-                    print 'node not found in:'
-                    print self.scene.gnodes.keys()
+                    print('node not found in:')
+                    print(self.scene.gnodes.keys())
             sub_view = PipelineDevelopperView(sub_pipeline,
                 show_sub_pipelines=self._show_sub_pipelines,
                 allow_open_controller=self._allow_open_controller,
@@ -2219,8 +2221,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         miny = min([x[1] for x in pos.itervalues()])
         pos = dict([(name, (p[0] - minx, p[1] - miny))
                     for name, p in pos.iteritems()])
-        print 'pos:'
-        print pos
+        print('pos:')
+        print(pos)
         scene.pos = pos
         for node, position in pos.iteritems():
             gnode = scene.gnodes[node]
@@ -2483,8 +2485,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             try:
                 process = get_process_instance(
                   unicode(proc_name_gui.proc_line.text()))
-            except Exception, e:
-                print e
+            except Exception as e:
+                print(e)
                 return
             pipeline.add_process(node_name, process)
 
