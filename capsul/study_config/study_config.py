@@ -290,47 +290,56 @@ class StudyConfig(Controller):
 
         # Use the local machine to execute the pipeline or process
         else:
-
-            # Check the output directory is valid
-            if (self.output_directory is Undefined or
-                    not isinstance(self.output_directory, basestring)):
-                raise ValueError(
-                    "'{0}' is not a valid directory. A valid output "
-                    "directory is expected to run the process or "
-                    "pipeline.".format(self.output_directory))
-            try:
-                if not os.path.isdir(self.output_directory):
-                    os.makedirs(self.output_directory)
-            except:
-                raise ValueError(
-                    "Can't create folder '{0}', please investigate.".format(
-                        self.output_directory))
+            # Not all processes need an output_directory defined on
+            # studt_config
+            if self.output_directory is not Undefined:
+                # Check the output directory is valid
+                if not isinstance(self.output_directory, basestring):
+                    raise ValueError(
+                        "'{0}' is not a valid directory. A valid output "
+                        "directory is expected to run the process or "
+                        "pipeline.".format(self.output_directory))
+                try:
+                    if not os.path.isdir(self.output_directory):
+                        os.makedirs(self.output_directory)
+                except:
+                    raise ValueError(
+                        "Can't create folder '{0}', please investigate.".format(
+                            self.output_directory))
 
             # Generate ordered execution list
-            execution_list = []
-            if isinstance(process_or_pipeline, Pipeline):
-                execution_list = process_or_pipeline.workflow_ordered_nodes()
-                # Filter process nodes if necessary
-                if not executer_qc_nodes:
-                    execution_list = [node for node in execution_list
-                                      if node.node_type != "view_node"]
-            elif isinstance(process_or_pipeline, Process):
-                execution_list.append(process_or_pipeline)
-            else:
-                raise Exception(
-                    "Unknown instance type. Got {0}and expect Process or "
-                    "Pipeline instances".format(
-                        process_or_pipeline.__module__.name__))
-
-            # Execute each process node element
-            for process_node in execution_list:
-                # Execute the process instance contained in the node
-                if isinstance(process_node, Node):
-                    self._run(process_node.process, verbose, **kwargs)
-
-                # Execute the process instance
+            temporary_files = []
+            try:
+                execution_list = []
+                if isinstance(process_or_pipeline, Pipeline):
+                    execution_list = process_or_pipeline.workflow_ordered_nodes()
+                    # Filter process nodes if necessary
+                    if not executer_qc_nodes:
+                        execution_list = [node for node in execution_list
+                                        if node.node_type != "view_node"]
+                    for node in execution_list:
+                        # check temporary outputs and allocate files
+                        process_or_pipeline._check_temporary_files_for_node(node, temporary_files)
+                elif isinstance(process_or_pipeline, Process):
+                    execution_list.append(process_or_pipeline)
                 else:
-                    self._run(process_node, verbose, **kwargs)
+                    raise Exception(
+                        "Unknown instance type. Got {0}and expect Process or "
+                        "Pipeline instances".format(
+                            process_or_pipeline.__module__.name__))
+
+                # Execute each process node element
+                for process_node in execution_list:
+                    # Execute the process instance contained in the node
+                    if isinstance(process_node, Node):
+                        self._run(process_node.process, verbose, **kwargs)
+
+                    # Execute the process instance
+                    else:
+                        self._run(process_node, verbose, **kwargs)
+            finally:
+                if temporary_files:
+                    process_or_pipeline._free_temporary_files(temporary_files)
 
     def _run(self, process_instance, verbose, **kwargs):
         """ Method to execute a process in a study configuration environment.
@@ -347,9 +356,12 @@ class StudyConfig(Controller):
             process_instance.id))
 
         # Run
-        destination_folder = os.path.join(
-            self.output_directory,
-            "{0}-{1}".format(self.process_counter, process_instance.name))
+        if self.output_directory is Undefined:
+            destination_folder = Undefined
+        else:
+            destination_folder = os.path.join(
+                self.output_directory,
+                "{0}-{1}".format(self.process_counter, process_instance.name))
         if self.get_trait_value("use_smart_caching") in [None, False]:
             cachedir = None
         else:
