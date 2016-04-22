@@ -65,9 +65,14 @@ class TestPipeline(unittest.TestCase):
         self.pipeline = MyPipeline()
 
     def test_constant(self):
+        graph = self.pipeline.workflow_graph()
+        ordered_list = graph.topological_sort()
         self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr,
-                         "constant->node1->node2")
+        self.assertTrue(
+            self.pipeline.workflow_repr in
+                ("constant->node1->node2", "node1->constant->node2"),
+            '%s not in ("constant->node1->node2", "node1->constant->node2")'
+                % self.pipeline.workflow_repr)
 
     def test_enabled(self):
         setattr(self.pipeline.nodes_activation, "node2", False)
