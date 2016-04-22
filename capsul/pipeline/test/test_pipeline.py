@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
     if 1:
         import sys
-        from PySide import QtGui
+        from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 
         app = QtGui.QApplication(sys.argv)

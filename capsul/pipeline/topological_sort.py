@@ -8,6 +8,7 @@
 
 # System import
 import logging
+import six
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -207,7 +208,7 @@ class Graph(object):
 
         # Step 1
         nnil = []
-        for name, node in self._nodes.iteritems():
+        for name, node in six.iteritems(self._nodes):
             if node.links_from_degree == 0:
                 nnil.append(node)
 

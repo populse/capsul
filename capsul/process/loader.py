@@ -12,6 +12,7 @@ import os.path as osp
 import importlib
 import types
 import re
+import six
 
 # Caspul import
 from capsul.process.process import Process
@@ -25,6 +26,10 @@ try:
 # If nipype is not found create a dummy Interface class
 except ImportError:
     Interface = type("Interface", (object, ), {})
+
+if sys.version_info[0] >= 3:
+    basestring = str
+    unicode = str
 
 
 process_xml_re = re.compile(r'<process.*</process>', re.DOTALL)
@@ -177,7 +182,7 @@ def get_process_instance(process_or_id, **kwargs):
                          "description".format(process_or_id))
 
     # Set the instance default parameters
-    for name, value in kwargs.iteritems():
+    for name, value in six.iteritems(kwargs):
         result.set_parameter(name, value)
 
     return result

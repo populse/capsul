@@ -6,5 +6,5 @@
 # for details.
 ##########################################################################
 
-from pipeline_developper_view import PipelineDevelopperView
-from pipeline_user_view import PipelineUserView
+from .pipeline_developper_view import PipelineDevelopperView
+from .pipeline_user_view import PipelineUserView

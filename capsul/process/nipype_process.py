@@ -25,7 +25,7 @@ from soma.controller.trait_utils import build_expression
 from soma.controller.trait_utils import eval_trait
 
 # Capsul import
-from process import NipypeProcess
+from .process import NipypeProcess
 
 
 def nipype_factory(nipype_instance):

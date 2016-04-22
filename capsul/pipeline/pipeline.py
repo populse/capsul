@@ -14,6 +14,7 @@ from copy import deepcopy
 import tempfile
 import os
 import shutil
+import six
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -238,10 +239,10 @@ class Pipeline(Process):
 
         If plug is not optional and if the plug has to be exported
         """
-        for node_name, node in self.nodes.iteritems():
+        for node_name, node in six.iteritems(self.nodes):
             if node_name == "":
                     continue
-            for parameter_name, plug in node.plugs.iteritems():
+            for parameter_name, plug in six.iteritems(node.plugs):
                 if parameter_name in ("nodes_activation", "selection_changed"):
                     continue
                 if (((node_name, parameter_name) not in self.do_not_export and
@@ -343,7 +344,7 @@ class Pipeline(Process):
 
         # Update the kwargs parameters values according to process
         # default values
-        for k, v in process.default_values.iteritems():
+        for k, v in six.iteritems(process.default_values):
             kwargs.setdefault(k, v)
 
         # Update the list of files item to copy
@@ -798,14 +799,14 @@ class Pipeline(Process):
             if node is self.pipeline_node:
                 # For the top-level pipeline node, all enabled plugs
                 # are activated
-                for plug_name, plug in node.plugs.iteritems():
+                for plug_name, plug in six.iteritems(node.plugs):
                     if plug.enabled:
                         if not plug.activated:
                             plug.activated = True
                             plugs_activated.append((plug_name, plug))
             else:
                 # Look for input plugs that can be activated
-                for plug_name, plug in node.plugs.iteritems():
+                for plug_name, plug in six.iteritems(node.plugs):
                     if plug.output:
                         # ignore output plugs
                         continue
@@ -828,7 +829,7 @@ class Pipeline(Process):
             if node_activated:
                 node.activated = True
                 # If node is activated, activate enabled output plugs
-                for plug_name, plug in node.plugs.iteritems():
+                for plug_name, plug in six.iteritems(node.plugs):
                     if plug.output and plug.enabled:
                         if not plug.activated:
                             plug.activated = True
@@ -882,7 +883,7 @@ class Pipeline(Process):
         if node.activated:
             deactivate_node = bool([plug for plug in node.plugs.itervalues()
                                     if plug.output])
-            for plug_name, plug in node.plugs.iteritems():
+            for plug_name, plug in six.iteritems(node.plugs):
                 # Check all activated plugs
                 if plug.activated:
                     # A plug with a default value is always activated
@@ -917,7 +918,7 @@ class Pipeline(Process):
                     deactivate_node = False
             if deactivate_node:
                 node.activated = False
-                for plug_name, plug in node.plugs.iteritems():
+                for plug_name, plug in six.iteritems(node.plugs):
                     if plug.activated:
                         plug.activated = False
                         plugs_deactivated.append((plug_name, plug))
@@ -970,7 +971,7 @@ class Pipeline(Process):
         # active (see at the end of this method)
         inactive_links = []
         for node in self.all_nodes():
-            for source_plug_name, source_plug in node.plugs.iteritems():
+            for source_plug_name, source_plug in six.iteritems(node.plugs):
                 for nn, pn, n, p, weak_link in source_plug.links_to:
                     if not source_plug.activated or not p.activated:
                         inactive_links.append((node, source_plug_name,
@@ -979,7 +980,7 @@ class Pipeline(Process):
         # Initialization : deactivate all nodes and their plugs
         for node in self.all_nodes():
             node.activated = False
-            for plug_name, plug in node.plugs.iteritems():
+            for plug_name, plug in six.iteritems(node.plugs):
                 plug.activated = False
 
         # Forward activation : try to activate nodes (and their input plugs)
@@ -1033,7 +1034,7 @@ class Pipeline(Process):
                         if node_activated and debug:
                             print >> debug, '%d-%s' % (
                                 iteration, node.full_name)
-                        for plug_name, plug in node.plugs.iteritems():
+                        for plug_name, plug in six.iteritems(node.plugs):
                             if plug.activated:
                                 plug.activated = False
                                 if debug:
@@ -1051,7 +1052,7 @@ class Pipeline(Process):
         for node in self.all_nodes():
             if isinstance(node, ProcessNode):
                 traits_changed = False
-                for plug_name, plug in node.plugs.iteritems():
+                for plug_name, plug in six.iteritems(node.plugs):
                     trait = node.process.trait(plug_name)
                     if plug.activated:
                         if getattr(trait, "hidden", False):
@@ -1124,13 +1125,13 @@ class Pipeline(Process):
         if remove_disabled_steps:
             steps = getattr(self, 'pipeline_steps', Controller())
             disabled_nodes = set()
-            for step, trait in steps.user_traits().iteritems():
+            for step, trait in six.iteritems(steps.user_traits()):
                 if not getattr(steps, step):
                     disabled_nodes.update(
                         [self.nodes[node] for node in trait.nodes])
 
         # Add activated Process nodes in the graph
-        for node_name, node in self.nodes.iteritems():
+        for node_name, node in six.iteritems(self.nodes):
 
             # Do not consider the pipeline node
             if node_name == "":
@@ -1154,7 +1155,7 @@ class Pipeline(Process):
                     graph.add_node(GraphNode(node_name, [node]))
 
                 # Add node edges
-                for plug_name, plug in node.plugs.iteritems():
+                for plug_name, plug in six.iteritems(node.plugs):
 
                     # Consider only active pipeline node plugs
                     if plug.activated:
@@ -1236,7 +1237,7 @@ class Pipeline(Process):
             # file names
             return
 
-        for plug_name, plug in node.plugs.iteritems():
+        for plug_name, plug in six.iteritems(node.plugs):
             value = node.get_plug_value(plug_name)
             if not plug.activated or not plug.enabled \
                     or (value not in (traits.Undefined, '') and \
@@ -1370,7 +1371,7 @@ class Pipeline(Process):
         empty_params = []
         # walk all activated nodes, recursively
         nodes = [(node_name, node)
-                 for node_name, node in self.nodes.iteritems()
+                 for node_name, node in six.iteritems(self.nodes)
                  if node_name != '' and node.enabled and node.activated]
         while nodes:
             node_name, node = nodes.pop(0)
@@ -1378,7 +1379,7 @@ class Pipeline(Process):
                 process = node.process
                 if isinstance(process, Pipeline):
                     nodes += [(cnode_name, cnode)
-                        for cnode_name, cnode in process.nodes.iteritems()
+                        for cnode_name, cnode in six.iteritems(process.nodes)
                         if cnode_name != '' and cnode.enabled
                         and cnode.activated]
             else:
@@ -1386,7 +1387,7 @@ class Pipeline(Process):
             # check output plugs; input ones don't work with generated
             # temporary files (unless they are connected with an output one,
             # which will do the job)
-            for plug_name, plug in node.plugs.iteritems():
+            for plug_name, plug in six.iteritems(node.plugs):
                 if not plug.enabled or not plug.output or \
                         (not plug.activated and plug.optional):
                     continue
@@ -1436,7 +1437,7 @@ class Pipeline(Process):
         nodes = self.nodes.values()
         plugs_count = 0
         params_count = len([param
-            for param_name, param in self.user_traits().iteritems()
+            for param_name, param in six.iteritems(self.user_traits())
             if param_name not in ('nodes_activation', 'selection_changed')])
         nodes_count = 0
         links_count = 0
@@ -1474,7 +1475,7 @@ class Pipeline(Process):
                     enabled_procs_count += 1
                 params_count += len([param
                     for param_name, param
-                    in node.process.user_traits().iteritems()
+                    in six.iteritems(node.process.user_traits())
                     if param_name not in (
                         'nodes_activation', 'selection_changed')])
                 if hasattr(node.process, 'nodes'):
@@ -1484,7 +1485,7 @@ class Pipeline(Process):
                     nodes += sub_nodes
             elif hasattr(node, 'user_traits'):
                 params_count += len([param
-                    for param_name, param in node.user_traits().iteritems()
+                    for param_name, param in six.iteritems(node.user_traits())
                     if param_name not in (
                         'nodes_activation', 'selection_changed', 'activated',
                         'enabled', 'name')])
@@ -1511,7 +1512,7 @@ class Pipeline(Process):
                              activated=node.activated,
                              plugs=plugs_list)
             result[node.full_name] = node_dict
-            for plug_name, plug in node.plugs.iteritems():
+            for plug_name, plug in six.iteritems(node.plugs):
                 links_to_dict = {}
                 links_from_dict = {}
                 plug_dict = dict(enabled=plug.enabled,
@@ -1543,7 +1544,7 @@ class Pipeline(Process):
         result = []
         
         def compare_dict(ref_dict, other_dict):
-            for ref_key, ref_value in ref_dict.iteritems():
+            for ref_key, ref_value in six.iteritems(ref_dict):
                 if ref_key not in other_dict:
                     yield '%s = %s is missing' % (ref_key, repr(ref_value))
                 else:
@@ -1552,7 +1553,7 @@ class Pipeline(Process):
                         yield '%s = %s differs from %s' % (ref_key,
                                                            repr(ref_value),
                                                            repr(other_value))
-            for other_key, other_value in other_dict.iteritems():
+            for other_key, other_value in six.iteritems(other_dict):
                 yield '%s=%s is new' % (other_key, repr(other_value))
 
         pipeline_state = deepcopy(pipeline_state)
@@ -1583,7 +1584,7 @@ class Pipeline(Process):
                                        repr(other_plug_names)))
                         # go to next node
                         continue
-                for plug_name, plug in node.plugs.iteritems():
+                for plug_name, plug in six.iteritems(node.plugs):
                     plug_dict = plugs_list[0][1]
                     del plugs_list[0]
                     links_to_dict = plug_dict.pop('links_to')
@@ -1610,7 +1611,7 @@ class Pipeline(Process):
                                                           link_name, (' not'
                                                           if weak_link else 
                                                           '')))
-                    for link_name, weak_link in links_to_dict.iteritems():
+                    for link_name, weak_link in six.iteritems(links_to_dict):
                         result.append('in plug "%s:%s": %slink to %s is new' %
                             (node_name,plug_name, (' weak' if weak_link else 
                             ''),link_name))
@@ -1629,7 +1630,7 @@ class Pipeline(Process):
                                                             link_name,(' not'
                                                             if weak_link else
                                                             '')))
-                    for link_name, weak_link in links_from_dict.iteritems():
+                    for link_name, weak_link in six.iteritems(links_from_dict):
                         result.append('in plug "%s:%s": %slink from %s is new'
                                       % (node_name,plug_name,(' weak' if
                                           weak_link else ''),link_name))
@@ -1687,7 +1688,7 @@ class Pipeline(Process):
         if prefix != '' and not prefix.endswith('.'):
             prefix = prefix + '.'
         # install handler on nodes
-        for node_name, node in self.nodes.iteritems():
+        for node_name, node in six.iteritems(self.nodes):
             node_prefix = prefix + node_name
             if node_prefix != '' and not node_prefix.endswith('.'):
                 node_prefix += '.'
@@ -1725,7 +1726,7 @@ class Pipeline(Process):
         """ Remove links debugging callbacks set by install_links_debug_handler
         """
 
-        for node_name, node in self.nodes.iteritems():
+        for node_name, node in six.iteritems(self.nodes):
             sub_process = None
             sub_pipeline = False
             if hasattr(node, 'process'):
@@ -1784,7 +1785,7 @@ class Pipeline(Process):
             The steps dict keys are steps names, the values are lists of nodes
             names forming the step.
         '''
-        for step_name, nodes in steps.iteritems():
+        for step_name, nodes in six.iteritems(steps):
             self.add_pipeline_step(step_name, nodes)
 
     def add_pipeline_step(self, step_name, nodes, enabled=True):
@@ -1845,7 +1846,7 @@ class Pipeline(Process):
         '''
         steps = getattr(self, 'pipeline_steps', Controller())
         disabled_nodes = []
-        for step, trait in steps.user_traits().iteritems():
+        for step, trait in six.iteritems(steps.user_traits()):
             if not getattr(steps, step, True):
                 # disabled step
                 nodes = trait.nodes
@@ -1862,12 +1863,12 @@ class Pipeline(Process):
         enabled. Ueful to reset the pipeline state after it has been changed.
         '''
         steps = getattr(self, 'pipeline_steps', Controller())
-        for step, trait in steps.user_traits().iteritems():
+        for step, trait in six.iteritems(steps.user_traits()):
             setattr(steps, step, True)
 
     def _change_processes_selection(self, selection_name, selection_group):
         for group, processes in \
-                self.processes_selection[selection_name].iteritems():
+                six.iteritems(self.processes_selection[selection_name]):
             enabled = (group == selection_group)
             for node_name in processes: 
                 self.nodes[node_name].enabled = enabled
