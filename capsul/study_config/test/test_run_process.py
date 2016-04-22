@@ -40,26 +40,28 @@ class TestRunProcess(unittest.TestCase):
         """
         # Create a study configuration
         self.output_dir = tempfile.mkdtemp()
-        self.cachedir = self.output_dir
+        try:
+            self.cachedir = self.output_dir
 
-        # Call the test
-        self.execution_dummy()
-
-        # Rm temporary folder
-        shutil.rmtree(self.output_dir)
+            # Call the test
+            self.execution_dummy()
+        finally:
+            # Rm temporary folder
+            shutil.rmtree(self.output_dir)
 
     def test_execution_without_cache(self):
         """ Execute a process without cache.
         """
         # Create a study configuration
         self.output_dir = tempfile.mkdtemp()
-        self.cachedir = None
+        try:
+            self.cachedir = None
 
-        # Call the test
-        self.execution_dummy()
-
-        # Rm temporary folder
-        shutil.rmtree(self.output_dir)
+            # Call the test
+            self.execution_dummy()
+        finally:
+            # Rm temporary folder
+            shutil.rmtree(self.output_dir)
 
     def execution_dummy(self):
         """ Test to execute DummyProcess.

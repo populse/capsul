@@ -242,7 +242,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 self.set_parameter(arg_name, arg_val)
 
         # Execute the process
-        returncode = self._run_process()
+        returncode = self.run()
 
         # Set the execution stop time in the execution report
         runtime["end_time"] = datetime.isoformat(datetime.utcnow())
@@ -762,8 +762,9 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
     def run(self, *args, **kwargs):
         from capsul.study_config import StudyConfig
-        study_config = StudyConfig()
-        return study_config.run(self, *args, **kwargs)[0]
+        output_directory = getattr(self, 'output_directory', Undefined)
+        study_config = StudyConfig(output_directory=output_directory)
+        return study_config.run(self, *args, **kwargs)
 
 
 class FileCopyProcess(Process):

@@ -332,14 +332,15 @@ class StudyConfig(Controller):
                 for process_node in execution_list:
                     # Execute the process instance contained in the node
                     if isinstance(process_node, Node):
-                        self._run(process_node.process, verbose, **kwargs)
+                        result = self._run(process_node.process, verbose, **kwargs)
 
                     # Execute the process instance
                     else:
-                        self._run(process_node, verbose, **kwargs)
+                        result = self._run(process_node, verbose, **kwargs)
             finally:
                 if temporary_files:
                     process_or_pipeline._free_temporary_files(temporary_files)
+            return result
 
     def _run(self, process_instance, verbose, **kwargs):
         """ Method to execute a process in a study configuration environment.
@@ -356,18 +357,12 @@ class StudyConfig(Controller):
             process_instance.id))
 
         # Run
-        if self.output_directory is Undefined:
-            destination_folder = Undefined
-        else:
-            destination_folder = os.path.join(
-                self.output_directory,
-                "{0}-{1}".format(self.process_counter, process_instance.name))
         if self.get_trait_value("use_smart_caching") in [None, False]:
             cachedir = None
         else:
             cachedir = self.output_directory
         returncode, log_file = run_process(
-            destination_folder,
+            self.output_directory,
             process_instance,
             cachedir,
             self.generate_logging,
