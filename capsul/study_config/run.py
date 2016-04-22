@@ -79,7 +79,9 @@ def run_process(output_dir, process_instance, cachedir=None,
         # Execute the proxy process
         returncode = proxy_instance(**kwargs)
     else:
-        returncode = process_instance._run_process(**kwargs)
+        for k, v in kwargs.iteritems():
+            setattr(process_instance, k, v)
+        returncode = process_instance._run_process()
 
     # Save the process log
     if generate_logging:
