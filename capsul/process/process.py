@@ -17,6 +17,7 @@ import subprocess
 import logging
 import shutil
 import six
+import sys
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -36,6 +37,9 @@ from soma.controller.trait_utils import get_trait_desc
 
 # Capsul import
 from capsul.utils.version_utils import get_tool_version
+
+if sys.version_info[0] <= 3:
+    unicode = str
 
 
 class ProcessMeta(Controller.__class__):
@@ -217,7 +221,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             "cwd": os.getcwd(),
             "returncode": None,
             "environ": dict([(k, unicode(v))
-                             for k, v in six.iteritems(os.environ.data)]),
+                             for k, v in six.iteritems(os.environ)]),
             "end_time": None,
             "hostname": getfqdn(),
         }

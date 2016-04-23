@@ -8,6 +8,7 @@
 
 # System import
 import unittest
+import six
 
 # Capsul import
 from capsul.api import Process
@@ -41,7 +42,7 @@ class TestProcessUserTrait(unittest.TestCase):
         the instane level.
         """
         # Go through all traits
-        for trait_name, trait in self.p1.__base_traits__.iteritems():
+        for trait_name, trait in six.iteritems(self.p1.__base_traits__):
 
             # Select user parameters
             if self.p1.is_user_trait(trait):

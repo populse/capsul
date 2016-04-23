@@ -6,10 +6,15 @@
 # for details.
 ##########################################################################
 
+import sys
+import six
 from traits.api import List, Undefined
 
 from capsul.process.process import Process
 from capsul.process.loader import get_process_instance
+
+if sys.version_info[0] >= 3:
+    xrange = range
 
 class ProcessIteration(Process):
     def __init__(self, process, iterative_parameters):
@@ -28,7 +33,7 @@ class ProcessIteration(Process):
 
         # Create iterative process parameters by copying process parameter
         # and changing iterative parameters to list
-        for name, trait in user_traits.iteritems():
+        for name, trait in six.iteritems(user_traits):
             if name in iterative_parameters:
                 self.add_trait(name, List(trait, output=trait.output,
                                           optional=trait.optional))
@@ -99,7 +104,7 @@ class ProcessIteration(Process):
                             getattr(self.process, parameter))
                         # reset empty value
                         setattr(self.process, parameter, Undefined)
-            for parameter, value in outputs.iteritems():
+            for parameter, value in six.iteritems(outputs):
                 setattr(self, parameter, value)
         else:
             for iteration in xrange(size):

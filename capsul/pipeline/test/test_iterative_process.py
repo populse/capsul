@@ -6,6 +6,7 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
 # System import
 import sys
 import unittest
@@ -48,13 +49,13 @@ class DummyProcess(Process):
     def _run_process(self):
         """ Execute the process.
         """
-        print 'run: %s -> %s' % (self.input_image, str(self.output_image))
+        print('run: %s -> %s' % (self.input_image, str(self.output_image)))
         if self.output_image in (None, Undefined, ''):
             # Just join the input values
             value = "{0}-{1}-{2}".format(
                 self.input_image, self.other_input, self.dynamic_parameter)
             self.output_image = value
-            print '    define output_image: %s' % value
+            print('    define output_image: %s' % value)
 
         open(self.output_image, 'w').write(open(self.input_image).read())
         self.other_output = self.other_input
@@ -66,7 +67,7 @@ class CreateFilesProcess(Process):
         self.add_trait("output_file", List(File(output=True), output=True))
 
     def _run_process(self):
-        print 'create: %s' % self.output_file
+        print('create: %s' % self.output_file)
         open(self.output_file, "w").write("file: %s\n" % self.output_file)
 
 

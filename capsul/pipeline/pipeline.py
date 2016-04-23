@@ -1809,7 +1809,7 @@ class Pipeline(Process):
         enabled: bool (optional)
             initial state of the step
         '''
-        if not self.user_traits().has_key('pipeline_steps'):
+        if 'pipeline_steps' not in self.user_traits():
             super(Pipeline, self).add_trait(
                 'pipeline_steps',
                 ControllerTrait(Controller(), desc=
@@ -1832,7 +1832,7 @@ class Pipeline(Process):
     def remove_pipeline_step(self, step_name):
         '''Remove the given step
         '''
-        if self.user_traits().has_key('pipeline_steps'):
+        if 'pipeline_steps' in self.user_traits():
             self.pipeline_steps.remove_trait(step_name)
 
     def disabled_pipeline_steps_nodes(self):
