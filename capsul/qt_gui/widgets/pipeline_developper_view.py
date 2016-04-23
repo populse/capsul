@@ -43,6 +43,13 @@ except ImportError:
 
 from soma.qt_gui.controller_widget import ScrollControllerWidget
 
+if sys.version_info[0] >= 3:
+    def values(d):
+        return list(d.values())
+else:
+    def values(d):
+        return d.values()
+
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
@@ -571,9 +578,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
             if not self.out_params:
                 param_item = None
             else:
-                param_item = self.out_params.values()[0]
+                param_item = values(self.out_params)[0]
         else:
-            param_item = self.in_params.values()[0]
+            param_item = values(self.in_params)[0]
         ni = 0
         no = 0
         bottom_pos = 0
