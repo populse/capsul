@@ -6,11 +6,15 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
 import os
 import logging
 import tempfile
 import subprocess
+import six
+import sys
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -26,6 +30,9 @@ from capsul.pipeline.pipeline import Pipeline, PipelineNode, Switch, \
     ProcessNode
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller
+
+if sys.version_info[0] >= 3:
+    basestring = str
 
 
 def pipeline_node_colors(pipeline, node):
@@ -210,7 +217,7 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
     nodes_pos = pipeline.node_position
     scale = 1. / 67.
 
-    for node_name, node in pipeline.nodes.iteritems():
+    for node_name, node in six.iteritems(pipeline.nodes):
         if node_name == '':
             if not include_io:
                 continue
@@ -275,7 +282,7 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
     if has_outputs:
         size = nodes_sizes.get('outputs')
         for prop in ('width', 'height', 'fixedsize'):
-            if main_node_props.has_key(prop):
+            if prop in main_node_props:
                 del main_node_props[prop]
         if size is not None:
             main_node_props.update(
@@ -381,7 +388,7 @@ def save_dot_graph(dot_graph, filename, **kwargs):
     props = {'rankdir': 'LR'}
     props.update(kwargs)
     propsstr = ' '.join(['='.join([aname, _str_repr(val)])
-                           for aname, val in props.iteritems()])
+                           for aname, val in six.iteritems(props)])
     rankdir = props['rankdir']
 
     fileobj.write('digraph {%s;\n' % propsstr)
@@ -392,15 +399,15 @@ def save_dot_graph(dot_graph, filename, **kwargs):
             props = dict(props)
             props['orientation'] -= 90
         attstr = ' '.join(['='.join([aname, _str_repr(val)])
-                           for aname, val in props.iteritems()])
+                           for aname, val in six.iteritems(props)])
         if len(props) != 0:
             attstr = ' ' + attstr
         fileobj.write('  %s [label=%s style="filled"%s];\n'
             % (id, node, attstr))
-    for edge, descr in dot_graph[1].iteritems():
+    for edge, descr in six.iteritems(dot_graph[1]):
         props = descr[0]
         attstr = ' '.join(['='.join([aname, _str_repr(val)])
-                           for aname, val in props.iteritems()])
+                           for aname, val in six.iteritems(props)])
         fileobj.write('  %s -> %s [%s];\n'
             % (edge[0], edge[1], attstr))
     fileobj.write('}\n')
@@ -486,7 +493,7 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
         pipeline to disbale nodes in.
     '''
     steps = getattr(pipeline, 'pipeline_steps', Controller())
-    for step, trait in steps.user_traits().iteritems():
+    for step, trait in six.iteritems(steps.user_traits()):
         if not getattr(steps, step):
             continue  # already inactive
         for node_name in trait.nodes:
@@ -502,8 +509,8 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
                     if value is not None and value is not traits.Undefined \
                             and os.path.exists(value):
                         # disable step
-                        print 'disable step', step, 'because of:', node_name, \
-                            '.', param
+                        print('disable step', step, 'because of:', node_name,
+                              '.', param)
                         setattr(steps, step, False)
                         break  # no need to iterate other nodes in same step
 
@@ -548,7 +555,7 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
     if exclude_inactive:
         steps = getattr(pipeline, 'pipeline_steps', Controller())
         disabled_nodes = set()
-        for step, trait in steps.user_traits().iteritems():
+        for step, trait in six.iteritems(steps.user_traits()):
             if not getattr(steps, step):
                 disabled_nodes.update(trait.nodes)
 
@@ -564,12 +571,12 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
         process = node.process
         if recursive and isinstance(process, Pipeline):
             nodes += [('%s.%s' % (node_name, new_name), new_node)
-                      for new_name, new_node in process.nodes.iteritems()
+                      for new_name, new_node in six.iteritems(process.nodes)
                       if new_name != '']
             continue
         plug_list = []
         input_files_list = set()
-        for plug_name, plug in node.plugs.iteritems():
+        for plug_name, plug in six.iteritems(node.plugs):
             trait = process.trait(plug_name)
             if isinstance(trait.trait_type, traits.File) \
                     or isinstance(trait.trait_type, traits.Directory) \
@@ -618,7 +625,7 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
     selected_nodes = {}
     steps = getattr(pipeline, 'pipeline_steps', Controller())
     disabled_nodes = set()
-    for step, trait in steps.user_traits().iteritems():
+    for step, trait in six.iteritems(steps.user_traits()):
         if not getattr(steps, step):
             disabled_nodes.update(
                 [pipeline.nodes[node_name] for node_name in trait.nodes])
@@ -634,10 +641,10 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
         process = node.process
         if recursive and isinstance(process, Pipeline):
             nodes += [('%s.%s' % (node_name, new_name), new_node)
-                      for new_name, new_node in process.nodes.iteritems()
+                      for new_name, new_node in six.iteritems(process.nodes)
                       if new_name != '']
             continue
-        for plug_name, plug in node.plugs.iteritems():
+        for plug_name, plug in six.iteritems(node.plugs):
             if not plug.output:
                 trait = process.trait(plug_name)
                 if isinstance(trait.trait_type, traits.File) \
@@ -655,7 +662,7 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
                             # file coming from another disabled node
                             #if not value or value is traits.Undefined:
                                 ## temporary one
-                                #print 'TEMP: %s.%s' % (node_name, plug_name)
+                                #print('TEMP: %s.%s' % (node_name, plug_name))
                                 #value = None
                             keep_me = True
                         elif origin_node is None:
@@ -833,7 +840,7 @@ def dump_pipeline_state_as_dict(pipeline):
                     modified = True
                 elif recursive:
                     todo = [(value, nodes, key, True)
-                            for key, value in nodes.iteritems()] + todo
+                            for key, value in six.iteritems(nodes)] + todo
                     modified = True
             if len(current_dict) == 0 and parent is not None:
                 del parent[parent_key]
@@ -850,7 +857,7 @@ def dump_pipeline_state_as_dict(pipeline):
             proc = node.process
         node_dict = proc.export_to_dict()
         # filter out forbidden and already used plugs
-        for plug_name, plug in node.plugs.iteritems():
+        for plug_name, plug in six.iteritems(node.plugs):
             if not should_keep_value(node, plug, components):
                 del node_dict[plug_name]
         if node_name is None:
@@ -865,7 +872,7 @@ def dump_pipeline_state_as_dict(pipeline):
         if hasattr(proc, 'nodes'):
             nodes += [(child_node_name, child_node, child_dict)
                       for child_node_name, child_node
-                      in proc.nodes.iteritems() if child_node_name != '']
+                      in six.iteritems(proc.nodes) if child_node_name != '']
 
     prune_empty_dicts(state_dict)
     return state_dict
@@ -895,7 +902,7 @@ def set_pipeline_state_from_dict(pipeline, state_dict):
         sub_nodes = current_dict.get('nodes')
         if sub_nodes:
             nodes += [(proc.nodes[node_name], sub_dict)
-                      for node_name, sub_dict in sub_nodes.iteritems()]
+                      for node_name, sub_dict in six.iteritems(sub_nodes)]
 
 def get_output_directories(process):
     '''
@@ -946,7 +953,7 @@ def get_output_directories(process):
             # TODO: handle disabled steps
             sub_dict = {}
             dirs['nodes'] = sub_dict
-            for node_name, node in sub_nodes.iteritems():
+            for node_name, node in six.iteritems(sub_nodes):
                 if node_name != '' and node.activated and node.enabled \
                         and not node in disabled_nodes:
                     sub_node_dict = {}
