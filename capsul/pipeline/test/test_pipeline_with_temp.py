@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 import unittest
 import tempfile
 import os
@@ -27,7 +29,7 @@ class DummyProcess(Process):
 
     def _run_process(self):
         # copy input contents to output
-        print self.name, ':', self.input_image, '->', self.output_image
+        print(self.name, ':', self.input_image, '->', self.output_image)
         open(self.output_image, 'w').write(open(self.input_image).read())
 
 
@@ -94,7 +96,7 @@ def test():
 
 
 if __name__ == "__main__":
-    print "RETURNCODE: ", test()
+    print("RETURNCODE: ", test())
 
     if 1:
         import sys

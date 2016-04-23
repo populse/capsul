@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import
 
+import sys
 import xml.etree.cElementTree as ET
 from ast import literal_eval
 
@@ -18,6 +19,9 @@ from soma.utils.functiontools import getArgumentsSpecification
 
 from traits.api import (Int, Float, String, Unicode, File, Directory, Enum,
                         Bool, List, Any, Undefined)
+
+if sys.version_info[0] >= 3:
+    xrange = range
 
 _known_values = {
     'Undefined': Undefined,

@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 import unittest
 import os
 import sys
@@ -146,7 +148,7 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2 and sys.argv[1] in ('-v', '--verbose'):
         verbose = True
 
-    print "RETURNCODE: ", test()
+    print("RETURNCODE: ", test())
 
     if verbose:
         import sys

@@ -6,11 +6,14 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
 import os
 import logging
 import json
 import sys
+import six
 if sys.version_info[:2] >= (2, 7):
     from collections import OrderedDict
 else:
@@ -32,6 +35,14 @@ from capsul.study_config.run import run_process
 from capsul.pipeline.pipeline_workflow import (
     workflow_from_pipeline, local_workflow_run)
 from capsul.pipeline.pipeline_nodes import Node
+
+if sys.version_info[0] >= 3:
+    basestring = str
+    def dict_keys(d):
+        return list(d.keys())
+else:
+    def dict_keys(d):
+        return d.keys()
 
 
 class StudyConfig(Controller):
@@ -163,7 +174,7 @@ class StudyConfig(Controller):
             self.load_module(module, config)
 
         # Set self attributes according to configuration values
-        for k, v in config.iteritems():
+        for k, v in six.iteritems(config):
             setattr(self, k, v)
         self.initialize_modules()
 
@@ -177,7 +188,7 @@ class StudyConfig(Controller):
         """
         already_initialized = set()
         # Use a stack to allow to manage module dependencies
-        stack = self.modules.keys()
+        stack = dict_keys(self.modules)
         while stack:
             module_name = stack.pop(0)
             if module_name in already_initialized:
@@ -610,11 +621,11 @@ if __name__ == '__main__':
     tic = timeit.default_timer()
     study = StudyConfig()
     toc = timeit.default_timer()
-    print "Standard configuration done in  {0} s.".format(toc - tic)
+    print("Standard configuration done in  {0} s.".format(toc - tic))
 
     # Empty configuration
     empty_config = OrderedDict([])
     tic = timeit.default_timer()
     study = StudyConfig(empty_config)
     toc = timeit.default_timer()
-    print "Empty configuration done in  {0} s.".format(toc - tic)
+    print("Empty configuration done in  {0} s.".format(toc - tic))

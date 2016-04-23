@@ -9,12 +9,17 @@
 from __future__ import absolute_import
 
 import os
+import six
+import sys
 import xml.etree.cElementTree as ET
 
 from soma.sorted_dictionary import OrderedDict
 
 from capsul.process.xml import string_to_value
 from capsul.pipeline.pipeline_construction import PipelineConstructor
+
+if sys.version_info[0] >= 3:
+    unicode = str
 
 
 def create_xml_pipeline(module, name, xml_file):
@@ -238,7 +243,7 @@ def save_xml_pipeline(pipeline, xml_file):
                     if use_default:
                         elem.set('use_default', 'true')
             for param, np_input in \
-                    process._nipype_interface.inputs.__dict__.iteritems():
+                    six.iteritems(process._nipype_interface.inputs.__dict__):
                 use_default = getattr(np_input, 'usedefault', False) # is it that?
                 if use_default and param not in process.inputs_to_copy:
                     elem = ET.SubElement(procnode, 'nipype')
@@ -256,7 +261,7 @@ def save_xml_pipeline(pipeline, xml_file):
         swnode = ET.SubElement(parent, 'switch')
         swnode.set('name', name)
         inputs = set()
-        for plug_name, plug in switch.plugs.iteritems():
+        for plug_name, plug in six.iteritems(switch.plugs):
             if plug.output:
                 elem = ET.SubElement(swnode, 'output')
                 elem.set('name', plug_name)
@@ -275,7 +280,7 @@ def save_xml_pipeline(pipeline, xml_file):
         return swnode
 
     def _write_processes(pipeline, root):
-        for node_name, node in pipeline.nodes.iteritems():
+        for node_name, node in six.iteritems(pipeline.nodes):
             if node_name == "":
                 continue
             if isinstance(node, Switch):
@@ -292,11 +297,11 @@ def save_xml_pipeline(pipeline, xml_file):
         selection_parameters = []
         if hasattr(pipeline, 'processes_selection'):
             for selector_name, groups \
-                    in pipeline.processes_selection.iteritems():
+                    in six.iteritems(pipeline.processes_selection):
                 selection_parameters.append(selector_name)
                 sel_node = ET.SubElement(root, 'processes_selection')
                 sel_node.set('name', selector_name)
-                for group_name, group in groups.iteritems():
+                for group_name, group in six.iteritems(groups):
                     grp_node = ET.SubElement(sel_node, 'processes_group')
                     grp_node.set('name', group_name)
                     for node in group:
@@ -305,8 +310,8 @@ def save_xml_pipeline(pipeline, xml_file):
         return selection_parameters
 
     def _write_links(pipeline, root):
-        for node_name, node in pipeline.nodes.iteritems():
-            for plug_name, plug in node.plugs.iteritems():
+        for node_name, node in six.iteritems(pipeline.nodes):
+            for plug_name, plug in six.iteritems(node.plugs):
                 if (node_name == "" and not plug.output) \
                         or (node_name != "" and plug.output):
                     links = plug.links_to
@@ -331,7 +336,7 @@ def save_xml_pipeline(pipeline, xml_file):
         if steps and getattr(pipeline, 'pipeline_steps', None):
             steps_node = ET.SubElement(root, 'pipeline_steps')
             for step_name, step \
-                    in pipeline.pipeline_steps.user_traits().iteritems():
+                    in six.iteritems(pipeline.pipeline_steps.user_traits()):
                 step_node = ET.SubElement(steps_node, 'step')
                 step_node.set('name', step_name)
                 enabled = getattr(pipeline.pipeline_steps, step_name)
@@ -347,7 +352,7 @@ def save_xml_pipeline(pipeline, xml_file):
         gui = None
         if hasattr(pipeline, "node_position") and pipeline.node_position:
             gui = ET.SubElement(root, 'gui')
-            for node_name, pos in pipeline.node_position.iteritems():
+            for node_name, pos in six.iteritems(pipeline.node_position):
                 node_pos = ET.SubElement(gui, 'position')
                 node_pos.set('name', node_name)
                 node_pos.set('x', unicode(pos[0]))
