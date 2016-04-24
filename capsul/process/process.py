@@ -761,10 +761,13 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         return getattr(self, name)
 
     def run(self, *args, **kwargs):
-        from capsul.study_config import StudyConfig
+        """Shortcut to default_study_config().run()"""
+        # Import cannot be done on module due to circular dependencies
+        from capsul.study_config import default_study_config
         output_directory = getattr(self, 'output_directory', Undefined)
-        study_config = StudyConfig(output_directory=output_directory)
-        return study_config.run(self, *args, **kwargs)
+        return default_study_config().run(self, *args, 
+                                          output_directory=output_directory,
+                                          **kwargs)
 
 
 class FileCopyProcess(Process):
