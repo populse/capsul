@@ -213,8 +213,9 @@ class TestSomaWorkflow(unittest.TestCase):
 
     def test_composite_execution(self):
         self.composite_pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.composite_pipeline.workflow_repr,
-                         "node1->node3->node2->node4")
+        self.assertTrue(self.composite_pipeline.workflow_repr in
+                        ("node1->node3->node2->node4",
+                         "node1->node2->node3->node4"))
         tmp1 = tempfile.mkstemp('', prefix='capsul_swf')
         os.write(tmp1[0], 'bidibidi'.encode())
         os.close(tmp1[0])
