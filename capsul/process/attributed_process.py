@@ -6,7 +6,10 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
+import six
 
 # CAPSUL import
 from capsul.api import Process, Pipeline
@@ -116,7 +119,8 @@ class AttributedProcess(Process):
             # calling directly self.import_from_dict() will erase existing
             # attributes
             self.capsul_attributes.import_from_dict(attributes)
-            process_inputs = dict((k, v) for k, v in process_inputs.iteritems()
+            process_inputs = dict((k, v) for k, v
+                                  in six.iteritems(process_inputs)
                                   if k != 'capsul_attributes')
         self.import_from_dict(process_inputs)
 
@@ -143,7 +147,7 @@ class AttributedProcess(Process):
         # times.
         if isinstance(self.process, Pipeline):
             name = self.name
-            for node_name, node in self.process.nodes.iteritems():
+            for node_name, node in six.iteritems(self.process.nodes):
                 if node_name == '':
                     continue
                 if hasattr(node, 'process'):
@@ -157,11 +161,11 @@ class AttributedProcess(Process):
                         subprocess_attr.complete_parameters(
                             {'capsul_attributes':
                              self.capsul_attributes.export_to_dict()})
-                    except Exception, e:
+                    except Exception as e:
                         if verbose:
-                            print 'warning, node %s could not complete FOM' \
-                                % node_name
-                            print e
+                            print('warning, node %s could not complete FOM' \
+                                  % node_name)
+                            print(e)
 
 
     def path_attributes(self, filename, parameter=None):
@@ -258,7 +262,7 @@ class AttributedProcessFactory(Singleton):
     def unregister_factory(self, factory_function):
         '''
         '''
-        for priority, factories in self.factories.iteritems():
+        for priority, factories in six.iteritems(self.factories):
             if factory_function in factories:
                 factory_function.remove(factory_function)
 
