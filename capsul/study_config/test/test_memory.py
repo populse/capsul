@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
 import unittest
 import os
@@ -118,9 +120,11 @@ class TestMemory(unittest.TestCase):
         proxy_process(f=2.5, i=__file__, l=[__file__])
         copied_file = os.path.join(self.workspace_dir,
                                    os.path.basename(__file__))
+        print('proxy_process:', type(proxy_process))
+        print('machin:', "{{'i': {0}, 'l': [{0}], 'f': 2.5}}".format(repr(copied_file)))
         self.assertEqual(
-            proxy_process.s,
-            "{{'i': {0}, 'l': [{0}], 'f': 2.5}}".format(repr(copied_file)))
+            eval(proxy_process.s),
+            {'i': copied_file, 'l': [copied_file], 'f': 2.5})
 
 if 0:
     # Configure the environment
@@ -133,8 +137,8 @@ if 0:
 
     # Create a decorated instance
     dec_instance = mem.cache(instance)
-    print dec_instance
-    print dec_instance.__doc__
+    print(dec_instance)
+    print(dec_instance.__doc__)
 
     # Set parameters
     dec_instance.in_files = [ifname, ifname]
@@ -144,9 +148,9 @@ if 0:
 
     # Test the cache mechanism
     result = dec_instance()
-    print dec_instance._merged_file
+    print(dec_instance._merged_file)
     result = dec_instance(in_files=[ifname, ifname], dimension="t")
-    print dec_instance._merged_file
+    print(dec_instance._merged_file)
 
 
 
@@ -165,8 +169,8 @@ if 0:
 
     # Create a decorated instance
     dec_instance = mem.cache(instance)
-    print dec_instance
-    print dec_instance.__doc__
+    print(dec_instance)
+    print(dec_instance.__doc__)
 
     # Set parameters
     dec_instance.in_files = [ifname]
@@ -179,7 +183,7 @@ if 0:
 
     # Test the cache mechanism
     result = dec_instance()
-    print dec_instance._smoothed_files
+    print(dec_instance._smoothed_files)
 
 
 def test():

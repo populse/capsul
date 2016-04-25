@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
 import sys
 import tempfile
@@ -48,12 +50,12 @@ class PipelineUserView(QtGui.QWidget):
 
     def write(self, out=sys.stdout):
         graph = self.pipeline.workflow_graph()
-        print >> out, 'digraph workflow {'
+        out.write('digraph workflow {\n'.encode())
         ids = {}
         for n in graph._nodes:
             id = str(len(ids))
             ids[n] = id
-            print >> out, '  %s [label="%s"];' % (id, n)
+            out.write(('  %s [label="%s"];\n' % (id, n)).encode())
         for n, v in graph._links:
-            print >> out, '  %s -> %s;' % (ids[n], ids[v])
-        print >> out, '}'
+            out.write(('  %s -> %s;\n' % (ids[n], ids[v])).encode())
+        out.write('}\n'.encode())

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import print_function
+
 import os
+import six
 try:
     from traits.api import Str
 except ImportError:
@@ -81,7 +85,7 @@ class ProcessWithFom(AttributedProcess):
         # (but first, the iteration has to be an actual pipeline)
         from soma_workflow.client import Job, Workflow, WorkflowController
 
-        print 'ITERATION RUN'
+        print('ITERATION RUN')
         jobs = {}
         i = 0
         for process in self.list_process_iteration:
@@ -144,8 +148,8 @@ class ProcessWithFom(AttributedProcess):
                     if att in process_attributes \
                             and default_value != getattr(
                                 self.capsul_attributes, att):
-                        print 'same attribute but not same default value so ' \
-                            'nothing is displayed'
+                        print('same attribute but not same default value so '
+                              'nothing is displayed')
                     else:
                         setattr(self.capsul_attributes, att, default_value)
 
@@ -205,7 +209,7 @@ class ProcessWithFom(AttributedProcess):
         >>> proc_with_fom.process_completion(proc_with_fom.process,
                 proc_with_fom.name)
         '''
-        # print 'CREATE COMPLETION, name:', self.name
+        # print('CREATE COMPLETION, name:', self.name)
         self.process_completion(self.process, self.name)
 
 
@@ -248,7 +252,7 @@ class ProcessWithFom(AttributedProcess):
         # now, but it is sub-optimal since many parameters will be set many
         # times.
         if isinstance(process, Pipeline):
-            for node_name, node in process.nodes.iteritems():
+            for node_name, node in six.iteritems(process.nodes):
                 if node_name == '':
                     continue
                 if hasattr(node, 'process'):
@@ -262,11 +266,11 @@ class ProcessWithFom(AttributedProcess):
                         subprocess_attr.complete_parameters(
                             {'capsul_attributes':
                              self.capsul_attributes.export_to_dict()})
-                    except Exception, e:
+                    except Exception as e:
                         if verbose:
-                            print 'warning, node %s could not complete FOM' \
-                                % node_name
-                            print e
+                            print('warning, node %s could not complete FOM'
+                                  % node_name)
+                            print(e)
 
         #Create completion
         names_search_list = (name, process.id, process.name)

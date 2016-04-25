@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
 import os
 import logging
@@ -222,7 +224,7 @@ class PipelineHelpWriter(object):
             relpath = outdir.replace(relative_to + os.path.sep, "")
         else:
             relpath = outdir
-        print 'relpath:', relpath
+        print('relpath:', relpath)
 
         # Information message
         logger.info("Wrting index at location '{0}'...".format(
@@ -249,11 +251,11 @@ class PipelineHelpWriter(object):
         # Add all modules
         for title_str, f in self.written_modules:
             pipeline_short = self.get_short_name(f)
-            print 'title_str:', title_str, ', f:', f
+            print('title_str:', title_str, ', f:', f)
             relative_pipeline = ".".join(f.split(".")[2:])
-            print 'relative_pipeline:', relative_pipeline
+            print('relative_pipeline:', relative_pipeline)
             ref = os.path.join(relpath, pipeline_short + ".html")
-            print 'ref:', ref
+            print('ref:', ref)
             table.append("<tr class='row-odd'>")
             table.append(
                 "<td><a class='reference internal' href='{0}'>"

@@ -7,6 +7,7 @@
 ##########################################################################
 
 import os
+import six
 from traits.api import Bool, Str, Undefined
 from soma.fom import AttributesToPaths, PathToAttributes
 from soma.application import Application
@@ -85,7 +86,8 @@ class FomConfig(StudyConfigModule):
         self.study_config.modules_data.fom_atp = {}
         self.study_config.modules_data.fom_pta = {}
 
-        for fom_type, fom in self.study_config.modules_data.foms.iteritems():
+        for fom_type, fom \
+                in six.iteritems(self.study_config.modules_data.foms):
             atp = AttributesToPaths(
                 fom,
                 selection={},

@@ -72,8 +72,10 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     class TempFile(str):
         # class needed temporary to identify temporary paths in the pipeline.
         # must inerit a string type since it is used as a trait value
-        def __init__(self, string):
-            super(TempFile, self).__init__(string)
+        def __init__(self, string=''):
+            # in python3 super(..).__init__() cannot take an argument
+            # moreover the str value is assigned anyway.
+            super(TempFile, self).__init__()
             if isinstance(string, TempFile):
                 self.pattern = string.pattern
                 self.value = string.value
