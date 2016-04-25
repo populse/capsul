@@ -13,7 +13,10 @@ import unittest
 import socket
 import shutil
 import tempfile
-import StringIO
+if sys.version_info[0] >= 3:
+    import io as StringIO
+else:
+    import StringIO
 from traits.api import File
 from capsul.study_config import StudyConfig
 from capsul.api import Process
@@ -206,8 +209,9 @@ class TestSomaWorkflow(unittest.TestCase):
 
     def test_composite_execution(self):
         self.composite_pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.composite_pipeline.workflow_repr,
-                         "node1->node3->node2->node4")
+        self.assertTrue(
+            self.composite_pipeline.workflow_repr in
+            ("node1->node3->node2->node4", "node1->node2->node3->node4"))
         self.study_config.run(self.composite_pipeline)
 
 

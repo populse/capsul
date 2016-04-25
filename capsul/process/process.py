@@ -18,6 +18,7 @@ import logging
 import shutil
 import six
 import sys
+import functools
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ from capsul.utils.version_utils import get_tool_version
 
 if sys.version_info[0] <= 3:
     unicode = str
+    basestring = str
 
 
 class ProcessMeta(Controller.__class__):
@@ -338,7 +340,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         # Get the size of the largest row in order to
         # format properly the rst table (do not forget the '+' and '*')
-        row_widths = [len(item) for item in reduce(operator.add, data)]
+        row_widths = [len(item)
+                      for item in functools.reduce(operator.add, data)]
         width = max(row_widths) + 11
 
         # Generate the rst table
@@ -653,7 +656,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 manhelpstr += self._rst_table(data)
             # Otherwise
             else:
-                manhelpstr += reduce(operator.add, data)
+                manhelpstr += functools.reduce(operator.add, data)
 
         # Markup to separate optional inputs
         opthelpstr = ["", "[Optional]", ""]
@@ -676,7 +679,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 opthelpstr += self._rst_table(data)
             # Otherwise
             else:
-                opthelpstr += reduce(operator.add, data)
+                opthelpstr += functools.reduce(operator.add, data)
 
         # Add the mandatry and optional input string description if necessary
         if mandatory_items:
@@ -722,7 +725,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 helpstr += self._rst_table(data)
             # Otherwise
             else:
-                helpstr += reduce(operator.add, data)
+                helpstr += functools.reduce(operator.add, data)
 
         return helpstr
 

@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
 import numpy
 import os
@@ -20,14 +22,14 @@ class Dummy(object):
     """ A dummy class.
     """
     def __call__(self):
-        print "Calling Dummy"
+        print("Calling Dummy")
 
 
 # The decorated pilot
 @pilotfunction
 def pilot():
-    from test_pilot import Dummy
-    print ",".join(["t", "o"])
+    from capsul.utils.test.test_pilot import Dummy
+    print(",".join(["t", "o"]))
     dummy = Dummy()
     dummy()
 

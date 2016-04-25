@@ -13,7 +13,10 @@ import unittest
 import socket
 import shutil
 import tempfile
-import StringIO
+if sys.version_info[0] >= 3:
+    import io as StringIO
+else:
+    import StringIO
 from traits.api import File
 from capsul.study_config import StudyConfig
 from capsul.api import Process
@@ -182,7 +185,7 @@ class TestSomaWorkflow(unittest.TestCase):
                 ('node1->node3->node2->node4',
                 'node1->node2->node3->node4'))
         tmp1 = tempfile.mkstemp('', prefix='capsul_swf')
-        os.write(tmp1[0], 'bidibidi')
+        os.write(tmp1[0], 'bidibidi'.encode())
         os.close(tmp1[0])
         tmp2 = tempfile.mkstemp('', prefix='capsul_swf_out')
         os.close(tmp2[0])
@@ -213,7 +216,7 @@ class TestSomaWorkflow(unittest.TestCase):
         self.assertEqual(self.composite_pipeline.workflow_repr,
                          "node1->node3->node2->node4")
         tmp1 = tempfile.mkstemp('', prefix='capsul_swf')
-        os.write(tmp1[0], 'bidibidi')
+        os.write(tmp1[0], 'bidibidi'.encode())
         os.close(tmp1[0])
         tmp2 = tempfile.mkstemp('', prefix='capsul_swf_out')
         os.close(tmp2[0])

@@ -8,6 +8,7 @@
 
 # System import
 import logging
+import six
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -141,7 +142,7 @@ class BoardWidget(QtGui.QWidget):
         processings_struct = []
     
         # Go through all the controller (pipeline) nodes.
-        for node_name, node in self.controller.nodes.iteritems():
+        for node_name, node in six.iteritems(self.controller.nodes):
 
             # If the current node is a processing node
             if node_name is not "" and node.node_type != "view_node":
@@ -194,7 +195,7 @@ class BoardWidget(QtGui.QWidget):
 
         # Fill the viewer tree widget
         viewer_parent = self.viewer_tree.invisibleRootItem()
-        for pipeline_title, viewer_widgets in viewers_struct.iteritems():   
+        for pipeline_title, viewer_widgets in six.iteritems(viewers_struct):
 
             # Create a new tree item
             viewer_child = QtGui.QTreeWidgetItem(viewer_parent)

@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 import unittest
 from traits.api import File, Float
 from capsul.api import Process
@@ -84,7 +86,7 @@ def test():
 
 
 if __name__ == "__main__":
-    print "RETURNCODE: ", test()
+    print("RETURNCODE: ", test())
 
     if 0:
         import sys

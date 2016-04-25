@@ -23,6 +23,13 @@ from capsul.api import Process
 from capsul.api import Pipeline
 from capsul.pipeline.process_iteration import ProcessIteration
 
+if sys.version_info[0] >= 3:
+    basestring = str
+    def range_list(n):
+        return list(range(n))
+else:
+    range_list = range
+
 
 class WriteOutput(Process):
     input_image = File()
@@ -65,7 +72,7 @@ class MyPipeline(Pipeline):
     def input_image_changed(self):
         if isinstance(self.input_image, basestring) and \
                 osp.exists(self.input_image):
-            self.slices = range(int(os.stat(self.input_image).st_size/2))
+            self.slices = range_list(int(os.stat(self.input_image).st_size/2))
         else:
             self.slices = []
         
@@ -103,7 +110,7 @@ class TestPipeline(unittest.TestCase):
         # Set some input parameters
         self.parallel_processes = 10
         self.input_file = NamedTemporaryFile(delete = False)
-        self.input_file.write('\x00\x00' * self.parallel_processes)
+        self.input_file.write(('\x00\x00' * self.parallel_processes).encode())
         self.input_file.flush()
         self.input_file.close()
         self.pipeline.input_image = self.input_file.name
@@ -133,7 +140,7 @@ def test():
 
 if __name__ == "__main__":
     test()
-    from PySide import QtGui
+    from soma.qt_gui.qt_backend import QtGui
     from capsul.qt_gui.widgets import PipelineDevelopperView
 
     app = QtGui.QApplication(sys.argv)
@@ -142,7 +149,7 @@ if __name__ == "__main__":
     pipeline.output_image = '/tmp/y'
 
     view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
-                                    allow_open_controller=True)
+                                   allow_open_controller=True)
 
     view1.show()
     app.exec_()

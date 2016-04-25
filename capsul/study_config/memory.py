@@ -17,6 +17,8 @@ import shutil
 import json
 import numpy
 import logging
+import six
+import sys
 
 # CAPSUL import
 from capsul.process.process import Process, ProcessResult
@@ -32,6 +34,9 @@ except ImportError:
 
 # TRAITS import
 from traits.api import Undefined
+
+if sys.version_info[0] >= 3:
+    basestring = str
 
 
 # Define the logger
@@ -72,7 +77,7 @@ class UnMemorizedProcess(object):
             should correspond to the declared process parameters.
         """
         # Set the process inputs early to get some argument checking
-        for name, value in kwargs.iteritems():
+        for name, value in six.iteritems(kwargs):
             self.process.set_parameter(name, value)
         input_parameters = self._get_process_arguments()
 
@@ -111,7 +116,7 @@ class UnMemorizedProcess(object):
         input_parameters = {}
 
         # Go through all the user traits
-        for name, trait in self.process.user_traits().iteritems():
+        for name, trait in six.iteritems(self.process.user_traits()):
 
             # Get the trait value
             value = self.process.get_parameter(name)
@@ -246,7 +251,7 @@ class MemorizedProcess(object):
             should correspond to the declared process parameters.
         """
         # Set the process inputs early to get some argument checking
-        for name, value in kwargs.iteritems():
+        for name, value in six.iteritems(kwargs):
             self.process.set_parameter(name, value)
 
         # Create the destination folder and a unique id for the current
@@ -264,7 +269,7 @@ class MemorizedProcess(object):
             try:
                 # Run and update the process output traits
                 result = self._call_process(process_dir, input_parameters)
-                for name, value in result.outputs.iteritems():
+                for name, value in six.iteritems(result.outputs):
                     self.process.set_parameter(name, value)
 
                 # Save the result files in the memory with the corresponding
@@ -421,7 +426,7 @@ class MemorizedProcess(object):
             result_dict["outputs"])
 
         # Update the process output traits
-        for name, value in result.outputs.iteritems():
+        for name, value in six.iteritems(result.outputs):
             self.process.set_parameter(name, value)
 
         return result
@@ -469,7 +474,7 @@ class MemorizedProcess(object):
         input_parameters = {}
 
         # Go through all the user traits
-        for name, trait in self.process.user_traits().iteritems():
+        for name, trait in six.iteritems(self.process.user_traits()):
 
             # Get the trait value
             value = self.process.get_parameter(name)
@@ -498,7 +503,7 @@ class MemorizedProcess(object):
 
         # Generate the process hash
         hasher = hashlib.new("md5")
-        hasher.update(json.dumps(process_parameters, sort_keys=True))
+        hasher.update(json.dumps(process_parameters, sort_keys=True).encode())
         process_hash = hasher.hexdigest()
 
         return process_hash, input_parameters
@@ -519,7 +524,7 @@ class MemorizedProcess(object):
         # Deal with dictionary
         out = {}
         if isinstance(python_object, dict):
-            for key, val in python_object.iteritems():
+            for key, val in six.iteritems(python_object):
                 if val is not Undefined:
                     out[key] = self._add_fingerprints(val)
 
@@ -627,7 +632,7 @@ def get_process_signature(process, input_parameters):
         the process signature.
     """
     kwargs = ["{0}={1}".format(name, value)
-              for name, value in input_parameters.iteritems()]
+              for name, value in six.iteritems(input_parameters)]
     return "{0}({1})".format(process.id, ", ".join(kwargs))
 
 
@@ -750,7 +755,7 @@ def tuple_json_encoder(obj):
         return [tuple_json_encoder(item) for item in obj]
     elif isinstance(obj, dict):
         return dict((tuple_json_encoder(key), tuple_json_encoder(value))
-                    for key, value in obj.iteritems())
+                    for key, value in six.iteritems(obj))
     else:
         return obj
 
@@ -770,7 +775,7 @@ class CapsulResultDecoder(json.JSONDecoder):
         elif obj == "<undefined_trait_value>":
             return Undefined
         elif isinstance(obj, dict):
-            for key, value in obj.iteritems():
+            for key, value in six.iteritems(obj):
                 if value == "<undefined_trait_value>":
                     obj[key] = Undefined
             return obj

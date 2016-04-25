@@ -1,7 +1,11 @@
+
+from __future__ import print_function
+
 import unittest
 import sys
 import os
 import json
+import six
 import soma.config
 from tempfile import mkdtemp
 from shutil import rmtree
@@ -316,7 +320,8 @@ class TestStudyConfigConfiguration(unittest.TestCase):
             args, kwargs = arguments
             sargs = ', '.join(repr(i) for i in args)
             if kwargs:
-                sargs += ', '.join('%s=%s' % (repr(i),repr(j)) for i,j in kwargs.iteritems())
+                sargs += ', '.join('%s=%s' % (repr(i),repr(j)) for i,j
+                                   in six.iteritems(kwargs))
             sc = StudyConfig(*args, **kwargs)
             (expected_config, expected_modules, global_config_file, 
             study_config_file) = results
@@ -330,7 +335,7 @@ class TestStudyConfigConfiguration(unittest.TestCase):
             modules = sorted(sc.modules.keys())
 
             self.assertEqual(set(config), set(expected_config))
-            for name, value in expected_config.iteritems():
+            for name, value in six.iteritems(expected_config):
                 self.assertEqual(config[name], value,
                     'StudyConfig(%s) %s attribute %s should be %s but is '
                     '%s' % (sargs, test_description, name, repr(value),
