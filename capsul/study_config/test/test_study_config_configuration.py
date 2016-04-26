@@ -38,7 +38,6 @@ tests_no_files = [
         "use_fsl": False,
         'use_matlab': False,
         'use_spm': False,
-        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
@@ -56,7 +55,6 @@ tests_no_files = [
         "use_fsl": False,
         'use_matlab': False,
         'use_spm': False,
-        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
@@ -74,7 +72,6 @@ tests_no_files = [
         "use_fsl": False,
         'use_matlab': False,
         'use_spm': False,
-        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
@@ -88,7 +85,6 @@ tests_no_files = [
 #[[(),dict(init_config={'config_modules':[]})], [
 #    {
 #        "generate_logging": False,
-#        'automatic_configuration': False,
 #    },
 #    [], None, None]],
     
@@ -97,7 +93,6 @@ tests_no_files = [
     {
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
-        'automatic_configuration': False,
         'use_soma_workflow': False,
     },
     ['SomaWorkflowConfig'], None, None]],
@@ -113,7 +108,6 @@ tests_no_files = [
         'use_spm': False,
         "use_freesurfer": False,
         "shared_directory": soma.config.BRAINVISA_SHARE,
-        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
@@ -139,7 +133,6 @@ tests_standard_files = [
         "use_fsl": False,
         'use_matlab': False,
         'use_spm': False,
-        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
@@ -158,7 +151,6 @@ tests_standard_files = [
         'generate_logging': False,
         "shared_directory": soma.config.BRAINVISA_SHARE,
         'output_fom': "",
-        'automatic_configuration': False,
         'use_matlab': False,
         'use_spm': False,
         'spm_standalone': False,
@@ -176,7 +168,6 @@ tests_standard_files = [
         'use_fsl': False,
         'use_matlab': False,
         'use_spm': False,
-        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
@@ -190,7 +181,6 @@ tests_standard_files = [
 [[(),dict(init_config={'config_modules':[]})], [
     {
         "generate_logging": False,
-        'automatic_configuration': False,
     },
     [],
     None,
@@ -201,7 +191,6 @@ tests_standard_files = [
     {
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
-        'automatic_configuration': False,
         'use_soma_workflow': False,
     },
     ['SomaWorkflowConfig'],
@@ -221,7 +210,6 @@ tests_custom_files = [
         'use_fsl': False,
         'use_matlab': False,
         'use_spm': False,
-        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
@@ -239,7 +227,6 @@ tests_custom_files = [
         'generate_logging': False,
         "shared_directory": soma.config.BRAINVISA_SHARE,
         'output_fom': "",
-        'automatic_configuration': False,
         'use_matlab': False,
         'use_spm': False,
         'spm_standalone': False,
@@ -257,7 +244,6 @@ tests_custom_files = [
         'use_fsl': False,
         'use_matlab': False,
         'use_spm': False,
-        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
@@ -270,7 +256,6 @@ tests_custom_files = [
 [[(),dict(init_config={'config_modules':[]})], [
     {
         "generate_logging": False,
-        'automatic_configuration': False,
     },
     [],
     None,
@@ -281,7 +266,6 @@ tests_custom_files = [
     {
         "somaworkflow_computing_resources_config": {},
         "generate_logging": False,
-        'automatic_configuration': False,
         'use_soma_workflow': False,
     },
     ['SomaWorkflowConfig'],

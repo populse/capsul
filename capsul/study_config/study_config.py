@@ -116,10 +116,6 @@ class StudyConfig(Controller):
         False,
         desc="Parameter to control the log generation")
 
-    automatic_configuration = Bool(
-        False,
-        desc="If True, tries to automatically setup configuration on startup")
-
     def __init__(self, study_name=None, init_config=None, modules=None,
                  **override_config):
         """ Initilize the StudyConfig class
@@ -241,7 +237,7 @@ class StudyConfig(Controller):
 
     def run(self, process_or_pipeline, output_directory= None,
             executer_qc_nodes=True, verbose=1, **kwargs):
-        """ Method to execute a process or a pipline in a study configuration
+        """Method to execute a process or a pipline in a study configuration
          environment.
 
          Only pipeline nodes can be filtered on the 'executer_qc_nodes'
