@@ -19,6 +19,7 @@ install:
     - source activate testenv
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install ordereddict; fi
     - conda install --yes numpy scipy nose
+    - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then conda install --yes traits; else pip install traits; fi
     - svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/trunk /tmp/soma-base
     - python /tmp/soma-base/setup.py install
     # until we release soma-workflow 2.8
@@ -27,7 +28,7 @@ install:
     - python /tmp/soma-workflow/setup.py install
     - popd
     - pip install argparse
-    - pip install importlib
+    - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install importlib; fi
     - pip install nibabel
     - pip install nose-cov
     - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || pip install nipype==0.10.0
