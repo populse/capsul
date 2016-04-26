@@ -47,6 +47,7 @@ except ImportError:
 from soma.qt_gui.controller_widget import ScrollControllerWidget
 
 if sys.version_info[0] >= 3:
+    unicode = str
     def values(d):
         return list(d.values())
 else:

@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
 import logging
 import six
@@ -231,11 +233,11 @@ class Node(Controller):
             return name
         dest_plug = dest_node.plugs[dest_plug_name]
         #print >> open('/tmp/linklog.txt', 'a'), 'link_name:',  self, repr(self.name), ', prefix:', repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
-        print >> log_stream, 'value link:', \
+        print('value link:', \
             'from:', prefix + source_plug_name, \
             'to:', _link_name(dest_node, dest_plug, prefix, dest_plug_name,
                               self), \
-            ', value:', repr(value) #, 'self:', self, repr(self.name), ', prefix:',repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
+            ', value:', repr(value), file=log_stream) #, 'self:', self, repr(self.name), ', prefix:',repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
         log_stream.flush()
 
         # actually propagate

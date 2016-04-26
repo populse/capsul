@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
 import os
 import tempfile
@@ -49,7 +51,7 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
             record_file_s = tempfile.mkstemp()
             record_file = record_file_s[1]
             os.close(record_file_s[0])
-            print 'temporary record file:', record_file
+            print('temporary record file:', record_file)
             class AutoDeleteFile(object):
                 def __init__(self, record_file):
                     self.record_file = record_file
