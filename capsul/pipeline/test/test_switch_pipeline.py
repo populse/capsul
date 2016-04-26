@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 
+import sys
 import unittest
 import os
 from traits.api import Str, Float
@@ -201,7 +202,7 @@ def test():
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
 
-    if 0:
+    if '-v' in sys.argv:
         import sys
         from soma.qt_gui import qt_backend
         qt_backend.set_qt_backend('PyQt4')
