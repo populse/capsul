@@ -27,7 +27,11 @@ pkgdata = {
 }
 
 release_info = {}
-execfile(os.path.join("capsul", "info.py"), release_info)
+python_dir = os.path.dirname(__file__)
+with open(os.path.join(python_dir, "capsul", "info.py")) as f:
+    code = f.read()
+    exec(code, release_info)
+
 
 # Build the setup
 setup(
