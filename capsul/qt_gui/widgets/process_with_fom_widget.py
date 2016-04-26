@@ -1,4 +1,8 @@
+
+from __future__ import print_function
+
 import json
+import six
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.controller import Controller
@@ -109,11 +113,11 @@ class ProcessWithFomWidget(QtGui.QWidget):
         '''
         Input file path to guess FOM attributes changed: update FOM attributes
         '''
-        print 'set attributes from path:', text
+        print('set attributes from path:', text)
         try:
             self.process_with_fom.find_attributes(unicode(text))
-        except ValueError, e:
-            print e
+        except ValueError as e:
+            print(e)
             import traceback
             traceback.print_stack()
 
@@ -126,10 +130,10 @@ class ProcessWithFomWidget(QtGui.QWidget):
             'JSON files (*.json)')
         if filename is None:
             return
-        print 'load', filename
+        print('load', filename)
         attributes = json.load(open(filename))
-        print "loaded:", attributes
-        for att, value in attributes.iteritems():
+        print("loaded:", attributes)
+        for att, value in six.iteritems(attributes):
             if att in self.process_with_fom.attributes:
                 setattr(self.process_with_fom, att, value)
 
@@ -159,19 +163,19 @@ class ProcessWithFomWidget(QtGui.QWidget):
             try:
                 # WARNING: is it necessary to reset all this ?
                 # create_completion() will do the job anyway ?
-                #for name, trait in process.user_traits().iteritems():
+                #for name, trait in six.iteritems(process.user_traits()):
                     #if trait.is_trait_type(File) \
                             #or trait.is_trait_type(Directory):
                         #setattr(process,name, Undefined)
                 self.process_with_fom.create_completion()
 
-                print self.process_with_fom.attributes
+                print(self.process_with_fom.attributes)
                 if self.input_filename_controller.attributes_from_input_filename \
                         != '':
                     self.process_with_fom.find_attributes(
                         self.input_filename_controller.attributes_from_input_filename)
-            except Exception, e:
-                print e
+            except Exception as e:
+                print(e)
                 import traceback
                 traceback.print_stack()
             self.attrib_widget.show()
@@ -210,7 +214,8 @@ class ProcessWithFomWidget(QtGui.QWidget):
         '''
 
         for control_name, control in \
-                self.controller_widget.controller_widget._controls.iteritems():
+                six.iteritems(
+                    self.controller_widget.controller_widget._controls):
             trait, control_class, control_instance, control_label = control
             if not isinstance(trait.trait_type, File) \
                     and not isinstance(trait.trait_type, Any) \
