@@ -18,7 +18,7 @@ install:
     - conda create -n testenv --yes pip python=$TRAVIS_PYTHON_VERSION
     - source activate testenv
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install ordereddict; fi
-    - conda install --yes numpy scipy nose traits
+    - conda install --yes numpy scipy nose
     - svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/trunk /tmp/soma-base
     - python /tmp/soma-base/setup.py install
     # until we release soma-workflow 2.8
