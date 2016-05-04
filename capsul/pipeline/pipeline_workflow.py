@@ -238,7 +238,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         # check for special modified paths in parameters
         input_replaced_paths = []
         output_replaced_paths = []
-        for param_name, parameter in process.user_traits().iteritems():
+        for param_name, parameter in six.iteritems(process.user_traits()):
             if param_name not in ('nodes_activation', 'selection_changed'):
                 value = getattr(process, param_name)
                 if isinstance(value, TempFile):

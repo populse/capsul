@@ -258,7 +258,7 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
         if node_name != '':
             nodes.append((id, node_name, node_props))
         has_inputs = False
-        for plug_name, plug in node.plugs.iteritems():
+        for plug_name, plug in six.iteritems(node.plugs):
             if (plug.output and node_name != '') \
                     or (not plug.output and node_name == ''):
                 if node_name == '':

@@ -6,11 +6,14 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
+
 # System import
 import os
 import re
 import logging
 import tempfile
+import six
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -124,7 +127,7 @@ class ActivationInspector(QtGui.QWidget):
             record_file_s = tempfile.mkstemp()
             record_file = record_file_s[1]
             os.close(record_file_s[0])
-            print 'temporary record file:', record_file
+            print('temporary record file:', record_file)
             class AutoDeleteFile(object):
                 def __init__(self, record_file):
                     self.record_file = record_file
@@ -183,7 +186,7 @@ class ActivationInspector(QtGui.QWidget):
         error_message = "{0} has no attribute '{1}'"
 
         # Got through the class dynamic controls
-        for control_type, control_item in self.controls.iteritems():
+        for control_type, control_item in six.iteritems(self.controls):
 
             # Get the dynamic control name
             for control_name in control_item:
@@ -247,11 +250,11 @@ class ActivationInspector(QtGui.QWidget):
                 # > Add a line to the activation display
                 self.ui.events.addItem("{0} {1}:{2}".format(
                     activation, node, plug))
-    
+
             # Select the last activation step so the pipeline will be
             # in his final configuration
             self.ui.events.setCurrentRow(self.ui.events.count() - 1)
-    
+
     def update_pipeline_activation(self, index):
         """ Method that is used to replay the activation step by step.
 
@@ -266,11 +269,11 @@ class ActivationInspector(QtGui.QWidget):
 
             # Restore the plugs and nodes activations
             node_name = node.full_name
-            for plug_name, plug in node.plugs.iteritems():
+            for plug_name, plug in six.iteritems(node.plugs):
                 plug.activated = activations.get(
                     "{0}:{1}".format(node_name, plug_name), False)
             node.activated = activations.get("{0}:".format(node_name), False)
-        
+
         # Refresh views relying on plugs and nodes selection
         for node in self.pipeline.all_nodes():
             if isinstance(node, PipelineNode):

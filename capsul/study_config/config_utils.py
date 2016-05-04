@@ -58,7 +58,7 @@ def environment(sh_file=None, env={}):
         if match:
             name, value = match.groups()
             if name != "PWD":
-                environment[name] = value
+                environment[name] = str(value)
 
     # Debug message
     logger.debug("Parsed FSL environement: {0}.".format(environment))

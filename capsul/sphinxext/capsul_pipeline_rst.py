@@ -9,6 +9,8 @@
 """ Script to auto-generate pipeline rst documentation.
 """
 
+from __future__ import print_function
+
 # System import
 import os
 from optparse import OptionParser
@@ -110,7 +112,7 @@ for sorted_modules, dtype in ([sorted_pipelines, "pipeline"],
         # makefile
         short_name = docwriter.get_short_name(module_name)
         outdir = os.path.join(base_outdir, short_name, dtype)
-        print 'short name:', short_name, ', outdir:', outdir
+        print('short name:', short_name, ', outdir:', outdir)
 
         docwriter.write_api_docs(outdir)
 
@@ -143,7 +145,7 @@ for module_name in modules:
     # Where the index will be written: a relative path from the makefile
     short_name = docwriter.get_short_name(module_name)
     outdir = os.path.join(base_outdir, short_name)
-    print 'short name:', short_name, ', outdir:', outdir
+    print('short name:', short_name, ', outdir:', outdir)
 
     docwriter.write_main_index(outdir, module_name, options.module)
     logger.info("Index: an index has been written for module '{0}' at "

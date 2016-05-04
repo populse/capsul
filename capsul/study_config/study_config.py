@@ -23,7 +23,7 @@ else:
 logger = logging.getLogger(__name__)
 
 # Trait import
-from traits.api import Directory, Bool, String, Undefined
+from traits.api import File, Directory, Bool, String, Undefined
 
 # Soma import
 from soma.controller import Controller
@@ -80,6 +80,9 @@ class StudyConfig(Controller):
         parameter to set the study output directory
     `generate_logging` : bool (default False)
         parameter to control the log generation
+    `create_output_directories` : bool (default True)
+        Create parent directories of all output File or Directory before
+        running a process
 
     Methods
     -------
@@ -116,9 +119,9 @@ class StudyConfig(Controller):
         False,
         desc="Parameter to control the log generation")
 
-    automatic_configuration = Bool(
-        False,
-        desc="If True, tries to automatically setup configuration on startup")
+    create_output_directories = Bool(
+        True,
+        desc="Create parent directories of all output File or Directory before running a process")
 
     def __init__(self, study_name=None, init_config=None, modules=None,
                  **override_config):
@@ -241,7 +244,7 @@ class StudyConfig(Controller):
 
     def run(self, process_or_pipeline, output_directory= None,
             executer_qc_nodes=True, verbose=1, **kwargs):
-        """ Method to execute a process or a pipline in a study configuration
+        """Method to execute a process or a pipline in a study configuration
          environment.
 
          Only pipeline nodes can be filtered on the 'executer_qc_nodes'
@@ -263,6 +266,16 @@ class StudyConfig(Controller):
         verbose: int
             if different from zero, print console messages.
         """
+        
+        if self.create_output_directories:
+            for name, trait in process_or_pipeline.user_traits().items():
+                if trait.output and isinstance(trait.handler, (File, Directory)):
+                    value = getattr(process_or_pipeline, name)
+                    if value is not Undefined and value:
+                        base = os.path.dirname(value)
+                        if not os.path.exists(base):
+                            os.makedirs(base)
+                            
         # Use soma worflow to execute the pipeline or porcess in parallel
         # on the local machine
         if self.get_trait_value("use_soma_workflow"):

@@ -13,6 +13,7 @@ import tempfile
 import os
 import sys
 import shutil
+import six
 
 # Capsul import
 from capsul.api import Process
@@ -124,13 +125,13 @@ class TestLoadFromDescription(unittest.TestCase):
         pipeline2 = get_process_instance("pipeline_mod.test_pipeline")
         self.assertEqual(sorted(pipeline1.nodes.keys()),
                          sorted(pipeline2.nodes.keys()))
-        for node_name, node1 in pipeline1.nodes.iteritems():
+        for node_name, node1 in six.iteritems(pipeline1.nodes):
             node2 = pipeline2.nodes[node_name]
             self.assertEqual(node1.enabled, node2.enabled)
             self.assertEqual(node1.activated, node2.activated)
             self.assertEqual(sorted(node1.plugs.keys()),
                              sorted(node2.plugs.keys()))
-            for plug_name, plug1 in node1.plugs.iteritems():
+            for plug_name, plug1 in six.iteritems(node1.plugs):
                 plug2 = node2.plugs[plug_name]
                 self.assertEqual(len(plug1.links_from),
                                  len(plug2.links_from))

@@ -2,6 +2,8 @@
 
 """
 
+from __future__ import print_function
+
 import inspect
 import textwrap
 import re
@@ -377,7 +379,7 @@ class NumpyDocString(object):
         idx = self['index']
         out = []
         out += ['.. index:: %s' % idx.get('default', '')]
-        for section, references in idx.iteritems():
+        for section, references in six.iteritems(idx):
             if section == 'default':
                 continue
             out += ['   :%s: %s' % (section, ', '.join(references))]
@@ -459,7 +461,7 @@ class FunctionDoc(NumpyDocString):
 
         if self._role:
             if not roles.has_key(self._role):
-                print "Warning: invalid role %s" % self._role
+                print("Warning: invalid role %s" % self._role)
             out += '.. %s:: %s\n    \n\n' % (roles.get(self._role, ''),
                                              func_name)
 
