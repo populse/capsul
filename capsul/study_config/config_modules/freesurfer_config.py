@@ -8,6 +8,7 @@
 
 # System import
 import os
+import six
 
 # Trait import
 from traits.api import File, Bool, Undefined
@@ -74,7 +75,7 @@ class FreeSurferConfig(StudyConfigModule):
                 envfs = environment(fs_config_file, env)
 
                 # Set the fs environment
-                for envname, envval in envfs.iteritems():
+                for envname, envval in six.iteritems(envfs):
                     if envname in os.environ:
                         if envname.startswith(("FS", "FREESURFER")):
                             os.environ[envname] = envval

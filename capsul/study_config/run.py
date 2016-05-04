@@ -9,6 +9,7 @@
 # System import
 import os
 import logging
+import six
 
 # CAPSUL import
 from capsul.study_config.memory import Memory
@@ -79,7 +80,7 @@ def run_process(output_dir, process_instance, cachedir=None,
         # Execute the proxy process
         returncode = proxy_instance(**kwargs)
     else:
-        for k, v in kwargs.iteritems():
+        for k, v in six.iteritems(kwargs):
             setattr(process_instance, k, v)
         returncode = process_instance._run_process()
 

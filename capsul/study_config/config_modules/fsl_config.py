@@ -7,6 +7,7 @@
 ##########################################################################
 
 import os
+import six
 from traits.api import File, Bool, Undefined
 from capsul.study_config.config_utils import environment
 from capsul.study_config.study_config import StudyConfigModule
@@ -52,7 +53,7 @@ class FSLConfig(StudyConfigModule):
             envfsl = environment(fsl_config_file)
             if (envfsl["FSLDIR"] != os.environ.get("FSLDIR", "")):
                 # Set the fsl environment
-                for envname, envval in envfsl.iteritems():
+                for envname, envval in six.iteritems(envfsl):
                     if envname in os.environ:
                         if envname.startswith("FSL"):
                             os.environ[envname] = envval
