@@ -81,8 +81,7 @@ class TestRunProcess(unittest.TestCase):
             self.assertEqual(process.res, param[0] * param[1])
             self.assertEqual(
                 process.output_directory,
-                os.path.join(self.output_directory, "{0}-{1}".format(
-                    self.study_config.process_counter - 1, process.name)))
+                self.output_directory)
 
 
 def test():

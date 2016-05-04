@@ -31,7 +31,6 @@ from traits.trait_handlers import BaseTraitHandler
 # Soma import
 from soma.controller import Controller
 from soma.controller import trait_ids
-from soma.utils import LateBindingProperty
 from soma.controller.trait_utils import is_trait_value_defined
 from soma.controller.trait_utils import is_trait_pathname
 from soma.controller.trait_utils import get_trait_desc
@@ -245,7 +244,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 self.set_parameter(arg_name, arg_val)
 
         # Execute the process
-        returncode = self._run_process()
+        returncode = self.run()
 
         # Set the execution stop time in the execution report
         runtime["end_time"] = datetime.isoformat(datetime.utcnow())
@@ -764,9 +763,14 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         """
         return getattr(self, name)
 
-    run = LateBindingProperty(
-        _run_process, None, None,
-        "Processing method that has to be defined in derived classes")
+    def run(self, *args, **kwargs):
+        """Shortcut to default_study_config().run()"""
+        # Import cannot be done on module due to circular dependencies
+        from capsul.study_config import default_study_config
+        output_directory = getattr(self, 'output_directory', Undefined)
+        return default_study_config().run(self, *args, 
+                                          output_directory=output_directory,
+                                          **kwargs)
 
 
 class FileCopyProcess(Process):
@@ -1177,8 +1181,6 @@ class NipypeProcess(FileCopyProcess):
         from .nipype_process import nipype_factory
         cls_instance = nipype_factory(nipype_interface)
         return cls_instance.get_help(returnhelp)
-
-    run = property(_run_process)
 
 
 class ProcessResult(object):

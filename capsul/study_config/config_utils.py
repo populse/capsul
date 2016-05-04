@@ -50,7 +50,7 @@ def environment(sh_file=None, env={}):
     # Parse the output : each line should be of the form
     # 'VARIABLE_NAME=value'
     environment = {}
-    for line in stdout.split(os.linesep):
+    for line in stdout.decode().split(os.linesep):
         if line.startswith("export"):
             line = line.replace("export ", "")
             line = line.replace("'", "")
