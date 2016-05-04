@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_process(output_dir, process_instance, cachedir=None,
-                generate_logging=False, verbose=1, **kwargs):
+                generate_logging=False, verbose=0, **kwargs):
     """ Execute a capsul process in a specific directory.
 
     Parameters
@@ -45,13 +45,13 @@ def run_process(output_dir, process_instance, cachedir=None,
     output_log_file: str
         the path to the process execution log file.
     """
-    # Guarantee that the output directory exists
-    if not os.path.isdir(output_dir):
-        os.makedirs(output_dir)
-
     # Update the output directory folder if necessary
     if output_dir is Undefined:
         output_dir = os.getcwd()
+
+    # Guarantee that the output directory exists
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
 
     # Set the current directory directory if necessary
     if hasattr(process_instance, "_nipype_interface"):
@@ -71,12 +71,17 @@ def run_process(output_dir, process_instance, cachedir=None,
             os.path.dirname(output_dir) + ".json")
         process_instance.log_file = output_log_file
 
-    # Create a memory object
-    mem = Memory(cachedir)
-    proxy_instance = mem.cache(process_instance, verbose=verbose)
+    if cachedir:
+        # Create a memory object
+        mem = Memory(cachedir)
+        proxy_instance = mem.cache(process_instance, verbose=verbose)
 
-    # Execute the proxy process
-    returncode = proxy_instance(**kwargs)
+        # Execute the proxy process
+        returncode = proxy_instance(**kwargs)
+    else:
+        for k, v in kwargs.iteritems():
+            setattr(process_instance, k, v)
+        returncode = process_instance._run_process()
 
     # Save the process log
     if generate_logging:

@@ -239,8 +239,8 @@ class StudyConfig(Controller):
             self.modules[config_module_name] = module
             return module
 
-    def run(self, process_or_pipeline, executer_qc_nodes=True, verbose=1,
-            **kwargs):
+    def run(self, process_or_pipeline, output_directory= None,
+            executer_qc_nodes=True, verbose=1, **kwargs):
         """ Method to execute a process or a pipline in a study configuration
          environment.
 
@@ -254,6 +254,9 @@ class StudyConfig(Controller):
         ----------
         process_or_pipeline: Process or Pipeline instance (mandatory)
             the process or pipeline we want to execute
+        output_directory: Directory name (optional)
+            the output directory to use for process execution. This replaces
+            self.output_directory but left it unchanged.
         execute_qc_nodes: bool (optional, default False)
             if True execute process nodes that are taged as qualtity control
             process nodes.
@@ -290,55 +293,80 @@ class StudyConfig(Controller):
 
         # Use the local machine to execute the pipeline or process
         else:
+            if output_directory is None:
+                output_directory = self.output_directory
+            # Not all processes need an output_directory defined on
+            # StudyConfig
+            if output_directory is not Undefined:
+                # Check the output directory is valid
+                if not isinstance(output_directory, basestring):
+                    raise ValueError(
+                        "'{0}' is not a valid directory. A valid output "
+                        "directory is expected to run the process or "
+                        "pipeline.".format(output_directory))
+                try:
+                    if not os.path.isdir(output_directory):
+                        os.makedirs(output_directory)
+                except:
+                    raise ValueError(
+                        "Can't create folder '{0}', please investigate.".format(
+                            output_directory))
 
-            # Check the output directory is valid
-            if (self.output_directory is Undefined or
-                    not isinstance(self.output_directory, basestring)):
-                raise ValueError(
-                    "'{0}' is not a valid directory. A valid output "
-                    "directory is expected to run the process or "
-                    "pipeline.".format(self.output_directory))
+            # Temporary files can be generated for pipelines
+            temporary_files = []
             try:
-                if not os.path.isdir(self.output_directory):
-                    os.makedirs(self.output_directory)
-            except:
-                raise ValueError(
-                    "Can't create folder '{0}', please investigate.".format(
-                        self.output_directory))
-
-            # Generate ordered execution list
-            execution_list = []
-            if isinstance(process_or_pipeline, Pipeline):
-                execution_list = process_or_pipeline.workflow_ordered_nodes()
-                # Filter process nodes if necessary
-                if not executer_qc_nodes:
-                    execution_list = [node for node in execution_list
-                                      if node.node_type != "view_node"]
-            elif isinstance(process_or_pipeline, Process):
-                execution_list.append(process_or_pipeline)
-            else:
-                raise Exception(
-                    "Unknown instance type. Got {0}and expect Process or "
-                    "Pipeline instances".format(
-                        process_or_pipeline.__module__.name__))
-
-            # Execute each process node element
-            for process_node in execution_list:
-                # Execute the process instance contained in the node
-                if isinstance(process_node, Node):
-                    self._run(process_node.process, verbose, **kwargs)
-
-                # Execute the process instance
+                # Generate ordered execution list
+                execution_list = []
+                if isinstance(process_or_pipeline, Pipeline):
+                    execution_list = \
+                        process_or_pipeline.workflow_ordered_nodes()
+                    # Filter process nodes if necessary
+                    if not executer_qc_nodes:
+                        execution_list = [node for node in execution_list
+                                        if node.node_type != "view_node"]
+                    for node in execution_list:
+                        # check temporary outputs and allocate files
+                        process_or_pipeline._check_temporary_files_for_node(
+                            node, temporary_files)
+                elif isinstance(process_or_pipeline, Process):
+                    execution_list.append(process_or_pipeline)
                 else:
-                    self._run(process_node, verbose, **kwargs)
+                    raise Exception(
+                        "Unknown instance type. Got {0}and expect Process or "
+                        "Pipeline instances".format(
+                            process_or_pipeline.__module__.name__))
 
-    def _run(self, process_instance, verbose, **kwargs):
+                # Execute each process node element
+                for process_node in execution_list:
+                    # Execute the process instance contained in the node
+                    if isinstance(process_node, Node):
+                        result = self._run(process_node.process, 
+                                           output_directory, 
+                                           verbose, **kwargs)
+
+                    # Execute the process instance
+                    else:
+                        result = self._run(process_node, output_directory,
+                                           verbose, **kwargs)
+            finally:
+                # Destroy temporary files
+                if temporary_files:
+                    # If temporary files have been created, we are sure that
+                    # process_or_pipeline is a pipeline with a method
+                    # _free_temporary_files.
+                    process_or_pipeline._free_temporary_files(temporary_files)
+            return result
+
+    def _run(self, process_instance, output_directory, verbose, **kwargs):
         """ Method to execute a process in a study configuration environment.
 
         Parameters
         ----------
         process_instance: Process instance (mandatory)
             the process we want to execute
+        output_directory: Directory name (optional)
+            the output directory to use for process execution. This replaces
+            self.output_directory but left it unchanged.
         verbose: int
             if different from zero, print console messages.
         """
@@ -347,15 +375,12 @@ class StudyConfig(Controller):
             process_instance.id))
 
         # Run
-        destination_folder = os.path.join(
-            self.output_directory,
-            "{0}-{1}".format(self.process_counter, process_instance.name))
         if self.get_trait_value("use_smart_caching") in [None, False]:
             cachedir = None
         else:
-            cachedir = self.output_directory
+            cachedir = output_directory
         returncode, log_file = run_process(
-            destination_folder,
+            output_directory,
             process_instance,
             cachedir,
             self.generate_logging,
@@ -587,6 +612,19 @@ class StudyConfig(Controller):
         else:
             return None
 
+_default_study_config = None
+def default_study_config():
+    """
+    On the first call create a StudyConfig instance with defaut configuration
+    (eventualy reading configuration files). Then returns this instance on all
+    subsequent calls.
+    """
+    global _default_study_config
+    if _default_study_config is None:
+        _default_study_config = StudyConfig()
+    return _default_study_config
+
+    
 
 class StudyConfigModule(object):
     @property

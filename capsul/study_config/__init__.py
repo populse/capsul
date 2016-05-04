@@ -6,4 +6,4 @@
 # for details.
 ##########################################################################
 
-from .study_config import StudyConfig
+from study_config import StudyConfig, default_study_config

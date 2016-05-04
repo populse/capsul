@@ -1324,37 +1324,12 @@ class Pipeline(Process):
                     pass
 
     def _run_process(self):
-        """ Execution of the pipeline.
-
-        Since  no study configuration are set, execute the pipeline in a
-        sequential order, single-processor mode.
-
-        Returns
-        -------
-        returned: list
-            the execution return results of each node in the worflow
-        """
-        # Get all the process nodes to execute
-        nodes_list = self.workflow_ordered_nodes()
-        temp_files = []
-
-        try:
-            # Go through all process nodes
-            returned = []
-            for node in nodes_list:
-
-                # check temporary outputs and allocate files
-                self._check_temporary_files_for_node(node, temp_files)
-
-                # Execute the process contained in the node
-                node_ret = node.process()
-                returned.append(node_ret)
-
-        finally:
-            # delete and reset temp files
-            self._free_temporary_files(temp_files)
-
-        return returned
+        '''
+        Pipeline execution is managed by StudyConfig class.
+        This method must not be called.
+        '''
+        raise NotImplementedError('Pipeline execution is managed by '
+            'StudyConfig class. This method must not be called.')
 
     def find_empty_parameters(self):
         """ Find internal File/Directory parameters not exported to the main
