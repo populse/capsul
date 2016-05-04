@@ -6,6 +6,7 @@
 # for details.
 ##########################################################################
 
+from __future__ import print_function
 from __future__ import absolute_import
 
 # System import
@@ -74,7 +75,7 @@ class Pipeline(Process):
     :py:meth:`add_process` or stored in the pipeline instance).
 
     >>> pipeline = MyPipeline()
-    >>> print pipeline.proc1_input
+    >>> print(pipeline.proc1_input)
     <undefined>
 
     **Nodes**
@@ -964,7 +965,7 @@ class Pipeline(Process):
         debug = getattr(self, '_debug_activations', None)
         if debug:
             debug = open(debug, 'w')
-            print >> debug, self.id
+            print(self.id, file=debug)
 
         # Remember all links that are inactive (i.e. at least one of the two
         # plugs is inactive) in order to execute a callback if they become
@@ -995,15 +996,16 @@ class Pipeline(Process):
                 node_activated = node.activated
                 for plug_name, plug in self._check_local_node_activation(node):
                     if debug:
-                        print >> debug, '%d+%s:%s' % (
-                            iteration, node.full_name, plug_name)
+                        print('%d+%s:%s' % (
+                            iteration, node.full_name, plug_name), file=debug)
                     for nn, pn, n, p, weak_link in \
                             plug.links_to.union(plug.links_from):
                         if not weak_link and p.enabled:
                             new_nodes_to_check.add(n)
                 if (not node_activated) and node.activated:
                     if debug:
-                        print >> debug, '%d+%s' % (iteration, node.full_name)
+                        print('%d+%s' % (iteration, node.full_name),
+                              file=debug)
             nodes_to_check = new_nodes_to_check
             iteration += 1
 
@@ -1021,8 +1023,9 @@ class Pipeline(Process):
                 if test:
                     for plug_name, plug in test:
                         if debug:
-                            print >> debug, '%d-%s:%s' % (
-                                iteration, node.full_name, plug_name)
+                            print('%d-%s:%s' % (
+                                iteration, node.full_name, plug_name),
+                                file=debug)
                         for nn, pn, n, p, weak_link in \
                                 plug.links_from.union(plug.links_to):
                             if p.activated:
@@ -1032,14 +1035,15 @@ class Pipeline(Process):
                         # of all plugs that are still active and propagate
                         # this deactivation to neighbours
                         if node_activated and debug:
-                            print >> debug, '%d-%s' % (
-                                iteration, node.full_name)
+                            print('%d-%s' % (
+                                iteration, node.full_name), file=debug)
                         for plug_name, plug in six.iteritems(node.plugs):
                             if plug.activated:
                                 plug.activated = False
                                 if debug:
-                                    print >> debug, '%d=%s:%s' % (
-                                        iteration, node.full_name, plug_name)
+                                    print('%d=%s:%s' % (
+                                        iteration, node.full_name, plug_name),
+                                        file=debug)
                                 for nn, pn, n, p, weak_link in \
                                         plug.links_from.union(plug.links_to):
                                     if p.activated:
@@ -1747,7 +1751,7 @@ class Pipeline(Process):
                 'hemispheres_split']
             pipeline.define_pipeline_steps(steps)
 
-        >>> print pipeline.pipeline_steps.preprocessings
+        >>> print(pipeline.pipeline_steps.preprocessings)
         True
 
         >>> pipeline.pipeline_steps.brain_extraction = False

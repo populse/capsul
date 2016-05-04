@@ -12,6 +12,7 @@ import os
 import types
 import logging
 import traceback
+import six
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -162,7 +163,7 @@ def nipype_factory(nipype_instance):
                                   _nipype_interface._list_outputs())
 
                 # Synchronize traits: check file existance
-                for out_name, out_value in nipype_outputs.iteritems():
+                for out_name, out_value in six.iteritems(nipype_outputs):
 
                     # Get trait type
                     trait_type = trait_ids(

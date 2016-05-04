@@ -8,6 +8,7 @@
 
 # System import
 import logging
+import six
 
 # Soma import
 from soma.qt_gui.qt_backend import QtGui, QtCore
@@ -63,7 +64,7 @@ class ViewerWidget(QtGui.QWidget):
         # And check if the viewer is active (ie dependencies
         # are specified -> corresponding process have run)
         is_viewer_active = True
-        for plug_name, plug in viewer_node.plugs.iteritems():
+        for plug_name, plug in six.iteritems(viewer_node.plugs):
 
             if plug_name in ["nodes_activation", "selection_changed"]:
                 continue

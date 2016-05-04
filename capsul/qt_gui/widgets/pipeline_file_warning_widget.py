@@ -7,6 +7,7 @@
 ##########################################################################
 
 # System import
+import six
 from soma.qt_gui.qt_backend import QtCore, QtGui
 try:
     import traits.api as traits
@@ -69,12 +70,12 @@ class PipelineFileWarningWidget(QtGui.QSplitter):
             table = QtGui.QTableWidget()
             layout1.addWidget(table)
             table.setColumnCount(3)
-            sizes = [len(l) for node, l in missing_inputs.iteritems()]
+            sizes = [len(l) for node, l in six.iteritems(missing_inputs)]
             table.setRowCount(sum(sizes))
             table.setHorizontalHeaderLabels(
                 ['node', 'parameter', 'filename'])
             row = 0
-            for node_name, items in missing_inputs.iteritems():
+            for node_name, items in six.iteritems(missing_inputs):
                 for param_name, file_name in items:
                     if not file_name or file_name is traits.Undefined:
                         file_name = '<temp. file>'
@@ -99,12 +100,12 @@ class PipelineFileWarningWidget(QtGui.QSplitter):
             table = QtGui.QTableWidget()
             layout2.addWidget(table)
             table.setColumnCount(3)
-            sizes = [len(l) for node, l in overwritten_outputs.iteritems()]
+            sizes = [len(l) for node, l in six.iteritems(overwritten_outputs)]
             table.setRowCount(sum(sizes))
             table.setHorizontalHeaderLabels(
                 ['node', 'parameter', 'filename'])
             row = 0
-            for node_name, items in overwritten_outputs.iteritems():
+            for node_name, items in six.iteritems(overwritten_outputs):
                 for param_name, file_name in items:
                     if not file_name or file_name is traits.Undefined:
                         file_name = '<temp. file>'

@@ -8,8 +8,9 @@
 
 # System import
 import unittest
+import six
 
-# Nipype impoort
+# Nipype import
 try:
     import nipype.interfaces.spm as spm
 except ImportError:
@@ -92,7 +93,7 @@ class TestUtils(unittest.TestCase):
                                "traits.Float())")
         }
         i = spm.Level1Design()
-        for field, result in to_test_fields.iteritems():
+        for field, result in six.iteritems(to_test_fields):
 
             # Test to build the trait expression
             trait = i.inputs.trait(field)
@@ -120,7 +121,7 @@ class TestUtils(unittest.TestCase):
             "use_derivs": "traits.Bool()"
         }
         i = spm.EstimateContrast()
-        for field, result in to_test_fields.iteritems():
+        for field, result in six.iteritems(to_test_fields):
 
             # Test to build the trait expression
             trait = i.inputs.trait(field)
