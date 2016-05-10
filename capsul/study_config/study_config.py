@@ -401,6 +401,8 @@ class StudyConfig(Controller):
 
         # Increment the number of executed process count
         self.process_counter += 1
+        return returncode
+    
 
     def reset_process_counter(self):
         """ Method to reset the process counter to one.
