@@ -213,6 +213,9 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         results:  ProcessResult object
             contains all execution information.
         """
+        # Import cannot be done on module due to circular dependencies
+        from capsul.study_config import default_study_config
+        
         # Get the process class
         process = self.__class__
 
@@ -227,24 +230,11 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             "hostname": getfqdn(),
         }
 
-        # Set process parameters if extra arguments are passed
-        if kwargs:
-
-            # Go through all the extra parameters
-            for arg_name, arg_val in six.iteritems(kwargs):
-
-                # If the extra parameter name does not match with a user
-                # trait paameter name, raise a TypeError
-                if arg_name not in self.user_traits():
-                    raise TypeError(
-                        "Process __call__ got an unexpected keyword "
-                        "argument '{0}'".format(arg_name))
-
-                # Set the extra parameter value
-                self.set_parameter(arg_name, arg_val)
-
         # Execute the process
-        returncode = self.run()
+        output_directory = getattr(self, 'output_directory', Undefined)
+        returncode = default_study_config().run(self,
+                                            output_directory=output_directory,
+                                            **kwargs)
 
         # Set the execution stop time in the execution report
         runtime["end_time"] = datetime.isoformat(datetime.utcnow())
@@ -259,6 +249,14 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         return results
 
+
+    def run(self, **kwargs):
+        '''
+        Obsolete: use self.__call__ instead
+        '''
+        return self.__call__(**kwargs)
+
+    
     ####################################################################
     # Private methods
     ####################################################################
@@ -762,15 +760,6 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             the trait value we want to access
         """
         return getattr(self, name)
-
-    def run(self, *args, **kwargs):
-        """Shortcut to default_study_config().run()"""
-        # Import cannot be done on module due to circular dependencies
-        from capsul.study_config import default_study_config
-        output_directory = getattr(self, 'output_directory', Undefined)
-        return default_study_config().run(self, *args, 
-                                          output_directory=output_directory,
-                                          **kwargs)
 
 
 class FileCopyProcess(Process):

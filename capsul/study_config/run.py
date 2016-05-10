@@ -72,6 +72,15 @@ def run_process(output_dir, process_instance, cachedir=None,
             os.path.dirname(output_dir) + ".json")
         process_instance.log_file = output_log_file
 
+    # Check extra parameters name
+    for arg_name in kwargs:
+        # If the extra parameter name does not match with a user
+        # trait parameter name, raise a AttributeError
+        if arg_name not in process_instance.user_traits():
+            raise AttributeError(
+                "execution of process {0} got an unexpected keyword "
+                "argument '{1}'".format(process_instance, arg_name))
+
     if cachedir:
         # Create a memory object
         mem = Memory(cachedir)
