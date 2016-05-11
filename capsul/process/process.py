@@ -998,7 +998,10 @@ class NipypeProcess(FileCopyProcess):
         self._nipype_interface = nipype_instance
         self._nipype_module = nipype_instance.__class__.__module__
         self._nipype_class = nipype_instance.__class__.__name__
-        self._nipype_interface_name = self._nipype_module.split(".")[2]
+        if self._nipype_module.startswith('nipype.interfaces.'):
+            self._nipype_interface_name = self._nipype_module.split(".")[2]
+        else:
+            self._nipype_interface_name = 'custom'
 
         # Inheritance: activate input files copy for spm interfaces.
         if self._nipype_interface_name == "spm":

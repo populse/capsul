@@ -76,8 +76,8 @@ def nipype_factory(nipype_instance):
         from nipype.interfaces.spm import Level1Design
         return super(Level1Design, self)._make_matlab_command(
             content, postscript=None)
-    if (nipype_instance.__class__.__module__.split(".")[2] == "spm" and
-       nipype_instance.__class__.__name__ == "Level1Design"):
+    if (nipype_instance.__class__.__module__.startswith('nipype.interfaces.spm.')
+        and nipype_instance.__class__.__name__ == "Level1Design"):
         nipype_instance._make_matlab_command = types.MethodType(
             _make_matlab_command, nipype_instance)
 
