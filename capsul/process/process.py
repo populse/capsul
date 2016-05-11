@@ -1088,7 +1088,7 @@ class NipypeProcess(FileCopyProcess):
         # Do nothing specific
         else:
             results = super(NipypeProcess, self).__call__(**kwargs)
-
+        
         # For spm, need to move the batch
         # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)
         if self._nipype_interface_name == "spm":
@@ -1112,10 +1112,12 @@ class NipypeProcess(FileCopyProcess):
 
         # Set the nipype outputs to the execution report
         outputs = dict(
-            ("_" + x[0], self._nipype_interface._list_outputs()[x[0]])
+            ("_" + x[0], (self._nipype_interface._list_outputs()[x[0]] if x[1] is Undefined else x[1]))
             for x in six.iteritems(returncode.outputs.get()))
+        for k, v in six.iteritems(outputs):
+            setattr(self, k, v)
         results.outputs = outputs
-
+        
         # Restore cwd
         os.chdir(cwd)
 
