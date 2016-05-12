@@ -284,8 +284,8 @@ class TestLoadFromDescription(unittest.TestCase):
         self.assertEqual(process.quotient, 14)
         self.assertEqual(process.remainder, 0)
         
-        a = range(40, 50)
-        b = range(10, 21)
+        a = list(range(40, 50))
+        b = list(range(10, 21))
         quotients = [int(i / j) for i, j in zip(range(40, 50), range(10, 21))]
         remainders = [i % j for i, j in zip(range(40, 50), range(10, 21))]
         
