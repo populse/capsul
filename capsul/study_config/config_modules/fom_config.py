@@ -45,8 +45,11 @@ class FomConfig(StudyConfigModule):
         self.study_config.input_fom = ""
         self.study_config.output_fom = ""
         self.study_config.shared_fom = ""
-        
-            
+
+        # initialize ProcessWithFom factory
+        import capsul.process.process_with_fom
+
+
     def initialize_module(self):
         '''Load configured FOMs and create FOM completion data in
         self.study_config.modules_data

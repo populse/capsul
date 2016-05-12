@@ -11,22 +11,22 @@ from soma.qt_gui.controller_widget \
 from traits.api import File, HasTraits, Any, Directory, Undefined
 
 
-class ProcessWithFomWidget(QtGui.QWidget):
+class AttributedProcessWidget(QtGui.QWidget):
     """Process interface with FOM handling, and execution running"""
-    def __init__(self, process_with_fom, enable_attr_from_filename=False,
+    def __init__(self, attributed_process, enable_attr_from_filename=False,
                  enable_load_buttons=False):
         """
         Parameters
         ----------
-        process_with_fom: ProcessWithFom instance
+        attributed_process: ProcessWithFom instance
             process with FOM to be displayed
         enable_attr_from_filename: bool (optional)
             if enabled, it will be possible to specify an input filename to
             build FOM attributes from
         """
-        super(ProcessWithFomWidget, self).__init__()
+        super(AttributedProcessWidget, self).__init__()
         self.setLayout(QtGui.QVBoxLayout())
-        self.process_with_fom = process_with_fom
+        self.attributed_process = attributed_process
 
         if enable_attr_from_filename:
             c = Controller()
@@ -39,8 +39,8 @@ class ProcessWithFomWidget(QtGui.QWidget):
             cw.setSizePolicy(QtGui.QSizePolicy.Expanding,
                              QtGui.QSizePolicy.Fixed)
 
-            #if self.process_with_fom.study_config.input_fom \
-                    #!= self.process_with_fom.study_config.output_fom:
+            #if self.attributed_process.study_config.input_fom \
+                    #!= self.attributed_process.study_config.output_fom:
                 #c.add_trait('attributes_from_output_filename', File())
                 #c.on_trait_change(self.on_input_filename_changed,
                                   #'attributes_from_output_filename')
@@ -78,14 +78,15 @@ class ProcessWithFomWidget(QtGui.QWidget):
                                    QtGui.QSizePolicy.Expanding)
 
         # Create controller widget for process and object_attribute
-        process = process_with_fom.process
+        process = attributed_process.process
         self.controller_widget = ScrollControllerWidget(process, live=True,
             parent=param_widget)
 
-        self.controller_widget2 = ScrollControllerWidget(self.process_with_fom,
+        self.controller_widget2 = ScrollControllerWidget(
+            self.attributed_process.get_attributes_controller(),
             live=True, parent=attrib_widget)
-        self.process_with_fom.on_trait_change(
-            self.process_with_fom.attributes_changed, 'anytrait')
+        self.attributed_process.get_attributes_controller().on_trait_change(
+            self.attributed_process.attributes_changed, 'anytrait')
 
         # Set controller of attributs and controller of process for each
         # corresponding area
@@ -105,8 +106,8 @@ class ProcessWithFomWidget(QtGui.QWidget):
         self.show_completion(False) # hide file parts
 
     def __del__(self):
-        self.process_with_fom.on_trait_change(
-            self.process_with_fom.attributes_changed, 'anytrait',
+        self.attributed_process.get_attributes_controller().on_trait_change(
+            self.attributed_process.attributes_changed, 'anytrait',
             remove=True)
 
     def on_input_filename_changed(self, text):
@@ -115,7 +116,7 @@ class ProcessWithFomWidget(QtGui.QWidget):
         '''
         print('set attributes from path:', text)
         try:
-            self.process_with_fom.find_attributes(unicode(text))
+            self.attributed_process.path_attributes(unicode(text))
         except ValueError as e:
             print(e)
             import traceback
@@ -133,9 +134,7 @@ class ProcessWithFomWidget(QtGui.QWidget):
         print('load', filename)
         attributes = json.load(open(filename))
         print("loaded:", attributes)
-        for att, value in six.iteritems(attributes):
-            if att in self.process_with_fom.attributes:
-                setattr(self.process_with_fom, att, value)
+        self.attributed_process.get_attributes_controller().import_from_dict(attributes)
 
     def on_btn_save_json(self):
         """Save attributes in a json file"""
@@ -145,7 +144,8 @@ class ProcessWithFomWidget(QtGui.QWidget):
             'JSON files (*.json)')
         if filename is None:
             return
-        json.dump(self.process_with_fom.attributes, open(filename, 'w'))
+        json.dump(self.attributed_process.get_attributes_controller().export_to_dict(),
+                  open(filename, 'w'))
 
     def set_use_fom(self):
         '''
@@ -157,9 +157,9 @@ class ProcessWithFomWidget(QtGui.QWidget):
 
         if ret == QtGui.QMessageBox.Ok:
             #reset attributs and trait of process
-            process = self.process_with_fom.process
-            self.process_with_fom.on_trait_change(
-                self.process_with_fom.attributes_changed, 'anytrait')
+            process = self.attributed_process.process
+            self.attributed_process.get_attributes_controller().on_trait_change(
+                self.attributed_process.attributes_changed, 'anytrait')
             try:
                 # WARNING: is it necessary to reset all this ?
                 # create_completion() will do the job anyway ?
@@ -167,12 +167,12 @@ class ProcessWithFomWidget(QtGui.QWidget):
                     #if trait.is_trait_type(File) \
                             #or trait.is_trait_type(Directory):
                         #setattr(process,name, Undefined)
-                self.process_with_fom.create_completion()
+                self.attributed_process.complete_parameters()
 
-                print(self.process_with_fom.attributes)
+                print(self.attributed_process.get_attributes_controller().export_to_dict())
                 if self.input_filename_controller.attributes_from_input_filename \
                         != '':
-                    self.process_with_fom.find_attributes(
+                    self.attributed_process.path_attributes(
                         self.input_filename_controller.attributes_from_input_filename)
             except Exception as e:
                 print(e)
@@ -198,8 +198,8 @@ class ProcessWithFomWidget(QtGui.QWidget):
             self.set_use_fom()
         else:
             self.attrib_widget.hide()
-            self.process_with_fom.on_trait_change(
-                self.process_with_fom.attributes_changed, 'anytrait',
+            self.attributed_process.get_attributes_controller().on_trait_change(
+                self.attributed_process.attributes_changed, 'anytrait',
                 remove=True)
             self.btn_show_completion.setChecked(True)
 

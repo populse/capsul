@@ -29,6 +29,7 @@ except ImportError:
 from capsul.pipeline.pipeline import Pipeline, PipelineNode, Switch, \
     ProcessNode
 from capsul.pipeline.process_iteration import ProcessIteration
+from capsul.process.attributed_process import AttributedProcess
 from soma.controller import Controller
 
 if sys.version_info[0] >= 3:
@@ -95,6 +96,13 @@ def pipeline_node_colors(pipeline, node):
     LIGHT_GREEN_2 = (0.85, 0.9, 0.85)
     LIGHT_GREEN_3 = (0.3, 0.5, 0.3)
 
+    SKY_1 = (0.6, 0.7, 1.)
+    SKY_2 = (0.3, 0.5, 0.8)
+    SKY_3 = (0., 0.2, 0.5)
+    LIGHT_SKY_1 = (0.8, 0.85, 1.)
+    LIGHT_SKY_2 = (0.7, 0.75, 0.9)
+    LIGHT_SKY_3 = (0.2, 0.3, 0.6)
+
     _colors = {
         'default': (BLUE_1, BLUE_2, BLUE_3, LIGHT_BLUE_1, LIGHT_BLUE_2,
                     LIGHT_BLUE_3),
@@ -104,6 +112,8 @@ def pipeline_node_colors(pipeline, node):
                      PURPLE_2, PURPLE_3),
         'iteration': (GREEN_1, GREEN_2, GREEN_3, LIGHT_GREEN_1, LIGHT_GREEN_2,
                       LIGHT_GREEN_3),
+        'attributed': (SKY_1, SKY_2, SKY_3, LIGHT_SKY_1, LIGHT_SKY_2,
+                      LIGHT_SKY_3),
     }
     if isinstance(node, Switch):
         style = 'switch'
@@ -112,6 +122,9 @@ def pipeline_node_colors(pipeline, node):
     elif isinstance(node, ProcessNode) \
             and isinstance(node.process, ProcessIteration):
         style = 'iteration'
+    elif isinstance(node, ProcessNode) \
+            and isinstance(node.process, AttributedProcess):
+        style = 'attributed'
     else:
         style = 'default'
     if node.activated and node.enabled:
