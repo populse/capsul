@@ -145,7 +145,7 @@ def divide_list(a, b):
 ''')
 def divides_dict(a, b):
      return {
-        'quotients': [i / j for i, j in zip(a, b)],
+        'quotients': [int(i / j) for i, j in zip(a, b)],
         'remainders': [i % j for i, j in zip(a, b)],
     }
  
@@ -160,7 +160,7 @@ def divides_dict(a, b):
 </process>
 ''')
 def divides_list(a, b):
-     return [[i / j for i, j in zip(a, b)],
+     return [[int(i / j) for i, j in zip(a, b)],
              [i % j for i, j in zip(a, b)]]
  
  
@@ -175,7 +175,7 @@ def divides_list(a, b):
 ''')
 def divides_single_dict(a, b):
      return {
-        'quotients': [i / j for i, j in zip(a, b)],
+        'quotients': [int(i / j) for i, j in zip(a, b)],
     }
 
 @xml_process('''
@@ -188,7 +188,7 @@ def divides_single_dict(a, b):
 </process>
 ''')
 def divides_single_list(a, b):
-     return [[i / j for i, j in zip(a, b)]]
+     return [[int(i / j) for i, j in zip(a, b)]]
 
 
 class TestLoadFromDescription(unittest.TestCase):
@@ -286,7 +286,7 @@ class TestLoadFromDescription(unittest.TestCase):
         
         a = range(40, 50)
         b = range(10, 21)
-        quotients = [i / j for i, j in zip(range(40, 50), range(10, 21))]
+        quotients = [int(i / j) for i, j in zip(range(40, 50), range(10, 21))]
         remainders = [i % j for i, j in zip(range(40, 50), range(10, 21))]
         
         process = get_process_instance(
