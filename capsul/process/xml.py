@@ -169,25 +169,25 @@ def create_xml_process(module, name, function, xml):
     function_return = None
     for child in xml_process:
         if child.tag in ('input', 'output'):
-            name = child.get('name')
+            n = child.get('name')
             trait = trait_from_xml(child)
-            class_kwargs[name] = trait
+            class_kwargs[n] = trait
             if trait.output and not trait.input_filename:
-                function_outputs.append(name)
+                function_outputs.append(n)
             else:
-                function_inputs.append(name)
+                function_inputs.append(n)
         elif child.tag == 'return':
-            name = child.get('name')
-            if name:
+            n = child.get('name')
+            if n:
                 trait = trait_from_xml(child)
-                class_kwargs[name] = trait
-                function_return = name
+                class_kwargs[n] = trait
+                function_return = n
             else:
                 for parameter in child:
-                    name = parameter.get('name')
+                    n = parameter.get('name')
                     trait = trait_from_xml(parameter)
-                    class_kwargs[name] = trait
-                    function_outputs.append(name)
+                    class_kwargs[n] = trait
+                    function_outputs.append(n)
         else:
             raise ValueError('Invalid tag in <process>: %s' % child.tag)
     class_kwargs['_function'] = staticmethod(function)
