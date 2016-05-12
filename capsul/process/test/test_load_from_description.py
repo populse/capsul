@@ -116,7 +116,7 @@ def join(value1, value2, value3):
 ''')
 def divide_dict(a, b):
      return {
-        'quotient': a / b,
+        'quotient': int(a / b),
         'remainder': a % b,
     }
 
@@ -131,7 +131,7 @@ def divide_dict(a, b):
 </process>
 ''')
 def divide_list(a, b):
-     return [a / b, a % b]
+     return [int(a / b), a % b]
 
 @xml_process('''
 <process capsul_xml="2.0">
