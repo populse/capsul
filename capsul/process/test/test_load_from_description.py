@@ -64,7 +64,6 @@ def to_warp_func(parameter1, parameter2, parameter3):
     <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" 
      doc="Mehod for thresolding."/>
     <input name="threshold" type="float" doc="Threshold value."/>
-    <output name="output_image" type="file" doc="Output file name."/>
     <return name="output_image" type="file" doc="Name of the output image."/>
 </process>
 ''')
@@ -80,6 +79,116 @@ def threshold(input_image, output_image, method='gt', threshold=0):
 ''')
 def mask(input_image, mask, output_location=None):
      pass
+
+
+@xml_process('''
+<process>
+    <input name="value1" type="string" doc="A string value."/>
+    <input name="value2" type="string" doc="A string value."/>
+    <input name="value3" type="string" doc="A string value."/>
+    <return name="values" type="string" doc="Concatenation of non empty input values."/>
+</process>
+''')
+def cat(value1, value2, value3):
+     return '_'.join(i for i in (value1, value2, value3) if i)
+
+@xml_process('''
+<process>
+    <input name="value1" type="string" doc="A string value."/>
+    <input name="value2" type="string" doc="A string value."/>
+    <input name="value3" type="string" doc="A string value."/>
+    <return name="values" type="list_string" doc="List of non empty input values."/>
+</process>
+''')
+def join(value1, value2, value3):
+     return [i for i in (value1, value2, value3) if i]
+
+
+@xml_process('''
+<process capsul_xml="2.0">
+    <input name="a" type="int" doc="An integer"/>
+    <input name="b" type="int" doc="Another integer"/>
+    <return>
+        <output name="quotient" type="int" doc="Quotient of a / b"/>
+        <output name="remainder" type="int" doc="Remainder of a / b"/>
+    </return>
+</process>
+''')
+def divide_dict(a, b):
+     return {
+        'quotient': a / b,
+        'remainder': a % b,
+    }
+
+@xml_process('''
+<process capsul_xml="2.0">
+    <input name="a" type="int" doc="An integer"/>
+    <input name="b" type="int" doc="Another integer"/>
+    <return>
+        <output name="quotient" type="int" doc="Quotient of a / b"/>
+        <output name="remainder" type="int" doc="Remainder of a / b"/>
+    </return>
+</process>
+''')
+def divide_list(a, b):
+     return [a / b, a % b]
+
+@xml_process('''
+<process capsul_xml="2.0">
+    <input name="a" type="list_int" doc="An integers list"/>
+    <input name="b" type="list_int" doc="Another integers list"/>
+    <return>
+        <output name="quotients" type="list_int" doc="Quotients of a / b"/>
+        <output name="remainders" type="list_int" doc="Remainders of a / b"/>
+    </return>
+</process>
+''')
+def divides_dict(a, b):
+     return {
+        'quotients': [i / j for i, j in zip(a, b)],
+        'remainders': [i % j for i, j in zip(a, b)],
+    }
+ 
+@xml_process('''
+<process capsul_xml="2.0">
+    <input name="a" type="list_int" doc="An integers list"/>
+    <input name="b" type="list_int" doc="Another integers list"/>
+    <return>
+        <output name="quotients" type="list_int" doc="Quotients of a / b"/>
+        <output name="remainders" type="list_int" doc="Remainders of a / b"/>
+    </return>
+</process>
+''')
+def divides_list(a, b):
+     return [[i / j for i, j in zip(a, b)],
+             [i % j for i, j in zip(a, b)]]
+ 
+ 
+@xml_process('''
+<process capsul_xml="2.0">
+    <input name="a" type="list_int" doc="An integers list"/>
+    <input name="b" type="list_int" doc="Another integers list"/>
+    <return>
+        <output name="quotients" type="list_int" doc="Quotients of a / b"/>
+    </return>
+</process>
+''')
+def divides_single_dict(a, b):
+     return {
+        'quotients': [i / j for i, j in zip(a, b)],
+    }
+
+@xml_process('''
+<process capsul_xml="2.0">
+    <input name="a" type="list_int" doc="An integers list"/>
+    <input name="b" type="list_int" doc="Another integers list"/>
+    <return>
+        <output name="quotients" type="list_int" doc="Quotients of a / b"/>
+    </return>
+</process>
+''')
+def divides_single_list(a, b):
+     return [[i / j for i, j in zip(a, b)]]
 
 
 class TestLoadFromDescription(unittest.TestCase):
@@ -147,7 +256,59 @@ class TestLoadFromDescription(unittest.TestCase):
         sys.path.pop(-1)
         shutil.rmtree(tmpdir)
 
+    def test_return_string(self):
+        process = get_process_instance(
+            "capsul.process.test.test_load_from_description.cat")
+        process(value1="a", value2="b", value3="c")
+        self.assertEqual(process.values, "a_b_c")
+        process(value1="", value2="v", value3="")
+        self.assertEqual(process.values, "v")
+        
+    def test_return_list(self):
+        process = get_process_instance(
+            "capsul.process.test.test_load_from_description.join")
+        process(value1="a", value2="b", value3="c")
+        self.assertEqual(process.values, ["a", "b", "c"])
+        process(value1="", value2="v", value3="")
+        self.assertEqual(process.values, ["v"])
 
+    def test_named_outputs(self):
+        process = get_process_instance(
+            "capsul.process.test.test_load_from_description.divide_dict")
+        process(a=42, b=3)
+        self.assertEqual(process.quotient, 14)
+        self.assertEqual(process.remainder, 0)
+        process = get_process_instance(
+            "capsul.process.test.test_load_from_description.divide_list")
+        process(a=42, b=3)
+        self.assertEqual(process.quotient, 14)
+        self.assertEqual(process.remainder, 0)
+        
+        a = range(40, 50)
+        b = range(10, 21)
+        quotients = [i / j for i, j in zip(range(40, 50), range(10, 21))]
+        remainders = [i % j for i, j in zip(range(40, 50), range(10, 21))]
+        
+        process = get_process_instance(
+            "capsul.process.test.test_load_from_description.divides_dict")
+        process(a=a, b=b)
+        self.assertEqual(process.quotients, quotients)
+        self.assertEqual(process.remainders, remainders)
+        process = get_process_instance(
+            "capsul.process.test.test_load_from_description.divides_list")
+        process(a=a, b=b)
+        self.assertEqual(process.quotients, quotients)
+        self.assertEqual(process.remainders, remainders)
+        
+        process = get_process_instance(
+            "capsul.process.test.test_load_from_description.divides_single_dict")
+        process(a=a, b=b)
+        self.assertEqual(process.quotients, quotients)
+        process = get_process_instance(
+            "capsul.process.test.test_load_from_description.divides_single_list")
+        process(a=a, b=b)
+        self.assertEqual(process.quotients, quotients)
+        
 class TestProcessWrap(unittest.TestCase):
     """ Class to test the function used to wrap a function to a process
     """
