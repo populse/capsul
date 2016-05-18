@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# SOMA documentation build configuration file, created by
+# Capsul documentation build configuration file, created by
 # sphinx-quickstart on Wed Sep  4 12:18:01 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -12,8 +12,9 @@
 # serve to show the default.
 
 import sys, os
+import time
 
-# Doc generation depends on being able to import nsap and nipype
+# Doc generation depends on being able to import capsul
 try:
     import capsul
 except ImportError:
@@ -74,7 +75,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'CAPSUL'
-copyright = u'2013, %(AUTHOR)s <%(AUTHOR_EMAIL)s>' % release_info
+release_info['COPYRIGHT_YEAR'] = time.strftime('%Y')
+copyright = u'%(COPYRIGHT_YEAR)s, %(AUTHOR)s <%(AUTHOR_EMAIL)s>' % release_info
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -202,7 +204,7 @@ html_show_sourcelink = False
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'SOMA-Pipeline-doc'
+htmlhelp_basename = 'capsul-doc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -217,7 +219,7 @@ htmlhelp_basename = 'SOMA-Pipeline-doc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'capsul.tex', u'CAPSUL Documentation',
-   u'Grigis', 'manual'),
+   u'CATI', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

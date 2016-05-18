@@ -18,12 +18,13 @@ body {
     font-size: 100%;
     margin: 0;
     padding: 0;
+    background-color: #d30d1c;
 }
 
 div.header-wrapper {
-    background-color: #ffffff;
+    background-color: #d30d1c;
     max-width: 1024px;
-    min-height: 50px;
+    min-height: 4em;
     margin-left: auto;
     margin-right: auto;
     margin-top: 0px;
@@ -67,7 +68,7 @@ div.navbar {
 }
 
 div.navbar ul {
-    background-color: #ff9c34;
+    background-color: #f4f44b;
     color: white;
     border-radius: 5px;
     -moz-border-radius: 5px;
@@ -84,7 +85,7 @@ div.navbar ul li a,
 div.navbar ul li a:link,
 div.navbar ul li a:visited,
 div.navbar ul li a:hover {
-    color: white;
+    color: #d30d1c;
     text-decoration: none;
     font-weight: bold;
     font-size: 14px;
@@ -736,7 +737,7 @@ span.example-links {
 
 div.banner-container {
   width:100%;
-  background-color: #3499CD;
+  background-color: #d30d1c;
   min-height: 229px;
 }
 
