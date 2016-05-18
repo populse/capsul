@@ -1290,9 +1290,9 @@ class Pipeline(Process):
                     tmp_files = []
                     for v in value:
                         tmpfile = tempfile.mkstemp(suffix=suffix)
-                        temp_files.append((node, plug_name, tmpfile[1], v))
                         tmp_files.append(tmpfile[1])
                         os.close(tmpfile[0])
+                    temp_files.append((node, plug_name, tmp_files, value))
                     node.set_plug_value(plug_name, tmp_files)
                 else:
                     tmpfile = tempfile.mkstemp(suffix=suffix)
@@ -1307,25 +1307,28 @@ class Pipeline(Process):
         (sequential execution)
         """
         #
-        for node, plug_name, tmpfile, value in temp_files:
+        for node, plug_name, tmpfiles, value in temp_files:
             node.set_plug_value(plug_name, value)
-            if os.path.isdir(tmpfile):
-                try:
-                    shutil.rmtree(tmpfile)
-                except:
-                    pass
-            else:
-                try:
-                    os.unlink(tmpfile)
-                except:
-                    pass
-            # handle additional files (.hdr, .minf...)
-            # TODO
-            if os.path.exists(tmpfile + '.minf'):
-                try:
-                    os.unlink(tmpfile + '.minf')
-                except:
-                    pass
+            if not isinstance(value, list):
+                tmpfiles = [tmpfiles]
+            for tmpfile in tmpfiles:
+                if os.path.isdir(tmpfile):
+                    try:
+                        shutil.rmtree(tmpfile)
+                    except:
+                        pass
+                else:
+                    try:
+                        os.unlink(tmpfile)
+                    except:
+                        pass
+                # handle additional files (.hdr, .minf...)
+                # TODO
+                if os.path.exists(tmpfile + '.minf'):
+                    try:
+                        os.unlink(tmpfile + '.minf')
+                    except:
+                        pass
 
     def _run_process(self):
         '''
