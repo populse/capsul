@@ -64,11 +64,8 @@ class XMLProcess(Process):
                                      'returned by process %s' % 
                                      (len(result), len(self._function_outputs),
                                       self.id))
-                if len(self._function_outputs) == 1:
-                    setattr(self, self._function_outputs[0], result)
-                else:
-                    for i in xrange(len(self._function_outputs)):
-                        setattr(self, self._function_outputs[i], result[i])
+                for i in xrange(len(self._function_outputs)):
+                    setattr(self, self._function_outputs[i], result[i])
             elif isinstance(result, dict):
                 # Return value is a dict, set the output parameter values.
                 for i in self._function_outputs:
