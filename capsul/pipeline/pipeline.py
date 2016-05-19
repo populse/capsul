@@ -24,11 +24,11 @@ logger = logging.getLogger(__name__)
 try:
     import traits.api as traits
     from traits.api import (File, Enum, Bool,
-                            Event, Directory, Trait)
+                            Event, Directory, Trait, List)
 except ImportError:
     import enthought.traits.api as traits
     from enthought.traits.api import (File, Enum, Bool,
-                                      Event, Directory, Trait)
+                                      Event, Directory, Trait, List)
 
 # Capsul import
 from capsul.process.process import Process, NipypeProcess
@@ -1373,13 +1373,24 @@ class Pipeline(Process):
                 if not plug.enabled or not plug.output or \
                         (not plug.activated and plug.optional):
                     continue
-                parameter = process.user_traits()[plug_name]
-                if not isinstance(parameter.trait_type, File) \
-                        and not isinstance(parameter.trait_type, Directory):
+                parameter = process.trait(plug_name)
+                if not isinstance(parameter.trait_type, (File, Directory)) \
+                        and (not isinstance(parameter.trait_type, List)
+                             or not isinstance(
+                                parameter.inner_traits[0].trait_type,
+                                (File, Directory))):
                     continue
+                is_list = isinstance(parameter.trait_type, List)
                 value = getattr(process, plug_name)
-                if value != '' and value is not traits.Undefined:
-                    continue # non-null value: not an empty parameter.
+                if is_list:
+                    if value:
+                        if all([v not in ('', traits.Undefined, None)
+                                for v in value]):
+                            # all values are non-empty
+                            continue
+                else:
+                    if value != '' and value is not traits.Undefined:
+                        continue # non-null value: not an empty parameter.
                 optional = bool(parameter.optional)
                 valid = True
                 links = list(plug.links_from.union(plug.links_to))

@@ -11,6 +11,7 @@ from __future__ import print_function
 import unittest
 import os
 import sys
+import tempfile
 from traits.api import File, List, Int, Undefined
 from capsul.api import Process
 from capsul.api import Pipeline, PipelineNode
@@ -118,8 +119,14 @@ class TestTemporary(unittest.TestCase):
 
     def setUp(self):
         self.pipeline = DummyPipeline()
+
+        tmpout = tempfile.mkstemp('.txt', prefix='capsul_test_')
+        os.close(tmpout[0])
+        os.unlink(tmpout[1])
+
+        self.output = tmpout[1]
         self.pipeline.input = '/tmp/file_in.nii'
-        self.pipeline.output = '/tmp/file_out2.nii'
+        self.pipeline.output = self.output
         study_config = StudyConfig(modules=['SomaWorkflowConfig'])
         study_config.input_directory = '/tmp'
         study_config.somaworkflow_computing_resource = 'localhost'
@@ -127,6 +134,10 @@ class TestTemporary(unittest.TestCase):
             'transfer_paths': [],
         }
         self.study_config = study_config
+
+    def tearDown(self):
+        if os.path.exists(self.output):
+          os.unlink(self.output)
 
     def test_structure(self):
         self.pipeline.nb_outputs = 3
@@ -149,7 +160,8 @@ class TestTemporary(unittest.TestCase):
     def test_full_wf(self):
         self.study_config.use_soma_workflow = True
         self.pipeline.nb_outputs = 3
-        self.study_config.run(self.pipeline)
+        result = self.study_config.run(self.pipeline)
+        self.assertTrue(result is None)
         self.assertEqual(self.pipeline.nodes["node2"].process.input,
                          ["", "", ""])
         self.assertEqual(self.pipeline.nodes["node2"].process.output,
