@@ -15,6 +15,7 @@
     <link source="list_of_str" dest="p2.list_of_str"/>
     <link source="value" dest="p1.value"/>
     <link source="enum" dest="p1.enum"/>
+    <link source="fname" dest="p1.fname"/>
     <link source="list_of_str" dest="p1.list_of_str"/>
     <link source="pdirectory" dest="p1.directory"/>
     <link dest="out1" source="p2.string"/>
