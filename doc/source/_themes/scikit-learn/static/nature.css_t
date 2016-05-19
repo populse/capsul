@@ -68,7 +68,7 @@ div.navbar {
 }
 
 div.navbar ul {
-    background-color: #f4f44b;
+    background-color: #fff693;
     color: white;
     border-radius: 5px;
     -moz-border-radius: 5px;
@@ -131,8 +131,8 @@ div.navbar ul li a:hover {
 }
 
 div.content-wrapper {
-    background-color: #ffffff;
-    color: #1D1F22;
+    background-color: #D30D1C;
+    color: #fff693;
     max-width: 1024px;
     margin-top: 10px;
     margin-left: auto;
