@@ -161,7 +161,7 @@ class TestTemporary(unittest.TestCase):
         self.study_config.use_soma_workflow = True
         self.pipeline.nb_outputs = 3
         result = self.study_config.run(self.pipeline)
-        self.assertTrue(result is None)
+        self.assertEqual(result, None)
         self.assertEqual(self.pipeline.nodes["node2"].process.input,
                          ["", "", ""])
         self.assertEqual(self.pipeline.nodes["node2"].process.output,
