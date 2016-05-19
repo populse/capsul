@@ -34,10 +34,13 @@ def create_xml_pipeline(module, name, xml_file):
     name: str (mandatory)
         name of the new pipeline class
     xml_file: str (mandatory)
-        name of file containing the XML description.
+        name of file containing the XML description or XML string.
     
     """
-    xml_pipeline = ET.parse(xml_file).getroot()
+    if os.path.exists(xml_file):
+        xml_pipeline = ET.parse(xml_file).getroot()
+    else:
+        xml_pipeline = ET.fromstring(xml_file)
     version = xml_pipeline.get('capsul_xml')
     if version and version != '2.0':
         raise ValueError('Only Capsul XML 2.0 is supported, not %s' % version)
