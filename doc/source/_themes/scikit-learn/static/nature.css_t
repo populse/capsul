@@ -131,7 +131,7 @@ div.navbar ul li a:hover {
 }
 
 div.content-wrapper {
-    background-color: #D30D1C;
+    background-color: #d30d1c;
     color: #fff693;
     max-width: 1024px;
     margin-top: 10px;
@@ -169,7 +169,7 @@ div.body {
 }
 
 div.footer {
-    color: #999;
+    color: #fff693;
     width: 100%;
     padding: 15px 0;
     text-align: center;
@@ -320,13 +320,13 @@ div.sphinxsidebar input[type=text]{
 /* -- body styles ----------------------------------------------------------- */
 
 a {
-    color: #2878A2;
+    color: #fff693;
     text-decoration: none;
     word-wrap: break-word;
 }
 
 a:hover {
-    color: #055781;
+    color: #ffffff;
     text-decoration: underline;
 }
 
@@ -349,6 +349,8 @@ div.body h3 {
     border-radius: 10px;
     font-weight: bold;
     word-wrap: break-word;
+    background-color: #fff693;
+    color: #d30d1c;
 }
 
 div.body h2,
@@ -364,7 +366,6 @@ div.bodywrapper {
 div.bodywrapper h1 {
     margin: 0 -10px 0 -10px;
     text-align: center;
-    background-color: #cde8ef;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 190%;
     border-radius: 0 15px 0 15px;
@@ -373,7 +374,6 @@ div.bodywrapper h1 {
 
 div.body h3 {
     font-size: 120%;
-    background-color: #eee;
     padding: 5px;
     border-radius: 10px;
 
@@ -460,7 +460,7 @@ p.admonition-title:after {
 
 pre {
     padding: 10px;
-    background-color: #f8f8f8;
+    background-color: #ffffb3;
     color: #222;
     line-height: 1.2em;
     border: 1px solid #ddd;
@@ -694,11 +694,12 @@ div.body img.align-center {
 table.docutils tr:nth-child(even) {
     //background-color: #F3F3FF;
     background-color: #FDFDFD;
-
+    color: black;
 }
 table.docutils tr:nth-child(odd) {
     //background-color: #FFFFEE;
-    background-color: #F0F7FA;
+    background-color: rgb(255, 252, 215);
+    color: black;
 }
 
 table.docutils tr {
@@ -753,14 +754,14 @@ div.banner-container h1 {
   font-size: 45px;
   margin-top: 10px;
   margin-bottom: 0px;
-  color: white;
+  color: #f4f44b;
 }
 
 div.banner-container h2 {
   font-size: 17px;
   font-style: italic;
   font-weight: normal;
-  color: white;
+  color: #fff693;
   margin-top: -5px;
 }
 
@@ -841,6 +842,7 @@ div.box blockquote {
   padding: 0 0 0 15px;
   margin: 0 0 20px;
   border-left: 5px solid #eeeeee;
+  color: #fff693;
 }
 
 div.body h1.no-bg, div.body h2.no-bg, div.body h3.no-bg, div.body h4.no-bg {
@@ -935,7 +937,7 @@ div#index_carousel_tn {
 p.doc-version {
     text-align: center;
     color: #b94a48;
-    background-color: #F3E5E5;
+    background-color: #ffffb3;
     border: 1px solid #eed3d7;
     border-radius: 4px;
     margin-right: 10px;
@@ -955,7 +957,7 @@ p.citing {
 }
 
 .field-name {
-    background-color: #F0F7FA;
+    background-color: #FFFCD7;
 }
 
 .field-body {
@@ -964,7 +966,7 @@ p.citing {
 
 dl.class dt, dl.function dt {
     padding: 10px;
-    background-color: #f8f8f8;
+    background-color: #ffffb3;
     color: #222;
     line-height: 1.2em;
     border: 1px solid #ddd;
