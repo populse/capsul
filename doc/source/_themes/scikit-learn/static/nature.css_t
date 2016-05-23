@@ -18,11 +18,11 @@ body {
     font-size: 100%;
     margin: 0;
     padding: 0;
-    background-color: #d30d1c;
+    background-color: #e52d2d;
 }
 
 div.header-wrapper {
-    background-color: #d30d1c;
+    background-color: #e52d2d;
     max-width: 1024px;
     min-height: 4em;
     margin-left: auto;
@@ -85,7 +85,7 @@ div.navbar ul li a,
 div.navbar ul li a:link,
 div.navbar ul li a:visited,
 div.navbar ul li a:hover {
-    color: #d30d1c;
+    color: #e52d2d;
     text-decoration: none;
     font-weight: bold;
     font-size: 14px;
@@ -131,7 +131,7 @@ div.navbar ul li a:hover {
 }
 
 div.content-wrapper {
-    background-color: #d30d1c;
+    background-color: #e52d2d;
     color: #fff693;
     max-width: 1024px;
     margin-top: 10px;
@@ -350,7 +350,7 @@ div.body h3 {
     font-weight: bold;
     word-wrap: break-word;
     background-color: #fff693;
-    color: #d30d1c;
+    color: #e52d2d;
 }
 
 div.body h2,
@@ -738,7 +738,7 @@ span.example-links {
 
 div.banner-container {
   width:100%;
-  background-color: #d30d1c;
+  background-color: #e52d2d;
   min-height: 229px;
 }
 
