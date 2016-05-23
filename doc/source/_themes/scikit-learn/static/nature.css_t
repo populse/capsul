@@ -18,12 +18,14 @@ body {
     font-size: 100%;
     margin: 0;
     padding: 0;
+    background-color: #e52d2d;
+    color: #fff693;
 }
 
 div.header-wrapper {
-    background-color: #ffffff;
+    background-color: #e52d2d;
     max-width: 1024px;
-    min-height: 50px;
+    min-height: 4em;
     margin-left: auto;
     margin-right: auto;
     margin-top: 0px;
@@ -67,11 +69,12 @@ div.navbar {
 }
 
 div.navbar ul {
-    background-color: #ff9c34;
+    background-color: #fff693;
     color: white;
     border-radius: 5px;
     -moz-border-radius: 5px;
     list-style: none;
+    text-decoration-line: none;
 }
 
 div.navbar ul, div.navbar li {
@@ -84,7 +87,7 @@ div.navbar ul li a,
 div.navbar ul li a:link,
 div.navbar ul li a:visited,
 div.navbar ul li a:hover {
-    color: white;
+    color: #e52d2d;
     text-decoration: none;
     font-weight: bold;
     font-size: 14px;
@@ -130,8 +133,8 @@ div.navbar ul li a:hover {
 }
 
 div.content-wrapper {
-    background-color: #ffffff;
-    color: #1D1F22;
+    background-color: #e52d2d;
+    color: #fff693;
     max-width: 1024px;
     margin-top: 10px;
     margin-left: auto;
@@ -168,7 +171,7 @@ div.body {
 }
 
 div.footer {
-    color: #999;
+    color: #fff693;
     width: 100%;
     padding: 15px 0;
     text-align: center;
@@ -319,13 +322,17 @@ div.sphinxsidebar input[type=text]{
 /* -- body styles ----------------------------------------------------------- */
 
 a {
-    color: #2878A2;
-    text-decoration: none;
+    color: #fff693;
+//     text-decoration: none;
     word-wrap: break-word;
 }
 
+div.sphinxsidebar a {
+    text-decoration: none;
+}
+
 a:hover {
-    color: #055781;
+    color: #ffffff;
     text-decoration: underline;
 }
 
@@ -348,6 +355,8 @@ div.body h3 {
     border-radius: 10px;
     font-weight: bold;
     word-wrap: break-word;
+    background-color: #fff693;
+    color: #e52d2d;
 }
 
 div.body h2,
@@ -363,7 +372,6 @@ div.bodywrapper {
 div.bodywrapper h1 {
     margin: 0 -10px 0 -10px;
     text-align: center;
-    background-color: #cde8ef;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 190%;
     border-radius: 0 15px 0 15px;
@@ -372,7 +380,6 @@ div.bodywrapper h1 {
 
 div.body h3 {
     font-size: 120%;
-    background-color: #eee;
     padding: 5px;
     border-radius: 10px;
 
@@ -459,7 +466,7 @@ p.admonition-title:after {
 
 pre {
     padding: 10px;
-    background-color: #f8f8f8;
+    background-color: #ffffb3;
     color: #222;
     line-height: 1.2em;
     border: 1px solid #ddd;
@@ -693,11 +700,12 @@ div.body img.align-center {
 table.docutils tr:nth-child(even) {
     //background-color: #F3F3FF;
     background-color: #FDFDFD;
-
+    color: black;
 }
 table.docutils tr:nth-child(odd) {
     //background-color: #FFFFEE;
-    background-color: #F0F7FA;
+    background-color: rgb(255, 252, 215);
+    color: black;
 }
 
 table.docutils tr {
@@ -736,7 +744,7 @@ span.example-links {
 
 div.banner-container {
   width:100%;
-  background-color: #3499CD;
+  background-color: #e52d2d;
   min-height: 229px;
 }
 
@@ -752,14 +760,14 @@ div.banner-container h1 {
   font-size: 45px;
   margin-top: 10px;
   margin-bottom: 0px;
-  color: white;
+  color: #f4f44b;
 }
 
 div.banner-container h2 {
   font-size: 17px;
   font-style: italic;
   font-weight: normal;
-  color: white;
+  color: #fff693;
   margin-top: -5px;
 }
 
@@ -840,6 +848,7 @@ div.box blockquote {
   padding: 0 0 0 15px;
   margin: 0 0 20px;
   border-left: 5px solid #eeeeee;
+  color: #fff693;
 }
 
 div.body h1.no-bg, div.body h2.no-bg, div.body h3.no-bg, div.body h4.no-bg {
@@ -934,7 +943,7 @@ div#index_carousel_tn {
 p.doc-version {
     text-align: center;
     color: #b94a48;
-    background-color: #F3E5E5;
+    background-color: #ffffb3;
     border: 1px solid #eed3d7;
     border-radius: 4px;
     margin-right: 10px;
@@ -954,7 +963,7 @@ p.citing {
 }
 
 .field-name {
-    background-color: #F0F7FA;
+    background-color: #FFFCD7;
 }
 
 .field-body {
@@ -963,7 +972,7 @@ p.citing {
 
 dl.class dt, dl.function dt {
     padding: 10px;
-    background-color: #f8f8f8;
+    background-color: #ffffb3;
     color: #222;
     line-height: 1.2em;
     border: 1px solid #ddd;
@@ -1196,4 +1205,13 @@ div.container-index {
     margin-left: 0;
   }
 
+}
+
+
+img.pipeline {
+    background-color: rgb(255, 240, 240);
+}
+
+input.search-header {
+    margin-bottom: 0px;
 }
