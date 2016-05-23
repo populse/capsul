@@ -19,6 +19,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #e52d2d;
+    color: #fff693;
 }
 
 div.header-wrapper {
@@ -1199,4 +1200,9 @@ div.container-index {
     margin-left: 0;
   }
 
+}
+
+
+img.pipeline {
+    background-color: rgb(255, 240, 240);
 }

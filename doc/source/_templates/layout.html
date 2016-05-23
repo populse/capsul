@@ -78,16 +78,23 @@
 
 {%- if pagename == 'index' %}
 <!-- Banner -->
-<div class="container banner-container">
-  <div class="span3"></div>
-  <div id="capsul_title" class="span6">
-    <h1>CAPSUL</h1>
-    <h2>Collaborative Analysis Platform: Simple, Unifying, Lean</h2>
-    <ul>
-      <li>Simple and efficient tools for medical imaging analysis</li>
-      <li>Accessible to everybody, and reusable in various contexts</li>
-     </ul>
-   </div>
+<div class="container banner-container" style="vertical-align: middle;">
+  <div class="row" style="vertical-align: middle;">
+    <div id="capsul_title" class="span1"></div>
+    <div id="capsul_title" class="span4">
+      <h1>CAPSUL</h1>
+      <h2>Chain algorithm in pipelines and execute in many contexts</h2>
+      <ul>
+        <li>Encapsulate algorithms in <em>Processes</em></li>
+        <li>Chain Processes within <em>Pipelines</em></li>
+        <li>Execute pipelines in parallel with <a href="http://brainvisa.info/web/soma/soma-workflow/">soma-workflow</a></li>
+        <li>Use a graphical interface to develop Pipelines</li>
+        <li>Configure one or more execution contexts</li>
+        <li>Embed Pipelines in any Python application</li>
+       </ul>
+    </div>
+    <div class="span3"> <a href="{{ pathto("_static/pipeline_switch.png", 1) }}"><img class="pipeline" src="{{ pathto("_static/pipeline_switch.png", 1) }}" alt="Switch pipeline"/></a></div>
+    <div class="span3"> <a href="{{ pathto("_static/workflow_switch.svg", 1) }}"><img class="pipeline" src="{{ pathto("_static/workflow_switch.svg", 1) }}" alt="Switch workflow" style="margin-top: 11%;"/></a></div>
   </div>
 </div>
 {%- endif %}
