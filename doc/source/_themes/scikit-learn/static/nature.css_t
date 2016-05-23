@@ -74,6 +74,7 @@ div.navbar ul {
     border-radius: 5px;
     -moz-border-radius: 5px;
     list-style: none;
+    text-decoration-line: none;
 }
 
 div.navbar ul, div.navbar li {
@@ -322,8 +323,12 @@ div.sphinxsidebar input[type=text]{
 
 a {
     color: #fff693;
-    text-decoration: none;
+//     text-decoration: none;
     word-wrap: break-word;
+}
+
+div.sphinxsidebar a {
+    text-decoration: none;
 }
 
 a:hover {
