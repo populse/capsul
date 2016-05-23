@@ -17,14 +17,3 @@ Documentation contents
 
     installation
     documentation
-
-
-Search documentation
---------------------
-
-:ref:`search`
-
-
-
-
-

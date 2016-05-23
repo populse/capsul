@@ -1211,3 +1211,7 @@ div.container-index {
 img.pipeline {
     background-color: rgb(255, 240, 240);
 }
+
+input.search-header {
+    margin-bottom: 0px;
+}

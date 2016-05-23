@@ -55,19 +55,25 @@
         <li><a href="{{pathto('installation')}}">Installation</a></li>
         <li class="btn-li">
           <div class="btn-group">
-		    <a href="{{pathto('documentation')}}">Documentation</a>
-		    <a class="btn dropdown-toggle" data-toggle="dropdown">
-		      <span class="caret"></span>
-		    </a>
-		    <ul class="dropdown-menu">
-	          <li class="link-title">CAPSUL</li>
-			  <li><a href="{{ pathto('user_guide_tree/index') }}">User guide</a></li>
-			  <li><a href="{{ pathto('api_tree/index') }}">API</a></li>
-			  <li><a href="{{ pathto('gui_tree/index') }}">GUI</a></li>
-			  <li class="divider"></li>
-		      <li><a href="{{ pathto('developer_tree/index') }}">Development</a></li>
-		    </ul>
-		  </div>
+            <a href="{{pathto('documentation')}}">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="{{ pathto('user_guide_tree/index') }}">User guide</a></li>
+              <li><a href="{{ pathto('api_tree/index') }}">API</a></li>
+              <li><a href="{{ pathto('gui_tree/index') }}">GUI</a></li>
+              <li class="divider"></li>
+              <li><a href="{{ pathto('developer_tree/index') }}">Development</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+            <form action="search.html" method="get" style="display: inline-block;">
+              <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+              <button type="submit">search</button>
+            </form>
         </li>
       </ul>
     </div> <!-- end navbar -->
