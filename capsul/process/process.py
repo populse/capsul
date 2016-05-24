@@ -445,7 +445,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             "-c",
             ("import sys; from {0} import {1}; kwargs={2}; "
              "kwargs.update(dict((sys.argv[i * 2 + 1], sys.argv[i * 2 + 2]) "
-             "for i in range((len(sys.argv) - 1) / 2))); "
+             "for i in range(int((len(sys.argv) - 1) / 2)))); "
              "{1}()(**kwargs)").format(module_name, class_name,
                                        repr(argsdict)).replace("'", '"')
         ] + sum([list(x) for x in pathsdict.items()], [])
