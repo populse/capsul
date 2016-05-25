@@ -423,15 +423,23 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # file transfers with Soma-Workflow.
 
         class ArgPicker(object):
+            """ This small object is only here to have a __repr__() representation which will print sys.argv[n] in a list when writing the commandline code.
+            """
             def __init__(self, num):
                 self.num = num
             def __repr__(self):
                 return 'sys.argv[%d]' % self.num
 
         reserved_params = ("nodes_activation", "selection_changed")
-        args = []
+        # pathslist is for files referenced from lists: a list of files will
+        # look like [sys.argv[5], sys.argv[6]...], then the corresponding
+        # path args will be in additional arguments, here stored in pathslist
         pathslist = []
+        # argsdict is the dict of non-path arguments, and will be printed
+        # using repr()
         argsdict = {}
+        # pathsdict is the dict of path arguments, and will be printed as a
+        # series of arg_name, path_value, all in separate commandline arguments
         pathsdict = {}
 
         for trait_name, trait in six.iteritems(self.user_traits()):
@@ -440,7 +448,6 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                     or not is_trait_value_defined(value):
                 continue
             if is_trait_pathname(trait):
-                args.append((trait_name, True))
                 pathsdict[trait_name] = value
             elif isinstance(trait.trait_type, List) \
                     and is_trait_pathname(trait.inner_traits[0]):
@@ -451,10 +458,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                         pathslist.append(pathname)
                     else:
                         plist.append(pathname)
-                args.append((trait_name, False))
                 argsdict[trait_name] = plist
             else:
-                args.append((trait_name, False))
                 argsdict[trait_name] = value
 
         # Get the module and class names
