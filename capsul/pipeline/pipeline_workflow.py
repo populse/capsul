@@ -201,7 +201,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                     value = value.__class__(value)
                     value.pattern = item.pattern
                     rlist[i] = value
-                elif isinstance(item, list) or isinstance(item, tuple):
+                elif isinstance(item, (list, tuple)):
                     deeperlist = list(item)
                     _replace_in_list(deeperlist, temp_map)
                     rlist[i] = deeperlist
@@ -241,23 +241,28 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         for param_name, parameter in six.iteritems(process.user_traits()):
             if param_name not in ('nodes_activation', 'selection_changed'):
                 value = getattr(process, param_name)
-                if isinstance(value, TempFile):
-                    # duplicate swf temp and copy pattern into it
-                    tval = temp_map[value]
-                    tval = tval.__class__(tval)
-                    tval.pattern = value.pattern
-                    if parameter.output:
-                        output_replaced_paths.append(tval)
-                    else:
-                        if value in forbidden_temp:
-                            raise ValueError(
-                                'Temporary value used cannot be generated in '
-                                'the workflkow: %s.%s'
-                                % (job_name, param_name))
-                        input_replaced_paths.append(tval)
+                if isinstance(value, list):
+                    values = value
                 else:
-                    _translated_path(value, shared_map, shared_paths,
-                                     parameter)
+                    values = [value]
+                for value in values:
+                    if isinstance(value, TempFile):
+                        # duplicate swf temp and copy pattern into it
+                        tval = temp_map[value]
+                        tval = tval.__class__(tval)
+                        tval.pattern = value.pattern
+                        if parameter.output:
+                            output_replaced_paths.append(tval)
+                        else:
+                            if value in forbidden_temp:
+                                raise ValueError(
+                                    'Temporary value used cannot be generated '
+                                    'in the workflkow: %s.%s'
+                                    % (job_name, param_name))
+                            input_replaced_paths.append(tval)
+                    else:
+                        _translated_path(value, shared_map, shared_paths,
+                                        parameter)
 
         # Get the process command line
         process_cmdline = process.get_commandline()
