@@ -60,7 +60,13 @@ class DummyProcess2(Process):
         self.on_trait_change(self.inputs_changed, "input")
 
     def inputs_changed(self):
-        self.output = [""] * len(self.input)
+        nout = len(self.output)
+        nin = len(self.input)
+        if nout != nin:
+            if nout > nin:
+                self.output = self.output[:nin]
+            else:
+                self.output = self.output + [""] * (nin - nout)
 
     def _run_process(self):
         for in_filename, out_filename in zip(self.input, self.output):
