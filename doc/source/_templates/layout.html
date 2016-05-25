@@ -41,24 +41,26 @@
 {% block header %}
 
   <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="{{pathto('index.html',1)}}">
     <img src="{{pathto('_static/capsul_logo.svg', 1)}}" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
     <div class="navbar" style="display: inline;">
       <ul>
-        <li><a href="../index.html">Home</a></li>
-        <li><a href="../installation.html">Installation</a></li>
+        <li><a href="{{pathto('index.html',1)}}">Home</a></li>
+        <li><a href="{{pathto('installation.html',1)}}">Installation</a></li>
         <li class="btn-li">
           <div class="btn-group">
-            <a href="../documentation.html">Documentation</a>
+            <a href="{{pathto('documentation.html',1) }}">Documentation</a>
             <a class="btn dropdown-toggle" data-toggle="dropdown">
               <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
               <li class="link-title">CAPSUL</li>
               <li><a href="#">User guide</a></li>
-              <li><a href="../api_tree/index.html">API</a></li>
-              <li><a href="../gui_tree/index.html">GUI</a></li>
+              <li><a href="{{pathto('api_tree/index.html',1)}}">API</a></li>
+              <li><a href="{{pathto('gui_tree/index.html',1)}}">GUI</a></li>
               <li class="divider"></li>
-              <li><a href="../developer_tree/index.html">Development</a></li>
+              <li><a href="{{pathto('developer_tree/index.html',1)}}">Development</a></li>
             </ul>
           </div>
         </li>
