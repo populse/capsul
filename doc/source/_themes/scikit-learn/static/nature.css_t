@@ -18,12 +18,12 @@ body {
     font-size: 100%;
     margin: 0;
     padding: 0;
-    background-color: #e52d2d;
-    color: #fff693;
+    background-color: #c02042;
+    color: #fffbbb;
 }
 
 div.header-wrapper {
-    background-color: #e52d2d;
+    background-color: #c02042;
     max-width: 1024px;
     min-height: 4em;
     margin-left: auto;
@@ -40,6 +40,9 @@ ul.horizontal, ul.horizontal li {
     padding: 0px 0px 0px 0px;
 }
 
+ul.search li div.context {
+    color: #fffbbb;
+}
 
 div.header {
     /* for the logo to correctly expand when showing results
@@ -69,7 +72,7 @@ div.navbar {
 }
 
 div.navbar ul {
-    background-color: #fff693;
+    background-color: #fffbbb;
     color: white;
     border-radius: 5px;
     -moz-border-radius: 5px;
@@ -87,7 +90,7 @@ div.navbar ul li a,
 div.navbar ul li a:link,
 div.navbar ul li a:visited,
 div.navbar ul li a:hover {
-    color: #e52d2d;
+    color: #c02042;
     text-decoration: none;
     font-weight: bold;
     font-size: 14px;
@@ -133,8 +136,8 @@ div.navbar ul li a:hover {
 }
 
 div.content-wrapper {
-    background-color: #e52d2d;
-    color: #fff693;
+    background-color: #c02042;
+    color: #fffbbb;
     max-width: 1024px;
     margin-top: 10px;
     margin-left: auto;
@@ -171,7 +174,7 @@ div.body {
 }
 
 div.footer {
-    color: #fff693;
+    color: #fffbbb;
     width: 100%;
     padding: 15px 0;
     text-align: center;
@@ -322,7 +325,7 @@ div.sphinxsidebar input[type=text]{
 /* -- body styles ----------------------------------------------------------- */
 
 a {
-    color: #fff693;
+    color: #fffbbb;
 //     text-decoration: none;
     word-wrap: break-word;
 }
@@ -355,8 +358,8 @@ div.body h3 {
     border-radius: 10px;
     font-weight: bold;
     word-wrap: break-word;
-    background-color: #fff693;
-    color: #e52d2d;
+    background-color: #fffbbb;
+    color: #c02042;
 }
 
 div.body h2,
@@ -485,7 +488,6 @@ div.highlight-python pre {
 
 tt {
     background-color: #ecf0f3;
-    color: #222;
     /* padding: 1px 2px; */
     font-size: 1.1em;
     font-family: monospace;
@@ -744,7 +746,7 @@ span.example-links {
 
 div.banner-container {
   width:100%;
-  background-color: #e52d2d;
+  background-color: #c02042;
   min-height: 229px;
 }
 
@@ -767,7 +769,7 @@ div.banner-container h2 {
   font-size: 17px;
   font-style: italic;
   font-weight: normal;
-  color: #fff693;
+  color: #fffbbb;
   margin-top: -5px;
 }
 
@@ -848,7 +850,7 @@ div.box blockquote {
   padding: 0 0 0 15px;
   margin: 0 0 20px;
   border-left: 5px solid #eeeeee;
-  color: #fff693;
+  color: #fffbbb;
 }
 
 div.body h1.no-bg, div.body h2.no-bg, div.body h3.no-bg, div.body h4.no-bg {
