@@ -11,6 +11,7 @@ from __future__ import print_function
 import unittest
 import os
 import sys
+import tempfile
 from traits.api import File, List, Int, Undefined
 from capsul.api import Process
 from capsul.api import Pipeline, PipelineNode
@@ -34,7 +35,12 @@ class DummyProcess1(Process):
         self.on_trait_change(self.nb_outputs_changed, "nb_outputs")
 
     def nb_outputs_changed(self):
-        self.output = [""] * self.nb_outputs
+        if len(self.output) != self.nb_outputs:
+            if len(self.output) > self.nb_outputs:
+                self.output = self.output[:self.nb_outputs]
+            else:
+                self.output \
+                    = self.output + [""] * (self.nb_outputs - len(self.output))
 
     def _run_process(self):
         pass
@@ -54,7 +60,13 @@ class DummyProcess2(Process):
         self.on_trait_change(self.inputs_changed, "input")
 
     def inputs_changed(self):
-        self.output = [""] * len(self.input)
+        nout = len(self.output)
+        nin = len(self.input)
+        if nout != nin:
+            if nout > nin:
+                self.output = self.output[:nin]
+            else:
+                self.output = self.output + [""] * (nin - nout)
 
     def _run_process(self):
         for in_filename, out_filename in zip(self.input, self.output):
@@ -118,8 +130,14 @@ class TestTemporary(unittest.TestCase):
 
     def setUp(self):
         self.pipeline = DummyPipeline()
+
+        tmpout = tempfile.mkstemp('.txt', prefix='capsul_test_')
+        os.close(tmpout[0])
+        os.unlink(tmpout[1])
+
+        self.output = tmpout[1]
         self.pipeline.input = '/tmp/file_in.nii'
-        self.pipeline.output = '/tmp/file_out2.nii'
+        self.pipeline.output = self.output
         study_config = StudyConfig(modules=['SomaWorkflowConfig'])
         study_config.input_directory = '/tmp'
         study_config.somaworkflow_computing_resource = 'localhost'
@@ -127,6 +145,10 @@ class TestTemporary(unittest.TestCase):
             'transfer_paths': [],
         }
         self.study_config = study_config
+
+    def tearDown(self):
+        if os.path.exists(self.output):
+          os.unlink(self.output)
 
     def test_structure(self):
         self.pipeline.nb_outputs = 3
@@ -149,7 +171,8 @@ class TestTemporary(unittest.TestCase):
     def test_full_wf(self):
         self.study_config.use_soma_workflow = True
         self.pipeline.nb_outputs = 3
-        self.study_config.run(self.pipeline)
+        result = self.study_config.run(self.pipeline)
+        self.assertEqual(result, None)
         self.assertEqual(self.pipeline.nodes["node2"].process.input,
                          ["", "", ""])
         self.assertEqual(self.pipeline.nodes["node2"].process.output,

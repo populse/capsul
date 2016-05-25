@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 # Trait import
 from traits.trait_base import _Undefined
-from traits.api import Directory, Undefined, Int
+from traits.api import Directory, Undefined, Int, List
 from traits.trait_handlers import BaseTraitHandler
 
 # Soma import
@@ -417,23 +417,45 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         """ Method to generate a comandline representation of the process.
         """
         # Get command line arguments (ie., the process user traits)
-        reserved_params = ("nodes_activation", "selection_changed")
-        args = [
-            (trait_name, is_trait_pathname(trait))
-            for trait_name, trait in six.iteritems(self.user_traits())
-            if (trait_name not in reserved_params and
-                is_trait_value_defined(getattr(self, trait_name)))]
-
         # Build the python call expression, keeping apart file names.
         # File names are given separately since they might be modified
         # externally afterwards, typically to handle temporary files, or
         # file transfers with Soma-Workflow.
-        argsdict = dict(
-            (trait_name, getattr(self, trait_name))
-            for trait_name, is_pathname in args if not is_pathname)
-        pathsdict = dict(
-            (trait_name, getattr(self, trait_name))
-            for trait_name, is_pathname in args if is_pathname)
+
+        class ArgPicker(object):
+            def __init__(self, num):
+                self.num = num
+            def __repr__(self):
+                return 'sys.argv[%d]' % self.num
+
+        reserved_params = ("nodes_activation", "selection_changed")
+        args = []
+        pathslist = []
+        argsdict = {}
+        pathsdict = {}
+
+        for trait_name, trait in six.iteritems(self.user_traits()):
+            value = getattr(self, trait_name)
+            if trait_name in reserved_params \
+                    or not is_trait_value_defined(value):
+                continue
+            if is_trait_pathname(trait):
+                args.append((trait_name, True))
+                pathsdict[trait_name] = value
+            elif isinstance(trait.trait_type, List) \
+                    and is_trait_pathname(trait.inner_traits[0]):
+                plist = []
+                for pathname in value:
+                    if is_trait_value_defined(pathname):
+                        plist.append(ArgPicker(len(pathslist) + 1))
+                        pathslist.append(pathname)
+                    else:
+                        plist.append(pathname)
+                args.append((trait_name, False))
+                argsdict[trait_name] = plist
+            else:
+                args.append((trait_name, False))
+                argsdict[trait_name] = value
 
         # Get the module and class names
         module_name = self.__class__.__module__
@@ -444,11 +466,13 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             "python",
             "-c",
             ("import sys; from {0} import {1}; kwargs={2}; "
-             "kwargs.update(dict((sys.argv[i * 2 + 1], sys.argv[i * 2 + 2]) "
-             "for i in range((len(sys.argv) - 1) / 2))); "
+             "kwargs.update(dict((sys.argv[i * 2 + {3}], "
+             "sys.argv[i * 2 + {4}]) "
+             "for i in range(int((len(sys.argv) - {3}) / 2)))); "
              "{1}()(**kwargs)").format(module_name, class_name,
-                                       repr(argsdict)).replace("'", '"')
-        ] + sum([list(x) for x in pathsdict.items()], [])
+                                       repr(argsdict), len(pathslist) + 1,
+                                       len(pathslist) + 2).replace("'", '"')
+        ] + pathslist + sum([list(x) for x in pathsdict.items()], [])
 
         return commandline
 
