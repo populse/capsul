@@ -35,7 +35,12 @@ class DummyProcess1(Process):
         self.on_trait_change(self.nb_outputs_changed, "nb_outputs")
 
     def nb_outputs_changed(self):
-        self.output = [""] * self.nb_outputs
+        if len(self.output) != self.nb_outputs:
+            if len(self.output) > self.nb_outputs:
+                self.output = self.output[:self.nb_outputs]
+            else:
+                self.output \
+                    = self.output + [""] * (self.nb_outputs - len(self.output))
 
     def _run_process(self):
         pass
