@@ -40,46 +40,37 @@
 <!-- header -->
 {% block header %}
 
-<div class="header-wrapper">
-  <div class="header">
-    <p class="logo">
-      <a href="{{ pathto('index') }}">
-        <img src="{{ pathto("_static/capsul_logo.svg", 1) }}" alt="Capsul logo" style="width:100%; height:4em;"/>
-      </a>
-    </p>
-
-    {%- block navbar -%}
-    <div class="navbar">
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <img src="{{pathto('_static/capsul_logo.svg', 1)}}" alt="Capsul logo" style="display: inline; height:4em;"/>
+    <div class="navbar" style="display: inline;">
       <ul>
-        <li><a href="{{pathto('index')}}">Home</a></li>
-        <li><a href="{{pathto('installation')}}">Installation</a></li>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../installation.html">Installation</a></li>
         <li class="btn-li">
           <div class="btn-group">
-            <a href="{{pathto('documentation')}}">Documentation</a>
+            <a href="../documentation.html">Documentation</a>
             <a class="btn dropdown-toggle" data-toggle="dropdown">
               <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
               <li class="link-title">CAPSUL</li>
-              <li><a href="{{ pathto('user_guide_tree/index') }}">User guide</a></li>
-              <li><a href="{{ pathto('api_tree/index') }}">API</a></li>
-              <li><a href="{{ pathto('gui_tree/index') }}">GUI</a></li>
+              <li><a href="#">User guide</a></li>
+              <li><a href="../api_tree/index.html">API</a></li>
+              <li><a href="../gui_tree/index.html">GUI</a></li>
               <li class="divider"></li>
-              <li><a href="{{ pathto('developer_tree/index') }}">Development</a></li>
+              <li><a href="../developer_tree/index.html">Development</a></li>
             </ul>
           </div>
         </li>
         <li>
-            <form action="search.html" method="get" style="display: inline-block;">
-              <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
-              <button type="submit">search</button>
-            </form>
+          <form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form>
         </li>
       </ul>
     </div> <!-- end navbar -->
-    {%- endblock -%}
   </div>
-</div>
 
 {%- if pagename == 'index' %}
 <!-- Banner -->

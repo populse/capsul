@@ -66,11 +66,6 @@ span.legend {
     top: -3px;
 }
 
-div.navbar {
-    padding-top: 15px;
-    margin-left: 200px;
-}
-
 div.navbar ul {
     background-color: #fffbbb;
     color: white;
