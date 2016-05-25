@@ -26,7 +26,7 @@ from soma.qt_gui.controller_widget import ScrollControllerWidget
 # Capsul import
 from capsul.qt_apps.utils.application import Application
 import capsul.qt_apps.resources as resources
-from capsul.process import get_process_instance
+from capsul.api import get_process_instance
 from capsul.qt_gui.widgets import PipelineDevelopperView
 from capsul.pipeline.pipeline_nodes import PipelineNode
 
