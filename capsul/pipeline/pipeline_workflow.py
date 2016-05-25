@@ -24,7 +24,7 @@ from capsul.pipeline.pipeline import Pipeline, Switch
 from capsul.pipeline import pipeline_tools
 from capsul.process.process import Process
 from capsul.pipeline.topological_sort import Graph
-from traits.api import Directory, Undefined, File, Str, Any
+from traits.api import Directory, Undefined, File, Str, Any, List
 from soma.sorted_dictionary import OrderedDict
 from .process_iteration import ProcessIteration
 
@@ -201,7 +201,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                     value = value.__class__(value)
                     value.pattern = item.pattern
                     rlist[i] = value
-                elif isinstance(item, list) or isinstance(item, tuple):
+                elif isinstance(item, (list, tuple)):
                     deeperlist = list(item)
                     _replace_in_list(deeperlist, temp_map)
                     rlist[i] = deeperlist
@@ -241,23 +241,28 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         for param_name, parameter in six.iteritems(process.user_traits()):
             if param_name not in ('nodes_activation', 'selection_changed'):
                 value = getattr(process, param_name)
-                if isinstance(value, TempFile):
-                    # duplicate swf temp and copy pattern into it
-                    tval = temp_map[value]
-                    tval = tval.__class__(tval)
-                    tval.pattern = value.pattern
-                    if parameter.output:
-                        output_replaced_paths.append(tval)
-                    else:
-                        if value in forbidden_temp:
-                            raise ValueError(
-                                'Temporary value used cannot be generated in '
-                                'the workflkow: %s.%s'
-                                % (job_name, param_name))
-                        input_replaced_paths.append(tval)
+                if isinstance(value, list):
+                    values = value
                 else:
-                    _translated_path(value, shared_map, shared_paths,
-                                     parameter)
+                    values = [value]
+                for value in values:
+                    if isinstance(value, TempFile):
+                        # duplicate swf temp and copy pattern into it
+                        tval = temp_map[value]
+                        tval = tval.__class__(tval)
+                        tval.pattern = value.pattern
+                        if parameter.output:
+                            output_replaced_paths.append(tval)
+                        else:
+                            if value in forbidden_temp:
+                                raise ValueError(
+                                    'Temporary value used cannot be generated '
+                                    'in the workflkow: %s.%s'
+                                    % (job_name, param_name))
+                            input_replaced_paths.append(tval)
+                    else:
+                        _translated_path(value, shared_map, shared_paths,
+                                        parameter)
 
         # Get the process command line
         process_cmdline = process.get_commandline()
@@ -324,19 +329,35 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 process = node.process
             else:
                 process = node
-            trait = process.user_traits()[plug_name]
-            is_directory = isinstance(trait.trait_type, Directory)
-            if trait.allowed_extensions:
-                suffix = trait.allowed_extensions[0]
+            trait = process.trait(plug_name)
+            is_list = isinstance(trait.trait_type, List)
+            values = []
+            if is_list:
+                todo = getattr(process, plug_name)
+                trait = trait.inner_traits[0]
             else:
-                suffix = ''
-            swf_tmp = swclient.TemporaryPath(is_directory=is_directory,
-                suffix=suffix)
-            tmp_file = TempFile('%d' % count)
-            count += 1
-            temp_map[tmp_file] = (swf_tmp, node, plug_name, optional)
+                todo = [Undefined]
+            for item in todo:
+                if item not in (Undefined, '', None):
+                    # non-empty list element
+                    values.append(item)
+                    continue
+                is_directory = isinstance(trait.trait_type, Directory)
+                if trait.allowed_extensions:
+                    suffix = trait.allowed_extensions[0]
+                else:
+                    suffix = ''
+                swf_tmp = swclient.TemporaryPath(is_directory=is_directory,
+                    suffix=suffix)
+                tmp_file = TempFile('%d' % count)
+                count += 1
+                temp_map[tmp_file] = (swf_tmp, node, plug_name, optional)
+                values.append(tmp_file)
             # set a TempFile value to identify the params / value
-            setattr(process, plug_name, tmp_file)
+            if is_list:
+                setattr(process, plug_name, values)
+            else:
+                setattr(process, plug_name, values[0])
         return temp_map
 
     def restore_empty_filenames(temporary_map):
@@ -349,7 +370,21 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
               process = node.process
           else:
               process = node
-          setattr(process, plug_name, Undefined)
+          trait = process.trait(plug_name)
+          if isinstance(trait.trait_type, List):
+              value = getattr(process, plug_name)
+              # FIXME TODO: only restore values in list which correspond to
+              # a temporary.
+              # Problem: they are sometimes transformed into strings
+              setattr(process, plug_name, [""] * len(value))
+              #for i, v in enumerate(value):
+                  #if isinstance(v, TempFile):
+                      #print('reset item', i)
+                      #value[i] = ""
+                  #else:
+                      #print('keep item ', i, ':', v, type(v))
+          else:
+              setattr(process, plug_name, Undefined)
 
     def _get_swf_paths(study_config):
         computing_resource = getattr(

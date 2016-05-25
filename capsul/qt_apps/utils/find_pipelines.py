@@ -16,8 +16,8 @@ from setuptools import find_packages
 from inspect import isclass
 
 # CAPSUL import
-from capsul.pipeline import Pipeline
-from capsul.process import Process
+from capsul.api import Pipeline
+from capsul.api import Process
 
 # Define the logger
 logger = logging.getLogger(__name__)

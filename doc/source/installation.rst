@@ -1,71 +1,51 @@
 
 .. _install_guid:
 
-====================
-Installing `CAPSUL`
-====================
+=====================
+`CAPSUL` installation
+=====================
 
-This tutorial will walk you through the process of intalling CAPSUL...
+.. This tutorial will walk you through the process of intalling CAPSUL.
+.. 
+..   * :ref:`Install an official release <install_release>`. This
+..     is the best approach for users who want a stable version.
+.. 
+..   * :ref:`Install the latest development version
+..     <install_development>`. This is best for users who want to contribute
+..     to the project.
+.. 
+.. 
+.. .. _install_release:
 
-  * :ref:`Install an official release <install_release>`. This
-    is the best approach for users who want a stable version.
+Installing with BrainVISA
+==========================
 
-  * :ref:`Install the latest development version
-    <install_development>`. This is best for users who want to contribute
-    to the project.
+CAPSUL is the new pipelining system of the `BrainVISA suite <http://brainvisa.info>`_. It can therefore be installed with `BrainVISA installer <http://brainvisa.info/web/download>`_.
 
 
-.. _install_release:
-
-Installing a stable version
+Installing without BrainVISA
 ==============================
 
+The latest stable Capsul version can be installed `with pip <https://en.wikipedia.org/wiki/Pip_%28package_manager%29>`_. Please refer to the `pip documentation <http://www.pip-installer.org/>`_ to get full installation possibilities. Here are some examples for most frequent situation.
 
 
+Install in a directory
+----------------------
+To install Capsul in a self-content directory, we recommend to use `virtualenv <https://virtualenv.pypa.io/>`_.
+
+>>> virtualenv my_python_modules
+>>> my_python_modules/bin/pip install --upgrade capsul
+
+Install on Linux for a single user (without administrator privilege)
+--------------------------------------------------------------------
+
+>>> pip install --user --upgrade capsul
 
 
-.. _install_development:
+Get source code
+===============
 
-Installing the current version
-===============================
-
-Nightly build packages are available at: 
-http://nsap.intra.cea.fr/resources/ 
-
-Install the python package with *pip*
--------------------------------------
-
-**First find the package**
-  * Choose the desired package, for instance `capsul-0.0.1.dev.tar.gz`.
-  * You have now the full url of the nightly build package you want to 
-    install: 
-    url = http://nsap.intra.cea.fr/resources/capsul-0.0.1.dev.tar.gz 
-
-**Install the package without the root privilege**
-
->>> pip install --user --verbose $url
->>> export PATH=$PATH:$HOME/.local/bin
-
-**Install the package with the root privilege**
-
->>> pip install --verbose $url
-
-**When reinstalling locally the package first do**
-
->>> pip uninstall capsul
-
-Install the debian package with *dpkg*
---------------------------------------
-
-**First find the package**
-  * Choose the desired package, for instance `capsul-0.0.1.dev-1_all.tar.gz`.
-  * You have now the full url of the nightly build package you want to 
-    install:
-    url = http://nsap.intra.cea.fr/resources/capsul-0.0.1.dev-1_all.tar.gz
-
-**Install the package with the root privilege**
-
->>> sudo dpkg -i python-capsul_0.0.1-1_all.deb
+The source code is located on GitHub: http://github.com/neurospin/capsul.
 
 
 

@@ -23,8 +23,8 @@ from capsul.qt_apps.utils.window import MyQUiLoader
 from capsul.qt_apps.utils.fill_treectrl import fill_treectrl
 from capsul.qt_gui.widgets import (PipelineDevelopperView, PipelineUserView)
 from capsul.qt_gui.board_widget import BoardWidget
-from capsul.process import get_process_instance
-from capsul.pipeline.pipeline_iterative import IterativePipeline
+from capsul.api import get_process_instance
+from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.study_config import StudyConfig
 
 
@@ -310,12 +310,12 @@ class CapsulMainWindow(MyQUiLoader):
         self.pipeline = self.pipeline.nodes[name].process
 
         # Create the controller widget associated to the sub pipeline
-        # controller: if the sub pipeline is an IterativePipeline, disable
+        # controller: if the sub pipeline is a ProcessIteration, disable
         # the correspondind controller widget since this pipeline is generated
         # on the fly an is not directly synchronized with the rest of the
         # pipeline.
         is_iterative_pipeline = False
-        if isinstance(self.pipeline, IterativePipeline):
+        if isinstance(self.pipeline, ProcessIteration):
             is_iterative_pipeline = True
         pipeline_widget = ScrollControllerWidget(
             self.pipeline, live=True, select_controls="inputs",

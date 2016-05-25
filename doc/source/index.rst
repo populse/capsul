@@ -7,23 +7,13 @@
 CAPSUL
 =======
 
-Bla
+Capsul is a Python library for encapsulating algorithms and chain them in pipelines. It has unique features for building and dealing with complex pipelines. It is designed to make it easy to execute pipelines in various environments ranging from a local computer to a remote computing center. Capsul is connected to soma-workflow in order to manage all the difficulties of running a lot of pipelines in parallel.
 
-Contents
-========
+Documentation contents
+----------------------
+
 .. toctree::
     :maxdepth: 1
 
     installation
     documentation
-
-
-Search
-=======
-
-:ref:`search`
-
-
-
-
-

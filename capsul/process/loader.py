@@ -96,6 +96,23 @@ def get_process_instance(process_or_id, **kwargs):
           issubclass(process_or_id, Interface)):
         result = nipype_factory(process_or_id())
 
+    # If the function 'process_or_id' parameter is a function.
+    elif isinstance(process_or_id, types.FunctionType):
+        xml = getattr(process_or_id, 'capsul_xml', None)
+        if xml is None:
+            # Check docstring
+            if process_or_id.__doc__:
+                match = process_xml_re.search(
+                    process_or_id.__doc__)
+                if match:
+                    xml = match.group(0)
+        if xml:
+            result = create_xml_process(process_or_id.__module__,
+                                        process_or_id.__name__, 
+                                        process_or_id, xml)()
+        else:
+            raise ValueError('Cannot find XML description to make function {0} a process'.format(process_or_id))
+        
     # If the function 'process_or_id' parameter is a class string
     # description
     elif isinstance(process_or_id, basestring):
