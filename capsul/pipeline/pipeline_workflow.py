@@ -319,11 +319,11 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 jobs.append(group_or_job)
         return jobs
 
-    def assign_temporary_filenames(pipeline):
+    def assign_temporary_filenames(pipeline, count_start=0):
         ''' Find and temporarily assign necessary temporary file names'''
         temp_filenames = pipeline.find_empty_parameters()
         temp_map = {}
-        count = 0
+        count = count_start
         for node, plug_name, optional in temp_filenames:
             if hasattr(node, 'process'):
                 process = node.process
@@ -599,10 +599,11 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         (jobs, dependencies, groups, root_jobs)
         '''
         if isinstance(process, Pipeline):
-            temp_map2 = assign_temporary_filenames(process)
+            temp_map2 = assign_temporary_filenames(process, len(temp_map))
             temp_subst_list = [(x1, x2[0]) for x1, x2
                                   in six.iteritems(temp_map2)]
             temp_subst_map = dict(temp_subst_list)
+            temp_subst_map.update(temp_map)
             try:
                 graph = process.workflow_graph()
                 (jobs, dependencies, groups, sub_root_jobs) = \
@@ -980,7 +981,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         pipeline, temp_subst_map, transfers, disabled_nodes)
     #print('changed transfers:', move_to_input)
     #print('removed temp:', remove_temp)
-    #print('temp_map:', temp_map)
+    #print('temp_map:', temp_map, '\n')
     #print('SWF transfers:', swf_paths[0])
     #print('shared paths:', swf_paths[1])
 
