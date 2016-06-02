@@ -245,7 +245,8 @@ class TestPipeline(unittest.TestCase):
             kwargs = eval(re.match('^.*kwargs=({.*}); kwargs.update.*$',
                                    job.command[2]).group(1))
             self.assertEqual(kwargs["other_input"], 5)
-            subject = job.command[4]
+            # get argument of 'input_image' file parameter
+            subject = job.command[4::3][job.command[3::2].index('input_image')]
             subjects.add(subject)
             if sys.version_info >= (2, 7):
                 self.assertIn(subject,
