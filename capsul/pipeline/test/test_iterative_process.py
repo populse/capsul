@@ -35,13 +35,13 @@ class DummyProcess(Process):
         super(DummyProcess, self).__init__()
 
         # Inputs
-        self.add_trait("input_image", String(optional=False, output=False))
+        self.add_trait("input_image", File(optional=False, output=False))
         self.add_trait("other_input", Float(optional=False, output=False))
         self.add_trait("dynamic_parameter",
                        Float(optional=False, output=False))
 
         # Outputs
-        self.add_trait("output_image", String(optional=False, output=True))
+        self.add_trait("output_image", File(optional=False, output=True))
         self.add_trait("other_output", Float(optional=False, output=True))
 
         # Set default parameter
@@ -245,12 +245,13 @@ class TestPipeline(unittest.TestCase):
             kwargs = eval(re.match('^.*kwargs=({.*}); kwargs.update.*$',
                                    job.command[2]).group(1))
             self.assertEqual(kwargs["other_input"], 5)
-            subjects.add(kwargs["input_image"])
+            subject = job.command[4]
+            subjects.add(subject)
             if sys.version_info >= (2, 7):
-                self.assertIn(kwargs["input_image"],
+                self.assertIn(subject,
                               ["toto", "tutu", "tata", "titi", "tete"])
             else:
-                self.assertTrue(kwargs["input_image"] in
+                self.assertTrue(subject in
                                 ["toto", "tutu", "tata", "titi", "tete"])
         self.assertEqual(subjects,
                          set(["toto", "tutu", "tata", "titi", "tete"]))
