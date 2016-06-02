@@ -13,6 +13,7 @@ import six
 
 # CAPSUL import
 from capsul.api import Process, Pipeline
+from capsul.pipeline.topological_sort import Graph
 
 # soma-base imports
 from soma.controller import Controller, ControllerTrait
@@ -145,27 +146,51 @@ class AttributedProcess(Process):
         # as this blocking mechanism does not exist yet, we do it this way for
         # now, but it is sub-optimal since many parameters will be set many
         # times.
+        use_topological_order = True
         if isinstance(self.process, Pipeline):
             name = self.name
-            for node_name, node in six.iteritems(self.process.nodes):
-                if node_name == '':
-                    continue
-                if hasattr(node, 'process'):
-                    subprocess = node.process
+            if use_topological_order:
+                # proceed in topological order
+                graph = self.process.workflow_graph()
+                for node_name, node in six.iteritems(graph._nodes):
                     pname = '.'.join([name, node_name])
-                    subprocess_attr \
-                        = AttributedProcessFactory().get_attributed_process(
-                            subprocess, self.study_config, pname)
-                    try:
-                        #self.process_completion(subprocess, pname)
-                        subprocess_attr.complete_parameters(
-                            {'capsul_attributes':
-                             self.capsul_attributes.export_to_dict()})
-                    except Exception as e:
-                        if verbose:
-                            print('warning, node %s could not complete FOM' \
-                                  % node_name)
-                            print(e)
+                    if isinstance(node.meta, Graph):
+                        nodes = [node.pipeline]
+                    else:
+                        nodes = node.meta
+                    for pipeline_node in node.meta:
+                        subprocess = pipeline_node.process
+                        subprocess_attr = \
+                            AttributedProcessFactory().get_attributed_process(
+                                subprocess, self.study_config, pname)
+                        try:
+                            subprocess_attr.complete_parameters(
+                                {'capsul_attributes':
+                                self.capsul_attributes.export_to_dict()})
+                        except Exception as e:
+                            if verbose:
+                                print('warning, node %s could not complete '
+                                      'parameters completion' % node_name)
+                                print(e)
+            else:
+                for node_name, node in six.iteritems(self.process.nodes):
+                    if node_name == '':
+                        continue
+                    if hasattr(node, 'process'):
+                        subprocess = node.process
+                        pname = '.'.join([name, node_name])
+                        subprocess_attr = \
+                            AttributedProcessFactory().get_attributed_process(
+                                subprocess, self.study_config, pname)
+                        try:
+                            subprocess_attr.complete_parameters(
+                                {'capsul_attributes':
+                                self.capsul_attributes.export_to_dict()})
+                        except Exception as e:
+                            if verbose:
+                                print('warning, node %s could not complete '
+                                      'parameters completion' % node_name)
+                                print(e)
 
 
     def path_attributes(self, filename, parameter=None):
