@@ -40,8 +40,6 @@ class AttributedProcess(Process):
     to implement some completion strategies: the way attributes are used to
     build file names is not hard-coded in this class.
     '''
-    capsul_attributes = ControllerTrait(Controller())
-
 
     def __init__(self, process, study_config, name=None):
         ''' Build an AttributedProcess instance from an existing Process
@@ -50,6 +48,7 @@ class AttributedProcess(Process):
         super(AttributedProcess, self).__init__()
         self.process = process
         self.study_config = study_config
+        self.add_trait('capsul_attributes', ControllerTrait(Controller()))
         if name is None:
             self.name = process.name
         else:
@@ -117,12 +116,15 @@ class AttributedProcess(Process):
         '''
         attributes = process_inputs.get('capsul_attributes')
         if attributes:
+            avail_attrib = set(self.capsul_attributes.user_traits().keys())
+            attributes = dict((k, v) for k, v in six.iteritems(attributes)
+                              if k in avail_attrib)
             # calling directly self.import_from_dict() will erase existing
             # attributes
             self.capsul_attributes.import_from_dict(attributes)
-            process_inputs = dict((k, v) for k, v
-                                  in six.iteritems(process_inputs)
-                                  if k != 'capsul_attributes')
+        process_inputs = dict((k, v) for k, v
+                              in six.iteritems(process_inputs)
+                              if k != 'capsul_attributes')
         self.import_from_dict(process_inputs)
 
 
@@ -151,17 +153,14 @@ class AttributedProcess(Process):
             name = self.name
             if use_topological_order:
                 # proceed in topological order
-                print('topological completion')
                 graph = self.process.workflow_graph()
                 for node_name, node_meta in graph.topological_sort():
                     pname = '.'.join([name, node_name])
-                    print('pname:', pname)
                     if isinstance(node_meta, Graph):
                         nodes = [node_meta.pipeline]
                     else:
                         nodes = node_meta
                     for pipeline_node in nodes:
-                        print('node:', pipeline_node)
                         subprocess = pipeline_node.process
                         subprocess_attr = \
                             AttributedProcessFactory().get_attributed_process(
