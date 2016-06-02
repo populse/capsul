@@ -151,27 +151,24 @@ class AttributedProcess(Process):
             name = self.name
             if use_topological_order:
                 # proceed in topological order
+                print('topological completion')
                 graph = self.process.workflow_graph()
-                for node_name, node in six.iteritems(graph._nodes):
+                for node_name, node_meta in graph.topological_sort():
                     pname = '.'.join([name, node_name])
-                    if isinstance(node.meta, Graph):
-                        nodes = [node.pipeline]
+                    print('pname:', pname)
+                    if isinstance(node_meta, Graph):
+                        nodes = [node_meta.pipeline]
                     else:
-                        nodes = node.meta
-                    for pipeline_node in node.meta:
+                        nodes = node_meta
+                    for pipeline_node in nodes:
+                        print('node:', pipeline_node)
                         subprocess = pipeline_node.process
                         subprocess_attr = \
                             AttributedProcessFactory().get_attributed_process(
                                 subprocess, self.study_config, pname)
-                        try:
-                            subprocess_attr.complete_parameters(
-                                {'capsul_attributes':
-                                self.capsul_attributes.export_to_dict()})
-                        except Exception as e:
-                            if verbose:
-                                print('warning, node %s could not complete '
-                                      'parameters completion' % node_name)
-                                print(e)
+                        subprocess_attr.complete_parameters(
+                            {'capsul_attributes':
+                            self.capsul_attributes.export_to_dict()})
             else:
                 for node_name, node in six.iteritems(self.process.nodes):
                     if node_name == '':
@@ -182,15 +179,9 @@ class AttributedProcess(Process):
                         subprocess_attr = \
                             AttributedProcessFactory().get_attributed_process(
                                 subprocess, self.study_config, pname)
-                        try:
-                            subprocess_attr.complete_parameters(
-                                {'capsul_attributes':
-                                self.capsul_attributes.export_to_dict()})
-                        except Exception as e:
-                            if verbose:
-                                print('warning, node %s could not complete '
-                                      'parameters completion' % node_name)
-                                print(e)
+                        subprocess_attr.complete_parameters(
+                            {'capsul_attributes':
+                            self.capsul_attributes.export_to_dict()})
 
 
     def path_attributes(self, filename, parameter=None):
