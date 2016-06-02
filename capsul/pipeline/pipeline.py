@@ -1151,7 +1151,7 @@ class Pipeline(Process):
                 if isinstance(node.process, Pipeline):
                     gnode = GraphNode(
                         node_name, node.process.workflow_graph(False))
-                    gnode.pipeline = node.process
+                    gnode.meta.pipeline = node.process
                     graph.add_node(gnode)
 
                 # If a Process or an iterative node is found: the meta graph
