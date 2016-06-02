@@ -194,6 +194,53 @@ class AttributedProcess(Process):
         return self.capsul_attributes
 
 
+    def get_nodes_attributes_controller(self):
+        ''' Get a gontroller merging needed attributes for a pipeline sub-
+        nodes. This is a convenience method that can be used in some pipelines
+        but is not useful in all pipelines (some will completely overwrite
+        their elements attributes).
+        If the underlying process is not a pipeline, returns an empty
+        controller.
+        '''
+        acontroller = Controller()
+        if isinstance(self.process, Pipeline):
+            name = self.name
+            for node_name, node in six.iteritems(self.process.nodes):
+                if node_name == '':
+                    continue
+                if hasattr(node, 'process'):
+                    subprocess = node.process
+                    pname = '.'.join([name, node_name])
+                    subprocess_attr \
+                        = AttributedProcessFactory().get_attributed_process(
+                            subprocess, self.study_config, pname)
+                    sub_controller \
+                        = subprocess_attr.get_attributes_controller()
+                    self.merge_controllers(acontroller, sub_controller)
+        return acontroller
+
+
+    @staticmethod
+    def merge_controllers(dest_controller, src_controller):
+        ''' Utility function: merge 2 controllers
+
+        Parameters
+        ----------
+        dest_controller: Controller
+            destination: src_controller is added to dest_controller, which is
+            modified during the operation
+        src_controller: Controller
+            source controller to be merged into dest_controller
+        '''
+        names = set(dest_controller.user_traits().keys())
+        # merge traits
+        for name, trait in six.iteritems(src_controller.user_traits()):
+            if name not in names:
+                names.add(name)
+                dest_controller.add_trait(name, trait)
+                setattr(dest_controller, name, getattr(src_controller, name))
+
+
     def attributes_changed(self, obj, name, old, new):
         ''' Traits changed callback which triggers parameters update.
 
