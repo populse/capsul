@@ -46,7 +46,7 @@ class AttributedProcessIteration(AttributedProcess):
             trait = attributes_set.trait(attribute)
             inner_trait = trait.inner_traits[0].trait_type
             iter_attributes.remove_trait(attribute)
-            iter_attributes.add_trait(inner_trait())
+            iter_attributes.add_trait(attribute, inner_trait())
             iterated_values = getattr(attributes_set, attribute)
             if isinstance(iterated_values, (list, tuple)) \
                     and len(iterated_values) > self.capsul_iteration_step:
