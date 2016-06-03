@@ -295,7 +295,7 @@ class TestPipeline(unittest.TestCase):
             os.unlink(tmpdb[1])
         self.assertTrue(workflow_status == swconstants.WORKFLOW_DONE,
             'Workflow did not finish regularly: %s' % workflow_status)
-        self.assertTrue(len(failed_jobs) == 0, 'Morphologist jobs failed: %s'
+        self.assertTrue(len(failed_jobs) == 0, 'Jobs failed: %s'
                         % failed_jobs)
         # check output files contents
         for ifname, fname in zip(self.small_pipeline.files_to_create,

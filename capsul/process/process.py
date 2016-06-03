@@ -100,9 +100,11 @@ class ProcessMeta(Controller.__class__):
         # If no value is given at construction, False will be used.
         for n, possible_trait_definition in six.iteritems(attrs):
             if isinstance(possible_trait_definition, BaseTraitHandler):
-                possible_trait_definition._metadata['output'] = bool(possible_trait_definition.output)
-                possible_trait_definition._metadata['optional'] = bool(possible_trait_definition.optional)
-        
+                possible_trait_definition._metadata['output'] \
+                    = bool(possible_trait_definition.output)
+                possible_trait_definition._metadata['optional'] \
+                    = bool(possible_trait_definition.optional)
+
         return super(ProcessMeta, mcls).__new__(
             mcls, name, bases, attrs)
 
@@ -158,7 +160,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         # Initialize the log file name
         self.log_file = None
-        
+        self.study_config = None
+
         default_values = getattr(self, 'default_values', None)
         if default_values:
             self.default_values = default_values.copy()
@@ -213,9 +216,6 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         results:  ProcessResult object
             contains all execution information.
         """
-        # Import cannot be done on module due to circular dependencies
-        from capsul.study_config import default_study_config
-        
         # Get the process class
         process = self.__class__
 
@@ -232,9 +232,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         # Execute the process
         output_directory = getattr(self, 'output_directory', Undefined)
-        returncode = default_study_config().run(self,
-                                            output_directory=output_directory,
-                                            **kwargs)
+        returncode = self.get_study_config().run(
+            self, output_directory=output_directory, **kwargs)
 
         # Set the execution stop time in the execution report
         runtime["end_time"] = datetime.isoformat(datetime.utcnow())
@@ -790,6 +789,27 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         """
         return getattr(self, name)
 
+    def get_study_config(self):
+        ''' Get (or create) the StudyConfig this process belongs to
+        '''
+        if self.study_config is None:
+            # Import cannot be done on module due to circular dependencies
+            from capsul.study_config import default_study_config
+            self.set_study_config(default_study_config())
+        return self.study_config
+
+    def set_study_config(self, study_config):
+        ''' Set a StudyConfig for the process.
+        Note that it can only be done once: once a non-null StudyConfig has
+        been assigned to the process, it should not change.
+        '''
+        if self.study_config is not None \
+                and self.study_config is not study_config:
+            raise ValueError("A StudyConfig had already been set in the "
+                             "process %s. It cannot be changed afterwards."
+                             % self.name)
+        self.study_config = study_config
+
 
 class FileCopyProcess(Process):
     """ A specific process that copies all the input files.
@@ -1038,8 +1058,8 @@ class NipypeProcess(FileCopyProcess):
             inputs_to_copy = self._nipype_interface.inputs.traits(
                 copyfile=True).keys()
             super(NipypeProcess, self).__init__(
-                activate_copy=True, inputs_to_copy=inputs_to_copy, *args,
-                **kwargs)
+                activate_copy=True, inputs_to_copy=inputs_to_copy,
+                *args, **kwargs)
         else:
             super(NipypeProcess, self).__init__(
                 activate_copy=False, *args, **kwargs)

@@ -34,8 +34,11 @@ if sys.version_info[0] >= 3:
 
 process_xml_re = re.compile(r'<process.*</process>', re.DOTALL)
 
-def get_process_instance(process_or_id, **kwargs):
+def get_process_instance(process_or_id, study_config=None, **kwargs):
     """ Return a Process instance given an identifier.
+
+    Note that it is convenient to create a process from a StudyConfig instance:
+    StudyConfig.get_process_instance()
 
     The identifier is either:
 
@@ -67,6 +70,9 @@ def get_process_instance(process_or_id, **kwargs):
     ----------
     process_or_id: instance or class description (mandatory)
         a process/nipype interface instance/class or a string description.
+    study_config: StudyConfig instance (optional)
+        A Process instance belongs to a StudyConfig framework. If not specified
+        the study_config can be set afterwards.
     kwargs:
         default values of the process instance parameters.
 
@@ -202,4 +208,10 @@ def get_process_instance(process_or_id, **kwargs):
     for name, value in six.iteritems(kwargs):
         result.set_parameter(name, value)
 
+    if study_config is not None:
+        if result.study_config is not None \
+                and result.study_config is not study_config:
+            raise ValueError("StudyConfig mismatch in get_process_instance "
+                             "for process %s" % result)
+        result.study_config = study_config
     return result

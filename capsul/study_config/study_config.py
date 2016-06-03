@@ -35,6 +35,7 @@ from capsul.study_config.run import run_process
 from capsul.pipeline.pipeline_workflow import (
     workflow_from_pipeline, local_workflow_run)
 from capsul.pipeline.pipeline_nodes import Node
+from capsul.process import loader
 
 if sys.version_info[0] >= 3:
     basestring = str
@@ -626,6 +627,55 @@ class StudyConfig(Controller):
             return getattr(self, trait_name)
         else:
             return None
+
+    def get_process_instance(self, process_or_id, **kwargs):
+        """ Return a Process instance given an identifier.
+
+        The identifier is either:
+
+            * a derived Process class.
+            * a derived Process class instance.
+            * a Nipype Interface instance.
+            * a Nipype Interface class.
+            * a string description of the class `<module>.<class>`.
+            * a string description of a function to warp `<module>.<function>`.
+            * a string description of a pipeline `<module>.<fname>.xml`.
+            * an XML filename for a pipeline
+
+        Default values of the process instance are passed as additional
+        parameters.
+
+        .. note:
+
+            If no process is found an ImportError is raised.
+
+        .. note:
+
+            If the 'process_or_id' parameter is not valid a ValueError is
+            raised.
+
+        .. note:
+
+            If the function to warp does not contain a process description in
+            its decorator or docstring ('<process>...</process>') a ValueError
+            is raised.
+
+        Parameters
+        ----------
+        process_or_id: instance or class description (mandatory)
+            a process/nipype interface instance/class or a string description.
+        kwargs:
+            default values of the process instance parameters.
+
+        Returns
+        -------
+        result: Process
+            an initialized process instance.
+
+        """
+        return loader.get_process_instance(process_or_id, study_config=self,
+                                           **kwargs)
+
 
 _default_study_config = None
 def default_study_config():

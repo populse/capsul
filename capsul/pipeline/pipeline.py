@@ -341,7 +341,8 @@ class Pipeline(Process):
         # which needs create_xml_pipeline which needs Pipeline class.
         from capsul.process.loader import get_process_instance
         # Create a process node
-        process = get_process_instance(process, **kwargs)
+        process = get_process_instance(process, study_config=self.study_config,
+                                       **kwargs)
 
         # Update the kwargs parameters values according to process
         # default values
@@ -1922,4 +1923,14 @@ class Pipeline(Process):
         value group
         '''
         return self.processes_selection.get(selection_parameter, {}).get(group)
+
+    def set_study_config(self, study_config):
+        ''' Set a StudyConfig for the process.
+        Note that it can only be done once: once a non-null StudyConfig has
+        been assigned to the process, it should not change.
+        '''
+        super(Pipeline, self).set_study_config(study_config)
+        for node_name, node in six.iteritems(self.nodes):
+            if hasattr(node, 'process') and node_name != "":
+                node.process.set_study_config(study_config)
 

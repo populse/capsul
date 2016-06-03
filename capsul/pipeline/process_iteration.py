@@ -19,7 +19,8 @@ if sys.version_info[0] >= 3:
 class ProcessIteration(Process):
     def __init__(self, process, iterative_parameters):
         super(ProcessIteration, self).__init__()
-        self.process = get_process_instance(process)
+        self.process = get_process_instance(process,
+                                            study_config=self.study_config)
         self.regular_parameters = set()
         self.iterative_parameters = set(iterative_parameters)
 
