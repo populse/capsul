@@ -335,11 +335,11 @@ class Pipeline(Process):
             raise ValueError("Pipeline cannot have two nodes with the"
                              "same name : {0}".format(name))
 
-        # It is necessary not to import capsul.loader at the module level
-        # because there are circular dependencies between modules. For
-        # instance, Pipeline class needs get_process_instance
+        # It is necessary not to import study_config.process_instance at 
+        # the module level because there are circular dependencies between
+        # modules. For instance, Pipeline class needs get_process_instance
         # which needs create_xml_pipeline which needs Pipeline class.
-        from capsul.process.loader import get_process_instance
+        from capsul.study_config.process_instance import get_process_instance
         # Create a process node
         process = get_process_instance(process, study_config=self.study_config,
                                        **kwargs)

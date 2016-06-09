@@ -11,7 +11,7 @@ import six
 from traits.api import List, Undefined
 
 from capsul.process.process import Process
-from capsul.process.loader import get_process_instance
+from capsul.study_config.process_instance import get_process_instance
 
 if sys.version_info[0] >= 3:
     xrange = range

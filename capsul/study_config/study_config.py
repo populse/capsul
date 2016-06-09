@@ -35,7 +35,7 @@ from capsul.study_config.run import run_process
 from capsul.pipeline.pipeline_workflow import (
     workflow_from_pipeline, local_workflow_run)
 from capsul.pipeline.pipeline_nodes import Node
-from capsul.process import loader
+from capsul.study_config.process_instance import get_process_instance
 
 if sys.version_info[0] >= 3:
     basestring = str
@@ -673,7 +673,7 @@ class StudyConfig(Controller):
             an initialized process instance.
 
         """
-        return loader.get_process_instance(process_or_id, study_config=self,
+        return get_process_instance(process_or_id, study_config=self,
                                            **kwargs)
 
 

@@ -36,7 +36,6 @@ from capsul.process import attributed_process_iteration
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 import capsul.pipeline.xml as capsulxml
-from capsul.process import loader
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
 try:
