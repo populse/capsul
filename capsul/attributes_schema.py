@@ -13,9 +13,41 @@ from importlib import import_module
 from pkgutil import iter_modules
 import six
 
+class AttributesSchemaValidation(type):
+    '''
+    Attributes schema are created in user code by defining classes. This
+    meta class of AttributesSchema is used to check that the definition
+    is correct and to raise an explicit error if not.
+    '''
+    
+    def __init__(cls, name, base, dict):
+        '''
+        Do the following verification on the newly declared class and
+        raise an exception if required:
+        
+        - schema_name is defined in the class
+        '''
+        super(AttributesSchemaValidation, cls).__init__(name, base, dict)
+        if name == 'AttributesSchema':
+            return
+        if cls.schema_name is None:
+            raise ValueError('AttributesSchema subclasses must define schema_name')
+
+    
 class AttributesSchema(object):
+    __metaclass__ = AttributesSchemaValidation
+    
     # Name of the schema. Must be defined in subclasses.
     schema_name = None
+
+    def __init__(self):
+        # Instanciate AttributeSet classes that are defined in schema
+        sets = dict((k,v()) for k, v in 
+                    six.iteritems(self.__class__.__dict__)
+                    if isinstance(v, type) and 
+                       issubclass(v, AttributeSet))
+        self.attribute_sets = sets
+
 
 class AttributeSet(object):
     pass
@@ -42,7 +74,18 @@ def find_classes_in_module(module_name, parent_class):
                     (module.__name__, submodule_name), parent_class):
                 yield j
 
+
 class AttributesSchemaManager(object):
+    '''
+    This is the main entry point for finding and creating an attribute
+    schema given its name and based to a serching path composed of Python
+    module names.
+    
+    TODO: It is not clear yet if there will be a single instance of this
+    class for an application or for each StudyConfig instance. It will depend
+    on how its configuration (i.e. module_path) is managed.
+    '''
+    
     def __init__(self):
         self.module_path = []
         self.attribute_schemas = {}
@@ -66,8 +109,9 @@ class AttributesSchemaManager(object):
         '''
         attribute_schema = self.attribute_schemas.get(schema_name)
         if attribute_schema is None:
-            attribute_schema = self.find_attributes_schema(schema_name)
-            if attribute_schema is not None:
+            attribute_schema_class = self.find_attributes_schema(schema_name)
+            if attribute_schema_class is not None:
+                attribute_schema = attribute_schema_class()
                 self.attribute_schemas[schema_name] = attribute_schema
         return attribute_schema
 
