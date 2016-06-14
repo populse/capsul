@@ -1,5 +1,6 @@
 
 from soma.singleton import Singleton
+import six
 
 
 class CompletionModel(object):
@@ -46,7 +47,7 @@ class CompletionModel(object):
         single Process instance, and calls complete_parameters() on subprocess
         nodes if the process is a pipeline.
         '''
-        self.set_parameters(process_inputs)
+        self.set_parameters(process, process_inputs)
         # if process is a pipeline, create completions for its nodes and
         # sub-pipelines.
         #
@@ -117,7 +118,7 @@ class CompletionModel(object):
 
 
     @staticmethod
-    def get_completion_model(process, name):
+    def get_completion_model(process, name=None):
         ''' Get a CompletionModel instance for a given process within the
         framework of its StudyConfig: factory function.
 
@@ -136,7 +137,7 @@ class CompletionModelFactory(Singleton):
         self.factories = {100000: [self._default_factory]}
 
 
-    def get_completion_model(self, process, study_config, name=None):
+    def get_completion_model(self, process, study_config=None, name=None):
         '''
         Factory for CompletionModel: get an CompletionModel instance for a
         process in the context of a given StudyConfig.
@@ -147,10 +148,21 @@ class CompletionModelFactory(Singleton):
         returned. It will not be able to perform completion at all, but will
         conform to the API.
         '''
+        if study_config is not None:
+            if process.get_study_config() is None:
+                process.set_study_config(study_config)
+            elif study_config is not process.get_study_config():
+                raise ValueError('Mismatching StudyConfig in process (%s) and '
+                    'get_attributed_process() (%s)\nin process:\n%s\n'
+                    'passed:\n%s'
+                    % (repr(process.get_study_config()), repr(study_config),
+                      repr(process.get_study_config().export_to_dict()),
+                      repr(study_config.export_to_dict())))
+
         for priority in sorted(self.factories.keys()):
             factories = self.factories[priority]
             for factory in factories:
-                completion_model = factory(process, study_config, name)
+                completion_model = factory(process, name)
                 if completion_model is not None:
                     return completion_model
         raise RuntimeError('No factory could produce a CompletionModel '
@@ -174,6 +186,6 @@ class CompletionModelFactory(Singleton):
 
 
     @staticmethod
-    def _default_factory(process, study_config, name):
-        return CompletionModel(process, study_config, name)
+    def _default_factory(process, name):
+        return CompletionModel(name)
 
