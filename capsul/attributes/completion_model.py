@@ -1,4 +1,7 @@
 
+from soma.singleton import Singleton
+
+
 class CompletionModel(object):
     ''' Parameters completion from attributes for a process instance, in the
     context of a specific data organization.
@@ -117,8 +120,60 @@ class CompletionModel(object):
     def get_completion_model(process, name):
         ''' Get a CompletionModel instance for a given process within the
         framework of its StudyConfig: factory function.
-        '''
-        # TODO
-        pass
 
+        Same as CompletionModelFactory().get_completion_model(
+            process, process.get_study_config(), name=name)
+        '''
+        return CompletionModelFactory().get_completion_model(
+            process, process.get_study_config(), name=name)
+
+
+class CompletionModelFactory(Singleton):
+    '''
+    '''
+    def __singleton_init__(self):
+        super(CompletionModelFactory, self).__init__()
+        self.factories = {100000: [self._default_factory]}
+
+
+    def get_completion_model(self, process, study_config, name=None):
+        '''
+        Factory for CompletionModel: get an CompletionModel instance for a
+        process in the context of a given StudyConfig.
+
+        The study_config should specify which completion system(s) is (are)
+        used (FOM, ...)
+        If nothing is configured, an CompletionModel base instance will be
+        returned. It will not be able to perform completion at all, but will
+        conform to the API.
+        '''
+        for priority in sorted(self.factories.keys()):
+            factories = self.factories[priority]
+            for factory in factories:
+                completion_model = factory(process, study_config, name)
+                if completion_model is not None:
+                    return completion_model
+        raise RuntimeError('No factory could produce a CompletionModel '
+            'instance for the process %s. This is a bug, it should not happen.'
+            %process.id)
+
+
+    def register_factory(self, factory_function, priority):
+        '''
+        '''
+        self.unregister_factory(factory_function)
+        self.factories.setdefault(priority, []).append(factory_function)
+
+
+    def unregister_factory(self, factory_function):
+        '''
+        '''
+        for priority, factories in six.iteritems(self.factories):
+            if factory_function in factories:
+                factory_function.remove(factory_function)
+
+
+    @staticmethod
+    def _default_factory(process, study_config, name):
+        return CompletionModel(process, study_config, name)
 
