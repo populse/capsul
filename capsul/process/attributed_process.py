@@ -15,6 +15,8 @@ import six
 from capsul.process.process import Process
 from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.topological_sort import Graph
+from capsul.attributes.completion_model \
+    import CompletionModel, CompletionModelFactory
 
 # soma-base imports
 from soma.controller import Controller, ControllerTrait
@@ -22,7 +24,7 @@ from soma.sorted_dictionary import SortedDictionary
 from soma.singleton import Singleton
 
 
-class AttributedProcess(Process):
+class AttributedProcess(Process, CompletionModel):
     '''
     A Process with alternative attributes representation for some of its
     parameters.
@@ -105,85 +107,6 @@ class AttributedProcess(Process):
         return tr
 
 
-    def set_parameters(self, process_inputs):
-        ''' Set the given parameters dict to the current process.
-        process_inputs may include regular parameters of the underlying
-        process, and attributes (capsul_attributes: dict).
-
-        This convenience method only differs from the Controller
-        import_from_dict() method in the way that capsul_attributes items
-        will not completely replace the all attributes values, but only set
-        those specified here, and leave the others in place.
-        '''
-        attributes = process_inputs.get('capsul_attributes')
-        if attributes:
-            avail_attrib = set(self.capsul_attributes.user_traits().keys())
-            attributes = dict((k, v) for k, v in six.iteritems(attributes)
-                              if k in avail_attrib)
-            # calling directly self.import_from_dict() will erase existing
-            # attributes
-            self.capsul_attributes.import_from_dict(attributes)
-        process_inputs = dict((k, v) for k, v
-                              in six.iteritems(process_inputs)
-                              if k != 'capsul_attributes')
-        self.import_from_dict(process_inputs)
-
-
-    def complete_parameters(self, process_inputs={}):
-        ''' Completes file parameters from given inputs parameters, which may
-        include both "regular" process parameters (file names) and attributes.
-
-        The default implementation in AttributedProcess does nothing for a
-        single Process instance, and calls complete_parameters() on subprocess
-        nodes if the process is a pipeline.
-        '''
-        self.set_parameters(process_inputs)
-        # if process is a pipeline, create completions for its nodes and
-        # sub-pipelines.
-        #
-        # Note: for now we do so first, so that parameters can be overwritten
-        # afterwards by the higher-level pipeline FOM.
-        # Ideally we should process the other way: complete high-level,
-        # specific parameters first, then complete with lower-level, more
-        # generic ones, while blocking already set ones.
-        # as this blocking mechanism does not exist yet, we do it this way for
-        # now, but it is sub-optimal since many parameters will be set many
-        # times.
-        use_topological_order = True
-        if isinstance(self.process, Pipeline):
-            name = self.name
-            if use_topological_order:
-                # proceed in topological order
-                graph = self.process.workflow_graph()
-                for node_name, node_meta in graph.topological_sort():
-                    pname = '.'.join([name, node_name])
-                    if isinstance(node_meta, Graph):
-                        nodes = [node_meta.pipeline]
-                    else:
-                        nodes = node_meta
-                    for pipeline_node in nodes:
-                        subprocess = pipeline_node.process
-                        subprocess_attr = \
-                            AttributedProcessFactory().get_attributed_process(
-                                subprocess, self.study_config, pname)
-                        subprocess_attr.complete_parameters(
-                            {'capsul_attributes':
-                            self.capsul_attributes.export_to_dict()})
-            else:
-                for node_name, node in six.iteritems(self.process.nodes):
-                    if node_name == '':
-                        continue
-                    if hasattr(node, 'process'):
-                        subprocess = node.process
-                        pname = '.'.join([name, node_name])
-                        subprocess_attr = \
-                            AttributedProcessFactory().get_attributed_process(
-                                subprocess, self.study_config, pname)
-                        subprocess_attr.complete_parameters(
-                            {'capsul_attributes':
-                            self.capsul_attributes.export_to_dict()})
-
-
     def path_attributes(self, filename, parameter=None):
         ''' Get attributes from a path (file) name for a given parameter.
 
@@ -211,7 +134,7 @@ class AttributedProcess(Process):
 
 
     def get_nodes_attributes_controller(self):
-        ''' Get a gontroller merging needed attributes for a pipeline sub-
+        ''' Get a controller merging needed attributes for a pipeline sub-
         nodes. This is a convenience method that can be used in some pipelines
         but is not useful in all pipelines (some will completely overwrite
         their elements attributes).
@@ -304,6 +227,17 @@ class AttributedProcessFactory(Singleton):
         returned. It will not be able to perform completion at all, but will
         conform to the API.
         '''
+        if process.get_study_config() is None:
+            process.set_study_config(study_config)
+        elif study_config is not process.get_study_config():
+            raise ValueError('Mismatching StudyConfig in process (%s) and '
+                'get_attributed_process() (%s)\nin process:\n%s\npassed:\n%s'
+                % (repr(process.get_study_config()), repr(study_config),
+                   repr(process.get_study_config().export_to_dict()),
+                   repr(study_config.export_to_dict())))
+        #completion_model = CompletionModel.get_completion_model(process, name)
+        #return AttributedProcess(process, completion_model)
+
         for priority in sorted(self.factories.keys()):
             factories = self.factories[priority]
             for factory in factories:

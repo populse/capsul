@@ -14,7 +14,8 @@ if __name__ == '__main__':
         'test_study',
         modules=StudyConfig.default_modules + ['FomConfig', 'BrainVISAConfig'])
     pipeline = get_process_instance(
-        'bv_capsul_ex.ex_processes.GroupAveragePipeline')
+        'bv_capsul_ex.ex_processes.GroupAveragePipeline',
+        study_config=study_config)
     patt = AttributedProcessFactory().get_attributed_process(pipeline,
                                                              study_config)
     qapp = None
