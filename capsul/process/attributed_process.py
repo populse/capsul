@@ -44,13 +44,13 @@ class AttributedProcess(Process, CompletionModel):
     build file names is not hard-coded in this class.
     '''
 
-    def __init__(self, process, study_config, name=None):
+    def __init__(self, process, completion_model, name=None):
         ''' Build an AttributedProcess instance from an existing Process
         instance and a StudyConfig.
         '''
         super(AttributedProcess, self).__init__()
         self.process = process
-        self.study_config = study_config
+        self.completion_model = completion_model
         self.add_trait('capsul_attributes', ControllerTrait(Controller()))
         if name is None:
             self.name = process.name
@@ -123,6 +123,31 @@ class AttributedProcess(Process, CompletionModel):
         pass
 
 
+    def get_attributes(self, process):
+        ''' Get attributes list associated to a process
+
+        Returns
+        -------
+        attributes: list of strings
+        '''
+        return self.completion_model.get_attributes(process)
+
+
+    def get_attribute_values(self, process):
+        ''' Get attributes Controller associated to a process
+
+        Returns
+        -------
+        attributes: Controller
+        '''
+        return self.completion_model.get_attribute_values(process)
+
+
+    def complete_parameters(self, process, process_inputs={}):
+        return self.completion_model.complete_parameters(process,
+                                                         process_inputs)
+
+
     def get_attributes_controller(self):
         ''' Get a list of needed attributes for this process.
 
@@ -152,7 +177,7 @@ class AttributedProcess(Process, CompletionModel):
                     pname = '.'.join([name, node_name])
                     subprocess_attr \
                         = AttributedProcessFactory().get_attributed_process(
-                            subprocess, self.study_config, pname)
+                            subprocess, self.process.study_config, pname)
                     sub_controller \
                         = subprocess_attr.get_attributes_controller()
                     self.merge_controllers(acontroller, sub_controller)
@@ -216,7 +241,7 @@ class AttributedProcessFactory(Singleton):
         self.factories = {100000: [self._default_factory]}
 
 
-    def get_attributed_process(self, process, study_config, name=None):
+    def get_attributed_process(self, process, study_config=None, name=None):
         '''
         Factory for AttributedProcess: get an AttributedProcess instance for a
         process in the context of a given StudyConfig.
@@ -227,16 +252,18 @@ class AttributedProcessFactory(Singleton):
         returned. It will not be able to perform completion at all, but will
         conform to the API.
         '''
-        if process.get_study_config() is None:
-            process.set_study_config(study_config)
-        elif study_config is not process.get_study_config():
-            raise ValueError('Mismatching StudyConfig in process (%s) and '
-                'get_attributed_process() (%s)\nin process:\n%s\npassed:\n%s'
-                % (repr(process.get_study_config()), repr(study_config),
-                   repr(process.get_study_config().export_to_dict()),
-                   repr(study_config.export_to_dict())))
-        #completion_model = CompletionModel.get_completion_model(process, name)
-        #return AttributedProcess(process, completion_model)
+        if study_config is not None:
+            if process.get_study_config() is None:
+                process.set_study_config(study_config)
+            elif study_config is not process.get_study_config():
+                raise ValueError('Mismatching StudyConfig in process (%s) and '
+                    'get_attributed_process() (%s)\nin process:\n%s\n'
+                    'passed:\n%s'
+                    % (repr(process.get_study_config()), repr(study_config),
+                      repr(process.get_study_config().export_to_dict()),
+                      repr(study_config.export_to_dict())))
+        completion_model = CompletionModel.get_completion_model(process, name)
+        return AttributedProcess(process, completion_model)
 
         for priority in sorted(self.factories.keys()):
             factories = self.factories[priority]
@@ -266,5 +293,6 @@ class AttributedProcessFactory(Singleton):
 
     @staticmethod
     def _default_factory(process, study_config, name):
-        return AttributedProcess(process, study_config, name)
+        completion_model = CompletionModel.get_completion_model(process, name)
+        return AttributedProcess(process, completion_model, name)
 
