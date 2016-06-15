@@ -123,7 +123,8 @@ def pipeline_node_colors(pipeline, node):
             and isinstance(node.process, ProcessIteration):
         style = 'iteration'
     elif isinstance(node, ProcessNode) \
-            and isinstance(node.process, AttributedProcess):
+            and (isinstance(node.process, AttributedProcess)
+                 or hasattr(node.process, 'completion_model')):
         style = 'attributed'
     else:
         style = 'default'

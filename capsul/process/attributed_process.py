@@ -265,16 +265,6 @@ class AttributedProcessFactory(Singleton):
         completion_model = CompletionModel.get_completion_model(process, name)
         return AttributedProcess(process, completion_model)
 
-        for priority in sorted(self.factories.keys()):
-            factories = self.factories[priority]
-            for factory in factories:
-                attributed_process = factory(process, study_config, name)
-                if attributed_process is not None:
-                    return attributed_process
-        raise RuntimeError('No factory could produce an AttributedProcess '
-            'instance for the process %s. This is a bug, it should not happen.'
-            %process.id)
-
 
     def register_factory(self, factory_function, priority):
         '''
