@@ -213,5 +213,5 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
                 and result.study_config is not study_config:
             raise ValueError("StudyConfig mismatch in get_process_instance "
                              "for process %s" % result)
-        result.study_config = study_config
+        result.set_study_config(study_config)
     return result
