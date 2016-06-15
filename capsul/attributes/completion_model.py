@@ -11,7 +11,7 @@ class CompletionModel(object):
     organization framework.
     '''
 
-    def __init__(self, name):
+    def __init__(self, name=None):
         self.name = name
 
 
@@ -111,7 +111,7 @@ class CompletionModel(object):
         # import_from_dict() method in the way that capsul_attributes items
         # will not completely replace the all attributes values, but only set
         # those specified here, and leave the others in place.
-        dst_attributes = self.get_attribute_values()
+        dst_attributes = self.get_attribute_values(process)
         attributes = process_inputs.get('capsul_attributes')
         if attributes:
             avail_attrib = set(dst_attributes.user_traits().keys())

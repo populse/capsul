@@ -5,9 +5,9 @@ from __future__ import print_function
 import os
 import six
 try:
-    from traits.api import Str
+    from traits.api import Str, HasTraits
 except ImportError:
-    from enthought.traits.api import Str
+    from enthought.traits.api import Str, HasTraits
 
 from soma.controller import Controller, ControllerTrait
 from capsul.api import Pipeline
@@ -17,7 +17,7 @@ from soma.fom import DirectoryAsDict
 from soma.path import split_path
 
 
-class FomCompletionModel(CompletionModel):
+class FomCompletionModel(HasTraits, CompletionModel):
     """
     Class who creates attributes and completion
     Associates a Process and FOMs.
@@ -65,7 +65,8 @@ class FomCompletionModel(CompletionModel):
     create_attributes_with_fom
     """
     def __init__(self, name=None):
-        super(FomCompletionModel, self).__init__(name)
+        super(FomCompletionModel, self).__init__(name=name)
+
 
     def get_attribute_values(self, process):
         ''' Get attributes Controller associated to a process
@@ -180,7 +181,7 @@ class FomCompletionModel(CompletionModel):
         it as a "pure virtual" method.
         '''
         self.set_parameters(process, process_inputs)
-        self.process_completion(process, name)
+        self.process_completion(process, name=process.name)
 
 
     def process_completion(self, process, name=None, verbose=False):
@@ -200,7 +201,7 @@ class FomCompletionModel(CompletionModel):
             Default: False
         '''
         if name is None:
-            name = self.name
+            name = self.name or process.name
 
         #input_fom = process.study_config.modules_data.foms['input']
         output_fom = process.study_config.modules_data.foms['output']
@@ -277,7 +278,9 @@ class FomCompletionModel(CompletionModel):
         ''' Factoty inserted in attributed_processFactory
         '''
         study_config = process.get_study_config()
-        if 'FomConfig' not in study_config.modules:
+        if study_config is None \
+                or 'FomConfig' not in study_config.modules:
+            #print("no FOM:", study_config, study_config.modules.keys())
             return None  # Non Fom config, no way it could work
         try:
             pfom = FomCompletionModel(name)
