@@ -18,8 +18,8 @@ class AttributedProcessWidget(QtGui.QWidget):
         """
         Parameters
         ----------
-        attributed_process: ProcessWithFom instance
-            process with FOM to be displayed
+        attributed_process: Process instance
+            process with attributes to be displayed
         enable_attr_from_filename: bool (optional)
             if enabled, it will be possible to specify an input filename to
             build FOM attributes from
@@ -78,15 +78,18 @@ class AttributedProcessWidget(QtGui.QWidget):
                                    QtGui.QSizePolicy.Expanding)
 
         # Create controller widget for process and object_attribute
-        process = attributed_process.process
+        process = attributed_process
         self.controller_widget = ScrollControllerWidget(process, live=True,
             parent=param_widget)
 
-        self.controller_widget2 = ScrollControllerWidget(
-            self.attributed_process.get_attributes_controller(),
-            live=True, parent=attrib_widget)
-        self.attributed_process.get_attributes_controller().on_trait_change(
-            self.attributed_process.attributes_changed, 'anytrait')
+        completion_model = getattr(process, 'completion_model', None)
+        if completion_model is not None:
+            self.controller_widget2 = ScrollControllerWidget(
+                completion_model.get_attribute_values(process),
+                live=True, parent=attrib_widget)
+            # FIXME
+            #completion_model.get_attribute_values(process).on_trait_change(
+                #completion_model.attributes_changed, 'anytrait')
 
         # Set controller of attributs and controller of process for each
         # corresponding area
@@ -106,25 +109,39 @@ class AttributedProcessWidget(QtGui.QWidget):
         self.show_completion(False) # hide file parts
 
     def __del__(self):
-        self.attributed_process.get_attributes_controller().on_trait_change(
-            self.attributed_process.attributes_changed, 'anytrait',
-            remove=True)
+        completion_model = getattr(self.attributed_process,
+                                   'completion_model', None)
+        # FIXME
+        #if completion_model is not None:
+            #completion_model.get_attribute_values(
+                #self.attributed_process).on_trait_change(
+                    #completion_model.attributes_changed, 'anytrait',
+                    #remove=True)
 
     def on_input_filename_changed(self, text):
         '''
         Input file path to guess FOM attributes changed: update FOM attributes
         '''
-        print('set attributes from path:', text)
-        try:
-            self.attributed_process.path_attributes(unicode(text))
-        except ValueError as e:
-            print(e)
-            import traceback
-            traceback.print_stack()
+        completion_model = getattr(self.attributed_process,
+                                   'completion_model', None)
+        if completion_model is not None:
+            print('set attributes from path:', text)
+            try:
+                completion_model.path_attributes(self.attributed_process,
+                                                 unicode(text))
+            except ValueError as e:
+                print(e)
+                import traceback
+                traceback.print_stack()
 
 
     def on_btn_load_json(self):
         """Load attributes from a json file"""
+        completion_model = getattr(self.attributed_process,
+                                   'completion_model', None)
+        if completion_model is None:
+            print('No completion model with attributes in this process.')
+            return
         # ask for a file name
         filename = qt_backend.getOpenFileName(
             self, 'Select a .json FOM attributes file', '',
@@ -134,17 +151,23 @@ class AttributedProcessWidget(QtGui.QWidget):
         print('load', filename)
         attributes = json.load(open(filename))
         print("loaded:", attributes)
-        self.attributed_process.get_attributes_controller().import_from_dict(attributes)
+        completion_model.get_attribute_values(
+            self.attributed_process).import_from_dict(attributes)
 
     def on_btn_save_json(self):
         """Save attributes in a json file"""
+        completion_model = getattr(self.attributed_process,
+                                   'completion_model', None)
+        if completion_model is None:
+            print('No attributes in this process.')
+            return
         # ask for a file name
         filename = qt_backend.getSaveFileName(
             self, 'Select a .json FOM attributes file', '',
             'JSON files (*.json)')
         if filename is None:
             return
-        json.dump(self.attributed_process.get_attributes_controller().export_to_dict(),
+        json.dump(completion_model.get_attribute_values().export_to_dict(),
                   open(filename, 'w'))
 
     def set_use_fom(self):
@@ -158,8 +181,14 @@ class AttributedProcessWidget(QtGui.QWidget):
         if ret == QtGui.QMessageBox.Ok:
             #reset attributs and trait of process
             process = self.attributed_process.process
-            self.attributed_process.get_attributes_controller().on_trait_change(
-                self.attributed_process.attributes_changed, 'anytrait')
+            completion_model = getattr(self.attributed_process,
+                                       'completion_model', None)
+            if completion_model is None:
+                return
+            # FIXME
+            #completion_model.get_attributes_controller(
+                #process).on_trait_change(
+                    #completion_model.attributes_changed, 'anytrait')
             try:
                 # WARNING: is it necessary to reset all this ?
                 # create_completion() will do the job anyway ?
@@ -167,12 +196,13 @@ class AttributedProcessWidget(QtGui.QWidget):
                     #if trait.is_trait_type(File) \
                             #or trait.is_trait_type(Directory):
                         #setattr(process,name, Undefined)
-                self.attributed_process.complete_parameters()
+                completion_model.complete_parameters(process)
 
-                print(self.attributed_process.get_attributes_controller().export_to_dict())
+                print(completion_model.get_attributes_controller(
+                    process).export_to_dict())
                 if self.input_filename_controller.attributes_from_input_filename \
                         != '':
-                    self.attributed_process.path_attributes(
+                    completion_model.path_attributes(
                         self.input_filename_controller.attributes_from_input_filename)
             except Exception as e:
                 print(e)
@@ -198,10 +228,15 @@ class AttributedProcessWidget(QtGui.QWidget):
             self.set_use_fom()
         else:
             self.attrib_widget.hide()
-            self.attributed_process.get_attributes_controller().on_trait_change(
-                self.attributed_process.attributes_changed, 'anytrait',
-                remove=True)
-            self.btn_show_completion.setChecked(True)
+            completion_model = getattr(self.attributed_process,
+                                      'completion_model', None)
+            if completion_model is not None:
+                # FIXME
+                #completion_model.get_attributes_controller(
+                    #self.attributed_process).on_trait_change(
+                        #completion_model.attributes_changed, 'anytrait',
+                        #remove=True)
+                self.btn_show_completion.setChecked(True)
 
     def show_completion(self, visible=None):
         '''
