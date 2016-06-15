@@ -90,8 +90,15 @@ class CompletionModel(object):
                         subprocess_compl = \
                             CompletionModel.get_completion_model(
                                 subprocess, pname)
-                        subprocess_compl.complete_parameters(
-                            subprocess, {'capsul_attributes': attrib_values})
+                        try:
+                            subprocess_compl.complete_parameters(
+                                subprocess, {
+                                    'capsul_attributes': attrib_values})
+                        except Exception as e:
+                            if verbose:
+                                print('warning, node %s could not complete '
+                                      'parameters' % node_name)
+                                print(e)
 
 
     def set_parameters(self, process, process_inputs):
