@@ -166,7 +166,7 @@ class FomCompletionModel(CompletionModel, HasTraits):
         return attributes
 
 
-    def complete_parameters(self, process, process_inputs={}):
+    def complete_parameters_xx(self, process, process_inputs={}):
         ''' Completes file parameters from given inputs parameters, which may
         include both "regular" process parameters (file names) and attributes.
         '''
@@ -262,6 +262,63 @@ class FomCompletionModel(CompletionModel, HasTraits):
                 d['fom_format'] = 'fom_prefered'
                 for h in atp.find_paths(d):
                     setattr(process, parameter, h[0])
+                    # find_paths() is a generator which can sometimes generate
+                    # several values (formats). We are only interested in the
+                    # first one.
+                    break
+
+
+    def attributes_to_path(self, process, parameter, attributes):
+        ''' Build a path from attributes
+        '''
+        input_fom = process.study_config.modules_data.foms['input']
+        output_fom = process.study_config.modules_data.foms['output']
+        input_atp = process.study_config.modules_data.fom_atp['input']
+        output_atp = process.study_config.modules_data.fom_atp['output']
+
+        #Create completion
+        if process.trait(parameter).output:
+            atp = output_atp
+            fom = output_fom
+        else:
+            atp = input_atp
+            fom = input_fom
+        name = process.id
+        names_search_list = (process.id, process.name,
+                             getattr(process, 'context_name', ''))
+        for fname in names_search_list:
+            fom_patterns = fom.patterns.get(fname)
+            if fom_patterns is not None:
+                name = fname
+                break
+        else:
+            raise KeyError('Process not found in FOMs amongst %s' \
+                % repr(names_search_list))
+
+        allowed_attributes = set(attributes.keys())
+        allowed_attributes.discard('parameter')
+        allowed_attributes.discard('process_name')
+        # Select only the attributes that are discriminant for this
+        # parameter otherwise other attibutes can prevent the appropriate
+        # rule to match
+        parameter_attributes = atp.find_discriminant_attributes(
+            fom_parameter=parameter)
+        d = dict((i, attributes[i]) \
+            for i in parameter_attributes if i in allowed_attributes)
+        #d = dict( ( i, getattr(self, i) or self.attributes[ i ] ) \
+        #    for i in parameter_attributes if i in self.attributes )
+        d['fom_process'] = name
+        d['fom_parameter'] = parameter
+        d['fom_format'] = 'fom_prefered'
+        path_value = None
+        for h in atp.find_paths(d):
+            path_value = h[0]
+            # find_paths() is a generator which can sometimes generate
+            # several values (formats). We are only interested in the
+            # first one.
+            break
+        return path_value
+
 
     @staticmethod
     def _fom_completion_factory(process, name):
