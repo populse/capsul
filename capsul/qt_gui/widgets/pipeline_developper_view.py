@@ -30,7 +30,6 @@ from capsul.api import Pipeline
 from capsul.api import Process
 from capsul.api import get_process_instance
 from capsul.pipeline.process_iteration import ProcessIteration
-from capsul.process import attributed_process_iteration
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 import capsul.pipeline.xml as capsulxml
