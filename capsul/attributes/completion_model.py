@@ -1,5 +1,7 @@
 
 from soma.singleton import Singleton
+from capsul.api import Pipeline
+from capsul.pipeline.pipeline import Graph, ProcessNode
 import six
 
 
@@ -86,12 +88,24 @@ class CompletionModel(object):
                     else:
                         nodes = node_meta
                     for pipeline_node in nodes:
-                        subprocess = pipeline_node.process
+                        if isinstance(pipeline_node, ProcessNode):
+                            subprocess = pipeline_node.process
+                        else:
+                            subprocess = pipeline_node
                         subprocess_compl = \
                             CompletionModel.get_completion_model(
                                 subprocess, pname)
-                        subprocess_compl.complete_parameters(
-                            subprocess, {'capsul_attributes': attrib_values})
+                        try:
+                            subprocess_compl.complete_parameters(
+                                subprocess, {'capsul_attributes':
+                                             attrib_values})
+                        except:
+                            try:
+                                self.complete_parameters(
+                                    subprocess, {'capsul_attributes':
+                                                attrib_values})
+                            except:
+                                pass
             else:
                 for node_name, node in six.iteritems(process.nodes):
                     if node_name == '':
@@ -106,11 +120,28 @@ class CompletionModel(object):
                             subprocess_compl.complete_parameters(
                                 subprocess, {
                                     'capsul_attributes': attrib_values})
-                        except Exception as e:
-                            if verbose:
-                                print('warning, node %s could not complete '
-                                      'parameters' % node_name)
-                                print(e)
+                        except:
+                            try:
+                                self.complete_parameters(
+                                    subprocess, {'capsul_attributes':
+                                                attrib_values})
+                            except:
+                                pass
+
+        # now complete process parameters:
+        attributes = self.get_attribute_values(process).export_to_dict()
+        for pname in process.user_traits():
+            value = self.attributes_to_path(process, pname, attributes)
+            if value is not None:  # should None be valid ?
+                setattr(process, pname, value)
+
+
+    def attributes_to_path(self, process, attributes):
+        ''' Build a path from attributes.
+
+        This method has to be specialized.
+        '''
+        return None
 
 
     def set_parameters(self, process, process_inputs):
