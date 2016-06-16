@@ -305,6 +305,28 @@ class Pipeline(Process):
         # Remove the trait
         super(Pipeline, self).remove_trait(name)
 
+    def _set_subprocess_context_name(self, process, name):
+        ''' set full contextual name on process instance
+        '''
+        pipeline_name = getattr(self, 'context_name', None)
+        if pipeline_name is None:
+            pipeline_name = self.name
+        process.context_name = '.'.join([pipeline_name, name])
+        # do it recursively if process is a pipeline
+        if isinstance(process, Pipeline):
+            todo = [process]
+            while todo:
+                cur_proc = todo.pop(0)
+                for nname, node in six.iteritems(cur_proc.nodes):
+                    if nname == '':
+                        continue
+                    sub_proc = getattr(node, 'process', None)
+                    if sub_proc is not None:
+                        sub_proc.context_name \
+                            = '.'.join([cur_proc.context_name, nname])
+                        if isinstance(sub_proc, Pipeline):
+                            todo.append(sub_proc)
+
     def add_process(self, name, process, do_not_export=None,
                     make_optional=None, inputs_to_copy=None,
                     inputs_to_clean=None, **kwargs):
@@ -343,6 +365,8 @@ class Pipeline(Process):
         # Create a process node
         process = get_process_instance(process, study_config=self.study_config,
                                        **kwargs)
+        # set full contextual name on process instance
+        self._set_subprocess_context_name(process, name)
 
         # Update the kwargs parameters values according to process
         # default values
