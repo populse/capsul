@@ -17,7 +17,7 @@ from soma.fom import DirectoryAsDict
 from soma.path import split_path
 
 
-class FomCompletionModel(HasTraits, CompletionModel):
+class FomCompletionModel(CompletionModel, HasTraits):
     """
     Class who creates attributes and completion
     Associates a Process and FOMs.

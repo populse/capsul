@@ -12,7 +12,9 @@ class CompletionModel(object):
     '''
 
     def __init__(self, name=None):
+        super(CompletionModel, self).__init__()
         self.name = name
+        self.completion_ongoing = False
 
 
     def get_attributes(self, process):
@@ -122,6 +124,35 @@ class CompletionModel(object):
                               in six.iteritems(process_inputs)
                               if k != 'capsul_attributes')
         process.import_from_dict(process_inputs)
+
+
+    def attributes_changed(self, process, obj, name, old, new):
+        ''' Traits changed callback which triggers parameters update.
+
+        This method basically calls complete_parameters() (after some checks).
+        It is normally used as a traits notification callback for the
+        attributes controller, so that changes in attributes will automatically
+        trigger parameters completion for file paths.
+
+        It can be plugged this way:
+
+        ::
+            attributed_process.get_attributes_controller().on_trait_change(
+                attributed_process.attributes_changed, 'anytrait')
+
+        Then it can be disabled this way:
+
+        ::
+            attributed_process.get_attributes_controller().on_trait_change(
+                attributed_process.attributes_changed, 'anytrait', remove=True)
+        '''
+        if name != 'trait_added' and name != 'user_traits_changed' \
+                and self.completion_ongoing is False:
+            #setattr(self.capsul_attributes, name, new)
+            self.completion_ongoing = True
+            self.complete_parameters(process,
+                                     {'capsul_attributes': {name: new}})
+            self.completion_ongoing = False
 
 
     @staticmethod
