@@ -39,15 +39,16 @@ class FomConfig(StudyConfigModule):
         self.study_config.add_trait('use_fom', Bool(
             Undefined,
             output=False,
-            desc='Use File Organization Models for file parameters completion'))
+            desc='Use File Organization Models for file parameters '
+                'completion'))
 
         # defaults
         self.study_config.input_fom = ""
         self.study_config.output_fom = ""
         self.study_config.shared_fom = ""
 
-        # initialize ProcessWithFom factory
-        import capsul.process.process_with_fom
+        # initialize FomCompletionModel factory
+        import capsul.attributes.fom_completion_model
 
 
     def initialize_module(self):

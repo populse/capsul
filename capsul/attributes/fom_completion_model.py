@@ -19,42 +19,35 @@ from soma.path import split_path
 
 class FomCompletionModel(CompletionModel, HasTraits):
     """
-    Class who creates attributes and completion
-    Associates a Process and FOMs.
+    FOM (File Organization Model) implementation of completion model.
 
-    * A soma.Application needs to be created first, and associated with FOMS:
-
-    ::
-
-        from soma.application import Application
-        soma_app = Application( 'soma.fom', '1.0' )
-        soma_app.plugin_modules.append( 'soma.fom' )
-        soma_app.initialize()
-
-    * A capsul.study_config.StudyConfig also needs to be configured with FOM module, and
-      selected FOMS and directories:
+    * A capsul.study_config.StudyConfig also needs to be configured with FOM
+      module, and selected FOMS and directories:
 
     ::
 
         from capsul.study_config import StudyConfig
         from capsul.study_config.config_modules.fom_config import FomConfig
-        study_config = StudyConfig(modules=StudyConfig.default_modules + [FomConfig])
+        study_config = StudyConfig(modules=StudyConfig.default_modules
+                                   + ['FomConfig', 'BrainVISAConfig'])
         study_config.update_study_configuration('study_config.json')
-        FomConfig.check_and_update_foms(study_config)
 
-    * Only then a ProcessWithFom can be created:
+    * Only then a FomCompletionModel can be created:
 
     ::
 
         process = get_process_instance('morphologist')
-        process_with_fom = ProcessWithFom(process, study_config)
+        fom_completion_model = FomCompletionModel(process, study_config)
+
+    But generally this creation is handled via the
+    CompletionModel.get_completion_model() function:
+
+    ::
+
+        fom_completion_model = CompletionModel.get_completion_model(process)
 
     Parameters
     ----------
-    process: Process instance (mandatory)
-        the process (or piprline) to be associated with FOMS
-    study_config: StudyConfig (mandatory)
-        config needed for FOMs, see capsul.study_config.study_config
     name: string (optional)
         name of the process in the FOM dictionary. By default the
         process.name variable will be used.
@@ -176,9 +169,6 @@ class FomCompletionModel(CompletionModel, HasTraits):
     def complete_parameters(self, process, process_inputs={}):
         ''' Completes file parameters from given inputs parameters, which may
         include both "regular" process parameters (file names) and attributes.
-
-        The default implementation in AttributedProcess does nothing. Consider
-        it as a "pure virtual" method.
         '''
         self.set_parameters(process, process_inputs)
         self.process_completion(process, name=process.name)
@@ -292,6 +282,6 @@ class FomCompletionModel(CompletionModel, HasTraits):
         return None
 
 
-# register ProcessWithFom factory into AttributedProcessFactory
+# register FomCompletionModel factory into CompletionModelFactory
 CompletionModelFactory().register_factory(
     FomCompletionModel._fom_completion_factory, 10000)

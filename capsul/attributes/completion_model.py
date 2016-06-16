@@ -18,14 +18,16 @@ class CompletionModel(object):
 
 
     def get_attributes(self, process):
-        ''' Get attributes list associated to a process
+        ''' Get attributes list associated to a process.
+
+        The default implementation just returns
+        get_attribute_values(process).keys()
 
         Returns
         -------
-        attributes: list of strings
+        attributes: list of strings, or generator
         '''
-        raise AttributeError("CompletionModel.get_attributes() is a pure "
-                             "virtual method.")
+        return self.get_attribute_values(process).keys()
 
 
     def get_attribute_values(self, process):
@@ -35,7 +37,6 @@ class CompletionModel(object):
         -------
         attributes: Controller
         '''
-        #study_config = process.get_study_config()
         # TODO
         raise AttributeError("CompletionModel.get_attribute_values() is a "
                              "pure virtual method.")
@@ -48,9 +49,18 @@ class CompletionModel(object):
         The default implementation does nothing for a
         single Process instance, and calls complete_parameters() on subprocess
         nodes if the process is a pipeline.
+
+        Parameters
+        ----------
+        process: Process instance (mandatory)
+            the process (or pipeline) to be completed
+        process_inputs: dict (optional)
+            parameters to be set on the process. It may include "regular"
+            process parameters, and attributes used for completion. Attributes
+            should be in a sub-dictionary under the key "capsul_attributes".
         '''
         self.set_parameters(process, process_inputs)
-        # if process is a pipeline, create completions for its nodes and
+        # if process is a pipeline, trigger completions for its nodes and
         # sub-pipelines.
         #
         # Note: for now we do so first, so that parameters can be overwritten
@@ -137,14 +147,17 @@ class CompletionModel(object):
         It can be plugged this way:
 
         ::
-            attributed_process.get_attributes_controller().on_trait_change(
-                attributed_process.attributes_changed, 'anytrait')
+            from soma.functiontools import SomaPartial
+            completion_model.get_attribute_values(process).on_trait_change(
+                SomaPartial(completion_model.attributes_changed, process),
+                'anytrait')
 
         Then it can be disabled this way:
 
         ::
-            attributed_process.get_attributes_controller().on_trait_change(
-                attributed_process.attributes_changed, 'anytrait', remove=True)
+            completion_model.get_attribute_values(process).on_trait_change(
+                SomaPartial(completion_model.attributes_changed, process),
+                'anytrait', remove=True)
         '''
         if name != 'trait_added' and name != 'user_traits_changed' \
                 and self.completion_ongoing is False:

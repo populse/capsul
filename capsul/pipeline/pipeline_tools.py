@@ -29,7 +29,6 @@ except ImportError:
 from capsul.pipeline.pipeline import Pipeline, PipelineNode, Switch, \
     ProcessNode
 from capsul.pipeline.process_iteration import ProcessIteration
-from capsul.process.attributed_process import AttributedProcess
 from soma.controller import Controller
 
 if sys.version_info[0] >= 3:
@@ -123,8 +122,7 @@ def pipeline_node_colors(pipeline, node):
             and isinstance(node.process, ProcessIteration):
         style = 'iteration'
     elif isinstance(node, ProcessNode) \
-            and (isinstance(node.process, AttributedProcess)
-                 or hasattr(node.process, 'completion_model')):
+            and hasattr(node.process, 'completion_model'):
         style = 'attributed'
     else:
         style = 'default'
