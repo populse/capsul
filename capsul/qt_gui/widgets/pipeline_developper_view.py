@@ -30,8 +30,6 @@ from capsul.api import Pipeline
 from capsul.api import Process
 from capsul.api import get_process_instance
 from capsul.pipeline.process_iteration import ProcessIteration
-from capsul.process.attributed_process import AttributedProcess, \
-    AttributedProcessFactory
 from capsul.process import attributed_process_iteration
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
@@ -43,7 +41,9 @@ try:
 except ImportError:
     from enthought.traits import api as traits
 
-from soma.qt_gui.controller_widget import ScrollControllerWidget
+#from soma.qt_gui.controller_widget import ScrollControllerWidget
+from capsul.qt_gui.widgets.attributed_process_widget \
+    import AttributedProcessWidget
 
 if sys.version_info[0] >= 3:
     unicode = str
@@ -969,10 +969,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             process = node
         if hasattr(node, 'process'):
             process = node.process
-        if process and isinstance(process, AttributedProcess):
-            sub_pipeline = process.process
-        elif isinstance(node, PipelineNode):
-            sub_pipeline = node.process
+        if isinstance(node, PipelineNode):
+            sub_pipeline = process
         elif process and isinstance(process, ProcessIteration):
             sub_pipeline = process.process
         else:
@@ -1923,7 +1921,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         process = self.scene.pipeline.nodes[node_name]
         if hasattr(process, 'process'):
             process = process.process
-        cwidget = ScrollControllerWidget(process, live=True)
+        cwidget = AttributedProcessWidget(
+            process, enable_attr_from_filename=True, enable_load_buttons=True)
         cwidget.setParent(sub_view)
         sub_view.setWidget(cwidget)
         sub_view.setWidgetResizable(True)
