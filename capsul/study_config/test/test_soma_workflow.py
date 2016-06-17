@@ -18,7 +18,7 @@ if sys.version_info[0] >= 3:
 else:
     import StringIO
 from traits.api import File
-from capsul.study_config import StudyConfig
+from capsul.api import StudyConfig
 from capsul.api import Process
 from capsul.api import Pipeline
 from soma.sorted_dictionary import SortedDictionary

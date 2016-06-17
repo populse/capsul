@@ -794,7 +794,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         '''
         if self.study_config is None:
             # Import cannot be done on module due to circular dependencies
-            from capsul.study_config import default_study_config
+            from capsul.study_config.study_config import default_study_config
             self.set_study_config(default_study_config())
         return self.study_config
 

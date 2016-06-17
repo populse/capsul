@@ -65,7 +65,7 @@ class StudyConfig(Controller):
     "~/.config/capsul/<study_name>/config.json".
     ::
 
-      from capsul.study_config import StudyConfig
+      from capsul.api import StudyConfig
 
       study_config = StudyConfig(modules=['SPMConfig', 'FomConfig'])
       # or:

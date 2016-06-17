@@ -12,7 +12,8 @@ from __future__ import print_function
 import six
 
 # CAPSUL import
-from capsul.api import Process, Pipeline
+from capsul.process.process import Process
+from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.topological_sort import Graph
 
 # soma-base imports

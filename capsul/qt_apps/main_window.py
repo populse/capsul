@@ -25,7 +25,7 @@ from capsul.qt_gui.widgets import (PipelineDevelopperView, PipelineUserView)
 from capsul.qt_gui.board_widget import BoardWidget
 from capsul.api import get_process_instance
 from capsul.pipeline.process_iteration import ProcessIteration
-from capsul.study_config import StudyConfig
+from capsul.study_config.study_config import StudyConfig
 
 
 class CapsulMainWindow(MyQUiLoader):

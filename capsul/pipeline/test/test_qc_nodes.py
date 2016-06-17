@@ -19,7 +19,7 @@ from traits.api import File
 # Capsul import
 from capsul.api import Process
 from capsul.api import Pipeline
-from capsul.study_config import StudyConfig
+from capsul.api import StudyConfig
 
 
 class DummyProcess(Process):

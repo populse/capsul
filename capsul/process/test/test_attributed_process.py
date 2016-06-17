@@ -1,5 +1,5 @@
 
-from capsul.study_config import StudyConfig
+from capsul.api import StudyConfig
 from capsul.api import get_process_instance
 from capsul.process.attributed_process import AttributedProcessFactory
 from capsul.process import attributed_process_iteration
