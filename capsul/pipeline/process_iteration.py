@@ -37,6 +37,10 @@ class ProcessIteration(Process):
             if name in iterative_parameters:
                 self.add_trait(name, List(trait, output=trait.output,
                                           optional=trait.optional))
+                
+                if trait.allowed_extensions:
+                    temp_trait = self.trait(name)
+                    temp_trait.allowed_extensions = trait.allowed_extensions
             else:
                 self.regular_parameters.add(name)
                 self.add_trait(name, trait)
@@ -112,3 +116,4 @@ class ProcessIteration(Process):
                     setattr(self.process, parameter, getattr(self, parameter)[iteration])
                 self.process()
             
+
