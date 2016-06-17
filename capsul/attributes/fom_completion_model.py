@@ -10,7 +10,7 @@ except ImportError:
     from enthought.traits.api import Str, HasTraits
 
 from soma.controller import Controller, ControllerTrait
-from capsul.api import Pipeline
+from capsul.pipeline.pipeline import Pipeline
 from capsul.attributes.completion_model import CompletionModel, \
     CompletionModelFactory
 from soma.fom import DirectoryAsDict
@@ -26,7 +26,7 @@ class FomCompletionModel(CompletionModel, HasTraits):
 
     ::
 
-        from capsul.study_config import StudyConfig
+        from capsul.api import StudyConfig
         from capsul.study_config.config_modules.fom_config import FomConfig
         study_config = StudyConfig(modules=StudyConfig.default_modules
                                    + ['FomConfig', 'BrainVISAConfig'])
