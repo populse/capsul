@@ -11,13 +11,16 @@ except ImportError:
 
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
-from capsul.attributes.completion_model import CompletionModel, \
-    CompletionModelFactory
+from capsul.attributes.completion_model import ProcessCompletionModel, \
+    ProcessCompletionModelFactory, PathCompletionModel
+from capsul.attributes.completion_model_iteration \
+    import ProcessCompletionModelIteration
+from capsul.pipeline.process_iteration import ProcessIteration
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
 
 
-class FomCompletionModel(CompletionModel, HasTraits):
+class FomProcessCompletionModel(ProcessCompletionModel, HasTraits):
     """
     FOM (File Organization Model) implementation of completion model.
 
@@ -32,19 +35,19 @@ class FomCompletionModel(CompletionModel, HasTraits):
                                    + ['FomConfig', 'BrainVISAConfig'])
         study_config.update_study_configuration('study_config.json')
 
-    * Only then a FomCompletionModel can be created:
+    * Only then a FomProcessCompletionModel can be created:
 
     ::
 
         process = get_process_instance('morphologist')
-        fom_completion_model = FomCompletionModel(process, study_config)
+        fom_completion_model = FomProcessCompletionModel(process, study_config)
 
     But generally this creation is handled via the
-    CompletionModel.get_completion_model() function:
+    ProcessCompletionModel.get_completion_model() function:
 
     ::
 
-        fom_completion_model = CompletionModel.get_completion_model(process)
+        fom_completion_model = ProcessCompletionModel.get_completion_model(process)
 
     Parameters
     ----------
@@ -58,7 +61,7 @@ class FomCompletionModel(CompletionModel, HasTraits):
     create_attributes_with_fom
     """
     def __init__(self, name=None):
-        super(FomCompletionModel, self).__init__(name=name)
+        super(FomProcessCompletionModel, self).__init__(name=name)
 
 
     def get_attribute_values(self, process):
@@ -121,13 +124,14 @@ class FomCompletionModel(CompletionModel, HasTraits):
                     default_value \
                         = output_fom.attribute_definitions[att].get(
                             'default_value')
-                    if att in process_attributes \
-                            and default_value != getattr(
-                                capsul_attributes, att):
-                        print('same attribute but not same default value so '
-                              'nothing is displayed')
+                    if att in process_attributes:
+                        if default_value != getattr(capsul_attributes, att):
+                            print('same attribute in input/output FOMs but '
+                                  'with different default values')
+                        else:
+                            setattr(capsul_attributes, att, default_value)
                     else:
-                        setattr(capsul_attributes, att, default_value)
+                        capsul_attributes.add_trait(att, Str(default_value))
 
 
     def path_attributes(self, process, filename, parameter=None):
@@ -198,7 +202,8 @@ class FomCompletionModel(CompletionModel, HasTraits):
         input_atp = process.study_config.modules_data.fom_atp['input']
         output_atp = process.study_config.modules_data.fom_atp['output']
 
-        # TODO: here we could just call CompletionModel.complete_parameters()
+        # TODO: here we could just call
+        # ProcessCompletionModel.complete_parameters()
         # which does this recursion but we need the name parameter
 
         # if process is a pipeline, create completions for its nodes and
@@ -220,8 +225,9 @@ class FomCompletionModel(CompletionModel, HasTraits):
                 if hasattr(node, 'process'):
                     subprocess = node.process
                     pname = '.'.join([name, node_name])
-                    subprocess_compl = CompletionModel.get_completion_model(
-                        subprocess, pname)
+                    subprocess_compl \
+                        = ProcessCompletionModel.get_completion_model(
+                            subprocess, pname)
                     try:
                         subprocess_compl.complete_parameters(
                             subprocess, {'capsul_attributes': attrib_values})
@@ -267,6 +273,33 @@ class FomCompletionModel(CompletionModel, HasTraits):
                     # first one.
                     break
 
+
+    def get_path_completion_model(self, process):
+        '''
+        '''
+        return FomPathCompletionModel()
+
+
+    @staticmethod
+    def _fom_completion_factory(process, name):
+        ''' Factoty inserted in attributed_processFactory
+        '''
+        study_config = process.get_study_config()
+        if study_config is None \
+                or 'FomConfig' not in study_config.modules:
+            #print("no FOM:", study_config, study_config.modules.keys())
+            return None  # Non Fom config, no way it could work
+        try:
+            pfom = FomProcessCompletionModel(name)
+            if pfom is not None:
+                pfom.create_attributes_with_fom(process)
+                return pfom
+        except:
+            pass
+        return None
+
+
+class FomPathCompletionModel(PathCompletionModel):
 
     def attributes_to_path(self, process, parameter, attributes):
         ''' Build a path from attributes
@@ -320,25 +353,53 @@ class FomCompletionModel(CompletionModel, HasTraits):
         return path_value
 
 
+class FomProcessCompletionModelIteration(ProcessCompletionModelIteration):
+
+    def get_iterated_attributes(self, process):
+        subprocess = process.process
+        input_atp = subprocess.study_config.modules_data.fom_atp['input']
+        output_atp = subprocess.study_config.modules_data.fom_atp['output']
+
+        #name = subprocess.id
+        #names_search_list = (subprocess.id, subprocess.name,
+                             #getattr(subprocess, 'context_name', ''))
+        #for fname in names_search_list:
+            #fom_patterns = fom.patterns.get(fname)
+            #if fom_patterns is not None:
+                #name = fname
+                #break
+        #else:
+            #raise KeyError('Process not found in FOMs amongst %s' \
+                #% repr(names_search_list))
+
+        iter_attrib = set()
+        for parameter in process.iterative_parameters:
+            if subprocess.trait(parameter).output:
+                atp = output_atp
+            else:
+                atp = input_atp
+            parameter_attributes = set([
+                x for x in atp.find_discriminant_attributes(
+                    fom_parameter=parameter) if not x.startswith('fom_')])
+            iter_attrib.update(parameter_attributes)
+        return iter_attrib
+
+
     @staticmethod
-    def _fom_completion_factory(process, name):
-        ''' Factoty inserted in attributed_processFactory
-        '''
-        study_config = process.get_study_config()
-        if study_config is None \
-                or 'FomConfig' not in study_config.modules:
-            #print("no FOM:", study_config, study_config.modules.keys())
-            return None  # Non Fom config, no way it could work
-        try:
-            pfom = FomCompletionModel(name)
-            if pfom is not None:
-                pfom.create_attributes_with_fom(process)
-                return pfom
-        except:
-            pass
-        return None
+    def _iteration_factory(process, name):
+        if not isinstance(process, ProcessIteration):
+            return None
+        if not isinstance(
+                ProcessCompletionModel.get_completion_model(process.process),
+                FomProcessCompletionModel):
+            # iterated process doesn't use FOM
+            return None
+        return FomProcessCompletionModelIteration(name)
 
 
-# register FomCompletionModel factory into CompletionModelFactory
-CompletionModelFactory().register_factory(
-    FomCompletionModel._fom_completion_factory, 10000)
+# register FomProcessCompletionModel factory into ProcessCompletionModelFactory
+ProcessCompletionModelFactory().register_factory(
+    FomProcessCompletionModel._fom_completion_factory, 10000)
+ProcessCompletionModelFactory().register_factory(
+    FomProcessCompletionModelIteration._iteration_factory, 40000)
+

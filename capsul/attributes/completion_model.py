@@ -5,16 +5,16 @@ from capsul.pipeline.pipeline import Graph, ProcessNode
 import six
 
 
-class CompletionModel(object):
+class ProcessCompletionModel(object):
     ''' Parameters completion from attributes for a process instance, in the
     context of a specific data organization.
 
-    CompletionModel is pure virtual, and has to be subclassed for a data
+    ProcessCompletionModel is pure virtual, and has to be subclassed for a data
     organization framework.
     '''
 
     def __init__(self, name=None):
-        super(CompletionModel, self).__init__()
+        super(ProcessCompletionModel, self).__init__()
         self.name = name
         self.completion_ongoing = False
 
@@ -40,8 +40,8 @@ class CompletionModel(object):
         attributes: Controller
         '''
         # TODO
-        raise AttributeError("CompletionModel.get_attribute_values() is a "
-                             "pure virtual method.")
+        raise AttributeError("ProcessCompletionModel.get_attribute_values() "
+                             "is a pure virtual method.")
 
 
     def complete_parameters(self, process, process_inputs={}):
@@ -93,7 +93,7 @@ class CompletionModel(object):
                         else:
                             subprocess = pipeline_node
                         subprocess_compl = \
-                            CompletionModel.get_completion_model(
+                            ProcessCompletionModel.get_completion_model(
                                 subprocess, pname)
                         try:
                             subprocess_compl.complete_parameters(
@@ -114,7 +114,7 @@ class CompletionModel(object):
                         subprocess = node.process
                         pname = '.'.join([name, node_name])
                         subprocess_compl = \
-                            CompletionModel.get_completion_model(
+                            ProcessCompletionModel.get_completion_model(
                                 subprocess, pname)
                         try:
                             subprocess_compl.complete_parameters(
@@ -131,17 +131,19 @@ class CompletionModel(object):
         # now complete process parameters:
         attributes = self.get_attribute_values(process).export_to_dict()
         for pname in process.user_traits():
-            value = self.attributes_to_path(process, pname, attributes)
-            if value is not None:  # should None be valid ?
-                setattr(process, pname, value)
+            try:
+                value = self.attributes_to_path(process, pname, attributes)
+                if value is not None:  # should None be valid ?
+                    setattr(process, pname, value)
+            except:
+                pass
 
 
-    def attributes_to_path(self, process, attributes):
-        ''' Build a path from attributes.
-
-        This method has to be specialized.
+    def attributes_to_path(self, process, parameter, attributes):
+        ''' Build a path from attributes for a given parameter in a process.
         '''
-        return None
+        return self.get_path_completion_model(process) \
+            .attributes_to_path(process, parameter, attributes)
 
 
     def set_parameters(self, process, process_inputs):
@@ -152,7 +154,7 @@ class CompletionModel(object):
 
         # This convenience method only differs from the Controller
         # import_from_dict() method in the way that capsul_attributes items
-        # will not completely replace the all attributes values, but only set
+        # will not completely replace all the attributes values, but only set
         # those specified here, and leave the others in place.
         dst_attributes = self.get_attribute_values(process)
         attributes = process_inputs.get('capsul_attributes')
@@ -199,35 +201,59 @@ class CompletionModel(object):
             self.completion_ongoing = False
 
 
+    def get_path_completion_model(self, process):
+        ''' Get a PathCompletionModel object for the given process.
+        The default implementation queries PathCompletionModelFactory,
+        but some specific ProcessCompletionModel implementations may override
+        it for path completion at the process level (FOMs for instance).
+        '''
+        # FIXME: PathCompletionModelFactory instance problem
+        return PathCompletionModelFactory().get_path_completion_model(process)
+
+
     @staticmethod
     def get_completion_model(process, name=None):
-        ''' Get a CompletionModel instance for a given process within the
-        framework of its StudyConfig: factory function.
+        ''' Get a ProcessCompletionModel instance for a given process within
+        the framework of its StudyConfig: factory function.
 
-        Same as CompletionModelFactory().get_completion_model(
+        Same as ProcessCompletionModelFactory().get_completion_model(
             process, process.get_study_config(), name=name)
         '''
-        return CompletionModelFactory().get_completion_model(
+        return ProcessCompletionModelFactory().get_completion_model(
             process, process.get_study_config(), name=name)
 
 
-class CompletionModelFactory(Singleton):
+class PathCompletionModel(object):
+    ''' Implements building of a single path from a set of attributes for a
+    specific process / parameter
+    '''
+    def attributes_to_path(self, process, parameter, attributes):
+        ''' Build a path from attributes for a given parameter in a process.
+
+        This method has to be specialized. The default implementation returns
+        None.
+        '''
+        return None
+
+
+
+class ProcessCompletionModelFactory(Singleton):
     '''
     '''
     def __singleton_init__(self):
-        super(CompletionModelFactory, self).__init__()
+        super(ProcessCompletionModelFactory, self).__init__()
         self.factories = {100000: [self._default_factory]}
 
 
     def get_completion_model(self, process, study_config=None, name=None):
         '''
-        Factory for CompletionModel: get an CompletionModel instance for a
-        process in the context of a given StudyConfig.
+        Factory for ProcessCompletionModel: get an ProcessCompletionModel
+        instance for a process in the context of a given StudyConfig.
 
         The study_config should specify which completion system(s) is (are)
         used (FOM, ...)
-        If nothing is configured, an CompletionModel base instance will be
-        returned. It will not be able to perform completion at all, but will
+        If nothing is configured, a ProcessCompletionModel base instance will
+        be returned. It will not be able to perform completion at all, but will
         conform to the API.
         '''
         if study_config is not None:
@@ -247,7 +273,7 @@ class CompletionModelFactory(Singleton):
                 completion_model = factory(process, name)
                 if completion_model is not None:
                     return completion_model
-        raise RuntimeError('No factory could produce a CompletionModel '
+        raise RuntimeError('No factory could produce a ProcessCompletionModel '
             'instance for the process %s. This is a bug, it should not happen.'
             %process.id)
 
@@ -269,5 +295,12 @@ class CompletionModelFactory(Singleton):
 
     @staticmethod
     def _default_factory(process, name):
-        return CompletionModel(name)
+        return ProcessCompletionModel(name)
+
+
+class PathCompletionModelFactory(object):
+
+  def get_path_completion_model(self, process):
+      raise RuntimeError('PathCompletionModelFactory is pure virtual. '
+                         'It must be derived to do actual work.')
 
