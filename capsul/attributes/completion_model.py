@@ -1,7 +1,7 @@
 
 from soma.singleton import Singleton
 from soma.controller import Controller, ControllerTrait
-from capsul.api import Pipeline
+from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline import Graph, ProcessNode
 import traits.api as traits
 import six
@@ -71,7 +71,7 @@ class ProcessCompletionModel(traits.HasTraits):
                         try:
                             self.get_attribute_values(subprocess)
                         except:
-                            pass
+                            continue
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):
                         if attributes.trait(attribute) is None:
