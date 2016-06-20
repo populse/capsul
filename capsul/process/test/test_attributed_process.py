@@ -1,7 +1,7 @@
 
 from capsul.api import StudyConfig
 from capsul.api import get_process_instance
-from capsul.attributes.completion_model import CompletionModel
+from capsul.attributes.completion_model import ProcessCompletionModel
 from capsul.attributes import completion_model_iteration
 
 
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     pipeline = get_process_instance(
         'bv_capsul_ex.ex_processes.GroupAveragePipeline',
         study_config=study_config)
-    patt = CompletionModel.get_completion_model(pipeline)
+    patt = ProcessCompletionModel.get_completion_model(pipeline)
     pipeline.completion_model = patt
     qapp = None
     if QtGui.QApplication.instance() is None:
