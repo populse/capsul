@@ -27,6 +27,9 @@ from capsul.pipeline.topological_sort import Graph
 from traits.api import Directory, Undefined, File, Str, Any, List
 from soma.sorted_dictionary import OrderedDict
 from .process_iteration import ProcessIteration
+from capsul.attributes import completion_model_iteration
+from capsul.attributes.completion_model import ProcessCompletionModel
+
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -740,6 +743,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                             getattr(it_process, parameter)[iteration])
 
                 # TODO FIXME: operate completion... how ?
+                complete_iteration(it_process, iteration)
 
                 process_name = it_process.process.name + '_%d' % iteration
                 (sub_jobs, sub_dependencies, sub_groups, sub_root_jobs) = \
@@ -755,6 +759,18 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 root_jobs.update(sub_root_jobs)
 
         return (jobs, dependencies, groups, root_jobs)
+
+
+    def complete_iteration(it_process, iteration):
+        completion_model = ProcessCompletionModel.get_completion_model(
+            it_process)
+        completion_model.capsul_iteration = iteration
+        print('completion model:', completion_model)
+        print('iter:', completion_model.capsul_iteration)
+        print('attributes:', completion_model.get_attribute_values(it_process).export_to_dict())
+        completion_model.complete_parameters(it_process)
+        #print('completed:', it_process.process.export_to_dict())
+
 
     def workflow_from_graph(graph, temp_map={}, shared_map={},
                             transfers=[{}, {}], shared_paths={},
