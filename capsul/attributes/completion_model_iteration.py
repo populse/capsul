@@ -14,8 +14,7 @@ import traits.api as traits
 import six
 
 
-class ProcessCompletionModelIteration(ProcessCompletionModel,
-                                      traits.HasTraits):
+class ProcessCompletionModelIteration(ProcessCompletionModel):
     ''' ProcessCompletionModel specialization for iterative process.
 
     Iterated attributes are given by get_iterated_attributes().

@@ -20,7 +20,7 @@ from soma.fom import DirectoryAsDict
 from soma.path import split_path
 
 
-class FomProcessCompletionModel(ProcessCompletionModel, HasTraits):
+class FomProcessCompletionModel(ProcessCompletionModel):
     """
     FOM (File Organization Model) implementation of completion model.
 

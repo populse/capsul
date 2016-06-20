@@ -1,11 +1,13 @@
 
 from soma.singleton import Singleton
+from soma.controller import Controller, ControllerTrait
 from capsul.api import Pipeline
 from capsul.pipeline.pipeline import Graph, ProcessNode
+import traits.api as traits
 import six
 
 
-class ProcessCompletionModel(object):
+class ProcessCompletionModel(traits.HasTraits):
     ''' Parameters completion from attributes for a process instance, in the
     context of a specific data organization.
 
@@ -38,19 +40,56 @@ class ProcessCompletionModel(object):
         Returns
         -------
         attributes: Controller
+
+        The default implementation does nothing for a
+        single Process instance, and merges attributes from its children if
+        the process is a pipeline.
+
         '''
-        # TODO
-        raise AttributeError("ProcessCompletionModel.get_attribute_values() "
-                             "is a pure virtual method.")
+        if isinstance(process, Pipeline):
+            t = self.trait('capsul_attributes')
+            if t is not None:
+                return self.capsul_attributes
+
+            self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+            attributes = self.capsul_attributes
+            name = process.name
+
+            for node_name, node in six.iteritems(process.nodes):
+                if node_name == '':
+                    continue
+                if hasattr(node, 'process'):
+                    subprocess = node.process
+                    pname = '.'.join([name, node_name])
+                    subprocess_compl = \
+                        ProcessCompletionModel.get_completion_model(
+                            subprocess, pname)
+                    try:
+                        sub_attributes = subprocess_compl.get_attribute_values(
+                            subprocess)
+                    except:
+                        try:
+                            self.get_attribute_values(subprocess)
+                        except:
+                            pass
+                    for attribute, trait \
+                            in six.iteritems(sub_attributes.user_traits()):
+                        if attributes.trait(attribute) is None:
+                            attributes.add_trait(attribute, trait)
+                            setattr(attributes, attribute,
+                                    getattr(sub_attributes, attribute))
+            return attributes
+
+        else:
+            # not a pipeline: no default implementation
+            raise AttributeError(
+                "ProcessCompletionModel.get_attribute_values() "
+                "is a pure virtual method.")
 
 
     def complete_parameters(self, process, process_inputs={}):
         ''' Completes file parameters from given inputs parameters, which may
         include both "regular" process parameters (file names) and attributes.
-
-        The default implementation does nothing for a
-        single Process instance, and calls complete_parameters() on subprocess
-        nodes if the process is a pipeline.
 
         Parameters
         ----------
@@ -256,6 +295,8 @@ class ProcessCompletionModelFactory(Singleton):
         be returned. It will not be able to perform completion at all, but will
         conform to the API.
         '''
+        if hasattr(process, 'completion_model'):
+            return process.completion_model
         if study_config is not None:
             if process.get_study_config() is None:
                 process.set_study_config(study_config)
