@@ -381,8 +381,4 @@ class PathCompletionEngineFactory(object):
                            'It must be derived to do actual work.')
 
 
-AttributesFactory.class_types['process_completion'] \
-  = ProcessCompletionEngineFactory
-AttributesFactory.class_types['path_completion'] \
-  = PathCompletionEngineFactory
 
