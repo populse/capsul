@@ -11,7 +11,7 @@ from __future__ import print_function
 import six
 from importlib import import_module
 from pkgutil import iter_modules
-from collections import OrderedDict
+from soma.sorted_dictionary import OrderedDict
 
 from soma.controller import Controller
 from soma.functiontools import partial, SomaPartial
