@@ -45,8 +45,13 @@ class ProcessCompletionModelIteration(ProcessCompletionModel):
         -------
         attributes: Controller
         '''
-        pattributes = ProcessCompletionModel.get_completion_model(
-            process.process).get_attribute_values(process.process)
+        try:
+            pattributes = ProcessCompletionModel.get_completion_model(
+                process.process).get_attribute_values(process.process)
+        except AttributeError:
+            # ProcessCompletionModel not implemented for this process:
+            # no completion
+            return
         t = self.trait('capsul_attributes')
         if t is None:
             self.add_trait('capsul_attributes', ControllerTrait(Controller()))
@@ -67,13 +72,17 @@ class ProcessCompletionModelIteration(ProcessCompletionModel):
 
 
     def complete_parameters(self, process, process_inputs={}):
-        self.set_parameters(process, process_inputs)
-        attributes_set = self.get_attribute_values(process)
-        completion_model = ProcessCompletionModel.get_completion_model(
-            process.process, self.name)
-        # duplicate attributes before modification
-        step_attributes = completion_model.get_attribute_values(
-            process.process)
+        try:
+            self.set_parameters(process, process_inputs)
+            attributes_set = self.get_attribute_values(process)
+            completion_model = ProcessCompletionModel.get_completion_model(
+                process.process, self.name)
+            step_attributes = completion_model.get_attribute_values(
+                process.process)
+        except AttributeError:
+            # ProcessCompletionModel not implemented for this process:
+            # no completion
+            return
         iterated_attributes = self.get_iterated_attributes(process)
         for attribute in iterated_attributes:
             iterated_values = getattr(attributes_set, attribute)
