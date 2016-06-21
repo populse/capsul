@@ -1266,13 +1266,11 @@ class Pipeline(Process):
                 # it is visible out of the pipeline: not temporary
                 continue
             # if we get here, we are a temporary.
+            is_list = False
             if isinstance(trait.trait_type, traits.List):
-                trait_type = trait.trait_type.inner_traits()[0].handler
+                trait = trait.trait_type.inner_traits()[0]
                 is_list = True
-            else:
-                trait_type = trait.trait_type
-                is_list = False
-            if trait_type is traits.Directory:
+            if trait.trait_type is traits.Directory:
                 if is_list:
                     tmp_files = []
                     for v in value:
