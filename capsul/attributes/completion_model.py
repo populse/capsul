@@ -313,6 +313,7 @@ class ProcessCompletionModelFactory(Singleton):
             for factory in factories:
                 completion_model = factory(process, name)
                 if completion_model is not None:
+                    process.completion_model = completion_model
                     return completion_model
         raise RuntimeError('No factory could produce a ProcessCompletionModel '
             'instance for the process %s. This is a bug, it should not happen.'
