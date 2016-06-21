@@ -12,7 +12,8 @@ except ImportError:
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
-    ProcessCompletionEngineFactory, PathCompletionEngine
+    ProcessCompletionEngineFactory, PathCompletionEngine, \
+    PathCompletionEngineFactory
 from capsul.attributes.completion_engine_iteration \
     import ProcessCompletionEngineIteration
 from capsul.pipeline.process_iteration import ProcessIteration
