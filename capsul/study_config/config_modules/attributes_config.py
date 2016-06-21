@@ -8,7 +8,7 @@
 
 import os
 import six
-from traits.api import Bool, Str, Undefined, List
+from traits.api import Bool, Str, Undefined, List, DictStrStr
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.attributes_factory import AttributesFactory
 from capsul.attributes_schema import AttributesSchema
@@ -30,6 +30,18 @@ class AttributesConfig(StudyConfigModule):
             'attributes_schema_paths',
             List(default_paths, Str(Undefined, output=False), output=False,
             desc='attributes shchema module name'))
+        self.study_config.add_trait(
+            'attributes_schemas',
+            DictStrStr(output=False,
+                desc='attributes shchemas names'))
+        self.study_config.add_trait(
+            'process_completion',
+            Str(Undefined, output=False,
+                desc='process completion model name'))
+        self.study_config.add_trait(
+            'path_completion',
+            Str(Undefined, output=False,
+                desc='path completion model name'))
 
 
     def initialize_module(self):
@@ -49,6 +61,6 @@ class AttributesConfig(StudyConfigModule):
     def initialize_callbacks(self):
         self.study_config.on_trait_change(
             self.initialize_module,
-            ['attributes_schema', 'process_completion_model',
-             'path_completion_model'])
+            ['attributes_schemas', 'process_completion',
+             'path_completion', 'attributes_shema_paths'])
 

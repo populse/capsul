@@ -20,7 +20,7 @@ class FomConfig(StudyConfigModule):
     Note: FomConfig needs BrainVISAConfig to be part of StudyConfig modules.
     '''
 
-    dependencies = ['BrainVISAConfig', 'SPMConfig']
+    dependencies = ['BrainVISAConfig', 'SPMConfig', 'AttributesConfig']
 
     def __init__(self, study_config, configuration):
         super(FomConfig, self).__init__(study_config, configuration)
@@ -49,6 +49,9 @@ class FomConfig(StudyConfigModule):
 
         # initialize FomCompletionEngine factory
         import capsul.attributes.fom_completion_engine
+
+        self.study_config.process_completion = 'fom'
+        self.study_config.path_completion = ''
 
 
     def initialize_module(self):
