@@ -6,6 +6,8 @@ from capsul.attributes import completion_model_iteration
 
 
 if __name__ == '__main__':
+    sys.exit(0)
+
     from capsul.qt_gui.widgets.pipeline_developper_view \
         import PipelineDevelopperView
     from soma.qt_gui.qt_backend import QtGui, QtCore
