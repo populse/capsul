@@ -166,8 +166,13 @@ tests_standard_files = [
         'spm_standalone': False,
         'use_soma_workflow': False,
         'create_output_directories': True,
+        'attributes_schema_paths': ['capsul.attributes.completion_engine',
+                                    'capsul.attributes.fom_completion_engine'],
+        'attributes_schemas': {},
+        'path_completion': '',
+        'process_completion': 'fom',
     },
-    ['BrainVISAConfig', 'FomConfig', 'MatlabConfig', 'SPMConfig', 'SomaWorkflowConfig'],
+    ['AttributesConfig', 'BrainVISAConfig', 'FomConfig', 'MatlabConfig', 'SPMConfig', 'SomaWorkflowConfig'],
     'config.json',
     os.path.join('my_study', 'config.json')]],
 
@@ -247,8 +252,13 @@ tests_custom_files = [
         'spm_standalone': False,
         'use_soma_workflow': False,
         'create_output_directories': True,
+        'attributes_schema_paths': ['capsul.attributes.completion_engine',
+                                    'capsul.attributes.fom_completion_engine'],
+        'attributes_schemas': {},
+        'path_completion': '',
+        'process_completion': 'fom',
     },
-    ['BrainVISAConfig', 'FomConfig', 'MatlabConfig', 'SPMConfig', 'SomaWorkflowConfig'],
+    ['AttributesConfig', 'BrainVISAConfig', 'FomConfig', 'MatlabConfig', 'SPMConfig', 'SomaWorkflowConfig'],
     os.path.join('somewhere', 'config.json'),
     os.path.join('my_study', 'config.json')]],
 
@@ -295,7 +305,8 @@ tests_custom_files = [
 user_config = {}
 
 my_study_config = {
-    'config_modules': ['BrainVISAConfig', 'SomaWorkflowConfig', 'FomConfig',
+    'config_modules': ['AttributesConfig', 'BrainVISAConfig',
+                       'SomaWorkflowConfig', 'FomConfig',
                        'MatlabConfig', 'SPMConfig']
 }
 
