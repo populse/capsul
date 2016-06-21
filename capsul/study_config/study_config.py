@@ -241,6 +241,10 @@ class StudyConfig(Controller):
             config_module_class = getattr(python_module, config_module_name)
             module = config_module_class(self, config)
             self.modules[config_module_name] = module
+            # load dependencies
+            for dep_module_name in module.dependencies:
+                if dep_module_name not in self.modules:
+                    self.load_module(dep_module_name, config)
             return module
 
     def run(self, process_or_pipeline, output_directory= None,
