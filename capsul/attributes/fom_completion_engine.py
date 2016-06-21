@@ -303,6 +303,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
 class FomPathCompletionEngine(PathCompletionEngine):
 
+    factory_id = 'fom'
+
     def attributes_to_path(self, process, parameter, attributes):
         ''' Build a path from attributes
         '''
@@ -401,8 +403,23 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
 # register FomProcessCompletionEngine factory into
 # ProcessCompletionEngineFactory
-ProcessCompletionEngineFactory().register_factory(
-    FomProcessCompletionEngine._fom_completion_factory, 10000)
-ProcessCompletionEngineFactory().register_factory(
-    FomProcessCompletionEngineIteration._iteration_factory, 40000)
+
+class FomProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
+
+    factory_id = 'fom'
+
+    def __init__(self):
+        super(FomProcessCompletionEngineFactory, self).__init__()
+        self.register_factory(
+            FomProcessCompletionEngine._fom_completion_factory, 10000)
+        self.register_factory(
+            FomProcessCompletionEngineIteration._iteration_factory, 40000)
+
+
+class FomPathCompletionEngineFactory(PathCompletionEngineFactory):
+
+    factory_id = 'fom'
+
+    def get_path_completion_engine(self, process):
+        return FomPathCompletionEngine()
 

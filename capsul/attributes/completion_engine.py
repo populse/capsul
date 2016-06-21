@@ -3,6 +3,7 @@ from soma.singleton import Singleton
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline import Graph, ProcessNode
+from capsul.attributes_factory import AttributesFactory
 import traits.api as traits
 import six
 
@@ -304,10 +305,12 @@ class PathCompletionEngine(object):
 
 
 
-class ProcessCompletionEngineFactory(Singleton):
+class ProcessCompletionEngineFactory(object):
     '''
     '''
-    def __singleton_init__(self):
+    factory_id = 'builtin'
+
+    def __init__(self):
         super(ProcessCompletionEngineFactory, self).__init__()
         self.factories = {100000: [self._default_factory]}
 
@@ -371,7 +374,15 @@ class ProcessCompletionEngineFactory(Singleton):
 
 class PathCompletionEngineFactory(object):
 
-  def get_path_completion_engine(self, process):
-      raise RuntimeError('PathCompletionEngineFactory is pure virtual. '
-                         'It must be derived to do actual work.')
+    factory_id = 'null'
+
+    def get_path_completion_engine(self, process):
+        raise RuntimeError('PathCompletionEngineFactory is pure virtual. '
+                           'It must be derived to do actual work.')
+
+
+AttributesFactory.class_types['process_completion'] \
+  = ProcessCompletionEngineFactory
+AttributesFactory.class_types['path_completion'] \
+  = PathCompletionEngineFactory
 
