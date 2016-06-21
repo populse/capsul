@@ -11,8 +11,35 @@ class ProcessCompletionModel(traits.HasTraits):
     ''' Parameters completion from attributes for a process instance, in the
     context of a specific data organization.
 
-    ProcessCompletionModel is pure virtual, and has to be subclassed for a data
-    organization framework.
+    ProcessCompletionModel can be used directly for a pipeline, which merely
+    delegates completion to its nodes, and has to be subclassed for a data
+    organization framework on a process.
+
+    To get a completion model, use:
+
+    ::
+
+        completion_model = ProcessCompletionModel.get_completion_model(
+            process, name)
+
+    To get and set the attributes set:
+
+    ::
+
+        attributes = completion_model.get_attribute_values(process)
+        print(attributes.user_traits().keys())
+        attributes.specific_process_attribute = 'a value'
+
+    Once attributes are set, to process with parameters completion:
+
+    ::
+
+        completion_model.complete_parameters(process)
+
+    ProcessCompletionModel can (and should) be specialized, at least to provide
+    the attributes set for a given process. A factory is used to create the
+    correct type of ProcessCompletionModel for a given process / name:
+    :py:class:`ProcessCompletionModelFactory`
     '''
 
     def __init__(self, name=None):
