@@ -26,3 +26,59 @@ To run it, the following must be done:
     ::
 
         ipython notebook --gui=qt my_tutorial.ipynb
+
+
+Building processes
+##################
+
+
+Building pipelines
+##################
+
+Python API
+==========
+
+XML files
+=========
+
+Graphical display and edition
+=============================
+
+
+Configuration
+#############
+
+StudyConfig object, options, modules
+====================================
+
+Data paths
+
+Execution options: Soma-Workflow
+
+
+Running
+#######
+
+Simple, sequential execution
+============================
+
+Distributed execution
+=====================
+
+Running on-the-fly using StudyConfig
+------------------------------------
+
+Generating and saviong workflows
+--------------------------------
+
+
+Parameters completion
+#####################
+
+File Organization Model (FOM)
+=============================
+
+
+Iterating processing over multiple data
+#######################################
+
