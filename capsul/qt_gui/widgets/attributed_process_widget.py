@@ -30,9 +30,9 @@ class AttributedProcessWidget(QtGui.QWidget):
         self.attributed_process = attributed_process
 
         process = attributed_process
-        completion_model = getattr(process, 'completion_model', None)
+        completion_engine = getattr(process, 'completion_engine', None)
 
-        if enable_attr_from_filename and completion_model is not None:
+        if enable_attr_from_filename and completion_engine is not None:
             c = Controller()
             c.add_trait('attributes_from_input_filename', File(optional=True))
             cw = ControllerWidget(c, live=True)
@@ -85,12 +85,12 @@ class AttributedProcessWidget(QtGui.QWidget):
         self.controller_widget = ScrollControllerWidget(process, live=True,
             parent=param_widget)
 
-        if completion_model is not None:
+        if completion_engine is not None:
             self.controller_widget2 = ScrollControllerWidget(
-                completion_model.get_attribute_values(process),
+                completion_engine.get_attribute_values(process),
                 live=True, parent=attrib_widget)
-            completion_model.get_attribute_values(process).on_trait_change(
-                SomaPartial(completion_model.attributes_changed, process),
+            completion_engine.get_attribute_values(process).on_trait_change(
+                SomaPartial(completion_engine.attributes_changed, process),
                 'anytrait')
         else:
             self.controller_widget2 = ScrollControllerWidget(Controller())
@@ -100,7 +100,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         param_widget.layout().addWidget(self.controller_widget)
         attrib_widget.layout().addWidget(self.controller_widget2)
 
-        if enable_load_buttons and completion_model is not None:
+        if enable_load_buttons and completion_engine is not None:
             io_lay = QtGui.QHBoxLayout()
             self.layout().addLayout(io_lay)
             self.btn_load_json = QtGui.QPushButton('Load attributes')
@@ -110,7 +110,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             io_lay.addWidget(self.btn_save_json)
             self.btn_save_json.clicked.connect(self.on_btn_save_json)
 
-        if completion_model is None:
+        if completion_engine is None:
             attrib_widget.hide()
             self.checkbox_fom.hide()
             self.btn_show_completion.hide()
@@ -119,12 +119,12 @@ class AttributedProcessWidget(QtGui.QWidget):
             self.show_completion(False) # hide file parts
 
     def __del__(self):
-        completion_model = getattr(self.attributed_process,
-                                   'completion_model', None)
-        if completion_model is not None:
-            completion_model.get_attribute_values(
+        completion_engine = getattr(self.attributed_process,
+                                   'completion_engine', None)
+        if completion_engine is not None:
+            completion_engine.get_attribute_values(
                 self.attributed_process).on_trait_change(
-                    SomaPartial(completion_model.attributes_changed,
+                    SomaPartial(completion_engine.attributes_changed,
                                 self.attributed_process),
                     'anytrait', remove=True)
 
@@ -132,12 +132,12 @@ class AttributedProcessWidget(QtGui.QWidget):
         '''
         Input file path to guess FOM attributes changed: update FOM attributes
         '''
-        completion_model = getattr(self.attributed_process,
-                                   'completion_model', None)
-        if completion_model is not None:
+        completion_engine = getattr(self.attributed_process,
+                                   'completion_engine', None)
+        if completion_engine is not None:
             print('set attributes from path:', text)
             try:
-                completion_model.path_attributes(self.attributed_process,
+                completion_engine.path_attributes(self.attributed_process,
                                                  unicode(text))
             except ValueError as e:
                 print(e)
@@ -147,10 +147,10 @@ class AttributedProcessWidget(QtGui.QWidget):
 
     def on_btn_load_json(self):
         """Load attributes from a json file"""
-        completion_model = getattr(self.attributed_process,
-                                   'completion_model', None)
-        if completion_model is None:
-            print('No completion model with attributes in this process.')
+        completion_engine = getattr(self.attributed_process,
+                                   'completion_engine', None)
+        if completion_engine is None:
+            print('No completion engine with attributes in this process.')
             return
         # ask for a file name
         filename = qt_backend.getOpenFileName(
@@ -161,14 +161,14 @@ class AttributedProcessWidget(QtGui.QWidget):
         print('load', filename)
         attributes = json.load(open(filename))
         print("loaded:", attributes)
-        completion_model.get_attribute_values(
+        completion_engine.get_attribute_values(
             self.attributed_process).import_from_dict(attributes)
 
     def on_btn_save_json(self):
         """Save attributes in a json file"""
-        completion_model = getattr(self.attributed_process,
-                                   'completion_model', None)
-        if completion_model is None:
+        completion_engine = getattr(self.attributed_process,
+                                   'completion_engine', None)
+        if completion_engine is None:
             print('No attributes in this process.')
             return
         # ask for a file name
@@ -177,7 +177,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             'JSON files (*.json)')
         if filename is None:
             return
-        json.dump(completion_model.get_attribute_values().export_to_dict(),
+        json.dump(completion_engine.get_attribute_values().export_to_dict(),
                   open(filename, 'w'))
 
     def set_use_fom(self):
@@ -191,13 +191,13 @@ class AttributedProcessWidget(QtGui.QWidget):
         if ret == QtGui.QMessageBox.Ok:
             #reset attributs and trait of process
             process = self.attributed_process
-            completion_model = getattr(self.attributed_process,
-                                       'completion_model', None)
-            if completion_model is None:
+            completion_engine = getattr(self.attributed_process,
+                                       'completion_engine', None)
+            if completion_engine is None:
                 return
-            completion_model.get_attribute_values(
+            completion_engine.get_attribute_values(
                 process).on_trait_change(
-                    SomaPartial(completion_model.attributes_changed,
+                    SomaPartial(completion_engine.attributes_changed,
                                 self.attributed_process), 'anytrait')
             try:
                 # WARNING: is it necessary to reset all this ?
@@ -206,13 +206,13 @@ class AttributedProcessWidget(QtGui.QWidget):
                     #if trait.is_trait_type(File) \
                             #or trait.is_trait_type(Directory):
                         #setattr(process,name, Undefined)
-                completion_model.complete_parameters(process)
+                completion_engine.complete_parameters(process)
 
-                print(completion_model.get_attribute_values(
+                print(completion_engine.get_attribute_values(
                       process).export_to_dict())
                 if self.input_filename_controller.attributes_from_input_filename \
                         != '':
-                    completion_model.path_attributes(
+                    completion_engine.path_attributes(
                         self.input_filename_controller.attributes_from_input_filename)
             except Exception as e:
                 print(e)
@@ -238,12 +238,12 @@ class AttributedProcessWidget(QtGui.QWidget):
             self.set_use_fom()
         else:
             self.attrib_widget.hide()
-            completion_model = getattr(self.attributed_process,
-                                      'completion_model', None)
-            if completion_model is not None:
-                completion_model.get_attribute_values(
+            completion_engine = getattr(self.attributed_process,
+                                      'completion_engine', None)
+            if completion_engine is not None:
+                completion_engine.get_attribute_values(
                     self.attributed_process).on_trait_change(
-                        SomaPartial(completion_model.attributes_changed,
+                        SomaPartial(completion_engine.attributes_changed,
                                     self.attributed_process),
                         'anytrait', remove=True)
                 self.btn_show_completion.setChecked(True)

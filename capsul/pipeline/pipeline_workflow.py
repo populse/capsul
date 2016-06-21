@@ -27,8 +27,8 @@ from capsul.pipeline.topological_sort import Graph
 from traits.api import Directory, Undefined, File, Str, Any, List
 from soma.sorted_dictionary import OrderedDict
 from .process_iteration import ProcessIteration
-from capsul.attributes import completion_model_iteration
-from capsul.attributes.completion_model import ProcessCompletionModel
+from capsul.attributes import completion_engine_iteration
+from capsul.attributes.completion_engine import ProcessCompletionEngine
 
 
 if sys.version_info[0] >= 3:
@@ -762,10 +762,10 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
 
 
     def complete_iteration(it_process, iteration):
-        completion_model = ProcessCompletionModel.get_completion_model(
+        completion_engine = ProcessCompletionEngine.get_completion_engine(
             it_process)
-        completion_model.capsul_iteration_step = iteration
-        completion_model.complete_parameters(it_process)
+        completion_engine.capsul_iteration_step = iteration
+        completion_engine.complete_parameters(it_process)
 
 
     def workflow_from_graph(graph, temp_map={}, shared_map={},

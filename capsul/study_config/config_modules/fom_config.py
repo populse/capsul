@@ -47,8 +47,8 @@ class FomConfig(StudyConfigModule):
         self.study_config.output_fom = ""
         self.study_config.shared_fom = ""
 
-        # initialize FomCompletionModel factory
-        import capsul.attributes.fom_completion_model
+        # initialize FomCompletionEngine factory
+        import capsul.attributes.fom_completion_engine
 
 
     def initialize_module(self):

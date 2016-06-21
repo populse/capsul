@@ -7,22 +7,22 @@
 ##########################################################################
 
 from capsul.pipeline.process_iteration import ProcessIteration
-from capsul.attributes.completion_model import ProcessCompletionModel, \
-    ProcessCompletionModelFactory
+from capsul.attributes.completion_engine import ProcessCompletionEngine, \
+    ProcessCompletionEngineFactory
 from soma.controller import Controller,ControllerTrait
 import traits.api as traits
 import six
 
 
-class ProcessCompletionModelIteration(ProcessCompletionModel):
-    ''' ProcessCompletionModel specialization for iterative process.
+class ProcessCompletionEngineIteration(ProcessCompletionEngine):
+    ''' ProcessCompletionEngine specialization for iterative process.
 
     Iterated attributes are given by get_iterated_attributes().
     Completion performs a single iteration step, stored in
     self.capsul_iteration_step
     '''
     def __init__(self, name=None):
-        super(ProcessCompletionModelIteration, self).__init__(name)
+        super(ProcessCompletionEngineIteration, self).__init__(name)
         #self.add_trait('capsul_iteration_step', traits.Int(0))
         self.capsul_iteration_step = 0
         #self.iterated_attributes = self.get_iterated_attributes()
@@ -46,10 +46,10 @@ class ProcessCompletionModelIteration(ProcessCompletionModel):
         attributes: Controller
         '''
         try:
-            pattributes = ProcessCompletionModel.get_completion_model(
+            pattributes = ProcessCompletionEngine.get_completion_engine(
                 process.process).get_attribute_values(process.process)
         except AttributeError:
-            # ProcessCompletionModel not implemented for this process:
+            # ProcessCompletionEngine not implemented for this process:
             # no completion
             return
         t = self.trait('capsul_attributes')
@@ -75,12 +75,12 @@ class ProcessCompletionModelIteration(ProcessCompletionModel):
         try:
             self.set_parameters(process, process_inputs)
             attributes_set = self.get_attribute_values(process)
-            completion_model = ProcessCompletionModel.get_completion_model(
+            completion_engine = ProcessCompletionEngine.get_completion_engine(
                 process.process, self.name)
-            step_attributes = completion_model.get_attribute_values(
+            step_attributes = completion_engine.get_attribute_values(
                 process.process)
         except AttributeError:
-            # ProcessCompletionModel not implemented for this process:
+            # ProcessCompletionEngine not implemented for this process:
             # no completion
             return
         iterated_attributes = self.get_iterated_attributes(process)
@@ -101,17 +101,17 @@ class ProcessCompletionModelIteration(ProcessCompletionModel):
             if isinstance(values, list) \
                     and len(values) > self.capsul_iteration_step:
                 parameters[parameter] = values[self.capsul_iteration_step]
-        completion_model.complete_parameters(process.process, parameters)
+        completion_engine.complete_parameters(process.process, parameters)
 
 
     @staticmethod
     def _iteration_factory(process, name):
         if not isinstance(process, ProcessIteration):
             return None
-        return ProcessCompletionModelIteration(name)
+        return ProcessCompletionEngineIteration(name)
 
 
-ProcessCompletionModelFactory().register_factory(
-    ProcessCompletionModelIteration._iteration_factory, 50000)
+ProcessCompletionEngineFactory().register_factory(
+    ProcessCompletionEngineIteration._iteration_factory, 50000)
 
 

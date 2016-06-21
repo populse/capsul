@@ -7,26 +7,26 @@ import traits.api as traits
 import six
 
 
-class ProcessCompletionModel(traits.HasTraits):
+class ProcessCompletionEngine(traits.HasTraits):
     ''' Parameters completion from attributes for a process instance, in the
     context of a specific data organization.
 
-    ProcessCompletionModel can be used directly for a pipeline, which merely
+    ProcessCompletionEngine can be used directly for a pipeline, which merely
     delegates completion to its nodes, and has to be subclassed for a data
     organization framework on a process.
 
-    To get a completion model, use:
+    To get a completion engine, use:
 
     ::
 
-        completion_model = ProcessCompletionModel.get_completion_model(
+        completion_engine = ProcessCompletionEngine.get_completion_engine(
             process, name)
 
     To get and set the attributes set:
 
     ::
 
-        attributes = completion_model.get_attribute_values(process)
+        attributes = completion_engine.get_attribute_values(process)
         print(attributes.user_traits().keys())
         attributes.specific_process_attribute = 'a value'
 
@@ -34,16 +34,16 @@ class ProcessCompletionModel(traits.HasTraits):
 
     ::
 
-        completion_model.complete_parameters(process)
+        completion_engine.complete_parameters(process)
 
-    ProcessCompletionModel can (and should) be specialized, at least to provide
-    the attributes set for a given process. A factory is used to create the
-    correct type of ProcessCompletionModel for a given process / name:
-    :py:class:`ProcessCompletionModelFactory`
+    ProcessCompletionEngine can (and should) be specialized, at least to
+    provide the attributes set for a given process. A factory is used to create
+    the correct type of ProcessCompletionEngine for a given process / name:
+    :py:class:`ProcessCompletionEngineFactory`
     '''
 
     def __init__(self, name=None):
-        super(ProcessCompletionModel, self).__init__()
+        super(ProcessCompletionEngine, self).__init__()
         self.name = name
         self.completion_ongoing = False
 
@@ -89,7 +89,7 @@ class ProcessCompletionModel(traits.HasTraits):
                     subprocess = node.process
                     pname = '.'.join([name, node_name])
                     subprocess_compl = \
-                        ProcessCompletionModel.get_completion_model(
+                        ProcessCompletionEngine.get_completion_engine(
                             subprocess, pname)
                     try:
                         sub_attributes = subprocess_compl.get_attribute_values(
@@ -110,7 +110,7 @@ class ProcessCompletionModel(traits.HasTraits):
         else:
             # not a pipeline: no default implementation
             raise AttributeError(
-                "ProcessCompletionModel.get_attribute_values() "
+                "ProcessCompletionEngine.get_attribute_values() "
                 "is a pure virtual method.")
 
 
@@ -159,7 +159,7 @@ class ProcessCompletionModel(traits.HasTraits):
                         else:
                             subprocess = pipeline_node
                         subprocess_compl = \
-                            ProcessCompletionModel.get_completion_model(
+                            ProcessCompletionEngine.get_completion_engine(
                                 subprocess, pname)
                         try:
                             subprocess_compl.complete_parameters(
@@ -180,7 +180,7 @@ class ProcessCompletionModel(traits.HasTraits):
                         subprocess = node.process
                         pname = '.'.join([name, node_name])
                         subprocess_compl = \
-                            ProcessCompletionModel.get_completion_model(
+                            ProcessCompletionEngine.get_completion_engine(
                                 subprocess, pname)
                         try:
                             subprocess_compl.complete_parameters(
@@ -208,7 +208,7 @@ class ProcessCompletionModel(traits.HasTraits):
     def attributes_to_path(self, process, parameter, attributes):
         ''' Build a path from attributes for a given parameter in a process.
         '''
-        return self.get_path_completion_model(process) \
+        return self.get_path_completion_engine(process) \
             .attributes_to_path(process, parameter, attributes)
 
 
@@ -247,15 +247,15 @@ class ProcessCompletionModel(traits.HasTraits):
 
         ::
             from soma.functiontools import SomaPartial
-            completion_model.get_attribute_values(process).on_trait_change(
-                SomaPartial(completion_model.attributes_changed, process),
+            completion_engine.get_attribute_values(process).on_trait_change(
+                SomaPartial(completion_engine.attributes_changed, process),
                 'anytrait')
 
         Then it can be disabled this way:
 
         ::
-            completion_model.get_attribute_values(process).on_trait_change(
-                SomaPartial(completion_model.attributes_changed, process),
+            completion_engine.get_attribute_values(process).on_trait_change(
+                SomaPartial(completion_engine.attributes_changed, process),
                 'anytrait', remove=True)
         '''
         if name != 'trait_added' and name != 'user_traits_changed' \
@@ -267,29 +267,30 @@ class ProcessCompletionModel(traits.HasTraits):
             self.completion_ongoing = False
 
 
-    def get_path_completion_model(self, process):
-        ''' Get a PathCompletionModel object for the given process.
-        The default implementation queries PathCompletionModelFactory,
-        but some specific ProcessCompletionModel implementations may override
+    def get_path_completion_engine(self, process):
+        ''' Get a PathCompletionEngine object for the given process.
+        The default implementation queries PathCompletionEngineFactory,
+        but some specific ProcessCompletionEngine implementations may override
         it for path completion at the process level (FOMs for instance).
         '''
-        # FIXME: PathCompletionModelFactory instance problem
-        return PathCompletionModelFactory().get_path_completion_model(process)
+        # FIXME: PathCompletionEngineFactory instance problem
+        return PathCompletionEngineFactory().get_path_completion_engine(
+            process)
 
 
     @staticmethod
-    def get_completion_model(process, name=None):
-        ''' Get a ProcessCompletionModel instance for a given process within
+    def get_completion_engine(process, name=None):
+        ''' Get a ProcessCompletionEngine instance for a given process within
         the framework of its StudyConfig: factory function.
 
-        Same as ProcessCompletionModelFactory().get_completion_model(
+        Same as ProcessCompletionEngineFactory().get_completion_engine(
             process, process.get_study_config(), name=name)
         '''
-        return ProcessCompletionModelFactory().get_completion_model(
+        return ProcessCompletionEngineFactory().get_completion_engine(
             process, process.get_study_config(), name=name)
 
 
-class PathCompletionModel(object):
+class PathCompletionEngine(object):
     ''' Implements building of a single path from a set of attributes for a
     specific process / parameter
     '''
@@ -303,27 +304,27 @@ class PathCompletionModel(object):
 
 
 
-class ProcessCompletionModelFactory(Singleton):
+class ProcessCompletionEngineFactory(Singleton):
     '''
     '''
     def __singleton_init__(self):
-        super(ProcessCompletionModelFactory, self).__init__()
+        super(ProcessCompletionEngineFactory, self).__init__()
         self.factories = {100000: [self._default_factory]}
 
 
-    def get_completion_model(self, process, study_config=None, name=None):
+    def get_completion_engine(self, process, study_config=None, name=None):
         '''
-        Factory for ProcessCompletionModel: get an ProcessCompletionModel
+        Factory for ProcessCompletionEngine: get an ProcessCompletionEngine
         instance for a process in the context of a given StudyConfig.
 
         The study_config should specify which completion system(s) is (are)
         used (FOM, ...)
-        If nothing is configured, a ProcessCompletionModel base instance will
+        If nothing is configured, a ProcessCompletionEngine base instance will
         be returned. It will not be able to perform completion at all, but will
         conform to the API.
         '''
-        if hasattr(process, 'completion_model'):
-            return process.completion_model
+        if hasattr(process, 'completion_engine'):
+            return process.completion_engine
         if study_config is not None:
             if process.get_study_config() is None:
                 process.set_study_config(study_config)
@@ -338,11 +339,12 @@ class ProcessCompletionModelFactory(Singleton):
         for priority in sorted(self.factories.keys()):
             factories = self.factories[priority]
             for factory in factories:
-                completion_model = factory(process, name)
-                if completion_model is not None:
-                    process.completion_model = completion_model
-                    return completion_model
-        raise RuntimeError('No factory could produce a ProcessCompletionModel '
+                completion_engine = factory(process, name)
+                if completion_engine is not None:
+                    process.completion_engine = completion_engine
+                    return completion_engine
+        raise RuntimeError(
+            'No factory could produce a ProcessCompletionEngine '
             'instance for the process %s. This is a bug, it should not happen.'
             %process.id)
 
@@ -364,12 +366,12 @@ class ProcessCompletionModelFactory(Singleton):
 
     @staticmethod
     def _default_factory(process, name):
-        return ProcessCompletionModel(name)
+        return ProcessCompletionEngine(name)
 
 
-class PathCompletionModelFactory(object):
+class PathCompletionEngineFactory(object):
 
-  def get_path_completion_model(self, process):
-      raise RuntimeError('PathCompletionModelFactory is pure virtual. '
+  def get_path_completion_engine(self, process):
+      raise RuntimeError('PathCompletionEngineFactory is pure virtual. '
                          'It must be derived to do actual work.')
 
