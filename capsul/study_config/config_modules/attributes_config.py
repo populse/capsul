@@ -42,19 +42,19 @@ class AttributesConfig(StudyConfigModule):
             'path_completion',
             Str(Undefined, output=False,
                 desc='path completion model name'))
+        self.study_config.modules_data.attributes_factory = AttributesFactory()
 
 
     def initialize_module(self):
         '''
         '''
-        factory = AttributesFactory()
+        factory = self.study_config.modules_data.attributes_factory
         factory.class_types['schema'] = AttributesSchema
         factory.class_types['process_completion'] \
           = ProcessCompletionEngineFactory
         factory.class_types['path_completion'] \
           = PathCompletionEngineFactory
 
-        self.study_config.modules_data.attributes_factory = factory
         factory.module_path = self.study_config.attributes_schema_paths
 
 

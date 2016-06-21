@@ -110,9 +110,10 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         else:
             # not a pipeline: no default implementation
-            raise AttributeError(
-                "ProcessCompletionEngine.get_attribute_values() "
-                "is a pure virtual method.")
+            return Controller()
+            #raise AttributeError(
+                #"ProcessCompletionEngine.get_attribute_values() "
+                #"is a pure virtual method.")
 
 
     def complete_parameters(self, process, process_inputs={}):
@@ -274,21 +275,38 @@ class ProcessCompletionEngine(traits.HasTraits):
         but some specific ProcessCompletionEngine implementations may override
         it for path completion at the process level (FOMs for instance).
         '''
-        # FIXME: PathCompletionEngineFactory instance problem
-        return PathCompletionEngineFactory().get_path_completion_engine(
-            process)
+        study_config = process.get_study_config()
+        engine_factory = None
+        if 'AttributesConfig' in study_config.modules:
+            try:
+                engine_factory \
+                    = study_config.modules_data.attributes_factory.get(
+                        'path_completion', study_config.path_completion)
+            except ValueError:
+                pass # not found
+        if engine_factory is None:
+            engine_factory = PathCompletionEngineFactory()
+        return engine_factory.get_path_completion_engine(process)
 
 
     @staticmethod
     def get_completion_engine(process, name=None):
         ''' Get a ProcessCompletionEngine instance for a given process within
         the framework of its StudyConfig: factory function.
-
-        Same as ProcessCompletionEngineFactory().get_completion_engine(
-            process, process.get_study_config(), name=name)
         '''
-        return ProcessCompletionEngineFactory().get_completion_engine(
-            process, process.get_study_config(), name=name)
+        study_config = process.get_study_config()
+        engine_factory = None
+        if 'AttributesConfig' in study_config.modules:
+            try:
+                engine_factory \
+                    = study_config.modules_data.attributes_factory.get(
+                        'process_completion', study_config.process_completion)
+            except ValueError:
+                pass # not found
+        if engine_factory is None:
+            engine_factory = ProcessCompletionEngineFactory()
+        return engine_factory.get_completion_engine(
+            process, study_config, name=name)
 
 
 class PathCompletionEngine(object):
