@@ -764,12 +764,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     def complete_iteration(it_process, iteration):
         completion_model = ProcessCompletionModel.get_completion_model(
             it_process)
-        completion_model.capsul_iteration = iteration
-        print('completion model:', completion_model)
-        print('iter:', completion_model.capsul_iteration)
-        print('attributes:', completion_model.get_attribute_values(it_process).export_to_dict())
+        completion_model.capsul_iteration_step = iteration
         completion_model.complete_parameters(it_process)
-        #print('completed:', it_process.process.export_to_dict())
 
 
     def workflow_from_graph(graph, temp_map={}, shared_map={},
