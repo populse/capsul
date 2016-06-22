@@ -101,7 +101,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         for parameter in fom_patterns:
             process_attributes.update(
                 input_atp.find_discriminant_attributes(
-                    fom_parameter=parameter))
+                    fom_parameter=parameter, fom_process=name))
 
         capsul_attributes = self.get_attribute_values(process)
 
@@ -120,7 +120,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             for parameter in output_fom.patterns[process.name]:
                 process_attributes2.update(
                     output_atp.find_discriminant_attributes(
-                        fom_parameter=parameter))
+                        fom_parameter=parameter, fom_process=name))
 
             for att in process_attributes2:
                 if not att.startswith('fom_'):
@@ -261,7 +261,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 else:
                     atp = input_atp
                 parameter_attributes = atp.find_discriminant_attributes(
-                    fom_parameter=parameter)
+                    fom_parameter=parameter, fom_process=name)
                 d = dict((i, attrib_values[i]) \
                     for i in parameter_attributes if i in allowed_attributes)
                 #d = dict( ( i, getattr(self, i) or self.attributes[ i ] ) \
@@ -340,7 +340,7 @@ class FomPathCompletionEngine(PathCompletionEngine):
         # parameter otherwise other attibutes can prevent the appropriate
         # rule to match
         parameter_attributes = atp.find_discriminant_attributes(
-            fom_parameter=parameter)
+            fom_parameter=parameter, fom_process=name)
         d = dict((i, attributes[i]) \
             for i in parameter_attributes if i in allowed_attributes)
         #d = dict( ( i, getattr(self, i) or self.attributes[ i ] ) \
@@ -362,20 +362,26 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
     def get_iterated_attributes(self, process):
         subprocess = process.process
+        input_fom = subprocess.study_config.modules_data.foms['input']
+        output_fom = subprocess.study_config.modules_data.foms['output']
         input_atp = subprocess.study_config.modules_data.fom_atp['input']
         output_atp = subprocess.study_config.modules_data.fom_atp['output']
 
-        #name = subprocess.id
-        #names_search_list = (subprocess.id, subprocess.name,
-                             #getattr(subprocess, 'context_name', ''))
-        #for fname in names_search_list:
-            #fom_patterns = fom.patterns.get(fname)
-            #if fom_patterns is not None:
-                #name = fname
-                #break
-        #else:
-            #raise KeyError('Process not found in FOMs amongst %s' \
-                #% repr(names_search_list))
+        name = subprocess.id
+        names_search_list = (subprocess.id, subprocess.name,
+                             getattr(subprocess, 'context_name', ''))
+        for fom in (input_fom, output_fom):
+            for fname in names_search_list:
+                fom_patterns = fom.patterns.get(fname)
+                if fom_patterns is not None:
+                    name = fname
+                    break
+            else:
+                continue
+            break
+        else:
+            raise KeyError('Process not found in FOMs amongst %s' \
+                % repr(names_search_list))
 
         iter_attrib = set()
         for parameter in process.iterative_parameters:
@@ -385,7 +391,8 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
                 atp = input_atp
             parameter_attributes = set([
                 x for x in atp.find_discriminant_attributes(
-                    fom_parameter=parameter) if not x.startswith('fom_')])
+                    fom_parameter=parameter, fom_process=name)
+                if not x.startswith('fom_')])
             iter_attrib.update(parameter_attributes)
         return iter_attrib
 
