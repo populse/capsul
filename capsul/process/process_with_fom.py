@@ -273,7 +273,7 @@ class ProcessWithFom(Controller):
                 else:
                     atp = input_atp
                 parameter_attributes = atp.find_discriminant_attributes(
-                    fom_parameter=parameter)
+                    fom_parameter=parameter, fom_process=name)
                 d = dict((i, self.attributes[i]) \
                     for i in parameter_attributes if i in self.attributes)
                 #d = dict( ( i, getattr(self, i) or self.attributes[ i ] ) \
@@ -283,6 +283,7 @@ class ProcessWithFom(Controller):
                 d['fom_format'] = 'fom_prefered'
                 for h in atp.find_paths(d):
                     setattr(process, parameter, h[0])
+                    break
 
 
     def attributes_changed(self, obj, name, old, new):
