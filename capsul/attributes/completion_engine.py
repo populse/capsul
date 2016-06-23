@@ -3,8 +3,8 @@ from soma.singleton import Singleton
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline import Graph, ProcessNode
-from capsul.attributes_factory import AttributesFactory
-from capsul.attributes_schema import ProcessAttributes
+from capsul.attributes.attributes_factory import AttributesFactory
+from capsul.attributes.attributes_schema import ProcessAttributes
 import traits.api as traits
 import six
 

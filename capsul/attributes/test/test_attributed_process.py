@@ -4,8 +4,8 @@ from __future__ import print_function
 from capsul.api import StudyConfig, Process
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     PathCompletionEngine, PathCompletionEngineFactory
-from capsul.attributes_schema import ProcessAttributes, AttributesSchema, \
-    EditableAttributes
+from capsul.attributes.attributes_schema import ProcessAttributes, \
+    AttributesSchema, EditableAttributes
 from traits.api import Str, Float, File, String, Undefined
 import unittest
 import os

@@ -9,7 +9,7 @@
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory
-from capsul.attributes_schema import ProcessAttributes
+from capsul.attributes.attributes_schema import ProcessAttributes
 from soma.controller import Controller,ControllerTrait
 import traits.api as traits
 import six

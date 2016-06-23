@@ -10,8 +10,9 @@ import os
 import six
 from traits.api import Bool, Str, Undefined, List, DictStrStr
 from capsul.study_config.study_config import StudyConfigModule
-from capsul.attributes_factory import AttributesFactory
-from capsul.attributes_schema import AttributesSchema, ProcessAttributes
+from capsul.attributes.attributes_factory import AttributesFactory
+from capsul.attributes.attributes_schema import AttributesSchema, \
+    ProcessAttributes
 from capsul.attributes.completion_engine \
     import ProcessCompletionEngineFactory, PathCompletionEngineFactory
 

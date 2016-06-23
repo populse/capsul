@@ -11,7 +11,7 @@ from __future__ import absolute_import
 
 from soma.factory import ClassFactory
 
-from capsul.attributes_schema import AttributesSchema
+from capsul.attributes.attributes_schema import AttributesSchema
 
 
 class AttributesFactory(ClassFactory):

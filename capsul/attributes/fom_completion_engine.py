@@ -17,7 +17,7 @@ from capsul.attributes.completion_engine import ProcessCompletionEngine, \
 from capsul.attributes.completion_engine_iteration \
     import ProcessCompletionEngineIteration
 from capsul.pipeline.process_iteration import ProcessIteration
-from capsul.attributes_schema import ProcessAttributes
+from capsul.attributes.attributes_schema import ProcessAttributes
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
 
