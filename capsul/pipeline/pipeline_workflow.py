@@ -186,7 +186,9 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 if item in temp_map:
                     value = temp_map[item]
                     value = value.__class__(value)
-                    value.pattern = item.pattern
+                    if hasattr(item, 'pattern'):
+                        # temp case (differs from shared case)
+                        value.pattern = item.pattern
                     rlist[i] = value
                 elif isinstance(item, list) or isinstance(item, tuple):
                     deeperlist = list(item)
