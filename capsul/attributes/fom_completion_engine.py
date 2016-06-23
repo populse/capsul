@@ -17,6 +17,7 @@ from capsul.attributes.completion_engine import ProcessCompletionEngine, \
 from capsul.attributes.completion_engine_iteration \
     import ProcessCompletionEngineIteration
 from capsul.pipeline.process_iteration import ProcessIteration
+from capsul.attributes_schema import ProcessAttributes
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
 
@@ -75,9 +76,14 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         attributes: Controller
         '''
         t = self.trait('capsul_attributes')
-        if t is None:
-            self.add_trait('capsul_attributes', ControllerTrait(Controller()))
-        return getattr(self, 'capsul_attributes')
+        if t is not None:
+            return self.capsul_attributes
+
+        self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+        schemas = self._get_schemas(process)
+        self.capsul_attributes = ProcessAttributes(process, schemas)
+
+        return self.capsul_attributes
 
 
     def create_attributes_with_fom(self, process):
@@ -297,7 +303,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             if pfom is not None:
                 pfom.create_attributes_with_fom(process)
                 return pfom
-        except:
+        except KeyError:
+            # process not in FOM
             pass
         return None
 

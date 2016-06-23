@@ -9,6 +9,7 @@
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory
+from capsul.attributes_schema import ProcessAttributes
 from soma.controller import Controller,ControllerTrait
 import traits.api as traits
 import six
@@ -45,17 +46,21 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         -------
         attributes: Controller
         '''
-        try:
-            pattributes = ProcessCompletionEngine.get_completion_engine(
-                process.process).get_attribute_values(process.process)
-        except AttributeError:
-            # ProcessCompletionEngine not implemented for this process:
-            # no completion
-            return
         t = self.trait('capsul_attributes')
         if t is None:
+            try:
+                pattributes = ProcessCompletionEngine.get_completion_engine(
+                    process.process).get_attribute_values(process.process)
+            except AttributeError:
+                # ProcessCompletionEngine not implemented for this process:
+                # no completion
+                return
+
+            schemas = self._get_schemas(process)
+            attributes = ProcessAttributes(process, schemas)
+
             self.add_trait('capsul_attributes', ControllerTrait(Controller()))
-            attributes = self.capsul_attributes
+            self.capsul_attributes = attributes
             iter_attrib = self.get_iterated_attributes(process)
             for attrib, trait in six.iteritems(pattributes.user_traits()):
                 if attrib not in iter_attrib:

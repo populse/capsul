@@ -4,6 +4,7 @@ from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline import Graph, ProcessNode
 from capsul.attributes_factory import AttributesFactory
+from capsul.attributes_schema import ProcessAttributes
 import traits.api as traits
 import six
 
@@ -53,13 +54,13 @@ class ProcessCompletionEngine(traits.HasTraits):
         ''' Get attributes list associated to a process.
 
         The default implementation just returns
-        get_attribute_values(process).keys()
+        get_attribute_values(process).user_traits().keys()
 
         Returns
         -------
         attributes: list of strings, or generator
         '''
-        return self.get_attribute_values(process).keys()
+        return self.get_attribute_values(process).user_traits().keys()
 
 
     def get_attribute_values(self, process):
@@ -67,19 +68,22 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         Returns
         -------
-        attributes: Controller
+        attributes: ProcessAttributes instance
 
         The default implementation does nothing for a
         single Process instance, and merges attributes from its children if
         the process is a pipeline.
 
         '''
-        if isinstance(process, Pipeline):
-            t = self.trait('capsul_attributes')
-            if t is not None:
-                return self.capsul_attributes
+        t = self.trait('capsul_attributes')
+        if t is not None:
+            return self.capsul_attributes
 
-            self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+        self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+        schemas = self._get_schemas(process)
+        self.capsul_attributes = ProcessAttributes(process, schemas)
+
+        if isinstance(process, Pipeline):
             attributes = self.capsul_attributes
             name = process.name
 
@@ -97,7 +101,8 @@ class ProcessCompletionEngine(traits.HasTraits):
                             subprocess)
                     except:
                         try:
-                            self.get_attribute_values(subprocess)
+                            sub_attributes = self.get_attribute_values(
+                                subprocess)
                         except:
                             continue
                     for attribute, trait \
@@ -106,14 +111,9 @@ class ProcessCompletionEngine(traits.HasTraits):
                             attributes.add_trait(attribute, trait)
                             setattr(attributes, attribute,
                                     getattr(sub_attributes, attribute))
-            return attributes
+            self.capsul_attributes = attributes
 
-        else:
-            # not a pipeline: no default implementation
-            return Controller()
-            #raise AttributeError(
-                #"ProcessCompletionEngine.get_attribute_values() "
-                #"is a pure virtual method.")
+        return self.capsul_attributes
 
 
     def complete_parameters(self, process, process_inputs={}):
@@ -307,6 +307,20 @@ class ProcessCompletionEngine(traits.HasTraits):
             engine_factory = ProcessCompletionEngineFactory()
         return engine_factory.get_completion_engine(
             process, study_config, name=name)
+
+
+    def _get_schemas(self, process):
+        ''' Get schemas dictionary from process and its StudyConfig
+        '''
+        schemas = {}
+        study_config = process.get_study_config()
+        factory = getattr(study_config.modules_data, 'attributes_factory',
+                          None)
+        if factory is not None:
+            for dir_name, schema_name \
+                    in six.iteritems(study_config.attributes_schemas):
+                schemas[dir_name] = factory.get('schema', schema_name)
+        return schemas
 
 
 class PathCompletionEngine(object):
