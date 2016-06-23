@@ -311,10 +311,14 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
 class FomPathCompletionEngine(PathCompletionEngine):
 
-    factory_id = 'fom'
-
     def attributes_to_path(self, process, parameter, attributes):
         ''' Build a path from attributes
+
+        Parameters
+        ----------
+        process: Process instance
+        parameter: str
+        attributes: ProcessAttributes instance (Controller)
         '''
         input_fom = process.study_config.modules_data.foms['input']
         output_fom = process.study_config.modules_data.foms['output']
@@ -340,18 +344,22 @@ class FomPathCompletionEngine(PathCompletionEngine):
             raise KeyError('Process not found in FOMs amongst %s' \
                 % repr(names_search_list))
 
-        allowed_attributes = set(attributes.keys())
+        allowed_attributes = set(attributes.user_traits().keys())
         allowed_attributes.discard('parameter')
         allowed_attributes.discard('process_name')
+        #allowed_attributes = set(attributes.get_parameters_attributes()[
+            #parameter].keys())
+        #allowed_attributes.discard('type')
+        #allowed_attributes.discard('generated_by_parameter')
+        #allowed_attributes.discard('generated_by_process')
+
         # Select only the attributes that are discriminant for this
         # parameter otherwise other attibutes can prevent the appropriate
         # rule to match
         parameter_attributes = atp.find_discriminant_attributes(
             fom_parameter=parameter, fom_process=name)
-        d = dict((i, attributes[i]) \
+        d = dict((i, getattr(attributes, i)) \
             for i in parameter_attributes if i in allowed_attributes)
-        #d = dict( ( i, getattr(self, i) or self.attributes[ i ] ) \
-        #    for i in parameter_attributes if i in self.attributes )
         d['fom_process'] = name
         d['fom_parameter'] = parameter
         d['fom_format'] = 'fom_prefered'

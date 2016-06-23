@@ -81,9 +81,29 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         self.add_trait('capsul_attributes', ControllerTrait(Controller()))
         schemas = self._get_schemas(process)
-        self.capsul_attributes = ProcessAttributes(process, schemas)
 
-        if isinstance(process, Pipeline):
+        study_config = process.get_study_config()
+        proc_attr_cls = ProcessAttributes
+
+        if 'AttributesConfig' in study_config.modules:
+            factory = study_config.modules_data.attributes_factory
+            names = [process.name]
+            if hasattr(process, 'context_name'):
+                names.insert(0, process.context_name)
+            for name in names:
+                try:
+                    proc_attr_cls = factory.get('process_attributes', name)
+                    found = True
+                    break
+                except ValueError:
+                    pass
+
+        self.capsul_attributes = proc_attr_cls(process, schemas)
+
+        # if no specialized attributes set and process is a pipeline,
+        # try building from children nodes
+        if proc_attr_cls is ProcessAttributes \
+                and isinstance(process, Pipeline):
             attributes = self.capsul_attributes
             name = process.name
 
@@ -111,7 +131,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                             attributes.add_trait(attribute, trait)
                             setattr(attributes, attribute,
                                     getattr(sub_attributes, attribute))
-            self.capsul_attributes = attributes
+
 
         return self.capsul_attributes
 
@@ -197,7 +217,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                                 pass
 
         # now complete process parameters:
-        attributes = self.get_attribute_values(process).export_to_dict()
+        attributes = self.get_attribute_values(process)
         for pname in process.user_traits():
             try:
                 value = self.attributes_to_path(process, pname, attributes)
@@ -209,6 +229,12 @@ class ProcessCompletionEngine(traits.HasTraits):
 
     def attributes_to_path(self, process, parameter, attributes):
         ''' Build a path from attributes for a given parameter in a process.
+
+        Parameters
+        ----------
+        process: Process instance
+        parameter: str
+        attributes: ProcessAttributes instance (Controller)
         '''
         return self.get_path_completion_engine(process) \
             .attributes_to_path(process, parameter, attributes)
@@ -332,6 +358,12 @@ class PathCompletionEngine(object):
 
         This method has to be specialized. The default implementation returns
         None.
+
+        Parameters
+        ----------
+        process: Process instance
+        parameter: str
+        attributes: ProcessAttributes instance (Controller)
         '''
         return None
 

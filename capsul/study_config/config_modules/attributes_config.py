@@ -11,7 +11,7 @@ import six
 from traits.api import Bool, Str, Undefined, List, DictStrStr
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.attributes_factory import AttributesFactory
-from capsul.attributes_schema import AttributesSchema
+from capsul.attributes_schema import AttributesSchema, ProcessAttributes
 from capsul.attributes.completion_engine \
     import ProcessCompletionEngineFactory, PathCompletionEngineFactory
 
@@ -54,6 +54,8 @@ class AttributesConfig(StudyConfigModule):
           = ProcessCompletionEngineFactory
         factory.class_types['path_completion'] \
           = PathCompletionEngineFactory
+        factory.class_types['process_attributes'] \
+          = ProcessAttributes
 
         factory.module_path = self.study_config.attributes_schema_paths
 
