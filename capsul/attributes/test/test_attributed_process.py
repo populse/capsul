@@ -21,7 +21,7 @@ class DummyProcess(Process):
         self.add_trait("bidule", File(output=True))
 
 
-class BrainvisaTestSchema(AttributesSchema):
+class CustomAttributesSchema(AttributesSchema):
     factory_id = 'custom_ex'
 
     class Acquisition(EditableAttributes):
