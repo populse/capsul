@@ -166,8 +166,9 @@ tests_standard_files = [
         'spm_standalone': False,
         'use_soma_workflow': False,
         'create_output_directories': True,
-        'attributes_schema_paths': ['capsul.attributes.completion_engine',
-                                    'capsul.attributes.fom_completion_engine'],
+        'attributes_schema_paths': [
+            'capsul.attributes.completion_engine_iteration',
+            'capsul.attributes.fom.completion_engine_iteration'],
         'attributes_schemas': {},
         'path_completion': '',
         'process_completion': 'fom',
@@ -252,8 +253,9 @@ tests_custom_files = [
         'spm_standalone': False,
         'use_soma_workflow': False,
         'create_output_directories': True,
-        'attributes_schema_paths': ['capsul.attributes.completion_engine',
-                                    'capsul.attributes.fom_completion_engine'],
+        'attributes_schema_paths': [
+            'capsul.attributes.completion_engine_iteration',
+            'capsul.attributes.fom.completion_engine_iteration'],
         'attributes_schemas': {},
         'path_completion': '',
         'process_completion': 'fom',
