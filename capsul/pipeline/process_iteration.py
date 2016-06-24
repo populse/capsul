@@ -122,6 +122,8 @@ class ProcessIteration(Process):
     def complete_iteration(self, iteration):
         completion_engine = ProcessCompletionEngine.get_completion_engine(
             self)
-        completion_engine.complete_iteration_step(self, iteration)
+        # check if it is an iterative completion engine
+        if hasattr(completion_enginen 'complete_iteration_step'):
+            completion_engine.complete_iteration_step(self, iteration)
 
 

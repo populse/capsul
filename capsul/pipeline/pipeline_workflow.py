@@ -765,7 +765,9 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     def complete_iteration(it_process, iteration):
         completion_engine = ProcessCompletionEngine.get_completion_engine(
             it_process)
-        completion_engine.complete_iteration_step(it_process, iteration)
+        # check if it is an iterative completion engine
+        if hasattr(completion_enginen 'complete_iteration_step'):
+            completion_engine.complete_iteration_step(it_process, iteration)
 
 
     def workflow_from_graph(graph, temp_map={}, shared_map={},
