@@ -372,11 +372,14 @@ class PathCompletionEngine(object):
 class ProcessCompletionEngineFactory(object):
     '''
     '''
-    factory_id = 'builtin'
+    factory_id = 'basic'
 
     def __init__(self):
         super(ProcessCompletionEngineFactory, self).__init__()
-        self.factories = {100000: [self._default_factory]}
+        self.factories = {
+            100000: [self._default_factory],
+        }
+
 
 
     def get_completion_engine(self, process, study_config=None, name=None):

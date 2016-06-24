@@ -36,11 +36,19 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
     def get_iterated_attributes(self, process):
         '''
         '''
-        # How do we provide that ?
-        # Subclassing ?
-        # Lookup in a table / sub object ?
-        # Use a FOM-like description by process ?
-        return []
+        try:
+            pattributes = ProcessCompletionEngine.get_completion_engine(
+                process.process).get_attribute_values(process.process)
+        except AttributeError:
+            # ProcessCompletionEngine not implemented for this process:
+            # no completion
+            return []
+        param_attributes = pattributes.get_parameters_attributes()
+        attribs = set()
+        for parameter in process.iterative_parameters:
+            attribs.update(param_attributes[parameter].keys())
+        return [param for param in pattributes.user_traits().keys()
+                if param in attribs]
 
 
     def get_attribute_values(self, process):
@@ -171,7 +179,13 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         return ProcessCompletionEngineIteration(name)
 
 
-ProcessCompletionEngineFactory().register_factory(
-    ProcessCompletionEngineIteration._iteration_factory, 50000)
+class ProcessCompletionEngineIterationFactory(ProcessCompletionEngineFactory):
+
+    factory_id = 'builtin'
+
+    def __init__(self):
+        super(ProcessCompletionEngineIterationFactory, self).__init__()
+        self.register_factory(
+            ProcessCompletionEngineIteration._iteration_factory, 50000)
 
 

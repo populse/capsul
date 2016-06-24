@@ -119,6 +119,10 @@ class ProcessIteration(Process):
                 self.complete_iteration(iteration)
                 self.process()
 
+    def set_study_config(self, study_config):
+        super(ProcessIteration, self).set_study_config(study_config)
+        self.process.set_study_config(study_config)
+
     def complete_iteration(self, iteration):
         completion_engine = ProcessCompletionEngine.get_completion_engine(
             self)

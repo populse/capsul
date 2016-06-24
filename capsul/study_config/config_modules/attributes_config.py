@@ -25,7 +25,7 @@ class AttributesConfig(StudyConfigModule):
 
     def __init__(self, study_config, configuration):
         super(AttributesConfig, self).__init__(study_config, configuration)
-        default_paths = ['capsul.attributes.completion_engine',
+        default_paths = ['capsul.attributes.completion_engine_iteration',
                          'capsul.attributes.fom_completion_engine']
         self.study_config.add_trait(
             'attributes_schema_paths',
@@ -37,7 +37,7 @@ class AttributesConfig(StudyConfigModule):
                 desc='attributes shchemas names'))
         self.study_config.add_trait(
             'process_completion',
-            Str(Undefined, output=False,
+            Str('builtin', output=False,
                 desc='process completion model name'))
         self.study_config.add_trait(
             'path_completion',

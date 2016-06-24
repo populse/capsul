@@ -1,7 +1,7 @@
 
 from __future__ import print_function
 
-from capsul.api import StudyConfig, Process
+from capsul.api import StudyConfig, Process, Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     PathCompletionEngine, PathCompletionEngineFactory
 from capsul.attributes.attributes_schema import ProcessAttributes, \
@@ -108,6 +108,32 @@ class TestCompletion(unittest.TestCase):
                          '/tmp/in/DummyProcess_truc_jojo_barbapapa')
         self.assertEqual(process.bidule,
                          '/tmp/out/DummyProcess_bidule_jojo_barbapapa')
+
+    def test_iteration(self):
+        study_config = self.study_config
+        pipeline = Pipeline()
+        pipeline.set_study_config(study_config)
+        pipeline.add_iterative_process(
+            'dummy',
+            'capsul.attributes.test.test_attributed_process.DummyProcess',
+            ['truc', 'bidule'])
+        pipeline.autoexport_nodes_parameters()
+        cm = ProcessCompletionEngine.get_completion_engine(pipeline)
+        atts = cm.get_attribute_values(pipeline)
+        atts.center = ['muppets']
+        atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
+        cm.complete_parameters(pipeline)
+        self.assertEqual(pipeline.truc,
+                         ['/tmp/in/DummyProcess_truc_muppets_kermit',
+                          '/tmp/in/DummyProcess_truc_muppets_piggy',
+                          '/tmp/in/DummyProcess_truc_muppets_stalter',
+                          '/tmp/in/DummyProcess_truc_muppets_waldorf'])
+        self.assertEqual(pipeline.bidule,
+                         ['/tmp/out/DummyProcess_bidule_muppets_kermit',
+                          '/tmp/out/DummyProcess_bidule_muppets_piggy',
+                          '/tmp/out/DummyProcess_bidule_muppets_stalter',
+                          '/tmp/out/DummyProcess_bidule_muppets_waldorf'])
+        #wf = pipeline_workflow.workflow_from_pipeline(pipeline)
 
 
 def test():
