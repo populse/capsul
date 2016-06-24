@@ -123,7 +123,7 @@ class ProcessIteration(Process):
         completion_engine = ProcessCompletionEngine.get_completion_engine(
             self)
         # check if it is an iterative completion engine
-        if hasattr(completion_enginen 'complete_iteration_step'):
+        if hasattr(completion_engine, 'complete_iteration_step'):
             completion_engine.complete_iteration_step(self, iteration)
 
 

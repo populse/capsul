@@ -766,7 +766,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         completion_engine = ProcessCompletionEngine.get_completion_engine(
             it_process)
         # check if it is an iterative completion engine
-        if hasattr(completion_enginen 'complete_iteration_step'):
+        if hasattr(completion_engine, 'complete_iteration_step'):
             completion_engine.complete_iteration_step(it_process, iteration)
 
 
