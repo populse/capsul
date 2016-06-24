@@ -7,7 +7,7 @@
 ##########################################################################
 
 # TRAITS import
-from traits.api import Bool, Undefined
+from traits.api import Bool, Undefined, List, Directory
 
 # NIPYPE import
 import nipype.interfaces.matlab as matlab
@@ -33,6 +33,10 @@ class NipypeConfig(StudyConfigModule):
         study_config.add_trait("use_nipype", Bool(
             Undefined,
             desc="If True, Nipype configuration is set up on startup."))
+        study_config.add_trait("add_to_default_matlab_path", List(
+            Directory,
+            default=[],
+            desc="Paths that are added to Matlab default path."))
     
     def initialize_module(self):
         """ Set up Nipype environment variables according to current
@@ -62,13 +66,14 @@ class NipypeConfig(StudyConfigModule):
             # Standalone spm version
             if self.study_config.spm_standalone is True:
                 spm.SPMCommand.set_mlab_paths(
-                    matlab_cmd=self.study_config.spm_exec + " run script",
+                    matlab_cmd=self.study_config.spm_exec + " script",
                     use_mcr=True)
             # Matlab spm version
             else:
                 matlab.MatlabCommand.set_default_paths(
-                    self.study_config.spm_directory)
-                spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)           
+                    [self.study_config.spm_directory] +
+                    self.study_config.add_to_default_matlab_path)
+                spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)  
 
         self.study_config.use_nipype = True
 
