@@ -12,6 +12,7 @@ from traits.api import List, Undefined
 
 from capsul.process.process import Process
 from capsul.study_config.process_instance import get_process_instance
+from capsul.attributes.completion_engine import ProcessCompletionEngine
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -97,6 +98,8 @@ class ProcessIteration(Process):
                     if not no_output_value or not self.trait(parameter).output:
                         setattr(self.process, parameter,
                                 getattr(self, parameter)[iteration])
+                # operate completion
+                self.complete_iteration(iteration)
                 self.process()
                 for parameter in self.iterative_parameters:
                     trait = self.trait(parameter)
@@ -110,7 +113,15 @@ class ProcessIteration(Process):
         else:
             for iteration in xrange(size):
                 for parameter in self.iterative_parameters:
-                    setattr(self.process, parameter, getattr(self, parameter)[iteration])
+                    setattr(self.process, parameter,
+                            getattr(self, parameter)[iteration])
+                # operate completion
+                self.complete_iteration(iteration)
                 self.process()
-            
+
+    def complete_iteration(self, iteration):
+        completion_engine = ProcessCompletionEngine.get_completion_engine(
+            self)
+        completion_engine.complete_iteration_step(self, iteration)
+
 

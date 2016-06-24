@@ -722,7 +722,8 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                         setattr(it_process.process, parameter,
                                 getattr(it_process, parameter)[iteration])
 
-                # TODO FIXME: operate completion... how ?
+                # operate completion
+                complete_iteration(it_process, iteration)
 
                 #workflow = workflow_from_pipeline(it_process.process,
                                                   #study_config=study_config)
@@ -742,7 +743,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                     setattr(it_process.process, parameter,
                             getattr(it_process, parameter)[iteration])
 
-                # TODO FIXME: operate completion... how ?
+                # operate completion
                 complete_iteration(it_process, iteration)
 
                 process_name = it_process.process.name + '_%d' % iteration
@@ -764,8 +765,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     def complete_iteration(it_process, iteration):
         completion_engine = ProcessCompletionEngine.get_completion_engine(
             it_process)
-        completion_engine.capsul_iteration_step = iteration
-        completion_engine.complete_parameters(it_process)
+        completion_engine.complete_iteration_step(it_process, iteration)
 
 
     def workflow_from_graph(graph, temp_map={}, shared_map={},
