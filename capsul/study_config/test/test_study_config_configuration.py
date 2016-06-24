@@ -168,7 +168,7 @@ tests_standard_files = [
         'create_output_directories': True,
         'attributes_schema_paths': [
             'capsul.attributes.completion_engine_iteration',
-            'capsul.attributes.fom.completion_engine'],
+            'capsul.attributes.fom_completion_engine'],
         'attributes_schemas': {},
         'path_completion': '',
         'process_completion': 'fom',
@@ -255,7 +255,7 @@ tests_custom_files = [
         'create_output_directories': True,
         'attributes_schema_paths': [
             'capsul.attributes.completion_engine_iteration',
-            'capsul.attributes.fom.completion_engine'],
+            'capsul.attributes.fom_completion_engine'],
         'attributes_schemas': {},
         'path_completion': '',
         'process_completion': 'fom',
