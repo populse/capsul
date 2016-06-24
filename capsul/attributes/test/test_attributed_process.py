@@ -7,9 +7,17 @@ from capsul.attributes.completion_engine import ProcessCompletionEngine, \
 from capsul.attributes.attributes_schema import ProcessAttributes, \
     AttributesSchema, EditableAttributes
 from traits.api import Str, Float, File, String, Undefined
+from soma_workflow import configuration as swconfig
 import unittest
 import os
 import sys
+import tempfile
+import shutil
+import socket
+if sys.version_info[0] >= 3:
+    import io as StringIO
+else:
+    import StringIO
 
 
 class DummyProcess(Process):
@@ -19,6 +27,9 @@ class DummyProcess(Process):
         super(DummyProcess, self).__init__()
         self.add_trait("truc", File(output=False))
         self.add_trait("bidule", File(output=True))
+
+    def _run_process(self):
+        open(self.bidule, 'w').write(open(self.truc).read())
 
 
 class CustomAttributesSchema(AttributesSchema):
@@ -70,8 +81,10 @@ class MyPathCompletion(PathCompletionEngineFactory, PathCompletionEngine):
         return os.path.join(directory, '_'.join(elements))
 
 
-def init_study_config():
-    study_config = StudyConfig('test_study', modules=['AttributesConfig'])
+def init_study_config(init_config={}):
+    study_config = StudyConfig('test_study',
+                               modules=['AttributesConfig', 'SomaWorkflowConfig'],
+                               init_config=init_config)
     study_config.input_directory = '/tmp/in'
     study_config.output_directory = '/tmp/out'
     study_config.attributes_schema_paths.append(
@@ -86,7 +99,31 @@ def init_study_config():
 class TestCompletion(unittest.TestCase):
 
     def setUp(self):
+        # use a custom temporary soma-workflow dir to avoid concurrent
+        # access problems
+        tmpdb = tempfile.mkstemp('', prefix='soma_workflow')
+        os.close(tmpdb[0])
+        os.unlink(tmpdb[1])
+        self.soma_workflow_temp_dir = tmpdb[1]
+        os.mkdir(self.soma_workflow_temp_dir)
+        swf_conf = StringIO.StringIO('[%s]\nSOMA_WORKFLOW_DIR = %s\n' \
+            % (socket.gethostname(), tmpdb[1]))
+        swconfig.Configuration.search_config_path \
+            = staticmethod(lambda : swf_conf)
         self.study_config = init_study_config()
+        if not hasattr(self, 'temps'):
+            self.temps = []
+
+
+    def tearDown(self):
+        shutil.rmtree(self.soma_workflow_temp_dir)
+
+
+    def __del__(self):
+        if hasattr(self, 'temps'):
+            for tdir in self.temps:
+                shutil.rmtree(tdir)
+
 
     def test_completion(self):
         study_config = self.study_config
@@ -108,6 +145,7 @@ class TestCompletion(unittest.TestCase):
                          '/tmp/in/DummyProcess_truc_jojo_barbapapa')
         self.assertEqual(process.bidule,
                          '/tmp/out/DummyProcess_bidule_jojo_barbapapa')
+
 
     def test_iteration(self):
         study_config = self.study_config
@@ -133,7 +171,92 @@ class TestCompletion(unittest.TestCase):
                           '/tmp/out/DummyProcess_bidule_muppets_piggy',
                           '/tmp/out/DummyProcess_bidule_muppets_stalter',
                           '/tmp/out/DummyProcess_bidule_muppets_waldorf'])
-        #wf = pipeline_workflow.workflow_from_pipeline(pipeline)
+
+
+    def test_run_iteraton_sequential(self):
+        study_config = self.study_config
+        tmp_dir = tempfile.mkdtemp(prefix='capsul_')
+        self.temps.append(tmp_dir)
+
+        study_config.input_directory = os.path.join(tmp_dir, 'in')
+        study_config.output_directory = os.path.join(tmp_dir, 'out')
+        os.mkdir(study_config.input_directory)
+        os.mkdir(study_config.output_directory)
+
+        pipeline = Pipeline()
+        pipeline.set_study_config(study_config)
+        pipeline.add_iterative_process(
+            'dummy',
+            'capsul.attributes.test.test_attributed_process.DummyProcess',
+            ['truc', 'bidule'])
+        pipeline.autoexport_nodes_parameters()
+        cm = ProcessCompletionEngine.get_completion_engine(pipeline)
+        atts = cm.get_attribute_values(pipeline)
+        atts.center = ['muppets']
+        atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
+        cm.complete_parameters(pipeline)
+
+        # create input files
+        for s in atts.subject:
+            open(os.path.join(
+                study_config.input_directory,
+                'DummyProcess_truc_muppets_%s' % s), 'w').write('%s\n' %s)
+
+        # run
+        study_config.use_soma_workflow = False
+        study_config.run(pipeline)
+
+        # check outputs
+        out_files = [
+            os.path.join(
+                study_config.output_directory,
+                'DummyProcess_bidule_muppets_%s' % s) for s in atts.subject]
+        for s, out_file in zip(atts.subject, out_files):
+            self.assertTrue(os.path.isfile(out_file))
+            self.assertTrue(open(out_file).read() == '%s\n' % s)
+
+
+    def test_run_iteraton_swf(self):
+        study_config = self.study_config
+        tmp_dir = tempfile.mkdtemp(prefix='capsul_')
+        self.temps.append(tmp_dir)
+
+        study_config.input_directory = os.path.join(tmp_dir, 'in')
+        study_config.output_directory = os.path.join(tmp_dir, 'out')
+        os.mkdir(study_config.input_directory)
+        os.mkdir(study_config.output_directory)
+
+        pipeline = Pipeline()
+        pipeline.set_study_config(study_config)
+        pipeline.add_iterative_process(
+            'dummy',
+            'capsul.attributes.test.test_attributed_process.DummyProcess',
+            ['truc', 'bidule'])
+        pipeline.autoexport_nodes_parameters()
+        cm = ProcessCompletionEngine.get_completion_engine(pipeline)
+        atts = cm.get_attribute_values(pipeline)
+        atts.center = ['muppets']
+        atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
+        cm.complete_parameters(pipeline)
+
+        # create input files
+        for s in atts.subject:
+            open(os.path.join(
+                study_config.input_directory,
+                'DummyProcess_truc_muppets_%s' % s), 'w').write('%s\n' %s)
+
+        # run
+        study_config.use_soma_workflow = True
+        study_config.run(pipeline)
+
+        # check outputs
+        out_files = [
+            os.path.join(
+                study_config.output_directory,
+                'DummyProcess_bidule_muppets_%s' % s) for s in atts.subject]
+        for s, out_file in zip(atts.subject, out_files):
+            self.assertTrue(os.path.isfile(out_file))
+            self.assertTrue(open(out_file).read() == '%s\n' % s)
 
 
 def test():
