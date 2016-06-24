@@ -18,6 +18,7 @@ import logging
 import shutil
 import six
 import sys
+import glob
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -218,7 +219,6 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # Initialize the execution report
         runtime = {
             "start_time": datetime.isoformat(datetime.utcnow()),
-            "cwd": os.getcwd(),
             "returncode": None,
             "environ": dict([(k, unicode(v))
                              for k, v in six.iteritems(os.environ)]),
@@ -931,6 +931,15 @@ class FileCopyProcess(Process):
                 fname = os.path.basename(python_object)
                 out = os.path.join(destdir, fname)
                 shutil.copy2(python_object, out)
+                
+                # Copy associated .mat files
+                name = fname.split(".")[0]
+                matfnames = glob.glob(os.path.join(
+                    os.path.dirname(python_object), name + ".*"))
+                for matfname in matfnames:
+                    extrafname = os.path.basename(matfname)
+                    extraout = os.path.join(destdir, extrafname)
+                    shutil.copy2(matfname, extraout)
 
         return out
 
@@ -950,10 +959,8 @@ class FileCopyProcess(Process):
 
         # Go through all the user traits
         for name, trait in six.iteritems(self.user_traits()):
-
             # Check if the target parameter is in the check list
             if name in self.inputs_to_copy:
-
                 # Get the trait value
                 value = self.get_parameter(name)
 
@@ -1014,27 +1021,11 @@ class NipypeProcess(FileCopyProcess):
                 **kwargs)
         else:
             super(NipypeProcess, self).__init__(
-                activate_copy=False, *args, **kwargs)
+                  activate_copy=False, *args, **kwargs)
 
         # Replace the process name and identification attributes
         self.id = ".".join([self._nipype_module, self._nipype_class])
         self.name = self._nipype_interface.__class__.__name__
-
-        # Set the nipype and nipype interface versions
-        if self._nipype_interface_name != "spm":
-            self.versions.update({
-                "nipype": get_tool_version("nipype"),
-                self._nipype_interface_name: self._nipype_interface.version
-            })
-        else:
-            from nipype.interfaces.spm import SPMCommand
-            from nipype.interfaces.matlab import MatlabCommand
-            self.versions.update({
-                "nipype": get_tool_version("nipype"),
-                self._nipype_interface_name: "{0}-{1}|{2}-{3}".format(
-                    SPMCommand._matlab_cmd, MatlabCommand._default_paths,
-                    SPMCommand._paths, SPMCommand._use_mcr)
-            })
 
         # Add a new trait to store the processing output directory
         super(Process, self).add_trait(
@@ -1077,6 +1068,14 @@ class NipypeProcess(FileCopyProcess):
         os.chdir(self.output_directory)
         self.synchronize += 1
 
+        # Force nipype update
+        for trait_name in self._nipype_interface.inputs.traits().keys():
+            if trait_name in self.user_traits():
+                old = getattr(self._nipype_interface.inputs, trait_name)
+                new = getattr(self, trait_name)
+                if old is Undefined and old != new:
+                    setattr(self._nipype_interface.inputs, trait_name, new)
+
         # Inheritance
         if self._nipype_interface_name == "spm":
             # Set the spm working
@@ -1085,8 +1084,8 @@ class NipypeProcess(FileCopyProcess):
             if os.path.isdir(self.output_directory):
                 items_in_folder = os.listdir(self.output_directory)
                 if len(items_in_folder) != 0:
-                    logger.info("Found items '{0}', exec auto-clean for spm "
-                                "process.".format(items_in_folder))
+                    print ("Found items '{0}', exec auto-clean for spm "
+                           "process.".format(items_in_folder))
                     shutil.rmtree(self.output_directory)
             results = super(NipypeProcess, self).__call__(**kwargs)
         # Do nothing specific
@@ -1155,7 +1154,9 @@ class NipypeProcess(FileCopyProcess):
         runtime: InterfaceResult
             object containing the running results
         """
-        return self._nipype_interface.run()
+        out = self._nipype_interface.run()
+        self.synchronize += 1
+        return out
 
     @classmethod
     def help(cls, nipype_interface, returnhelp=False):
