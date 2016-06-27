@@ -83,7 +83,8 @@ class MyPathCompletion(PathCompletionEngineFactory, PathCompletionEngine):
 
 def init_study_config(init_config={}):
     study_config = StudyConfig('test_study',
-                               modules=['AttributesConfig', 'SomaWorkflowConfig'],
+                               modules=['AttributesConfig',
+                                        'SomaWorkflowConfig'],
                                init_config=init_config)
     study_config.input_directory = '/tmp/in'
     study_config.output_directory = '/tmp/out'
@@ -132,15 +133,15 @@ class TestCompletion(unittest.TestCase):
         from capsul.attributes.test.test_attributed_process \
             import DummyProcessAttributes, MyPathCompletion
         patt = ProcessCompletionEngine.get_completion_engine(process)
-        atts = patt.get_attribute_values(process)
+        atts = patt.get_attribute_values()
         self.assertTrue(isinstance(patt, ProcessCompletionEngine))
         self.assertTrue(isinstance(atts, DummyProcessAttributes))
         self.assertTrue(isinstance(
-            patt.get_path_completion_engine(process),
+            patt.get_path_completion_engine(),
             MyPathCompletion))
         atts.center = 'jojo'
         atts.subject = 'barbapapa'
-        patt.complete_parameters(process)
+        patt.complete_parameters()
         self.assertEqual(process.truc,
                          '/tmp/in/DummyProcess_truc_jojo_barbapapa')
         self.assertEqual(process.bidule,
@@ -157,10 +158,10 @@ class TestCompletion(unittest.TestCase):
             ['truc', 'bidule'])
         pipeline.autoexport_nodes_parameters()
         cm = ProcessCompletionEngine.get_completion_engine(pipeline)
-        atts = cm.get_attribute_values(pipeline)
+        atts = cm.get_attribute_values()
         atts.center = ['muppets']
         atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
-        cm.complete_parameters(pipeline)
+        cm.complete_parameters()
         self.assertEqual(pipeline.truc,
                          ['/tmp/in/DummyProcess_truc_muppets_kermit',
                           '/tmp/in/DummyProcess_truc_muppets_piggy',
@@ -191,10 +192,10 @@ class TestCompletion(unittest.TestCase):
             ['truc', 'bidule'])
         pipeline.autoexport_nodes_parameters()
         cm = ProcessCompletionEngine.get_completion_engine(pipeline)
-        atts = cm.get_attribute_values(pipeline)
+        atts = cm.get_attribute_values()
         atts.center = ['muppets']
         atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
-        cm.complete_parameters(pipeline)
+        cm.complete_parameters()
 
         # create input files
         for s in atts.subject:
@@ -234,10 +235,10 @@ class TestCompletion(unittest.TestCase):
             ['truc', 'bidule'])
         pipeline.autoexport_nodes_parameters()
         cm = ProcessCompletionEngine.get_completion_engine(pipeline)
-        atts = cm.get_attribute_values(pipeline)
+        atts = cm.get_attribute_values()
         atts.center = ['muppets']
         atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
-        cm.complete_parameters(pipeline)
+        cm.complete_parameters()
 
         # create input files
         for s in atts.subject:
@@ -283,7 +284,7 @@ if __name__ == '__main__':
         process = study_config.get_process_instance(
             'capsul.attributes.test.test_attributed_process.DummyProcess')
         patt = ProcessCompletionEngine.get_completion_engine(process)
-        atts = patt.get_attribute_values(process)
+        atts = patt.get_attribute_values()
 
         qapp = None
         if QtGui.QApplication.instance() is None:

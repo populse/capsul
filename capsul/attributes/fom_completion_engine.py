@@ -64,11 +64,12 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
     create_completion
     create_attributes_with_fom
     """
-    def __init__(self, name=None):
-        super(FomProcessCompletionEngine, self).__init__(name=name)
+    def __init__(self, process, name=None):
+        super(FomProcessCompletionEngine, self).__init__(
+            process=process, name=name)
 
 
-    def get_attribute_values(self, process):
+    def get_attribute_values(self):
         ''' Get attributes Controller associated to a process
 
         Returns
@@ -80,15 +81,16 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             return self.capsul_attributes
 
         self.add_trait('capsul_attributes', ControllerTrait(Controller()))
-        schemas = self._get_schemas(process)
-        self.capsul_attributes = ProcessAttributes(process, schemas)
+        schemas = self._get_schemas()
+        self.capsul_attributes = ProcessAttributes(self.process, schemas)
 
         return self.capsul_attributes
 
 
-    def create_attributes_with_fom(self, process):
+    def create_attributes_with_fom(self):
         """To get useful attributes by the fom"""
 
+        process = self.process
         input_atp = process.study_config.modules_data.fom_atp['input']
         output_atp = process.study_config.modules_data.fom_atp['output']
         input_fom = process.study_config.modules_data.foms['input']
@@ -109,7 +111,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 input_atp.find_discriminant_attributes(
                     fom_parameter=parameter, fom_process=name))
 
-        capsul_attributes = self.get_attribute_values(process)
+        capsul_attributes = self.get_attribute_values()
 
         for att in process_attributes:
             if not att.startswith('fom_'):
@@ -143,10 +145,10 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                         capsul_attributes.add_trait(att, Str(default_value))
 
 
-    def path_attributes(self, process, filename, parameter=None):
+    def path_attributes(self, filename, parameter=None):
         """By the path, find value of attributes"""
 
-        pta = process.study_config.modules_data.fom_pta['input']
+        pta = self.process.study_config.modules_data.fom_pta['input']
 
         # Extract the attributes from the first result returned by
         # parse_directory
@@ -170,120 +172,16 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                     if element == liste[-1]:
                         raise ValueError(
                             '%s is not recognized for parameter "%s" of "%s"'
-                            % (new_value, parameter, process.name))
+                            % (new_value, parameter, self.process.name))
 
-        attrib_values = self.get_attribute_values(process).export_to_dict()
+        attrib_values = self.get_attribute_values().export_to_dict()
         for att in attributes:
             if att in attrib_values.keys():
                 setattr(attrib_values, att, attributes[att])
         return attributes
 
 
-    def complete_parameters_xx(self, process, process_inputs={}):
-        ''' Completes file parameters from given inputs parameters, which may
-        include both "regular" process parameters (file names) and attributes.
-        '''
-        self.set_parameters(process, process_inputs)
-        self.process_completion(process, name=process.name)
-
-
-    def process_completion(self, process, name=None, verbose=False):
-        '''Completes the given process parameters according to the attributes
-        set.
-
-        Parameters
-        ----------
-        process: Process / Pipeline: (mandatory)
-            process on which perform completion
-        name: string (optional)
-            name under which the process will be searched in the FOM. This
-            enables specialized used of otherwise generic processes in the
-            context of a given pipeline
-        verbose: bool (optional)
-            issue warnings when a process cannot be found in the FOM list.
-            Default: False
-        '''
-        if name is None:
-            name = self.name or process.name
-
-        #input_fom = process.study_config.modules_data.foms['input']
-        output_fom = process.study_config.modules_data.foms['output']
-        input_atp = process.study_config.modules_data.fom_atp['input']
-        output_atp = process.study_config.modules_data.fom_atp['output']
-
-        # TODO: here we could just call
-        # ProcessCompletionEngine.complete_parameters()
-        # which does this recursion but we need the name parameter
-
-        # if process is a pipeline, create completions for its nodes and
-        # sub-pipelines.
-        #
-        # Note: for now we do so first, so that parameters can be overwritten
-        # afterwards by the higher-level pipeline FOM.
-        # Ideally we should process the other way: complete high-level,
-        # specific parameters first, then complete with lower-level, more
-        # generic ones, while blocking already set ones.
-        # as this blocking mechanism does not exist yet, we do it this way for
-        # now, but it is sub-optimal since many parameters will be set many
-        # times.
-        attrib_values = self.get_attribute_values(process).export_to_dict()
-        if isinstance(process, Pipeline):
-            for node_name, node in six.iteritems(process.nodes):
-                if node_name == '':
-                    continue
-                if hasattr(node, 'process'):
-                    subprocess = node.process
-                    pname = '.'.join([name, node_name])
-                    subprocess_compl \
-                        = ProcessCompletionEngine.get_completion_engine(
-                            subprocess, pname)
-                    try:
-                        subprocess_compl.complete_parameters(
-                            subprocess, {'capsul_attributes': attrib_values})
-                    except Exception as e:
-                        if verbose:
-                            print('warning, node %s could not complete FOM'
-                                  % node_name)
-                            print(e)
-
-        #Create completion
-        names_search_list = (name, process.id, process.name)
-        for fname in names_search_list:
-            fom_patterns = output_fom.patterns.get(fname)
-            if fom_patterns is not None:
-                break
-        else:
-            raise KeyError('Process not found in FOMs amongst %s' \
-                % repr(names_search_list))
-
-        allowed_attributes = set(attrib_values.keys())
-        for parameter in fom_patterns:
-            # Select only the attributes that are discriminant for this
-            # parameter otherwise other attibutes can prevent the appropriate
-            # rule to match
-            if parameter in process.user_traits():
-                if process.trait(parameter).output:
-                    atp = output_atp
-                else:
-                    atp = input_atp
-                parameter_attributes = atp.find_discriminant_attributes(
-                    fom_parameter=parameter, fom_process=name)
-                d = dict((i, attrib_values[i]) \
-                    for i in parameter_attributes if i in allowed_attributes)
-                #d = dict( ( i, getattr(self, i) or self.attributes[ i ] ) \
-                #    for i in parameter_attributes if i in self.attributes )
-                d['fom_process'] = name
-                d['fom_parameter'] = parameter
-                d['fom_format'] = 'fom_prefered'
-                for h in atp.find_paths(d):
-                    setattr(process, parameter, h[0])
-                    # find_paths() is a generator which can sometimes generate
-                    # several values (formats). We are only interested in the
-                    # first one.
-                    break
-
-
-    def get_path_completion_engine(self, process):
+    def get_path_completion_engine(self):
         '''
         '''
         return FomPathCompletionEngine()
@@ -295,13 +193,14 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         '''
         study_config = process.get_study_config()
         if study_config is None \
-                or 'FomConfig' not in study_config.modules:
+                or 'FomConfig' not in study_config.modules \
+                or study_config.use_fom == False:
             #print("no FOM:", study_config, study_config.modules.keys())
             return None  # Non Fom config, no way it could work
         try:
-            pfom = FomProcessCompletionEngine(name)
+            pfom = FomProcessCompletionEngine(process, name)
             if pfom is not None:
-                pfom.create_attributes_with_fom(process)
+                pfom.create_attributes_with_fom()
                 return pfom
         except KeyError:
             # process not in FOM
@@ -375,8 +274,8 @@ class FomPathCompletionEngine(PathCompletionEngine):
 
 class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
-    def get_iterated_attributes(self, process):
-        subprocess = process.process
+    def get_iterated_attributes(self):
+        subprocess = self.process.process
         input_fom = subprocess.study_config.modules_data.foms['input']
         output_fom = subprocess.study_config.modules_data.foms['output']
         input_atp = subprocess.study_config.modules_data.fom_atp['input']
@@ -399,7 +298,7 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
                 % repr(names_search_list))
 
         iter_attrib = set()
-        for parameter in process.iterative_parameters:
+        for parameter in self.process.iterative_parameters:
             if subprocess.trait(parameter).output:
                 atp = output_atp
             else:
@@ -421,7 +320,7 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
                 FomProcessCompletionEngine):
             # iterated process doesn't use FOM
             return None
-        return FomProcessCompletionEngineIteration(name)
+        return FomProcessCompletionEngineIteration(process, name)
 
 
 # register FomProcessCompletionEngine factory into
@@ -444,5 +343,5 @@ class FomPathCompletionEngineFactory(PathCompletionEngineFactory):
     factory_id = 'fom'
 
     def get_path_completion_engine(self, process):
-        return FomPathCompletionEngine()
+        return FomPathCompletionEngine(process)
 

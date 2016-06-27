@@ -85,7 +85,6 @@ Classes
     :template: class.rst
 
     process.ProcessResult
-    process_with_fom.ProcessWithFom
 
 Functions
 ---------
@@ -128,4 +127,27 @@ Configuration Modules
     nipype_config.NipypeConfig
     brainvisa_config.BrainVISAConfig
     fom_config.FomConfig
+    attributes_config.AttributesConfig
+
+:mod:`capsul.attributes`: Attributes and processes completion
+=============================================================
+
+.. currentmodule:: capsul.attributes
+
+Classes
+-------
+
+.. autosummary::
+    :toctree: generated/capsul-attributes
+    :template: class_process.rst
+
+    completion_engine.ProcessCompletionEngine
+    completion_engine.PathCompletionEngine
+    completion_engine.ProcessCompletionEngineFactory
+    completion_engine.PathCompletionEngine
+    completion_engine_iteration.ProcessCompletionEngineIteration
+    fom_completion_engine.FomProcessCompletionEngine
+    fom_completion_engine.FomProcessCompletionEngineIteration
+    fom_completion_engine.FomPathCompletionEngine
+
 

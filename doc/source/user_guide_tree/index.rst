@@ -112,20 +112,18 @@ Once configured, using completion on a process works as in this example:
     process = study_config.get_process_instance(
         'capsul.attributes.test.test_attributed_process.DummyProcess')
     compl_engine = ProcessCompletionEngine.get_completion_engine(process)
-    attributes = compl_engine.get_attribute_values(process)
+    attributes = compl_engine.get_attribute_values()
     attributes.center = 'jojo'
     attributes.subject = 'barbapapa'
-    compl_engine.complete_parameters(process)
+    compl_engine.complete_parameters()
 
-After the call to ``compl_engine.complete_parameters(process)``, the file parameters of ``process`` should be built.
+After the call to ``compl_engine.complete_parameters()``, the file parameters of ``process`` should be built.
 
 It is possible to make completion run automatically when attributes change, using a notification callback:
 
 ::
 
-    from soma.functiontools import SomaPartial
-    attributes.on_trait_change(SomaPartial(compl_engine.attributes_changed,
-                                           process))
+    attributes.on_trait_change(compl_engine.attributes_changed)
 
 ::
 

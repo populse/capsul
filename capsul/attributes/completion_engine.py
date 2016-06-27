@@ -24,11 +24,13 @@ class ProcessCompletionEngine(traits.HasTraits):
         completion_engine = ProcessCompletionEngine.get_completion_engine(
             process, name)
 
+    Note that this will assign permanently the ProcessCompletionEngine object
+    to its associated process.
     To get and set the attributes set:
 
     ::
 
-        attributes = completion_engine.get_attribute_values(process)
+        attributes = completion_engine.get_attribute_values()
         print(attributes.user_traits().keys())
         attributes.specific_process_attribute = 'a value'
 
@@ -36,7 +38,7 @@ class ProcessCompletionEngine(traits.HasTraits):
 
     ::
 
-        completion_engine.complete_parameters(process)
+        completion_engine.complete_parameters()
 
     ProcessCompletionEngine can (and should) be specialized, at least to
     provide the attributes set for a given process. A factory is used to create
@@ -44,26 +46,15 @@ class ProcessCompletionEngine(traits.HasTraits):
     :py:class:`ProcessCompletionEngineFactory`
     '''
 
-    def __init__(self, name=None):
-        super(ProcessCompletionEngine, self).__init__()
+    def __init__(self, process, name=None):
+        super(ProcessCompletionEngine, self).__init__(
+            process=process, name=name)
+        self.process = process
         self.name = name
         self.completion_ongoing = False
 
 
-    def get_attributes(self, process):
-        ''' Get attributes list associated to a process.
-
-        The default implementation just returns
-        get_attribute_values(process).user_traits().keys()
-
-        Returns
-        -------
-        attributes: list of strings, or generator
-        '''
-        return self.get_attribute_values(process).user_traits().keys()
-
-
-    def get_attribute_values(self, process):
+    def get_attribute_values(self):
         ''' Get attributes Controller associated to a process
 
         Returns
@@ -80,16 +71,16 @@ class ProcessCompletionEngine(traits.HasTraits):
             return self.capsul_attributes
 
         self.add_trait('capsul_attributes', ControllerTrait(Controller()))
-        schemas = self._get_schemas(process)
+        schemas = self._get_schemas()
 
-        study_config = process.get_study_config()
+        study_config = self.process.get_study_config()
         proc_attr_cls = ProcessAttributes
 
         if 'AttributesConfig' in study_config.modules:
             factory = study_config.modules_data.attributes_factory
-            names = [process.name]
-            if hasattr(process, 'context_name'):
-                names.insert(0, process.context_name)
+            names = [self.process.name]
+            if hasattr(self.process, 'context_name'):
+                names.insert(0, self.process.context_name)
             for name in names:
                 try:
                     proc_attr_cls = factory.get('process_attributes', name)
@@ -98,16 +89,16 @@ class ProcessCompletionEngine(traits.HasTraits):
                 except ValueError:
                     pass
 
-        self.capsul_attributes = proc_attr_cls(process, schemas)
+        self.capsul_attributes = proc_attr_cls(self.process, schemas)
 
         # if no specialized attributes set and process is a pipeline,
         # try building from children nodes
         if proc_attr_cls is ProcessAttributes \
-                and isinstance(process, Pipeline):
+                and isinstance(self.process, Pipeline):
             attributes = self.capsul_attributes
-            name = process.name
+            name = self.process.name
 
-            for node_name, node in six.iteritems(process.nodes):
+            for node_name, node in six.iteritems(self.process.nodes):
                 if node_name == '':
                     continue
                 if hasattr(node, 'process'):
@@ -117,12 +108,13 @@ class ProcessCompletionEngine(traits.HasTraits):
                         ProcessCompletionEngine.get_completion_engine(
                             subprocess, pname)
                     try:
-                        sub_attributes = subprocess_compl.get_attribute_values(
-                            subprocess)
+                        sub_attributes \
+                            = subprocess_compl.get_attribute_values()
                     except:
                         try:
-                            sub_attributes = self.get_attribute_values(
-                                subprocess)
+                            subprocess_compl = self.__class__(subprocess)
+                            sub_attributes \
+                                = subprocess_compl.get_attribute_values()
                         except:
                             continue
                     for attribute, trait \
@@ -136,20 +128,18 @@ class ProcessCompletionEngine(traits.HasTraits):
         return self.capsul_attributes
 
 
-    def complete_parameters(self, process, process_inputs={}):
+    def complete_parameters(self, process_inputs={}):
         ''' Completes file parameters from given inputs parameters, which may
         include both "regular" process parameters (file names) and attributes.
 
         Parameters
         ----------
-        process: Process instance (mandatory)
-            the process (or pipeline) to be completed
         process_inputs: dict (optional)
             parameters to be set on the process. It may include "regular"
             process parameters, and attributes used for completion. Attributes
             should be in a sub-dictionary under the key "capsul_attributes".
         '''
-        self.set_parameters(process, process_inputs)
+        self.set_parameters(process_inputs)
         # if process is a pipeline, trigger completions for its nodes and
         # sub-pipelines.
         #
@@ -162,13 +152,13 @@ class ProcessCompletionEngine(traits.HasTraits):
         # now, but it is sub-optimal since many parameters will be set many
         # times.
         use_topological_order = True
-        if isinstance(process, Pipeline):
-            attrib_values = self.get_attribute_values(process).export_to_dict()
-            name = process.name
+        if isinstance(self.process, Pipeline):
+            attrib_values = self.get_attribute_values().export_to_dict()
+            name = self.process.name
 
             if use_topological_order:
                 # proceed in topological order
-                graph = process.workflow_graph()
+                graph = self.process.workflow_graph()
                 for node_name, node_meta in graph.topological_sort():
                     pname = '.'.join([name, node_name])
                     if isinstance(node_meta, Graph):
@@ -185,17 +175,15 @@ class ProcessCompletionEngine(traits.HasTraits):
                                 subprocess, pname)
                         try:
                             subprocess_compl.complete_parameters(
-                                subprocess, {'capsul_attributes':
-                                             attrib_values})
+                                {'capsul_attributes': attrib_values})
                         except:
                             try:
-                                self.complete_parameters(
-                                    subprocess, {'capsul_attributes':
-                                                attrib_values})
+                                self.__class__(subprocess).complete_parameters(
+                                    {'capsul_attributes': attrib_values})
                             except:
                                 pass
             else:
-                for node_name, node in six.iteritems(process.nodes):
+                for node_name, node in six.iteritems(self.process.nodes):
                     if node_name == '':
                         continue
                     if hasattr(node, 'process'):
@@ -206,41 +194,38 @@ class ProcessCompletionEngine(traits.HasTraits):
                                 subprocess, pname)
                         try:
                             subprocess_compl.complete_parameters(
-                                subprocess, {
-                                    'capsul_attributes': attrib_values})
+                                {'capsul_attributes': attrib_values})
                         except:
                             try:
-                                self.complete_parameters(
-                                    subprocess, {'capsul_attributes':
-                                                attrib_values})
+                                self.__class__(subprocess).complete_parameters(
+                                    {'capsul_attributes': attrib_values})
                             except:
                                 pass
 
         # now complete process parameters:
-        attributes = self.get_attribute_values(process)
-        for pname in process.user_traits():
+        attributes = self.get_attribute_values()
+        for pname in self.process.user_traits():
             try:
-                value = self.attributes_to_path(process, pname, attributes)
+                value = self.attributes_to_path(pname, attributes)
                 if value is not None:  # should None be valid ?
-                    setattr(process, pname, value)
+                    setattr(self.process, pname, value)
             except:
                 pass
 
 
-    def attributes_to_path(self, process, parameter, attributes):
+    def attributes_to_path(self, parameter, attributes):
         ''' Build a path from attributes for a given parameter in a process.
 
         Parameters
         ----------
-        process: Process instance
         parameter: str
         attributes: ProcessAttributes instance (Controller)
         '''
-        return self.get_path_completion_engine(process) \
-            .attributes_to_path(process, parameter, attributes)
+        return self.get_path_completion_engine() \
+            .attributes_to_path(self.process, parameter, attributes)
 
 
-    def set_parameters(self, process, process_inputs):
+    def set_parameters(self, process_inputs):
         ''' Set the given parameters dict to the given process.
         process_inputs may include regular parameters of the underlying
         process, and attributes (capsul_attributes: dict).
@@ -250,7 +235,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         # import_from_dict() method in the way that capsul_attributes items
         # will not completely replace all the attributes values, but only set
         # those specified here, and leave the others in place.
-        dst_attributes = self.get_attribute_values(process)
+        dst_attributes = self.get_attribute_values()
         attributes = process_inputs.get('capsul_attributes')
         if attributes:
             avail_attrib = set(dst_attributes.user_traits().keys())
@@ -260,10 +245,10 @@ class ProcessCompletionEngine(traits.HasTraits):
         process_inputs = dict((k, v) for k, v
                               in six.iteritems(process_inputs)
                               if k != 'capsul_attributes')
-        process.import_from_dict(process_inputs)
+        self.process.import_from_dict(process_inputs)
 
 
-    def attributes_changed(self, process, obj, name, old, new):
+    def attributes_changed(self, obj, name, old, new):
         ''' Traits changed callback which triggers parameters update.
 
         This method basically calls complete_parameters() (after some checks).
@@ -274,34 +259,30 @@ class ProcessCompletionEngine(traits.HasTraits):
         It can be plugged this way:
 
         ::
-            from soma.functiontools import SomaPartial
-            completion_engine.get_attribute_values(process).on_trait_change(
-                SomaPartial(completion_engine.attributes_changed, process),
-                'anytrait')
+            completion_engine.get_attribute_values().on_trait_change(
+                completion_engine.attributes_changed, 'anytrait')
 
         Then it can be disabled this way:
 
         ::
-            completion_engine.get_attribute_values(process).on_trait_change(
-                SomaPartial(completion_engine.attributes_changed, process),
-                'anytrait', remove=True)
+            completion_engine.get_attribute_values().on_trait_change(
+                completion_engine.attributes_changed, 'anytrait', remove=True)
         '''
         if name != 'trait_added' and name != 'user_traits_changed' \
                 and self.completion_ongoing is False:
             #setattr(self.capsul_attributes, name, new)
             self.completion_ongoing = True
-            self.complete_parameters(process,
-                                     {'capsul_attributes': {name: new}})
+            self.complete_parameters({'capsul_attributes': {name: new}})
             self.completion_ongoing = False
 
 
-    def get_path_completion_engine(self, process):
+    def get_path_completion_engine(self):
         ''' Get a PathCompletionEngine object for the given process.
         The default implementation queries PathCompletionEngineFactory,
         but some specific ProcessCompletionEngine implementations may override
         it for path completion at the process level (FOMs for instance).
         '''
-        study_config = process.get_study_config()
+        study_config = self.process.get_study_config()
         engine_factory = None
         if 'AttributesConfig' in study_config.modules:
             try:
@@ -312,7 +293,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                 pass # not found
         if engine_factory is None:
             engine_factory = PathCompletionEngineFactory()
-        return engine_factory.get_path_completion_engine(process)
+        return engine_factory.get_path_completion_engine(self.process)
 
 
     @staticmethod
@@ -335,11 +316,11 @@ class ProcessCompletionEngine(traits.HasTraits):
             process, study_config, name=name)
 
 
-    def _get_schemas(self, process):
+    def _get_schemas(self):
         ''' Get schemas dictionary from process and its StudyConfig
         '''
         schemas = {}
-        study_config = process.get_study_config()
+        study_config = self.process.get_study_config()
         factory = getattr(study_config.modules_data, 'attributes_factory',
                           None)
         if factory is not None:
@@ -436,7 +417,7 @@ class ProcessCompletionEngineFactory(object):
 
     @staticmethod
     def _default_factory(process, name):
-        return ProcessCompletionEngine(name)
+        return ProcessCompletionEngine(process, name)
 
 
 class PathCompletionEngineFactory(object):

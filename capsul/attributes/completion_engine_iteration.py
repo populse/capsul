@@ -26,32 +26,33 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
     Completion performs a single iteration step, stored in
     self.capsul_iteration_step
     '''
-    def __init__(self, name=None):
-        super(ProcessCompletionEngineIteration, self).__init__(name)
+    def __init__(self, process, name=None):
+        super(ProcessCompletionEngineIteration, self).__init__(
+            process=process, name=name)
         #self.add_trait('capsul_iteration_step', traits.Int(0))
         self.capsul_iteration_step = 0
         #self.iterated_attributes = self.get_iterated_attributes()
 
 
-    def get_iterated_attributes(self, process):
+    def get_iterated_attributes(self):
         '''
         '''
         try:
             pattributes = ProcessCompletionEngine.get_completion_engine(
-                process.process).get_attribute_values(process.process)
+                self.process.process).get_attribute_values()
         except AttributeError:
             # ProcessCompletionEngine not implemented for this process:
             # no completion
             return []
         param_attributes = pattributes.get_parameters_attributes()
         attribs = set()
-        for parameter in process.iterative_parameters:
+        for parameter in self.process.iterative_parameters:
             attribs.update(param_attributes[parameter].keys())
         return [param for param in pattributes.user_traits().keys()
                 if param in attribs]
 
 
-    def get_attribute_values(self, process):
+    def get_attribute_values(self):
         ''' Get attributes Controller associated to a process
 
         Returns
@@ -62,18 +63,18 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         if t is None:
             try:
                 pattributes = ProcessCompletionEngine.get_completion_engine(
-                    process.process).get_attribute_values(process.process)
+                    self.process.process).get_attribute_values()
             except AttributeError:
                 # ProcessCompletionEngine not implemented for this process:
                 # no completion
                 return
 
-            schemas = self._get_schemas(process)
-            attributes = ProcessAttributes(process, schemas)
+            schemas = self._get_schemas()
+            attributes = ProcessAttributes(self.process, schemas)
 
             self.add_trait('capsul_attributes', ControllerTrait(Controller()))
             self.capsul_attributes = attributes
-            iter_attrib = self.get_iterated_attributes(process)
+            iter_attrib = self.get_iterated_attributes()
             for attrib, trait in six.iteritems(pattributes.user_traits()):
                 if attrib not in iter_attrib:
                     attributes.add_trait(attrib, trait)
@@ -88,26 +89,25 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         return self.capsul_attributes
 
 
-    def complete_parameters(self, process, process_inputs={}):
+    def complete_parameters(self, process_inputs={}):
         try:
-            self.set_parameters(process, process_inputs)
-            attributes_set = self.get_attribute_values(process)
+            self.set_parameters(process_inputs)
+            attributes_set = self.get_attribute_values()
             completion_engine = ProcessCompletionEngine.get_completion_engine(
-                process.process, self.name)
-            step_attributes = completion_engine.get_attribute_values(
-                process.process)
+                self.process.process, self.name)
+            step_attributes = completion_engine.get_attribute_values()
         except AttributeError:
             # ProcessCompletionEngine not implemented for this process:
             # no completion
             return
-        iterated_attributes = self.get_iterated_attributes(process)
+        iterated_attributes = self.get_iterated_attributes()
         for attribute in attributes_set.user_traits():
             if attribute not in iterated_attributes:
                 setattr(step_attributes, attribute,
                         getattr(attributes_set, attribute))
         parameters = {}
-        for parameter in process.regular_parameters:
-            parameters[parameter] = getattr(process, parameter)
+        for parameter in self.process.regular_parameters:
+            parameters[parameter] = getattr(self.process, parameter)
 
         size = max([len(getattr(attributes_set, attribute))
                     for attribute in iterated_attributes])
@@ -116,8 +116,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         # This is generally "too much" but it's difficult to perform a partial
         # completion only on iterated parameters
 
-        iterative_parameters = dict([(key, [])
-                                     for key in process.iterative_parameters])
+        iterative_parameters = dict(
+            [(key, []) for key in self.process.iterative_parameters])
 
         for it_step in xrange(size):
             for attribute in iterated_attributes:
@@ -125,33 +125,32 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 step = min(len(iterated_values) - 1, it_step)
                 value = iterated_values[step]
                 setattr(step_attributes, attribute, value)
-            for parameter in process.iterative_parameters:
-                values = getattr(process, parameter)
+            for parameter in self.process.iterative_parameters:
+                values = getattr(self.process, parameter)
                 if isinstance(values, list) and len(values) > it_step:
                     parameters[parameter] = values[it_step]
-            completion_engine.complete_parameters(process.process, parameters)
-            for parameter in process.iterative_parameters:
-                value = getattr(process.process, parameter)
+            completion_engine.complete_parameters(parameters)
+            for parameter in self.process.iterative_parameters:
+                value = getattr(self.process.process, parameter)
                 iterative_parameters[parameter].append(value)
             for parameter, values in six.iteritems(iterative_parameters):
-                setattr(process, parameter, values)
+                setattr(self.process, parameter, values)
 
 
-    def complete_iteration_step(self, process, step):
+    def complete_iteration_step(self, step):
         ''' Complete the parameters on the iterated process for a given
         iteration step.
         '''
         try:
-            attributes_set = self.get_attribute_values(process)
+            attributes_set = self.get_attribute_values()
             completion_engine = ProcessCompletionEngine.get_completion_engine(
-                process.process, self.name)
-            step_attributes = completion_engine.get_attribute_values(
-                process.process)
+                self.process.process, self.name)
+            step_attributes = completion_engine.get_attribute_values()
         except AttributeError:
             # ProcessCompletionEngine not implemented for this process:
             # no completion
             return
-        iterated_attributes = self.get_iterated_attributes(process)
+        iterated_attributes = self.get_iterated_attributes()
         self.capsul_iteration_step = step
         for attribute in iterated_attributes:
             iterated_values = getattr(attributes_set, attribute)
@@ -163,20 +162,20 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 setattr(step_attributes, attribute,
                         getattr(attributes_set, attribute))
         parameters = {}
-        for parameter in process.regular_parameters:
-            parameters[parameter] = getattr(process, parameter)
-        for parameter in process.iterative_parameters:
-            values = getattr(process, parameter)
+        for parameter in self.process.regular_parameters:
+            parameters[parameter] = getattr(self.process, parameter)
+        for parameter in self.process.iterative_parameters:
+            values = getattr(self.process, parameter)
             if len(values) > self.capsul_iteration_step:
                 parameters[parameter] = values[self.capsul_iteration_step]
-        completion_engine.complete_parameters(process.process, parameters)
+        completion_engine.complete_parameters(parameters)
 
 
     @staticmethod
     def _iteration_factory(process, name):
         if not isinstance(process, ProcessIteration):
             return None
-        return ProcessCompletionEngineIteration(name)
+        return ProcessCompletionEngineIteration(process, name)
 
 
 class ProcessCompletionEngineIterationFactory(ProcessCompletionEngineFactory):

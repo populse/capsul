@@ -87,11 +87,10 @@ class AttributedProcessWidget(QtGui.QWidget):
 
         if completion_engine is not None:
             self.controller_widget2 = ScrollControllerWidget(
-                completion_engine.get_attribute_values(process),
+                completion_engine.get_attribute_values(),
                 live=True, parent=attrib_widget)
-            completion_engine.get_attribute_values(process).on_trait_change(
-                SomaPartial(completion_engine.attributes_changed, process),
-                'anytrait')
+            completion_engine.get_attribute_values().on_trait_change(
+                completion_engine.attributes_changed, 'anytrait')
         else:
             self.controller_widget2 = ScrollControllerWidget(Controller())
 
@@ -122,11 +121,8 @@ class AttributedProcessWidget(QtGui.QWidget):
         completion_engine = getattr(self.attributed_process,
                                    'completion_engine', None)
         if completion_engine is not None:
-            completion_engine.get_attribute_values(
-                self.attributed_process).on_trait_change(
-                    SomaPartial(completion_engine.attributes_changed,
-                                self.attributed_process),
-                    'anytrait', remove=True)
+            completion_engine.get_attribute_values().on_trait_change(
+                completion_engine.attributes_changed, 'anytrait', remove=True)
 
     def on_input_filename_changed(self, text):
         '''
@@ -137,8 +133,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         if completion_engine is not None:
             print('set attributes from path:', text)
             try:
-                completion_engine.path_attributes(self.attributed_process,
-                                                 unicode(text))
+                completion_engine.path_attributes(unicode(text))
             except ValueError as e:
                 print(e)
                 import traceback
@@ -161,8 +156,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         print('load', filename)
         attributes = json.load(open(filename))
         print("loaded:", attributes)
-        completion_engine.get_attribute_values(
-            self.attributed_process).import_from_dict(attributes)
+        completion_engine.get_attribute_values().import_from_dict(attributes)
 
     def on_btn_save_json(self):
         """Save attributes in a json file"""
@@ -195,10 +189,8 @@ class AttributedProcessWidget(QtGui.QWidget):
                                        'completion_engine', None)
             if completion_engine is None:
                 return
-            completion_engine.get_attribute_values(
-                process).on_trait_change(
-                    SomaPartial(completion_engine.attributes_changed,
-                                self.attributed_process), 'anytrait')
+            completion_engine.get_attribute_values().on_trait_change(
+                completion_engine.attributes_changed, 'anytrait')
             try:
                 # WARNING: is it necessary to reset all this ?
                 # create_completion() will do the job anyway ?
@@ -206,10 +198,8 @@ class AttributedProcessWidget(QtGui.QWidget):
                     #if trait.is_trait_type(File) \
                             #or trait.is_trait_type(Directory):
                         #setattr(process,name, Undefined)
-                completion_engine.complete_parameters(process)
+                completion_engine.complete_parameters()
 
-                print(completion_engine.get_attribute_values(
-                      process).export_to_dict())
                 if self.input_filename_controller.attributes_from_input_filename \
                         != '':
                     completion_engine.path_attributes(
@@ -241,11 +231,9 @@ class AttributedProcessWidget(QtGui.QWidget):
             completion_engine = getattr(self.attributed_process,
                                       'completion_engine', None)
             if completion_engine is not None:
-                completion_engine.get_attribute_values(
-                    self.attributed_process).on_trait_change(
-                        SomaPartial(completion_engine.attributes_changed,
-                                    self.attributed_process),
-                        'anytrait', remove=True)
+                completion_engine.get_attribute_values().on_trait_change(
+                    completion_engine.attributes_changed, 'anytrait',
+                    remove=True)
                 self.btn_show_completion.setChecked(True)
 
     def show_completion(self, visible=None):
