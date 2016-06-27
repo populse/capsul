@@ -47,12 +47,6 @@ class FomConfig(StudyConfigModule):
         self.study_config.output_fom = ""
         self.study_config.shared_fom = ""
 
-        # initialize FomCompletionEngine factory
-        import capsul.attributes.fom_completion_engine
-
-        self.study_config.process_completion = 'fom'
-        self.study_config.path_completion = ''
-
 
     def initialize_module(self):
         '''Load configured FOMs and create FOM completion data in
@@ -106,6 +100,6 @@ class FomConfig(StudyConfigModule):
         self.study_config.on_trait_change(
             self.initialize_module,
             ['use_fom', 'input_directory', 'input_fom', 'meshes_format',
-             'output_directory', 'output_fom', 'shared_directory', 'shared_fom',
-             'spm_directory', 'volumes_format'])
+             'output_directory', 'output_fom', 'shared_directory',
+             'shared_fom', 'spm_directory', 'volumes_format'])
 

@@ -247,13 +247,12 @@ FOMs are integrated in the completion system. It is activated using the FomConfi
     study_config.inpupt_fom = 'morphologist-auto-1.0'
     study_config.output_fom = 'morphologist-auto-1.0'
 
-The FOM module sets up the attributes schema:
+The FOM module (throught the AttributesConfig module )sets up the attributes schema:
 
     >>> study_config.attributes_schema_paths
-    ['capsul.attributes.completion_engine',
-     'capsul.attributes.fom_completion_engine']
+    ['capsul.attributes.completion_engine_factory']
     >>> study_config.process_completion
-    'fom'
+    'builtin'
 
 The rest works just as the above completion system.
 

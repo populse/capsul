@@ -170,21 +170,3 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 parameters[parameter] = values[self.capsul_iteration_step]
         completion_engine.complete_parameters(parameters)
 
-
-    @staticmethod
-    def _iteration_factory(process, name):
-        if not isinstance(process, ProcessIteration):
-            return None
-        return ProcessCompletionEngineIteration(process, name)
-
-
-class ProcessCompletionEngineIterationFactory(ProcessCompletionEngineFactory):
-
-    factory_id = 'builtin'
-
-    def __init__(self):
-        super(ProcessCompletionEngineIterationFactory, self).__init__()
-        self.register_factory(
-            ProcessCompletionEngineIteration._iteration_factory, 50000)
-
-

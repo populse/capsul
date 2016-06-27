@@ -311,37 +311,10 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
         return iter_attrib
 
 
-    @staticmethod
-    def _iteration_factory(process, name):
-        if not isinstance(process, ProcessIteration):
-            return None
-        if not isinstance(
-                ProcessCompletionEngine.get_completion_engine(process.process),
-                FomProcessCompletionEngine):
-            # iterated process doesn't use FOM
-            return None
-        return FomProcessCompletionEngineIteration(process, name)
+#class FomPathCompletionEngineFactory(PathCompletionEngineFactory):
 
+    #factory_id = 'fom'
 
-# register FomProcessCompletionEngine factory into
-# ProcessCompletionEngineFactory
-
-class FomProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
-
-    factory_id = 'fom'
-
-    def __init__(self):
-        super(FomProcessCompletionEngineFactory, self).__init__()
-        self.register_factory(
-            FomProcessCompletionEngine._fom_completion_factory, 10000)
-        self.register_factory(
-            FomProcessCompletionEngineIteration._iteration_factory, 40000)
-
-
-class FomPathCompletionEngineFactory(PathCompletionEngineFactory):
-
-    factory_id = 'fom'
-
-    def get_path_completion_engine(self, process):
-        return FomPathCompletionEngine(process)
+    #def get_path_completion_engine(self, process):
+        #return FomPathCompletionEngine(process)
 

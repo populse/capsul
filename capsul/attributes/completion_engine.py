@@ -312,8 +312,12 @@ class ProcessCompletionEngine(traits.HasTraits):
                 pass # not found
         if engine_factory is None:
             engine_factory = ProcessCompletionEngineFactory()
-        return engine_factory.get_completion_engine(
+        completion_engine = engine_factory.get_completion_engine(
             process, study_config, name=name)
+        # set the completion engine into the process
+        if completion_engine is not None:
+            process.completion_engine = completion_engine
+        return completion_engine
 
 
     def _get_schemas(self):
@@ -349,19 +353,10 @@ class PathCompletionEngine(object):
         return None
 
 
-
 class ProcessCompletionEngineFactory(object):
     '''
     '''
     factory_id = 'basic'
-
-    def __init__(self):
-        super(ProcessCompletionEngineFactory, self).__init__()
-        self.factories = {
-            100000: [self._default_factory],
-        }
-
-
 
     def get_completion_engine(self, process, study_config=None, name=None):
         '''
@@ -373,6 +368,9 @@ class ProcessCompletionEngineFactory(object):
         If nothing is configured, a ProcessCompletionEngine base instance will
         be returned. It will not be able to perform completion at all, but will
         conform to the API.
+
+        The base class implementation returns a base ProcessCompletionEngine
+        instance, which is quite incomplete.
         '''
         if hasattr(process, 'completion_engine'):
             return process.completion_engine
@@ -387,37 +385,7 @@ class ProcessCompletionEngineFactory(object):
                       repr(process.get_study_config().export_to_dict()),
                       repr(study_config.export_to_dict())))
 
-        for priority in sorted(self.factories.keys()):
-            factories = self.factories[priority]
-            for factory in factories:
-                completion_engine = factory(process, name)
-                if completion_engine is not None:
-                    process.completion_engine = completion_engine
-                    return completion_engine
-        raise RuntimeError(
-            'No factory could produce a ProcessCompletionEngine '
-            'instance for the process %s. This is a bug, it should not happen.'
-            %process.id)
-
-
-    def register_factory(self, factory_function, priority):
-        '''
-        '''
-        self.unregister_factory(factory_function)
-        self.factories.setdefault(priority, []).append(factory_function)
-
-
-    def unregister_factory(self, factory_function):
-        '''
-        '''
-        for priority, factories in six.iteritems(self.factories):
-            if factory_function in factories:
-                factory_function.remove(factory_function)
-
-
-    @staticmethod
-    def _default_factory(process, name):
-        return ProcessCompletionEngine(process, name)
+        return ProcessCompletionEngine(process, name=name)
 
 
 class PathCompletionEngineFactory(object):
@@ -427,6 +395,4 @@ class PathCompletionEngineFactory(object):
     def get_path_completion_engine(self, process):
         raise RuntimeError('PathCompletionEngineFactory is pure virtual. '
                            'It must be derived to do actual work.')
-
-
 
