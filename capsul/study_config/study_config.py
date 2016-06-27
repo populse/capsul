@@ -243,7 +243,7 @@ class StudyConfig(Controller):
             return module
 
     def run(self, process_or_pipeline, output_directory= None,
-            executer_qc_nodes=True, verbose=1, **kwargs):
+            executer_qc_nodes=True, verbose=0, **kwargs):
         """Method to execute a process or a pipline in a study configuration
          environment.
 
@@ -395,8 +395,9 @@ class StudyConfig(Controller):
         returncode, log_file = run_process(
             output_directory,
             process_instance,
-            cachedir,
-            self.generate_logging,
+            cachedir=cachedir,
+            generate_logging=self.generate_logging,
+            verbose=verbose,
             **kwargs)
 
         # Increment the number of executed process count
