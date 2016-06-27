@@ -82,7 +82,7 @@ def run_process(output_dir, process_instance, cachedir=None,
                 "argument '{1}'".format(process_instance, arg_name))
 
     # Information message
-    if verbose != 0:
+    if verbose:
         input_parameters = {}
         for name, trait in six.iteritems(process_instance.user_traits()):
             value = process_instance.get_parameter(name)
@@ -92,7 +92,7 @@ def run_process(output_dir, process_instance, cachedir=None,
                 input_parameters[name] = value
         input_parameters = ["{0}={1}".format(name, value)
               for name, value in six.iteritems(input_parameters)]
-        call_with_inputs = "{0}({1})".format(process_instance.id, ", ".join(kwargs))
+        call_with_inputs = "{0}({1})".format(process_instance.id, ", ".join(input_parameters))
         print("{0}\n[Process] Calling {1}...\n{2}".format(
             80 * "_", process_instance.id,
             call_with_inputs))
