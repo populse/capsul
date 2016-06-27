@@ -81,6 +81,21 @@ def run_process(output_dir, process_instance, cachedir=None,
                 "execution of process {0} got an unexpected keyword "
                 "argument '{1}'".format(process_instance, arg_name))
 
+    # Information message
+    if verbose != 0:
+        input_parameters = {}
+        for name, trait in six.iteritems(process_instance.user_traits()):
+            value = process_instance.get_parameter(name)
+            # Skip undefined trait attributes and outputs
+            if not trait.output and value is not Undefined:
+                # Store the input parameter
+                input_parameters[name] = value
+        input_parameters = ["{0}={1}".format(name, value)
+              for name, value in six.iteritems(input_parameters)]
+        call_with_inputs = "{0}({1})".format(process_instance.id, ", ".join(kwargs))
+        print("{0}\n[Process] Calling {1}...\n{2}".format(
+            80 * "_", process_instance.id,
+            call_with_inputs))
     if cachedir:
         # Create a memory object
         mem = Memory(cachedir)
