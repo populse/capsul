@@ -313,7 +313,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         if engine_factory is None:
             engine_factory = ProcessCompletionEngineFactory()
         completion_engine = engine_factory.get_completion_engine(
-            process, study_config, name=name)
+            process, name=name)
         # set the completion engine into the process
         if completion_engine is not None:
             process.completion_engine = completion_engine
@@ -358,7 +358,7 @@ class ProcessCompletionEngineFactory(object):
     '''
     factory_id = 'basic'
 
-    def get_completion_engine(self, process, study_config=None, name=None):
+    def get_completion_engine(self, process, name=None):
         '''
         Factory for ProcessCompletionEngine: get an ProcessCompletionEngine
         instance for a process in the context of a given StudyConfig.
@@ -374,16 +374,6 @@ class ProcessCompletionEngineFactory(object):
         '''
         if hasattr(process, 'completion_engine'):
             return process.completion_engine
-        if study_config is not None:
-            if process.get_study_config() is None:
-                process.set_study_config(study_config)
-            elif study_config is not process.get_study_config():
-                raise ValueError('Mismatching StudyConfig in process (%s) and '
-                    'get_attributed_process() (%s)\nin process:\n%s\n'
-                    'passed:\n%s'
-                    % (repr(process.get_study_config()), repr(study_config),
-                      repr(process.get_study_config().export_to_dict()),
-                      repr(study_config.export_to_dict())))
 
         return ProcessCompletionEngine(process, name=name)
 

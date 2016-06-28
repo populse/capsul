@@ -14,7 +14,7 @@ class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
     '''
     factory_id = 'builtin'
 
-    def get_completion_engine(self, process, study_config=None, name=None):
+    def get_completion_engine(self, process, name=None):
         '''
         Factory for ProcessCompletionEngine: get an ProcessCompletionEngine
         instance for a process in the context of a given StudyConfig.
@@ -27,16 +27,8 @@ class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
         '''
         if hasattr(process, 'completion_engine'):
             return process.completion_engine
-        if study_config is not None:
-            if process.get_study_config() is None:
-                process.set_study_config(study_config)
-            elif study_config is not process.get_study_config():
-                raise ValueError('Mismatching StudyConfig in process (%s) and '
-                    'get_attributed_process() (%s)\nin process:\n%s\n'
-                    'passed:\n%s'
-                    % (repr(process.get_study_config()), repr(study_config),
-                      repr(process.get_study_config().export_to_dict()),
-                      repr(study_config.export_to_dict())))
+
+        study_config = process.get_study_config()
 
         # FOM
         if 'FomConfig' in study_config.modules and study_config.use_fom:
