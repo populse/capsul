@@ -267,10 +267,8 @@ class MemorizedProcess(object):
             # Try to execute the process and if an error occured remove the
             # cache folder
             try:
-                ## Run and update the process output traits
+                # Run
                 result = self._call_process(process_dir, input_parameters)
-                #for name, value in six.iteritems(result.outputs):
-                    #self.process.set_parameter(name, value)
 
                 # Save the result files in the memory with the corresponding
                 # mapping
