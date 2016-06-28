@@ -306,11 +306,11 @@ class StudyConfig(Controller):
 
         # Use the local machine to execute the pipeline or process
         else:
-            if output_directory is None:
+            if output_directory is None or output_directory is Undefined:
                 output_directory = self.output_directory
             # Not all processes need an output_directory defined on
             # StudyConfig
-            if output_directory is not Undefined:
+            if output_directory is not None and output_directory is not Undefined:
                 # Check the output directory is valid
                 if not isinstance(output_directory, basestring):
                     raise ValueError(
@@ -327,6 +327,7 @@ class StudyConfig(Controller):
 
             # Temporary files can be generated for pipelines
             temporary_files = []
+            result = None
             try:
                 # Generate ordered execution list
                 execution_list = []

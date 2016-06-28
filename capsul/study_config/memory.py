@@ -267,10 +267,10 @@ class MemorizedProcess(object):
             # Try to execute the process and if an error occured remove the
             # cache folder
             try:
-                # Run and update the process output traits
+                ## Run and update the process output traits
                 result = self._call_process(process_dir, input_parameters)
-                for name, value in six.iteritems(result.outputs):
-                    self.process.set_parameter(name, value)
+                #for name, value in six.iteritems(result.outputs):
+                    #self.process.set_parameter(name, value)
 
                 # Save the result files in the memory with the corresponding
                 # mapping
@@ -376,7 +376,10 @@ class MemorizedProcess(object):
         duration = time.time() - start_time
 
         # Save the result in json format
-        json_data = json.dumps(result, sort_keys=True,
+        cache = {'parameters': dict((i, getattr(self.process, i)) 
+                                    for i in self.process.user_traits()),
+                 'result': result}
+        json_data = json.dumps(cache, sort_keys=True,
                                check_circular=True, indent=4,
                                cls=CapsulResultEncoder)
         result_fname = os.path.join(process_dir, "result.json")
@@ -419,17 +422,12 @@ class MemorizedProcess(object):
         with open(result_fname, "r") as json_data:
             result_dict = json.load(json_data, cls=CapsulResultDecoder)
 
-        # Generate the ProcessResult
-        result = ProcessResult(
-            self.process_class, result_dict["runtime"],
-            result_dict["returncode"], result_dict["inputs"],
-            result_dict["outputs"])
 
-        # Update the process output traits
-        for name, value in six.iteritems(result.outputs):
+        ## Update the process output traits
+        for name, value in six.iteritems(result_dict['parameters']):
             self.process.set_parameter(name, value)
 
-        return result
+        return result_dict['result']
 
     def _get_process_id(self, **kwargs):
         """ Return the directory in which are persisted the result of the

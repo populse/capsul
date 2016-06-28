@@ -217,37 +217,13 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # Import cannot be done on module due to circular dependencies
         from capsul.study_config import default_study_config
         
-        # Get the process class
-        process = self.__class__
-
-        # Initialize the execution report
-        runtime = {
-            "start_time": datetime.isoformat(datetime.utcnow()),
-            "returncode": None,
-            "environ": dict([(k, unicode(v))
-                             for k, v in six.iteritems(os.environ)]),
-            "end_time": None,
-            "hostname": getfqdn(),
-        }
 
         # Execute the process
         output_directory = getattr(self, 'output_directory', Undefined)
         returncode = default_study_config().run(self,
                                             output_directory=output_directory,
                                             **kwargs)
-
-        # Set the execution stop time in the execution report
-        runtime["end_time"] = datetime.isoformat(datetime.utcnow())
-
-        # Set the dependencies versions in the execution report
-        runtime["versions"] = self.versions
-
-        # Generate a process result that is returned
-        results = ProcessResult(
-            process, runtime, returncode, self.get_inputs(),
-            self.get_outputs())
-
-        return results
+        return returncode
 
 
     def run(self, **kwargs):
@@ -1064,95 +1040,6 @@ class NipypeProcess(FileCopyProcess):
         # manually the output nipype/capsul traits sync.
         super(Process, self).add_trait("synchronize", Int(0, optional=True))
 
-    def __call__(self, **kwargs):
-        """ Method to execute the NipypeProcess.
-
-        Keyword arguments may be passed to set process parameters.
-        This in turn will allow calling the process like a standard
-        python function.
-        In such case keyword arguments are set in the process in
-        addition to those already set before the call.
-
-        Raise a TypeError if a keyword argument do not match with a
-        process trait name.
-
-        .. note:
-
-            This method must not modified the class attributes in order
-            to be able to perform smart caching.
-
-        Parameters
-        ----------
-        kwargs: dict (optional)
-            should correspond to the declared parameter traits.
-
-        Returns
-        -------
-        results:  ProcessResult object
-            contains all execution information
-        """
-        # Set the interface output directory just before the execution
-        cwd = os.getcwd()
-        os.chdir(self.output_directory)
-        self.synchronize += 1
-
-        # Force nipype update
-        for trait_name in self._nipype_interface.inputs.traits().keys():
-            if trait_name in self.user_traits():
-                old = getattr(self._nipype_interface.inputs, trait_name)
-                new = getattr(self, trait_name)
-                if old is Undefined and old != new:
-                    setattr(self._nipype_interface.inputs, trait_name, new)
-
-        # Inheritance
-        if self._nipype_interface_name == "spm":
-            # Set the spm working
-            self.destination = self.output_directory
-            # Clean the working folder
-            if os.path.isdir(self.output_directory):
-                items_in_folder = os.listdir(self.output_directory)
-                if len(items_in_folder) != 0:
-                    print ("Found items '{0}', exec auto-clean for spm "
-                           "process.".format(items_in_folder))
-                    shutil.rmtree(self.output_directory)
-            results = super(NipypeProcess, self).__call__(**kwargs)
-        # Do nothing specific
-        else:
-            results = super(NipypeProcess, self).__call__(**kwargs)
-        
-        # For spm, need to move the batch
-        # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)
-        if self._nipype_interface_name == "spm":
-            mfile = os.path.join(
-                os.getcwd(),
-                self._nipype_interface.mlab.inputs.script_file)
-            destmfile = os.path.join(
-                self.output_directory,
-                self._nipype_interface.mlab.inputs.script_file)
-            if os.path.isfile(mfile):
-                shutil.move(mfile, destmfile)
-
-        # Set additional information in the execution report
-        returncode = results.returncode
-        if hasattr(returncode.runtime, "cmd_line"):
-            results.runtime["cmd_line"] = returncode.runtime.cmdline
-        results.runtime["stderr"] = returncode.runtime.stderr
-        results.runtime["stdout"] = returncode.runtime.stdout
-        results.runtime["cwd"] = returncode.runtime.cwd
-        results.runtime["returncode"] = returncode.runtime.returncode
-
-        # Set the nipype outputs to the execution report
-        outputs = dict(
-            ("_" + x[0], (self._nipype_interface._list_outputs()[x[0]] if x[1] is Undefined else x[1]))
-            for x in six.iteritems(returncode.outputs.get()))
-        for k, v in six.iteritems(outputs):
-            setattr(self, k, v)
-        results.outputs = outputs
-        
-        # Restore cwd
-        os.chdir(cwd)
-
-        return results
 
     def set_output_directory(self, out_dir):
         """ Set the process output directory.
@@ -1184,9 +1071,52 @@ class NipypeProcess(FileCopyProcess):
         runtime: InterfaceResult
             object containing the running results
         """
-        out = self._nipype_interface.run()
+        try:
+            cwd = os.getcwd()
+        except OSError:
+            cwd = None
+        if self.output_directory is None or self.output_directory is Undefined:
+            raise ValueError('output_directory is not set but is mandatory '
+                             'to run a NipypeProcess')
+        os.chdir(self.output_directory)
         self.synchronize += 1
-        return out
+
+        # Force nipype update
+        for trait_name in self._nipype_interface.inputs.traits().keys():
+            if trait_name in self.user_traits():
+                old = getattr(self._nipype_interface.inputs, trait_name)
+                new = getattr(self, trait_name)
+                if old is Undefined and old != new:
+                    setattr(self._nipype_interface.inputs, trait_name, new)
+
+        # Inheritance
+        if self._nipype_interface_name == "spm":
+            # Set the spm working
+            self.destination = self.output_directory
+            results = self._nipype_interface.run()
+            self.synchronize += 1
+        # Do nothing specific
+        else:
+            results = self._nipype_interface.run()
+            self.synchronize += 1
+        
+        # For spm, need to move the batch
+        # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)
+        if self._nipype_interface_name == "spm":
+            mfile = os.path.join(
+                os.getcwd(),
+                self._nipype_interface.mlab.inputs.script_file)
+            destmfile = os.path.join(
+                self.output_directory,
+                self._nipype_interface.mlab.inputs.script_file)
+            if os.path.isfile(mfile):
+                shutil.move(mfile, destmfile)
+        
+        # Restore cwd
+        if cwd is not None:
+            os.chdir(cwd)
+
+        return results
 
     @classmethod
     def help(cls, nipype_interface, returnhelp=False):
