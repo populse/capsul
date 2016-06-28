@@ -47,12 +47,13 @@ def run_process(output_dir, process_instance, cachedir=None,
         the path to the process execution log file.
     """
     # Update the output directory folder if necessary
-    if output_dir is not None and output_dir is not Undefined:
+    if output_dir is not None and output_dir is not Undefined and output_dir:
         # Guarantee that the output directory exists
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
         if 'output_directory' in process_instance.user_traits():
-            if process_instance.output_directory is None or process_instance.output_directory is Undefined:
+            if (process_instance.output_directory is Undefined or
+                    not(process_instance.output_directory)):
                 process_instance.output_directory = output_dir
 
     # Set the current directory directory if necessary
