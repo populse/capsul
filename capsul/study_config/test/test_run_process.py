@@ -12,7 +12,7 @@ import tempfile
 import shutil
 
 # Capsul import
-from capsul.api import Process
+from capsul.api import Process, get_process_instance
 from capsul.study_config.run import run_process
 
 # Trait import
@@ -67,7 +67,7 @@ class TestRunProcess(unittest.TestCase):
         """ Test to execute DummyProcess.
         """
         # Create a process instance
-        process = DummyProcess()
+        process = get_process_instance(DummyProcess, output_directory=self.output_dir)
 
         # Test the cache mechanism
         for param in [(1., 2.3), (2., 2.), (1., 2.3)]:

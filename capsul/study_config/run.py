@@ -47,12 +47,14 @@ def run_process(output_dir, process_instance, cachedir=None,
         the path to the process execution log file.
     """
     # Update the output directory folder if necessary
-    if output_dir is Undefined:
-        output_dir = os.getcwd()
-
-    # Guarantee that the output directory exists
-    if not os.path.isdir(output_dir):
-        os.makedirs(output_dir)
+    if output_dir is not None and output_dir is not Undefined and output_dir:
+        # Guarantee that the output directory exists
+        if not os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+        if 'output_directory' in process_instance.user_traits():
+            if (process_instance.output_directory is Undefined or
+                    not(process_instance.output_directory)):
+                process_instance.output_directory = output_dir
 
     # Set the current directory directory if necessary
     if hasattr(process_instance, "_nipype_interface"):
@@ -60,13 +62,9 @@ def run_process(output_dir, process_instance, cachedir=None,
             process_instance._nipype_interface.mlab.inputs.prescript += [
                 "cd('{0}');".format(output_dir)]
 
-    # Update the instance output directory trait before execution
-    if "output_directory" in process_instance.user_traits():
-        process_instance.output_directory = output_dir
-
     # Setup the process log file
     output_log_file = None
-    if generate_logging:
+    if generate_logging and output_dir is not None and output_dir is not Undefined:
         output_log_file = os.path.join(
             os.path.basename(output_dir),
             os.path.dirname(output_dir) + ".json")
