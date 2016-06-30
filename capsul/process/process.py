@@ -219,10 +219,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         
 
         # Execute the process
-        output_directory = getattr(self, 'output_directory', Undefined)
         returncode = default_study_config().run(self,
-                                            output_directory=output_directory,
-                                            **kwargs)
+                                                **kwargs)
         return returncode
 
 
@@ -260,6 +258,21 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 "Either get_commandline() or _run_process() should be "
                 "redefined in process ({0})".format(
                     self.__class__.__name__))
+    
+    def _before_run_process(self):
+        """This method is called by StudyConfig.run() before calling
+        _run_process(). By default it does nothing but can be overriden
+        in derived classes.
+        """
+        
+    def _after_run_process(self, run_process_result):
+        """This method is called by StudyConfig.run() after calling
+        _run_process(). It is expected to return the final result of the
+        process. By default it does nothing but can be overriden
+        in derived classes.
+        """
+        return run_process_result
+        
 
     def _get_log(self, exec_info):
         """ Method that generate the logging structure from the execution
@@ -815,33 +828,30 @@ class FileCopyProcess(Process):
                 self.inputs_to_copy = inputs_to_copy
             self.copied_inputs = None
 
-    def __call__(self, **kwargs):
-        """ Method to execute the FileCopyProcess.
+    def _before_run_process(self):
+        """ Method to copy files before executing the process.
         """
+        super(FileCopyProcess, self)._before_run_process()
         # The copy option is activated
         if self.activate_copy:
-
-            # Set the process inputs
-            for name, value in six.iteritems(kwargs):
-                self.process.set_parameter(name, value)
 
             # Copy the desired items
             self._update_input_traits()
 
-            # Inheritance
-            result = super(FileCopyProcess, self).__call__(
-                **self.copied_inputs)
+            # Set the process inputs
+            for name, value in six.iteritems(self.copied_inputs):
+                self.set_parameter(name, value)
 
+    def _after_run_process(self, run_process_result):
+        """ Method to clean-up temporary workspace after process
+        execution.
+        """
+        run_process_result = super(FileCopyProcess, self)._after_run_process(run_process_result)
+        # The copy option is activated
+        if self.activate_copy:
             # Clean the workspace
             self._clean_workspace()
-
-            return result
-
-        # Transparent class, call the Process class method
-        else:
-
-            # Inheritance
-            return super(FileCopyProcess, self).__call__(**kwargs)
+        return run_process_result
 
     def _clean_workspace(self):
         """ Removed som copied inputs that can be deleted at the end of the
@@ -960,19 +970,14 @@ class FileCopyProcess(Process):
 
         # Go through all the user traits
         for name, trait in six.iteritems(self.user_traits()):
+            if trait.output:
+                continue
             # Check if the target parameter is in the check list
             if name in self.inputs_to_copy:
                 # Get the trait value
                 value = self.get_parameter(name)
-
-                # Split input and output traits
-                is_input = True
-                if "output" in trait.__dict__ and trait.output:
-                    is_input = False
-
                 # Skip undefined trait attributes and outputs
-                if is_input and value is not Undefined:
-
+                if value is not Undefined:
                     # Store the input parameter
                     input_parameters[name] = value
 
@@ -1010,8 +1015,9 @@ class NipypeProcess(FileCopyProcess):
         self._nipype_interface = nipype_instance
         self._nipype_module = nipype_instance.__class__.__module__
         self._nipype_class = nipype_instance.__class__.__name__
-        if self._nipype_module.startswith('nipype.interfaces.'):
-            self._nipype_interface_name = self._nipype_module.split(".")[2]
+        msplit = self._nipype_module.split(".")
+        if len(msplit) > 2:
+            self._nipype_interface_name = msplit[2]
         else:
             self._nipype_interface_name = 'custom'
 
@@ -1063,6 +1069,12 @@ class NipypeProcess(FileCopyProcess):
         """
         setattr(self._nipype_interface.inputs, parameter, value)
 
+    def _before_run_process(self):
+        if self._nipype_interface_name == "spm":
+            # Set the spm working
+            self.destination = self.output_directory
+        super(NipypeProcess, self)._before_run_process()
+    
     def _run_process(self):
         """ Method that do the processings when the instance is called.
 
@@ -1089,16 +1101,8 @@ class NipypeProcess(FileCopyProcess):
                 if old is Undefined and old != new:
                     setattr(self._nipype_interface.inputs, trait_name, new)
 
-        # Inheritance
-        if self._nipype_interface_name == "spm":
-            # Set the spm working
-            self.destination = self.output_directory
-            results = self._nipype_interface.run()
-            self.synchronize += 1
-        # Do nothing specific
-        else:
-            results = self._nipype_interface.run()
-            self.synchronize += 1
+        results = self._nipype_interface.run()
+        self.synchronize += 1
         
         # For spm, need to move the batch
         # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)

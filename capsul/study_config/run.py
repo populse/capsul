@@ -46,16 +46,6 @@ def run_process(output_dir, process_instance, cachedir=None,
     output_log_file: str
         the path to the process execution log file.
     """
-    # Update the output directory folder if necessary
-    if output_dir is not None and output_dir is not Undefined and output_dir:
-        # Guarantee that the output directory exists
-        if not os.path.isdir(output_dir):
-            os.makedirs(output_dir)
-        if 'output_directory' in process_instance.user_traits():
-            if (process_instance.output_directory is Undefined or
-                    not(process_instance.output_directory)):
-                process_instance.output_directory = output_dir
-
     # Set the current directory directory if necessary
     if hasattr(process_instance, "_nipype_interface"):
         if "spm" in process_instance._nipype_interface_name:
@@ -104,7 +94,9 @@ def run_process(output_dir, process_instance, cachedir=None,
     else:
         for k, v in six.iteritems(kwargs):
             setattr(process_instance, k, v)
+        process_instance._before_run_process()
         returncode = process_instance._run_process()
+        returncode = process_instance._after_run_process(returncode)
 
     # Save the process log
     if generate_logging:
