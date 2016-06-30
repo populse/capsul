@@ -84,6 +84,11 @@ class StudyConfig(Controller):
     `create_output_directories` : bool (default True)
         Create parent directories of all output File or Directory before
         running a process
+    `process_output_directory` : bool (default False)
+        Create a process specific output_directory by appending a
+        subdirectory to output_directory. This subdirectory is named 
+        '<count>-<name>' where <count> if self.process_counter and <name> 
+        is the name of the process.
 
     Methods
     -------
@@ -123,6 +128,13 @@ class StudyConfig(Controller):
     create_output_directories = Bool(
         True,
         desc="Create parent directories of all output File or Directory before running a process")
+
+    process_output_directory = Bool(
+        False,
+        desc="Create a process specific output_directory by appending a "
+             "subdirectory to output_directory. This subdirectory is named "
+             "'<count>-<name>' where <count> if self.process_counter and <name> "
+             "is the name of the process.")
 
     def __init__(self, study_name=None, init_config=None, modules=None,
                  **override_config):
@@ -398,6 +410,20 @@ class StudyConfig(Controller):
             cachedir = None
         else:
             cachedir = output_directory
+
+        # Update the output directory folder if necessary
+        if output_directory is not None and output_directory is not Undefined and output_directory:
+            if self.process_output_directory:
+                output_directory = os.path.join(output_directory, '%s-%s' % (self.process_counter, process_instance.name))
+            # Guarantee that the output directory exists
+            if not os.path.isdir(output_directory):
+                os.makedirs(output_directory)
+            if self.process_output_directory:
+                if 'output_directory' in process_instance.user_traits():
+                    if (process_instance.output_directory is Undefined or
+                            not(process_instance.output_directory)):
+                        process_instance.output_directory = output_directory
+        
         returncode, log_file = run_process(
             output_directory,
             process_instance,
