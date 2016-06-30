@@ -84,16 +84,16 @@ Classes
 
     :template: class.rst
 
-    process.ProcessResult
-
 Functions
 ---------
+
+.. currentmodule:: capsul.api
 
 .. autosummary::
     :toctree: generated/capsul-process/
     :template: function.rst
 
-    loader.get_process_instance
+    get_process_instance
 
 
 :mod:`capsul.study_config`: Study Configuration
