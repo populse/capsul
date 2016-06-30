@@ -220,8 +220,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         # Execute the process
         returncode = default_study_config().run(self,
-                                            output_directory=output_directory,
-                                            **kwargs)
+                                                **kwargs)
         return returncode
 
 
