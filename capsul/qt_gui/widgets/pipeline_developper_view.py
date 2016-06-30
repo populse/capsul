@@ -35,10 +35,13 @@ from capsul.qt_gui.widgets.pipeline_file_warning_widget \
 import capsul.pipeline.xml as capsulxml
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
+
 try:
     from traits import api as traits
+    from traitsui.qt4 import toolkit
 except ImportError:
     from enthought.traits import api as traits
+    from enthought.traitsui.qt4 import toolkit
 
 #from soma.qt_gui.controller_widget import ScrollControllerWidget
 from capsul.qt_gui.widgets.attributed_process_widget \
@@ -207,7 +210,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
         self._build()
         if colored_parameters:
-            process.on_trait_change(self._repaint_parameter)
+            process.on_trait_change(self._repaint_parameter, dispatch='ui')
 
     def __del__(self):
         if self.colored_parameters:
@@ -1755,11 +1758,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self._set_pipeline(pipeline)
 
         # Setup callback to update view when pipeline state is modified
-        pipeline.on_trait_change(self._reset_pipeline, 'selection_changed')
-        pipeline.on_trait_change(self._reset_pipeline, 'user_traits_changed')
+        pipeline.on_trait_change(self._reset_pipeline, 'selection_changed',
+                                 dispatch='ui')
+        pipeline.on_trait_change(self._reset_pipeline, 'user_traits_changed',
+                                 dispatch='ui')
         if hasattr(pipeline, 'pipeline_steps'):
             pipeline.pipeline_steps.on_trait_change(
-                self._reset_pipeline)
+                self._reset_pipeline, dispatch='ui')
 
     def is_logical_view(self):
         '''
