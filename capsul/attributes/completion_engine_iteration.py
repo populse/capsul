@@ -47,7 +47,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         param_attributes = pattributes.get_parameters_attributes()
         attribs = set()
         for parameter in self.process.iterative_parameters:
-            attribs.update(param_attributes[parameter].keys())
+            attribs.update(param_attributes.get(parameter, {}).keys())
         return [param for param in pattributes.user_traits().keys()
                 if param in attribs]
 
