@@ -50,7 +50,11 @@ class FSLConfig(StudyConfigModule):
            os.path.exists(fsl_config_file):
             # Parse the fsl environment
             envfsl = environment(fsl_config_file)
-            if (envfsl["FSLDIR"] != os.environ.get("FSLDIR", "")):
+            if "FSLDIR" not in envfsl and "FSLDIR" not in os.environ:
+                # assume the fsl.sh script is in $FSLDIR/etc/fslconf/fsl.sh
+                envfsl["FSLDIR"] = os.path.dirname(os.path.dirname(
+                    os.path.dirname(fsl_config_file)))
+            if envfsl.get("FSLDIR", "") != os.environ.get("FSLDIR", ""):
                 # Set the fsl environment
                 for envname, envval in envfsl.iteritems():
                     if envname in os.environ:
