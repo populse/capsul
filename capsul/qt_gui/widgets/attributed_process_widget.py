@@ -32,11 +32,24 @@ class AttributedProcessWidget(QtGui.QWidget):
         process = attributed_process
         completion_engine = getattr(process, 'completion_engine', None)
 
+        if completion_engine is not None:
+            splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+            self.layout().addWidget(splitter)
+            spl_up = QtGui.QWidget()
+            spl_up.setLayout(QtGui.QVBoxLayout())
+            splitter.addWidget(spl_up)
+            spl_down = QtGui.QWidget()
+            spl_down.setLayout(QtGui.QVBoxLayout())
+            splitter.addWidget(spl_down)
+        else:
+            spl_up = self
+            spl_down = self
+
         if enable_attr_from_filename and completion_engine is not None:
             c = Controller()
             c.add_trait('attributes_from_input_filename', File(optional=True))
             cw = ControllerWidget(c, live=True)
-            self.layout().addWidget(cw)
+            spl_up.layout().addWidget(cw)
             self.input_filename_controller = c
             c.on_trait_change(self.on_input_filename_changed,
                               'attributes_from_input_filename')
@@ -54,12 +67,12 @@ class AttributedProcessWidget(QtGui.QWidget):
         attrib_widget.setAlignment(QtCore.Qt.AlignLeft)
         attrib_widget.setLayout(QtGui.QVBoxLayout())
         self.attrib_widget = attrib_widget
-        self.layout().addWidget(attrib_widget)
+        spl_up.layout().addWidget(attrib_widget)
         attrib_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                     QtGui.QSizePolicy.Preferred)
 
         hlay = QtGui.QHBoxLayout()
-        self.layout().addLayout(hlay)
+        spl_up.layout().addLayout(hlay)
         # CheckBox to foms rules or not
         self.checkbox_fom = QtGui.QCheckBox('Follow FOM rules')
         self.checkbox_fom.setChecked(True)
@@ -76,7 +89,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         # groupbox area to show completion
         param_widget = QtGui.QGroupBox('Parameters:')
         param_widget.setAlignment(QtCore.Qt.AlignLeft)
-        self.layout().addWidget(param_widget)
+        spl_down.layout().addWidget(param_widget)
         param_widget.setLayout(QtGui.QVBoxLayout())
         param_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                    QtGui.QSizePolicy.Expanding)
