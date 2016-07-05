@@ -38,10 +38,11 @@ from soma.utils.functiontools import SomaPartial
 
 try:
     from traits import api as traits
-    from traitsui.qt4 import toolkit
 except ImportError:
     from enthought.traits import api as traits
-    from enthought.traitsui.qt4 import toolkit
+
+from soma.qt_gui import qt_backend
+qt_backend.init_traitsui_handler()
 
 #from soma.qt_gui.controller_widget import ScrollControllerWidget
 from capsul.qt_gui.widgets.attributed_process_widget \
