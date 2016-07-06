@@ -259,6 +259,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             show/hide. If None, switch the current visibility state.
         '''
 
+        print('show_completion:', visible)
         for control_name, control_groups in \
                 six.iteritems(
                     self.controller_widget.controller_widget._controls):
@@ -269,15 +270,17 @@ class AttributedProcessWidget(QtGui.QWidget):
                         and not isinstance(trait.trait_type, Directory):
                     continue
                 if visible is None:
-                    visible = not control_instance.isVisible()
-                control_instance.setVisible(visible)
+                    item_visible = not control_instance.isVisible()
+                else:
+                    item_visible = visible
+                control_instance.setVisible(item_visible)
                 if isinstance(control_label, tuple):
                     for cl in control_label:
-                        cl.setVisible(visible)
+                        cl.setVisible(item_visible)
                 else:
-                    control_label.setVisible(visible)
+                    control_label.setVisible(item_visible)
 
-    def on_show_completion(self):
+    def on_show_completion(self, visible):
         '''
         Toggle the visibility of paths parameters
         '''
