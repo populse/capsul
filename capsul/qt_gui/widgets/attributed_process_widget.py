@@ -28,6 +28,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         super(AttributedProcessWidget, self).__init__()
         self.setLayout(QtGui.QVBoxLayout())
         self.attributed_process = attributed_process
+        self._show_completion = False
 
         process = attributed_process
         completion_engine = getattr(process, 'completion_engine', None)
@@ -259,6 +260,9 @@ class AttributedProcessWidget(QtGui.QWidget):
             show/hide. If None, switch the current visibility state.
         '''
 
+        if visible is None:
+            visible = not self._show_completion
+        self._show_completion = visible
         for control_name, control_groups in \
                 six.iteritems(
                     self.controller_widget.controller_widget._controls):
@@ -268,16 +272,19 @@ class AttributedProcessWidget(QtGui.QWidget):
                         and not isinstance(trait.trait_type, Any) \
                         and not isinstance(trait.trait_type, Directory):
                     continue
-                if visible is None:
-                    item_visible = not control_instance.isVisible()
-                else:
-                    item_visible = visible
-                control_instance.setVisible(item_visible)
+                control_instance.setVisible(visible)
                 if isinstance(control_label, tuple):
                     for cl in control_label:
-                        cl.setVisible(item_visible)
+                        cl.setVisible(visible)
                 else:
-                    control_label.setVisible(item_visible)
+                    control_label.setVisible(visible)
+        for group, group_widget in six.iteritems(
+                self.controller_widget.controller_widget._groups):
+            if [x for x in group_widget.hideable_widget.children()
+                if isinstance(x, QtGui.QWidget) and not x.isHidden()]:
+                group_widget.show()
+            else:
+                group_widget.hide()
 
     def on_show_completion(self, visible):
         '''
