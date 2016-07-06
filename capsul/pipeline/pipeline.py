@@ -1996,8 +1996,11 @@ class Pipeline(Process):
             for link in links:
                 node_name = link[0]
                 step = inv_steps.get(node_name)
-                if step:
+                if step and step not in groups:
                     groups.append(step)
             if groups:
-                trait.groups = sorted(groups, key=lambda x: steps_priority[x])
+                groups = sorted(groups, key=lambda x: steps_priority[x])
+                if exclusive:
+                    groups = [groups[0]]
+                trait.groups = groups
 
