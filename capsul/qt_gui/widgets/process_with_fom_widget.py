@@ -209,21 +209,24 @@ class ProcessWithFomWidget(QtGui.QWidget):
             show/hide. If None, switch the current visibility state.
         '''
 
-        for control_name, control in \
+        for control_name, control_group in \
                 self.controller_widget.controller_widget._controls.iteritems():
-            trait, control_class, control_instance, control_label = control
-            if not isinstance(trait.trait_type, File) \
-                    and not isinstance(trait.trait_type, Any) \
-                    and not isinstance(trait.trait_type, Directory):
-                continue
-            if visible is None:
-                visible = not control_instance.isVisible()
-            control_instance.setVisible(visible)
-            if isinstance(control_label, tuple):
-                for cl in control_label:
-                    cl.setVisible(visible)
-            else:
-                control_label.setVisible(visible)
+            if not isinstance(control_group, dict):
+                control_group = {None: control_group}
+            for group, control in control_group.iteritems():
+                trait, control_class, control_instance, control_label = control
+                if not isinstance(trait.trait_type, File) \
+                        and not isinstance(trait.trait_type, Any) \
+                        and not isinstance(trait.trait_type, Directory):
+                    continue
+                if visible is None:
+                    visible = not control_instance.isVisible()
+                control_instance.setVisible(visible)
+                if isinstance(control_label, tuple):
+                    for cl in control_label:
+                        cl.setVisible(visible)
+                else:
+                    control_label.setVisible(visible)
 
     def on_show_completion(self):
         '''
