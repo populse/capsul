@@ -24,11 +24,11 @@ logger = logging.getLogger(__name__)
 try:
     import traits.api as traits
     from traits.api import (File, Enum, Bool,
-                            Event, Directory, Trait, List)
+                            Event, Directory, Trait, List, Set)
 except ImportError:
     import enthought.traits.api as traits
     from enthought.traits.api import (File, Enum, Bool,
-                                      Event, Directory, Trait, List)
+                                      Event, Directory, Trait, List, Set)
 
 # Capsul import
 from capsul.process.process import Process, NipypeProcess
@@ -1918,4 +1918,49 @@ class Pipeline(Process):
         value group
         '''
         return self.processes_selection.get(selection_parameter, {}).get(group)
+
+    def define_groups_as_steps(self, exclusive=True):
+        ''' Define parameters groups according to which steps they are
+        connected to.
+
+        Parameters
+        ----------
+        exclusive: bool (optional)
+            if True, a parameter is assigned to a single group, the first step
+            it is connected to. If False, a parameter is assigned all steps
+            groups it is connected to.
+        '''
+        steps = getattr(self, 'pipeline_steps', None)
+        if not steps:
+            return
+        inv_steps = {}
+        steps_priority = {}
+        p = 0
+        for step, trait in six.iteritems(steps.user_traits()):
+            nodes = trait.nodes
+            steps_priority[step] = p
+            p += 1
+            for node in nodes:
+                inv_steps[node] = step
+
+        if not self.trait('visible_groups'):
+            # add a trait without a plug
+            Controller.add_trait(self, 'visible_groups', Set())
+        plugs = self.pipeline_node.plugs
+        for param, trait in six.iteritems(self.user_traits()):
+            plug = plugs.get(param)
+            if not plug:
+                continue
+            if trait.output:
+                links = plug.links_from
+            else:
+                links = plug.links_to
+            groups = []
+            for link in links:
+                node_name = link[0]
+                step = inv_steps.get(node_name)
+                if step:
+                    groups.append(step)
+            if groups:
+                trait.groups = sorted(groups, key=lambda x: steps_priority[x])
 
