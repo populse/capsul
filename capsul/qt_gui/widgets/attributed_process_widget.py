@@ -259,7 +259,6 @@ class AttributedProcessWidget(QtGui.QWidget):
             show/hide. If None, switch the current visibility state.
         '''
 
-        print('show_completion:', visible)
         for control_name, control_groups in \
                 six.iteritems(
                     self.controller_widget.controller_widget._controls):
