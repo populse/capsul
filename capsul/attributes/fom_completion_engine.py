@@ -117,7 +117,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             if not att.startswith('fom_'):
                 default_value \
                     = input_fom.attribute_definitions[att].get(
-                        'default_value')
+                        'default_value', '')
                 capsul_attributes.add_trait(att, Str(default_value))
 
         # Only search other attributes if fom not the same (by default merge
@@ -134,7 +134,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 if not att.startswith('fom_'):
                     default_value \
                         = output_fom.attribute_definitions[att].get(
-                            'default_value')
+                            'default_value', '')
                     if att in process_attributes:
                         if default_value != getattr(capsul_attributes, att):
                             print('same attribute in input/output FOMs but '
