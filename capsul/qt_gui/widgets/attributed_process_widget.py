@@ -13,7 +13,7 @@ from soma.functiontools import SomaPartial
 
 
 class AttributedProcessWidget(QtGui.QWidget):
-    """Process interface with FOM handling, and execution running"""
+    """Process interface with attributes completion handling"""
     def __init__(self, attributed_process, enable_attr_from_filename=False,
                  enable_load_buttons=False):
         """
@@ -23,7 +23,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             process with attributes to be displayed
         enable_attr_from_filename: bool (optional)
             if enabled, it will be possible to specify an input filename to
-            build FOM attributes from
+            build attributes from
         """
         super(AttributedProcessWidget, self).__init__()
         self.setLayout(QtGui.QVBoxLayout())
@@ -57,12 +57,6 @@ class AttributedProcessWidget(QtGui.QWidget):
             cw.setSizePolicy(QtGui.QSizePolicy.Expanding,
                              QtGui.QSizePolicy.Fixed)
 
-            #if self.attributed_process.study_config.input_fom \
-                    #!= self.attributed_process.study_config.output_fom:
-                #c.add_trait('attributes_from_output_filename', File())
-                #c.on_trait_change(self.on_input_filename_changed,
-                                  #'attributes_from_output_filename')
-
         # groupbox area to show attributs
         attrib_widget = QtGui.QGroupBox('Attributes:')
         attrib_widget.setAlignment(QtCore.Qt.AlignLeft)
@@ -74,8 +68,8 @@ class AttributedProcessWidget(QtGui.QWidget):
 
         hlay = QtGui.QHBoxLayout()
         spl_up.layout().addLayout(hlay)
-        # CheckBox to foms rules or not
-        self.checkbox_fom = QtGui.QCheckBox('Follow FOM rules')
+        # CheckBox to completion rules or not
+        self.checkbox_fom = QtGui.QCheckBox('Follow completion rules')
         self.checkbox_fom.setChecked(True)
         self.checkbox_fom.stateChanged.connect(self.on_use_fom_change)
         hlay.addWidget(self.checkbox_fom)
@@ -140,7 +134,8 @@ class AttributedProcessWidget(QtGui.QWidget):
 
     def on_input_filename_changed(self, text):
         '''
-        Input file path to guess FOM attributes changed: update FOM attributes
+        Input file path to guess completion attributes changed: update
+        attributes
         '''
         completion_engine = getattr(self.attributed_process,
                                    'completion_engine', None)
@@ -163,7 +158,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             return
         # ask for a file name
         filename = qt_backend.getOpenFileName(
-            self, 'Select a .json FOM attributes file', '',
+            self, 'Select a .json attributes file', '',
             'JSON files (*.json)')
         if filename is None:
             return
@@ -181,7 +176,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             return
         # ask for a file name
         filename = qt_backend.getSaveFileName(
-            self, 'Select a .json FOM attributes file', '',
+            self, 'Select a .json attributes file', '',
             'JSON files (*.json)')
         if filename is None:
             return
@@ -193,7 +188,8 @@ class AttributedProcessWidget(QtGui.QWidget):
         Setup the FOM doing its job
         '''
         ret = QtGui.QMessageBox.critical(self, "Critical",
-            'Going back to FOM rules will reset all path files. Are you sure?',
+            'Going back to completion rules will reset all path files. '
+            'Are you sure?',
             QtGui.QMessageBox.Ok, QtGui.QMessageBox.Cancel)
 
         if ret == QtGui.QMessageBox.Ok:
@@ -236,7 +232,7 @@ class AttributedProcessWidget(QtGui.QWidget):
 
     def on_use_fom_change(self, state):
         '''
-        Use FOM checkbox callabck
+        Use completion checkbox callabck
         '''
         if state == QtCore.Qt.Checked:
             self.set_use_fom()
