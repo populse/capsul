@@ -18,10 +18,20 @@ if sys.version_info[0] >= 3:
     xrange = range
 
 class ProcessIteration(Process):
-    def __init__(self, process, iterative_parameters):
+    def __init__(self, process, iterative_parameters, study_config=None,
+                 context_name=None):
         super(ProcessIteration, self).__init__()
+
+        if self.study_config is None and hasattr(Process, '_study_config'):
+            study_config = Process._study_config
+        if study_config is not None:
+            self.study_config = study_config
+
         self.process = get_process_instance(process,
-                                            study_config=self.study_config)
+                                            study_config=study_config)
+
+        if context_name is not None:
+            self.process.context_name = context_name
         self.regular_parameters = set()
         self.iterative_parameters = set(iterative_parameters)
 
@@ -33,12 +43,25 @@ class ProcessIteration(Process):
                   'that is not a parameter of process %s'
                   % (parameter, self.process.id))
 
+        # use the completion system (if any) to get induced (additional)
+        # iterated parameters
+        if study_config is not None:
+            completion_engine \
+                = ProcessCompletionEngine.get_completion_engine(self)
+            if hasattr(completion_engine, 'get_induced_iterative_parameters'):
+                induced_iterative_parameters \
+                    = completion_engine.get_induced_iterative_parameters()
+                self.iterative_parameters.update(induced_iterative_parameters)
+                iterative_parameters = self.iterative_parameters
+
         # Create iterative process parameters by copying process parameter
         # and changing iterative parameters to list
         for name, trait in six.iteritems(user_traits):
             if name in iterative_parameters:
                 self.add_trait(name, List(trait, output=trait.output,
                                           optional=trait.optional))
+                if trait.groups:
+                    self.trait(name).groups = trait.groups
             else:
                 self.regular_parameters.add(name)
                 self.add_trait(name, trait)

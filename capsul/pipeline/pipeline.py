@@ -313,6 +313,15 @@ class Pipeline(Process):
         # Remove the trait
         super(Pipeline, self).remove_trait(name)
 
+    def _make_subprocess_context_name(self, name):
+        ''' build full contextual name on process instance
+        '''
+        pipeline_name = getattr(self, 'context_name', None)
+        if pipeline_name is None:
+            pipeline_name = self.name
+        context_name = '.'.join([pipeline_name, name])
+        return context_name
+
     def _set_subprocess_context_name(self, process, name):
         ''' set full contextual name on process instance
         '''
@@ -456,8 +465,13 @@ class Pipeline(Process):
         # Otherwise, need to create a dynamic structure
         else:
             from .process_iteration import ProcessIteration
-            self.add_process(name, ProcessIteration(process, iterative_plugs),
-                             do_not_export, make_optional, **kwargs)
+            context_name = self._make_subprocess_context_name(name)
+            self.add_process(
+                name,
+                ProcessIteration(process, iterative_plugs,
+                                 study_config=self.study_config,
+                                 context_name=context_name),
+                do_not_export, make_optional, **kwargs)
             return
 
     def call_process_method(self, process_name, method,
