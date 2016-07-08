@@ -71,7 +71,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             self.process.process).get_attribute_values()
         param_attributes = pattributes.get_parameters_attributes()
         induced_params = []
-        for parameter in self.process.user_traits():
+        for parameter in self.process.process.user_traits():
             if parameter not in self.process.iterative_parameters:
                 par_attributes = param_attributes.get(parameter)
                 if par_attributes:
