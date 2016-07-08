@@ -52,6 +52,37 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 if param in attribs]
 
 
+    def get_induced_iterative_parameters(self):
+        '''Iterating over some parameters, and triggering completion through
+        attributes, imply that some other parameters will also vary with the
+        iteration.
+        Ex: process A has 2 parameters, "input" and "output", which are linked
+        by the completion system. If we iterate on A.input, then A.output will
+        also change with the iteration: parameter "output" should thus be
+        included in iterative parameters: it is induced by the iteration over
+        "input".
+
+        This method gives the induced iterative parameters.
+        '''
+        # 1st get iterated attributes
+        attributes = self.get_iterated_attributes()
+        # now look on which parameters they are acting
+        pattributes = ProcessCompletionEngine.get_completion_engine(
+            self.process.process).get_attribute_values()
+        param_attributes = pattributes.get_parameters_attributes()
+        induced_params = []
+        for parameter in self.process.user_traits():
+            if parameter not in self.process.iterative_parameters:
+                par_attributes = param_attributes.get(parameter)
+                if par_attributes:
+                    par_attributes = set(par_attributes.keys())
+                    if [attribute for attribute in attributes
+                        if attribute in par_attributes]:
+                        induced_params.append(parameter)
+
+        return induced_params
+
+
     def get_attribute_values(self):
         ''' Get attributes Controller associated to a process
 
