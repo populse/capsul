@@ -235,10 +235,16 @@ class Pipeline(Process):
         """
         pass
 
-    def autoexport_nodes_parameters(self):
-        """ Automatically export node containing pipeline plugs
+    def autoexport_nodes_parameters(self, include_optional=False):
+        """ Automatically export nodes plugs to the pipeline.
 
-        If plug is not optional and if the plug has to be exported
+        Some parameters can be explicitely preserved from exportation if they
+        are listed in the pipeline "do_not_export" variable (list or set).
+
+        Parameters
+        ----------
+        include_optional: bool (optional)
+            If True (the default), optional plugs are not exported
         """
         for node_name, node in six.iteritems(self.nodes):
             if node_name == "":
@@ -248,8 +254,10 @@ class Pipeline(Process):
                     continue
                 if (((node_name, parameter_name) not in self.do_not_export and
                     ((plug.output and not plug.links_to) or
-                     (not plug.output and not plug.links_from)) and not
-                     self.nodes[node_name].get_trait(parameter_name).optional)):
+                     (not plug.output and not plug.links_from)) and
+                    (include_optional or not
+                     self.nodes[node_name].get_trait(
+                        parameter_name).optional))):
 
                     self.export_parameter(node_name, parameter_name)
 
