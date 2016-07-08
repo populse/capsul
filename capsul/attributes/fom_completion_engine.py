@@ -17,7 +17,8 @@ from capsul.attributes.completion_engine import ProcessCompletionEngine, \
 from capsul.attributes.completion_engine_iteration \
     import ProcessCompletionEngineIteration
 from capsul.pipeline.process_iteration import ProcessIteration
-from capsul.attributes.attributes_schema import ProcessAttributes
+from capsul.attributes.attributes_schema import ProcessAttributes, \
+    EditableAttributes
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
 
@@ -82,6 +83,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
         self.add_trait('capsul_attributes', ControllerTrait(Controller()))
         schemas = self._get_schemas()
+        #schemas = self.process.get_study_config().modules_data.foms.keys()
         self.capsul_attributes = ProcessAttributes(self.process, schemas)
 
         return self.capsul_attributes
@@ -91,58 +93,48 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         """To get useful attributes by the fom"""
 
         process = self.process
-        input_atp = process.study_config.modules_data.fom_atp['input']
-        output_atp = process.study_config.modules_data.fom_atp['output']
-        input_fom = process.study_config.modules_data.foms['input']
-        output_fom = process.study_config.modules_data.foms['output']
 
         #Get attributes in input fom
-        process_attributes = set()
         names_search_list = (self.name, process.id, process.name)
-        for name in names_search_list:
-            fom_patterns = input_fom.patterns.get(name)
-            if fom_patterns is not None:
-                break
-        else:
-            raise KeyError('Process not found in FOMs amongst %s' \
-                % repr(names_search_list))
-        for parameter in fom_patterns:
-            process_attributes.update(
-                input_atp.find_discriminant_attributes(
-                    fom_parameter=parameter, fom_process=name))
-
         capsul_attributes = self.get_attribute_values()
+        matching_fom = False
 
-        for att in process_attributes:
-            if not att.startswith('fom_'):
-                default_value \
-                    = input_fom.attribute_definitions[att].get(
+        for schema, fom \
+                in six.iteritems(process.study_config.modules_data.foms):
+            atp = process.study_config.modules_data.fom_atp.get(schema)
+            if atp is None:
+                continue
+            for name in names_search_list:
+                fom_patterns = fom.patterns.get(name)
+                if fom_patterns is not None:
+                    break
+            else:
+                continue
+
+            matching_fom = True
+            def editable_attributes(attributes, fom):
+                ea = EditableAttributes()
+                for attribute in attributes:
+                    default_value = fom.attribute_definitions[attribute].get(
                         'default_value', '')
-                capsul_attributes.add_trait(att, Str(default_value))
+                    ea.add_trait(attribute, Str(default_value))
+                return ea
 
-        # Only search other attributes if fom not the same (by default merge
-        # attributes of the same foms)
-        if process.study_config.input_fom != process.study_config.output_fom:
-            # Get attributes in output fom
-            process_attributes2 = set()
-            for parameter in output_fom.patterns[process.name]:
-                process_attributes2.update(
-                    output_atp.find_discriminant_attributes(
-                        fom_parameter=parameter, fom_process=name))
+            for parameter in fom_patterns:
+                param_attributes = atp.find_discriminant_attributes(
+                        fom_parameter=parameter, fom_process=name)
+                if param_attributes:
+                    #process_attributes[parameter] = param_attributes
+                    ea = editable_attributes(param_attributes, fom)
+                    try:
+                        capsul_attributes.set_parameter_attributes(
+                            parameter, schema, ea, {})
+                    except KeyError:
+                        # param already registered
+                        pass
 
-            for att in process_attributes2:
-                if not att.startswith('fom_'):
-                    default_value \
-                        = output_fom.attribute_definitions[att].get(
-                            'default_value', '')
-                    if att in process_attributes:
-                        if default_value != getattr(capsul_attributes, att):
-                            print('same attribute in input/output FOMs but '
-                                  'with different default values')
-                        else:
-                            setattr(capsul_attributes, att, default_value)
-                    else:
-                        capsul_attributes.add_trait(att, Str(default_value))
+        if not matching_fom:
+            raise KeyError('Process not found in FOMs')
 
 
     def path_attributes(self, filename, parameter=None):
