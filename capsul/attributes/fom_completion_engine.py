@@ -115,6 +115,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             def editable_attributes(attributes, fom):
                 ea = EditableAttributes()
                 for attribute in attributes:
+                    if attribute.startswith('fom_'):
+                        continue # skip FOM internals
                     default_value = fom.attribute_definitions[attribute].get(
                         'default_value', '')
                     ea.add_trait(attribute, Str(default_value))
