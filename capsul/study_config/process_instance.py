@@ -81,6 +81,25 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
     result: Process
         an initialized process instance.
     """
+    # NOTE
+    # here we make a bidouille to make study_config accessible from processes
+    # constructors. It is used for instance in ProcessIteration.
+    # This is not elegant, not thread-safe, and forbids to have one pipeline
+    # build a second one in a different study_config context.
+    # I don't have a better solution, however.
+    set_study_config = not hasattr(Process, '_study_config')
+    try:
+        if set_study_config:
+            Process._study_config = study_config
+        return _get_process_instance(process_or_id, study_config=study_config,
+                                     **kwargs)
+    finally:
+        if set_study_config:
+            del Process._study_config
+
+
+def _get_process_instance(process_or_id, study_config=None, **kwargs):
+
     result = None
     # If the function 'process_or_id' parameter is already a Process
     # instance.
