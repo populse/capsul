@@ -554,7 +554,8 @@ class Switch(Node):
     capsul.pipeline.pipeline.Pipeline.pipeline_definition
     """
 
-    def __init__(self, pipeline, name, inputs, outputs, make_optional=()):
+    def __init__(self, pipeline, name, inputs, outputs, make_optional=(),
+                 output_types=None):
         """ Generate a Switch Node
 
         Warnings
@@ -576,6 +577,11 @@ class Switch(Node):
             list of optional outputs.
             These outputs will be made optional in the switch output. By
             default they are mandatory.
+        output_types: sequence of traits (optional)
+            If given, this sequence sould have the same size as outputs. It
+            will specify each switch output parameter type (as a standard
+            trait). Input parameters for each input block will also have this
+            type.
         """
         # if the user pass a simple element, create a list and add this
         # element
@@ -583,6 +589,16 @@ class Switch(Node):
         self.__block_output_propagation = False
         if not isinstance(outputs, list):
             outputs = [outputs, ]
+        if output_types is not None:
+            if not isisntance(output_types, list) \
+                    and not isinstance(output_types, tuple):
+                raise ValueError(
+                    'output_types parameter should be a list or tuple')
+            if len(output_types) != len(outputs):
+                raise ValueError('output_types should have the same number of '
+                                 'elements as outputs')
+        else:
+            output_types = [Any(Undefined)] * len(outputs)
 
         # check consistency
         if not isinstance(inputs, list) or not isinstance(outputs, list):
@@ -613,10 +629,13 @@ class Switch(Node):
         self.add_trait("switch", Enum(output=False, *inputs))
 
         # add a trait for each input and each output
-        for i in flat_inputs:
-            self.add_trait(i, Any(Undefined, output=False))
-        for i in outputs:
-            self.add_trait(i, Any(Undefined, output=True))
+        input_types = output_types * len(inputs)
+        for i, trait in zip(flat_inputs, input_types):
+            self.add_trait(i, trait)
+            self.trait(i).output = False
+        for i, trait in zip(outputs, output_types):
+            self.add_trait(i, trait)
+            self.trait(i).output = True
 
         # activate the switch first Process
         self._switch_changed(self._switch_values[0], self._switch_values[0])
