@@ -590,7 +590,7 @@ class Switch(Node):
         if not isinstance(outputs, list):
             outputs = [outputs, ]
         if output_types is not None:
-            if not isisntance(output_types, list) \
+            if not isinstance(output_types, list) \
                     and not isinstance(output_types, tuple):
                 raise ValueError(
                     'output_types parameter should be a list or tuple')

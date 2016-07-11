@@ -403,7 +403,7 @@ class Pipeline(Process):
             return
 
     def add_switch(self, name, inputs, outputs, export_switch=True,
-                   make_optional=()):
+                   make_optional=(), output_types=None):
         """ Add a switch node in the pipeline
 
         Parameters
@@ -426,6 +426,11 @@ class Pipeline(Process):
             list of optional outputs.
             These outputs will be made optional in the switch output. By
             default they are mandatory.
+        output_types: sequence of traits (optional)
+            If given, this sequence sould have the same size as outputs. It
+            will specify each switch output parameter type (as a standard
+            trait). Input parameters for each input block will also have this
+            type.
 
         Examples
         --------
@@ -447,7 +452,8 @@ class Pipeline(Process):
                              "name: {0}".format(name))
 
         # Create the node
-        node = Switch(self, name, inputs, outputs, make_optional=make_optional)
+        node = Switch(self, name, inputs, outputs, make_optional=make_optional,
+                      output_types=output_types)
         self.nodes[name] = node
 
         # Export the switch controller to the pipeline node
