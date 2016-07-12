@@ -244,17 +244,24 @@ class ProcessWithFom(Controller):
                     continue
                 if hasattr(node, 'process'):
                     subprocess = node.process
-                    try:
-                        pname = '.'.join([name, node_name])
-                        self.process_completion(subprocess, pname)
-                    except Exception, e:
-                        if verbose:
-                            print 'warning, node %s could not complete FOM' \
-                                % node_name
-                            print e
+                else:
+                    # switch case
+                    subprocess = node
+                try:
+                    pname = '.'.join([name, node_name])
+                    self.process_completion(subprocess, pname)
+                except Exception, e:
+                    if verbose:
+                        print 'warning, node %s could not complete FOM' \
+                            % node_name
+                        print e
 
         #Create completion
-        names_search_list = (name, process.id, process.name)
+        if hasattr(process, 'id'):
+            names_search_list = (name, process.id, process.name)
+        else:
+            # switch case
+            names_search_list = (name, process.name)
         for fname in names_search_list:
             fom_patterns = output_fom.patterns.get(fname)
             if fom_patterns is not None:
