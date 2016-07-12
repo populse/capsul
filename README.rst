@@ -3,7 +3,7 @@ CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean
 ===============================================================
 
 .. image:: https://travis-ci.org/neurospin/capsul.svg?branch=master
-    :target: https://api.travis-ci.org/AGrigis/capsul
+    :target: https://api.travis-ci.org/neurospin/capsul
   
 .. image:: https://pypip.in/version/capsul/badge.png
     :target: https://pypi.python.org/pypi/capsul/
