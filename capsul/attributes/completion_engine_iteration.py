@@ -164,8 +164,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             for parameter in self.process.iterative_parameters:
                 value = getattr(self.process.process, parameter)
                 iterative_parameters[parameter].append(value)
-            for parameter, values in six.iteritems(iterative_parameters):
-                setattr(self.process, parameter, values)
+        for parameter, values in six.iteritems(iterative_parameters):
+            setattr(self.process, parameter, values)
 
 
     def complete_iteration_step(self, step):
