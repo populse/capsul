@@ -6,6 +6,7 @@ from capsul.pipeline.pipeline import Graph, ProcessNode
 from capsul.attributes.attributes_factory import AttributesFactory
 from capsul.attributes.attributes_schema import ProcessAttributes
 import traits.api as traits
+from soma.utils.weak_proxy import weak_proxy, get_ref
 import six
 
 
@@ -49,7 +50,7 @@ class ProcessCompletionEngine(traits.HasTraits):
     def __init__(self, process, name=None):
         super(ProcessCompletionEngine, self).__init__(
             process=process, name=name)
-        self.process = process
+        self.process = weak_proxy(process)
         self.name = name
         self.completion_ongoing = False
 
