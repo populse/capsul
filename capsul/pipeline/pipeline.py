@@ -16,6 +16,7 @@ import tempfile
 import os
 import shutil
 import six
+from soma.utils.weak_proxy import weak_proxy, get_ref
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -401,7 +402,7 @@ class Pipeline(Process):
             node = process.pipeline_node
             node.name = name
             node.pipeline = self
-            process.parent_pipeline = self
+            process.parent_pipeline = weak_proxy(self)
         else:
             node = ProcessNode(self, name, process)
         self.nodes[name] = node

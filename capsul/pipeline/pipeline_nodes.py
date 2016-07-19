@@ -122,7 +122,7 @@ class Node(Controller):
             values (mandatory key: name)
         """
         super(Node, self).__init__()
-        self.pipeline = pipeline
+        self.pipeline = weak_proxy(pipeline)
         self.name = name
         self.plugs = SortedDictionary()
         # _callbacks -> (src_plug_name, dest_node, dest_plug_name)
