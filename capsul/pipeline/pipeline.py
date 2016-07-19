@@ -1869,6 +1869,7 @@ class Pipeline(Process):
                     '\n'
                     'To get the nodes list in a step:\n'
                     'pipeline.get_step_nodes("my_step")'))
+            self.trait('pipeline_steps').expanded = False
             self.pipeline_steps = Controller()
         self.pipeline_steps.add_trait(step_name, Bool)
         trait = self.pipeline_steps.trait(step_name)
