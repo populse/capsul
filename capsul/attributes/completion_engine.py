@@ -166,7 +166,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             if use_topological_order:
                 # proceed in topological order
                 graph = self.process.workflow_graph()
-                self.completion_progress_total = len(graph._nodes)
+                self.completion_progress_total = len(graph._nodes) + 0.05
                 index = 0
                 for node_name, node_meta in graph.topological_sort():
                     pname = '.'.join([name, node_name])
@@ -196,7 +196,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                 index += 1
                 self.completion_progress = index
             else:
-                self.completion_progress_total = len(self.process.nodes)
+                self.completion_progress_total = len(self.process.nodes) + 0.05
                 index = 0
                 for node_name, node in six.iteritems(self.process.nodes):
                     if node_name == '':
