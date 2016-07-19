@@ -121,6 +121,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
 
 
     def complete_parameters(self, process_inputs={}):
+        self.completion_progress = 0.
         try:
             self.set_parameters(process_inputs)
             attributes_set = self.get_attribute_values()
@@ -150,7 +151,9 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         iterative_parameters = dict(
             [(key, []) for key in self.process.iterative_parameters])
 
+        self.completion_progress_total = size
         for it_step in xrange(size):
+            self.capsul_iteration_step = it_step
             for attribute in iterated_attributes:
                 iterated_values = getattr(attributes_set, attribute)
                 step = min(len(iterated_values) - 1, it_step)
@@ -164,6 +167,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             for parameter in self.process.iterative_parameters:
                 value = getattr(self.process.process, parameter)
                 iterative_parameters[parameter].append(value)
+            self.completion_progress = it_step + 1
         for parameter, values in six.iteritems(iterative_parameters):
             setattr(self.process, parameter, values)
 

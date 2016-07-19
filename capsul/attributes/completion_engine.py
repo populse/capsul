@@ -7,6 +7,7 @@ from capsul.attributes.attributes_factory import AttributesFactory
 from capsul.attributes.attributes_schema import ProcessAttributes
 import traits.api as traits
 from soma.utils.weak_proxy import weak_proxy, get_ref
+from soma.functiontools import SomaPartial
 import six
 
 
@@ -53,6 +54,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         self.process = weak_proxy(process)
         self.name = name
         self.completion_ongoing = False
+        self.add_trait('completion_progress', traits.Float(0.))
+        self.add_trait('completion_progress_total', traits.Float(1.))
 
 
     def get_attribute_values(self):
@@ -140,7 +143,10 @@ class ProcessCompletionEngine(traits.HasTraits):
             process parameters, and attributes used for completion. Attributes
             should be in a sub-dictionary under the key "capsul_attributes".
         '''
+        self.completion_progress = 0.
+        self.completion_progress_total = 1.
         self.set_parameters(process_inputs)
+
         # if process is a pipeline, trigger completions for its nodes and
         # sub-pipelines.
         #
@@ -160,6 +166,8 @@ class ProcessCompletionEngine(traits.HasTraits):
             if use_topological_order:
                 # proceed in topological order
                 graph = self.process.workflow_graph()
+                self.completion_progress_total = len(graph._nodes)
+                index = 0
                 for node_name, node_meta in graph.topological_sort():
                     pname = '.'.join([name, node_name])
                     if isinstance(node_meta, Graph):
@@ -174,6 +182,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                         subprocess_compl = \
                             ProcessCompletionEngine.get_completion_engine(
                                 subprocess, pname)
+                        self._install_subprogress_moniotoring(subprocess_compl)
                         try:
                             subprocess_compl.complete_parameters(
                                 {'capsul_attributes': attrib_values})
@@ -183,7 +192,12 @@ class ProcessCompletionEngine(traits.HasTraits):
                                     {'capsul_attributes': attrib_values})
                             except:
                                 pass
+                        self._remove_subprogress_moniotoring(subprocess_compl)
+                index += 1
+                self.completion_progress = index
             else:
+                self.completion_progress_total = len(self.process.nodes)
+                index = 0
                 for node_name, node in six.iteritems(self.process.nodes):
                     if node_name == '':
                         continue
@@ -193,6 +207,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                         subprocess_compl = \
                             ProcessCompletionEngine.get_completion_engine(
                                 subprocess, pname)
+                        self._install_subprogress_moniotoring(subprocess_compl)
                         try:
                             subprocess_compl.complete_parameters(
                                 {'capsul_attributes': attrib_values})
@@ -202,6 +217,9 @@ class ProcessCompletionEngine(traits.HasTraits):
                                     {'capsul_attributes': attrib_values})
                             except:
                                 pass
+                        self._remove_subprogress_moniotoring(subprocess_compl)
+                index += 1
+                self.completion_progress = index
 
         # now complete process parameters:
         attributes = self.get_attribute_values()
@@ -212,6 +230,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                     setattr(self.process, pname, value)
             except:
                 pass
+        self.completion_progress = self.completion_progress_total
 
 
     def attributes_to_path(self, parameter, attributes):
@@ -333,6 +352,43 @@ class ProcessCompletionEngine(traits.HasTraits):
                     in six.iteritems(study_config.attributes_schemas):
                 schemas[dir_name] = factory.get('schema', schema_name)
         return schemas
+
+
+    def _install_subprogress_moniotoring(self, subprocess_compl):
+        monitor_subprocess_progress = getattr(
+            self, 'monitor_subprocess_progress', True)
+        if monitor_subprocess_progress:
+            self._old_monitor_sub = getattr(
+                subprocess_compl, 'monitor_subprocess_progress', True)
+            subprocess_compl.monitor_subprocess_progress = False
+            self._current_progress = self.completion_progress
+            subprocess_compl.on_trait_change(
+                SomaPartial(self._substep_completion_progress,
+                            subprocess_compl),
+                'completion_progress')
+
+
+    def _remove_subprogress_moniotoring(self, subprocess_compl):
+        monitor_subprocess_progress = getattr(
+            self, 'monitor_subprocess_progress', True)
+        if monitor_subprocess_progress:
+            subprocess_compl.on_trait_change(
+                SomaPartial(self._substep_completion_progress,
+                            subprocess_compl),
+                'completion_progress', remove=True)
+            del self._current_progress
+            if self._old_monitor_sub:
+                del subprocess_compl.monitor_subprocess_progress
+            del self._old_monitor_sub
+
+
+    def _substep_completion_progress(self, substep_completion_engine, obj,
+                                     name, old, new):
+        sub_completion_rate \
+            = substep_completion_engine.completion_progress \
+                / substep_completion_engine.completion_progress_total
+        self.completion_progress = self._current_progress \
+            + sub_completion_rate
 
 
 class PathCompletionEngine(object):

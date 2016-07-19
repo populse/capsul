@@ -53,7 +53,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             spl_up.layout().addWidget(cw)
             self.input_filename_controller = c
             c.on_trait_change(self.on_input_filename_changed,
-                              'attributes_from_input_filename')
+                              'attributes_from_input_filename', dispatch='ui')
             cw.setSizePolicy(QtGui.QSizePolicy.Expanding,
                              QtGui.QSizePolicy.Fixed)
 
@@ -125,12 +125,20 @@ class AttributedProcessWidget(QtGui.QWidget):
         else:
             self.show_completion(False) # hide file parts
 
+        if completion_engine is not None:
+            completion_engine.on_trait_change(
+                self._completion_progress_changed, 'completion_progress',
+                dispatch='ui')
+
     def __del__(self):
         completion_engine = getattr(self.attributed_process,
                                    'completion_engine', None)
         if completion_engine is not None:
             completion_engine.get_attribute_values().on_trait_change(
                 completion_engine.attributes_changed, 'anytrait', remove=True)
+            completion_engine.on_trait_change(
+                self._completion_progress_changed, 'completion_progress',
+                remove=True)
 
     def on_input_filename_changed(self, text):
         '''
@@ -287,5 +295,24 @@ class AttributedProcessWidget(QtGui.QWidget):
         Toggle the visibility of paths parameters
         '''
         self.show_completion(None)
+
+    def _completion_progress_changed(self, obj, name, old, new):
+        completion_engine = getattr(self.attributed_process,
+                                    'completion_engine', None)
+        if completion_engine is not None:
+            if not hasattr(self, 'progressdialog'):
+                self.progressdialog = QtGui.QProgressDialog(
+                    'Completion progress', '', 0, 100, self)
+                self.progressdialog.setWindowModality(QtCore.Qt.WindowModal)
+                self.progressdialog.setAutoClose(True)
+                self.progressdialog.setAutoReset(True)
+                self.progressdialog.setCancelButton(None)
+            value = int(round(100 * completion_engine.completion_progress
+                        / completion_engine.completion_progress_total))
+            self.progressdialog.setValue(value)
+            if value != 100:
+                self.progressdialog.show()
+                QtGui.qApp.processEvents()
+
 
 
