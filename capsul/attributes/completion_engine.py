@@ -362,10 +362,11 @@ class ProcessCompletionEngine(traits.HasTraits):
                 subprocess_compl, 'monitor_subprocess_progress', True)
             subprocess_compl.monitor_subprocess_progress = False
             self._current_progress = self.completion_progress
+            self._monitoring_callback = SomaPartial(
+                self.__class__._substep_completion_progress, weak_proxy(self),
+                subprocess_compl)
             subprocess_compl.on_trait_change(
-                SomaPartial(self._substep_completion_progress,
-                            subprocess_compl),
-                'completion_progress')
+                self._monitoring_callback, 'completion_progress')
 
 
     def _remove_subprogress_moniotoring(self, subprocess_compl):
@@ -373,15 +374,15 @@ class ProcessCompletionEngine(traits.HasTraits):
             self, 'monitor_subprocess_progress', True)
         if monitor_subprocess_progress:
             subprocess_compl.on_trait_change(
-                SomaPartial(self._substep_completion_progress,
-                            subprocess_compl),
-                'completion_progress', remove=True)
+                self._monitoring_callback, 'completion_progress', remove=True)
             del self._current_progress
+            del self._monitoring_callback
             if self._old_monitor_sub:
                 del subprocess_compl.monitor_subprocess_progress
             del self._old_monitor_sub
 
 
+    @staticmethod
     def _substep_completion_progress(self, substep_completion_engine, obj,
                                      name, old, new):
         sub_completion_rate \

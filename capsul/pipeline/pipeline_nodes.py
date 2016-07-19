@@ -34,6 +34,7 @@ from soma.controller.trait_utils import is_trait_pathname
 from soma.controller import Controller
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
+from soma.utils.weak_proxy import weak_proxy, get_ref
 
 
 class Plug(Controller):
@@ -170,6 +171,7 @@ class Node(Controller):
         else:
             return self.name
 
+    @staticmethod
     def _value_callback(self, source_plug_name, dest_node, dest_plug_name,
                         value):
         """ Spread the source plug value to the destination plug.
@@ -256,8 +258,9 @@ class Node(Controller):
             the destination plug name
         """
         # add a callback to spread the source plug value
-        value_callback = SomaPartial(self._value_callback, source_plug_name,
-                                     dest_node, dest_plug_name)
+        value_callback = SomaPartial(
+            self.__class__._value_callback, weak_proxy(self),
+            source_plug_name, weak_proxy(dest_node), dest_plug_name)
         self._callbacks[(source_plug_name, dest_node,
                          dest_plug_name)] = value_callback
         self.set_callback_on_plug(source_plug_name, value_callback)
@@ -275,8 +278,8 @@ class Node(Controller):
             the destination plug name
         """
         # remove the callback to spread the source plug value
-        callback = self._callbacks.pop((source_plug_name, dest_node,
-                                        dest_plug_name))
+        callback = self._callbacks.pop(
+            (source_plug_name, dest_node, dest_plug_name))
         self.remove_callback_from_plug(source_plug_name, callback)
 
     def __getstate__(self):
