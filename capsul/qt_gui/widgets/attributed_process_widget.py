@@ -9,7 +9,6 @@ from soma.controller import Controller
 from soma.qt_gui.controller_widget \
     import ControllerWidget, ScrollControllerWidget
 from traits.api import File, HasTraits, Any, Directory, Undefined
-from soma.functiontools import SomaPartial
 
 
 class AttributedProcessWidget(QtGui.QWidget):
@@ -301,18 +300,20 @@ class AttributedProcessWidget(QtGui.QWidget):
                                     'completion_engine', None)
         if completion_engine is not None:
             if not hasattr(self, 'progressdialog'):
-                self.progressdialog = QtGui.QProgressDialog(
-                    'Completion progress', '', 0, 100, self)
-                self.progressdialog.setWindowModality(QtCore.Qt.WindowModal)
-                self.progressdialog.setAutoClose(True)
-                self.progressdialog.setAutoReset(True)
-                self.progressdialog.setCancelButton(None)
+                self.progressdialog = QtGui.QWidget()
+                self.layout().insertWidget(1, self.progressdialog)
+                layout = QtGui.QHBoxLayout()
+                self.progressdialog.setLayout(layout)
+                layout.addWidget(QtGui.QLabel('Completion progress:'))
+                self.progressbar = QtGui.QProgressBar()
+                layout.addWidget(self.progressbar)
+                self.progressbar.setRange(0, 100)
             value = int(round(100 * completion_engine.completion_progress
                         / completion_engine.completion_progress_total))
-            self.progressdialog.setValue(value)
+            self.progressbar.setValue(value)
             if value != 100:
                 self.progressdialog.show()
                 QtGui.qApp.processEvents()
-
-
+            else:
+                self.progressdialog.hide()
 
