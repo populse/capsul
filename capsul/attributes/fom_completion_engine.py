@@ -11,6 +11,7 @@ except ImportError:
 
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
+from capsul.pipeline.pipeline_nodes import Switch
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory, PathCompletionEngine, \
     PathCompletionEngineFactory
@@ -134,6 +135,48 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                     except KeyError:
                         # param already registered
                         pass
+
+        # in a pipeline, we still must iterate over nodes to find switches,
+        # which have their own behaviour.
+        if isinstance(self.process, Pipeline):
+            attributes = self.capsul_attributes
+            name = self.process.name
+            print('FOM iter nodes')
+
+            for node_name, node in six.iteritems(self.process.nodes):
+                print('node:', node_name)
+                if isinstance(node, Switch):
+                    print('found switch')
+                    subprocess = node
+                    if subprocess is None:
+                        continue
+                    pname = '.'.join([name, node_name])
+                    subprocess_compl = \
+                        ProcessCompletionEngine.get_completion_engine(
+                            subprocess, pname)
+                    print('completer:', subprocess_compl)
+                    try:
+                        sub_attributes \
+                            = subprocess_compl.get_attribute_values()
+                        print('sub_attributes:', sub_attributes)
+                    except:
+                        print('except 1')
+                        try:
+                            subprocess_compl = self.__class__(subprocess)
+                            sub_attributes \
+                                = subprocess_compl.get_attribute_values()
+                            print('sub_attributes2:', sub_attributes)
+                        except:
+                            print('except 2')
+                            continue
+                    print('attributes:', sub_attributes.user_traits().keys())
+                    for attribute, trait \
+                            in six.iteritems(sub_attributes.user_traits()):
+                        if attributes.trait(attribute) is None:
+                            attributes.add_trait(attribute, trait)
+                            setattr(attributes, attribute,
+                                    getattr(sub_attributes, attribute))
+
 
         if not matching_fom:
             raise KeyError('Process not found in FOMs')

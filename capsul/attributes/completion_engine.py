@@ -405,6 +405,7 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
     '''
     '''
     def get_attribute_values(self):
+        print('SwitchCompletionEngine for', self.process.name)
         capsul_attributes = ProcessAttributes(self.process, {})
         outputs = self.process._outputs
         schema = 'switch'  # FIXME
@@ -424,6 +425,12 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                     if isinstance(node, Switch):
                         # FIXME: just for now
                         continue
+                    if link[0] == '':
+                        # link to the parent pipeline: don't call it to avoid
+                        # an infinite loop.
+                        # Either it will provide attributes by its own, either
+                        # we must not take them into account, so skip it.
+                        continue
                     completion_engine \
                         = ProcessCompletionEngine.get_completion_engine(
                             node.process, name=link[0])
@@ -434,7 +441,11 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                     except Exception as e:
                         continue
 
-                    if len(param_attributes) != 0:
+                    if len(param_attributes) != 0 \
+                            and len([x for x in param_attributes.keys()
+                                     if x not in
+                                     ('generated_by_parameter',
+                                      'generated_by_process')]) != 0:
                         ea = EditableAttributes()
                         for attribute, value in six.iteritems(
                                 param_attributes):
@@ -447,6 +458,8 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                 if found:
                     break
             if found:
+                print('found attributes for', name)
+                print('   ', param_attributes.keys())
                 # propagate from input/output to other side
                 ea = EditableAttributes()
                 for attribute, value in six.iteritems(
