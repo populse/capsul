@@ -29,10 +29,8 @@ install:
     - popd
     - pip install argparse
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install importlib; fi
-    - pip install nibabel
     - pip install nose-cov
-    - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || pip install nipype==0.10.0
-    - pip install xmltodict
+    - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || echo "testing without nipype."
     #- pip install soma-workflow
     - python setup.py install
 
