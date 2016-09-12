@@ -1,10 +1,12 @@
 
+from __future__ import print_function
 from soma.singleton import Singleton
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
-from capsul.pipeline.pipeline import Graph, ProcessNode
+from capsul.pipeline.pipeline import Graph, ProcessNode, Switch
 from capsul.attributes.attributes_factory import AttributesFactory
-from capsul.attributes.attributes_schema import ProcessAttributes
+from capsul.attributes.attributes_schema import ProcessAttributes, \
+    EditableAttributes
 import traits.api as traits
 from soma.utils.weak_proxy import weak_proxy, get_ref
 from soma.functiontools import SomaPartial
@@ -105,8 +107,12 @@ class ProcessCompletionEngine(traits.HasTraits):
             for node_name, node in six.iteritems(self.process.nodes):
                 if node_name == '':
                     continue
+                subprocess = None
                 if hasattr(node, 'process'):
                     subprocess = node.process
+                elif isinstance(node, Switch):
+                    subprocess = node
+                if subprocess is not None:
                     pname = '.'.join([name, node_name])
                     subprocess_compl = \
                         ProcessCompletionEngine.get_completion_engine(
@@ -321,15 +327,18 @@ class ProcessCompletionEngine(traits.HasTraits):
         ''' Get a ProcessCompletionEngine instance for a given process within
         the framework of its StudyConfig: factory function.
         '''
-        study_config = process.get_study_config()
         engine_factory = None
-        if 'AttributesConfig' in study_config.modules:
-            try:
-                engine_factory \
-                    = study_config.modules_data.attributes_factory.get(
-                        'process_completion', study_config.process_completion)
-            except ValueError:
-                pass # not found
+        if hasattr(process, 'get_study_config'):
+            # switches don't have a study_config at the moment.
+            study_config = process.get_study_config()
+            if 'AttributesConfig' in study_config.modules:
+                try:
+                    engine_factory \
+                        = study_config.modules_data.attributes_factory.get(
+                            'process_completion',
+                            study_config.process_completion)
+                except ValueError:
+                    pass # not found
         if engine_factory is None:
             engine_factory = ProcessCompletionEngineFactory()
         completion_engine = engine_factory.get_completion_engine(
@@ -392,6 +401,67 @@ class ProcessCompletionEngine(traits.HasTraits):
             + sub_completion_rate
 
 
+class SwitchCompletionEngine(ProcessCompletionEngine):
+    '''
+    '''
+    def get_attribute_values(self):
+        capsul_attributes = ProcessAttributes(self.process, {})
+        outputs = self.process._outputs
+        schema = 'switch'  # FIXME
+        for out_name in outputs:
+            in_name = '_switch_'.join((self.process.switch, out_name))
+            found = False
+            for output, name in ((False, in_name), (True, out_name)):
+                plug = self.process.plugs.get(name)
+                if plug is None:
+                    continue
+                if output:
+                    links = plug.links_to
+                else:
+                    links = plug.links_from
+                for link in links:
+                    node = link[2]
+                    if isinstance(node, Switch):
+                        # FIXME: just for now
+                        continue
+                    completion_engine \
+                        = ProcessCompletionEngine.get_completion_engine(
+                            node.process, name=link[0])
+                    attributes = completion_engine.get_attribute_values()
+                    try:
+                        param_attributes \
+                            = attributes.get_parameters_attributes()[link[1]]
+                    except Exception, e:
+                        continue
+
+                    if len(param_attributes) != 0:
+                        ea = EditableAttributes()
+                        for attribute, value in six.iteritems(
+                                param_attributes):
+                            ea.add_trait(attribute, value)
+
+                        capsul_attributes.set_parameter_attributes(
+                            name, schema, ea, {})
+                        found = True
+                        break
+                if found:
+                    break
+            if found:
+                # propagate from input/output to other side
+                ea = EditableAttributes()
+                for attribute, value in six.iteritems(
+                        param_attributes):
+                    ea.add_trait(attribute, value)
+                if output:
+                    capsul_attributes.set_parameter_attributes(
+                        in_name, schema, ea, {})
+                else:
+                    capsul_attributes.set_parameter_attributes(
+                        out_name, schema, ea, {})
+
+        return capsul_attributes
+
+
 class PathCompletionEngine(object):
     ''' Implements building of a single path from a set of attributes for a
     specific process / parameter
@@ -433,6 +503,8 @@ class ProcessCompletionEngineFactory(object):
         if hasattr(process, 'completion_engine'):
             return process.completion_engine
 
+        if isinstance(process, Switch):
+            return SwitchCompletionEngine(process, name=name)
         return ProcessCompletionEngine(process, name=name)
 
 

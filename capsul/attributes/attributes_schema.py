@@ -90,8 +90,12 @@ class ProcessAttributes(Controller):
         pa = {}
         for parameter, trait in six.iteritems(self._process.user_traits()):
             if trait.output:
+                if hasattr(self._process, 'id'):
+                    process_name = self._process.id
+                else:
+                    process_name = self._process.name
                 attributes = {
-                    'generated_by_process': self._process.id,
+                    'generated_by_process': process_name,
                     'generated_by_parameter': parameter}
             else:
                 attributes = {}
