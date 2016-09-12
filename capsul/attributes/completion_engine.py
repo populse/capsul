@@ -431,7 +431,7 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                     try:
                         param_attributes \
                             = attributes.get_parameters_attributes()[link[1]]
-                    except Exception, e:
+                    except Exception as e:
                         continue
 
                     if len(param_attributes) != 0:
