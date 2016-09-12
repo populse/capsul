@@ -25,9 +25,8 @@ install:
     - popd
     - pip install argparse
     - pip install importlib
-    - pip install nibabel
     - pip install nose-cov
-    - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || pip install nipype==0.10.0
+    - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype
     - pip install xmltodict
     #- pip install soma-workflow
     - python setup.py install
