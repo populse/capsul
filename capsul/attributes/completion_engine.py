@@ -134,8 +134,64 @@ class ProcessCompletionEngine(traits.HasTraits):
                             setattr(attributes, attribute,
                                     getattr(sub_attributes, attribute))
 
+            self._get_linked_attributes()
 
         return self.capsul_attributes
+
+
+    def _get_linked_attributes(self):
+        # for parameters which still do not have attributes, we can try
+        # using links: if a linked parameter in a sub-process has
+        # attributes, then we can get them here.
+        attributes = self.capsul_attributes
+        schema = 'link'
+        param_attributes = attributes.get_parameters_attributes()
+        done_parameters = set(
+            [p for p, al in six.iteritems(param_attributes)
+              if len([a for a in al if a not in ('generated_by_parameter',
+                                                'generated_by_process')])
+              != 0])
+        print('done_parameters for', self.process.name, ':', done_parameters)
+        for pname, trait in six.iteritems(self.process.user_traits()):
+            if pname in done_parameters:
+                continue
+            plug = self.process.pipeline_node.plugs.get(pname)
+            if plug is None:
+                continue
+            print('not done param:', pname)
+            if trait.output:
+                links = plug.links_from
+            else:
+                links = plug.links_from
+            for link in links:
+                node = link[2]
+                if hasattr(node, 'process'):
+                    process = node.process
+                else:
+                    process = node
+                completion_engine \
+                    = ProcessCompletionEngine.get_completion_engine(
+                        process, link[0])
+                sub_attributes = completion_engine.get_attribute_values()
+                sub_p_attribs = sub_attributes.get_parameters_attributes()
+                if link[1] in sub_p_attribs:
+                    print('found attributes for', pname, 'in %s.%s' % (link[0], link[1]))
+                    s_p_attributes = sub_p_attribs[link[1]]
+                    if len(s_p_attributes) != 0 \
+                            and len([x for x in s_p_attributes.keys()
+                                    if x not in
+                                    ('generated_by_parameter',
+                                      'generated_by_process')]) != 0:
+                        print('non-empty.', pname, ':', s_p_attributes.keys())
+                        ea = EditableAttributes()
+                        for attribute, value in six.iteritems(
+                                s_p_attributes):
+                            ea.add_trait(attribute, value)
+
+                        attributes.set_parameter_attributes(
+                            pname, schema, ea, {})
+
+                    break
 
 
     def complete_parameters(self, process_inputs={}):
@@ -405,7 +461,6 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
     '''
     '''
     def get_attribute_values(self):
-        print('SwitchCompletionEngine for', self.process.name)
         capsul_attributes = ProcessAttributes(self.process, {})
         outputs = self.process._outputs
         schema = 'switch'  # FIXME
@@ -458,8 +513,6 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                 if found:
                     break
             if found:
-                print('found attributes for', name)
-                print('   ', param_attributes.keys())
                 # propagate from input/output to other side
                 ea = EditableAttributes()
                 for attribute, value in six.iteritems(
