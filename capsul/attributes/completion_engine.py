@@ -60,6 +60,10 @@ class ProcessCompletionEngine(traits.HasTraits):
         self.add_trait('completion_progress_total', traits.Float(1.))
 
 
+    def __del__(self):
+        self.remove_switch_observers()
+
+
     def get_attribute_values(self):
         ''' Get attributes Controller associated to a process
 
@@ -127,6 +131,10 @@ class ProcessCompletionEngine(traits.HasTraits):
                                 = subprocess_compl.get_attribute_values()
                         except:
                             continue
+                    if isinstance(node, Switch):
+                        # a switch may change attributes dynamically
+                        # so we must be notified if this happens.
+                        subprocess_compl.install_switch_observer(self)
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):
                         if attributes.trait(attribute) is None:
@@ -460,9 +468,36 @@ class ProcessCompletionEngine(traits.HasTraits):
             + sub_completion_rate
 
 
+    def remove_attributes(self):
+        '''Clear attributes controller cache, to allow rebuilding it after
+        a change. This is generally a callback attached to switches changes.
+        '''
+        if self.trait('capsul_attributes'):
+            self.remove_trait('capsul_attributes')
+
+
+    def remove_switch_observers(self):
+        '''Remove notification callbacks previously set to listen switches
+        state changes.
+        '''
+        if isinstance(self.process, Pipeline):
+            for name, node in six.iteritems(self.process.nodes):
+                if isinstance(node, Switch) \
+                        and hasattr(node, 'completion_engine'):
+                    completion_engine = node.completion_engine
+                    completion_engine.remove_switch_observer(self)
+
+
 class SwitchCompletionEngine(ProcessCompletionEngine):
+    ''' Completion engine specislization for a switch. The switch will
+    propagate attributes from its selected inputs to corresponding outputs,
+    if they can be retreiuved from parameters links. Otherwise the countrary
+    will be tried (propagated from outputs to inputs).
     '''
-    '''
+
+    def __del__(self):
+        self.remove_switch_observer()
+
     def get_attribute_values(self):
         t = self.trait('capsul_attributes')
         if t is not None:
@@ -560,7 +595,35 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                     capsul_attributes.set_parameter_attributes(
                         out_name, schema, ea, {})
 
+        self.install_switch_observer()
         return capsul_attributes
+
+
+    def install_switch_observer(self, observer=None):
+        '''Setup a switch change observation, to remove parameters attributes
+        when the switch state changes.
+
+        Parameters
+        ----------
+        observer: ProcessCompletionEngine instance
+            The observer which should change attributes after switch change.
+            If not specified, the observer is the switch completion engine
+            (self).
+            Notification will call the observer remove_attributes() method.
+        '''
+        if observer is None:
+            observer = self
+        self.process.on_trait_change(observer.remove_attributes, 'switch')
+
+
+    def remove_switch_observer(self, observer=None):
+        '''Remove notification previously set by install_switch_observer()
+        '''
+        if observer is None:
+            observer = self
+        self.process.on_trait_change(observer.remove_attributes, 'switch',
+                                     remove=True)
+
 
 
 class PathCompletionEngine(object):

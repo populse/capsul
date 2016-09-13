@@ -164,6 +164,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                                 = subprocess_compl.get_attribute_values()
                         except:
                             continue
+                    subprocess_compl.install_switch_observer(this)
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):
                         if attributes.trait(attribute) is None:
