@@ -554,6 +554,8 @@ class Pipeline(Process):
         if switch_value:
             node.switch = switch_value
 
+        self._set_subprocess_context_name(node, name)
+
     def parse_link(self, link):
         """ Parse a link comming from export_parameter method.
 

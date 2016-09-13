@@ -144,25 +144,25 @@ class ProcessCompletionEngine(traits.HasTraits):
         # using links: if a linked parameter in a sub-process has
         # attributes, then we can get them here.
         attributes = self.capsul_attributes
-        schema = 'link'
+        schema = 'link'  # FIXME
         param_attributes = attributes.get_parameters_attributes()
+        forbidden_attributes = set(['generated_by_parameter',
+                                    'generated_by_process'])
         done_parameters = set(
             [p for p, al in six.iteritems(param_attributes)
-              if len([a for a in al if a not in ('generated_by_parameter',
-                                                'generated_by_process')])
+              if len([a for a in al if a not in forbidden_attributes])
               != 0])
-        print('done_parameters for', self.process.name, ':', done_parameters)
+        name = self.process.name
         for pname, trait in six.iteritems(self.process.user_traits()):
             if pname in done_parameters:
                 continue
             plug = self.process.pipeline_node.plugs.get(pname)
             if plug is None:
                 continue
-            print('not done param:', pname)
             if trait.output:
                 links = plug.links_from
             else:
-                links = plug.links_from
+                links = plug.links_to
             for link in links:
                 node = link[2]
                 if hasattr(node, 'process'):
@@ -171,22 +171,25 @@ class ProcessCompletionEngine(traits.HasTraits):
                     process = node
                 completion_engine \
                     = ProcessCompletionEngine.get_completion_engine(
-                        process, link[0])
+                        process, '.'.join([name, link[0]]))
                 sub_attributes = completion_engine.get_attribute_values()
                 sub_p_attribs = sub_attributes.get_parameters_attributes()
                 if link[1] in sub_p_attribs:
-                    print('found attributes for', pname, 'in %s.%s' % (link[0], link[1]))
                     s_p_attributes = sub_p_attribs[link[1]]
                     if len(s_p_attributes) != 0 \
                             and len([x for x in s_p_attributes.keys()
-                                    if x not in
-                                    ('generated_by_parameter',
-                                      'generated_by_process')]) != 0:
-                        print('non-empty.', pname, ':', s_p_attributes.keys())
+                                    if x not in forbidden_attributes]) != 0:
                         ea = EditableAttributes()
                         for attribute, value in six.iteritems(
                                 s_p_attributes):
-                            ea.add_trait(attribute, value)
+                            if attribute not in forbidden_attributes:
+                                ttype = traits_types.get(type(value))
+                                if ttype is not None:
+                                    trait = ttype()
+                                else:
+                                    trait = value
+                                ea.add_trait(attribute, ttype)
+                                setattr(ea, attribute, value)
 
                         attributes.set_parameter_attributes(
                             pname, schema, ea, {})
@@ -461,9 +464,25 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
     '''
     '''
     def get_attribute_values(self):
+        t = self.trait('capsul_attributes')
+        if t is not None:
+            return self.capsul_attributes
+
+        self.add_trait('capsul_attributes', ControllerTrait(Controller()))
         capsul_attributes = ProcessAttributes(self.process, {})
+        self.capsul_attributes = capsul_attributes
         outputs = self.process._outputs
         schema = 'switch'  # FIXME
+        name = getattr(self.process, 'context_name', None)
+        pipeline_name = '.'.join(name.split('.')[:-1])
+        if pipeline_name == '':
+            pipeline_name = []
+        else:
+            pipeline_name = [pipeline_name]
+        forbidden_attributes = set(['generated_by_parameter',
+                                    'generated_by_process'])
+        traits_types = {str: Str, unicode: Str, int: Int, float: Float,
+                        list: List}
         for out_name in outputs:
             in_name = '_switch_'.join((self.process.switch, out_name))
             found = False
@@ -486,9 +505,14 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                         # Either it will provide attributes by its own, either
                         # we must not take them into account, so skip it.
                         continue
+                    if hasattr(node, 'process'):
+                        process = node.process
+                    else:
+                        process = node
+                    proc_name = '.'.join(pipeline_name + [link[0]])
                     completion_engine \
                         = ProcessCompletionEngine.get_completion_engine(
-                            node.process, name=link[0])
+                            process, name=proc_name)
                     attributes = completion_engine.get_attribute_values()
                     try:
                         param_attributes \
@@ -498,13 +522,18 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
 
                     if len(param_attributes) != 0 \
                             and len([x for x in param_attributes.keys()
-                                     if x not in
-                                     ('generated_by_parameter',
-                                      'generated_by_process')]) != 0:
+                                     if x not in forbidden_attributes]) != 0:
                         ea = EditableAttributes()
                         for attribute, value in six.iteritems(
                                 param_attributes):
-                            ea.add_trait(attribute, value)
+                            if attribute not in forbidden_attributes:
+                                ttype = traits_types.get(type(value))
+                                if ttype is not None:
+                                    trait = ttype()
+                                else:
+                                    trait = value
+                                ea.add_trait(attribute, ttype)
+                                setattr(ea, attribute, value)
 
                         capsul_attributes.set_parameter_attributes(
                             name, schema, ea, {})
@@ -517,7 +546,13 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                 ea = EditableAttributes()
                 for attribute, value in six.iteritems(
                         param_attributes):
-                    ea.add_trait(attribute, value)
+                    ttype = traits_types.get(type(value))
+                    if ttype is not None:
+                        trait = ttype()
+                    else:
+                        trait = value
+                    ea.add_trait(attribute, ttype)
+                    setattr(ea, attribute, value)
                 if output:
                     capsul_attributes.set_parameter_attributes(
                         in_name, schema, ea, {})
