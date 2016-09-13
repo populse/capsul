@@ -76,8 +76,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         the process is a pipeline.
 
         '''
-        t = self.trait('capsul_attributes')
-        if t is not None:
+        if self.trait('capsul_attributes') is not None \
+                and hasattr(self, 'capsul_attributes'):
             return self.capsul_attributes
 
         self.add_trait('capsul_attributes', ControllerTrait(Controller()))
@@ -160,6 +160,8 @@ class ProcessCompletionEngine(traits.HasTraits):
             [p for p, al in six.iteritems(param_attributes)
               if len([a for a in al if a not in forbidden_attributes])
               != 0])
+        traits_types = {str: traits.Str, unicode: traits.Str, int: traits.Int,
+                        float: traits.Float, list: traits.List}
         name = self.process.name
         for pname, trait in six.iteritems(self.process.user_traits()):
             if pname in done_parameters:
@@ -472,7 +474,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         '''Clear attributes controller cache, to allow rebuilding it after
         a change. This is generally a callback attached to switches changes.
         '''
-        if self.trait('capsul_attributes'):
+        if self.trait('capsul_attributes') is not None \
+                and hasattr(self, 'capsul_attributes'):
             self.remove_trait('capsul_attributes')
 
 
@@ -499,8 +502,11 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
         self.remove_switch_observer()
 
     def get_attribute_values(self):
-        t = self.trait('capsul_attributes')
-        if t is not None:
+        if self.process.name == 'select_renormalization_commissures':
+            debug = True
+        else: debug = False
+        if self.trait('capsul_attributes') is not None \
+                and hasattr(self, 'capsul_attributes'):
             return self.capsul_attributes
 
         self.add_trait('capsul_attributes', ControllerTrait(Controller()))
@@ -508,7 +514,7 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
         self.capsul_attributes = capsul_attributes
         outputs = self.process._outputs
         schema = 'switch'  # FIXME
-        name = getattr(self.process, 'context_name', None)
+        name = getattr(self.process, 'context_name', self.name)
         pipeline_name = '.'.join(name.split('.')[:-1])
         if pipeline_name == '':
             pipeline_name = []
@@ -516,8 +522,8 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
             pipeline_name = [pipeline_name]
         forbidden_attributes = set(['generated_by_parameter',
                                     'generated_by_process'])
-        traits_types = {str: Str, unicode: Str, int: Int, float: Float,
-                        list: List}
+        traits_types = {str: traits.Str, unicode: traits.Str, int: traits.Int,
+                        float: traits.Float, list: traits.List}
         for out_name in outputs:
             in_name = '_switch_'.join((self.process.switch, out_name))
             found = False
@@ -552,7 +558,7 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                     try:
                         param_attributes \
                             = attributes.get_parameters_attributes()[link[1]]
-                    except Exception as e:
+                    except:
                         continue
 
                     if len(param_attributes) != 0 \

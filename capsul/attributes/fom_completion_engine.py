@@ -78,14 +78,16 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         -------
         attributes: Controller
         '''
-        t = self.trait('capsul_attributes')
-        if t is not None:
+        if self.trait('capsul_attributes') is not None \
+                and hasattr(self, 'capsul_attributes'):
             return self.capsul_attributes
 
         self.add_trait('capsul_attributes', ControllerTrait(Controller()))
         schemas = self._get_schemas()
         #schemas = self.process.get_study_config().modules_data.foms.keys()
         self.capsul_attributes = ProcessAttributes(self.process, schemas)
+
+        self.create_attributes_with_fom()
 
         return self.capsul_attributes
 
@@ -164,7 +166,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                                 = subprocess_compl.get_attribute_values()
                         except:
                             continue
-                    subprocess_compl.install_switch_observer(this)
+                    subprocess_compl.install_switch_observer(self)
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):
                         if attributes.trait(attribute) is None:
@@ -229,9 +231,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             return None  # Non Fom config, no way it could work
         try:
             pfom = FomProcessCompletionEngine(process, name)
-            if pfom is not None:
-                pfom.create_attributes_with_fom()
-                return pfom
+            return pfom
         except KeyError:
             # process not in FOM
             pass
