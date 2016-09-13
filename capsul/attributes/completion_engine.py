@@ -11,6 +11,10 @@ import traits.api as traits
 from soma.utils.weak_proxy import weak_proxy, get_ref
 from soma.functiontools import SomaPartial
 import six
+import sys
+
+if sys.version_info[0] >= 3:
+    unicode = str
 
 
 class ProcessCompletionEngine(traits.HasTraits):
