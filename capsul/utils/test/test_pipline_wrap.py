@@ -24,7 +24,9 @@ if __name__ == "__main__":
     pipeline = XmlPipeline()
     iterative_pipeline = XmlIterativePipeline()
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtGui.QApplication.instance()
+    if not app:
+        app = QtGui.QApplication(sys.argv)
     view1 = PipelineDevelopperView(pipeline)
     view1.show()
     view2 = PipelineDevelopperView(iterative_pipeline)
