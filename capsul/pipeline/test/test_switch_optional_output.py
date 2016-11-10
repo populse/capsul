@@ -93,7 +93,9 @@ if __name__ == "__main__":
         from PyQt4 import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 
-        app = QtGui.QApplication(sys.argv)
+        app = QtGui.QApplication.instance()
+        if not app:
+            app = QtGui.QApplication(sys.argv)
         pipeline = MyPipeline()
         view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)

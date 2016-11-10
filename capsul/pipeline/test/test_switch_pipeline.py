@@ -209,7 +209,9 @@ if __name__ == "__main__":
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 
-        app = QtGui.QApplication(sys.argv)
+        app = QtGui.QApplication.instance()
+        if not app:
+            app = QtGui.QApplication(sys.argv)
         pipeline = SwitchPipeline()
         pipeline.switch = "one"
         view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,

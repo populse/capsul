@@ -321,7 +321,9 @@ if __name__ == "__main__":
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 
-        app = QtGui.QApplication(sys.argv)
+        app = QtGui.QApplication.instance()
+        if not app:
+            app = QtGui.QApplication(sys.argv)
         pipeline = MySmallPipeline()
         pipeline.files_to_create = ["toto", "tutu", "titi"]
         pipeline.output_image = ['toto_out', 'tutu_out', 'tata_out']
