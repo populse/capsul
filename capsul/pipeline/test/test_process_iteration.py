@@ -136,7 +136,9 @@ if __name__ == "__main__":
     from PySide import QtGui
     from capsul.qt_gui.widgets import PipelineDevelopperView
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtGui.QApplication.instance()
+    if not app:
+        app = QtGui.QApplication(sys.argv)
     pipeline = MyPipeline()
     pipeline.input_image = '/tmp/x'
     pipeline.output_image = '/tmp/y'
