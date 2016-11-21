@@ -9,7 +9,7 @@
 
 from __future__ import print_function
 
-from load_pilots import load_pilots
+from .load_pilots import load_pilots
 import capsul
 import sys
 

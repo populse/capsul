@@ -32,6 +32,6 @@ install:
     - python setup.py install
 
 script:
-    - python test/test_capsul.py
+    - python -m capsul.test
 
 
