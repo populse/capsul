@@ -7,6 +7,8 @@
 # for details.
 ##########################################################################
 
+import sys
+
 # Capsul current version
 version_major = 1
 version_minor = 1
@@ -103,4 +105,6 @@ EXTRA_REQUIRES = {
 
 }
 
+# tests to run
+test_commands = ['%s -m capsul.test.test_capsul' % sys.executable]
 
