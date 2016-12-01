@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # Trait import
 from traits.trait_base import _Undefined
-from traits.api import Directory, Undefined, Int, List
+from traits.api import Directory, Undefined, Int, List, Bool
 from traits.trait_handlers import BaseTraitHandler
 
 # Soma import
@@ -217,12 +217,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         results:  ProcessResult object
             contains all execution information.
         """
-        # Import cannot be done on module due to circular dependencies
-        from capsul.study_config.study_config import default_study_config
-
-
         # Execute the process
-        returncode = default_study_config().run(self,
+        returncode = self.get_study_config().run(self,
                                                 **kwargs)
         return returncode
 
@@ -1164,6 +1160,15 @@ class NipypeProcess(FileCopyProcess):
         cls_instance = nipype_factory(nipype_interface)
         return cls_instance.get_help(returnhelp)
 
+class InteractiveProcess(Process):
+    '''
+    Base class for interactive processes. The value of the is_interactive 
+    parameter determine if either the process can be run in background
+    (eventually remotely) as a standardl process (is_interactive = False)
+    or if the process must be executed interactively in the user environment
+    (is_interactive = False).
+    '''
+    is_interactive = Bool(False)
 
 class ProcessResult(object):
     """ Object that contains running information a particular Process.
