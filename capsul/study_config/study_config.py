@@ -46,6 +46,14 @@ else:
         return d.keys()
 
 
+class WorkflowExecutionError(Exception):
+    def __init__(self, controller, workflow_id):
+        super(WorkflowExecutionError, self).__init__('Error during '
+            'workflow execution. The workflow has not been removed '
+            'from soma_workflow and must be deleted manually.')
+        self.controller = controller
+        self.workflow_id = workflow_id
+
 class StudyConfig(Controller):
     """ Class to store the study parameters and processing options.
 
@@ -306,20 +314,20 @@ class StudyConfig(Controller):
             # FIXME: it would be better if study_config does not require
             # soma_workflow modules.
             from soma_workflow import constants as swconstants
-            self.failed_jobs = [
-                element for element in elements_status[0]
-                if element[1] != swconstants.DONE
-                or element[3][0] != swconstants.FINISHED_REGULARLY]
+            from soma_workflow.utils import Helper
+            self.failed_jobs = Helper.list_failed_jobs(wf_id, controller)
+            #self.failed_jobs = [
+                #element for element in elements_status[0]
+                #if element[1] != swconstants.DONE
+                #or element[3][0] != swconstants.FINISHED_REGULARLY]
             # if execution was OK, delete the workflow
             if workflow_status == swconstants.WORKFLOW_DONE \
                     and len(self.failed_jobs) == 0:
                 controller.delete_workflow(wf_id)
             else:
-                # something went wrong: return the controller and workflow id
-                # so that one can handle them if needed
-                # WARNING: return values not very consistent. We should find
-                # a better way to return the status.
-                return controller, wf_id
+                # something went wrong: raise an exception containing
+                # controller object and workflow id.
+                raise WorkflowExecutionError(controller, wf_id)
 
         # Use the local machine to execute the pipeline or process
         else:
