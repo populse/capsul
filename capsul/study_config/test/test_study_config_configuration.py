@@ -119,7 +119,10 @@ tests_no_files = [
         'use_matlab': False,
         'use_spm': False,
         "use_freesurfer": False,
-        "shared_directory": soma.config.BRAINVISA_SHARE,
+        "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE,
+                                         'brainvisa-share-'
+                                         + bv_share_version),
+        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
@@ -165,7 +168,9 @@ tests_standard_files = [
         'input_fom': "",
         'somaworkflow_computing_resources_config': {},
         'generate_logging': False,
-        "shared_directory": soma.config.BRAINVISA_SHARE,
+        "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE,
+                                         'brainvisa-share-'
+                                         + bv_share_version),
         'output_fom': "",
         'use_matlab': False,
         'use_spm': False,
@@ -251,7 +256,9 @@ tests_custom_files = [
         'input_fom': "",
         'somaworkflow_computing_resources_config': {},
         'generate_logging': False,
-        "shared_directory": soma.config.BRAINVISA_SHARE,
+        "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE,
+                                         'brainvisa-share-'
+                                         + bv_share_version),
         'output_fom': "",
         'use_matlab': False,
         'use_spm': False,
