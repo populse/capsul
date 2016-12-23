@@ -508,11 +508,25 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
                     value = getattr(process, param)
                     if value is not None and value is not traits.Undefined \
                             and os.path.exists(value):
-                        # disable step
-                        print('disable step', step, 'because of:', node_name,
-                              '.', param)
-                        setattr(steps, step, False)
-                        break  # no need to iterate other nodes in same step
+                        # check special case when the output is also an input
+                        # (of the same node)
+                        disable = True
+                        for n, t in six.iteritems(process.user_traits()):
+                            if not t.output and (isinstance(t.trait_type,
+                                                            traits.File)
+                                    or isinstance(t.trait_type,
+                                                  traits.Directory)):
+                                v = getattr(process, n)
+                                if v == value:
+                                    disable = False
+                                    break # found in inputs
+                        if disable:
+                            # disable step
+                            print('disable step', step, 'because of:',
+                                  node_name, '.', param)
+                            setattr(steps, step, False)
+                            # no need to iterate other nodes in same step
+                            break
 
 
 def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
