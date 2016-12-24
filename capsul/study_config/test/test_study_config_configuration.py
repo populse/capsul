@@ -122,7 +122,6 @@ tests_no_files = [
         "shared_directory": os.path.join(soma.config.BRAINVISA_SHARE,
                                          'brainvisa-share-'
                                          + bv_share_version),
-        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
