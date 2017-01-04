@@ -107,7 +107,6 @@ tests_no_files = [
         'use_spm': False,
         "use_freesurfer": False,
         "shared_directory": soma.config.BRAINVISA_SHARE,
-        'automatic_configuration': False,
         'spm_standalone': False,
         'use_smart_caching': False,
         'use_soma_workflow': False,
