@@ -142,10 +142,10 @@ class TestCompletion(unittest.TestCase):
         atts.center = 'jojo'
         atts.subject = 'barbapapa'
         patt.complete_parameters()
-        self.assertEqual(process.truc,
-                         '/tmp/in/DummyProcess_truc_jojo_barbapapa')
-        self.assertEqual(process.bidule,
-                         '/tmp/out/DummyProcess_bidule_jojo_barbapapa')
+        self.assertEqual(os.path.normpath(process.truc),
+                         os.path.normpath('/tmp/in/DummyProcess_truc_jojo_barbapapa'))
+        self.assertEqual(os.path.normpath(process.bidule),
+                         os.path.normpath('/tmp/out/DummyProcess_bidule_jojo_barbapapa'))
 
 
     def test_iteration(self):
@@ -162,16 +162,18 @@ class TestCompletion(unittest.TestCase):
         atts.center = ['muppets']
         atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
         cm.complete_parameters()
-        self.assertEqual(pipeline.truc,
-                         ['/tmp/in/DummyProcess_truc_muppets_kermit',
-                          '/tmp/in/DummyProcess_truc_muppets_piggy',
-                          '/tmp/in/DummyProcess_truc_muppets_stalter',
-                          '/tmp/in/DummyProcess_truc_muppets_waldorf'])
-        self.assertEqual(pipeline.bidule,
-                         ['/tmp/out/DummyProcess_bidule_muppets_kermit',
-                          '/tmp/out/DummyProcess_bidule_muppets_piggy',
-                          '/tmp/out/DummyProcess_bidule_muppets_stalter',
-                          '/tmp/out/DummyProcess_bidule_muppets_waldorf'])
+        self.assertEqual([os.path.normpath(p) for p in pipeline.truc],
+                         [os.path.normpath(p) for p in 
+                            ['/tmp/in/DummyProcess_truc_muppets_kermit',
+                             '/tmp/in/DummyProcess_truc_muppets_piggy',
+                             '/tmp/in/DummyProcess_truc_muppets_stalter',
+                             '/tmp/in/DummyProcess_truc_muppets_waldorf']])
+        self.assertEqual([os.path.normpath(p) for p in pipeline.bidule],
+                         [os.path.normpath(p) for p in 
+                            ['/tmp/out/DummyProcess_bidule_muppets_kermit',
+                             '/tmp/out/DummyProcess_bidule_muppets_piggy',
+                             '/tmp/out/DummyProcess_bidule_muppets_stalter',
+                             '/tmp/out/DummyProcess_bidule_muppets_waldorf']])
 
 
     def test_run_iteraton_sequential(self):
