@@ -16,7 +16,6 @@ from traits.api import Undefined
 # Capsul import
 from capsul.study_config.study_config import StudyConfig
 
-
 class TestStudyConfigFsFsl(unittest.TestCase):
 
     def setUp(self):
@@ -38,8 +37,11 @@ class TestStudyConfigFsFsl(unittest.TestCase):
             self.assertTrue(os.environ.get(varname) is not None,
                             msg='%s environment variable not set' % varname)
 
+    @unittest.skipIf(sys.platform.startswith('win'), 
+                     'FSL is not available on Windows')
     def test_study_config_fsl(self):
         fsl_h = "/etc/fsl/4.1/fsl.sh"
+        
         if os.path.exists(fsl_h):
             study_config = StudyConfig(modules=['FSLConfig'],
                 fsl_config = fsl_h)
