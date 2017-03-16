@@ -268,11 +268,11 @@ class StudyConfig(Controller):
             return module
 
     def run(self, process_or_pipeline, output_directory= None,
-            executer_qc_nodes=True, verbose=0, **kwargs):
+            execute_qc_nodes=True, verbose=0, **kwargs):
         """Method to execute a process or a pipline in a study configuration
          environment.
 
-         Only pipeline nodes can be filtered on the 'executer_qc_nodes'
+         Only pipeline nodes can be filtered on the 'execute_qc_nodes'
          attribute.
 
          A valid output directory is exepcted to execute the process or the
@@ -360,7 +360,7 @@ class StudyConfig(Controller):
                     execution_list = \
                         process_or_pipeline.workflow_ordered_nodes()
                     # Filter process nodes if necessary
-                    if not executer_qc_nodes:
+                    if not execute_qc_nodes:
                         execution_list = [node for node in execution_list
                                         if node.node_type != "view_node"]
                     for node in execution_list:
