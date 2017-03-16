@@ -76,7 +76,7 @@ class TestRunProcess(unittest.TestCase):
 
         # Test the cache mechanism
         for param in [(1., 2.3), (2., 2.), (1., 2.3)]:
-            self.study_config.run(process, executer_qc_nodes=False, verbose=1,
+            self.study_config.run(process, execute_qc_nodes=False, verbose=1,
                                   f1=param[0], f2=param[1])
             self.assertEqual(process.res, param[0] * param[1])
             self.assertEqual(

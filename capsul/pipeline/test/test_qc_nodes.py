@@ -113,7 +113,7 @@ class TestQCNodes(unittest.TestCase):
         """ Method to test if the run qc option works properly.
         """
         # Execute all the pipeline nodes
-        self.study_config.run(self.pipeline, executer_qc_nodes=True)
+        self.study_config.run(self.pipeline, execute_qc_nodes=True)
 
         # Get the list of all the nodes that havec been executed
         execution_list = self.pipeline.workflow_ordered_nodes()
@@ -131,7 +131,7 @@ class TestQCNodes(unittest.TestCase):
         """ Method to test if the run qc option works properly.
         """
         # Execute all the pipeline nodes
-        self.study_config.run(self.pipeline, executer_qc_nodes=False)
+        self.study_config.run(self.pipeline, execute_qc_nodes=False)
 
         # Get the list of all the nodes
         execution_list = self.pipeline.workflow_ordered_nodes()
