@@ -42,8 +42,16 @@ from __future__ import print_function
 
 from capsul.api import get_process_instance
 from capsul.api import StudyConfig
+from capsul.api import Pipeline
+from capsul.attributes.completion_engine import ProcessCompletionEngine
+
 import sys, re, types
 from optparse import OptionParser, OptionGroup
+try:
+    import yaml
+except ImportError:
+    yaml = None
+    import json
 import six
 
 
@@ -78,53 +86,10 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
 
     # check for iterations
     if iterated_params:
-        #iterated_values = {}
-        #iterated_args = []
-        #n_iter = 0
-        #for it_param in iterated:
-            #if it_param in kwargs:
-                #values = kwargs.pop(it_param)
-                #iterated_values[it_param] = values
-                #if n_iter == 0:
-                    #n_iter = len(values)
-                #elif len(values) != n_iter:
-                    #raise ValueError(
-                        #'unmatched iteration numbers for iterated parameters')
-            #else:
-                #if it_param not in signature:
-                    #raise KeyError(
-                        #'iterated parameter %s is not in the process parameters'
-                        #% it_param)
-                #i_par = params.index(it_param)
-                #if len(args) <= i_par:
-                    #raise ValueError(
-                        #'Iterated parameter %s has no specified value in process '
-                        #'parameters' % it_param)
-                #values = args[i_par]
-                #iterated_args.append(i_par)
-                #if n_iter == 0:
-                    #n_iter = len(values)
-                #elif len(values) != n_iter:
-                    #raise ValueError(
-                        #'unmatched iteration numbers for iterated parameters')
 
-        ## build list of processes for iteration
-        #processes = [process] \
-            #+ [brainvisa.processes.getProcessInstance(process_name)
-              #for i in xrange(n_iter - 1)]
-        ## fill in their parameters
-        #for i_proc, process in enumerate(processes):
-            #p_args = list(args)
-            #p_kwargs = dict(kwargs)
-            #for i in iterated_args:
-                #p_args[i] = args[i][i_proc]
-            #p_kwargs.update(dict([(k, value[i_proc])
-                                  #for k, value in six.iteritems(iterated_values)]))
-            #context._setArguments(*(process,) + tuple(p_args), **p_kwargs)
-        #iteration = brainvisa.processes.IterationProcess(
-            #'%s iteration' % process.name, processes)
-        #process = iteration
-        pass
+        pipeline = study_config.get_process_instance(Pipeline)
+        pipeline.add_iterative_process('iteration', process, iterated_params)
+        process = pipeline
 
     else:
         # not iterated
@@ -132,6 +97,9 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
             setattr(process, params[i], arg)
         for k, arg in six.iteritems(kwargs):
             setattr(process, k, arg)
+
+    completion_engine = ProcessCompletionEngine.get_completion_engine(process)
+    completion_engine.complete_parameters()
 
     return process
 
@@ -150,7 +118,7 @@ def run_process_with_distribution(
     study_config: StudyConfig instance
     process: Process instance
         the process to execute (or pipeline, or iteration...)
-    use_soma_workflow: bool (default=False)
+    use_soma_workflow: bool or None (default=None)
         if False, run sequentially, otherwise use Soma-Workflow. Its
         configuration has to be setup and valid for non-local execution, and
         additional login and file transfer options may be used.
@@ -183,9 +151,11 @@ def run_process_with_distribution(
         keep the workflow in the computing resource database after execution,
         if it has failed. By default it is removed.
     '''
-    study_config.use_soma_workflow = use_soma_workflow
-    if use_soma_workflow:
-        study_config.somaworkflow_computing_resource = resource_id
+    if use_soma_workflow is not None:
+        study_config.use_soma_workflow = use_soma_workflow
+    if study_config.use_soma_workflow:
+        if resource_id is not None:
+            study_config.somaworkflow_computing_resource = resource_id
 
     res = study_config.run(process)
     return res
@@ -325,7 +295,10 @@ parser.disable_interspersed_args()
 
 if options.studyconfig:
     study_config = StudyConfig()
-    scdict = json.load(open(options.studyconfig))
+    if yaml:
+        scdict = yaml.load(open(options.studyconfig))
+    else:
+        scdict = json.load(open(options.studyconfig))
     study_config.set_study_configuration(scdict)
 else:
     study_config = StudyConfig()
