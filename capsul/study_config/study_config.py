@@ -33,7 +33,7 @@ from capsul.pipeline.pipeline import Pipeline
 from capsul.process.process import Process
 from capsul.study_config.run import run_process
 from capsul.pipeline.pipeline_workflow import (
-    workflow_from_pipeline, local_workflow_run)
+    workflow_from_pipeline, workflow_run)
 from capsul.pipeline.pipeline_nodes import Node
 from capsul.study_config.process_instance import get_process_instance
 
@@ -272,6 +272,10 @@ class StudyConfig(Controller):
         """Method to execute a process or a pipline in a study configuration
          environment.
 
+         Depending on the studies_config settings, it may be a sequential run,
+         or a parallel run, which can involve remote execution (through soma-
+         workflow).
+
          Only pipeline nodes can be filtered on the 'execute_qc_nodes'
          attribute.
 
@@ -307,8 +311,8 @@ class StudyConfig(Controller):
 
             # Create soma workflow pipeline
             workflow = workflow_from_pipeline(process_or_pipeline)
-            controller, wf_id = local_workflow_run(process_or_pipeline.id,
-                                                   workflow)
+            controller, wf_id = workflow_run(process_or_pipeline.id,
+                                             workflow, self)
             workflow_status = controller.workflow_status(wf_id)
             elements_status = controller.workflow_elements_status(wf_id)
             # FIXME: it would be better if study_config does not require

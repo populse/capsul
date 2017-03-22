@@ -40,7 +40,7 @@ else:
         return container.values()
 
 
-def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
+def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                            jobs_priority=0, create_directories=True):
     """ Create a soma-workflow workflow from a Capsul Pipeline
 
@@ -50,7 +50,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
         a CAPSUL pipeline
     study_config: StudyConfig (optional), or dict
         holds information about file transfers and shared resource paths.
-        If not specified, no translation/transfers will be used.
+        If not specified, it will be accessed through the pipeline.
     disabled_nodes: sequence of pipeline nodes (Node instances) (optional)
         such nodes will be disabled on-the-fly in the pipeline, file transfers
         will be adapted accordingly (outputs may become inputs in the resulting
@@ -987,6 +987,10 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     temp_subst_list = [(x1, x2[0]) for x1, x2 in six.iteritems(temp_map)]
     temp_subst_map = dict(temp_subst_list)
     shared_map = {}
+
+    if study_config is None:
+        study_config = pipeline.get_study_config()
+
     swf_paths = _get_swf_paths(study_config)
     transfers = _get_transfers(pipeline, swf_paths[0], merged_formats)
     #print('disabling nodes:', disabled_nodes)
@@ -1049,7 +1053,7 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
     return workflow
 
 
-def local_workflow_run(workflow_name, workflow):
+def workflow_run(workflow_name, workflow, study_config):
     """ Create a soma-workflow controller and submit a workflow
 
     Parameters
@@ -1058,9 +1062,12 @@ def local_workflow_run(workflow_name, workflow):
         the name of the workflow
     workflow: Workflow (mandatory)
         the soma-workflow workflow
+    study_config: StudyConfig (mandatory)
+        contains needed configuration through the SomaWorkflowConfig module
     """
-    localhost = socket.gethostname()
-    controller = swclient.WorkflowController(localhost)
+    swm = study_config.modules['SomaWorkflowConfig']
+    swm.connect_resource()
+    controller = swm.get_workflow_controller()
     wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name)
     swclient.Helper.wait_workflow(wf_id, controller)
     return controller, wf_id
