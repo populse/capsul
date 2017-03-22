@@ -1069,5 +1069,8 @@ def workflow_run(workflow_name, workflow, study_config):
     swm.connect_resource()
     controller = swm.get_workflow_controller()
     wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name)
+    swclient.Helper.transfer_input_files(wf_id, controller)
     swclient.Helper.wait_workflow(wf_id, controller)
+    # TODO: should we transfer if the WF fails ?
+    swclient.Helper.transfer_output_files(wf_id, controller)
     return controller, wf_id
