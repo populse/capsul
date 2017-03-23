@@ -192,10 +192,10 @@ def convert_commandline_parameter(i):
 
 # main
 
-usage = '''Usage: %prog [options] processname [arg1] [arg2] ... [argx=valuex] [argy=valuey] ...
+usage = '''Usage: python -m capsul [options] processname [arg1] [arg2] ... [argx=valuex] [argy=valuey] ...
 
 Example:
-%prog threshold ~/data/irm.ima /tmp/th.nii threshold1=80
+python -m capsul threshold ~/data/irm.ima /tmp/th.nii threshold1=80
 
 Named arguments (in the shape argx=valuex) may address sub-processes of a pipeline, using the dot separator:
 
