@@ -56,8 +56,9 @@ class WorkflowExecutionError(Exception):
         super(WorkflowExecutionError, self).__init__('Error during '
             'workflow execution. The workflow has %sbeen removed%s.'
             % (wk, wc))
-        self.controller = controller
-        self.workflow_id = workflow_id
+        if workflow_kept:
+            self.controller = controller
+            self.workflow_id = workflow_id
 
 class StudyConfig(Controller):
     """ Class to store the study parameters and processing options.
