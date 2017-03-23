@@ -47,6 +47,7 @@ from capsul.attributes.completion_engine import ProcessCompletionEngine
 
 import sys, re, types
 from optparse import OptionParser, OptionGroup
+from traits.api import Undefined
 try:
     import yaml
 except ImportError:
@@ -97,7 +98,7 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
         # transform iterated attributes into lists if needed
         for param, value in attributes.items():
             if not isinstance(value, list) and not isinstance(value, tuple):
-                attributes[param] = list(value)
+                attributes[param] = list([value])
 
     else:
         # not iterated
@@ -210,6 +211,16 @@ group1 = OptionGroup(parser, 'Config',
                      description='Processing configuration, database options')
 group1.add_option('--studyconfig', dest='studyconfig',
     help='load StudyConfig configuration from the given file (JSON)')
+group1.add_option('-i', '--input', dest='input_directory',
+                  help='input data directory (if not specified in '
+                  'studyconfig file). If not specified neither on the '
+                  'commandline nor study configfile, taken as the same as '
+                  'output.')
+group1.add_option('-o', '--output', dest='output_directory',
+                  help='output data directory (if not specified in '
+                  'studyconfig file). If not specified neither on the '
+                  'commandline nor study configfile, taken as the same as '
+                  'input.')
 #group1.add_option('--enablegui', dest='enablegui', action='store_true',
     #default=False,
     #help='enable graphical user interface for interactive processes')
@@ -254,7 +265,7 @@ parser.add_option_group(group2)
 
 group3 = OptionGroup(parser, 'Iteration',
                      description='Iteration')
-group3.add_option('-i', '--iterate', dest='iterate_on', action='append',
+group3.add_option('-I', '--iterate', dest='iterate_on', action='append',
                   help='Iterate the given process, iterating over the given '
                   'parameter(s). Multiple parameters may be iterated joinly '
                   'using several -i options. In the process parameters, '
@@ -331,6 +342,17 @@ if options.studyconfig:
 else:
     study_config = StudyConfig()
     study_config.read_configuration()
+
+if options.input_directory:
+    study_config.input_directory = options.input_directory
+if options.output_directory:
+    study_config.output_directory = options.output_directory
+if study_config.output_directory in (None, Undefined) \
+        and study_config.input_directory not in (None, Undefined):
+    study_config.output_directory = study_config.input_directory
+if study_config.input_directory in (None, Undefined) \
+        and study_config.output_directory not in (None, Undefined):
+    study_config.input_directory = study_config.output_directory
 
 kwre = re.compile('([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
 
