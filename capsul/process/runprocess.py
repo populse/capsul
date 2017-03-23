@@ -106,7 +106,6 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
 
 def run_process_with_distribution(
         study_config, process, use_soma_workflow=False, resource_id=None,
-        login=None,
         password=None, config=None, rsa_key_pass=None, queue=None,
         input_file_processing=None, output_file_processing=None,
         keep_workflow=False, keep_failed_workflow=False):
@@ -121,11 +120,9 @@ def run_process_with_distribution(
     use_soma_workflow: bool or None (default=None)
         if False, run sequentially, otherwise use Soma-Workflow. Its
         configuration has to be setup and valid for non-local execution, and
-        additional login and file transfer options may be used.
+        additional file transfer options may be used.
     resource_id: string (default=None)
         soma-workflow resource ID, defaults to localhost
-    login: string
-        login to use on the remote computing resource
     password: string
         password to access the remote computing resource. Do not specify it if
         using a ssh key.
@@ -154,8 +151,19 @@ def run_process_with_distribution(
     if use_soma_workflow is not None:
         study_config.use_soma_workflow = use_soma_workflow
     if study_config.use_soma_workflow:
-        if resource_id is not None:
-            study_config.somaworkflow_computing_resource = resource_id
+        swm = study_config.modules['SomaWorkflowConfig']
+        resource_id = swm.get_resource_id(resource_id, set_it=True)
+        if password is not None or rsa_key_pass is not None:
+            swm.set_computing_resource_password(resource_id, password,
+                                                rsa_key_pass)
+        if queue is not None:
+            if not hasattr(
+                    study_config.somaworkflow_computing_resources_config,
+                    resource_id):
+                setattr(study_config.somaworkflow_computing_resources_config,
+                        resource_id, {})
+            getattr(study_config.somaworkflow_computing_resources_config,
+                    resource_id).queue = queue
 
     res = study_config.run(process)
     return res
@@ -207,8 +215,6 @@ group2.add_option('--swf', '--soma_workflow', dest='soma_workflow',
                   'may be used')
 group2.add_option('-r', '--resource_id', dest='resource_id', default=None,
                   help='soma-workflow resource ID, defaults to localhost')
-group2.add_option('-u', '--user', dest='login', default=None,
-                  help='login to use on the remote computing resource')
 group2.add_option('-p', '--password', dest='password', default=None,
                   help='password to access the remote computing resource. '
                   'Do not specify it if using a ssh key')
@@ -327,7 +333,6 @@ process = get_process_with_params(process_name, study_config, iterated, *args,
 resource_id = options.resource_id
 login = options.login
 password = options.password
-config = None #options.config
 rsa_key_pass = options.rsa_key_pass
 queue = options.queue
 file_processing = []
@@ -341,7 +346,7 @@ else:
 
 run_process_with_distribution(
     study_config, process, options.soma_workflow, resource_id=resource_id,
-    login=login, password=password, config=config, rsa_key_pass=rsa_key_pass,
+    login=login, password=password, rsa_key_pass=rsa_key_pass,
     queue=queue, input_file_processing=file_processing[0],
     output_file_processing=file_processing[1],
     keep_workflow=options.keep_workflow,
