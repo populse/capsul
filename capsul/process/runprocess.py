@@ -91,7 +91,13 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
 
         pipeline = study_config.get_process_instance(Pipeline)
         pipeline.add_iterative_process('iteration', process, iterated_params)
+        pipeline.autoexport_nodes_parameters(include_optional=True)
         process = pipeline
+
+        # transform iterated attributes into lists if needed
+        for param, value in attributes.items():
+            if not isinstance(value, list) and not isinstance(value, tuple):
+                attributes[param] = list(value)
 
     else:
         # not iterated
