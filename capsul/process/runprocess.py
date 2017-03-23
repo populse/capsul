@@ -56,7 +56,7 @@ import six
 
 
 def get_process_with_params(process_name, study_config, iterated_params=[],
-                            *args, **kwargs):
+                            attributes={}, *args, **kwargs):
     ''' Instantiate a process, or an iteration over processes, and fill in its
     parameters.
 
@@ -69,6 +69,8 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
         parameters names which should be iterated on. If this list is not
         empty, an iteration process is built. All parameters values
         corresponding to the selected names should be lists with the same size.
+    attributes: dict (optional)
+        dictionary of attributes for completion system.
     *args:
         sequential parameters for the process. In iteration, "normal"
         parameters are set with the same value for all iterations, and iterated
@@ -99,15 +101,16 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
             setattr(process, k, arg)
 
     completion_engine = ProcessCompletionEngine.get_completion_engine(process)
+    completion_engine.get_attribute_values().import_from_dict(attributes)
     completion_engine.complete_parameters()
 
     return process
 
 
 def run_process_with_distribution(
-        study_config, process, use_soma_workflow=False, resource_id=None,
-        password=None, config=None, rsa_key_pass=None, queue=None,
-        input_file_processing=None, output_file_processing=None,
+        study_config, process, use_soma_workflow=False,
+        resource_id=None, password=None, config=None, rsa_key_pass=None,
+        queue=None, input_file_processing=None, output_file_processing=None,
         keep_workflow=False, keep_failed_workflow=False):
     ''' Run the given process, either sequentially or distributed through
     Soma-Workflow.
@@ -209,10 +212,12 @@ parser.add_option_group(group1)
 group2 = OptionGroup(parser, 'Processing',
                      description='Processing options, distributed execution')
 group2.add_option('--swf', '--soma_workflow', dest='soma_workflow',
+                  default=False,
                   action='store_true', help='use soma_workflow. Soma-Workflow '
                   'configuration has to be setup and valid for non-local '
-                  'execution, and additional login and file transfer options '
-                  'may be used')
+                  'execution, and additional file transfer options '
+                  'may be used. The default is *not* to use SWF and process'
+                  'mono-processor, sequential execution.')
 group2.add_option('-r', '--resource_id', dest='resource_id', default=None,
                   help='soma-workflow resource ID, defaults to localhost')
 group2.add_option('-p', '--password', dest='password', default=None,
@@ -254,26 +259,36 @@ group3.add_option('-i', '--iterate', dest='iterate_on', action='append',
                   'par_b="something" par_c="[\\"one\\", \\"two\\"]"')
 parser.add_option_group(group3)
 
-#group4 = OptionGroup(parser, 'Help',
-                     #description='Help and documentation options')
-#group4.add_option('--list-processes', dest='list_processes',
+group4 = OptionGroup(parser, 'Attributes completion')
+group4.add_option('-a', '--attribute', dest='attributes', action='append',
+                  default=[],
+                  help='set completion (including FOM) attribute. '
+                  'Syntax: attribute=value, value the same syntax as process '
+                  'parameters (python syntax for lists, for instance), '
+                  'with proper quotes if needed for shell escaping.\n'
+                  'Ex: -a acquisition="default" -a subject=\'["s1", "s2"]\'')
+parser.add_option_group(group4)
+
+group5 = OptionGroup(parser, 'Help',
+                     description='Help and documentation options')
+#group5.add_option('--list-processes', dest='list_processes',
     #action='store_true',
     #help='List processes and exit. sorting / filtering are controlled by the '
     #'following options.')
-#group4.add_option('--sort-by', dest='sort_by',
+#group5.add_option('--sort-by', dest='sort_by',
     #help='List processed by: id, name, toolbox, or role')
-#group4.add_option('--proc-filter', dest='proc_filter', action='append',
+#group5.add_option('--proc-filter', dest='proc_filter', action='append',
     #help='filter processes list. Several filters may be used to setup several '
     #'rules. Rules have the shape: attribute="filter_expr", filter_expr is a '
     #'regex.\n'
     #'Ex: id=".*[Ss]ulci.*"')
-#group4.add_option('--hide-proc-attrib', dest='hide_proc_attrib',
+#group5.add_option('--hide-proc-attrib', dest='hide_proc_attrib',
     #action='append', default=[],
     #help='in processes list, hide selected attribute (several values allowed)')
-#group4.add_option('--process-help', dest='process_help',
-    #action='append',
-    #help='display specified process help')
-#parser.add_option_group(group4)
+group5.add_option('--process-help', dest='process_help',
+    action='append',
+    help='display specified process help')
+parser.add_option_group(group5)
 
 parser.disable_interspersed_args()
 (options, args) = parser.parse_args()
@@ -300,7 +315,8 @@ parser.disable_interspersed_args()
 
 
 if options.studyconfig:
-    study_config = StudyConfig()
+    study_config = StudyConfig(
+        modules=StudyConfig.default_modules + ['FomConfig', 'BrainVISAConfig'])
     if yaml:
         scdict = yaml.load(open(options.studyconfig))
     else:
@@ -310,8 +326,16 @@ else:
     study_config = StudyConfig()
     study_config.read_configuration()
 
-args = tuple((convert_commandline_parameter(i) for i in args))
 kwre = re.compile('([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
+
+attributes = {}
+for att in options.attributes:
+    m = kwre.match(att)
+    if m is None:
+        raise SyntaxError('syntax error in attribute definition: %s' % att)
+    attributes[m.group(1)] = convert_commandline_parameter(m.group(3))
+
+args = tuple((convert_commandline_parameter(i) for i in args))
 kwargs = {}
 todel = []
 for arg in args:
@@ -327,32 +351,37 @@ process_name = args[0]
 args = args[1:]
 
 iterated = options.iterate_on
-process = get_process_with_params(process_name, study_config, iterated, *args,
+process = get_process_with_params(process_name, study_config, iterated,
+                                  attributes=attributes, *args,
                                   **kwargs)
 
+if options.process_help:
+    process.help()
+    sys.exit(0)
+
 resource_id = options.resource_id
-login = options.login
 password = options.password
 rsa_key_pass = options.rsa_key_pass
 queue = options.queue
 file_processing = []
 
-if options.soma_workflow:
+study_config.use_soma_workflow = options.soma_workflow
 
-    study_config.use_soma_workflow = True
+if options.soma_workflow:
+    file_processing = [None, None]
 
 else:
     file_processing = [None, None]
 
-run_process_with_distribution(
+res = run_process_with_distribution(
     study_config, process, options.soma_workflow, resource_id=resource_id,
-    login=login, password=password, rsa_key_pass=rsa_key_pass,
+    password=password, rsa_key_pass=rsa_key_pass,
     queue=queue, input_file_processing=file_processing[0],
     output_file_processing=file_processing[1],
     keep_workflow=options.keep_workflow,
     keep_failed_workflow=options.keep_failed_workflow)
 
 
-sys.exit(neuroConfig.exitValue)
+sys.exit(0)
 
 
