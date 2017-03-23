@@ -319,7 +319,9 @@ class StudyConfig(Controller):
             # soma_workflow modules.
             from soma_workflow import constants as swconstants
             from soma_workflow.utils import Helper
-            self.failed_jobs = Helper.list_failed_jobs(wf_id, controller)
+            self.failed_jobs = Helper.list_failed_jobs(
+                wf_id, controller, include_aborted_jobs=True,
+                include_user_killed_jobs=True)
             #self.failed_jobs = [
                 #element for element in elements_status[0]
                 #if element[1] != swconstants.DONE
