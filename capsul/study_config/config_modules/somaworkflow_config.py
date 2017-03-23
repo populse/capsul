@@ -6,7 +6,7 @@
 # for details.
 ##########################################################################
 
-from traits.api import Bool, Str, Undefined, List, Dict
+from traits.api import Bool, Str, Undefined, List, Dict, File
 from capsul.study_config.study_config import StudyConfigModule
 from soma.controller import Controller, ControllerTrait, OpenKeyController
 
@@ -16,6 +16,11 @@ class SomaWorkflowConfig(StudyConfigModule):
     class ResourceController(Controller):
         def __init__(self):
             super(SomaWorkflowConfig.ResourceController, self).__init__()
+            self.add_trait(
+                'queue',
+                Str(Undefined, output=False,
+                    desc='Jobs queue to be used on the computing resource for '
+                    'workflow submissions'))
             self.add_trait(
                 'transfer_paths', List(
                     [],
@@ -46,15 +51,20 @@ class SomaWorkflowConfig(StudyConfigModule):
                 output=False,
                 desc='Soma-workflow computing resource to be used to run processing'))
         study_config.add_trait(
+            'somaworkflow_config_file',
+            File(Undefined, output=False, optional=True,
+                 desc='Soma-Workflow configuration file. '
+                 'Default: $HOME/.soma_workflow.cfg'))
+        study_config.add_trait(
             'somaworkflow_computing_resources_config',
-                ControllerTrait(
-                    OpenKeyController(
-                        value_trait=ControllerTrait(
-                            SomaWorkflowConfig.ResourceController(),
-                            output=False, allow_none=False,
-                            desc='Computing resource config')),
-                    output=False, allow_none=False,
-                    desc='Computing resource config'))
+            ControllerTrait(
+                OpenKeyController(
+                    value_trait=ControllerTrait(
+                        SomaWorkflowConfig.ResourceController(),
+                        output=False, allow_none=False,
+                        desc='Computing resource config')),
+                output=False, allow_none=False,
+                desc='Computing resource config'))
         self.study_config.modules_data.somaworkflow = {}
 
     def initialize_callbacks(self):
@@ -124,7 +134,10 @@ class SomaWorkflowConfig(StudyConfigModule):
             if wc is not None:
                 return wc
 
-        conf_file = swclient.configuration.Configuration.search_config_path()
+        conf_file = self.study_config.somaworkflow_config_file
+        if conf_file in (None, Undefined):
+            conf_file \
+                = swclient.configuration.Configuration.search_config_path()
         login = swclient.configuration.Configuration.get_logins(
             conf_file).get(resource_id)
         password = getattr(r, 'password', None)
