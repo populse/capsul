@@ -47,10 +47,15 @@ else:
 
 
 class WorkflowExecutionError(Exception):
-    def __init__(self, controller, workflow_id):
+    def __init__(self, controller, workflow_id, workflow_kept=True):
+        wk = ''
+        wc = ''
+        if workflow_kept:
+            wk = 'not '
+            wc = ' from soma_workflow and must be deleted manually'
         super(WorkflowExecutionError, self).__init__('Error during '
-            'workflow execution. The workflow has not been removed '
-            'from soma_workflow and must be deleted manually.')
+            'workflow execution. The workflow has %sbeen removed%s.'
+            % (wk, wc))
         self.controller = controller
         self.workflow_id = workflow_id
 
@@ -329,11 +334,18 @@ class StudyConfig(Controller):
             # if execution was OK, delete the workflow
             if workflow_status == swconstants.WORKFLOW_DONE \
                     and len(self.failed_jobs) == 0:
-                controller.delete_workflow(wf_id)
+                # success
+                if self.somaworkflow_keep_succeeded_workflows:
+                    print('Success. Workflow was kept in database.')
+                else:
+                    controller.delete_workflow(wf_id)
             else:
                 # something went wrong: raise an exception containing
                 # controller object and workflow id.
-                raise WorkflowExecutionError(controller, wf_id)
+                if not self.somaworkflow_keep_failed_workflows:
+                    controller.delete_workflow(wf_id)
+                raise WorkflowExecutionError(
+                    controller, wf_id, self.somaworkflow_keep_failed_workflows)
 
         # Use the local machine to execute the pipeline or process
         else:
