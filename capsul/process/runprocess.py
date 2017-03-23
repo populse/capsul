@@ -253,14 +253,15 @@ group2.add_option('--input-processing', dest='input_file_processing',
 group2.add_option('--output-processing', dest='output_file_processing',
                   default=None, help='Output files processing: local_path, '
                   'transfer, or translate. The default is local_path.')
-group2.add_option('--keep-workflow', dest='keep_workflow', action='store_true',
+group2.add_option('--keep-succeeded-workflow', dest='keep_succeded_workflow',
+                  action='store_true', default=False,
                   help='keep the workflow in the computing resource database '
                   'after execution. By default it is removed.')
-group2.add_option('--keep-failed-workflow', dest='keep_failed_workflow',
-                  action='store_true',
-                  help='keep the workflow in the computing resource database '
-                  'after execution, if it has failed. By default it is '
-                  'removed.')
+group2.add_option('--delete-failed-workflow', dest='delete_failed_workflow',
+                  action='store_true', default=False,
+                  help='delete the workflow in the computing resource '
+                  'database after execution, if it has failed. By default it '
+                  'is kept.')
 parser.add_option_group(group2)
 
 group3 = OptionGroup(parser, 'Iteration',
@@ -353,6 +354,10 @@ if study_config.output_directory in (None, Undefined) \
 if study_config.input_directory in (None, Undefined) \
         and study_config.output_directory not in (None, Undefined):
     study_config.input_directory = study_config.output_directory
+study_config.somaworkflow_keep_succeeded_workflows \
+    = options.keep_succeded_workflow
+study_config.somaworkflow_keep_failed_workflows \
+    = not options.delete_failed_workflow
 
 kwre = re.compile('([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
 
@@ -405,9 +410,7 @@ res = run_process_with_distribution(
     study_config, process, options.soma_workflow, resource_id=resource_id,
     password=password, rsa_key_pass=rsa_key_pass,
     queue=queue, input_file_processing=file_processing[0],
-    output_file_processing=file_processing[1],
-    keep_workflow=options.keep_workflow,
-    keep_failed_workflow=options.keep_failed_workflow)
+    output_file_processing=file_processing[1])
 
 
 sys.exit(0)
