@@ -56,6 +56,18 @@ class SomaWorkflowConfig(StudyConfigModule):
                  desc='Soma-Workflow configuration file. '
                  'Default: $HOME/.soma_workflow.cfg'))
         study_config.add_trait(
+            'somaworkflow_keep_failed_workflows',
+            Bool(
+                True,
+                desc='Keep failed workflows after pipeline execution through '
+                'StudyConfig'))
+        study_config.add_trait(
+            'somaworkflow_keep_succeeded_workflows',
+            Bool(
+                False,
+                desc='Keep succeeded workflows after pipeline execution '
+                'through StudyConfig'))
+        study_config.add_trait(
             'somaworkflow_computing_resources_config',
             ControllerTrait(
                 OpenKeyController(
