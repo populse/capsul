@@ -1068,7 +1068,17 @@ def workflow_run(workflow_name, workflow, study_config):
     swm = study_config.modules['SomaWorkflowConfig']
     swm.connect_resource()
     controller = swm.get_workflow_controller()
-    wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name)
+    resource_id = swm.get_resource_id()
+    queue = None
+    if hasattr(study_config.somaworkflow_computing_resources_config,
+               resource_id):
+        res_conf = getattr(
+            study_config.somaworkflow_computing_resources_config, resource_id)
+        queue = res_conf.queue
+        if queue is Undefined:
+            queue = None
+    wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name,
+                                       queue=queue)
     swclient.Helper.transfer_input_files(wf_id, controller)
     swclient.Helper.wait_workflow(wf_id, controller)
     # TODO: should we transfer if the WF fails ?
