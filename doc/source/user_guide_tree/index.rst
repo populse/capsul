@@ -70,16 +70,6 @@ The program is a python module/script:
 
     python -m capsul <parameters>
 
-.. note:: unstability warning
-
-    On some systems, depending on the Python installation, calling ``python -m capsul --swf <pipeline>`` may end up with hangups in workflow executions. To work correctly on Linux, it needs the Python `subprocess32 <https://github.com/google/python-subprocess32>`_ to be installed to overcome unstabilities in python2 ``subprocess`` module in a multi-threaded environment. We have found out that calling the commandline the following way does not trigger such problems:
-
-    .. code-block:: bash
-
-        python -m capsul.process.runprocess <parameters>
-
-    It is actually the same python module/script, called a different way, and we do not understand in which it differs. But obviously, it does.
-
 It can accept a variety of options to controll configuration settings, processing modes, iterations, and process parameters either through file names or via attributes and paramters completion system.
 
 To get help, you may run it with the ``-h`` or ``--help`` option:
