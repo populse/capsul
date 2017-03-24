@@ -26,8 +26,7 @@ tests_no_files = [
 [[(),{}],[
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         "use_fsl": False,
@@ -48,8 +47,7 @@ tests_no_files = [
 [[('my_study',), {}],[
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         "use_fsl": False,
@@ -70,8 +68,7 @@ tests_no_files = [
 [[('other_study',), {}],[
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         "use_fsl": False,
@@ -99,8 +96,7 @@ tests_no_files = [
 [[(),dict(modules=['SomaWorkflowConfig'])], [
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         'use_soma_workflow': False,
@@ -114,8 +110,7 @@ tests_no_files = [
                                   'FreeSurferConfig', 'BrainVISAConfig'])],[
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         "use_fsl": False,
@@ -146,8 +141,7 @@ tests_standard_files = [
 [[(),{}],[
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         "use_fsl": False,
@@ -170,8 +164,7 @@ tests_standard_files = [
         'shared_fom': "",
         'input_fom': "",
         'somaworkflow_computing_resources_config': {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         'generate_logging': False,
         "shared_directory": soma.config.BRAINVISA_SHARE,
@@ -195,8 +188,7 @@ tests_standard_files = [
 [[('other_study',), {}],[
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         'use_fsl': False,
@@ -228,8 +220,7 @@ tests_standard_files = [
 [[(),dict(modules=['SomaWorkflowConfig'])], [
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         'use_soma_workflow': False,
@@ -249,8 +240,7 @@ tests_custom_files = [
 [[(),{}],[
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         'use_fsl': False,
@@ -272,8 +262,7 @@ tests_custom_files = [
         'shared_fom': "",
         'input_fom': "",
         'somaworkflow_computing_resources_config': {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         'generate_logging': False,
         "shared_directory": soma.config.BRAINVISA_SHARE,
@@ -297,8 +286,7 @@ tests_custom_files = [
 [[('other_study',), {}],[
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         'use_fsl': False,
@@ -329,8 +317,7 @@ tests_custom_files = [
 [[(),dict(modules=['SomaWorkflowConfig'])], [
     {
         "somaworkflow_computing_resources_config": {},
-        "somaworkflow_config_file": Undefined,
-        "somaworkflow_keep_succedded_workflows": False,
+        "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
         'use_soma_workflow': False,
