@@ -12,7 +12,10 @@ from __future__ import print_function
 import os
 import logging
 import tempfile
-import subprocess
+try:
+    import subprocess32 as subprocess
+except ImportError:
+    import subprocess
 import six
 import sys
 

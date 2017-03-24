@@ -13,7 +13,10 @@ from socket import getfqdn
 from datetime import datetime as datetime
 from copy import deepcopy
 import json
-import subprocess
+try:
+    import subprocess32 as subprocess
+except ImportError:
+    import subprocess
 import logging
 import shutil
 import six
