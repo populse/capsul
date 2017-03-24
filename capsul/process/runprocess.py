@@ -304,7 +304,7 @@ group5 = OptionGroup(parser, 'Help',
     #action='append', default=[],
     #help='in processes list, hide selected attribute (several values allowed)')
 group5.add_option('--process-help', dest='process_help',
-    action='append',
+    action='store_true', default=False,
     help='display specified process help')
 parser.add_option_group(group5)
 
