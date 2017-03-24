@@ -191,218 +191,231 @@ def convert_commandline_parameter(i):
 
 
 # main
+def main():
 
-usage = '''Usage: python -m capsul [options] processname [arg1] [arg2] ... [argx=valuex] [argy=valuey] ...
+    usage = '''Usage: python -m capsul [options] processname [arg1] [arg2] ...
+    [argx=valuex] [argy=valuey] ...
 
-Example:
-python -m capsul threshold ~/data/irm.ima /tmp/th.nii threshold1=80
+    Example:
+    python -m capsul threshold ~/data/irm.ima /tmp/th.nii threshold1=80
 
-Named arguments (in the shape argx=valuex) may address sub-processes of a pipeline, using the dot separator:
+    Named arguments (in the shape argx=valuex) may address sub-processes of a
+    pipeline, using the dot separator:
 
-PrepareSubject.t1mri=/home/myself/mymri.nii
+    PrepareSubject.t1mri=/home/myself/mymri.nii
 
-For a more precise description, please look at the web documentation:
-http://brainvisa.info/capsul/user_doc/axon_manual2.html#brainvisa-commandline
-'''
+    For a more precise description, please look at the web documentation:
+    http://brainvisa.info/capsul/user_doc/user_guide_tree/index.html
+    '''
 
-parser = OptionParser(description='Run a single CAPSUL process',
-    usage=usage)
-group1 = OptionGroup(parser, 'Config',
-                     description='Processing configuration, database options')
-group1.add_option('--studyconfig', dest='studyconfig',
-    help='load StudyConfig configuration from the given file (JSON)')
-group1.add_option('-i', '--input', dest='input_directory',
-                  help='input data directory (if not specified in '
-                  'studyconfig file). If not specified neither on the '
-                  'commandline nor study configfile, taken as the same as '
-                  'output.')
-group1.add_option('-o', '--output', dest='output_directory',
-                  help='output data directory (if not specified in '
-                  'studyconfig file). If not specified neither on the '
-                  'commandline nor study configfile, taken as the same as '
-                  'input.')
-parser.add_option_group(group1)
+    parser = OptionParser(description='Run a single CAPSUL process',
+        usage=usage)
+    group1 = OptionGroup(
+        parser, 'Config',
+        description='Processing configuration, database options')
+    group1.add_option('--studyconfig', dest='studyconfig',
+        help='load StudyConfig configuration from the given file (JSON)')
+    group1.add_option('-i', '--input', dest='input_directory',
+                      help='input data directory (if not specified in '
+                      'studyconfig file). If not specified neither on the '
+                      'commandline nor study configfile, taken as the same as '
+                      'output.')
+    group1.add_option('-o', '--output', dest='output_directory',
+                      help='output data directory (if not specified in '
+                      'studyconfig file). If not specified neither on the '
+                      'commandline nor study configfile, taken as the same as '
+                      'input.')
+    parser.add_option_group(group1)
 
-group2 = OptionGroup(parser, 'Processing',
-                     description='Processing options, distributed execution')
-group2.add_option('--swf', '--soma_workflow', dest='soma_workflow',
-                  default=False,
-                  action='store_true', help='use soma_workflow. Soma-Workflow '
-                  'configuration has to be setup and valid for non-local '
-                  'execution, and additional file transfer options '
-                  'may be used. The default is *not* to use SWF and process'
-                  'mono-processor, sequential execution.')
-group2.add_option('-r', '--resource_id', dest='resource_id', default=None,
-                  help='soma-workflow resource ID, defaults to localhost')
-group2.add_option('-p', '--password', dest='password', default=None,
-                  help='password to access the remote computing resource. '
-                  'Do not specify it if using a ssh key')
-group2.add_option('--rsa-pass', dest='rsa_key_pass', default=None,
-                  help='RSA key password, for ssh key access')
-group2.add_option('--queue', dest='queue', default=None,
-                  help='Queue to use on the computing resource. If not '
-                  'specified, use the default queue.')
-#group2.add_option('--input-processing', dest='input_file_processing',
-                  #default=None, help='Input files processing: local_path, '
-                  #'transfer, translate, or translate_shared. The default is '
-                  #'local_path if the computing resource is the localhost, or '
-                  #'translate_shared otherwise.')
-#group2.add_option('--output-processing', dest='output_file_processing',
-                  #default=None, help='Output files processing: local_path, '
-                  #'transfer, or translate. The default is local_path.')
-group2.add_option('--keep-succeeded-workflow', dest='keep_succeded_workflow',
-                  action='store_true', default=False,
-                  help='keep the workflow in the computing resource database '
-                  'after execution. By default it is removed.')
-group2.add_option('--delete-failed-workflow', dest='delete_failed_workflow',
-                  action='store_true', default=False,
-                  help='delete the workflow in the computing resource '
-                  'database after execution, if it has failed. By default it '
-                  'is kept.')
-parser.add_option_group(group2)
+    group2 = OptionGroup(parser, 'Processing',
+                        description='Processing options, distributed execution')
+    group2.add_option('--swf', '--soma_workflow', dest='soma_workflow',
+                      default=False,
+                      action='store_true',
+                      help='use soma_workflow. Soma-Workflow '
+                      'configuration has to be setup and valid for non-local '
+                      'execution, and additional file transfer options '
+                      'may be used. The default is *not* to use SWF and '
+                      'process mono-processor, sequential execution.')
+    group2.add_option('-r', '--resource_id', dest='resource_id', default=None,
+                      help='soma-workflow resource ID, defaults to localhost')
+    group2.add_option('-p', '--password', dest='password', default=None,
+                      help='password to access the remote computing resource. '
+                      'Do not specify it if using a ssh key')
+    group2.add_option('--rsa-pass', dest='rsa_key_pass', default=None,
+                      help='RSA key password, for ssh key access')
+    group2.add_option('--queue', dest='queue', default=None,
+                      help='Queue to use on the computing resource. If not '
+                      'specified, use the default queue.')
+    #group2.add_option('--input-processing', dest='input_file_processing',
+                      #default=None, help='Input files processing: local_path, '
+                      #'transfer, translate, or translate_shared. The default is '
+                      #'local_path if the computing resource is the localhost, or '
+                      #'translate_shared otherwise.')
+    #group2.add_option('--output-processing', dest='output_file_processing',
+                      #default=None, help='Output files processing: local_path, '
+                      #'transfer, or translate. The default is local_path.')
+    group2.add_option('--keep-succeeded-workflow', dest='keep_succeded_workflow',
+                      action='store_true', default=False,
+                      help='keep the workflow in the computing resource '
+                      'database after execution. By default it is removed.')
+    group2.add_option('--delete-failed-workflow', dest='delete_failed_workflow',
+                      action='store_true', default=False,
+                      help='delete the workflow in the computing resource '
+                      'database after execution, if it has failed. By default '
+                      'it is kept.')
+    parser.add_option_group(group2)
 
-group3 = OptionGroup(parser, 'Iteration',
-                     description='Iteration')
-group3.add_option('-I', '--iterate', dest='iterate_on', action='append',
-                  help='Iterate the given process, iterating over the given '
-                  'parameter(s). Multiple parameters may be iterated joinly '
-                  'using several -i options. In the process parameters, '
-                  'values are replaced by lists, all iterated lists should '
-                  'have the same size.\n'
-                  'Ex:\n'
-                  'axon-runprocess -i par_a -i par_c a_process par_a="[1, 2]" '
-                  'par_b="something" par_c="[\\"one\\", \\"two\\"]"')
-parser.add_option_group(group3)
+    group3 = OptionGroup(parser, 'Iteration',
+                        description='Iteration')
+    group3.add_option('-I', '--iterate', dest='iterate_on', action='append',
+                      help='Iterate the given process, iterating over the '
+                      'given parameter(s). Multiple parameters may be '
+                      'iterated jointly using several -I options. In the '
+                      'process parameters, values are replaced by lists, all '
+                      'iterated lists should have the same size.\n'
+                      'Ex:\n'
+                      'python -m capsul -I par_a -I par_c a_process '
+                      'par_a="[1, 2]" par_b="something" '
+                      'par_c="[\\"one\\", \\"two\\"]"')
+    parser.add_option_group(group3)
 
-group4 = OptionGroup(parser, 'Attributes completion')
-group4.add_option('-a', '--attribute', dest='attributes', action='append',
-                  default=[],
-                  help='set completion (including FOM) attribute. '
-                  'Syntax: attribute=value, value the same syntax as process '
-                  'parameters (python syntax for lists, for instance), '
-                  'with proper quotes if needed for shell escaping.\n'
-                  'Ex: -a acquisition="default" -a subject=\'["s1", "s2"]\'')
-parser.add_option_group(group4)
+    group4 = OptionGroup(parser, 'Attributes completion')
+    group4.add_option('-a', '--attribute', dest='attributes', action='append',
+                      default=[],
+                      help='set completion (including FOM) attribute. '
+                      'Syntax: attribute=value, value the same syntax as '
+                      'process parameters (python syntax for lists, for '
+                      'instance), with proper quotes if needed for shell '
+                      'escaping.\n'
+                      'Ex: -a acquisition="default" '
+                      '-a subject=\'["s1", "s2"]\'')
+    parser.add_option_group(group4)
 
-group5 = OptionGroup(parser, 'Help',
-                     description='Help and documentation options')
-group5.add_option('--process-help', dest='process_help',
-    action='store_true', default=False,
-    help='display specified process help')
-parser.add_option_group(group5)
+    group5 = OptionGroup(parser, 'Help',
+                        description='Help and documentation options')
+    group5.add_option('--process-help', dest='process_help',
+        action='store_true', default=False,
+        help='display specified process help')
+    parser.add_option_group(group5)
 
-parser.disable_interspersed_args()
-(options, args) = parser.parse_args()
+    parser.disable_interspersed_args()
+    (options, args) = parser.parse_args()
 
-if options.studyconfig:
-    study_config = StudyConfig(
-        modules=StudyConfig.default_modules + ['FomConfig', 'BrainVISAConfig'])
-    if yaml:
-        scdict = yaml.load(open(options.studyconfig))
+    if options.studyconfig:
+        study_config = StudyConfig(
+            modules=StudyConfig.default_modules
+                + ['FomConfig', 'BrainVISAConfig'])
+        if yaml:
+            scdict = yaml.load(open(options.studyconfig))
+        else:
+            scdict = json.load(open(options.studyconfig))
+        study_config.set_study_configuration(scdict)
     else:
-        scdict = json.load(open(options.studyconfig))
-    study_config.set_study_configuration(scdict)
-else:
-    study_config = StudyConfig()
-    study_config.read_configuration()
+        study_config = StudyConfig()
+        study_config.read_configuration()
 
-if options.input_directory:
-    study_config.input_directory = options.input_directory
-if options.output_directory:
-    study_config.output_directory = options.output_directory
-if study_config.output_directory in (None, Undefined) \
-        and study_config.input_directory not in (None, Undefined):
-    study_config.output_directory = study_config.input_directory
-if study_config.input_directory in (None, Undefined) \
-        and study_config.output_directory not in (None, Undefined):
-    study_config.input_directory = study_config.output_directory
-study_config.somaworkflow_keep_succeeded_workflows \
-    = options.keep_succeded_workflow
-study_config.somaworkflow_keep_failed_workflows \
-    = not options.delete_failed_workflow
+    if options.input_directory:
+        study_config.input_directory = options.input_directory
+    if options.output_directory:
+        study_config.output_directory = options.output_directory
+    if study_config.output_directory in (None, Undefined) \
+            and study_config.input_directory not in (None, Undefined):
+        study_config.output_directory = study_config.input_directory
+    if study_config.input_directory in (None, Undefined) \
+            and study_config.output_directory not in (None, Undefined):
+        study_config.input_directory = study_config.output_directory
+    study_config.somaworkflow_keep_succeeded_workflows \
+        = options.keep_succeded_workflow
+    study_config.somaworkflow_keep_failed_workflows \
+        = not options.delete_failed_workflow
 
-kwre = re.compile('([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
+    kwre = re.compile('([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
 
-attributes = {}
-for att in options.attributes:
-    m = kwre.match(att)
-    if m is None:
-        raise SyntaxError('syntax error in attribute definition: %s' % att)
-    attributes[m.group(1)] = convert_commandline_parameter(m.group(3))
+    attributes = {}
+    for att in options.attributes:
+        m = kwre.match(att)
+        if m is None:
+            raise SyntaxError('syntax error in attribute definition: %s' % att)
+        attributes[m.group(1)] = convert_commandline_parameter(m.group(3))
 
-args = tuple((convert_commandline_parameter(i) for i in args))
-kwargs = {}
-todel = []
-for arg in args:
-    if type(arg) in types.StringTypes:
-        m = kwre.match(arg)
-        if m is not None:
-            kwargs[m.group(1)] = convert_commandline_parameter(m.group(3))
-            todel.append(arg)
-args = [arg for arg in args if arg not in todel]
+    args = tuple((convert_commandline_parameter(i) for i in args))
+    kwargs = {}
+    todel = []
+    for arg in args:
+        if type(arg) in types.StringTypes:
+            m = kwre.match(arg)
+            if m is not None:
+                kwargs[m.group(1)] = convert_commandline_parameter(m.group(3))
+                todel.append(arg)
+    args = [arg for arg in args if arg not in todel]
 
-# get the main process
-process_name = args[0]
-args = args[1:]
+    # get the main process
+    process_name = args[0]
+    args = args[1:]
 
-iterated = options.iterate_on
-process = get_process_with_params(process_name, study_config, iterated,
-                                  attributes=attributes, *args,
-                                  **kwargs)
+    iterated = options.iterate_on
+    process = get_process_with_params(process_name, study_config, iterated,
+                                      attributes=attributes, *args,
+                                      **kwargs)
 
-if options.process_help:
-    process.help()
+    if options.process_help:
+        process.help()
 
-    print()
+        print()
 
-    completion_engine = ProcessCompletionEngine.get_completion_engine(process)
-    attribs = completion_engine.get_attribute_values()
-    aval = attribs.export_to_dict()
-    print('Completion attributes:')
-    print('----------------------')
-    print()
-    print('(note: may differ depending on study config file contents, '
-          'completion rules (FOM)...)')
-    print()
+        completion_engine \
+            = ProcessCompletionEngine.get_completion_engine(process)
+        attribs = completion_engine.get_attribute_values()
+        aval = attribs.export_to_dict()
+        print('Completion attributes:')
+        print('----------------------')
+        print()
+        print('(note: may differ depending on study config file contents, '
+              'completion rules (FOM)...)')
+        print()
 
-    skipped = set(['generated_by_parameter', 'generated_by_process'])
-    for name, value in six.iteritems(aval):
-        if name in skipped:
-            continue
-        ttype = attribs.trait(name).trait_type.__class__.__name__
-        if isinstance(attribs.trait(name).trait_type, List):
-            ttype += '(%s)' \
-                % attribs.trait(name).inner_traits[
-                    0].trait_type.__class__.__name__
-        print('%s:' % name, ttype)
-        if value not in (None, Undefined):
-            print('   ', value)
+        skipped = set(['generated_by_parameter', 'generated_by_process'])
+        for name, value in six.iteritems(aval):
+            if name in skipped:
+                continue
+            ttype = attribs.trait(name).trait_type.__class__.__name__
+            if isinstance(attribs.trait(name).trait_type, List):
+                ttype += '(%s)' \
+                    % attribs.trait(name).inner_traits[
+                        0].trait_type.__class__.__name__
+            print('%s:' % name, ttype)
+            if value not in (None, Undefined):
+                print('   ', value)
 
-    print()
-    del aval, attribs, completion_engine, process
+        print()
+        del aval, attribs, completion_engine, process
+        sys.exit(0)
+
+    resource_id = options.resource_id
+    password = options.password
+    rsa_key_pass = options.rsa_key_pass
+    queue = options.queue
+    file_processing = []
+
+    study_config.use_soma_workflow = options.soma_workflow
+
+    if options.soma_workflow:
+        file_processing = [None, None]
+
+    else:
+        file_processing = [None, None]
+
+    res = run_process_with_distribution(
+        study_config, process, options.soma_workflow, resource_id=resource_id,
+        password=password, rsa_key_pass=rsa_key_pass,
+        queue=queue, input_file_processing=file_processing[0],
+        output_file_processing=file_processing[1])
+
+
     sys.exit(0)
 
-resource_id = options.resource_id
-password = options.password
-rsa_key_pass = options.rsa_key_pass
-queue = options.queue
-file_processing = []
 
-study_config.use_soma_workflow = options.soma_workflow
-
-if options.soma_workflow:
-    file_processing = [None, None]
-
-else:
-    file_processing = [None, None]
-
-res = run_process_with_distribution(
-    study_config, process, options.soma_workflow, resource_id=resource_id,
-    password=password, rsa_key_pass=rsa_key_pass,
-    queue=queue, input_file_processing=file_processing[0],
-    output_file_processing=file_processing[1])
-
-
-sys.exit(0)
-
+if __name__ == '__main__':
+    main()
 
