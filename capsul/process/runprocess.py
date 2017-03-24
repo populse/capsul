@@ -47,7 +47,7 @@ from capsul.attributes.completion_engine import ProcessCompletionEngine
 
 import sys, re, types
 from optparse import OptionParser, OptionGroup
-from traits.api import Undefined
+from traits.api import Undefined, List
 try:
     import yaml
 except ImportError:
@@ -221,9 +221,6 @@ group1.add_option('-o', '--output', dest='output_directory',
                   'studyconfig file). If not specified neither on the '
                   'commandline nor study configfile, taken as the same as '
                   'input.')
-#group1.add_option('--enablegui', dest='enablegui', action='store_true',
-    #default=False,
-    #help='enable graphical user interface for interactive processes')
 parser.add_option_group(group1)
 
 group2 = OptionGroup(parser, 'Processing',
@@ -245,14 +242,14 @@ group2.add_option('--rsa-pass', dest='rsa_key_pass', default=None,
 group2.add_option('--queue', dest='queue', default=None,
                   help='Queue to use on the computing resource. If not '
                   'specified, use the default queue.')
-group2.add_option('--input-processing', dest='input_file_processing',
-                  default=None, help='Input files processing: local_path, '
-                  'transfer, translate, or translate_shared. The default is '
-                  'local_path if the computing resource is the localhost, or '
-                  'translate_shared otherwise.')
-group2.add_option('--output-processing', dest='output_file_processing',
-                  default=None, help='Output files processing: local_path, '
-                  'transfer, or translate. The default is local_path.')
+#group2.add_option('--input-processing', dest='input_file_processing',
+                  #default=None, help='Input files processing: local_path, '
+                  #'transfer, translate, or translate_shared. The default is '
+                  #'local_path if the computing resource is the localhost, or '
+                  #'translate_shared otherwise.')
+#group2.add_option('--output-processing', dest='output_file_processing',
+                  #default=None, help='Output files processing: local_path, '
+                  #'transfer, or translate. The default is local_path.')
 group2.add_option('--keep-succeeded-workflow', dest='keep_succeded_workflow',
                   action='store_true', default=False,
                   help='keep the workflow in the computing resource database '
@@ -289,20 +286,6 @@ parser.add_option_group(group4)
 
 group5 = OptionGroup(parser, 'Help',
                      description='Help and documentation options')
-#group5.add_option('--list-processes', dest='list_processes',
-    #action='store_true',
-    #help='List processes and exit. sorting / filtering are controlled by the '
-    #'following options.')
-#group5.add_option('--sort-by', dest='sort_by',
-    #help='List processed by: id, name, toolbox, or role')
-#group5.add_option('--proc-filter', dest='proc_filter', action='append',
-    #help='filter processes list. Several filters may be used to setup several '
-    #'rules. Rules have the shape: attribute="filter_expr", filter_expr is a '
-    #'regex.\n'
-    #'Ex: id=".*[Ss]ulci.*"')
-#group5.add_option('--hide-proc-attrib', dest='hide_proc_attrib',
-    #action='append', default=[],
-    #help='in processes list, hide selected attribute (several values allowed)')
 group5.add_option('--process-help', dest='process_help',
     action='store_true', default=False,
     help='display specified process help')
@@ -310,27 +293,6 @@ parser.add_option_group(group5)
 
 parser.disable_interspersed_args()
 (options, args) = parser.parse_args()
-
-#if options.enablegui:
-    #neuroConfig.gui = True
-    #from soma.qt_gui.qt_backend import QtGui
-    #qapp = QtGui.QApplication([])
-
-#if options.list_processes:
-    #sort_by = options.sort_by
-    #if not sort_by:
-        #sort_by = 'id'
-    #else: print('sort-by:', sort_by)
-    #processinfo.process_list_help(sort_by, sys.stdout,
-                                  #proc_filter=options.proc_filter,
-                                  #hide=options.hide_proc_attrib)
-    #sys.exit(0)
-
-#if options.process_help:
-    #for process in options.process_help:
-        #processinfo.process_help(process)
-    #sys.exit(0)
-
 
 if options.studyconfig:
     study_config = StudyConfig(
@@ -390,6 +352,34 @@ process = get_process_with_params(process_name, study_config, iterated,
 
 if options.process_help:
     process.help()
+
+    print()
+
+    completion_engine = ProcessCompletionEngine.get_completion_engine(process)
+    attribs = completion_engine.get_attribute_values()
+    aval = attribs.export_to_dict()
+    print('Completion attributes:')
+    print('----------------------')
+    print()
+    print('(note: may differ depending on study config file contents, '
+          'completion rules (FOM)...)')
+    print()
+
+    skipped = set(['generated_by_parameter', 'generated_by_process'])
+    for name, value in six.iteritems(aval):
+        if name in skipped:
+            continue
+        ttype = attribs.trait(name).trait_type.__class__.__name__
+        if isinstance(attribs.trait(name).trait_type, List):
+            ttype += '(%s)' \
+                % attribs.trait(name).inner_traits[
+                    0].trait_type.__class__.__name__
+        print('%s:' % name, ttype)
+        if value not in (None, Undefined):
+            print('   ', value)
+
+    print()
+    del aval, attribs, completion_engine, process
     sys.exit(0)
 
 resource_id = options.resource_id
