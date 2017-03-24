@@ -427,8 +427,9 @@ div.highlight a {
 }
 
 div.note {
-    background-color: #eee;
-    border: 1px solid #ccc;
+    background-color: #ffc0c0;
+    border: 1px solid #944;
+    color: #884
 }
 
 div.seealso {
@@ -1224,3 +1225,5 @@ img.pipeline {
 input.search-header {
     margin-bottom: 0px;
 }
+
+

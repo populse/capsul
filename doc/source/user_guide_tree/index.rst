@@ -59,6 +59,66 @@ Execution options: Soma-Workflow
 Running
 #######
 
+Running as commandline
+======================
+
+CAPSUL has a commandline program to run any process, pipeline, or process iteration. It can be used from a shell, or a script. It allows to run locally, either sequentially or in parallel, or on a remote processing server using Soma-Workflow.
+
+The program is a python module/script:
+
+.. code-block:: bash
+
+    python -m capsul <parameters>
+
+.. note:: unstability warning
+
+    On some systems, depending on the Python installation, calling ``python -m capsul --swf <pipeline>`` may end up with hangups in workflow executions. To work correctly on Linux, it needs the Python `subprocess32 <https://github.com/google/python-subprocess32>`_ to be installed to overcome unstabilities in python2 ``subprocess`` module in a multi-threaded environment. We have found out that calling the commandline the following way does not trigger such problems:
+
+    .. code-block:: bash
+
+        python -m capsul.process.runprocess <parameters>
+
+    It is actually the same python module/script, called a different way, and we do not understand in which it differs. But obviously, it does.
+
+It can accept a variety of options to controll configuration settings, processing modes, iterations, and process parameters either through file names or via attributes and paramters completion system.
+
+To get help, you may run it with the ``-h`` or ``--help`` option:
+
+.. code-block:: bash
+
+    python -m capsul -h
+
+**Ex:**
+
+.. code-block:: bash
+
+    python -m capsul --swf -i /home/data/study_data --studyconfig /home/data/study_data/study_config.json -a subject=subjet01 -a center=subjects morphologist.capsul.morphologist.Morphologist
+
+will run the Morphologist pipeline on data located in the directory ``/home/data/study_data`` using Soma-Workflow on the local computer, for subject ``subject01``
+
+**Ex with iteration:**
+
+.. code-block:: bash
+
+    python -m capsul --swf -i /home/data/study_data --studyconfig /home/data/study_data/study_config.json -a subject='["subjet01", "subject02", "subject03"]' -a center=subjects -I t1mri morphologist.capsul.morphologist.Morphologist
+
+will iterate the same process 3 times, for 3 different subjects.
+
+To work correctly, StudyConfig settings have to be correctly defined in ``study_config.json`` including FOM completion parameters, external software, formats, etc.
+
+Alternatively, or in addition to attributes, it is possible to pass process parameters as additional options after the process name. They can be passed either as positional arguments (given in the order the process expects), or as "keyword" arguments:
+
+.. code-block:: bash
+
+  python -m capsul --swf -i /home/data/study_data --studyconfig /home/data/study_data/study_config.json -a subject=subjet01 -a center=subjects morphologist.capsul.morphologist.Morphologist /home/data/raw_data/subject01.nii.gz pipeline_steps='{"importation": True, "orientation": True}'
+
+To get help about a process, its parameters, and available attributes to control its completion:
+
+.. code-block:: bash
+
+  python -m capsul --process-help morphologist.capsul.morphologist.Morphologist
+
+
 Simple, sequential execution
 ============================
 
@@ -68,8 +128,8 @@ Distributed execution
 Running on-the-fly using StudyConfig
 ------------------------------------
 
-Generating and saviong workflows
---------------------------------
+Generating and saving workflows
+-------------------------------
 
 
 Parameters completion
