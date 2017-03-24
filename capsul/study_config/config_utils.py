@@ -9,7 +9,10 @@
 # System import
 import os
 import re
-import subprocess
+try:
+    import subprocess32 as subprocess
+except ImportError:
+    import subprocess
 import logging
 
 # Define the logger
