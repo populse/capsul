@@ -65,9 +65,14 @@
           </div>
         </li>
         <li>
-          <form action="search.html" method="get" style="display: inline-block;"></form>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
             <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
             <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
           </form>
         </li>
       </ul>

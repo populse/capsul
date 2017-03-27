@@ -48,7 +48,8 @@ extensions = [ 'sphinx.ext.autodoc',
                'sphinx.ext.ifconfig',
                'sphinx.ext.autosummary',
                'sphinx.ext.viewcode',
-               'numpy_ext.numpydoc'
+               'numpy_ext.numpydoc',
+               'sphinx.ext.extlinks',
              ]
 
 # Remove some numpy-linked warnings
@@ -239,6 +240,16 @@ latex_documents = [
 # If false, no module index is generated.
 #latex_use_modindex = True
 
+try:
+    from soma_workflow import info as swinfo
+    swf_version = '-%d.%d' % (swinfo.version_major, swinfo.version_minor)
+except:
+    swf_version = ''
+
+extlinks = {
+  'somaworkflow': ('../soma-workflow' + swf_version + '/sphinx/%s',
+    'anatomist '),
+}
 
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {'http://docs.python.org/': None}

@@ -1228,11 +1228,11 @@ input.search-header {
     background-color: #ffe0b0;
 }
 
-label, select, button, input[type="button"], input[type="reset"], input[type="submit"], input[type="radio"], input[type="checkbox"] {
-    height: 28px;
+label, select, button, input[type="button"], input[type="reset"], input[class="submit"], input[type="radio"], input[type="checkbox"] {
+    height: 26px;
     background-color: #ffc890;
-    border-color: #ffc890;
-    border-radius: 20px;
+    border-color: #fff0e0;
+    border-radius: 15px;
 }
 
 
@@ -1279,5 +1279,7 @@ a .viewcode-link {
     color: #666;
 }
 
-
+// table.docutils.field-list {
+//     width: 100%;
+// }
 
