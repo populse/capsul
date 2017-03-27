@@ -92,7 +92,7 @@ div.navbar ul li a:hover {
 }
 
 div.navbar ul li a:hover {
-    color: #EEE;
+    color: #f88;
 }
 
 /*-------------------------------------------------------------*/
@@ -279,7 +279,7 @@ div.sphinxsidebarwrapper {
 {% if theme_collapsiblesidebar|tobool %}
 /* for collapsible sidebar */
 div#sidebarbutton {
-    background-color: #F6F6F6;
+    background-color: #a03038;
     position: relative;
 }
 {% endif %}
@@ -477,7 +477,7 @@ p.admonition-title:after {
 
 pre {
     padding: 10px;
-    background-color: #ffffb3;
+    background-color: #ffa090;
     color: #222;
     line-height: 1.2em;
     border: 1px solid #ddd;
@@ -857,7 +857,7 @@ div.box h2 p em {
 div.box blockquote {
   padding: 0 0 0 15px;
   margin: 0 0 20px;
-  border-left: 5px solid #eeeeee;
+  border-left: 5px solid #f0e090;
   color: #fffbbb;
 }
 
@@ -1224,6 +1224,36 @@ img.pipeline {
 
 input.search-header {
     margin-bottom: 0px;
+    height: 16px;
+    background-color: #ffe0b0;
+}
+
+label, select, button, input[type="button"], input[type="reset"], input[type="submit"], input[type="radio"], input[type="checkbox"] {
+    height: 28px;
+    background-color: #ffc890;
+    border-color: #ffc890;
+    border-radius: 20px;
 }
 
 
+code {
+    color: #222;
+    background-color: #ffa090;
+}
+
+.literal {
+  border: 0px;
+}
+
+.download {
+    border: 0px;
+}
+
+
+div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
+    background-color: #ffc890;
+}
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+    color: #c02042;
+}

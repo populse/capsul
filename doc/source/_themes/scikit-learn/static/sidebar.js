@@ -123,10 +123,10 @@ $(function() {
 
     sidebarbutton.hover(
       function () {
-          $(this).css('background-color', '#D0D0D0');
+          $(this).css('background-color', '#c04048');
       },
       function () {
-          $(this).css('background-color', '#F6F6F6');
+          $(this).css('background-color', light_color);
       }
     );
   }
