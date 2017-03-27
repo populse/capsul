@@ -1238,8 +1238,11 @@ label, select, button, input[type="button"], input[type="reset"], input[class="s
 
 code {
     color: #222;
-//     color: inherit;
     background-color: #ffa090;
+}
+
+code.xref, a code {
+    color: unset;
 }
 
 .literal {
@@ -1257,10 +1260,6 @@ div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
 
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
     color: #c02042;
-}
-
-a code.xref {
-    color: inherit;
 }
 
 code.descname, code.descclassname {

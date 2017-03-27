@@ -53,7 +53,7 @@ Workflow conversion
     :template: function.rst
 
     pipeline_workflow.workflow_from_pipeline
-    pipeline_workflow.local_workflow_run
+    pipeline_workflow.workflow_run
 
     pipeline_tools.pipeline_node_colors
     pipeline_tools.pipeline_link_color
