@@ -52,6 +52,20 @@ class ProcessCompletionEngine(traits.HasTraits):
     provide the attributes set for a given process. A factory is used to create
     the correct type of ProcessCompletionEngine for a given process / name:
     :py:class:`ProcessCompletionEngineFactory`
+
+    :py:class:`capsul.attributes.fom_completion_engine.FomProcessCompletionEngine` is a specialization of ``ProcessCompletionEngine`` to manage File Organization Models (FOM).
+
+    Methods
+    -------
+
+    get_completion_engine
+    get_attribute_values
+    complete_parameters
+    set_parameters
+    attributes_to_path
+    attributes_changed
+    get_path_completion_engine
+
     '''
 
     def __init__(self, process, name=None):
@@ -358,12 +372,14 @@ class ProcessCompletionEngine(traits.HasTraits):
         It can be plugged this way:
 
         ::
+
             completion_engine.get_attribute_values().on_trait_change(
                 completion_engine.attributes_changed, 'anytrait')
 
         Then it can be disabled this way:
 
         ::
+
             completion_engine.get_attribute_values().on_trait_change(
                 completion_engine.attributes_changed, 'anytrait', remove=True)
         '''

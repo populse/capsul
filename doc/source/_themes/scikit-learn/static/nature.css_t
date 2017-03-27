@@ -164,7 +164,7 @@ hr {
 
 
 div.body {
-    font-size: 0.9em;
+//     font-size: 0.9em;
     margin: 10px;
 }
 
@@ -1238,6 +1238,7 @@ label, select, button, input[type="button"], input[type="reset"], input[type="su
 
 code {
     color: #222;
+//     color: inherit;
     background-color: #ffa090;
 }
 
@@ -1257,3 +1258,26 @@ div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
     color: #c02042;
 }
+
+a code.xref {
+    color: inherit;
+}
+
+code.descname, code.descclassname {
+    border: 0px;
+}
+
+code.descclassname {
+    font-size: 1.2em;
+}
+
+table.docutils a {
+    color: #222;
+}
+
+a .viewcode-link {
+    color: #666;
+}
+
+
+
