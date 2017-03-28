@@ -240,14 +240,14 @@ latex_documents = [
 # If false, no module index is generated.
 #latex_use_modindex = True
 
-try:
-    from soma_workflow import info as swinfo
-    swf_version = '-%d.%d' % (swinfo.version_major, swinfo.version_minor)
-except:
-    swf_version = ''
+#try:
+    #from soma_workflow import info as swinfo
+    #swf_version = '-%d.%d' % (swinfo.version_major, swinfo.version_minor)
+#except:
+    #swf_version = ''
 
 extlinks = {
-  'somaworkflow': ('../soma-workflow' + swf_version + '/sphinx/%s',
+  'somaworkflow': ('http://brainvisa.info/soma-workflow/sphinx/%s',
     'anatomist '),
 }
 

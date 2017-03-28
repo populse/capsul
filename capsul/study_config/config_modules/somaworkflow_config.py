@@ -12,8 +12,54 @@ from soma.controller import Controller, ControllerTrait, OpenKeyController
 
 
 class SomaWorkflowConfig(StudyConfigModule):
+    ''' Configuration module for :somaworkflow:`Soma-Workflow <index.html>`
+
+    Stores configuration options which are not part of Soma-Workflow own
+    configuration, and used to run workflows from CAPSUL pipelines.
+
+    The configuration module may also store connected Soma-Workflow
+    :somaworkflow:`WorkflowController <client_API.html>` objects to allow
+    monitoring and submiting workflows.
+
+    Attributes
+    ----------
+    use_soma_workflow: bool
+        Use soma workflow for the execution
+    somaworkflow_computing_resource: str
+        Soma-workflow computing resource to be used to run processing
+    somaworkflow_config_file: filename
+        Soma-Workflow configuration file. Default: ``$HOME/.soma_workflow.cfg``
+    somaworkflow_keep_failed_workflows: bool
+        Keep failed workflows after pipeline execution through StudyConfig
+    somaworkflow_keep_succeeded_workflows: bool
+        Keep succeeded workflows after pipeline execution through StudyConfig
+    somaworkflow_computing_resources_config: dict(str, ResourceController)
+        Computing resource config dict, keys are resource ids. Values are
+        :py:class:`ResourceController` instances
+
+    Methods
+    -------
+    get_resource_id
+    set_computing_resource_password
+    get_workflow_controller
+    connect_resource
+    disconnect_resource
+    '''
 
     class ResourceController(Controller):
+        ''' Configuration options for one Soma-Workflow computing resource
+
+        Attributes
+        ----------
+        queue: str
+            Jobs queue to be used on the computing resource for w
+            orkflow submissions
+        transfer_paths: list(str)
+            list of paths where files have to be transferred by soma-workflow
+        path_translations: dict(str, (str, str))
+            Soma-workflow paths translations mapping:
+            ``{local_path: (identifier, uuid)}``
+        '''
         def __init__(self):
             super(SomaWorkflowConfig.ResourceController, self).__init__()
             self.add_trait(
@@ -84,6 +130,23 @@ class SomaWorkflowConfig(StudyConfigModule):
             self.initialize_module, 'use_soma_workflow')
 
     def get_resource_id(self, resource_id=None, set_it=False):
+        ''' Get a computing resource name according to the (optional) input
+        resource_id and Soma-Workflow configuration.
+
+        For instance, ``None`` or ``"localhost"`` will be transformed to the
+        local host id.
+
+        Parameters
+        ----------
+        resource_id: str (optional)
+        set_it: bool (optional)
+            if True, the computed resource id will be set as the current
+            resource in the somaworkflow_computing_resource trait value.
+
+        Returns
+        -------
+        computed resource id.
+        '''
         if resource_id is None:
             resource_id = self.study_config.somaworkflow_computing_resource
         else:
@@ -97,6 +160,18 @@ class SomaWorkflowConfig(StudyConfigModule):
 
     def set_computing_resource_password(self, resource_id, password=None,
                                         rsa_key_password=None):
+        ''' Set credentials for a given computinf resource.
+
+        Such credentials are stored in the config object, but will not be
+        written when the config is saved in a file. They are thus non-
+        persistant.
+
+        Parameters
+        ----------
+        resource_id: str (optional)
+        password: str (optional)
+        rsa_key_password: str (optional)
+        '''
         resource_id = self.get_resource_id(resource_id)
         r = self.study_config.modules_data.somaworkflow.setdefault(
             resource_id, Controller())
@@ -106,6 +181,10 @@ class SomaWorkflowConfig(StudyConfigModule):
             r.rsa_key_password = rsa_key_password
 
     def get_workflow_controller(self, resource_id=None):
+        ''' Get a connected
+        :somaworkflow:`WorkflowController <client_API.html>` for the given
+        resource
+        '''
         resource_id = self.get_resource_id(resource_id)
 
         r = self.study_config.modules_data.somaworkflow.setdefault(
@@ -130,6 +209,10 @@ class SomaWorkflowConfig(StudyConfigModule):
             it will be disconnected (deleted) and a new one will be connected.
             If False, an existing controller will be reused without
             reconnection.
+
+        Returns
+        -------
+        :somaworkflow:`WorkflowController <client_API.html>` object
         '''
         import soma_workflow.client as swclient
 
@@ -160,8 +243,13 @@ class SomaWorkflowConfig(StudyConfigModule):
             password=password,
             rsa_key_pass=rsa_key_pass)
         r.workflow_controller = wc
+        return wc
 
     def disconnect_resource(self, resource_id=None):
+        ''' Disconnect a connected
+        :somaworkflow:`WorkflowController <client_API.html>` and removes it
+        from the internal list
+        '''
         resource_id = self.get_resource_id(resource_id, True)
         wc = self.get_workflow_controller(resource_id)
         if wc:

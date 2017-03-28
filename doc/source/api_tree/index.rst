@@ -120,6 +120,7 @@ Configuration Modules
     :toctree: generated/capsul-studyconfig/
     :template: class.rst
 
+    somaworkflow_config.SomaWorkflowConfig
     matlab_config.MatlabConfig
     spm_config.SPMConfig
     fsl_config.FSLConfig
@@ -128,6 +129,8 @@ Configuration Modules
     brainvisa_config.BrainVISAConfig
     fom_config.FomConfig
     attributes_config.AttributesConfig
+    smartcaching_config.SmartCachingConfig
+
 
 :mod:`capsul.attributes`: Attributes and processes completion
 =============================================================
