@@ -88,6 +88,7 @@ class ProcessCompletionEngine(traits.HasTraits):
 
     def __del__(self):
         self.remove_switch_observers()
+        self.remove_auto_completion()
 
 
     def get_attribute_values(self):
