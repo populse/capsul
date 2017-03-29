@@ -82,12 +82,12 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 and hasattr(self, 'capsul_attributes'):
             return self.capsul_attributes
 
+        schemas = self._get_schemas()
+        #schemas = self.process.get_study_config().modules_data.foms.keys()
         if not hasattr(self, 'capsul_attributes'):
             self.add_trait('capsul_attributes', ControllerTrait(Controller()))
             self.capsul_attributes = ProcessAttributes(self.process, schemas)
         self._rebuild_attributes = False
-        schemas = self._get_schemas()
-        #schemas = self.process.get_study_config().modules_data.foms.keys()
 
         self.create_attributes_with_fom()
 
