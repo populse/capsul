@@ -63,7 +63,6 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
     Methods
     -------
-    create_completion
     create_attributes_with_fom
     """
     def __init__(self, process, name=None):
@@ -78,14 +77,17 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         -------
         attributes: Controller
         '''
-        if self.trait('capsul_attributes') is not None \
+        if not self._rebuild_attributes \
+                and self.trait('capsul_attributes') is not None \
                 and hasattr(self, 'capsul_attributes'):
             return self.capsul_attributes
 
-        self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+        if not hasattr(self, 'capsul_attributes'):
+            self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+            self.capsul_attributes = ProcessAttributes(self.process, schemas)
+        self._rebuild_attributes = False
         schemas = self._get_schemas()
         #schemas = self.process.get_study_config().modules_data.foms.keys()
-        self.capsul_attributes = ProcessAttributes(self.process, schemas)
 
         self.create_attributes_with_fom()
 
@@ -166,7 +168,6 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                                 = subprocess_compl.get_attribute_values()
                         except:
                             continue
-                    subprocess_compl.install_switch_observer(self)
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):
                         if attributes.trait(attribute) is None:

@@ -48,6 +48,12 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         completion_engine.complete_parameters()
 
+    It is possible to have complete_parameters() triggered automatically when attributes or switch nodes change. To set this up, use:
+
+    ::
+
+        completion_engine.install_auto_completion()
+
     ProcessCompletionEngine can (and should) be specialized, at least to
     provide the attributes set for a given process. A factory is used to create
     the correct type of ProcessCompletionEngine for a given process / name:
@@ -63,8 +69,9 @@ class ProcessCompletionEngine(traits.HasTraits):
     complete_parameters
     set_parameters
     attributes_to_path
-    attributes_changed
     get_path_completion_engine
+    install_auto_completion
+    remove_auto_completion
 
     '''
 
@@ -76,6 +83,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         self.completion_ongoing = False
         self.add_trait('completion_progress', traits.Float(0.))
         self.add_trait('completion_progress_total', traits.Float(1.))
+        self._rebuild_attributes = False
 
 
     def __del__(self):
@@ -94,11 +102,11 @@ class ProcessCompletionEngine(traits.HasTraits):
         the process is a pipeline.
 
         '''
-        if self.trait('capsul_attributes') is not None \
+        if not self._rebuild_attributes \
+                and self.trait('capsul_attributes') is not None \
                 and hasattr(self, 'capsul_attributes'):
             return self.capsul_attributes
 
-        self.add_trait('capsul_attributes', ControllerTrait(Controller()))
         schemas = self._get_schemas()
 
         study_config = self.process.get_study_config()
@@ -117,7 +125,10 @@ class ProcessCompletionEngine(traits.HasTraits):
                 except ValueError:
                     pass
 
-        self.capsul_attributes = proc_attr_cls(self.process, schemas)
+        if not hasattr(self, 'capsul_attributes'):
+            self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+            self.capsul_attributes = proc_attr_cls(self.process, schemas)
+        self._rebuild_attributes = False
 
         # if no specialized attributes set and process is a pipeline,
         # try building from children nodes
@@ -149,10 +160,6 @@ class ProcessCompletionEngine(traits.HasTraits):
                                 = subprocess_compl.get_attribute_values()
                         except:
                             continue
-                    if isinstance(node, Switch):
-                        # a switch may change attributes dynamically
-                        # so we must be notified if this happens.
-                        subprocess_compl.install_switch_observer(self)
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):
                         if attributes.trait(attribute) is None:
@@ -365,23 +372,11 @@ class ProcessCompletionEngine(traits.HasTraits):
         ''' Traits changed callback which triggers parameters update.
 
         This method basically calls complete_parameters() (after some checks).
-        It is normally used as a traits notification callback for the
-        attributes controller, so that changes in attributes will automatically
-        trigger parameters completion for file paths.
 
-        It can be plugged this way:
+        Users do not normally have to use it directly, it is used internally
+        when install_auto_completion() has been called.
 
-        ::
-
-            completion_engine.get_attribute_values().on_trait_change(
-                completion_engine.attributes_changed, 'anytrait')
-
-        Then it can be disabled this way:
-
-        ::
-
-            completion_engine.get_attribute_values().on_trait_change(
-                completion_engine.attributes_changed, 'anytrait', remove=True)
+        See :py:meth:`install_auto_completion`
         '''
         if name != 'trait_added' and name != 'user_traits_changed' \
                 and self.completion_ongoing is False:
@@ -389,6 +384,56 @@ class ProcessCompletionEngine(traits.HasTraits):
             self.completion_ongoing = True
             self.complete_parameters({'capsul_attributes': {name: new}})
             self.completion_ongoing = False
+
+
+    def nodes_selection_changed(self, obj, name, old, new):
+        ''' Traits changed callback which triggers parameters update.
+
+        This method basically calls complete_parameters() (after some checks).
+
+        Users do not normally have to use it directly, it is used internally
+        when install_auto_completion() has been called.
+
+        See :py:meth:`install_auto_completion`
+        '''
+        if not self.completion_ongoing:
+            self.completion_ongoing = True
+            self._rebuild_attributes = True
+            self.complete_parameters()
+            self.completion_ongoing = False
+
+
+    def install_auto_completion(self):
+        ''' Monitor attributes changes and switches changes (which may
+        influence attributes) and recompute parameters completion when needed.
+        '''
+        self.get_attribute_values().on_trait_change(
+            self.attributes_changed, 'anytrait')
+
+        if isinstance(self.process, Pipeline):
+            for node_name, node in six.iteritems(self.process.nodes):
+                if isinstance(node, Switch):
+                    # a switch may change attributes dynamically
+                    # so we must be notified if this happens.
+                    node.on_trait_change(self.nodes_selection_changed,
+                                         'switch')
+
+
+    def remove_auto_completion(self):
+        ''' Remove attributes monitoring and auto-recomputing of parameters.
+
+        Reverts install_auto_completion()
+        '''
+        self.get_attribute_values().on_trait_change(
+            self.attributes_changed, 'anytrait', remove=True)
+
+        if isinstance(self.process, Pipeline):
+            for node_name, node in six.iteritems(self.process.nodes):
+                if isinstance(node, Switch):
+                    # a switch may change attributes dynamically
+                    # so we must be notified if this happens.
+                    node.on_trait_change(self.nodes_selection_changed,
+                                         'switch', remove=True)
 
 
     def get_path_completion_engine(self):
@@ -514,7 +559,7 @@ class ProcessCompletionEngine(traits.HasTraits):
 class SwitchCompletionEngine(ProcessCompletionEngine):
     ''' Completion engine specislization for a switch. The switch will
     propagate attributes from its selected inputs to corresponding outputs,
-    if they can be retreiuved from parameters links. Otherwise the countrary
+    if they can be retreived from parameters links. Otherwise the countrary
     will be tried (propagated from outputs to inputs).
     '''
 
@@ -522,9 +567,6 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
         self.remove_switch_observer()
 
     def get_attribute_values(self):
-        if self.process.name == 'select_renormalization_commissures':
-            debug = True
-        else: debug = False
         if self.trait('capsul_attributes') is not None \
                 and hasattr(self, 'capsul_attributes'):
             return self.capsul_attributes

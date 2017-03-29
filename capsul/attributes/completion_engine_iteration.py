@@ -91,7 +91,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         attributes: Controller
         '''
         t = self.trait('capsul_attributes')
-        if t is None:
+        if t is None or not hasattr(self, 'capsul_attributes'):
             try:
                 pattributes = ProcessCompletionEngine.get_completion_engine(
                     self.process.process).get_attribute_values()
