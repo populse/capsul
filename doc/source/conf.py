@@ -34,7 +34,6 @@ sys.path.insert(0,os.path.abspath('sphinxext'))
 
 # We load the release info into a dict by explicit execution
 release_info = {}
-print os.getcwd()
 execfile(os.path.join('..', '..', 'capsul', 'info.py'), release_info)
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
@@ -44,13 +43,26 @@ extensions = [ 'sphinx.ext.autodoc',
                'sphinx.ext.intersphinx',
                'sphinx.ext.todo',
                'sphinx.ext.coverage',
-               'sphinx.ext.pngmath',
+               #'sphinx.ext.imgmath',
                'sphinx.ext.ifconfig',
                'sphinx.ext.autosummary',
                'sphinx.ext.viewcode',
                'numpy_ext.numpydoc',
                'sphinx.ext.extlinks',
+               'sphinx.ext.ifconfig',
              ]
+
+try:
+    # nbsphinx converts ipython/jupyter notebooks to sphinx docs
+    import nbsphinx
+    nbsphinx_allow_errors = True
+    extensions += ['nbsphinx',
+                   'sphinx.ext.mathjax']
+    # set this env variable to tell notebooks that we should not use
+    # any GUI during notebooks execution
+    os.environ['ALLOW_GUI'] = '0'
+except ImportError:
+    nbsphinx = None
 
 # Remove some numpy-linked warnings
 numpydoc_show_class_members = False
@@ -104,8 +116,10 @@ release = version
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
 exclude_patterns = ['examples',
-                    templates_path,
-                    "_themes/scikit-learn/static/ML_MAPS_README.rst"]
+                    "_themes/scikit-learn/static/ML_MAPS_README.rst"] \
+                   + templates_path
+if nbsphinx is not None:
+    exclude_patterns += ['_build', '**.ipynb_checkpoints']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
