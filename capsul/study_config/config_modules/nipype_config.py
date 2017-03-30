@@ -10,8 +10,12 @@
 from traits.api import Bool, Undefined, List, Directory
 
 # NIPYPE import
-import nipype.interfaces.matlab as matlab
-from nipype.interfaces import spm
+try:
+    import nipype.interfaces.matlab as matlab
+    from nipype.interfaces import spm
+    has_nipype = True
+except ImportError:
+    has_nipype = False
 
 # CAPSUL import
 from capsul.study_config.study_config import StudyConfigModule
@@ -23,9 +27,9 @@ class NipypeConfig(StudyConfigModule):
     In order to use nipype spm, fsl and freesurfer interfaces, we need to
     configure the nipype module.
     """
-    
+
     dependencies = []
-    
+
     def __init__(self, study_config, configuration):
         """ Initialize the NipypeConfig class.
         """
@@ -37,11 +41,15 @@ class NipypeConfig(StudyConfigModule):
             Directory,
             default=[],
             desc="Paths that are added to Matlab default path."))
-    
+        self.has_nipype = has_nipype
+
     def initialize_module(self):
         """ Set up Nipype environment variables according to current
         configuration.
         """
+        if not self.has_nipype:
+            self.study_config.use_nipype = False
+            return
         if self.study_config.use_nipype is False:
             # Configuration is explicitely asking not to use Nipype
             return
