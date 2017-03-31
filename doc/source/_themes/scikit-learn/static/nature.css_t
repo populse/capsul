@@ -1278,7 +1278,10 @@ a .viewcode-link {
     color: #666;
 }
 
-// table.docutils.field-list {
-//     width: 100%;
-// }
+div.nboutput div[class*="highlight"] pre {
+    color: #fffbbb;
+}
 
+div.nboutput div.output_area.stderr div[class*="highlight"] pre {
+    color: #222;
+}
