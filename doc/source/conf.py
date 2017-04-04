@@ -117,10 +117,10 @@ release = version
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
 exclude_patterns = ['examples',
-                    "_themes/scikit-learn/static/ML_MAPS_README.rst"] \
+                    "_themes/scikit-learn/static/ML_MAPS_README.rst",
+                    '_build',
+                    '**.ipynb_checkpoints'] \
                    + templates_path
-if nbsphinx is not None:
-    exclude_patterns += ['_build', '**.ipynb_checkpoints']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
