@@ -35,7 +35,8 @@ sys.path.insert(0,os.path.abspath('sphinxext'))
 # We load the release info into a dict by explicit execution
 release_info = {}
 print os.getcwd()
-execfile(os.path.join('..', '..', 'capsul', 'info.py'), release_info)
+f = os.path.join('..', '..', 'capsul', 'info.py')
+exec(compile(open(f).read(), f, 'exec'), release_info)
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
