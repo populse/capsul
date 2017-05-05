@@ -45,10 +45,12 @@ class CopyProcess(Process):
         self.add_trait("output_image", File(optional=True, output=True))
 
     def get_commandline(self):
-        cpcmd = 'cp'
+        cpcmd = [ 'cp' ]
         if sys.platform.startswith('win'):
-            cpcmd = 'copy'
-        cmdline = [cpcmd, self.input_image, self.output_image]
+            # It is necessary to execute the copy command through a dos shell
+            # that is why we start it using 'cmd /c'
+            cpcmd = [ 'cmd', '/c', 'copy' ]
+        cmdline = cpcmd + [ self.input_image, self.output_image]
         return cmdline
 
 
