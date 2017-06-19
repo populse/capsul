@@ -160,10 +160,10 @@ class TestSomaWorkflow(unittest.TestCase):
         os.unlink(tmpdb[1])
         self.soma_workflow_temp_dir = tmpdb[1]
         os.mkdir(self.soma_workflow_temp_dir)
-        swf_conf = StringIO.StringIO('[%s]\nSOMA_WORKFLOW_DIR = %s\n' \
-            % (socket.gethostname(), tmpdb[1]))
+        swf_conf = '[%s]\nSOMA_WORKFLOW_DIR = %s\n' \
+            % (socket.gethostname(), tmpdb[1])
         swconfig.Configuration.search_config_path \
-            = staticmethod(lambda : swf_conf)
+            = staticmethod(lambda : StringIO.StringIO(swf_conf))
         self.study_config = StudyConfig(init_config=default_config)
         self.atomic_pipeline = MyAtomicPipeline()
         self.composite_pipeline = MyCompositePipeline()
