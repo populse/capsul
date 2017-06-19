@@ -18,11 +18,14 @@ install:
     - source activate testenv
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install ordereddict; fi
     - conda install --yes numpy scipy nose traits networkx dateutil
-    # until we release soma-workflow 2.8
+    # until we release soma-workflow 2.9
     - git clone https://github.com/neurospin/soma-workflow.git /tmp/soma-workflow
     - pushd /tmp/soma-workflow
     - python /tmp/soma-workflow/setup.py install
     - popd
+    # until we release soma-base 4.5.9
+    - svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/branches/bug_fix /tmp/soma-base
+    - python /tmp/soma-base/setup.py install
     - pip install argparse
     - pip install importlib
     - pip install nose-cov
