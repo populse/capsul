@@ -9,6 +9,7 @@
 # System import
 import unittest
 import six
+import sys
 
 # Nipype import
 try:
@@ -84,15 +85,28 @@ class TestUtils(unittest.TestCase):
         # Test first to build trait description from nipype traits and then
         # to instanciate the trait
         to_test_fields = {
-            "timing_units": "traits.Enum(('secs', 'scans'))",
-            "bases": ("traits.Dict(traits.Enum(('hrf', 'fourier', "
-                      "'fourier_han', 'gamma', 'fir')), traits.Any())"),
-            "mask_image": "traits.File(Undefined)",
-            "microtime_onset": "traits.Float()",
-            "mask_threshold": ("traits.Either(traits.Enum(('-Inf',)), "
-                               "traits.Float())")
+            "timing_units": "traits.api.Enum(('secs', 'scans'))",
+            "bases": ("traits.api.Dict(traits.api.Enum(('hrf', 'fourier', "
+                      "'fourier_han', 'gamma', 'fir')), traits.api.Any())"),
+            "mask_image": "traits.api.File(Undefined)",
+            "microtime_onset": "traits.api.Float()",
+            "mask_threshold": ("traits.api.Either(traits.api.Enum(('-Inf',)), "
+                               "traits.api.Float())")
         }
         i = spm.Level1Design()
+        # fix param types depending on nipype/spm version
+        if sys.version_info[0] < 3 \
+                and type(i.inputs.trait('timing_units').get_validate()[1][0]) \
+                    is unicode:
+            to_test_fields["timing_units"] \
+                = "traits.api.Enum((u'secs', u'scans'))"
+            to_test_fields["bases"] \
+                = "traits.api.Dict(traits.api.Enum((u'hrf', u'fourier', " \
+                  "u'fourier_han', u'gamma', u'fir')), traits.api.Any())"
+            to_test_fields["mask_threshold"] \
+                = ("traits.api.Either(traits.api.Enum((u'-Inf',)), "
+                   "traits.api.Float())")
+
         for field, result in six.iteritems(to_test_fields):
 
             # Test to build the trait expression
@@ -106,21 +120,42 @@ class TestUtils(unittest.TestCase):
 
         to_test_fields = {
             "contrasts": (
-                "traits.List(traits.Either(traits.Tuple(traits.Str(), "
-                "traits.Enum(('T',)), traits.List(traits.Str()), "
-                "traits.List(traits.Float())), traits.Tuple(traits.Str(), "
-                "traits.Enum(('T',)), traits.List(traits.Str()), "
-                "traits.List(traits.Float()), traits.List(traits.Float())), "
-                "traits.Tuple(traits.Str(), traits.Enum(('F',)), "
-                "traits.List(traits.Either(traits.Tuple(traits.Str(), "
-                "traits.Enum(('T',)), traits.List(traits.Str()), "
-                "traits.List(traits.Float())), traits.Tuple(traits.Str(), "
-                "traits.Enum(('T',)), traits.List(traits.Str()), "
-                "traits.List(traits.Float()), traits.List(traits.Float())"
+                "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
+                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
+                "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
+                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
+                "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())), "
+                "traits.api.Tuple(traits.api.Str(), traits.api.Enum(('F',)), "
+                "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
+                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
+                "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
+                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
+                "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())"
                 "))))))"),
-            "use_derivs": "traits.Bool()"
+            "use_derivs": "traits.api.Bool()"
         }
         i = spm.EstimateContrast()
+        # fix param types depending on nipype/spm version
+        if sys.version_info[0] < 3 \
+                and type(i.inputs.trait('contrasts').inner_traits[0]. \
+                    handler.handlers[0].as_ctrait().get_validate()[1][1]. \
+                    get_validate()[1][0]) \
+                    is unicode:
+            to_test_fields["contrasts"] \
+                = (
+                    "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
+                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
+                    "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
+                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
+                    "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())), "
+                    "traits.api.Tuple(traits.api.Str(), traits.api.Enum((u'F',)), "
+                    "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
+                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
+                    "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
+                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
+                    "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())"
+                    "))))))")
+
         for field, result in six.iteritems(to_test_fields):
 
             # Test to build the trait expression

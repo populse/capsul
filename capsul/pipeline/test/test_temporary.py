@@ -17,7 +17,13 @@ from capsul.api import Process
 from capsul.api import Pipeline, PipelineNode
 from capsul.pipeline import pipeline_workflow
 from capsul.study_config.study_config import StudyConfig
-
+from soma_workflow import configuration as swconfig
+import socket
+import shutil
+if sys.version_info[0] >= 3:
+    import io as StringIO
+else:
+    import StringIO
 
 class DummyProcess1(Process):
     """ Dummy Test Process
@@ -135,6 +141,18 @@ class TestTemporary(unittest.TestCase):
         os.close(tmpout[0])
         os.unlink(tmpout[1])
 
+        # use a custom temporary soma-workflow dir to avoid concurrent
+        # access problems
+        tmpdb = tempfile.mkstemp('', prefix='soma_workflow')
+        os.close(tmpdb[0])
+        os.unlink(tmpdb[1])
+        self.soma_workflow_temp_dir = tmpdb[1]
+        os.mkdir(self.soma_workflow_temp_dir)
+        swf_conf = '[%s]\nSOMA_WORKFLOW_DIR = %s\n' \
+            % (socket.gethostname(), tmpdb[1])
+        swconfig.Configuration.search_config_path \
+            = staticmethod(lambda : StringIO.StringIO(swf_conf))
+
         self.output = tmpout[1]
         self.pipeline.input = '/tmp/file_in.nii'
         self.pipeline.output = self.output
@@ -149,6 +167,8 @@ class TestTemporary(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.output):
           os.unlink(self.output)
+        shutil.rmtree(self.soma_workflow_temp_dir)
+
 
     def test_structure(self):
         self.pipeline.nb_outputs = 3
