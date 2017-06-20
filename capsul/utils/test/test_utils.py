@@ -9,6 +9,7 @@
 # System import
 import unittest
 import six
+import sys
 
 # Nipype import
 try:
@@ -93,6 +94,19 @@ class TestUtils(unittest.TestCase):
                                "traits.api.Float())")
         }
         i = spm.Level1Design()
+        # fix param types depending on nipype/spm version
+        if sys.version_info[0] < 3 \
+                and type(i.inputs.trait('timing_units').get_validate()[1][0]) \
+                    is unicode:
+            to_test_fields["timing_units"] \
+                = "traits.api.Enum((u'secs', u'scans'))"
+            to_test_fields["bases"] \
+                = "traits.api.Dict(traits.api.Enum((u'hrf', u'fourier', " \
+                  "u'fourier_han', u'gamma', u'fir')), traits.api.Any())"
+            to_test_fields["mask_threshold"] \
+                = ("traits.api.Either(traits.api.Enum((u'-Inf',)), "
+                   "traits.api.Float())")
+
         for field, result in six.iteritems(to_test_fields):
 
             # Test to build the trait expression
