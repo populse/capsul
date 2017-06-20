@@ -364,8 +364,9 @@ def nipype_factory(nipype_instance):
             instance.
         """
         # Clone the nipype trait
-        expression = build_expression(nipype_trait)
-        process_trait = eval_trait(expression)
+        modules = set()
+        expression = build_expression(nipype_trait, modules)
+        process_trait = eval_trait(expression, modules)
 
         # Copy some information from the nipype trait
         process_trait.desc = nipype_trait.desc
