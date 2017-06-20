@@ -135,6 +135,27 @@ class TestUtils(unittest.TestCase):
             "use_derivs": "traits.api.Bool()"
         }
         i = spm.EstimateContrast()
+        # fix param types depending on nipype/spm version
+        if sys.version_info[0] < 3 \
+                and type(i.inputs.trait('contrasts').inner_traits[0]. \
+                    handler.handlers[0].as_ctrait().get_validate()[1][1]. \
+                    get_validate()[1][0]) \
+                    is unicode:
+            to_test_fields["contrasts"] \
+                = (
+                    "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
+                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
+                    "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
+                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
+                    "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())), "
+                    "traits.api.Tuple(traits.api.Str(), traits.api.Enum((u'F',)), "
+                    "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
+                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
+                    "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
+                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
+                    "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())"
+                    "))))))")
+
         for field, result in six.iteritems(to_test_fields):
 
             # Test to build the trait expression
