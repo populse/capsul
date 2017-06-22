@@ -16,6 +16,11 @@ import logging
 import importlib
 
 # Capsul import
+# WARNING: there is a circular import problem here: function_to_process imports
+# process, which imports process.loader, which imports utils.loader
+# (this module).
+# so one *must* import capsul.process *before* importing capsul.utils.loader,
+# otherwise there will be an error.
 from capsul.utils.function_to_process import title_for as process_title_for
 from capsul.utils.function_to_process import class_factory as process_class_factory
 

@@ -26,6 +26,7 @@ from soma.controller.trait_utils import (
 import capsul
 from capsul.utils.version_utils import get_tool_version
 from capsul.utils.version_utils import get_nipype_interfaces_versions
+import capsul.process # must be done before the next import
 from capsul.utils.loader import load_objects
 
 
@@ -82,13 +83,13 @@ class TestUtils(unittest.TestCase):
         # Test first to build trait description from nipype traits and then
         # to instanciate the trait
         to_test_fields = {
-            "timing_units": "traits.Enum(('secs', 'scans'))",
-            "bases": ("traits.Dict(traits.Enum(('hrf', 'fourier', "
-                      "'fourier_han', 'gamma', 'fir')), traits.Any())"),
-            "mask_image": "traits.File(Undefined)",
-            "microtime_onset": "traits.Float()",
-            "mask_threshold": ("traits.Either(traits.Enum(('-Inf',)), "
-                               "traits.Float())")
+            "timing_units": "traits.api.Enum(('secs', 'scans'))",
+            "bases": ("traits.api.Dict(traits.api.Enum(('hrf', 'fourier', "
+                      "'fourier_han', 'gamma', 'fir')), traits.api.Any())"),
+            "mask_image": "traits.api.File(Undefined)",
+            "microtime_onset": "traits.api.Float()",
+            "mask_threshold": ("traits.api.Either(traits.api.Enum(('-Inf',)), "
+                               "traits.api.Float())")
         }
         i = spm.Level1Design()
         for field, result in to_test_fields.iteritems():
@@ -104,19 +105,19 @@ class TestUtils(unittest.TestCase):
 
         to_test_fields = {
             "contrasts": (
-                "traits.List(traits.Either(traits.Tuple(traits.Str(), "
-                "traits.Enum(('T',)), traits.List(traits.Str()), "
-                "traits.List(traits.Float())), traits.Tuple(traits.Str(), "
-                "traits.Enum(('T',)), traits.List(traits.Str()), "
-                "traits.List(traits.Float()), traits.List(traits.Float())), "
-                "traits.Tuple(traits.Str(), traits.Enum(('F',)), "
-                "traits.List(traits.Either(traits.Tuple(traits.Str(), "
-                "traits.Enum(('T',)), traits.List(traits.Str()), "
-                "traits.List(traits.Float())), traits.Tuple(traits.Str(), "
-                "traits.Enum(('T',)), traits.List(traits.Str()), "
-                "traits.List(traits.Float()), traits.List(traits.Float())"
+                "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
+                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
+                "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
+                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
+                "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())), "
+                "traits.api.Tuple(traits.api.Str(), traits.api.Enum(('F',)), "
+                "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
+                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
+                "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
+                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
+                "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())"
                 "))))))"),
-            "use_derivs": "traits.Bool()"
+            "use_derivs": "traits.api.Bool()"
         }
         i = spm.EstimateContrast()
         for field, result in to_test_fields.iteritems():
