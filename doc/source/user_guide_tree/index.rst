@@ -15,17 +15,23 @@ Different tutorials are available as `IPython notebooks <http://ipython.org/note
 
 Capsul may be used in two ways:
 
-* a descriptive interface allows to develop processing bricks using simple Python functions and pipelines using a XML text description. `See this notebook to demonstrate this approach <../_static/tutorial/capsul_descriptive_tutorial.ipynb>`_.
+* a descriptive interface allows to develop processing bricks using simple Python functions and pipelines using a XML text description.
 
   .. ifconfig:: 'nbsphinx' in extensions
 
-      `See the notebook contents <../_static/tutorial/capsul_descriptive_tutorial.html>`_
+      * `Download notebook <../_static/tutorial/capsul_descriptive_tutorial.ipynb>`_
+      * `See the notebook contents <../_static/tutorial/capsul_descriptive_tutorial.html>`_
 
-* an object-oriented interface that uses Python classes programming. `See this notebook to demonstrate this approach <../_static/tutorial/capsul_object_oriented_tutorial.ipynb>`_. Note that this interface is compatible with the descriptive one, and allows more functionalities and tweak possibilities.
+  .. ifconfig:: 'nbsphinx' not in extensions
+
+      * `Download notebook <../_static/tutorial/capsul_descriptive_tutorial.ipynb>`_.
+
+* an object-oriented interface that uses Python classes programming. Note that this interface is compatible with the descriptive one, and allows more functionalities and tweak possibilities.
 
   .. ifconfig:: 'nbsphinx' in extensions
 
-      `See the notebook contents <../_static/tutorial/capsul_object_oriented_tutorial.html>`_
+      * `Download notebook <../_static/tutorial/capsul_object_oriented_tutorial.ipynb>`_
+      * `See the notebook contents <../_static/tutorial/capsul_object_oriented_tutorial.html>`_
 
 
 To run it, the following must be done:
