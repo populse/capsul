@@ -30,9 +30,12 @@ install:
     - pip install argparse
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install importlib; fi
     - pip install nose-cov
+    # to test notebooks
+    - pip install jupyter nbconvert
     - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || echo "testing without nipype."
     #- pip install soma-workflow
     - python setup.py install
+    #- export CAPSUL_SOURCE_DIR=$PWD
 
 script:
     - python -m capsul.test.test_capsul
