@@ -14,7 +14,6 @@ from ast import literal_eval
 
 from capsul.process.process import Process
 
-from soma.controller.trait_utils import clone_trait
 from soma.utils.functiontools import getArgumentsSpecification
 
 from traits.api import (Int, Float, String, Unicode, File, Directory, Enum,

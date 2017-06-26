@@ -24,10 +24,7 @@ from traits.api import Any
 from traits.api import Undefined
 
 # Capsul import
-from soma.controller.trait_utils import clone_trait
 from soma.controller.trait_utils import trait_ids
-from soma.controller.trait_utils import build_expression
-from soma.controller.trait_utils import eval_trait
 from soma.controller.trait_utils import is_trait_pathname
 
 # Soma import

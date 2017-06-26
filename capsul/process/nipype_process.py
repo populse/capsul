@@ -22,8 +22,6 @@ from traits.api import Directory, CTrait, Undefined
 
 # Soma import
 from soma.controller.trait_utils import trait_ids
-from soma.controller.trait_utils import build_expression
-from soma.controller.trait_utils import eval_trait
 
 # Capsul import
 from .process import NipypeProcess
@@ -189,7 +187,7 @@ def nipype_factory(nipype_instance):
     ####################################################################
 
     # The following function is not shared since it is too specific
-    def clone_nipype_trait(nipype_trait):
+    def clone_nipype_trait(process_instance, nipype_trait):
         """ Create a new trait (cloned and converrted if necessary)
         from a nipype trait.
 
@@ -205,9 +203,7 @@ def nipype_factory(nipype_instance):
             instance.
         """
         # Clone the nipype trait
-        modules = set()
-        expression = build_expression(nipype_trait, modules)
-        process_trait = eval_trait(expression, modules)
+        process_trait = process_instance._clone_trait(nipype_trait)
 
         # Copy some information from the nipype trait
         process_trait.desc = nipype_trait.desc
@@ -230,7 +226,7 @@ def nipype_factory(nipype_instance):
         relax_exists_constrain(trait)
 
         # Clone the nipype trait
-        process_trait = clone_nipype_trait(trait)
+        process_trait = clone_nipype_trait(process_instance, trait)
 
         # Add the cloned trait to the process instance
         process_instance.add_trait(trait_name, process_trait)
@@ -252,7 +248,7 @@ def nipype_factory(nipype_instance):
     for trait_name, trait in nipype_instance.output_spec().items():
 
         # Clone the nipype trait
-        process_trait = clone_nipype_trait(trait)
+        process_trait = clone_nipype_trait(process_instance,trait)
 
         # Create the output process trait name: nipype trait name prefixed
         # by '_'

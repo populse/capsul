@@ -24,7 +24,7 @@ from traits.api import Undefined
 # Soma import
 from soma.controller.trait_utils import (
     get_trait_desc, is_trait_value_defined, is_trait_pathname,
-    clone_trait, build_expression, trait_ids, eval_trait)
+    trait_ids)
 
 # Capsul import
 import capsul
@@ -79,99 +79,6 @@ class TestUtils(unittest.TestCase):
             trait.handler = handler
             self.assertTrue(is_trait_pathname(trait))
 
-    def test_clone_trait(self):
-        """ Method to test trait clone from string description.
-        """
-        # Test first to build trait description from nipype traits and then
-        # to instanciate the trait
-        to_test_fields = {
-            "timing_units": "traits.api.Enum(('secs', 'scans'))",
-            "bases": ("traits.api.Dict(traits.api.Enum(('hrf', 'fourier', "
-                      "'fourier_han', 'gamma', 'fir')), traits.api.Any())"),
-            "mask_image": "traits.api.File(Undefined)",
-            "microtime_onset": "traits.api.Float()",
-            "mask_threshold": ("traits.api.Either(traits.api.Enum(('-Inf',)), "
-                               "traits.api.Float())")
-        }
-        i = spm.Level1Design()
-        # fix param types depending on nipype/spm version
-        if sys.version_info[0] < 3 \
-                and type(i.inputs.trait('timing_units').get_validate()[1][0]) \
-                    is unicode:
-            to_test_fields["timing_units"] \
-                = "traits.api.Enum((u'secs', u'scans'))"
-            to_test_fields["bases"] \
-                = "traits.api.Dict(traits.api.Enum((u'hrf', u'fourier', " \
-                  "u'fourier_han', u'gamma', u'fir')), traits.api.Any())"
-            to_test_fields["mask_threshold"] \
-                = ("traits.api.Either(traits.api.Enum((u'-Inf',)), "
-                   "traits.api.Float())")
-
-        for field, result in six.iteritems(to_test_fields):
-
-            # Test to build the trait expression
-            trait = i.inputs.trait(field)
-            expression = build_expression(trait)
-            self.assertEqual(expression, result)
-
-            # Try to clone the trait
-            trait = eval_trait(expression)()
-            self.assertEqual(build_expression(trait), result)
-
-        to_test_fields = {
-            "contrasts": (
-                "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
-                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
-                "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
-                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
-                "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())), "
-                "traits.api.Tuple(traits.api.Str(), traits.api.Enum(('F',)), "
-                "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
-                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
-                "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
-                "traits.api.Enum(('T',)), traits.api.List(traits.api.Str()), "
-                "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())"
-                "))))))"),
-            "use_derivs": "traits.api.Bool()"
-        }
-        i = spm.EstimateContrast()
-        # fix param types depending on nipype/spm version
-        if sys.version_info[0] < 3 \
-                and type(i.inputs.trait('contrasts').inner_traits[0]. \
-                    handler.handlers[0].as_ctrait().get_validate()[1][1]. \
-                    get_validate()[1][0]) \
-                    is unicode:
-            to_test_fields["contrasts"] \
-                = (
-                    "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
-                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
-                    "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
-                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
-                    "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())), "
-                    "traits.api.Tuple(traits.api.Str(), traits.api.Enum((u'F',)), "
-                    "traits.api.List(traits.api.Either(traits.api.Tuple(traits.api.Str(), "
-                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
-                    "traits.api.List(traits.api.Float())), traits.api.Tuple(traits.api.Str(), "
-                    "traits.api.Enum((u'T',)), traits.api.List(traits.api.Str()), "
-                    "traits.api.List(traits.api.Float()), traits.api.List(traits.api.Float())"
-                    "))))))")
-
-        for field, result in six.iteritems(to_test_fields):
-
-            # Test to build the trait expression
-            trait = i.inputs.trait(field)
-            expression = build_expression(trait)
-            self.assertEqual(expression, result)
-
-            # Try to clone the trait
-            trait = eval_trait(expression)()
-            self.assertEqual(build_expression(trait), result)
-
-        # Test to clone some traits
-        trait_description = ["Float", "Int"]
-        handler = clone_trait(trait_description)
-        trait = handler.as_ctrait()
-        self.assertEqual(trait_description, trait_ids(trait))
 
 
 def test():
