@@ -57,6 +57,11 @@ class TestMemory(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.workspace_dir)
+        if hasattr(self, 'cachedir'):
+            try:
+                shutil.rmtree(self.cachedir)
+            except:
+                pass
 
     def test_proxy_process_with_cache(self):
         """ Test the proxy process behaviours with cache.
