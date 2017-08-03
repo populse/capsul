@@ -938,41 +938,46 @@ class Pipeline(Process):
         plugs_deactivated = []
         # If node has already been  deactivated there is nothing to do
         if node.activated:
-            deactivate_node = bool([plug for plug in node.plugs.itervalues()
-                                    if plug.output])
+            deactivate_node = bool(
+                [plug for plug in six.itervalues(node.plugs)
+                 if plug.output])
             for plug_name, plug in six.iteritems(node.plugs):
                 # Check all activated plugs
-                if plug.activated:
-                    # A plug with a default value is always activated
-                    if plug.has_default_value:
-                        continue
-                    output = plug.output
-                    if (isinstance(node, PipelineNode) and
-                       node is not self.pipeline_node and output):
-                        plug_activated = (
-                            check_plug_activation(plug, plug.links_to) and
-                            check_plug_activation(plug, plug.links_from))
-                    else:
-                        if node is self.pipeline_node:
-                            output = not output
-                        if output:
-                            plug_activated = check_plug_activation(
-                                plug, plug.links_to)
+                try:
+                    if plug.activated:
+                        # A plug with a default value is always activated
+                        if plug.has_default_value:
+                            continue
+                        output = plug.output
+                        if (isinstance(node, PipelineNode) and
+                          node is not self.pipeline_node and output):
+                            plug_activated = (
+                                check_plug_activation(plug, plug.links_to) and
+                                check_plug_activation(plug, plug.links_from))
                         else:
-                            plug_activated = check_plug_activation(
-                                plug, plug.links_from)
+                            if node is self.pipeline_node:
+                                output = not output
+                            if output:
+                                plug_activated = check_plug_activation(
+                                    plug, plug.links_to)
+                            else:
+                                plug_activated = check_plug_activation(
+                                    plug, plug.links_from)
 
-                    # Plug must be deactivated, record it in result and check
-                    # if this deactivation also deactivate the node
-                    if not plug_activated:
-                        plug.activated = False
-                        plugs_deactivated.append((plug_name, plug))
-                        if not (plug.optional or
-                                node is self.pipeline_node):
-                            node.activated = False
-                            break
-                if plug.output and plug.activated:
-                    deactivate_node = False
+                        # Plug must be deactivated, record it in result and
+                        # check if this deactivation also deactivate the node
+                        if not plug_activated:
+                            plug.activated = False
+                            plugs_deactivated.append((plug_name, plug))
+                            if not (plug.optional or
+                                    node is self.pipeline_node):
+                                node.activated = False
+                                break
+                finally:
+                    # this must be done even if break or continue has been
+                    # encountered
+                    if plug.output and plug.activated:
+                        deactivate_node = False
             if deactivate_node:
                 node.activated = False
                 for plug_name, plug in six.iteritems(node.plugs):
@@ -1091,8 +1096,8 @@ class Pipeline(Process):
                         # of all plugs that are still active and propagate
                         # this deactivation to neighbours
                         if node_activated and debug:
-                            print('%d-%s' % (
-                                iteration, node.full_name), file=debug)
+                            print('%d-%s' % (iteration, node.full_name),
+                                  file=debug)
                         for plug_name, plug in six.iteritems(node.plugs):
                             if plug.activated:
                                 plug.activated = False
