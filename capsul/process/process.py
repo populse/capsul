@@ -457,10 +457,12 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         if hasattr(self, '_function'):
             # function with xml decorator
             module_name = self._function.__module__
-            call_name = self._function.__name__
+            class_name = self._function.__name__
+            call_name = class_name
         else:
             module_name = self.__class__.__module__
-            call_name = '%s()' % self.name
+            class_name = self.name
+            call_name = '%s()' % class_name
 
         # Construct the command line
         commandline = [
@@ -470,9 +472,10 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
              "kwargs.update(dict((sys.argv[i * 2 + {3}], "
              "sys.argv[i * 2 + {4}]) "
              "for i in range(int((len(sys.argv) - {3}) / 2)))); "
-             "{1}(**kwargs)").format(module_name, call_name,
+             "{5}(**kwargs)").format(module_name, class_name,
                                        repr(argsdict), len(pathslist) + 1,
-                                       len(pathslist) + 2).replace("'", '"')
+                                       len(pathslist) + 2,
+                                       call_name).replace("'", '"')
         ] + pathslist + sum([list(x) for x in pathsdict.items()], [])
 
         return commandline
