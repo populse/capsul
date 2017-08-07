@@ -454,8 +454,13 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 argsdict[trait_name] = value
 
         # Get the module and class names
-        module_name = self.__class__.__module__
-        class_name = self.name
+        if hasattr(self, '_function'):
+            # function with xml decorator
+            module_name = self._function.__module__
+            call_name = self._function.__name__
+        else:
+            module_name = self.__class__.__module__
+            call_name = '%s()' % self.name
 
         # Construct the command line
         commandline = [
@@ -465,7 +470,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
              "kwargs.update(dict((sys.argv[i * 2 + {3}], "
              "sys.argv[i * 2 + {4}]) "
              "for i in range(int((len(sys.argv) - {3}) / 2)))); "
-             "{1}()(**kwargs)").format(module_name, class_name,
+             "{1}(**kwargs)").format(module_name, call_name,
                                        repr(argsdict), len(pathslist) + 1,
                                        len(pathslist) + 2).replace("'", '"')
         ] + pathslist + sum([list(x) for x in pathsdict.items()], [])
