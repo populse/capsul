@@ -625,7 +625,8 @@ class Switch(Node):
         super(Switch, self).__init__(pipeline, name, node_inputs,
                                      node_outputs)
         for node in node_inputs[1:]:
-            self.plugs[node["name"]].enabled = False
+            plug = self.plugs[node["name"]]
+            plug.enabled = False
 
         # add switch enum trait to select the process
         self.add_trait("switch", Enum(output=False, *inputs))
@@ -635,9 +636,11 @@ class Switch(Node):
         for i, trait in zip(flat_inputs, input_types):
             self.add_trait(i, trait)
             self.trait(i).output = False
+            self.trait(i).optional = self.plugs[i].optional
         for i, trait in zip(outputs, output_types):
             self.add_trait(i, trait)
             self.trait(i).output = True
+            self.trait(i).optional = self.plugs[i].optional
 
         # activate the switch first Process
         self._switch_changed(self._switch_values[0], self._switch_values[0])
@@ -739,3 +742,119 @@ class Switch(Node):
     def __setstate__(self, state):
         self.__block_output_propagation = True
         super(Switch, self).__setstate__(state)
+
+
+class OptionalOutputSwitch(Switch):
+    ''' A switch which activates or disables its input/output link according
+    to the output value. If the output value is not None or Undefined, the
+    link is active, otherwise it is inactive.
+
+    This kind of switch is meant to make a pipeline output optional, but still
+    available for temporary files values inside the pipeline.
+
+    Ex:
+
+        A.output -> B.input
+
+        B.input is mandatory, but we want to make A.output available and
+        optional in the pipeline outputs. If we directlty export A.output, then
+        if the pipeline does not set a value, B.input will be empty and the
+        pipeline run will fail.
+
+        Instead we can add an OptionalOutputSwitch between A.output and
+        pipeline.output. If pipeline.output is set a valid value, then A.output
+        and B.input will have the same valid value. If pipeline.output is left
+        Undefined, then A.output and B.input will get a temporary value during
+        the run.
+
+    Technically, the OptionalOutputSwitch is currently implemented as a
+    specialized switch node with two inputs and one output, and thus follows
+    the inputs naming rules. The first input is the defined one, and the
+    second, hidden one, is named "_none". As a consequence, its 1st input
+    should be connected under the name "<input>_switch_<output> as in a
+    standard switch.
+    The "switch" input is hidden (not exported to the pipeline) and set
+    automatically according to the output value.
+    The implementation details may change in future versions.
+    '''
+    def __init__(self, pipeline, name, input, output):
+        """ Generate an OptionalOutputSwitch Node
+
+        Warnings
+        --------
+        The input plug name is built according to the following rule:
+        <input>_switch_<output>
+
+        Parameters
+        ----------
+        pipeline: Pipeline (mandatory)
+            the pipeline object where the node is added
+        name: str (mandatory)
+            the switch node name
+        input: str (mandatory)
+            option
+        output: str (mandatory)
+            output parameter
+        """
+        super(OptionalOutputSwitch, self).__init__(
+            pipeline, name, [input, '_none'], [output], [output])
+        self.trait('switch').optional = True
+        self.plugs['switch'].optional = True
+        self.switch = '_none'
+        pipeline.do_not_export.add((name, 'switch'))
+        pipeline.do_not_export.add((name, '_none_switch_%s' % output))
+
+    def _anytrait_changed(self, name, old, new):
+        """ Add an event to the switch trait that enables us to select
+        the desired option.
+
+        Propagates value through the switch, from output to input.
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            the trait name
+        old: str (mandatory)
+            the old value
+        new: str (mandatory)
+            the new value
+        """
+        # if the value change is on an output of the switch, and comes from
+        # an "external" assignment (ie not the result of switch action or
+        # change in one of its inputs), then propagate the new value to
+        # all corresponding inputs.
+        # However those inputs which are connected to a pipeline input are
+        # not propagated, to avoid cyclic feedback between outputs and inputs
+        # inside a pipeline
+        if name == 'trait_added':
+            return
+        if hasattr(self, '_outputs') \
+                and not self._Switch__block_output_propagation \
+                and name in self._outputs:
+            self._Switch__block_output_propagation = True
+            # change the switch value according to the output value
+            if new in (None, Undefined):
+                self.switch = '_none'
+            else:
+                self.switch = self._switch_values[0]
+            flat_inputs = ["{0}_switch_{1}".format(switch_name, name)
+                           for switch_name in self._switch_values]
+            for input_name in flat_inputs:
+                # check if input is connected to a pipeline input
+                plug = self.plugs[input_name]
+                for link_spec in plug.links_from:
+                    if isinstance(link_spec[2], PipelineNode) \
+                            and not link_spec[3].output:
+                        break
+                else:
+                    setattr(self, input_name, new)
+            self._Switch__block_output_propagation = False
+        # if the change is in an input, change the corresponding output
+        # accordingly, if the current switch selection is on this input.
+        spliter = name.split("_switch_")
+        if len(spliter) == 2 and spliter[0] in self._switch_values:
+            switch_selection, output_plug_name = spliter
+            if self.switch == switch_selection:
+                self._Switch__block_output_propagation = True
+                setattr(self, output_plug_name, new)
+                self._Switch__block_output_propagation = False

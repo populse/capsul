@@ -39,6 +39,7 @@ from .pipeline_nodes import Plug
 from .pipeline_nodes import ProcessNode
 from .pipeline_nodes import PipelineNode
 from .pipeline_nodes import Switch
+from .pipeline_nodes import OptionalOutputSwitch
 
 # Soma import
 from soma.controller import Controller
@@ -246,6 +247,9 @@ class Pipeline(Process):
         ----------
         include_optional: bool (optional)
             If True (the default), optional plugs are not exported
+            Exception: optional output plugs of switches are exported
+            (otherwise they are useless). It should probably be any single
+            output plug of a node.
         """
         for node_name, node in six.iteritems(self.nodes):
             if node_name == "":
@@ -256,9 +260,10 @@ class Pipeline(Process):
                 if (((node_name, parameter_name) not in self.do_not_export and
                     ((plug.output and not plug.links_to) or
                      (not plug.output and not plug.links_from)) and
-                    (include_optional or not
-                     self.nodes[node_name].get_trait(
-                        parameter_name).optional))):
+                    (include_optional
+                     or (plug.output and isinstance(node, Switch))
+                     or not self.nodes[node_name].get_trait(
+                          parameter_name).optional))):
 
                     self.export_parameter(node_name, parameter_name)
 
@@ -556,6 +561,68 @@ class Pipeline(Process):
 
         self._set_subprocess_context_name(node, name)
 
+    def add_optional_output_switch(self, name, input, output=None):
+        """ Add an optional output switch node in the pipeline
+
+        An optional switch activates or disables its input/output link
+        according to the output value. If the output value is not None or
+        Undefined, the link is active, otherwise it is inactive.
+
+        This kind of switch is meant to make a pipeline output optional, but
+        still available for temporary files values inside the pipeline.
+
+        Ex:
+
+        A.output -> B.input
+
+        B.input is mandatory, but we want to make A.output available and
+        optional in the pipeline outputs. If we directlty export A.output, then
+        if the pipeline does not set a value, B.input will be empty and the
+        pipeline run will fail.
+
+        Instead we can add an OptionalOutputSwitch between A.output and
+        pipeline.output. If pipeline.output is set a valid value, then A.output
+        and B.input will have the same valid value. If pipeline.output is left
+        Undefined, then A.output and B.input will get a temporary value during
+        the run.
+
+        Add an optional output switch node in the pipeline
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            name for the switch node (has to be unique)
+        input: str (mandatory)
+            name for switch input.
+            Switch activation will select between it and a hidden input,
+            "_none". Inputs names will actually be a combination of input and
+            output, in the shape "input_switch_output".
+        output: str (optional)
+            name for output. Default is the switch name
+
+        Examples
+        --------
+        >>> pipeline.add_optional_output_switch('out1', 'in1')
+        >>> pipeline.add_link('node1.output->out1.in1_switch_out1')
+
+
+        See Also
+        --------
+        capsul.pipeline.pipeline_nodes.OptionalOutputSwitch
+        """
+        # Check the unicity of the name we want to insert
+        if name in self.nodes:
+            raise ValueError("Pipeline cannot have two nodes with the same "
+                             "name: {0}".format(name))
+
+        if output is None:
+            output = name
+        # Create the node
+        node = OptionalOutputSwitch(self, name, input, output)
+        self.nodes[name] = node
+
+        self._set_subprocess_context_name(node, name)
+
     def parse_link(self, link):
         """ Parse a link comming from export_parameter method.
 
@@ -757,7 +824,8 @@ class Pipeline(Process):
         # Get the node and parameter
         node = self.nodes[node_name]
         # Make a copy of the trait
-        trait = Trait(node.get_trait(plug_name))
+        source_trait = node.get_trait(plug_name)
+        trait = Trait(source_trait)
 
         # Check if the plug name is valid
         if trait is None:
