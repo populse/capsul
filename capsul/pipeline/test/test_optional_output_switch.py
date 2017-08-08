@@ -12,7 +12,11 @@ import unittest
 from traits.api import File, Float
 from capsul.api import Process
 from capsul.api import Pipeline
+from capsul.api import get_process_instance
+from capsul.pipeline.pipeline_nodes import OptionalOutputSwitch
 from traits.api import Undefined
+import tempfile
+import os
 
 
 class DummyProcess(Process):
@@ -84,6 +88,20 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.nodes["node1"].process.output_image,
                          Undefined)
 
+    def test_xml(self):
+        from capsul.pipeline import xml
+        temp = tempfile.mkstemp(suffix='.xml')
+        try:
+            os.close(temp[0])
+            xml.save_xml_pipeline(self.pipeline, temp[1])
+            pipeline = get_process_instance(temp[1])
+            self.assertEqual(len(pipeline.nodes), len(self.pipeline.nodes))
+            pipeline.workflow_ordered_nodes()
+            self.assertEqual(isinstance(pipeline.nodes['intermediate_out'],
+                                        OptionalOutputSwitch), True)
+            self.assertEqual(pipeline.workflow_repr, "node1->node2")
+        finally:
+            os.unlink(temp[1])
 
 def test():
     """ Function to execute unitest
