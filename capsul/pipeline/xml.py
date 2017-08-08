@@ -126,6 +126,28 @@ def create_xml_pipeline(module, name, xml_file):
             enabled = child.get('enabled')
             if enabled == 'false':
                 builder.set_node_enabled(switch_name, False)
+        elif child.tag == 'optional_output_switch':
+            switch_name = child.get('name')
+            kwargs = {}
+            input = None
+            output = None
+            for process_child in child:
+                if process_child.tag == 'input':
+                    if input is not None:
+                        raise ValueError(
+                            'Several inputs in optional_output_switch')
+                    input = process_child.get('name')
+                elif process_child.tag == 'output':
+                    if output is not None:
+                        raise ValueError(
+                            'Several outputs in optional_output_switch')
+                    output = process_child.get('name')
+            if input is None:
+                raise ValueError('No input in optional_output_switch')
+            builder.add_optional_output_switch(switch_name, input, output)
+            enabled = child.get('enabled')
+            if enabled == 'false':
+                builder.set_node_enabled(switch_name, False)
         elif child.tag == 'link':
             source = child.get('source')
             dest = child.get('dest')
@@ -214,7 +236,8 @@ def save_xml_pipeline(pipeline, xml_file):
     '''
     # imports are done locally to avoid circular imports
     from capsul.api import Process, Pipeline
-    from capsul.pipeline.pipeline_nodes import ProcessNode, Switch
+    from capsul.pipeline.pipeline_nodes import ProcessNode, Switch, \
+        OptionalOutputSwitch
     from capsul.pipeline.process_iteration import ProcessIteration
     from capsul.process.process import NipypeProcess
 
@@ -282,11 +305,31 @@ def save_xml_pipeline(pipeline, xml_file):
         swnode.set('switch_value', unicode(switch.switch))
         return swnode
 
+    def _write_optional_output_switch(switch, parent, name):
+        swnode = ET.SubElement(parent, 'optional_output_switch')
+        swnode.set('name', name)
+        for plug_name, plug in six.iteritems(switch.plugs):
+            if plug.output:
+                elem = ET.SubElement(swnode, 'output')
+                elem.set('name', plug_name)
+            else:
+                name_parts = plug_name.split("_switch_")
+                if len(name_parts) == 2:
+                    input = name_parts[0]
+                    if input != '_none':
+                        elem = ET.SubElement(swnode, 'input')
+                        elem.set('name', name_parts[0])
+                        if plug.optional:
+                            elem.set('optional', 'true')
+        return swnode
+
     def _write_processes(pipeline, root):
         for node_name, node in six.iteritems(pipeline.nodes):
             if node_name == "":
                 continue
-            if isinstance(node, Switch):
+            if isinstance(node, OptionalOutputSwitch):
+                xmlnode = _write_optional_output_switch(node, root, node_name)
+            elif isinstance(node, Switch):
                 xmlnode = _write_switch(node, root, node_name)
             elif isinstance(node, ProcessNode) \
                     and isinstance(node.process, ProcessIteration):

@@ -116,6 +116,11 @@ class PipelineConstructor(object):
         """
         self._calls.append(('add_switch', args, kwargs))
 
+    def add_optional_output_switch(self, *args, **kwargs):
+        """ Adds an OptionalOutputswitch to the pipeline
+        """
+        self._calls.append(('add_optional_output_switch', args, kwargs))
+
     def set_node_enabled(self, name, state):
         """ Enables or disabled a node
         """
