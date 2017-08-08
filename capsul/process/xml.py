@@ -114,6 +114,9 @@ def trait_from_xml(element):
     optional = element.get('optional')
     if optional is not None:
         trait_kwargs['optional'] = bool(optional == 'true')
+    allowed_ext = element.get('allowed_extensions')
+    if allowed_ext is not None:
+        trait_kwargs['allowed_extensions'] = eval(allowed_ext)
     return trait_class(*trait_args, **trait_kwargs)
 
 def create_xml_process(module, name, function, xml):
