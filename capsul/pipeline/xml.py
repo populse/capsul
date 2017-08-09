@@ -18,6 +18,8 @@ from soma.sorted_dictionary import OrderedDict
 from capsul.process.xml import string_to_value
 from capsul.pipeline.pipeline_construction import PipelineConstructor
 
+from traits.api import Undefined
+
 if sys.version_info[0] >= 3:
     unicode = str
 
@@ -275,6 +277,15 @@ def save_xml_pipeline(pipeline, xml_file):
                     elem = ET.SubElement(procnode, 'nipype')
                     elem.set('name', param)
                     elem.set('use_default', 'true')
+        # set initial values
+        for param_name, trait in six.iteritems(process.user_traits()):
+            if param_name not in ('nodes_activation', 'selection_changed'):
+                value = getattr(process, param_name)
+                if value not in (None, Undefined, '', []):
+                    value = repr(value)
+                    elem = ET.SubElement(procnode, 'set')
+                    elem.set('name', param_name)
+                    elem.set('value', value)
         return procnode
 
     def _write_iteration(process_iter, parent, name):
