@@ -49,3 +49,9 @@ Documentation contents
 
     installation
     documentation
+
+
+License
+-------
+
+CAPSUL is released under the `CeCILL-B <http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html>`_ software license, which is much similar to the BSD license.
