@@ -24,7 +24,7 @@ import six
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui
 from soma.sorted_dictionary import SortedDictionary
-from capsul.api import Switch, PipelineNode
+from capsul.api import Switch, PipelineNode, OptionalOutputSwitch
 from capsul.pipeline import pipeline_tools
 from capsul.api import Pipeline
 from capsul.api import Process
@@ -172,7 +172,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
         super(NodeGWidget, self).__init__(parent)
         self.style = 'default'
         self.name = name
-        self.parameters = parameters
+        self.parameters = SortedDictionary(
+            [(pname, param) for pname, param in six.iteritems(parameters)
+             if not getattr(param, 'hidden', False)])
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.in_plugs = {}
         self.in_params = {}
@@ -1942,8 +1944,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         """ right-click popup menu for nodes
         """
         node_name = unicode(node_name) # in case it is a QString
+        node_type = 'process'
+        if isinstance(process, OptionalOutputSwitch):
+            node_type = 'opt. output switch'
+        elif isinstance(process, Switch):
+            node_type = 'switch'
         menu = QtGui.QMenu('Node: %s' % node_name, None)
-        title = menu.addAction('Node: %s' % node_name)
+        title = menu.addAction('Node: %s (%s)' % (node_name, node_type))
         title.setEnabled(False)
         menu.addSeparator()
 
@@ -1998,7 +2005,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             'Check input / output files')
         check_pipeline_action.triggered.connect(self.check_files)
 
-        if isinstance(node, Switch):
+        if isinstance(node, Switch) \
+                and not isinstance(node, OptionalOutputSwitch):
             # allow to select switch value from the menu
             submenu = menu.addMenu('Switch value')
             agroup = QtGui.QActionGroup(submenu)

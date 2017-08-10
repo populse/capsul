@@ -30,7 +30,7 @@ except ImportError:
 
 # Capsul import
 from capsul.pipeline.pipeline import Pipeline, PipelineNode, Switch, \
-    ProcessNode
+    ProcessNode, OptionalOutputSwitch
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller
 
@@ -105,6 +105,13 @@ def pipeline_node_colors(pipeline, node):
     LIGHT_SKY_2 = (0.7, 0.75, 0.9)
     LIGHT_SKY_3 = (0.2, 0.3, 0.6)
 
+    APPLE_1 = (0.7, 0.8, 0.3)
+    APPLE_2 = (0.9, 1., 0.5)
+    APPLE_3 = (0.45, 0.5, 0.2)
+    LIGHT_APPLE_1 = (0.78, 0.85, 0.48)
+    LIGHT_APPLE_2 = (0.95, 1., 0.73)
+    LIGHT_APPLE_3 = (0.55, 0.6, 0.3)
+
     _colors = {
         'default': (BLUE_1, BLUE_2, BLUE_3, LIGHT_BLUE_1, LIGHT_BLUE_2,
                     LIGHT_BLUE_3),
@@ -116,8 +123,12 @@ def pipeline_node_colors(pipeline, node):
                       LIGHT_GREEN_3),
         'attributed': (SKY_1, SKY_2, SKY_3, LIGHT_SKY_1, LIGHT_SKY_2,
                       LIGHT_SKY_3),
+        'optional_output_switch': (APPLE_1, APPLE_2, APPLE_3, LIGHT_APPLE_1,
+                                   LIGHT_APPLE_2, LIGHT_APPLE_3),
     }
-    if isinstance(node, Switch):
+    if isinstance(node, OptionalOutputSwitch):
+        style = 'optional_output_switch'
+    elif isinstance(node, Switch):
         style = 'switch'
     elif isinstance(node, PipelineNode) and node is not pipeline.pipeline_node:
         style = 'pipeline'
