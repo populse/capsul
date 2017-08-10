@@ -91,7 +91,7 @@ string_to_trait = {
     'list_directory': (List, {'trait': Directory}),
     'list_any': (List, {'trait': Any}),
 }
-def trait_from_xml(element):
+def trait_from_xml(element, order=None):
     """ Creates a trait from an XML element type (<input>, <output> or
     <return>).
     """
@@ -117,6 +117,8 @@ def trait_from_xml(element):
     allowed_ext = element.get('allowed_extensions')
     if allowed_ext is not None:
         trait_kwargs['allowed_extensions'] = eval(allowed_ext)
+    if order is not None:
+        trait_kwargs['order'] = order
     return trait_class(*trait_args, **trait_kwargs)
 
 def create_xml_process(module, name, function, xml):
@@ -166,10 +168,12 @@ def create_xml_process(module, name, function, xml):
     function_inputs = []
     function_outputs = []
     function_return = None
+    trait_count = 0 # used to order traits in class
     for child in xml_process:
         if child.tag in ('input', 'output'):
             n = child.get('name')
-            trait = trait_from_xml(child)
+            trait = trait_from_xml(child, trait_count)
+            trait_count += 1
             class_kwargs[n] = trait
             if trait.output and not trait.input_filename:
                 function_outputs.append(n)
@@ -178,13 +182,15 @@ def create_xml_process(module, name, function, xml):
         elif child.tag == 'return':
             n = child.get('name')
             if n:
-                trait = trait_from_xml(child)
+                trait = trait_from_xml(child, trait_count)
+                trait_count += 1
                 class_kwargs[n] = trait
                 function_return = n
             else:
                 for parameter in child:
                     n = parameter.get('name')
-                    trait = trait_from_xml(parameter)
+                    trait = trait_from_xml(parameter, trait_count)
+                    trait_count += 1
                     class_kwargs[n] = trait
                     function_outputs.append(n)
         else:
