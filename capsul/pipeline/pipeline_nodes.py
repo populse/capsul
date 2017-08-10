@@ -802,7 +802,13 @@ class OptionalOutputSwitch(Switch):
         self.plugs['switch'].optional = True
         self.switch = '_none'
         pipeline.do_not_export.add((name, 'switch'))
-        pipeline.do_not_export.add((name, '_none_switch_%s' % output))
+        none_input = '_none_switch_%s' % output
+        pipeline.do_not_export.add((name, none_input))
+        # hide internal machinery plugs
+        self.trait('switch').hidden = True
+        self.plugs['switch'].hidden = True
+        self.trait(none_input).hidden = True
+        self.plugs[none_input].hidden = True
 
     def _anytrait_changed(self, name, old, new):
         """ Add an event to the switch trait that enables us to select
