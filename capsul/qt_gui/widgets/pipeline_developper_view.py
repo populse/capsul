@@ -1425,6 +1425,13 @@ class PipelineScene(QtGui.QGraphicsScene):
             return True
         return False
 
+    @staticmethod
+    def html_doc(doc_text):
+        # TODO: sphinx transform
+        text = doc_text.replace('<', '&lt;')
+        text = text.replace('>', '&gt;')
+        return text
+
     def plug_tooltip_text(self, node, name):
         '''Tooltip text for a node plug
         '''
@@ -1454,7 +1461,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         else:
             optional = 'mandatory'
         value = getattr(proc, name)
-        trait_type = proc.user_traits()[name].trait_type
+        trait = proc.user_traits()[name]
+        trait_type = trait.trait_type
         trait_type_str = str(trait_type)
         trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
         trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
@@ -1497,6 +1505,17 @@ class PipelineScene(QtGui.QGraphicsScene):
     </tr>
 '''
         msg += '</table>'
+        desc = trait.desc
+        if desc:
+            msg += '\n<h3>Description:</h3>\n'
+            msg += self.html_doc(desc)
+        return msg
+
+
+    def node_tooltip_text(self, node):
+        process = node.process
+        msg = getattr(process, '__doc__', '')
+        #msg = self.html_doc(doc)
         return msg
 
 
@@ -1529,6 +1548,11 @@ class PipelineScene(QtGui.QGraphicsScene):
                       break
             if found:
                 text = self.plug_tooltip_text(node, name)
+                item.setToolTip(text)
+        elif isinstance(item, QtGui.QGraphicsRectItem):
+            node = item.parentItem()
+            if isinstance(node, NodeGWidget):
+                text = self.node_tooltip_text(node)
                 item.setToolTip(text)
         elif isinstance(item, QtGui.QGraphicsProxyWidget):
             # PROBLEM: tooltips in child graphics scenes seem not to popup.
@@ -2102,6 +2126,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             add_proc.triggered.connect(self.add_process)
             add_switch = menu.addAction('Add switch in pipeline')
             add_switch.triggered.connect(self.add_switch)
+            add_optional_output_switch = menu.addAction(
+                'Add optional output switch in pipeline')
+            add_optional_output_switch.triggered.connect(
+                self.add_optional_output_switch)
 
             menu.addSeparator()
             export_mandatory_plugs = menu.addAction(
@@ -2555,11 +2583,57 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         res = switch_name_gui.exec_()
         if res:
             pipeline = self.scene.pipeline
-            node_name = str(switch_name_gui.name_line.text())
+            node_name = str(switch_name_gui.name_line.text()).strip()
             inputs = str(switch_name_gui.inputs_line.text()).split()
             outputs = str(switch_name_gui.outputs_line.text()).split()
             pipeline.add_switch(node_name, inputs, outputs)
             # add_switch triggers an update
+            gnode = self.scene.gnodes[node_name]
+            gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
+
+    def add_optional_output_switch(self):
+        '''
+        Insert an optional output switch node in the pipeline. Asks for the
+        switch inputs/outputs, and the node name before inserting.
+        '''
+
+        class SwitchInput(QtGui.QDialog):
+            def __init__(self):
+                super(SwitchInput, self).__init__()
+                self.setWindowTitle('switch parameters/name:')
+                layout = QtGui.QGridLayout(self)
+                layout.addWidget(QtGui.QLabel('input:'), 0, 0)
+                self.inputs_line = QtGui.QLineEdit()
+                layout.addWidget(self.inputs_line, 0, 1)
+                layout.addWidget(QtGui.QLabel('output:'), 1, 0)
+                self.outputs_line = QtGui.QLineEdit()
+                layout.addWidget(self.outputs_line, 1, 1)
+                layout.addWidget(QtGui.QLabel('node name'), 2, 0)
+                self.name_line = QtGui.QLineEdit()
+                layout.addWidget(self.name_line, 2, 1)
+                ok = QtGui.QPushButton('OK')
+                layout.addWidget(ok, 3, 0)
+                cancel = QtGui.QPushButton('Cancel')
+                layout.addWidget(cancel, 3, 1)
+                ok.clicked.connect(self.accept)
+                cancel.clicked.connect(self.reject)
+
+        switch_name_gui = SwitchInput()
+        switch_name_gui.resize(600, switch_name_gui.sizeHint().height())
+
+        res = switch_name_gui.exec_()
+        if res:
+            pipeline = self.scene.pipeline
+            node_name = str(switch_name_gui.name_line.text()).strip()
+            input = str(switch_name_gui.inputs_line.text()).strip()
+            output = str(switch_name_gui.outputs_line.text()).strip()
+            if output == '' and node_name != '':
+                output = node_name
+            elif output != '' and node_name == '':
+                node_name = output
+            pipeline.add_optional_output_switch(node_name, input, output)
+            # add_optional_output_switch does *not* trigger an update
+            self._reset_pipeline()
             gnode = self.scene.gnodes[node_name]
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
