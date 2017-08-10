@@ -262,8 +262,10 @@ latex_documents = [
     #swf_version = ''
 
 extlinks = {
+  'somabase': ('http://brainvisa.info/soma-base/sphinx/%s',
+    'somabase '),
   'somaworkflow': ('http://brainvisa.info/soma-workflow/sphinx/%s',
-    'anatomist '),
+    'somaworkflow '),
 }
 
 # Example configuration for intersphinx: refer to the Python standard library.
