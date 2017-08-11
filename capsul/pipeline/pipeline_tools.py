@@ -1009,3 +1009,22 @@ def create_output_directories(process):
         if not os.path.exists(directory):
             os.makedirs(directory)
 
+def save_pipeline(pipeline, filename):
+    '''
+    Save the pipeline either in XML or .py source file
+    '''
+    from capsul.pipeline.xml import save_xml_pipeline
+    from capsul.pipeline.python_export import save_py_pipeline
+
+    formats = {'.py': save_py_pipeline,
+               '.xml': save_xml_pipeline}
+
+    saved = False
+    for ext, writer in six.iteritems(formats):
+        if filename.endswith(ext):
+            writer(pipeline, filename)
+            saved = True
+            break
+    if not saved:
+        # fallback to XML
+        save_py_pipeline(pipeline, filename)
