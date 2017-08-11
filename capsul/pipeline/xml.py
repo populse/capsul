@@ -416,6 +416,37 @@ def save_xml_pipeline(pipeline, xml_file):
                 node_pos.set('y', unicode(pos[1]))
         return gui
 
+    def _write_doc(pipeline, root):
+        if hasattr(pipeline, "__doc__"):
+            docstr = pipeline.__doc__
+            if docstr == Pipeline.__doc__:
+                docstr = ""  # don't use the builtin Pipeline help
+            else:
+                # remove automatically added doc
+                splitdoc = docstr.split('\n')
+                notepos = [i for i, x in enumerate(splitdoc[:-2])
+                              if x.endswith('.. note::')]
+                autodocpos = None
+                if notepos:
+                    for i in notepos:
+                        if splitdoc[i+2].find(
+                                "* Type '{0}.help()'".format(
+                                    pipeline.__class__.__name__)) != -1:
+                            autodocpos = i
+                if autodocpos is not None:
+                    # strip empty trailing lines
+                    while autodocpos >= 1 \
+                            and splitdoc[autodocpos - 1].strip() == '':
+                        autodocpos -= 1
+                    docstr = '\n'.join(splitdoc[:autodocpos]) + '\n'
+        else:
+            docstr = ''
+        if docstr.strip() == '':
+            docstr = ''
+        doc = ET.SubElement(root, 'doc')
+        doc.text = docstr
+        return doc
+
     root = ET.Element('pipeline')
     root.set('capsul_xml', '2.0')
     class_name = pipeline.__class__.__name__
@@ -424,22 +455,7 @@ def save_xml_pipeline(pipeline, xml_file):
         class_name = 'CustomPipeline'
     root.set('name', class_name)
 
-    if hasattr(pipeline, "__doc__"):
-        docstr = pipeline.__doc__
-        if docstr == Pipeline.__doc__:
-            docstr = ""  # don't use the builtin Pipeline help
-        else:
-            # remove automatically added doc
-            autodocpos = docstr.find(
-                ".. note::\n\n    * Type '{0}.help()'".format(
-                    pipeline.__class__.__name__))
-            if autodocpos >= 0:
-                docstr = docstr[:autodocpos]
-    else:
-        docstr = ''
-    if docstr.strip() == '':
-        docstr = ''
-    root.set('doc', docstr)
+    _write_doc(pipeline, root)
     _write_processes(pipeline, root)
     _write_links(pipeline, root)
     _write_processes_selections(pipeline, root)
