@@ -12,6 +12,7 @@ import xml.etree.cElementTree as ET
 
 from capsul.pipeline.pipeline import Pipeline
 from capsul.process.xml import string_to_value
+from capsul.process.process import ProcessMeta
 
 from traits.api import Undefined, Directory
 
@@ -97,9 +98,12 @@ class PipelineConstructor(object):
     def set_documentation(self, doc):
         """ Sets the documentation of the pipeline
         """
-        self.pipeline.__doc__ = doc
-    
-    
+        # Get and complement the process docstring
+        docstring = ProcessMeta.complement_doc(
+            self.pipeline.__class__.__name__, doc)
+        self.pipeline.__doc__ = docstring
+
+
     def set_node_position(self, node_name, x, y):
         """ Set a pipeline node position.
         """
