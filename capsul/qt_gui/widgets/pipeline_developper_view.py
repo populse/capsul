@@ -1776,6 +1776,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         if hasattr(pipeline, "scene_scale_factor"):
             self.scale(
                 pipeline.scene_scale_factor, pipeline.scene_scale_factor)
+        self.reset_initial_nodes_positions()
 
 
     def set_pipeline(self, pipeline):
@@ -2889,14 +2890,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         old_filename = getattr(self, '_pipeline_filename', '')
         filename = QtGui.QFileDialog.getSaveFileName(
             None, 'Save the pipeline', old_filename,
-            'XML files (*.xml);; All (*)')
+            'Compatible files (*.xml *.py);; All (*)')
         if filename:
             posdict = dict([(key, (value.x(), value.y())) \
                             for key, value in six.iteritems(self.scene.pos)])
             old_pos = pipeline.node_position
             pipeline.node_position = posdict
-            # FIXME: save implementation has gone...
-            capsulxml.save_xml_pipeline(pipeline, filename)
+            pipeline_tools.save_pipeline(pipeline, filename)
             self._pipeline_filename = unicode(filename)
             pipeline.node_position = old_pos
 
