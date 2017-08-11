@@ -52,22 +52,11 @@ class ProcessMeta(Controller.__class__):
 
     Use a class and not a function for inheritance.
     """
-    def __new__(mcls, name, bases, attrs):
-        """ Method to print the full help.
-
-        Parameters
-        ----------
-        mcls: meta class (mandatory)
-            a meta class.
-        name: str (mandatory)
-            the process class name.
-        bases: tuple (mandatory)
-            the direct base classes.
-        attrs: dict (mandatory)
-            a dictionnary with the class attributes.
+    @staticmethod
+    def complement_doc(name, docstr):
+        """ complement the process docstring
         """
-        # Get the process docstring
-        docstring = attrs.get("__doc__", "").split("\n")
+        docstring = docstr.split("\n")
 
         # we have to indent the note properly so that the docstring is
         # properly displayed, and correctly processed by sphinx
@@ -95,6 +84,26 @@ class ProcessMeta(Controller.__class__):
             "this process output trait types.".format(name),
             ""
         ]]
+
+        return "\n".join(docstring)
+
+    def __new__(mcls, name, bases, attrs):
+        """ Method to print the full help.
+
+        Parameters
+        ----------
+        mcls: meta class (mandatory)
+            a meta class.
+        name: str (mandatory)
+            the process class name.
+        bases: tuple (mandatory)
+            the direct base classes.
+        attrs: dict (mandatory)
+            a dictionnary with the class attributes.
+        """
+        # Get and complement the process docstring
+        docstring = ProcessMeta.complement_doc(
+            name, attrs.get("__doc__", ""))
 
         # Update the class docstring with the full process help
         attrs["__doc__"] = "\n".join(docstring)
