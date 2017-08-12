@@ -101,12 +101,10 @@ class ProcessMeta(Controller.__class__):
         attrs: dict (mandatory)
             a dictionnary with the class attributes.
         """
-        # Get and complement the process docstring
+        # Update the class docstring with the full process help
         docstring = ProcessMeta.complement_doc(
             name, attrs.get("__doc__", ""))
-
-        # Update the class docstring with the full process help
-        attrs["__doc__"] = "\n".join(docstring)
+        attrs["__doc__"] = docstring
 
         # Find all traits definitions in the process class and ensure that
         # it has a boolean value for attributes "output" and "optional".
