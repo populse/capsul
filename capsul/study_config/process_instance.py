@@ -13,6 +13,7 @@ import importlib
 import types
 import re
 import six
+import os
 
 # Caspul import
 from capsul.process.process import Process
@@ -49,7 +50,9 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
         * a string description of the class `<module>.<class>`.
         * a string description of a function to warp `<module>.<function>`.
         * a string description of a pipeline `<module>.<fname>.xml`.
-        * an XML filename for a pipeline
+        * an XML filename for a pipeline.
+        * a Python (.py) filename with process name in it:
+          `/path/process_source.py#ProcessName`.
 
     Default values of the process instance are passed as additional parameters.
 
@@ -141,15 +144,28 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
     # If the function 'process_or_id' parameter is a class string
     # description
     elif isinstance(process_or_id, basestring):
-        elements = process_or_id.rsplit('.', 1)
-        if len(elements) < 2:
-            module_name, object_name = elements[0], elements[0]
-        else:
-            module_name, object_name = elements
+        py_url = os.path.basename(process_or_id).split('#')
+        object_name = None
         as_xml = False
-        try:
-            importlib.import_module(module_name)
-        except ImportError as e:
+        as_py = False
+        if len(py_url) >= 2 and py_url[-2].endswith('.py'):
+            # python file + process name: something.py#ProcessName
+            filename = process_or_id[:-len(py_url[-1]) - 1]
+            exec(compile(open(filename, "rb").read(), filename, 'exec'))
+            module_name, object_name = '__main__', py_url[-1]
+            as_py = True
+        if object_name is None:
+            elements = process_or_id.rsplit('.', 1)
+            if len(elements) < 2:
+                module_name, object_name = '__main__', elements[0]
+            else:
+                module_name, object_name = elements
+            try:
+                importlib.import_module(module_name)
+                as_py = True
+            except ImportError as e:
+                pass
+        if not as_py:
             # maybe XML filename or URL
             xml_url = process_or_id + '.xml'
             if osp.exists(xml_url):
