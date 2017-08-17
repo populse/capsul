@@ -107,6 +107,7 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
 
 
 def _execfile(filename):
+    # This chunk of code cannot be put inline in python 2.6
     glob_dict = {}
     exec(compile(open(filename, "rb").read(), filename, 'exec'),
           glob_dict, glob_dict)
@@ -116,7 +117,7 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
 
     def is_process(item):
         if inspect.isclass(item) and item not in (Pipeline, Process) \
-                and (issubclass(item, Process) or isinstance(item, Interface)):
+                and (issubclass(item, Process) or issubclass(item, Interface)):
             return True
         if not inspect.isfunction(item):
             return False
