@@ -22,7 +22,7 @@ import inspect
 import six
 
 # Capsul import
-from soma.qt_gui.qt_backend import QtCore, QtGui
+from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
 from soma.sorted_dictionary import SortedDictionary
 from capsul.api import Switch, PipelineNode, OptionalOutputSwitch
 from capsul.pipeline import pipeline_tools
@@ -866,7 +866,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             event.ignore()
 
     def mousePressEvent(self, event):
-        item = self.scene().itemAt(event.scenePos())
+        item = self.scene().itemAt(event.scenePos(), Qt.QTransform())
         #print('NodeGWidget click, item:', item)
         if isinstance(item, Plug):
             item.mousePressEvent(event)
@@ -922,7 +922,7 @@ class Link(QtGui.QGraphicsPathItem):
         self.weak = weak
 
     def mousePressEvent(self, event):
-        item = self.scene().itemAt(event.scenePos())
+        item = self.scene().itemAt(event.scenePos(), Qt.QTransform())
         #print('Link click, item:', item)
         if event.button() == QtCore.Qt.RightButton:
             # not a signal since we don't jhave enough identity information in
@@ -1527,7 +1527,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             event.setAccepted(False)
             super(PipelineScene, self).helpEvent(event)
             return
-        item = self.itemAt(event.scenePos())
+        item = self.itemAt(event.scenePos(), Qt.QTransform())
         if isinstance(item, Link):
             for source_dest, glink in six.iteritems(self.glinks):
                 if glink is item:
@@ -1681,15 +1681,17 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     * dotted line link: weak link
     '''
 
-    def __init__(self, pipeline, parent=None, show_sub_pipelines=False,
+    def __init__(self, pipeline=None, parent=None, show_sub_pipelines=False,
             allow_open_controller=False, logical_view=False,
             enable_edition=False):
         '''PipelineDevelopperView
 
         Parameters
         ----------
-        pipeline:  Pipeline (mandatory)
+        pipeline:  Pipeline (optional)
             pipeline object to be displayed
+            If omitted an empty pipeline will be used, and edition mode will be
+            activated.
         parent:  QWidget (optional)
             parent widget
         show_sub_pipelines:  bool (optional)
@@ -1705,7 +1707,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             between nodes are displayed.
         enable_edition: bool (optional)
             if set, pipeline edition features are available in GUI and menus:
-            adding process boxes, drawing links etc.
+            adding process boxes, drawing links etc. If pipeline is not
+            specified, then edition will be activated anyway.
         '''
         super(PipelineDevelopperView, self).__init__(parent)
         self.scene = None
@@ -1714,6 +1717,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self._allow_open_controller = allow_open_controller
         self._logical_view = logical_view
         self._enable_edition = enable_edition
+
+        if pipeline is None:
+            pipeline = Pipeline()
+            enable_edition = True
 
         # Check that we have a pipeline or a process
         if not isinstance(pipeline, Pipeline):
@@ -1849,7 +1856,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def wheelEvent(self, event):
         done = False
         if event.modifiers() == QtCore.Qt.ControlModifier:
-            item = self.itemAt(event.pos())
+            item = self.itemAt(event.pos(), Qt.QTransform())
             if not isinstance(item, QtGui.QGraphicsProxyWidget):
                 done = True
                 if event.delta() < 0:
@@ -2159,6 +2166,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self.export_all_unconnected_outputs)
             prune = menu.addAction('Prune unused pipeline plugs')
             prune.triggered.connect(self._prune_plugs)
+
+            menu.addSeparator()
+            new_pipeline = menu.addAction('New pipeline (clear current)')
+            new_pipeline.triggered.connect(self.new_pipeline)
+            load_pipeline = menu.addAction('Load pipeline (clear current)')
+            load_pipeline.triggered.connect(self.load_pipeline)
 
         menu.addSeparator()
         save = menu.addAction('Save pipeline')
@@ -2671,7 +2684,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.removeItem(self._temp_link)
         del self._temp_link
         pos = self.mapToScene(event.pos())
-        item = self.scene.itemAt(pos)
+        item = self.scene.itemAt(pos, Qt.QTransform())
         plug = None
         if isinstance(item, Link):
             # look for its dest plug
@@ -2881,14 +2894,72 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             pipeline.remove_trait(plug_name)
         self.scene.update_pipeline()
 
+    def confirm_erase_pipeline(self):
+        if len(self.scene.pipeline.nodes) <= 1:
+            return True
+        confirm = Qt.QMessageBox.warning(
+            self,
+            'New pipeline',
+            'The current pipeline will be lost. Continue ?',
+            Qt.QMessageBox.Ok | Qt.QMessageBox.Cancel,
+            Qt.QMessageBox.Cancel)
+        if confirm != Qt.QMessageBox.Ok:
+            return False
+        return True
+
+    def new_pipeline(self):
+        if not self.confirm_erase_pipeline():
+            return
+        w = Qt.QDialog(self)
+        w.setWindowModality(Qt.Qt.WindowModal)
+        w.setWindowTitle('Pipeline name')
+        l = Qt.QVBoxLayout()
+        w.setLayout(l)
+        le = Qt.QLineEdit()
+        l.addWidget(le)
+        l2 = Qt.QHBoxLayout()
+        l.addLayout(l2)
+        ok = Qt.QPushButton('OK')
+        l2.addWidget(ok)
+        cancel = Qt.QPushButton('Cancel')
+        l2.addWidget(cancel)
+        ok.clicked.connect(w.accept)
+        cancel.clicked.connect(w.reject)
+        le.returnPressed.connect(w.accept)
+
+        res = w.exec_()
+        if res:
+            class_kwargs = {
+                '__module__': '__main__',
+                'do_autoexport_nodes_parameters': False,
+                'node_position': {}
+            }
+            pipeline_class = type(le.text(), (Pipeline,), class_kwargs)
+            pipeline = pipeline_class()
+            self.set_pipeline(pipeline)
+            self._pipeline_filename = ''
+
+    def load_pipeline(self):
+        if not self.confirm_erase_pipeline():
+            return
+        old_filename = getattr(self, '_pipeline_filename', '')
+        filename = qt_backend.getOpenFileName(
+            None, 'Load the pipeline', old_filename,
+            'Compatible files (*.xml *.py);; All (*)')
+        if filename:
+            pipeline = get_process_instance(filename)
+            if pipeline is not None:
+                self.set_pipeline(pipeline)
+                self._pipeline_filename = filename
+
     def save_pipeline(self):
         '''
-        Ask for a filename using the file dialog, and save the pipeline as a XML
-        file.
+        Ask for a filename using the file dialog, and save the pipeline as a
+        XML or python file.
         '''
         pipeline = self.scene.pipeline
         old_filename = getattr(self, '_pipeline_filename', '')
-        filename = QtGui.QFileDialog.getSaveFileName(
+        filename = qt_backend.getSaveFileName(
             None, 'Save the pipeline', old_filename,
             'Compatible files (*.xml *.py);; All (*)')
         if filename:
