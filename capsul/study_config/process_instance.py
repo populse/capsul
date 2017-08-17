@@ -106,6 +106,12 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
             del Process._study_config
 
 
+def _execfile(filename):
+    glob_dict = {}
+    exec(compile(open(filename, "rb").read(), filename, 'exec'),
+          glob_dict, glob_dict)
+    return glob_dict
+
 def _get_process_instance(process_or_id, study_config=None, **kwargs):
 
     def is_process(item):
@@ -194,9 +200,7 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
             else:
                 filename = process_or_id
                 object_name = None
-            glob_dict = {}
-            exec(compile(open(filename, "rb").read(), filename, 'exec'),
-                 glob_dict, glob_dict)
+            glob_dict = _execfile(filename)
             module_name = '__main__'
             if object_name is None:
                 object_name = _find_single_process(glob_dict, filename)
