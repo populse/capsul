@@ -115,8 +115,8 @@ def _execfile(filename):
 def _get_process_instance(process_or_id, study_config=None, **kwargs):
 
     def is_process(item):
-        if inspect.isclass(item) and issubclass(item, Process) \
-                and item not in (Pipeline, Process):
+        if inspect.isclass(item) and item not in (Pipeline, Process) \
+                and (issubclass(item, Process) or isinstance(item, Interface)):
             return True
         if not inspect.isfunction(item):
             return False
