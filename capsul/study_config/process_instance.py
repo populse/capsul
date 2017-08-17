@@ -245,6 +245,7 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                     if module_name in sys.modules:
                         basename = object_name
                         module_name2 = module_name
+                        object_name = None # to allow unmatching class / xml
                         if basename.endswith('.xml'):
                             basename = basename[:-4]
                     else:
