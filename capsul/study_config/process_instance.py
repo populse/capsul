@@ -109,10 +109,18 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
 def _get_process_instance(process_or_id, study_config=None, **kwargs):
 
     def is_process(item):
-        return (inspect.isclass(item) and issubclass(item, Process)
-                    and item not in (Pipeline, Process)) \
-                or (inspect.isfunction(item)
-                    and hasattr(item, 'capsul_xml'))
+        if inspect.isclass(item) and issubclass(item, Process) \
+                and item not in (Pipeline, Process):
+            return True
+        if not inspect.isfunction(item):
+            return False
+        if hasattr(item, 'capsul_xml'):
+            return True
+        if item.__doc__:
+            match = process_xml_re.search(item.__doc__)
+            if match:
+                return True
+        return False
 
     def _find_single_process(module_dict, filename):
         ''' Scan objects in module_dict and find out if a single one of them is
