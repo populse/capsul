@@ -1681,6 +1681,83 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     * dotted line link: weak link
     '''
 
+    class ProcessNameEdit(Qt.QLineEdit):
+        ''' A specialized QLineEdit with completion for process name
+        '''
+        def __init__(self, parent=None):
+            super(PipelineDevelopperView.ProcessNameEdit,
+                  self).__init__(parent)
+            self.compl = QtGui.QCompleter([])
+            self.setCompleter(self.compl)
+            self.textEdited.connect(self.on_text_edited)
+
+        def on_text_edited(self, text):
+            compl = set()
+            modpath = str(text).split('.')
+            current_mod = None
+            paths = []
+            sel = set()
+            if len(modpath) > 1:
+                current_mod = '.'.join(modpath[:-1])
+                try:
+                    mod = importlib.import_module(current_mod)
+                except ImportError:
+                    mod = None
+                if mod:
+                    if os.path.basename(mod.__file__).startswith(
+                            '__init__.py'):
+                        paths = [os.path.dirname(mod.__file__)]
+                    # add process/pipeline objects in current_mod
+                    procs = [item for k, item
+                                in six.iteritems(mod.__dict__)
+                              if isinstance(item, types.ModuleType)
+                              or (inspect.isclass(item)
+                                  and issubclass(item, (Process, Pipeline))
+                                  and item not in (Process, Pipeline))]
+                    compl.update(['.'.join([current_mod, c.__name__])
+                                  for c in procs])
+            else:
+                # no current module
+                # is it a path name ?
+                pathname, filename = os.path.split(str(text))
+                if os.path.isdir(pathname):
+                    # look for matching xml files
+                    for f in os.listdir(pathname):
+                        if (f.endswith('.xml')
+                                or os.path.isdir(os.path.join(pathname,
+                                                              f))) \
+                                and f.startswith(filename):
+                            compl.add(os.path.join(pathname, f))
+                        elif f.endswith('.py'):
+                            compl.add(os.path.join(pathname, f))
+                else:
+                    paths = sys.path
+            for path in paths:
+                if path == '':
+                    path = '.'
+                try:
+                    for f in os.listdir(path):
+                        if f.endswith('.py'):
+                            sel.add(f[:-3])
+                        elif f.endswith('.pyc') or f.endswith('.pyo'):
+                            sel.add(f[:-4])
+                        elif f.endswith('.xml'):
+                            sel.add(f)
+                        elif '.' not in f \
+                                and os.path.isdir(os.path.join(
+                                    path, f)):
+                            sel.add(f)
+                except OSError:
+                    pass
+            begin = modpath[-1]
+            cm = []
+            if current_mod is not None:
+                cm = [current_mod]
+            compl.update(['.'.join(cm + [f]) for f in sel \
+                if f.startswith(modpath[-1])])
+            model = self.compl.model()
+            model.setStringList(list(compl))
+
     def __init__(self, pipeline=None, parent=None, show_sub_pipelines=False,
             allow_open_controller=False, logical_view=False,
             enable_edition=False):
@@ -1856,7 +1933,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def wheelEvent(self, event):
         done = False
         if event.modifiers() == QtCore.Qt.ControlModifier:
-            item = self.itemAt(event.pos(), Qt.QTransform())
+            item = self.itemAt(event.pos())
             if not isinstance(item, QtGui.QGraphicsProxyWidget):
                 done = True
                 if event.delta() < 0:
@@ -2461,7 +2538,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self.setWindowTitle('process module/name:')
                 layout = QtGui.QGridLayout(self)
                 layout.addWidget(QtGui.QLabel('module/process:'), 0, 0)
-                self.proc_line = QtGui.QLineEdit()
+                self.proc_line = PipelineDevelopperView.ProcessNameEdit()
                 layout.addWidget(self.proc_line, 0, 1)
                 layout.addWidget(QtGui.QLabel('node name'), 1, 0)
                 self.name_line = QtGui.QLineEdit()
@@ -2474,75 +2551,6 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 layout.addWidget(cancel, 2, 1)
                 ok.clicked.connect(self.accept)
                 cancel.clicked.connect(self.reject)
-
-                self.compl = QtGui.QCompleter(['tutu', 'blop', 'beurk'])
-                self.proc_line.setCompleter(self.compl)
-                self.proc_line.textEdited.connect(self.on_text_edited)
-
-            def on_text_edited(self, text):
-                compl = set()
-                modpath = str(text).split('.')
-                current_mod = None
-                paths = []
-                sel = set()
-                if len(modpath) > 1:
-                    current_mod = '.'.join(modpath[:-1])
-                    try:
-                        mod = importlib.import_module(current_mod)
-                    except ImportError:
-                        mod = None
-                    if mod:
-                        if os.path.basename(mod.__file__).startswith(
-                                '__init__.py'):
-                            paths = [os.path.dirname(mod.__file__)]
-                        # add process/pipeline objects in current_mod
-                        procs = [item for k, item
-                                    in six.iteritems(mod.__dict__)
-                                 if isinstance(item, types.ModuleType)
-                                 or (inspect.isclass(item)
-                                     and issubclass(item, (Process, Pipeline))
-                                     and item not in (Process, Pipeline))]
-                        compl.update(['.'.join([current_mod, c.__name__])
-                                      for c in procs])
-                else:
-                    # no current module
-                    # is it a path name ?
-                    pathname, filename = os.path.split(str(text))
-                    if os.path.isdir(pathname):
-                        # look for matching xml files
-                        for f in os.listdir(pathname):
-                            if (f.endswith('.xml')
-                                    or os.path.isdir(os.path.join(pathname,
-                                                                  f))) \
-                                    and f.startswith(filename):
-                                compl.add(os.path.join(pathname, f))
-                    else:
-                        paths = sys.path
-                for path in paths:
-                    if path == '':
-                        path = '.'
-                    try:
-                        for f in os.listdir(path):
-                            if f.endswith('.py'):
-                                sel.add(f[:-3])
-                            elif f.endswith('.pyc') or f.endswith('.pyo'):
-                                sel.add(f[:-4])
-                            elif f.endswith('.xml'):
-                                sel.add(f)
-                            elif '.' not in f \
-                                    and os.path.isdir(os.path.join(
-                                        path, f)):
-                                sel.add(f)
-                    except OSError:
-                        pass
-                begin = modpath[-1]
-                cm = []
-                if current_mod is not None:
-                    cm = [current_mod]
-                compl.update(['.'.join(cm + [f]) for f in sel \
-                    if f.startswith(modpath[-1])])
-                model = self.compl.model()
-                model.setStringList(list(compl))
 
         proc_name_gui = ProcessModuleInput()
         proc_name_gui.resize(800, proc_name_gui.sizeHint().height())
@@ -2684,7 +2692,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.removeItem(self._temp_link)
         del self._temp_link
         pos = self.mapToScene(event.pos())
-        item = self.scene.itemAt(pos, Qt.QTransform())
+        item = self.scene.itemAt(pos)
         plug = None
         if isinstance(item, Link):
             # look for its dest plug
@@ -2940,17 +2948,53 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self._pipeline_filename = ''
 
     def load_pipeline(self):
+        class LoadProcessUi(Qt.QDialog):
+            def __init__(self, parent=None, old_filename=''):
+                super(LoadProcessUi, self).__init__(parent)
+                self.old_filename = old_filename
+                lay = Qt.QVBoxLayout()
+                self.setLayout(lay)
+                l2 = Qt.QHBoxLayout()
+                lay.addLayout(l2)
+                l2.addWidget(Qt.QLabel('Pipeline:'))
+                self.proc_edit = PipelineDevelopperView.ProcessNameEdit()
+                l2.addWidget(self.proc_edit)
+                self.loadbt = Qt.QPushButton('...')
+                l2.addWidget(self.loadbt)
+                l3 = Qt.QHBoxLayout()
+                lay.addLayout(l3)
+                ok = Qt.QPushButton('OK')
+                l3.addWidget(ok)
+                cancel = Qt.QPushButton('Cancel')
+                l3.addWidget(cancel)
+                ok.clicked.connect(self.accept)
+                cancel.clicked.connect(self.reject)
+                self.loadbt.clicked.connect(self.get_filename)
+                self.proc_edit.returnPressed.connect(self.accept)
+
+            def get_filename(self):
+                filename = qt_backend.getOpenFileName(
+                    None, 'Load the pipeline', self.old_filename,
+                    'Compatible files (*.xml *.py);; All (*)')
+                if filename:
+                    self.proc_edit.setText(filename)
+
         if not self.confirm_erase_pipeline():
             return
+
         old_filename = getattr(self, '_pipeline_filename', '')
-        filename = qt_backend.getOpenFileName(
-            None, 'Load the pipeline', old_filename,
-            'Compatible files (*.xml *.py);; All (*)')
-        if filename:
-            pipeline = get_process_instance(filename)
-            if pipeline is not None:
-                self.set_pipeline(pipeline)
-                self._pipeline_filename = filename
+        dialog = LoadProcessUi(self, old_filename=old_filename)
+        dialog.setWindowTitle('Load pipeline')
+        dialog.setWindowModality(Qt.Qt.WindowModal)
+        res = dialog.exec_()
+
+        if res:
+            filename = dialog.proc_edit.text()
+            if filename:
+                pipeline = get_process_instance(filename)
+                if pipeline is not None:
+                    self.set_pipeline(pipeline)
+                    self._pipeline_filename = filename
 
     def save_pipeline(self):
         '''
