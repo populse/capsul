@@ -14,9 +14,11 @@ import types
 import re
 import six
 import os
+import inspect
 
 # Caspul import
 from capsul.process.process import Process
+from capsul.pipeline.pipeline import Pipeline
 from capsul.process.nipype_process import nipype_factory
 from capsul.process.xml import create_xml_process
 from capsul.pipeline.xml import create_xml_pipeline
@@ -49,10 +51,13 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
         * a Nipype Interface class.
         * a string description of the class `<module>.<class>`.
         * a string description of a function to warp `<module>.<function>`.
+        * a string description of a module containing a single process
+          `<module>`
         * a string description of a pipeline `<module>.<fname>.xml`.
         * an XML filename for a pipeline.
         * a Python (.py) filename with process name in it:
           `/path/process_source.py#ProcessName`.
+        * a Python (.py) filename for a file containg a single process.
 
     Default values of the process instance are passed as additional parameters.
 
@@ -103,6 +108,28 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
 
 def _get_process_instance(process_or_id, study_config=None, **kwargs):
 
+    def is_process(item):
+        return (inspect.isclass(item) and issubclass(item, Process)
+                    and item not in (Pipeline, Process)) \
+                or (inspect.isfunction(item)
+                    and hasattr(item, 'capsul_xml'))
+
+    def _find_single_process(module_dict, filename):
+        ''' Scan objects in module_dict and find out if a single one of them is
+        a process
+        '''
+        object_name = None
+        for name, item in six.iteritems(module_dict):
+            if is_process(item):
+                if object_name is not None:
+                    raise KeyError(
+                        'file %s contains several processes. Please '
+                        'specify which one shoule be used using '
+                        'filename.py#ProcessName or '
+                        'module.submodule.ProcessName' % filename)
+                object_name = name
+        return object_name
+
     result = None
     # If the function 'process_or_id' parameter is already a Process
     # instance.
@@ -148,12 +175,25 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
         object_name = None
         as_xml = False
         as_py = False
-        if len(py_url) >= 2 and py_url[-2].endswith('.py'):
+        module_dict = None
+        if len(py_url) >= 2 and py_url[-2].endswith('.py') \
+                or len(py_url) == 1 and py_url[0].endswith('.py'):
             # python file + process name: something.py#ProcessName
-            filename = process_or_id[:-len(py_url[-1]) - 1]
-            exec(compile(open(filename, "rb").read(), filename, 'exec'))
-            module_name, object_name = '__main__', py_url[-1]
-            as_py = True
+            # or just something.py if it contains only one process class
+            if len(py_url) >= 2:
+                filename = process_or_id[:-len(py_url[-1]) - 1]
+                object_name = py_url[-1]
+            else:
+                filename = process_or_id
+                object_name = None
+            glob = {}
+            exec(compile(open(filename, "rb").read(), filename, 'exec'), glob)
+            module_name = '__main__'
+            if object_name is None:
+                object_name = _find_single_process(glob, filename)
+            if object_name is not None:
+                module_dict = glob
+                as_py = True
         if object_name is None:
             elements = process_or_id.rsplit('.', 1)
             if len(elements) < 2:
@@ -161,8 +201,19 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
             else:
                 module_name, object_name = elements
             try:
-                importlib.import_module(module_name)
-                as_py = True
+                module = importlib.import_module(module_name)
+                if object_name not in module.__dict__ \
+                        or not is_process(getattr(module, object_name)):
+                    # maybe a module with a single process in it
+                    module = importlib.import_module(process_or_id)
+                    module_dict = module.__dict__
+                    object_name = _find_single_process(
+                        module_dict, module_name)
+                    if object_name is not None:
+                        module_name = process_or_id
+                        as_py = True
+                else:
+                    as_py = True
             except ImportError as e:
                 pass
         if not as_py:
@@ -201,8 +252,11 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                                              xml_url)()
 
         if result is None and not as_xml:
-            module = sys.modules[module_name]
-            module_object = getattr(module, object_name, None)
+            if module_dict is not None:
+                module_object = module_dict.get(object_name)
+            else:
+                module = sys.modules[module_name]
+                module_object = getattr(module, object_name, None)
             if module_object is not None:
                 if (isinstance(module_object, type) and
                     issubclass(module_object, Process)):
