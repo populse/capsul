@@ -195,7 +195,8 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                 filename = process_or_id
                 object_name = None
             glob = {}
-            exec(compile(open(filename, "rb").read(), filename, 'exec'), glob)
+            exec(compile(open(filename, "rb").read(), filename, 'exec'),
+                 globals=glob)
             module_name = '__main__'
             if object_name is None:
                 object_name = _find_single_process(glob, filename)
