@@ -8,14 +8,14 @@
 
 # System import
 import six
-from soma.qt_gui.qt_backend import QtCore, QtGui
+from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
 try:
     import traits.api as traits
 except ImportError:
     import enthought.traits.api as traits
 
 
-class PipelineFileWarningWidget(QtGui.QSplitter):
+class PipelineFileWarningWidget(Qt.QSplitter):
     """
     This class is a GUI for pipeline file inputs/outputs checking.
 
