@@ -240,9 +240,18 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                     xml_url = module_name
                 if not osp.exists(xml_url):
                     # try XML file in a module directory + class name
-                    elements = module_name.rsplit('.', 1)
-                    if len(elements) == 2:
-                        module_name2, basename = elements
+                    basename = None
+                    module_name2 = None
+                    if module_name in sys.modules:
+                        basename = object_name
+                        module_name2 = module_name
+                        if basename.endswith('.xml'):
+                            basename = basename[:-4]
+                    else:
+                        elements = module_name.rsplit('.', 1)
+                        if len(elements) == 2:
+                            module_name2, basename = elements
+                    if module_name2 and basename:
                         try:
                             importlib.import_module(module_name2)
                             mod_dirname = osp.dirname(
