@@ -194,14 +194,14 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
             else:
                 filename = process_or_id
                 object_name = None
-            glob = {}
+            glob_dict = {}
             exec(compile(open(filename, "rb").read(), filename, 'exec'),
-                 globals=glob)
+                 glob_dict)
             module_name = '__main__'
             if object_name is None:
-                object_name = _find_single_process(glob, filename)
+                object_name = _find_single_process(glob_dict, filename)
             if object_name is not None:
-                module_dict = glob
+                module_dict = glob_dict
                 as_py = True
         if object_name is None:
             elements = process_or_id.rsplit('.', 1)
