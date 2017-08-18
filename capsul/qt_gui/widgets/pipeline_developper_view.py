@@ -33,6 +33,7 @@ from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 import capsul.pipeline.xml as capsulxml
+from capsul.study_config import process_instance
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
 
@@ -1690,6 +1691,34 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self.compl = QtGui.QCompleter([])
             self.setCompleter(self.compl)
             self.textEdited.connect(self.on_text_edited)
+            self.py_cache = {} # cache for loaded python files
+
+        @staticmethod
+        def _execfile(filename):
+            # This chunk of code cannot be put inline in python 2.6
+            glob_dict = {}
+            exec(compile(open(filename, "rb").read(), filename, 'exec'),
+                  glob_dict, glob_dict)
+            return glob_dict
+
+        def load_py(self, filename):
+            if filename not in self.py_cache:
+                try:
+                    self.py_cache[filename] \
+                        = PipelineDevelopperView.ProcessNameEdit._execfile(
+                            filename)
+                except Exception as e:
+                    print('exception while executing file %s:' % filename, e)
+                    return {}
+            return self.py_cache[filename]
+
+        def get_processes_or_modules(self, filename):
+            file_dict = self.load_py(filename)
+            processes = []
+            for name, item in six.iteritems(file_dict):
+                if process_instance.is_process(item) or inspect.ismodule(item):
+                    processes.append(name)
+            return processes
 
         def on_text_edited(self, text):
             compl = set()
@@ -1697,6 +1726,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             current_mod = None
             paths = []
             sel = set()
+            mod = None
             if len(modpath) > 1:
                 current_mod = '.'.join(modpath[:-1])
                 try:
@@ -1716,20 +1746,33 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                                   and item not in (Process, Pipeline))]
                     compl.update(['.'.join([current_mod, c.__name__])
                                   for c in procs])
-            else:
+            if not mod:
                 # no current module
                 # is it a path name ?
                 pathname, filename = os.path.split(str(text))
                 if os.path.isdir(pathname):
-                    # look for matching xml files
-                    for f in os.listdir(pathname):
-                        if (f.endswith('.xml')
-                                or os.path.isdir(os.path.join(pathname,
-                                                              f))) \
-                                and f.startswith(filename):
-                            compl.add(os.path.join(pathname, f))
-                        elif f.endswith('.py'):
-                            compl.add(os.path.join(pathname, f))
+                    # look for class in python file filename.py#classname
+                    elements = filename.split('.py#')
+                    if len(elements) == 2:
+                        filename = elements[0] + '.py'
+                        object_name = elements[1]
+                        full_path = os.path.join(pathname, filename)
+                        processes = self.get_processes_or_modules(full_path)
+                        if object_name != '':
+                            processes = [p for p in processes
+                                         if p.startswith(object_name)]
+                        compl.update(['#'.join((full_path, p))
+                                      for p in processes])
+                    else:
+                        # look for matching xml files
+                        for f in os.listdir(pathname):
+                            if (f.endswith('.xml')
+                                    or os.path.isdir(os.path.join(pathname,
+                                                                  f))) \
+                                    and f.startswith(filename):
+                                compl.add(os.path.join(pathname, f))
+                            elif f.endswith('.py'):
+                                compl.add(os.path.join(pathname, f))
                 else:
                     paths = sys.path
             for path in paths:
