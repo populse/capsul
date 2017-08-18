@@ -797,6 +797,9 @@ class Pipeline(Process):
         source_node.disconnect(source_plug_name, dest_node, dest_plug_name)
         dest_node.disconnect(dest_plug_name, source_node, source_plug_name)
 
+        # Refresh pipeline activation
+        self.update_nodes_and_plugs_activation()
+
     def export_parameter(self, node_name, plug_name,
                          pipeline_parameter=None, weak_link=False,
                          is_enabled=None, is_optional=None):
