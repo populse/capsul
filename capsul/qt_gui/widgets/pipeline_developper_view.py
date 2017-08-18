@@ -2001,6 +2001,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             sub_view = PipelineDevelopperView(sub_pipeline,
                 show_sub_pipelines=self._show_sub_pipelines,
                 allow_open_controller=self._allow_open_controller,
+                enable_edition=self.edition_enabled(),
                 logical_view=self._logical_view)
             # set self.window() as QObject parent (not QWidget parent) to
             # prevent the sub_view to close/delete immediately
@@ -2692,7 +2693,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.removeItem(self._temp_link)
         del self._temp_link
         pos = self.mapToScene(event.pos())
-        item = self.scene.itemAt(pos)
+        item = self.scene.itemAt(pos, Qt.QTransform())
         plug = None
         if isinstance(item, Link):
             # look for its dest plug
