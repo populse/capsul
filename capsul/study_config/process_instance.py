@@ -37,6 +37,25 @@ if sys.version_info[0] >= 3:
 
 process_xml_re = re.compile(r'<process.*</process>', re.DOTALL)
 
+
+def is_process(item):
+    """ Check if the input item is a process class or function with decorator
+    or XML docstring which makes it seen as a process
+    """
+    if inspect.isclass(item) and item not in (Pipeline, Process) \
+            and (issubclass(item, Process) or issubclass(item, Interface)):
+        return True
+    if not inspect.isfunction(item):
+        return False
+    if hasattr(item, 'capsul_xml'):
+        return True
+    if item.__doc__:
+        match = process_xml_re.search(item.__doc__)
+        if match:
+            return True
+    return False
+
+
 def get_process_instance(process_or_id, study_config=None, **kwargs):
     """ Return a Process instance given an identifier.
 
@@ -115,20 +134,6 @@ def _execfile(filename):
 
 def _get_process_instance(process_or_id, study_config=None, **kwargs):
 
-    def is_process(item):
-        if inspect.isclass(item) and item not in (Pipeline, Process) \
-                and (issubclass(item, Process) or issubclass(item, Interface)):
-            return True
-        if not inspect.isfunction(item):
-            return False
-        if hasattr(item, 'capsul_xml'):
-            return True
-        if item.__doc__:
-            match = process_xml_re.search(item.__doc__)
-            if match:
-                return True
-        return False
-
     def _find_single_process(module_dict, filename):
         ''' Scan objects in module_dict and find out if a single one of them is
         a process
@@ -191,6 +196,7 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
         as_xml = False
         as_py = False
         module_dict = None
+        module = None
         if len(py_url) >= 2 and py_url[-2].endswith('.py') \
                 or len(py_url) == 1 and py_url[0].endswith('.py'):
             # python file + process name: something.py#ProcessName
@@ -304,7 +310,7 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                     if xml:
                         result = create_xml_process(module_name, object_name,
                                                     module_object, xml)()
-            if result is None:
+            if result is None and module is not None:
                 xml_file = osp.join(osp.dirname(module.__file__),
                                     object_name + '.xml')
                 if osp.exists(xml_file):
