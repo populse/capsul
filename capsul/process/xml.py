@@ -201,7 +201,7 @@ def create_xml_process(module, name, function, xml):
     class_kwargs['_function_return'] = function_return
     
     # Get the process instance associated to the function
-    process_class = type(name, (XMLProcess, ), class_kwargs)
+    process_class = type(str(name), (XMLProcess, ), class_kwargs)
     return process_class
 
 
