@@ -1520,6 +1520,18 @@ class PipelineScene(QtGui.QGraphicsScene):
         return msg
 
 
+    def _parentgnode(self, item):
+        if qt_backend.get_qt_backend() != 'PyQt5':
+            return item.parentItem()
+        # in PyQt5 (certain versions at least, Ubuntu 16.04) parentItem()
+        # returns something inappropriate, having the wrong type
+        # QGraphicsVideoItem, probably a cast mistake, and which leads to
+        # a segfault, so we have to get it a different way.
+        nodes = [node for node in self.gnodes.values()
+                 if item in node.childItems()]
+        if len(nodes) == 1:
+            return nodes[0]
+
     def helpEvent(self, event):
         '''
         Display tooltips on plugs and links
@@ -1536,7 +1548,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                     item.setToolTip(text)
                     break
         elif isinstance(item, Plug):
-            node = item.parentItem()
+            node = self._parentgnode(item)
             found = False
             for name, plug in six.iteritems(node.in_plugs):
                 if plug is item:
@@ -1551,7 +1563,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                 text = self.plug_tooltip_text(node, name)
                 item.setToolTip(text)
         elif isinstance(item, QtGui.QGraphicsRectItem):
-            node = item.parentItem()
+            node = self._parentgnode(item)
             if isinstance(node, NodeGWidget):
                 text = self.node_tooltip_text(node)
                 item.setToolTip(text)
@@ -1881,8 +1893,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             pos = self.scene.pos
             pprint(dict((i, (j.x(), j.y())) for i, j in six.iteritems(pos)))
         else:
-            pos = dict((i, QtCore.QPointF(*j))
-                       for i, j in six.iteritems(pipeline.node_position))
+            pos = {}
+            for i, j in six.iteritems(pipeline.node_position):
+                if isinstance(j, QtCore.QPointF):
+                    pos[i] = j
+                else:
+                    pos[i] = QtCore.QPointF(*j)
         self.scene = PipelineScene(self)
         self.scene.set_enable_edition(self._enable_edition)
         self.scene.logical_view = self._logical_view
