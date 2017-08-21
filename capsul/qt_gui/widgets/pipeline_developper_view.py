@@ -1752,10 +1752,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                     # add process/pipeline objects in current_mod
                     procs = [item for k, item
                                 in six.iteritems(mod.__dict__)
-                              if isinstance(item, types.ModuleType)
-                              or (inspect.isclass(item)
-                                  and issubclass(item, (Process, Pipeline))
-                                  and item not in (Process, Pipeline))]
+                             if process_instance.is_process(item)
+                                or inspect.ismodule(item)]
                     compl.update(['.'.join([current_mod, c.__name__])
                                   for c in procs])
             if not mod:
@@ -2275,6 +2273,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 'Add optional output switch in pipeline')
             add_optional_output_switch.triggered.connect(
                 self.add_optional_output_switch)
+            add_iter_proc = menu.addAction('Add iterative process in pipeline')
+            add_iter_proc.triggered.connect(self.add_iterative_process)
 
             menu.addSeparator()
             export_mandatory_plugs = menu.addAction(
@@ -2586,33 +2586,33 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def export_all_unconnected_outputs(self):
         self.export_plugs(inputs=False, outputs=True, optional=True)
 
+    class ProcessModuleInput(QtGui.QDialog):
+        def __init__(self):
+            super(PipelineDevelopperView.ProcessModuleInput, self).__init__()
+            self.setWindowTitle('process module/name:')
+            layout = QtGui.QGridLayout(self)
+            layout.addWidget(QtGui.QLabel('module/process:'), 0, 0)
+            self.proc_line = PipelineDevelopperView.ProcessNameEdit()
+            layout.addWidget(self.proc_line, 0, 1)
+            layout.addWidget(QtGui.QLabel('node name'), 1, 0)
+            self.name_line = QtGui.QLineEdit()
+            layout.addWidget(self.name_line, 1, 1)
+            #hlay = QtGui.QHBoxLayout()
+            #layout.addLayout(hlay, 1, 1)
+            ok = QtGui.QPushButton('OK')
+            layout.addWidget(ok, 2, 0)
+            cancel = QtGui.QPushButton('Cancel')
+            layout.addWidget(cancel, 2, 1)
+            ok.clicked.connect(self.accept)
+            cancel.clicked.connect(self.reject)
+
     def add_process(self):
         '''
         Insert a process node in the pipeline. Asks for the process
         module/name, and the node name before inserting.
         '''
 
-        class ProcessModuleInput(QtGui.QDialog):
-            def __init__(self):
-                super(ProcessModuleInput, self).__init__()
-                self.setWindowTitle('process module/name:')
-                layout = QtGui.QGridLayout(self)
-                layout.addWidget(QtGui.QLabel('module/process:'), 0, 0)
-                self.proc_line = PipelineDevelopperView.ProcessNameEdit()
-                layout.addWidget(self.proc_line, 0, 1)
-                layout.addWidget(QtGui.QLabel('node name'), 1, 0)
-                self.name_line = QtGui.QLineEdit()
-                layout.addWidget(self.name_line, 1, 1)
-                #hlay = QtGui.QHBoxLayout()
-                #layout.addLayout(hlay, 1, 1)
-                ok = QtGui.QPushButton('OK')
-                layout.addWidget(ok, 2, 0)
-                cancel = QtGui.QPushButton('Cancel')
-                layout.addWidget(cancel, 2, 1)
-                ok.clicked.connect(self.accept)
-                cancel.clicked.connect(self.reject)
-
-        proc_name_gui = ProcessModuleInput()
+        proc_name_gui = PipelineDevelopperView.ProcessModuleInput()
         proc_name_gui.resize(800, proc_name_gui.sizeHint().height())
 
         res = proc_name_gui.exec_()
@@ -2627,6 +2627,69 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 print(e)
                 return
             pipeline.add_process(node_name, process)
+
+            node = pipeline.nodes[node_name]
+            gnode = self.scene.add_node(node_name, node)
+            gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
+
+    class IterativeProcessInput(ProcessModuleInput):
+        def __init__(self):
+            super(PipelineDevelopperView.IterativeProcessInput,
+                  self).__init__()
+            #hlay = Qt.QHBoxLayout()
+            #self.layout().addLayout(hlay)
+            lay = self.layout()
+            item = lay.itemAtPosition(2, 0)
+            widget = item.widget()
+            lay.removeItem(item)
+            lay.addWidget(widget, 3, 0)
+            item = lay.itemAtPosition(2, 1)
+            widget = item.widget()
+            lay.removeItem(item)
+            lay.addWidget(widget, 3, 1)
+            lay.addWidget(Qt.QLabel('iterative plugs:'), 2, 0)
+            self.plugs = Qt.QListWidget()
+            self.plugs.setEditTriggers(Qt.QListWidget.NoEditTriggers)
+            self.plugs.setSelectionMode(Qt.QListWidget.ExtendedSelection)
+            lay.addWidget(self.plugs, 2, 1)
+            self.proc_line.textChanged.connect(self.set_plugs)
+            #self.proc_line.editingFinished.connect(self.set_plugs)
+
+        def set_plugs(self, text):
+            self.plugs.clear()
+            try:
+                process = get_process_instance(text)
+            except:
+                return
+            traits = process.user_traits().keys()
+            self.plugs.addItems(traits)
+
+        def iterative_plugs(self):
+            return [item.text() for item in self.plugs.selectedItems()]
+
+    def add_iterative_process(self):
+        '''
+        Insert an iterative process node in the pipeline. Asks for the process
+        module/name, the node name, and iterative plugs before inserting.
+        '''
+        proc_name_gui = PipelineDevelopperView.IterativeProcessInput()
+        proc_name_gui.resize(800, proc_name_gui.sizeHint().height())
+
+        res = proc_name_gui.exec_()
+        if res:
+            proc_module = unicode(proc_name_gui.proc_line.text())
+            node_name = str(proc_name_gui.name_line.text())
+            pipeline = self.scene.pipeline
+            try:
+                process = get_process_instance(
+                  unicode(proc_name_gui.proc_line.text()))
+            except Exception as e:
+                print(e)
+                return
+            iterative_plugs = proc_name_gui.iterative_plugs()
+            do_not_export = process.user_traits().keys()
+            pipeline.add_iterative_process(node_name, process, iterative_plugs,
+                                           do_not_export=do_not_export)
 
             node = pipeline.nodes[node_name]
             gnode = self.scene.add_node(node_name, node)
