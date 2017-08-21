@@ -117,6 +117,10 @@ def trait_from_xml(element, order=None):
     allowed_ext = element.get('allowed_extensions')
     if allowed_ext is not None:
         trait_kwargs['allowed_extensions'] = eval(allowed_ext)
+    if type in ('file', 'list_file'):
+        input_filename = element.get('input_filename')
+        if input_filename is not None:
+            trait_kwargs['input_filename'] = input_filename
     if order is not None:
         trait_kwargs['order'] = order
     return trait_class(*trait_args, **trait_kwargs)
@@ -175,7 +179,8 @@ def create_xml_process(module, name, function, xml):
             trait = trait_from_xml(child, trait_count)
             trait_count += 1
             class_kwargs[n] = trait
-            if trait.output and not trait.input_filename:
+trait.input_filename)
+            if trait.output and trait.input_filename is None:
                 function_outputs.append(n)
             else:
                 function_inputs.append(n)
