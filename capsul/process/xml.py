@@ -179,7 +179,6 @@ def create_xml_process(module, name, function, xml):
             trait = trait_from_xml(child, trait_count)
             trait_count += 1
             class_kwargs[n] = trait
-trait.input_filename)
             if trait.output and trait.input_filename is None:
                 function_outputs.append(n)
             else:
