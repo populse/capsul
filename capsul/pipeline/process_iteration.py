@@ -57,7 +57,8 @@ class ProcessIteration(Process):
         outputs = []
         for param in self.iterative_parameters:
             if self.process.trait(param).output:
-                if self.process.trait(param).trait_type in (File, Directory):
+                if isinstance(self.process.trait(param).trait_type,
+                              (File, Directory)):
                     outputs.append(param)
             else:
                 num = max(num, len(getattr(self, param)))
@@ -128,7 +129,9 @@ class ProcessIteration(Process):
             outputs = {}
             for iteration in xrange(size):
                 for parameter in self.iterative_parameters:
-                    if not no_output_value or not self.trait(parameter).output:
+                    #if not no_output_value or not self.trait(parameter).output:
+                    value = getattr(self, parameter)
+                    if len(value) > iteration:
                         setattr(self.process, parameter,
                                 getattr(self, parameter)[iteration])
                 self.process()
@@ -146,4 +149,4 @@ class ProcessIteration(Process):
                 for parameter in self.iterative_parameters:
                     setattr(self.process, parameter, getattr(self, parameter)[iteration])
                 self.process()
-            
+

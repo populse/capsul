@@ -1197,21 +1197,21 @@ class Pipeline(Process):
 
         for plug_name, plug in node.plugs.iteritems():
             value = node.get_plug_value(plug_name)
-            if not plug.activated or not plug.enabled \
-                    or value not in (traits.Undefined, ''):
+            if not plug.activated or not plug.enabled:
                 continue
             trait = node.get_trait(plug_name)
             if not trait.output:
                 continue
             if hasattr(trait, 'inner_traits') \
                     and len(trait.inner_traits) != 0 \
-                    and trait.inner_traits[0].trait_type \
-                        in (traits.File, traits.Directory):
+                    and isinstance(trait.inner_traits[0].trait_type,
+                                   (traits.File, traits.Directory)):
                 if len([x for x in value if x in ('', traits.Undefined)]) == 0:
                     continue
-            if (not isinstance(trait.trait_type, traits.File)
-                and not isinstance(trait.trait_type, traits.Directory)) \
-                    or len(plug.links_to) == 0:
+            elif value not in (traits.Undefined, '') \
+                    and ((not isinstance(trait.trait_type, traits.File)
+                          and not isinstance(trait.trait_type, traits.Directory))
+                         or len(plug.links_to) == 0):
                 continue
             # check that it is really temporary: not exported
             # to the main pipeline
@@ -1272,25 +1272,28 @@ class Pipeline(Process):
         (sequential execution)
         """
         #
-        for node, plug_name, tmpfile, value in temp_files:
+        for node, plug_name, tmpfiles, value in temp_files:
             node.set_plug_value(plug_name, value)
-            if os.path.isdir(tmpfile):
-                try:
-                    shutil.rmtree(tmpfile)
-                except:
-                    pass
-            else:
-                try:
-                    os.unlink(tmpfile)
-                except:
-                    pass
-            # handle additional files (.hdr, .minf...)
-            # TODO
-            if os.path.exists(tmpfile + '.minf'):
-                try:
-                    os.unlink(tmpfile + '.minf')
-                except:
-                    pass
+            if not isinstance(tmpfiles, list):
+                tmpfiles = [tmpfiles]
+            for tmpfile in tmpfiles:
+                if os.path.isdir(tmpfile):
+                    try:
+                        shutil.rmtree(tmpfile)
+                    except:
+                        pass
+                else:
+                    try:
+                        os.unlink(tmpfile)
+                    except:
+                        pass
+                # handle additional files (.hdr, .minf...)
+                # TODO
+                if os.path.exists(tmpfile + '.minf'):
+                    try:
+                        os.unlink(tmpfile + '.minf')
+                    except:
+                        pass
 
     def _run_process(self):
         """ Execution of the pipeline.
