@@ -21,7 +21,7 @@ from capsul.pipeline import Pipeline, Switch
 from capsul.pipeline import pipeline_tools
 from capsul.process import Process
 from capsul.pipeline.topological_sort import Graph
-from traits.api import Directory, Undefined, File, Str, Any
+from traits.api import Directory, Undefined, File, Str, Any, List
 from soma.sorted_dictionary import OrderedDict
 from .process_iteration import ProcessIteration
 
@@ -313,32 +313,19 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 process = node.process
             else:
                 process = node
-            trait = process.user_traits()[plug_name]
-            if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
-                # trait is a list: get items
-                traits = trait.inner_traits
-                value = getattr(process, plug_name)
-                new_value = []
-                for i, item in enumerate(value):
-                    if item in ('', Undefined, None):
-                        trait = traits[max(len(traits) - 1, i)]
-                        is_directory = isinstance(trait.trait_type, Directory)
-                        if trait.allowed_extensions:
-                            suffix = trait.allowed_extensions[0]
-                        else:
-                            suffix = ''
-                        swf_tmp = swclient.TemporaryPath(
-                            is_directory=is_directory, suffix=suffix)
-                        tmp_file = TempFile('%d' % count)
-                        count += 1
-                        temp_map[tmp_file] = (swf_tmp, node, plug_name,
-                                              optional)
-                        new_value.append(tmp_file)
-                    else:
-                        new_value.append(item)
-                # set a TempFile value to identify the params / value
-                setattr(process, plug_name, new_value)
+            trait = process.trait(plug_name)
+            is_list = isinstance(trait.trait_type, List)
+            values = []
+            if is_list:
+                todo = getattr(process, plug_name)
+                trait = trait.inner_traits[0]
             else:
+                todo = [Undefined]
+            for item in todo:
+                if item not in (Undefined, '', None):
+                    # non-empty list element
+                    values.append(item)
+                    continue
                 is_directory = isinstance(trait.trait_type, Directory)
                 if trait.allowed_extensions:
                     suffix = trait.allowed_extensions[0]
@@ -349,8 +336,12 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
                 tmp_file = TempFile('%d' % count)
                 count += 1
                 temp_map[tmp_file] = (swf_tmp, node, plug_name, optional)
-                # set a TempFile value to identify the params / value
-                setattr(process, plug_name, tmp_file)
+                values.append(tmp_file)
+            # set a TempFile value to identify the params / value
+            if is_list:
+                setattr(process, plug_name, values)
+            else:
+                setattr(process, plug_name, values[0])
         return temp_map
 
     def restore_empty_filenames(temporary_map):
@@ -363,12 +354,15 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
               process = node.process
           else:
               process = node
-          if isinstance(getattr(process, plug_name), list):
+          value = getattr(process, plug_name)
+          if isinstance(value, list):
+              # FIXME TODO: only restore values in list which correspond to
+              # a temporary.
+              # Problem: they are sometimes transformed into strings
               # FIXME: several temp items can be part of the same list,
               # so this assignment is likely to be done several times.
               # It could probably be optimized.
-              setattr(process, plug_name,
-                      [Undefined] * len(getattr(process, plug_name)))
+              setattr(process, plug_name, [Undefined] * len(value))
           else:
               setattr(process, plug_name, Undefined)
 

@@ -1363,7 +1363,7 @@ class Pipeline(Process):
                 if not plug.enabled or not plug.output or \
                         (not plug.activated and plug.optional):
                     continue
-                parameter = process.user_traits()[plug_name]
+                parameter = process.trait(plug_name)
                 if hasattr(parameter, 'inner_traits') \
                         and len(parameter.inner_traits) != 0:
                     # list trait
