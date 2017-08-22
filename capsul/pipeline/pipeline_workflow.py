@@ -314,18 +314,43 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
             else:
                 process = node
             trait = process.user_traits()[plug_name]
-            is_directory = isinstance(trait.trait_type, Directory)
-            if trait.allowed_extensions:
-                suffix = trait.allowed_extensions[0]
+            if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
+                # trait is a list: get items
+                traits = trait.inner_traits
+                value = getattr(process, plug_name)
+                new_value = []
+                for i, item in enumerate(value):
+                    if item in ('', Undefined, None):
+                        trait = traits[max(len(traits) - 1, i)]
+                        is_directory = isinstance(trait.trait_type, Directory)
+                        if trait.allowed_extensions:
+                            suffix = trait.allowed_extensions[0]
+                        else:
+                            suffix = ''
+                        swf_tmp = swclient.TemporaryPath(
+                            is_directory=is_directory, suffix=suffix)
+                        tmp_file = TempFile('%d' % count)
+                        count += 1
+                        temp_map[tmp_file] = (swf_tmp, node, plug_name,
+                                              optional)
+                        new_value.append(tmp_file)
+                    else:
+                        new_value.append(item)
+                # set a TempFile value to identify the params / value
+                setattr(process, plug_name, new_value)
             else:
-                suffix = ''
-            swf_tmp = swclient.TemporaryPath(is_directory=is_directory,
-                suffix=suffix)
-            tmp_file = TempFile('%d' % count)
-            count += 1
-            temp_map[tmp_file] = (swf_tmp, node, plug_name, optional)
-            # set a TempFile value to identify the params / value
-            setattr(process, plug_name, tmp_file)
+                is_directory = isinstance(trait.trait_type, Directory)
+                if trait.allowed_extensions:
+                    suffix = trait.allowed_extensions[0]
+                else:
+                    suffix = ''
+                swf_tmp = swclient.TemporaryPath(is_directory=is_directory,
+                    suffix=suffix)
+                tmp_file = TempFile('%d' % count)
+                count += 1
+                temp_map[tmp_file] = (swf_tmp, node, plug_name, optional)
+                # set a TempFile value to identify the params / value
+                setattr(process, plug_name, tmp_file)
         return temp_map
 
     def restore_empty_filenames(temporary_map):
@@ -338,7 +363,14 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
               process = node.process
           else:
               process = node
-          setattr(process, plug_name, Undefined)
+          if isinstance(getattr(process, plug_name), list):
+              # FIXME: several temp items can be part of the same list,
+              # so this assignment is likely to be done several times.
+              # It could probably be optimized.
+              setattr(process, plug_name,
+                      [Undefined] * len(getattr(process, plug_name)))
+          else:
+              setattr(process, plug_name, Undefined)
 
     def _get_swf_paths(study_config):
         computing_resource = getattr(

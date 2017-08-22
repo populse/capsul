@@ -1201,10 +1201,16 @@ class Pipeline(Process):
                     or value not in (traits.Undefined, ''):
                 continue
             trait = node.get_trait(plug_name)
-            if not trait.output \
-                    or (not isinstance(trait.trait_type, traits.File)
-                        and not isinstance(trait.trait_type,
-                                           traits.Directory)) \
+            if not trait.output:
+                continue
+            if hasattr(trait, 'inner_traits') \
+                    and len(trait.inner_traits) != 0 \
+                    and trait.inner_traits[0].trait_type \
+                        in (traits.File, traits.Directory):
+                if len([x for x in value if x in ('', traits.Undefined)]) == 0:
+                    continue
+            if (not isinstance(trait.trait_type, traits.File)
+                and not isinstance(trait.trait_type, traits.Directory)) \
                     or len(plug.links_to) == 0:
                 continue
             # check that it is really temporary: not exported
@@ -1214,19 +1220,50 @@ class Pipeline(Process):
                 # it is visible out of the pipeline: not temporary
                 continue
             # if we get here, we are a temporary.
-            if trait.trait_type is traits.Directory:
-                tmpdir = tempfile.mkdtemp(suffix='capsul_run')
-                temp_files.append((node, plug_name, tmpdir, value))
-                node.set_plug_value(plug_name, tmpdir)
-            else:
-                if trait.allowed_extensions:
-                    suffix = 'capsul' + trait.allowed_extensions[0]
+            if isinstance(value, list):
+                if trait.inner_traits[0].trait_type is traits.Directory:
+                    new_value = []
+                    tmpdirs = []
+                    for i in range(len(value)):
+                        if value[i] in ('', traits.Undefined):
+                            tmpdir = tempfile.mkdtemp(suffix='capsul_run')
+                            new_value.append(tmpdir)
+                            tmpdirs.append(tmpdir)
+                        else:
+                            new_value.append(value[i])
+                    temp_files.append((node, plug_name, tmpdirs, value))
+                    node.set_plug_value(plug_name, new_value)
                 else:
-                    suffix = 'capsul'
-                tmpfile = tempfile.mkstemp(suffix=suffix)
-                node.set_plug_value(plug_name, tmpfile[1])
-                os.close(tmpfile[0])
-                temp_files.append((node, plug_name, tmpfile[1], value))
+                    new_value = []
+                    tmpfiles = []
+                    if trait.inner_traits[0].allowed_extensions:
+                        suffix = 'capsul' + trait.allowed_extensions[0]
+                    else:
+                        suffix = 'capsul'
+                    for i in range(len(value)):
+                        if value[i] in ('', traits.Undefined):
+                            tmpfile = tempfile.mkstemp(suffix=suffix)
+                            tmpfiles.append(tmpfile[1])
+                            os.close(tmpfile[0])
+                            new_value.append(tmpfile[1])
+                        else:
+                            new_value.append(value[i])
+                    node.set_plug_value(plug_name, new_value)
+                    temp_files.append((node, plug_name, tmpfiles, value))
+            else:
+                if trait.trait_type is traits.Directory:
+                    tmpdir = tempfile.mkdtemp(suffix='capsul_run')
+                    temp_files.append((node, plug_name, tmpdir, value))
+                    node.set_plug_value(plug_name, tmpdir)
+                else:
+                    if trait.allowed_extensions:
+                        suffix = 'capsul' + trait.allowed_extensions[0]
+                    else:
+                        suffix = 'capsul'
+                    tmpfile = tempfile.mkstemp(suffix=suffix)
+                    node.set_plug_value(plug_name, tmpfile[1])
+                    os.close(tmpfile[0])
+                    temp_files.append((node, plug_name, tmpfile[1], value))
 
     def _free_temporary_files(self, temp_files):
         """ Delete and reset temp files after the pipeline execution.
@@ -1324,10 +1361,21 @@ class Pipeline(Process):
                         (not plug.activated and plug.optional):
                     continue
                 parameter = process.user_traits()[plug_name]
-                if not isinstance(parameter.trait_type, File) \
+                if hasattr(parameter, 'inner_traits') \
+                        and len(parameter.inner_traits) != 0:
+                    # list trait
+                    t = parameter.inner_traits[0]
+                    if not isinstance(t.trait_type, File) \
+                            and not isinstance(t.trait_type, Directory):
+                        continue
+                elif not isinstance(parameter.trait_type, File) \
                         and not isinstance(parameter.trait_type, Directory):
                     continue
                 value = getattr(process, plug_name)
+                if isinstance(value, list) and (len(value) == 0 \
+                        or len([item for item in value
+                                if item in ('', traits.Undefined)]) != 0):
+                    continue # non-empty list or all values non-empty
                 if value != '' and value is not traits.Undefined:
                     continue # non-null value: not an empty parameter.
                 optional = bool(parameter.optional)
