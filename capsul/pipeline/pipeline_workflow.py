@@ -362,7 +362,9 @@ def workflow_from_pipeline(pipeline, study_config={}, disabled_nodes=None,
               # FIXME: several temp items can be part of the same list,
               # so this assignment is likely to be done several times.
               # It could probably be optimized.
-              setattr(process, plug_name, [Undefined] * len(value))
+              # WARNING: we set "" values instead of Undefined because they may
+              # be mandatory
+              setattr(process, plug_name, [''] * len(value))
           else:
               setattr(process, plug_name, Undefined)
 
