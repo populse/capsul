@@ -1368,18 +1368,18 @@ class Pipeline(Process):
                         and len(parameter.inner_traits) != 0:
                     # list trait
                     t = parameter.inner_traits[0]
-                    if not isinstance(t.trait_type, File) \
-                            and not isinstance(t.trait_type, Directory):
+                    if not isinstance(t.trait_type, (File, Directory)):
                         continue
-                elif not isinstance(parameter.trait_type, File) \
-                        and not isinstance(parameter.trait_type, Directory):
+                elif not isinstance(parameter.trait_type, (File, Directory)):
                     continue
                 value = getattr(process, plug_name)
-                if isinstance(value, list) and (len(value) == 0 \
-                        or len([item for item in value
-                                if item in ('', traits.Undefined)]) != 0):
-                    continue # non-empty list or all values non-empty
-                if value != '' and value is not traits.Undefined:
+                if isinstance(value, list):
+                    if len(value) == 0 \
+                            or len([item for item in value
+                                    if item in ('', traits.Undefined)]) == 0:
+                        continue # non-empty list or all values non-empty
+                    # here we have null values
+                elif value != '' and value is not traits.Undefined:
                     continue # non-null value: not an empty parameter.
                 optional = bool(parameter.optional)
                 valid = True
