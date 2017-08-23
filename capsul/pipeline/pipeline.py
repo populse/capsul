@@ -1377,18 +1377,21 @@ class Pipeline(Process):
 
         for plug_name, plug in six.iteritems(node.plugs):
             value = node.get_plug_value(plug_name)
-            if not plug.activated or not plug.enabled \
-                    or (value not in (traits.Undefined, '') and \
-                        not isinstance(value,list)):
+            if not plug.activated or not plug.enabled:
                 continue
             trait = node.get_trait(plug_name)
-            if not trait.output \
-                    or (not isinstance(trait.trait_type, traits.File)
-                        and not isinstance(trait.trait_type,
-                                           traits.Directory)
-                        and not isinstance(trait.trait_type,
-                                           traits.List)) \
-                    or len(plug.links_to) == 0:
+            if not trait.output:
+                continue
+            if hasattr(trait, 'inner_traits') \
+                    and len(trait.inner_traits) != 0 \
+                    and isinstance(trait.inner_traits[0].trait_type,
+                                   (traits.File, traits.Directory)):
+                if len([x for x in value if x in ('', traits.Undefined)]) == 0:
+                    continue
+            elif value not in (traits.Undefined, '') \
+                    and ((not isinstance(trait.trait_type, traits.File)
+                          and not isinstance(trait.trait_type, traits.Directory))
+                         or len(plug.links_to) == 0):
                 continue
             # check that it is really temporary: not exported
             # to the main pipeline
@@ -1397,36 +1400,46 @@ class Pipeline(Process):
                 # it is visible out of the pipeline: not temporary
                 continue
             # if we get here, we are a temporary.
-            is_list = False
-            if isinstance(trait.trait_type, traits.List):
-                trait = trait.trait_type.inner_traits()[0]
-                is_list = True
-            if trait.trait_type is traits.Directory:
-                if is_list:
-                    tmp_files = []
-                    for v in value:
-                        tmpdir = tempfile.mkdtemp(suffix='capsul_run')
-                        temp_files.append((node, plug_name, tmpdir, v))
-                        tmp_files.append(tmpdir)
-                    node.set_plug_value(plug_name, tmp_files)
+            if isinstance(value, list):
+                if trait.inner_traits[0].trait_type is traits.Directory:
+                    new_value = []
+                    tmpdirs = []
+                    for i in range(len(value)):
+                        if value[i] in ('', traits.Undefined):
+                            tmpdir = tempfile.mkdtemp(suffix='capsul_run')
+                            new_value.append(tmpdir)
+                            tmpdirs.append(tmpdir)
+                        else:
+                            new_value.append(value[i])
+                    temp_files.append((node, plug_name, tmpdirs, value))
+                    node.set_plug_value(plug_name, new_value)
                 else:
+                    new_value = []
+                    tmpfiles = []
+                    if trait.inner_traits[0].allowed_extensions:
+                        suffix = 'capsul' + trait.allowed_extensions[0]
+                    else:
+                        suffix = 'capsul'
+                    for i in range(len(value)):
+                        if value[i] in ('', traits.Undefined):
+                            tmpfile = tempfile.mkstemp(suffix=suffix)
+                            tmpfiles.append(tmpfile[1])
+                            os.close(tmpfile[0])
+                            new_value.append(tmpfile[1])
+                        else:
+                            new_value.append(value[i])
+                    node.set_plug_value(plug_name, new_value)
+                    temp_files.append((node, plug_name, tmpfiles, value))
+            else:
+                if trait.trait_type is traits.Directory:
                     tmpdir = tempfile.mkdtemp(suffix='capsul_run')
                     temp_files.append((node, plug_name, tmpdir, value))
                     node.set_plug_value(plug_name, tmpdir)
-            else:
-                if trait.allowed_extensions:
-                    suffix = 'capsul' + trait.allowed_extensions[0]
                 else:
-                    suffix = 'capsul'
-                if is_list:
-                    tmp_files = []
-                    for v in value:
-                        tmpfile = tempfile.mkstemp(suffix=suffix)
-                        tmp_files.append(tmpfile[1])
-                        os.close(tmpfile[0])
-                    temp_files.append((node, plug_name, tmp_files, value))
-                    node.set_plug_value(plug_name, tmp_files)
-                else:
+                    if trait.allowed_extensions:
+                        suffix = 'capsul' + trait.allowed_extensions[0]
+                    else:
+                        suffix = 'capsul'
                     tmpfile = tempfile.mkstemp(suffix=suffix)
                     node.set_plug_value(plug_name, tmpfile[1])
                     os.close(tmpfile[0])
@@ -1441,7 +1454,7 @@ class Pipeline(Process):
         #
         for node, plug_name, tmpfiles, value in temp_files:
             node.set_plug_value(plug_name, value)
-            if not isinstance(value, list):
+            if not isinstance(tmpfiles, list):
                 tmpfiles = [tmpfiles]
             for tmpfile in tmpfiles:
                 if os.path.isdir(tmpfile):
@@ -1506,23 +1519,23 @@ class Pipeline(Process):
                         (not plug.activated and plug.optional):
                     continue
                 parameter = process.trait(plug_name)
-                if not isinstance(parameter.trait_type, (File, Directory)) \
-                        and (not isinstance(parameter.trait_type, List)
-                             or not isinstance(
-                                parameter.inner_traits[0].trait_type,
-                                (File, Directory))):
+                if hasattr(parameter, 'inner_traits') \
+                        and len(parameter.inner_traits) != 0:
+                    # list trait
+                    t = parameter.inner_traits[0]
+                    if not isinstance(t.trait_type, (File, Directory)):
+                        continue
+                elif not isinstance(parameter.trait_type, (File, Directory)):
                     continue
-                is_list = isinstance(parameter.trait_type, List)
                 value = getattr(process, plug_name)
-                if is_list:
-                    if value:
-                        if all([v not in ('', traits.Undefined, None)
-                                for v in value]):
-                            # all values are non-empty
-                            continue
-                else:
-                    if value != '' and value is not traits.Undefined:
-                        continue # non-null value: not an empty parameter.
+                if isinstance(value, list):
+                    if len(value) == 0 \
+                            or len([item for item in value
+                                    if item in ('', traits.Undefined)]) == 0:
+                        continue # non-empty list or all values non-empty
+                    # here we have null values
+                elif value != '' and value is not traits.Undefined:
+                    continue # non-null value: not an empty parameter.
                 optional = bool(parameter.optional)
                 valid = True
                 links = list(plug.links_from.union(plug.links_to))

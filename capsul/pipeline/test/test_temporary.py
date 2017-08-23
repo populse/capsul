@@ -165,9 +165,10 @@ class TestTemporary(unittest.TestCase):
         self.study_config = study_config
 
     def tearDown(self):
-        if os.path.exists(self.output):
-          os.unlink(self.output)
-        shutil.rmtree(self.soma_workflow_temp_dir)
+        if '--keep-tmp' not in sys.argv[1:]:
+            if os.path.exists(self.output):
+              os.unlink(self.output)
+            shutil.rmtree(self.soma_workflow_temp_dir)
 
 
     def test_structure(self):
@@ -191,7 +192,7 @@ class TestTemporary(unittest.TestCase):
     def test_full_wf(self):
         self.study_config.use_soma_workflow = True
         self.pipeline.nb_outputs = 3
-        result = self.study_config.run(self.pipeline)
+        result = self.study_config.run(self.pipeline, verbose=True)
         self.assertEqual(result, None)
         self.assertEqual(self.pipeline.nodes["node2"].process.input,
                          ["", "", ""])

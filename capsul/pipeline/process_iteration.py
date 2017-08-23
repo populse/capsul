@@ -13,6 +13,7 @@ from traits.api import List, Undefined
 from capsul.process.process import Process
 from capsul.study_config.process_instance import get_process_instance
 from capsul.attributes.completion_engine import ProcessCompletionEngine
+from traits.api import File, Directory
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -35,14 +36,6 @@ class ProcessIteration(Process):
         self.regular_parameters = set()
         self.iterative_parameters = set(iterative_parameters)
 
-        # Check that all iterative parameters are valid process parameters
-        user_traits = self.process.user_traits()
-        for parameter in self.iterative_parameters:
-            if parameter not in user_traits:
-                raise ValueError('Cannot iterate on parameter %s '
-                  'that is not a parameter of process %s'
-                  % (parameter, self.process.id))
-
         # use the completion system (if any) to get induced (additional)
         # iterated parameters
         if study_config is not None:
@@ -53,6 +46,20 @@ class ProcessIteration(Process):
                     = completion_engine.get_induced_iterative_parameters()
                 self.iterative_parameters.update(induced_iterative_parameters)
                 iterative_parameters = self.iterative_parameters
+
+        # Check that all iterative parameters are valid process parameters
+        user_traits = self.process.user_traits()
+        has_output = False
+        inputs = []
+        for parameter in self.iterative_parameters:
+            if parameter not in user_traits:
+                raise ValueError('Cannot iterate on parameter %s '
+                  'that is not a parameter of process %s'
+                  % (parameter, self.process.id))
+            if user_traits[parameter].output:
+                has_output = True
+            else:
+                inputs.append(parameter)
 
         # Create iterative process parameters by copying process parameter
         # and changing iterative parameters to list
@@ -69,6 +76,36 @@ class ProcessIteration(Process):
                 # Note: should be this be done via a links system ?
                 setattr(self, name, getattr(self.process, name))
 
+        # if the process has iterative outputs, the output lists have to be
+        # resized according to inputs
+        if has_output:
+            self.on_trait_change(self._resize_outputs, inputs)
+
+    def _resize_outputs(self):
+        num = 0
+        outputs = []
+        for param in self.iterative_parameters:
+            if self.process.trait(param).output:
+                if isinstance(self.process.trait(param).trait_type,
+                              (File, Directory)):
+                    outputs.append(param)
+            else:
+                num = max(num, len(getattr(self, param)))
+        for param in outputs:
+            value = getattr(self, param)
+            mod = False
+            if len(value) > num:
+                new_value = value[:num]
+                mod = True
+            else:
+                if len(value) < num:
+                    new_value = value \
+                        + [self.process.trait(param).default] \
+                            * (num - len(value))
+                    mod = True
+            if mod:
+                setattr(self, param, new_value)
+
     def _run_process(self):
         # Check that all iterative parameter value have the same size
         no_output_value = None
@@ -76,8 +113,11 @@ class ProcessIteration(Process):
         size_error = False
         for parameter in self.iterative_parameters:
             trait = self.trait(parameter)
-            psize = len(getattr(self, parameter))
-            if psize:
+            value = getattr(self, parameter)
+            psize = len(value)
+            if psize and (not trait.output
+                          or len([x for x in value
+                                  if x in ('', Undefined, None)]) == 0):
                 if size is None:
                     size = psize
                 elif size != psize:
@@ -118,7 +158,9 @@ class ProcessIteration(Process):
             outputs = {}
             for iteration in xrange(size):
                 for parameter in self.iterative_parameters:
-                    if not no_output_value or not self.trait(parameter).output:
+                    #if not no_output_value or not self.trait(parameter).output:
+                    value = getattr(self, parameter)
+                    if len(value) > iteration:
                         setattr(self.process, parameter,
                                 getattr(self, parameter)[iteration])
                 # operate completion

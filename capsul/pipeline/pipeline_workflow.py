@@ -375,19 +375,15 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
               process = node.process
           else:
               process = node
-          trait = process.trait(plug_name)
-          if isinstance(trait.trait_type, List):
-              value = getattr(process, plug_name)
+          value = getattr(process, plug_name)
+          if isinstance(value, list):
               # FIXME TODO: only restore values in list which correspond to
               # a temporary.
               # Problem: they are sometimes transformed into strings
-              setattr(process, plug_name, [""] * len(value))
-              #for i, v in enumerate(value):
-                  #if isinstance(v, TempFile):
-                      #print('reset item', i)
-                      #value[i] = ""
-                  #else:
-                      #print('keep item ', i, ':', v, type(v))
+              # FIXME: several temp items can be part of the same list,
+              # so this assignment is likely to be done several times.
+              # It could probably be optimized.
+              setattr(process, plug_name, [''] * len(value))
           else:
               setattr(process, plug_name, Undefined)
 
