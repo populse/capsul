@@ -2451,7 +2451,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             file_iter = fileobj.xreadlines()
         for line in file_iter:
             if line.startswith('node'):
-                line_els = line.split()
+                line_els0 = line.split()
+                line_els = []
+                for el in line_els0:
+                    if el.startswith('"') and el.endswith('"'):
+                        line_els.append(el[1:-1])
+                    else:
+                        line_els.append(el)
                 id = line_els[1]
                 pos = tuple([float(x) for x in line_els[2:4]])
                 name = line_els[6]
