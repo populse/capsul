@@ -62,6 +62,13 @@ def pipeline_node_colors(pipeline, node):
     LIGHT_BLUE_2 = (0.85, 0.85, 0.9)
     LIGHT_BLUE_3 = (0.3, 0.3, 0.5)
 
+    SEA_1 = (0.7, 0.8, 1.)
+    SEA_2 = (0.5, 0.6, 0.9)
+    SEA_3 = (0.2, 0.3, 0.6)
+    LIGHT_SEA_1 = (0.95, 0.95, 1.0)
+    LIGHT_SEA_2 = (0.8, 0.8, 1.)
+    LIGHT_SEA_3 = (0.2, 0.2, 0.7)
+
     #GRAY_1 = (0.7, 0.7, 0.8, 1)
     #GRAY_2 = (0.4, 0.4, 0.4, 1)
     #LIGHT_GRAY_1 = (0.7, 0.7, 0.8, 1)
@@ -88,10 +95,14 @@ def pipeline_node_colors(pipeline, node):
                    LIGHT_SAND_3),
         'pipeline': (DEEP_PURPLE_1, DEEP_PURPLE_2, DEEP_PURPLE_3, PURPLE_1,
                      PURPLE_2, PURPLE_3),
+        'pipeline_io': (SEA_1, SEA_2, SEA_3, LIGHT_SEA_1, LIGHT_SEA_2,
+                        LIGHT_SEA_3),
     }
-    if isinstance(node, Switch):
+    if node is pipeline.pipeline_node:
+        style = 'pipeline_io'
+    elif isinstance(node, Switch):
         style = 'switch'
-    elif isinstance(node, PipelineNode) and node is not pipeline.pipeline_node:
+    elif isinstance(node, PipelineNode):
         style = 'pipeline'
     else:
         style = 'default'
