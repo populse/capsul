@@ -24,7 +24,7 @@ install:
     - python /tmp/soma-workflow/setup.py install
     - popd
     # until we release soma-base 4.5.9
-    - svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/branches/bug_fix /tmp/soma-base
+    - svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/tags/latest_release /tmp/soma-base
     - python /tmp/soma-base/setup.py install
     - pip install argparse
     - pip install importlib
