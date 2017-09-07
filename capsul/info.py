@@ -55,7 +55,7 @@ CAPSUL is a powerful tool to define and share processing pipelines.
 
 # Capsul dependencies
 SPHINX_MIN_VERSION = 1.0
-SOMA_MIN_VERSION = "4.5.6"
+SOMA_MIN_VERSION = "4.5.9"
 
 # dependencies
 SOMA_WORKFLOW_MIN_VERSION = "2.8.0"
@@ -70,8 +70,8 @@ XMLTODICT_MIN_VERSION = "0.9.0"
 # Main setup parameters
 NAME = "capsul"
 ORGANISATION = "CEA"
-MAINTAINER = "Antoine Grigis"
-MAINTAINER_EMAIL = "antoine.grigis@cea.fr"
+MAINTAINER = "BrainVisa team"
+MAINTAINER_EMAIL = ""
 DESCRIPTION = description
 LONG_DESCRIPTION = long_description
 URL = ""
@@ -79,7 +79,7 @@ DOWNLOAD_URL = ""
 LICENSE = "CeCILL-B"
 CLASSIFIERS = CLASSIFIERS
 AUTHOR = "CAPSUL developers"
-AUTHOR_EMAIL = "antoine.grigis@cea.fr"
+AUTHOR_EMAIL = ""
 PLATFORMS = "OS Independent"
 ISRELEASE = version_extra == ""
 VERSION = __version__
