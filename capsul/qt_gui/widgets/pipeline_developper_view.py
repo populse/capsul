@@ -1993,7 +1993,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             item = self.itemAt(event.pos())
             if not isinstance(item, QtGui.QGraphicsProxyWidget):
                 done = True
-                if event.delta() < 0:
+                if qt_backend.get_qt_backend() == 'PyQt5':
+                    delta = event.angleDelta().y()
+                else:
+                    delta = event.delta()
+                if delta < 0:
                     self.zoom_out()
                 else:
                     self.zoom_in()
