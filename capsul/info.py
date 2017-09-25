@@ -67,8 +67,8 @@ NIPYPE_VERSION = "0.10.0"
 # Main setup parameters
 NAME = "capsul"
 ORGANISATION = "CEA"
-MAINTAINER = "Antoine Grigis"
-MAINTAINER_EMAIL = "antoine.grigis@cea.fr"
+MAINTAINER = ""
+MAINTAINER_EMAIL = ""
 DESCRIPTION = description
 LONG_DESCRIPTION = long_description
 URL = ""
