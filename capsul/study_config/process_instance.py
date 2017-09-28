@@ -114,15 +114,20 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
     # This is not elegant, not thread-safe, and forbids to have one pipeline
     # build a second one in a different study_config context.
     # I don't have a better solution, however.
-    set_study_config = not hasattr(Process, '_study_config')
+    import capsul.study_config.study_config as study_cmod
+    set_study_config = (study_config is not None
+                        and study_cmod._default_study_config
+                            is not study_config)
+
     try:
         if set_study_config:
-            Process._study_config = study_config
+            old_default_study_config = study_cmod._default_study_config
+            study_cmod._default_study_config = study_config
         return _get_process_instance(process_or_id, study_config=study_config,
                                      **kwargs)
     finally:
         if set_study_config:
-            del Process._study_config
+            study_cmod._default_study_config = old_default_study_config
 
 
 def _execfile(filename):

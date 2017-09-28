@@ -12,6 +12,7 @@ from traits.api import List, Undefined
 
 from capsul.process.process import Process
 from capsul.study_config.process_instance import get_process_instance
+import capsul.study_config as study_cmod
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 from traits.api import File, Directory
 
@@ -24,7 +25,7 @@ class ProcessIteration(Process):
         super(ProcessIteration, self).__init__()
 
         if self.study_config is None and hasattr(Process, '_study_config'):
-            study_config = Process._study_config
+            study_config = study_cmod.default_study_config()
         if study_config is not None:
             self.study_config = study_config
 
