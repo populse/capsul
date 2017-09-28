@@ -1389,7 +1389,7 @@ class Pipeline(Process):
                 if len([x for x in value if x in ('', traits.Undefined)]) == 0:
                     continue
             elif value not in (traits.Undefined, '') \
-                    and ((not isinstance(trait.trait_type, traits.File)
+                    or ((not isinstance(trait.trait_type, traits.File)
                           and not isinstance(trait.trait_type, traits.Directory))
                          or len(plug.links_to) == 0):
                 continue
