@@ -967,6 +967,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             gnode.setPos(self._pos, self._pos)
             self._pos += 100
         else:
+            if not isinstance(pos, Qt.QPointF):
+                pos = Qt.QPointF(pos[0], pos[1])
             gnode.setPos(pos)
         self.gnodes[name] = gnode
 
@@ -1887,11 +1889,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         #super(PipelineDevelopperView, self).__del__()
 
     def _set_pipeline(self, pipeline):
+        pos = {}
         if self.scene:
             pos = self.scene.pos
-            pprint(dict((i, (j.x(), j.y())) for i, j in six.iteritems(pos)))
+            #pprint(dict((i, (j.x(), j.y())) for i, j in six.iteritems(pos)))
         else:
-            pos = {}
             for i, j in six.iteritems(pipeline.node_position):
                 if isinstance(j, QtCore.QPointF):
                     pos[i] = j
@@ -2432,7 +2434,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         scene.pos = pos
         for node, position in six.iteritems(pos):
             gnode = scene.gnodes[node]
-            gnode.setPos(*position)
+            if isinstance(position, Qt.QPointF):
+                gnode.setPos(position)
+            else:
+                gnode.setPos(*position)
 
         os.unlink(tfile_name)
         os.unlink(toutfile_name)
