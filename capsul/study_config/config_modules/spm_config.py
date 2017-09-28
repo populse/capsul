@@ -15,7 +15,7 @@ except ImportError:
     import subprocess
 
 # TRAITS import
-from traits.api import Directory, File, Bool, Enum, Undefined
+from traits.api import Directory, File, Bool, Enum, Undefined, Str
 
 # CAPSUL import
 from capsul.study_config.study_config import StudyConfigModule
@@ -105,6 +105,9 @@ class SPMConfig(StudyConfigModule):
         self.study_config.add_trait("use_spm", Bool(
             Undefined,
             desc="If True, SPM configuration is set up on startup."))
+        self.study_config.add_trait('spm_version', Str(
+            '12', output=False,
+            desc='Version string for SPM: "12", "8", etc.'))
 
     def initialize_module(self):
         """ Set up SPM environment according to current configuration.
