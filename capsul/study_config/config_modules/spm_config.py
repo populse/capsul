@@ -106,7 +106,7 @@ class SPMConfig(StudyConfigModule):
             Undefined,
             desc="If True, SPM configuration is set up on startup."))
         self.study_config.add_trait('spm_version', Str(
-            '12', output=False,
+            Undefined, output=False,
             desc='Version string for SPM: "12", "8", etc.'))
 
     def initialize_module(self):
@@ -143,6 +143,16 @@ class SPMConfig(StudyConfigModule):
                     else:
                         return
 
+                # determine SPM version (currently 8 or 12)
+                if os.path.isdir(os.path.join(
+                    self.study_config.spm_directory, 'spm12_mcr')):
+                    self.study_config.spm_version = '12'
+                elif os.path.isdir(os.path.join(
+                    self.study_config.spm_directory, 'spm8_mcr')):
+                    self.study_config.spm_version = '8'
+                else:
+                    self.study_config.spm_version = Undefined
+
             # If not standalone
             else:
 
@@ -169,6 +179,16 @@ class SPMConfig(StudyConfigModule):
                                 self.study_config.spm_directory))
                     else:
                         return
+
+                # determine SPM version (currently 8 or 12)
+                if os.path.isdir(os.path.join(
+                    self.study_config.spm_directory, 'toolbox', 'OldNorm')):
+                    self.study_config.spm_version = '12'
+                elif os.path.isdir(os.path.join(
+                    self.study_config.spm_directory, 'templates')):
+                    self.study_config.spm_version = '8'
+                else:
+                    self.study_config.spm_version = Undefined
 
     def initialize_callbacks(self):
         """ When the 'use_spm' trait changes, configure spm with the new
