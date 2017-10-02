@@ -11,16 +11,14 @@ Table of content
    string <#association-between-a-python-function-and-an-xml-string>`__
 -  `Processes examples <#processes-examples>`__
 -  `Pipelines <#pipelines>`__
--  `The ``<doc>`` element <#the-doc-element>`__
--  `The ``<process>`` element <#the-process-element>`__
--  `The ``<switch>`` element <#the-switch-element>`__
--  `The ``<optional_output_switch>``
-   element <#the-optional_output_switch-element>`__
--  `The ``<link>`` element <#the-link-element>`__
--  `The ``<processes_selection>``
-   element <#the-processes_selection-element>`__
--  `The ``<pipeline_steps>`` element <#the-pipeline_steps-element>`__
--  `The ``<gui>`` element <#the-gui-element>`__
+-  `The <doc> element <#the-doc-element>`__
+-  `The <process> element <#the-process-element>`__
+-  `The <switch> element <#the-switch-element>`__
+-  `The <optional_output_switch> element <#the-optional-output-switch-element>`__
+-  `The <link> element <#the-link-element>`__
+-  `The <processes_selection> element <#the-processes-selection-element>`__
+-  `The <pipeline_steps> element <#the-pipeline-steps-element>`__
+-  `The <gui> element <#the-gui-element>`__
 -  `Pipeline example <#pipeline-example>`__
 -  `API <#api>`__
 -  `XML validation <#xml-validation>`__
@@ -39,7 +37,7 @@ the return value. This information about parameters is defined in XML
 string with the exception of the **default values** of the parameters
 that are extracted from the function definition.
 
-The process XML string contains one single **``<process>``** element.
+The process XML string contains one single ``<process>`` element.
 This element that may contains some global properties for the process.
 ``<process>`` may contain the following attributes :
 
@@ -50,9 +48,9 @@ This element that may contains some global properties for the process.
 -  *role* (optional): A role that is attached to the process. See
    "Process roles" below.
 
-In the ``<process>`` element, one can find one **``<input>``** element
+In the ``<process>`` element, one can find one ``<input>`` element
 per parameter of the function. If the process produces one or several
-outputs, it must use a **``<return>``** element. If ``<return>`` is not
+outputs, it must use a ``<return>`` element. If ``<return>`` is not
 defined, the value returned by the Python function is ignored and cannot
 be used in pipelines. For a single output, the Python function must
 directly return the value and the value name (an output value must
@@ -75,7 +73,7 @@ function returning a value:
          return a + b
 
 If the process need to return several values, they must me declared with
-**``<output>``** elements located between ``<return>`` and
+``<output>`` elements located between ``<return>`` and
 ``</return>``. The function must return the output values either in a
 list or in a dictionary. If it is a list the order of the ``<output>``
 elements is used to match the values in the list and the process
@@ -167,12 +165,12 @@ that is disconnected from the user environment.
 
 The possible process roles are :
 
--  **``viewer``**: the process is used to display something to the user.
+-  ``viewer``: the process is used to display something to the user.
    It cannot be executed outside the user graphical environment. A
    viewer is not supposed to be blocking. It should terminate
    immediately an let the view live independently of the rest of the
    process. If blocking is required, use the ``dialog`` role.
--  **``dialog``**: a dialog is used to show something to the user and
+-  ``dialog``: a dialog is used to show something to the user and
    wait for a user action before ending its execution. Like a
    ``viewer``, it cannot be executed outside the user graphical
    environment. The expected user action can be as simple as clicking on
@@ -254,18 +252,18 @@ Pipelines
 ---------
 
 An XML pipeline is an XML document containing a single
-**``<pipeline>``** element that may contains some global properties for
+``<pipeline>`` element that may contains some global properties for
 the pipeline. Since a pipeline is also a process, the ``<pipeline>``
 element may contain the same attributes as the ``<process>`` element
 (see above).
 
 An XML pipeline contains a series of processes that are defined by
 ``<process>`` elements. The input and outputs of processes are connected
-by links that are defined in **``<link>``** elements. A pipeline may
+by links that are defined in ``<link>`` elements. A pipeline may
 allow a user to select one group of processes among a series of process
 groups. The processes that are not selected are disabled (they will not
 be executed) whereas the selected processes are enabled. The
-**``<processes_selection>``** element is used to define a set of
+``<processes_selection>`` element is used to define a set of
 selectable process groups.
 
 The ``<doc>`` element
@@ -445,7 +443,7 @@ parameter of this process.
 The ``<processes_selection>`` element
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The **``<processes_selection>``** element defines a series of processes
+The ``<processes_selection>`` element defines a series of processes
 groups. Each processes group is composed by a series of processes added
 in the pipeline with the ``<process>`` element. Only one of these
 processes groups can be executed in the pipeline. Therefore, a new
@@ -454,9 +452,9 @@ group to execute. All processes in the selected group are activated
 (*i.e.* will be executed) whereas all processes in other groups are
 disabled (*i.e.* will not be executed).
 
-The ``<processes_selection>`` has a single **``name``** attribute that
+The ``<processes_selection>`` has a single ``name`` attribute that
 is the name of the parameter that is added to the pipeline. It must
-contains two or more **``<processes_group>``** elements. Each
+contains two or more ``<processes_group>`` elements. Each
 ``<processes_group>`` contains one or more ``<process>`` element having
 only a single ``name`` attribute. This attribute is the name of a
 process defined in the pipeline (see `The ``<process>``
@@ -624,7 +622,7 @@ identifier for the pipeline defined in
 
 One can find all the Processe and Pipeline identifiers defined in a
 module (and recursively in all its sub-modules) with the function
-**``find_processes(module_name)``** (in ``capsul.process.finder``). For
+``find_processes(module_name)`` (in ``capsul.process.finder``). For
 instance, to try to instanciate all processes and pipelines defined in
 the module ``clinfmri`` :
 
