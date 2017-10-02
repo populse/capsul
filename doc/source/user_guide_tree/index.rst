@@ -58,6 +58,12 @@ Python API
 XML files
 =========
 
+Pipelines can be saved and loaded as XML files.
+
+Processes may be functions with XML specifications for their parameters.
+
+:doc:`The specs of XML definitions can be found on this page. <xml_spec>`
+
 Graphical display and edition
 =============================
 
