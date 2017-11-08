@@ -720,10 +720,12 @@ class Pipeline(Process):
          dest_plug) = self.parse_link(link)
 
         # Assure that pipeline plugs are not linked
-        if not source_plug.output and source_node is not self.pipeline_node:
+        if (not source_plug.output and source_node is not self.pipeline_node) \
+                or (source_plug.output and source_node is self.pipeline_node):
             raise ValueError("Cannot link from a pipeline input "
                              "plug: {0}".format(link))
-        if dest_plug.output and dest_node is not self.pipeline_node:
+        if (dest_plug.output and dest_node is not self.pipeline_node) \
+                or (not dest_plug.output and dest_node is self.pipeline_node):
             raise ValueError("Cannot link to a pipeline output "
                              "plug: {0}".format(link))
 
