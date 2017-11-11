@@ -131,66 +131,6 @@ class TestMemory(unittest.TestCase):
             eval(proxy_process.s),
             {'i': copied_file, 'l': [copied_file], 'f': 2.5})
 
-if 0:
-    # Configure the environment
-    study_config = StudyConfig(modules=["FSLConfig"],
-                               fsl_config="/etc/fsl/4.1/fsl.sh")
-
-    # Create a process instance
-    ifname = "/home/ag239446/.local/share/nsap/t1_localizer.nii.gz"
-    instance = get_process_instance("nipype.interfaces.fsl.Merge")
-
-    # Create a decorated instance
-    dec_instance = mem.cache(instance)
-    print(dec_instance)
-    print(dec_instance.__doc__)
-
-    # Set parameters
-    dec_instance.in_files = [ifname, ifname]
-    dec_instance.dimension = "t"
-    dec_instance.output_type = "NIFTI_GZ"
-    dec_instance.set_output_directory("/home/ag239446/tmp/")
-
-    # Test the cache mechanism
-    result = dec_instance()
-    print(dec_instance._merged_file)
-    result = dec_instance(in_files=[ifname, ifname], dimension="t")
-    print(dec_instance._merged_file)
-
-
-
-    # Configure the environment
-    study_config = StudyConfig(modules=["MatlabConfig", "SPMConfig", "NipypeConfig",
-                                        "FSLConfig", "FreeSurferConfig"],
-                               matlab_exec="/neurospin/local/bin/matlab",
-                               spm_directory="/i2bm/local/spm8-5236",
-                               use_matlab=True,
-                               use_spm=True,
-                               use_nipype=True)
-
-    # Create a process instance
-    ifname = "/home/ag239446/.local/share/nsap/t1_localizer.nii"
-    instance = get_process_instance("nipype.interfaces.spm.Smooth")
-
-    # Create a decorated instance
-    dec_instance = mem.cache(instance)
-    print(dec_instance)
-    print(dec_instance.__doc__)
-
-    # Set parameters
-    dec_instance.in_files = [ifname]
-    dec_instance.fwhm = [4, 4, 4]
-    dec_instance.set_output_directory("/home/ag239446/tmp/")
-    dec_instance._nipype_interface.mlab.inputs.prescript = [
-        "ver,", "try,", "addpath('{0}');".format("/i2bm/local/spm8-5236"),
-        "cd('{0}');".format("/home/ag239446/tmp/")
-    ]
-
-    # Test the cache mechanism
-    result = dec_instance()
-    print(dec_instance._smoothed_files)
-
-
 def test():
     """ Function to execute unitest.
     """
