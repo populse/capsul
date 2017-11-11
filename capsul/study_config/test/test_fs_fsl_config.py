@@ -20,26 +20,9 @@ class TestStudyConfigFsFsl(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_study_config_fs(self):
-        freesurfer_config = "/i2bm/local/freesurfer/SetUpFreeSurfer.sh"
-        if not os.path.exists(freesurfer_config) \
-                or not sys.platform.startswith('linux'):
-            # skip this test if FS is not available, or not running
-            # on linux (other systems may see this directory but cannot use it)
-            return
-        study_config = StudyConfig(modules=['FreeSurferConfig'],
-                                   freesurfer_config = freesurfer_config)
-        study_config.use_fs = True
-        for varname in ["FREESURFER_HOME", "FSF_OUTPUT_FORMAT", "MNI_DIR",
-                        "FSFAST_HOME", "FMRI_ANALYSIS_DIR", "FUNCTIONALS_DIR",
-                        "MINC_BIN_DIR", "MNI_DATAPATH"]:
-            self.assertTrue(os.environ.get(varname) is not None,
-                            msg='%s environment variable not set' % varname)
-
-
-# skipIf decorator is only available on python > 2.7.2
-# @unittest.skipIf(sys.platform.startswith('win'), 
-#                     'FSL is not available on Windows')
+    #skipIf decorator is only available on python > 2.7.2
+    #@unittest.skipIf(sys.platform.startswith('win'), 
+                    #'FSL is not available on Windows')
     def test_study_config_fsl(self):
         if not sys.platform.startswith('win'):
             fsl_h = "/etc/fsl/4.1/fsl.sh"
