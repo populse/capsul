@@ -6,38 +6,105 @@ import subprocess
 
 from traits.api import Undefined
 
+from soma.path import find_in_path
+
 def fsl_command_with_environment(study_config, command):
     fsl_dir = os.environ.get('FSLDIR')
-    if fsl_dir or study_config.fsl_config is Undefined:
-        if fsl_dir:
-            dir_prefix = '%s/bin/' % fsl_dir
-        else:
-            di_prefix = ''
-        cmd = ['%s%s%s' % (dir_prefix, study_config.fsl_prefix, command[0])] + command[1:]
+    if fsl_dir:
+        dir_prefix = '%s/bin/' % fsl_dir
     else:
-        fsldir = osp.dirname(osp.dirname(study_config.fsl_config))
-        fslprefix = study_config.fsl_prefix
+        dir_prefix = ''
+    fsl_prefix = getattr(study_config, 'fsl_prefix', '')
+    if fsl_prefix is Undefined:
+        fsl_prefix = ''
+    if getattr(study_config, 'fsl_config', Undefined) is Undefined:
+        cmd = ['%s%s%s' % (dir_prefix, 
+                           fsl_prefix, 
+                           command[0])] + command[1:]
+    else:
+        fsldir = osp.dirname(osp.dirname(osp.dirname(study_config.fsl_config)))
         shell = os.environ.get('SHELL', '/bin/sh')
         if shell.endswith('csh'):
             cmd = [shell, '-c', 
-                'setenv FSLDIR "{0}";source {0}/etc/fslconf/fsl.csh;exec {0}/bin/{1}{2} '.format(fsldir, fslprefix, command[0]) + \
+                'setenv FSLDIR "{0}";source {0}/etc/fslconf/fsl.csh;exec {0}/bin/{1}{2} '.format(fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % i.replace("'", "\\'") for i in command[1:])]
         else:
             cmd = [shell, '-c', 
-                'export FSLDIR="{0}";. {0}/etc/fslconf/fsl.sh;exec {0}/bin/{1}{2} '.format(fsldir, fslprefix, command[0]) + \
+                'export FSLDIR="{0}";. {0}/etc/fslconf/fsl.sh;exec {0}/bin/{1}{2} '.format(fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % i.replace("'", "\\'") for i in command[1:])]
     return cmd
 
+def check_fsl_configuration(study_config):
+    if getattr(study_config, '_fsl_config_checked', False):
+        # Check FLS configuration only once
+        return
+    fsl_dir = os.environ.get('FSLDIR')
+    if fsl_dir:
+        bet = '%s/bin/bet' % fsl_dir
+        if not os.path.exists(bet):
+            raise EnvironmentError('Cannot find command %s' % bet)
+        return
+    if 'FSLConfig' not in study_config.modules:
+        raise EnvironmentError('FSLConfig module is missing in StudyConfig.')
+    if study_config.use_fsl is False:
+        raise EnvironmentError('Configuration is set not to use FLS. Set use_fsl to True in order to use FSL.')
+    elif study_config.use_fsl is True:
+        # Configuration is explicitely asking to use FSL.
+        # Configuration must be valid otherwise
+        # try to update configuration and recheck is validity
+        if check_configuration_values(study_config) is not None:
+            auto_configuration(study_config)
+            error_message = check_configuration_values(study_config)
+            if error_message:
+                raise EnvironmentError(error_message)
+    else:
+        # If use_fsl is not defined, FSL configuration is checked
+        # and use_fsl is set to True if configuration is valid
+        # otherwise an error is raised
+        error_message = check_configuration_values(study_config)
+        if error_message:
+            raise EnvironmentError(error_message)
+        study_config.use_fsl = True
+    study_config._fsl_config_checked = True
+    
+def check_configuration_values(study_config):
+    '''
+    Check if the configuration is valid to run FLS and returns an error
+    message if there is an error or None if everything is good.
+    '''
+    fsl_prefix = getattr(study_config, 'fsl_prefix', '')
+    if fsl_prefix is Undefined:
+        fsl_prefix = ''
+    if study_config.fsl_config is Undefined:
+        if not find_in_path('%sbet' % fsl_prefix):
+            return 'FSL command "%sbet" cannot be found in PATH' % fsl_prefix
+    else:
+        if fsl_prefix:
+            return 'FSL configuration must either use fsl_config or fsl_prefix but not both'
+        if not osp.exists(study_config.fsl_config):
+            return 'File "%s" does not exists' % study_config.fsl_config
+        if not study_config.fsl_config.endswith('fsl.sh'):
+            return 'File "%s" is not a path to fsl.sh script' % study_config.fsl_config    
+    return None
+
+def auto_configuration(study_config):
+    bet = find_in_path('fsl*-bet')
+    if bet:
+        study_config.fsl_prefix = osp.basename(bet)[:-3]
+
 class Popen(subprocess.Popen):
     def __init__(self, study_config, command, **kwargs):
+        check_fsl_configuration(study_config)
         cmd = fsl_command_with_environment(study_config, command)
         super(Popen, self).__init__(cmd, **kwargs)
         
 def call(study_config, command, **kwargs):
+    check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
     return subprocess.call(cmd, **kwargs)
 
 def check_call(study_config, command, **kwargs):
+    check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
     return subprocess.check_call(cmd, **kwargs)
 

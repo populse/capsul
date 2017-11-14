@@ -29,7 +29,6 @@ tests_no_files = [
         "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
-        "use_fsl": False,
         'use_matlab': False,
         'use_spm': False,
         'spm_standalone': False,
@@ -50,7 +49,6 @@ tests_no_files = [
         "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
-        "use_fsl": False,
         'use_matlab': False,
         'use_spm': False,
         'spm_standalone': False,
@@ -71,7 +69,6 @@ tests_no_files = [
         "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
-        "use_fsl": False,
         'use_matlab': False,
         'use_spm': False,
         'spm_standalone': False,
@@ -113,7 +110,6 @@ tests_no_files = [
         "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
-        "use_fsl": False,
         'use_matlab': False,
         'use_spm': False,
         "use_freesurfer": False,
@@ -144,7 +140,6 @@ tests_standard_files = [
         "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
-        "use_fsl": False,
         'use_matlab': False,
         'use_spm': False,
         'spm_standalone': False,
@@ -191,7 +186,6 @@ tests_standard_files = [
         "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
-        'use_fsl': False,
         'use_matlab': False,
         'use_spm': False,
         'spm_standalone': False,
@@ -243,7 +237,6 @@ tests_custom_files = [
         "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
-        'use_fsl': False,
         'use_matlab': False,
         'use_spm': False,
         'spm_standalone': False,
@@ -289,7 +282,6 @@ tests_custom_files = [
         "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
         "generate_logging": False,
-        'use_fsl': False,
         'use_matlab': False,
         'use_spm': False,
         'spm_standalone': False,
@@ -370,27 +362,28 @@ class TestStudyConfigConfiguration(unittest.TestCase):
                                                 study_config_file)
             config = sc.get_configuration_dict()
             modules = sorted(sc.modules.keys())
-
-            self.assertEqual(set(config), set(expected_config))
-            for name, value in six.iteritems(expected_config):
-                self.assertEqual(config[name], value,
-                    'StudyConfig(%s) %s attribute %s should be %s but is '
-                    '%s' % (sargs, test_description, name, repr(value),
-                            repr(getattr(sc, name))))
-            self.assertEqual(modules, expected_modules,
-                'StudyConfig(%s) %s modules are %s but expected value is '
-                '%s' % (sargs, test_description, repr(modules), 
-                        repr(expected_modules)))
-            self.assertEqual(sc.global_config_file, global_config_file,
-                'StudyConfig(%s) %s global_config_file should be %s but '
-                'is %s' % (sargs,test_description, 
-                            repr(global_config_file), 
-                            repr(sc.global_config_file)))
-            self.assertEqual(sc.study_config_file, study_config_file,
-                'StudyConfig(%s) %s study_config_file should be %s but is '
-                '%s' % (sargs, test_description, repr(study_config_file), 
-                        repr(sc.study_config_file)))
-    
+            try:
+                self.assertEqual(set(config), set(expected_config))
+                for name, value in six.iteritems(expected_config):
+                    self.assertEqual(config[name], value,
+                        'StudyConfig(%s) %s attribute %s should be %s but is '
+                        '%s' % (sargs, test_description, name, repr(value),
+                                repr(getattr(sc, name))))
+                self.assertEqual(modules, expected_modules,
+                    'StudyConfig(%s) %s modules are %s but expected value is '
+                    '%s' % (sargs, test_description, repr(modules), 
+                            repr(expected_modules)))
+                self.assertEqual(sc.global_config_file, global_config_file,
+                    'StudyConfig(%s) %s global_config_file should be %s but '
+                    'is %s' % (sargs,test_description, 
+                                repr(global_config_file), 
+                                repr(sc.global_config_file)))
+                self.assertEqual(sc.study_config_file, study_config_file,
+                    'StudyConfig(%s) %s study_config_file should be %s but is '
+                    '%s' % (sargs, test_description, repr(study_config_file), 
+                            repr(sc.study_config_file)))
+            except Exception as e:
+                raise EnvironmentError('When testing StudyConfig(*{0}, **{1}), got the following error: {2}'.format(args, kwargs, e))
     
     def test_study_config_configuration(self):
         user_config_directory = mkdtemp()
