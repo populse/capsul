@@ -1,7 +1,9 @@
 import os
+import os.path as osp
 import six
-from traits.api import File, Bool, Undefined
-from capsul.study_config.config_utils import environment
+from traits.api import File, Bool, Undefined, String
+
+from soma.path import find_in_path
 from capsul.study_config.study_config import StudyConfigModule
 
 
@@ -12,6 +14,8 @@ class FSLConfig(StudyConfigModule):
             Undefined,
             output=False,
             desc='Parameter to specify the fsl.sh path'))
+        self.study_config.add_trait('fsl_prefix', String('',
+            desc='Prefix to add to FSL commands'))
         self.study_config.add_trait('use_fsl', Bool(
             Undefined,
             output=False,
@@ -25,49 +29,44 @@ class FSLConfig(StudyConfigModule):
         if self.study_config.use_fsl is False:
             # Configuration is explicitely asking not to use FSL
             return
-        if self.study_config.use_fsl is Undefined:
-            # If use_fsl is not defined, FSL configuration will
-            # be done if possible but there will be no error if it cannot be
-            # done.
-            force_configuration = False
-        else:
-            # If use_fsl is True configuration must be valid otherwise
-            # an EnvironmentError is raised
-            force_configuration = True
-
-        # Get the fsl.sh path from the study configuration elements
-        fsl_config_file = self.study_config.fsl_config
-
-        # If the fsl.sh path has been defined
-        if fsl_config_file is not Undefined and \
-           os.path.exists(fsl_config_file):
-            # Parse the fsl environment
-            envfsl = environment(fsl_config_file)
-            if "FSLDIR" not in envfsl and "FSLDIR" not in os.environ:
-                # assume the fsl.sh script is in $FSLDIR/etc/fslconf/fsl.sh
-                envfsl["FSLDIR"] = os.path.dirname(os.path.dirname(
-                    os.path.dirname(fsl_config_file)))
-            if envfsl.get("FSLDIR", "") != os.environ.get("FSLDIR", ""):
-                # Set the fsl environment
-                for envname, envval in six.iteritems(envfsl):
-                    if envname in os.environ:
-                        if envname.startswith("FSL"):
-                            os.environ[envname] = envval
-                        else:
-                            os.environ[envname] += ":" + envval
-                    else:
-                        os.environ[envname] = envval
-
-                # No error detected in configuration, set use_fsl to
-                # True
+        elif self.study_config.use_fsl is True:
+            # Configuration is explicitely asking to use FSL.
+            # Configuration must be valid otherwise
+            # try to update configuration and recheck is validity
+            if self.assess_configuration_validity() is not None:
+                self.auto_configuration()
+                error_message = self.assess_configuration_validity()
+                if error_message:
+                    raise EnvironmentError(error_message)
+        elif self.study_config.use_fsl is Undefined:
+            # If use_fsl is not defined, FSL configuration is checked
+            # and use_fsl is set to True if configuration is valid
+            if self.assess_configuration_validity() is None:
                 self.study_config.use_fsl = True
+ 
+    def assess_configuration_validity(self):
+        '''
+        Check if the configuration is valid to run FLS and returns an error
+        message if there is an error or None if everything is good.
+        '''
+        if self.study_config.fsl_config is not Undefined:
+            if self.study_config.fsl_prefix:
+                return 'FSL configuration must either use fsl_config or fsl_prefix but not both'
+            if not osp.exists(self.study_config.fsl_config):
+                return 'File "%s" does not exists' % self.study_config.fsl_config
+            if not self.study_config.fsl_config.endswith('fsl.sh'):
+                return 'File "%s" is not a path to fsl.sh script' % self.study_config.fsl_config
         else:
-            # Error in configuration, do not let use_fsl = Undefined
-            self.study_config.use_fsl = False
-            if force_configuration:
-                raise EnvironmentError(
-                    "No valid FSL configuration file specified. "
-                    "It is impossible to configure FSL.")
-
-    def initialize_callbacks(self):
-        self.study_config.on_trait_change(self.initialize_module, 'use_fsl')
+            fsl_dir = os.environ.get('FSLDIR')
+            if fsl_dir:
+                bet = '%s/bin/bet' % fsl_dir
+                if not osp.exists(bet):
+                    return 'FSL command %s cannot be found (check FSLDIR environment variable)' % bet
+            elif not find_in_path('%sbet' % self.study_config.fsl_prefix):
+                return 'FSL command "%sbet" cannot be found in PATH' % self.study_config.fsl_prefix
+        return None
+    
+    def auto_configuration(self):
+        bet = find_in_path('fsl*-bet')
+        if bet:
+            self.study_config.fsl_prefix = osp.basename(bet)[:-3]
