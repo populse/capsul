@@ -1,3 +1,20 @@
+'''
+Specific subprocess-like functions to call FSL taking into account a 
+potential configuration done in StudyConfig. If a StudyConfig is not
+configured to use FSL, it may be automatically configured. Automatic
+configuration had been tested in the two following cases :
+- FSL was installed from the FMRIB site and, at least, FSLDIR 
+  environment variable is set (fsl.sh can be sourced or not)
+- FSL was installed from Neurodebian packages
+
+For calling FSL command with this module, the first arguent of
+command line must be the FSL executable without any path nor prefix. 
+Prefix areused  in Neurodebian install. For instance on Ubuntu 16.04 
+Neurodebian FSL commands are prefixed with "fsl5.0-".
+The appropriate path and eventualy prefix are added from the configuration
+of the StudyConfig instance.
+'''
+
 from __future__ import absolute_import
 
 import os
@@ -8,7 +25,13 @@ from traits.api import Undefined
 
 from soma.path import find_in_path
 
+
 def fsl_command_with_environment(study_config, command):
+    '''
+    Given an FSL command where first element is a command name without
+    any path or prefix (e.g. "bet"). Returns the appropriate command to
+    call taking into account the study_config FSL configuration.
+    '''
     fsl_dir = os.environ.get('FSLDIR')
     if fsl_dir:
         dir_prefix = '%s/bin/' % fsl_dir
@@ -35,36 +58,26 @@ def fsl_command_with_environment(study_config, command):
     return cmd
 
 def check_fsl_configuration(study_config):
+    '''
+    Check thas study_config configuration is valid to call FSL commands.
+    If not, try to automatically configure FSL. Finally raises an
+    EnvironmentError if configuration is still wrong.
+    '''
     if getattr(study_config, '_fsl_config_checked', False):
         # Check FLS configuration only once
-        return
-    fsl_dir = os.environ.get('FSLDIR')
-    if fsl_dir:
-        bet = '%s/bin/bet' % fsl_dir
-        if not os.path.exists(bet):
-            raise EnvironmentError('Cannot find command %s' % bet)
         return
     if 'FSLConfig' not in study_config.modules:
         raise EnvironmentError('FSLConfig module is missing in StudyConfig.')
     if study_config.use_fsl is False:
         raise EnvironmentError('Configuration is set not to use FLS. Set use_fsl to True in order to use FSL.')
-    elif study_config.use_fsl is True:
-        # Configuration is explicitely asking to use FSL.
-        # Configuration must be valid otherwise
-        # try to update configuration and recheck is validity
-        if check_configuration_values(study_config) is not None:
-            auto_configuration(study_config)
-            error_message = check_configuration_values(study_config)
-            if error_message:
-                raise EnvironmentError(error_message)
-    else:
-        # If use_fsl is not defined, FSL configuration is checked
-        # and use_fsl is set to True if configuration is valid
-        # otherwise an error is raised
+    # Configuration must be valid otherwise
+    # try to update configuration and recheck is validity
+    if check_configuration_values(study_config) is not None:
+        auto_configuration(study_config)
         error_message = check_configuration_values(study_config)
         if error_message:
             raise EnvironmentError(error_message)
-        study_config.use_fsl = True
+    study_config.use_fsl = True
     study_config._fsl_config_checked = True
     
 def check_configuration_values(study_config):
@@ -88,27 +101,53 @@ def check_configuration_values(study_config):
     return None
 
 def auto_configuration(study_config):
-    bet = find_in_path('fsl*-bet')
-    if bet:
-        study_config.fsl_prefix = osp.basename(bet)[:-3]
+    '''
+    Try to automatically set the study_config configuration for FSL.
+    '''
+    fsl_dir = os.environ.get('FSLDIR')
+    fsl_prefix = getattr(study_config, 'fsl_prefix', '')
+    if fsl_prefix is Undefined:
+        fsl_prefix = ''
+    if fsl_dir and not fsl_prefix:
+        # Try to set fsl_config from FSLDIR environment variable
+        fsl_config = '%s/etc/fslconf/fsl.sh' % fsl_dir
+        if osp.exists(fsl_config):
+            study_config.fsl_config = fsl_config
+    elif not fsl_prefix:
+        # Try to set fsl_prefix by searching fsl-*bet in PATH
+        bet = find_in_path('fsl*-bet')
+        if bet:
+            study_config.fsl_prefix = osp.basename(bet)[:-3]
 
 class Popen(subprocess.Popen):
+    '''
+    Equivalent to Python subprocess.Popen for FSL commands
+    '''
     def __init__(self, study_config, command, **kwargs):
         check_fsl_configuration(study_config)
         cmd = fsl_command_with_environment(study_config, command)
         super(Popen, self).__init__(cmd, **kwargs)
         
 def call(study_config, command, **kwargs):
+    '''
+    Equivalent to Python subprocess.call for FSL commands
+    '''
     check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
     return subprocess.call(cmd, **kwargs)
 
 def check_call(study_config, command, **kwargs):
+    '''
+    Equivalent to Python subprocess.check_call for FSL commands
+    '''
     check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
     return subprocess.check_call(cmd, **kwargs)
 
 
 def check_output(study_config, command, **kwargs):
+    '''
+    Equivalent to Python subprocess.check_output for FSL commands
+    '''
     cmd = fsl_command_with_environment(study_config, command)
     return subprocess.check_output(cmd, **kwargs)
