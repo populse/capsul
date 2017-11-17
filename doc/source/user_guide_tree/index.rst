@@ -11,22 +11,7 @@ The main documentation of all the proposed scripts.
 Tutorial
 ########
 
-Different tutorials are available as `IPython notebooks <http://ipython.org/notebook.html>`_.
-
-Capsul may be used in two ways:
-
-* a descriptive interface allows to develop processing bricks using simple Python functions and pipelines using a XML text description.
-
-  .. ifconfig:: 'nbsphinx' in extensions
-
-      * `Download notebook <../_static/tutorial/capsul_descriptive_tutorial.ipynb>`_
-      * `See the notebook contents <../_static/tutorial/capsul_descriptive_tutorial.html>`_
-
-  .. ifconfig:: 'nbsphinx' not in extensions
-
-      * `Download notebook <../_static/tutorial/capsul_descriptive_tutorial.ipynb>`_.
-
-* an object-oriented interface that uses Python classes programming. Note that this interface is compatible with the descriptive one, and allows more functionalities and tweak possibilities.
+Tutorial is available as a `Jupyter notebook <https://jupyter.org/>`_ (Jupyter is the new name for `IPython notebook <http://ipython.org/notebook.html>`_).
 
   .. ifconfig:: 'nbsphinx' in extensions
 
@@ -42,7 +27,7 @@ To run it, the following must be done:
 
     .. code-block:: bash
 
-        ipython notebook --gui=qt my_tutorial.ipynb
+        jupyter notebook --gui=qt my_tutorial.ipynb
 
 
 Building processes
