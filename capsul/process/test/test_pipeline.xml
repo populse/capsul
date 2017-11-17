@@ -86,6 +86,7 @@
         <position name="mask_100" x="826.0" y="451.0"/>
         <position name="threshold_lt_1" x="570.0" y="6.0"/>
         <position name="threshold_lt_10" x="568.0" y="145.0"/>
+        <position name="outputs" x="1000" y="100" />
 
         <!--
         <position name="threshold_gt_100" x="182.35615" y="658.8043">
