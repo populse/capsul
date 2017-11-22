@@ -26,26 +26,87 @@ CAPSUL is the new pipelining system of the `BrainVISA suite <http://brainvisa.in
 Installing without BrainVISA
 ==============================
 
-The latest stable Capsul version can be installed `with pip <https://en.wikipedia.org/wiki/Pip_%28package_manager%29>`_. Please refer to the `pip documentation <http://www.pip-installer.org/>`_ to get full installation possibilities. Here are some examples for most frequent situation.
+Prerequisite
+------------
+
+Installing Capsul on a brain new system requires that Python is installed (either Python 2 or Python 3) but also that some Python packages are installed. These dependencies are managed by `pip <https://en.wikipedia.org/wiki/Pip_%28package_manager%29>`_ or by `setup.py <https://stackoverflow.com/questions/1471994/what-is-setup-py>`_. But one of the dependency (the `traits Python module <http://code.enthought.com/projects/traits/>`_) requires some compilation during installation. Therefore, before installing Capsul is it necessary to install compilation packages as well as Python developpement package. In this document, we give the procedure for installation on a bare Debian based Linux distribution (it has been tested on Ubuntu 16.04).
 
 
-Install in a directory
-----------------------
-To install Capsul in a self-content directory, we recommend to use `virtualenv <https://virtualenv.pypa.io/>`_.
+**Python 3 :**
 
->>> virtualenv my_python_modules
->>> my_python_modules/bin/pip install --upgrade capsul
+.. code-block:: shell
 
-Install on Linux for a single user (without administrator privilege)
---------------------------------------------------------------------
+   sudo apt-get install python3-dev build-essential
 
->>> pip install --user --upgrade capsul
+**Python 2 :**
 
+.. code-block:: shell
 
-Get source code
-===============
+   sudo apt-get install python-dev build-essential
 
-The source code is located on GitHub: http://github.com/neurospin/capsul.
+On the following commands, we use ``python`` command name indiferently for Python 2 and Python 3. For systems where Python 3 is not the default version, it may be necessary to use another command such as ``python3``.
+
+Install system-wide
+-------------------
+
+**From PyPI**
+
+.. code-block:: shell
+
+   sudo apt-get install python-pip # On Ubuntu 16.04, use python3-pip for Python 3 
+   sudo pip install capsul # On Ubuntu 16.04, use pip3 for Python 3
+    
+**From source**
+
+.. code-block:: shell
+
+   sudo apt-get install git
+   git clone https://github.com/neurospin/capsul.git /tmp/capsul
+   cd /tmp/capsul
+   python setup.py install # On Ubuntu 16.04, use python3 for Python 3
+   cd /tmp
+   rm -r /tmp/capsul
+
+Install user-wide
+-------------------
+
+**From PyPI**
+
+.. code-block:: shell
+
+   sudo apt-get install python-pip # On Ubuntu 16.04, use python3-pip for Python 3 
+   pip install --user capsul # On Ubuntu 16.04, use pip3 for Python 3
+    
+**From source**
+
+.. code-block:: shell
+
+   sudo apt-get install git
+   git clone https://github.com/neurospin/capsul.git /tmp/capsul
+   cd /tmp/capsul
+   python setup.py install --user
+   cd /tmp
+   rm -r /tmp/capsul
+
+Install with virtualenv
+-----------------------
+
+**For Python 3**
+
+.. code-block:: shell
+
+   sudo apt-get install python3-venv
+   python3 -m venv /tmp/venv # Choose your installation directory instead of /tmp/venv
+   /tmp/venv/bin/pip install capsul
+    
+**For Python 2**
+
+.. code-block:: shell
+
+   sudo apt-get install python-virtualenv
+   virtualenv /tmp/venv # Choose your installation directory instead of /tmp/venv
+   /tmp/venv/bin/pip install capsul
+
 
 
 
