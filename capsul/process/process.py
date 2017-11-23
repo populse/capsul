@@ -123,6 +123,47 @@ class ProcessMeta(Controller.__class__):
 class Process(six.with_metaclass(ProcessMeta, Controller)):
     """ A process is an atomic component that contains a processing.
 
+    A process is typically an object with typed parameters, and an execution
+    function. Parameters are described using Enthought
+    `traits <http://docs.enthought.com/traits/>`_ through Soma-Base
+    :somabase:`Controller <api.html#soma.controller.controller.Controller>`
+    base class.
+
+    In addition to describing its parameters, a Process must implement its
+    execution function, either through a python method, by overloading
+    :meth:`_run_process`, or through a commandline execution, by overloading
+    :meth:`get_commandline`. The second way allows to run on a remote
+    processing machine which has not necessary capsul, nor python, installed.
+
+    Parameters are declared or queried using the traits API, and their values
+    are in the process instance variables:
+
+    ::
+
+        from __future__ import print_function
+        from capsul.api import Process
+        import traits.api as traits
+
+        class MyProcess(Process):
+
+            # a class trait
+            param1 = traits.Str('def_param1')
+
+            def __init__(self):
+                super(MyProcess, self).__init__()
+                # declare an input param
+                self.add_trait('param2', traits.Int())
+                # declare an output param
+                self.add_trait('out_param', traits.File(output=True))
+
+            def _run_process(self):
+                with open(self.out_param, 'w') as f:
+                    print('param1:', self.param1, file=f)
+                    print('param2:', self.param2, file=f)
+
+        # run it with parameters
+        MyProcess()(param2=12, out_param='/tmp/log.txt')
+
     Attributes
     ----------
     `name`: str
@@ -245,15 +286,29 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     ####################################################################
 
     def _run_process(self):
-        """ Method that contains the processings.
+        """Runs the processings when the instance is called.
 
-        Either this _run_process() or get_commandline() must be
+        Either this _run_process() or :meth:`get_commandline` must be
         defined in derived classes.
 
-        .. note:
+        Note that _run_process() is called as a python function, on a Process
+        instance. When using remote processing (cluster for instance), this
+        means that the commandline which will run needs to be able to re-
+        instantiate the same process: the process thus has to be stored in a
+        file or python module which can be accessed from the remote machine,
+        and python / capsul correctly installed and available on it.
+
+        :meth:`get_commandline` at the contrary, can implement commandlines
+        which are completely inependent from Capsul, and from python.
+
+        .. note::
 
             If both methods are not defined in the derived class a
             NotImplementedError error is raised.
+
+            On the other side, if both methods are overloaded, the process
+            behavior in local sequential computing mode and in Soma-Workflow
+            modes may be different.
         """
         # Check if get_commandline() method is specialized
         # If yes, we can make use of it to execute the process
@@ -413,6 +468,15 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
     def get_commandline(self):
         """ Method to generate a comandline representation of the process.
+
+        If not implemented, it will generate a commandline running python,
+        instaitiating the current process, and calling its
+        :meth:`_run_process` method.
+
+        Returns
+        -------
+        commandline: list of strings
+            Arguments are in separate elements of the list.
         """
         # Get command line arguments (ie., the process user traits)
         # Build the python call expression, keeping apart file names.
