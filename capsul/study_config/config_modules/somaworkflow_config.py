@@ -10,6 +10,42 @@ from traits.api import Bool, Str, Undefined, List, Dict, File
 from capsul.study_config.study_config import StudyConfigModule
 from soma.controller import Controller, ControllerTrait, OpenKeyController
 
+class ResourceController(Controller):
+    ''' Configuration options for one Soma-Workflow computing resource
+
+    Attributes
+    ----------
+    queue: str
+        Jobs queue to be used on the computing resource for w
+        orkflow submissions
+    transfer_paths: list(str)
+        list of paths where files have to be transferred by soma-workflow
+    path_translations: dict(str, (str, str))
+        Soma-workflow paths translations mapping:
+        ``{local_path: (identifier, uuid)}``
+    '''
+    def __init__(self):
+        super(ResourceController, self).__init__()
+        self.add_trait(
+            'queue',
+            Str(Undefined, output=False,
+                desc='Jobs queue to be used on the computing resource for '
+                'workflow submissions'))
+        self.add_trait(
+            'transfer_paths', List(
+                [],
+                output=False,
+                desc='list of paths where files have to be transferred '
+                'by soma-workflow'))
+        self.add_trait(
+            'path_translations',
+            ControllerTrait(
+                OpenKeyController(
+                    value_trait=List(trait=Str(), value=('', ''),
+                    minlen=2, maxlen=2)),
+                output=False,
+                desc='Soma-workflow paths translations mapping: '
+                '{local_path: (identifier, uuid)}'))
 
 class SomaWorkflowConfig(StudyConfigModule):
     ''' Configuration module for :somaworkflow:`Soma-Workflow <index.html>`
@@ -45,44 +81,7 @@ class SomaWorkflowConfig(StudyConfigModule):
     connect_resource
     disconnect_resource
     '''
-
-    class ResourceController(Controller):
-        ''' Configuration options for one Soma-Workflow computing resource
-
-        Attributes
-        ----------
-        queue: str
-            Jobs queue to be used on the computing resource for w
-            orkflow submissions
-        transfer_paths: list(str)
-            list of paths where files have to be transferred by soma-workflow
-        path_translations: dict(str, (str, str))
-            Soma-workflow paths translations mapping:
-            ``{local_path: (identifier, uuid)}``
-        '''
-        def __init__(self):
-            super(SomaWorkflowConfig.ResourceController, self).__init__()
-            self.add_trait(
-                'queue',
-                Str(Undefined, output=False,
-                    desc='Jobs queue to be used on the computing resource for '
-                    'workflow submissions'))
-            self.add_trait(
-                'transfer_paths', List(
-                    [],
-                    output=False,
-                    desc='list of paths where files have to be transferred '
-                    'by soma-workflow'))
-            self.add_trait(
-                'path_translations',
-                ControllerTrait(
-                    OpenKeyController(
-                        value_trait=List(trait=Str(), value=('', ''),
-                        minlen=2, maxlen=2)),
-                    output=False,
-                    desc='Soma-workflow paths translations mapping: '
-                    '{local_path: (identifier, uuid)}'))
-
+    
     def __init__(self, study_config, configuration):
 
         super(SomaWorkflowConfig, self).__init__(study_config, configuration)
@@ -118,7 +117,7 @@ class SomaWorkflowConfig(StudyConfigModule):
             ControllerTrait(
                 OpenKeyController(
                     value_trait=ControllerTrait(
-                        SomaWorkflowConfig.ResourceController(),
+                        ResourceController(),
                         output=False, allow_none=False,
                         desc='Computing resource config')),
                 output=False, allow_none=False,
