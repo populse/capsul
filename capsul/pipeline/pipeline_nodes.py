@@ -285,6 +285,7 @@ class Node(Controller):
         """
         state = super(Node, self).__getstate__()
         state['_callbacks'] = state['_callbacks'].keys()
+        state['pipeline'] = get_ref(state['pipeline'])
         return state
 
     def __setstate__(self, state):
@@ -292,6 +293,7 @@ class Node(Controller):
         """
         state['_callbacks'] = dict((i, SomaPartial(self._value_callback, *i))
                                    for i in state['_callbacks'])
+        state['pipeline'] = weak_proxy(state['pipeline'])
         super(Node, self).__setstate__(state)
         for callback_key, value_callback in six.iteritems(self._callbacks):
             self.set_callback_on_plug(callback_key[0], value_callback)

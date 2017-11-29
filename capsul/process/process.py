@@ -222,6 +222,15 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         for k, v in six.iteritems(kwargs):
             self.default_values[k] = v
 
+    def __getstate__(self):
+        """ Remove the _weakref attribute eventually set by 
+        soma.utils.weak_proxy beacause it prevent Process instance
+        from being used with pickle.
+        """
+        state = super(Process, self).__getstate__()
+        state.pop('_weakref', None)
+        return state
+    
     def add_trait(self, name, trait):
         """Ensure that trait.output and trait.optional are set to a
         boolean value before calling parent class add_trait.
