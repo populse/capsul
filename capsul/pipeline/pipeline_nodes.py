@@ -160,7 +160,15 @@ class Node(Controller):
         # add an event on the Node instance traits to validate the pipeline
         self.on_trait_change(pipeline.update_nodes_and_plugs_activation,
                              "enabled")
-
+    @property
+    def process(self):
+        return get_ref(self._process)
+    
+    @process.setter
+    def process(self, value):
+        self._process = value
+    
+    
     @property
     def full_name(self):
         if self.pipeline.parent_pipeline:
@@ -293,7 +301,10 @@ class Node(Controller):
         """
         state['_callbacks'] = dict((i, SomaPartial(self._value_callback, *i))
                                    for i in state['_callbacks'])
-        state['pipeline'] = weak_proxy(state['pipeline'])
+        if state['pipeline'] is state['process']:
+            state['pipeline'] = state['process'] = weak_proxy(state['pipeline'])
+        else:
+            state['pipeline'] = weak_proxy(state['pipeline'])
         super(Node, self).__setstate__(state)
         for callback_key, value_callback in six.iteritems(self._callbacks):
             self.set_callback_on_plug(callback_key[0], value_callback)
@@ -394,7 +405,10 @@ class ProcessNode(Node):
         kwargs: dict
             process default values.
         """
-        self.process = process
+        if process is pipeline:
+            self.process = weak_proxy(process)
+        else:
+            self.process = process
         self.kwargs = kwargs
         inputs = []
         outputs = []
