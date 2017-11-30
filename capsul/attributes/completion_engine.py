@@ -78,7 +78,7 @@ class ProcessCompletionEngine(traits.HasTraits):
     def __init__(self, process, name=None):
         super(ProcessCompletionEngine, self).__init__(
             process=process, name=name)
-        self.process = weak_proxy(process)
+        self.process = weak_proxy(process, self._clear_process)
         self.name = name
         self.completion_ongoing = False
         self.add_trait('completion_progress', traits.Float(0.))
@@ -91,6 +91,12 @@ class ProcessCompletionEngine(traits.HasTraits):
         self.remove_auto_completion()
 
 
+    def _clear_process(self, wr):
+        '''Called when the object behind the self.process proxy is about
+        to be deleted
+        '''
+        self.process = None
+    
     def get_attribute_values(self):
         ''' Get attributes Controller associated to a process
 
@@ -425,16 +431,17 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         Reverts install_auto_completion()
         '''
-        self.get_attribute_values().on_trait_change(
-            self.attributes_changed, 'anytrait', remove=True)
+        if self.process is not None:
+            self.get_attribute_values().on_trait_change(
+                self.attributes_changed, 'anytrait', remove=True)
 
-        if isinstance(self.process, Pipeline):
-            for node_name, node in six.iteritems(self.process.nodes):
-                if isinstance(node, Switch):
-                    # a switch may change attributes dynamically
-                    # so we must be notified if this happens.
-                    node.on_trait_change(self.nodes_selection_changed,
-                                         'switch', remove=True)
+            if isinstance(self.process, Pipeline):
+                for node_name, node in six.iteritems(self.process.nodes):
+                    if isinstance(node, Switch):
+                        # a switch may change attributes dynamically
+                        # so we must be notified if this happens.
+                        node.on_trait_change(self.nodes_selection_changed,
+                                            'switch', remove=True)
 
 
     def get_path_completion_engine(self):
