@@ -308,7 +308,7 @@ class StudyConfig(Controller):
                     value = getattr(process_or_pipeline, name)
                     if value is not Undefined and value:
                         base = os.path.dirname(value)
-                        if not os.path.exists(base):
+                        if base and not os.path.exists(base):
                             os.makedirs(base)
                             
         # Use soma worflow to execute the pipeline or porcess in parallel
