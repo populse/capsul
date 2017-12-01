@@ -306,7 +306,7 @@ class StudyConfig(Controller):
             for name, trait in process_or_pipeline.user_traits().items():
                 if trait.output and isinstance(trait.handler, (File, Directory)):
                     value = getattr(process_or_pipeline, name)
-                    if value is not Undefined:
+                    if value is not Undefined and value:
                         base = os.path.dirname(value)
                         if base and not os.path.exists(base):
                             os.makedirs(base)
