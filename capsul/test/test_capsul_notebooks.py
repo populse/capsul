@@ -26,7 +26,7 @@ def test():
     print('notebooks:', notebooks)
     res = True
     for notebook in notebooks:
-        res = tnb.test_notebook(notebook) or res
+        res = tnb.test_notebook(notebook)
     if res:
         print('OK')
     else:
