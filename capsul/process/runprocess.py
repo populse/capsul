@@ -56,6 +56,17 @@ except ImportError:
 import six
 
 
+def set_process_param_from_str(process, k, arg):
+    """Set a process parameter from a string representation."""
+    try:
+        evaluate = process.trait(k).trait_type.evaluate
+    except AttributeError:
+        evaluate = None
+    if evaluate:
+        arg = evaluate(arg)
+    setattr(process, k, arg)
+
+
 def get_process_with_params(process_name, study_config, iterated_params=[],
                             attributes={}, *args, **kwargs):
     ''' Instantiate a process, or an iteration over processes, and fill in its
@@ -103,9 +114,9 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
     else:
         # not iterated
         for i, arg in enumerate(args):
-            setattr(process, params[i], arg)
+            set_process_param_from_str(process, params[i], arg)
         for k, arg in six.iteritems(kwargs):
-            setattr(process, k, arg)
+            set_process_param_from_str(process, k, arg)
 
     completion_engine = ProcessCompletionEngine.get_completion_engine(process)
     completion_engine.get_attribute_values().import_from_dict(attributes)
