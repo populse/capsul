@@ -32,8 +32,6 @@ from soma.controller import Controller
 from capsul.pipeline.pipeline import Pipeline
 from capsul.process.process import Process
 from capsul.study_config.run import run_process
-from capsul.pipeline.pipeline_workflow import (
-    workflow_from_pipeline, workflow_run)
 from capsul.pipeline.pipeline_nodes import Node
 from capsul.study_config.process_instance import get_process_instance
 
@@ -316,6 +314,8 @@ class StudyConfig(Controller):
         if self.get_trait_value("use_soma_workflow"):
 
             # Create soma workflow pipeline
+            from capsul.pipeline.pipeline_workflow import (
+                workflow_from_pipeline, workflow_run)
             workflow = workflow_from_pipeline(process_or_pipeline)
             controller, wf_id = workflow_run(process_or_pipeline.id,
                                              workflow, self)
