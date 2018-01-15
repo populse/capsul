@@ -361,6 +361,10 @@ def main():
                 todel.append(arg)
     args = [arg for arg in args if arg not in todel]
 
+    if not args:
+        parser.print_usage()
+        sys.exit(2)
+
     # get the main process
     process_name = args[0]
     args = args[1:]
