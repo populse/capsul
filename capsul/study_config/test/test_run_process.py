@@ -94,8 +94,7 @@ class TestRunProcess(unittest.TestCase):
         # Create a process instance
         process = get_process_instance(DummyProcess2)
 
-        with self.assertRaises(ValueError):
-            process(f1=1., f2=2.3)
+        self.assertRaises(ValueError, process, f1=1., f2=2.3)
 
 
 def test():
