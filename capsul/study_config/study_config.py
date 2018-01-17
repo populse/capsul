@@ -309,6 +309,17 @@ class StudyConfig(Controller):
                         if base and not os.path.exists(base):
                             os.makedirs(base)
                             
+        for k, v in six.iteritems(kwargs):
+            setattr(process_or_pipeline, k, v)
+        missing = process_or_pipeline.get_missing_mandatory_parameters()
+        if len(missing) != 0:
+            ptype = 'process'
+            if isinstance(process_or_pipeline, Pipeline):
+                ptype = 'pipeline'
+            raise ValueError('In %s %s: missing mandatory parameters: %s'
+                             % (ptype, process_or_pipeline.name,
+                                ', '.join(missing)))
+
         # Use soma worflow to execute the pipeline or porcess in parallel
         # on the local machine
         if self.get_trait_value("use_soma_workflow"):
@@ -400,12 +411,12 @@ class StudyConfig(Controller):
                     if isinstance(process_node, Node):
                         result = self._run(process_node.process, 
                                            output_directory, 
-                                           verbose, **kwargs)
+                                           verbose)
 
                     # Execute the process instance
                     else:
                         result = self._run(process_node, output_directory,
-                                           verbose, **kwargs)
+                                           verbose)
             finally:
                 # Destroy temporary files
                 if temporary_files:

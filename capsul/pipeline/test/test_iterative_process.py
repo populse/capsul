@@ -181,7 +181,7 @@ class TestPipeline(unittest.TestCase):
         shutil.rmtree(self.directory)
 
     def test_iterative_pipeline_connection(self):
-        """ Method to test if an iterative process work correctly
+        """ Test if an iterative process works correctly
         """
 
         # create inputs
@@ -336,6 +336,7 @@ if __name__ == "__main__":
         view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view1.add_embedded_subpipeline('iterative')
+        view1.auto_dot_node_positions()
 
         view1.show()
         app.exec_()

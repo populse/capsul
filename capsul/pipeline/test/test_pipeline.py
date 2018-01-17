@@ -11,6 +11,8 @@ import unittest
 from traits.api import File, Float
 from capsul.api import Process
 from capsul.api import Pipeline
+import tempfile
+import os
 
 
 class DummyProcess(Process):
@@ -55,8 +57,12 @@ class MyPipeline(Pipeline):
         # Outputs
         self.export_parameter("node1", "input_image")
         self.export_parameter("node1", "other_input")
-        self.export_parameter("node2", "output_image")
+        self.export_parameter("node2", "output_image", "output")
         self.export_parameter("node2", "other_output")
+
+        self.nodes['constant'].process.name = 'MyPipeline.constant'
+        self.nodes['node1'].process.name = 'MyPipeline.node1'
+        self.nodes['node2'].process.name = 'MyPipeline.node2'
 
 
 class TestPipeline(unittest.TestCase):
@@ -66,6 +72,8 @@ class TestPipeline(unittest.TestCase):
 
     def test_constant(self):
         graph = self.pipeline.workflow_graph()
+        self.assertTrue(
+            self.pipeline.nodes['constant'].process.trait('input_image').optional)
         ordered_list = graph.topological_sort()
         self.pipeline.workflow_ordered_nodes()
         self.assertTrue(
@@ -78,6 +86,18 @@ class TestPipeline(unittest.TestCase):
         setattr(self.pipeline.nodes_activation, "node2", False)
         self.pipeline.workflow_ordered_nodes()
         self.assertEqual(self.pipeline.workflow_repr, "")
+
+    def test_run_pipeline(self):
+        setattr(self.pipeline.nodes_activation, "node2", True)
+        tmp = tempfile.mkstemp('', prefix='capsul_test_pipeline')
+        ofile = tmp[1]
+        os.close(tmp[0])
+        os.unlink(tmp[1])
+        try:
+            self.pipeline(input_image='/tmp/bloup', output=ofile)
+        finally:
+            if os.path.exists(tmp[1]):
+                os.unlink(tmp[1])
 
 
 def test():
@@ -100,7 +120,7 @@ if __name__ == "__main__":
         if not app:
             app = QtGui.QApplication(sys.argv)
         pipeline = MyPipeline()
-        setattr(pipeline.nodes_activation, "node2", False)
+        #setattr(pipeline.nodes_activation, "node2", False)
         view1 = PipelineDevelopperView(pipeline)
         view1.show()
         app.exec_()

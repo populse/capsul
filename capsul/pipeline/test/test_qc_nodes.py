@@ -101,6 +101,8 @@ class TestQCNodes(unittest.TestCase):
         """ Initialize the TestQCNodes class
         """
         self.pipeline = MyPipeline()
+        self.pipeline.input = 'dummy_input'
+        self.pipeline.output = 'dummy_output'
         self.output_directory = tempfile.mkdtemp()
         self.study_config = StudyConfig(output_directory=self.output_directory)
 
@@ -159,4 +161,18 @@ def test():
 
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
+
+    if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
+        from soma.qt_gui.qt_backend import QtGui
+        from capsul.qt_gui.widgets import PipelineDevelopperView
+
+        app = QtGui.QApplication.instance()
+        if not app:
+            app = QtGui.QApplication(sys.argv)
+        pipeline = MyPipeline()
+        #setattr(pipeline.nodes_activation, "node2", False)
+        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
+        view1.show()
+        app.exec_()
+        del view1
 

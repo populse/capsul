@@ -16,7 +16,7 @@ from capsul.api import Process, get_process_instance
 from capsul.study_config.run import run_process
 
 # Trait import
-from traits.api import Float, Directory
+from traits.api import Float, Directory, File
 
 
 class DummyProcess(Process):
@@ -30,6 +30,17 @@ class DummyProcess(Process):
 
     def _run_process(self):
         self.res = self.f1 * self.f2
+
+class DummyProcess2(Process):
+    """ A dummy process.
+    """
+    f1 = Float(output=False, optional=False, desc="a float")
+    f2 = Float(output=False, optional=False, desc="a float")
+    output_file = File(output=True, optional=False, input_filename=True,
+                       desc="an output file")
+
+    def _run_process(self):
+        open(self.output_file, 'w').write(str(self.f1 * self.f2))
 
 
 class TestRunProcess(unittest.TestCase):
@@ -76,6 +87,15 @@ class TestRunProcess(unittest.TestCase):
                         f1=param[0], f2=param[1])
             self.assertEqual(process.res, param[0] * param[1])
             self.assertEqual(process.output_directory, self.output_dir)
+
+    def test_missing_parameters(self):
+        """ Test if missing mandatory parameters raise the appropriate error
+        """
+        # Create a process instance
+        process = get_process_instance(DummyProcess2)
+
+        with self.assertRaises(ValueError):
+            process(f1=1., f2=2.3)
 
 
 def test():

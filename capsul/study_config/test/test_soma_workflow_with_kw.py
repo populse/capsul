@@ -192,14 +192,38 @@ class TestSomaWorkflow(unittest.TestCase):
         tmp2 = tempfile.mkstemp('', prefix='capsul_swf_out')
         os.close(tmp2[0])
         os.unlink(tmp2[1])
-        self.atomic_pipeline.input_image = tmp1[1]
-        self.atomic_pipeline.output_image = tmp2[1]
-        self.study_config.run(self.atomic_pipeline)
-        self.assertTrue(os.path.exists(tmp2[1]))
-        content = open(tmp2[1]).read()
-        self.assertEqual(content, 'bidibidibidibidi')
-        os.unlink(tmp1[1])
+        try:
+            self.atomic_pipeline.input_image = tmp1[1]
+            self.atomic_pipeline.output_image = tmp2[1]
+            self.study_config.run(self.atomic_pipeline)
+            self.assertTrue(os.path.exists(tmp2[1]))
+            content = open(tmp2[1]).read()
+            self.assertEqual(content, 'bidibidibidibidi')
+        finally:
+            if os.path.exists(tmp1[1]):
+                os.unlink(tmp1[1])
+            if os.path.exists(tmp2[1]):
+                os.unlink(tmp2[1])
+
+    def test_atomic_execution_kwparams(self):
+        tmp1 = tempfile.mkstemp('', prefix='capsul_swf')
+        os.write(tmp1[0], 'bidibidi'.encode())
+        os.close(tmp1[0])
+        tmp2 = tempfile.mkstemp('', prefix='capsul_swf_out')
+        os.close(tmp2[0])
         os.unlink(tmp2[1])
+        try:
+            atomic_pipeline = MyAtomicPipeline()
+            self.study_config.run(atomic_pipeline,
+                                  input_image=tmp1[1], output_image=tmp2[1])
+            self.assertTrue(os.path.exists(tmp2[1]))
+            content = open(tmp2[1]).read()
+            self.assertEqual(content, 'bidibidibidibidi')
+        finally:
+            if os.path.exists(tmp1[1]):
+                os.unlink(tmp1[1])
+            if os.path.exists(tmp2[1]):
+                os.unlink(tmp2[1])
 
     def test_composite_dependencies(self):
         workflow = workflow_from_pipeline(self.composite_pipeline)
@@ -224,14 +248,18 @@ class TestSomaWorkflow(unittest.TestCase):
         tmp2 = tempfile.mkstemp('', prefix='capsul_swf_out')
         os.close(tmp2[0])
         os.unlink(tmp2[1])
-        self.composite_pipeline.input_image = tmp1[1]
-        self.composite_pipeline.output_image = tmp2[1]
-        self.study_config.run(self.composite_pipeline)
-        self.assertTrue(os.path.exists(tmp2[1]))
-        content = open(tmp2[1]).read()
-        self.assertEqual(content, 'bidibidibidibidibidibidi')
-        os.unlink(tmp1[1])
-        os.unlink(tmp2[1])
+        try:
+            self.composite_pipeline.input_image = tmp1[1]
+            self.composite_pipeline.output_image = tmp2[1]
+            self.study_config.run(self.composite_pipeline)
+            self.assertTrue(os.path.exists(tmp2[1]))
+            content = open(tmp2[1]).read()
+            self.assertEqual(content, 'bidibidibidibidibidibidi')
+        finally:
+            if os.path.exists(tmp1[1]):
+                os.unlink(tmp1[1])
+            if os.path.exists(tmp2[1]):
+                os.unlink(tmp2[1])
 
 
 def test():

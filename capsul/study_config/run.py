@@ -94,6 +94,10 @@ def run_process(output_dir, process_instance, cachedir=None,
     else:
         for k, v in six.iteritems(kwargs):
             setattr(process_instance, k, v)
+        missing = process_instance.get_missing_mandatory_parameters()
+        if len(missing) != 0:
+            raise ValueError('In process %s: missing mandatory parameters: %s'
+                             % (process_instance.name, ', '.join(missing)))
         process_instance._before_run_process()
         returncode = process_instance._run_process()
         returncode = process_instance._after_run_process(returncode)
