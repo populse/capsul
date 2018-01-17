@@ -429,6 +429,9 @@ class Pipeline(Process):
             # Optional plug
             if parameter_name in make_optional:
                 node.plugs[parameter_name].optional = True
+                process = getattr(node, 'process')
+                if process is not None:
+                    process.trait(parameter_name).optional = True
 
         # Create a trait to control the node activation (enable property)
         self.nodes_activation.add_trait(name, Bool)
