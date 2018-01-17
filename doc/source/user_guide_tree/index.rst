@@ -69,7 +69,13 @@ The program is a python module/script:
 
     python -m capsul <parameters>
 
-It can accept a variety of options to controll configuration settings, processing modes, iterations, and process parameters either through file names or via attributes and paramters completion system.
+or, especially if run with Python 2.6 which does not accept the former (it does the same otherwise):
+
+.. code-block:: bash
+
+    python -m capsul.run <parameters>
+
+It can accept a variety of options to control configuration settings, processing modes, iterations, and process parameters either through file names or via attributes and paramters completion system.
 
 To get help, you may run it with the ``-h`` or ``--help`` option:
 
