@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 # Trait import
 from traits.trait_base import _Undefined
-from traits.api import Directory, Undefined, Int, List, Bool
+from traits.api import Directory, Undefined, Int, List, Bool, File
 from traits.trait_handlers import BaseTraitHandler
 
 # Soma import
@@ -260,9 +260,9 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             This method must not modify the class attributes in order
             to be able to perform smart caching.
 
-        .. node:
+        .. note:
 
-            This method should not be overloaded by Process subclasses to
+            This method should **not** be overloaded by Process subclasses to
             perform actual processing. Instead, either the
             :meth:`_run_process` method or the :meth:`get_commandline` method
             should be overloaded.
@@ -278,8 +278,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             contains all execution information.
         """
         # Execute the process
-        returncode = self.get_study_config().run(self,
-                                                **kwargs)
+        returncode = self.get_study_config().run(self, **kwargs)
         return returncode
 
 
@@ -889,6 +888,34 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                              "process %s. It cannot be changed afterwards."
                              % self.name)
         self.study_config = study_config
+
+    def get_missing_mandatory_parameters(self):
+        ''' Returns a list of parameters which are not optional, and which
+        value is Undefined or None, or an empty string for a File or
+        Directory parameter.
+        '''
+        def check_trait(trait, value):
+            if trait.optional:
+                return True
+            if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
+                for i, item in enumerate(value):
+                    j = min(i, len(trait.inner_traits) - 1)
+                    if not check_trait(trait.inner_traits[j], item):
+                        return False
+                return True
+            if isinstance(trait.trait_type, (File, Directory)):
+                if trait.output and not trait.input_filename:
+                    return True
+                return value not in (Undefined, None, '')
+            return trait.output or value not in (Undefined, None)
+
+        missing = []
+        for name, trait in six.iteritems(self.user_traits()):
+            if not trait.optional:
+                value = self.get_parameter(name)
+                if not check_trait(trait, value):
+                    missing.append(name)
+        return missing
 
 
 class FileCopyProcess(Process):
