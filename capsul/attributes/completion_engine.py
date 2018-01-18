@@ -142,7 +142,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         if proc_attr_cls is ProcessAttributes \
                 and isinstance(self.process, Pipeline):
             attributes = self.capsul_attributes
-            name = self.process.name
+            name = getattr(self.process, 'context_name', self.process.name)
 
             for node_name, node in six.iteritems(self.process.nodes):
                 if node_name == '':
@@ -268,7 +268,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         use_topological_order = True
         if isinstance(self.process, Pipeline):
             attrib_values = self.get_attribute_values().export_to_dict()
-            name = self.process.name
+            name = getattr(self.process, 'context_name', self.process.name)
 
             if use_topological_order:
                 # proceed in topological order

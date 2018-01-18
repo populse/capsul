@@ -100,7 +100,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         process = self.process
 
         #Get attributes in input fom
-        names_search_list = (self.name, process.id, process.name)
+        names_search_list = (self.name, process.id, process.name,
+                             getattr(process, 'context_name', ''))
         capsul_attributes = self.get_attribute_values()
         matching_fom = False
 
