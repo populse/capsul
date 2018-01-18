@@ -996,6 +996,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     # get complete list of disabled leaf nodes
     if disabled_nodes is None:
         disabled_nodes = pipeline.disabled_pipeline_steps_nodes()
+    disabled_nodes = disabled_nodes \
+        + [name for name, node in six.iteritems(pipeline.nodes)
+           if node.node_type != 'processing_node'
+              and name not in disabled_nodes]
     disabled_nodes = _expand_nodes(disabled_nodes)
     move_to_input, remove_temp = _handle_disable_nodes(
         pipeline, temp_subst_map, transfers, disabled_nodes)

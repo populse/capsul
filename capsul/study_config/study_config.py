@@ -392,7 +392,8 @@ class StudyConfig(Controller):
                     # Filter process nodes if necessary
                     if not execute_qc_nodes:
                         execution_list = [node for node in execution_list
-                                        if node.node_type != "view_node"]
+                                          if node.node_type
+                                              == "processing_node"]
                     for node in execution_list:
                         # check temporary outputs and allocate files
                         process_or_pipeline._check_temporary_files_for_node(
