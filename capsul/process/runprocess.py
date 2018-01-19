@@ -59,10 +59,14 @@ import six
 # Define the logger
 logger = logging.getLogger(__name__)
 
+class ProcessParamError(Exception):
+    pass
+
 def set_process_param_from_str(process, k, arg):
     """Set a process parameter from a string representation."""
     if not process.trait(k):
-        logger.warning("Unknown parameter %s for process %s", k, process.name)
+        raise ProcessParamError("Unknown parameter {0} for process {1}"
+                                .format(k, process.name))
     try:
         evaluate = process.trait(k).trait_type.evaluate
     except AttributeError:
@@ -379,9 +383,13 @@ def main():
     args = args[1:]
 
     iterated = options.iterate_on
-    process = get_process_with_params(process_name, study_config, iterated,
-                                      attributes=attributes, *args,
-                                      **kwargs)
+    try:
+        process = get_process_with_params(process_name, study_config, iterated,
+                                          attributes=attributes, *args,
+                                          **kwargs)
+    except ProcessParamError as e:
+        print("error: {0}".format(e), file=sys.stderr)
+        sys.exit(1)
 
     if options.process_help:
         process.help()
