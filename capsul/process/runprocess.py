@@ -45,6 +45,7 @@ from capsul.api import StudyConfig
 from capsul.api import Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 
+import logging
 import sys, re, types
 from optparse import OptionParser, OptionGroup
 from traits.api import Undefined, List
@@ -55,9 +56,13 @@ except ImportError:
     import json
 import six
 
+# Define the logger
+logger = logging.getLogger(__name__)
 
 def set_process_param_from_str(process, k, arg):
     """Set a process parameter from a string representation."""
+    if not process.trait(k):
+        logger.warning("Unknown parameter %s for process %s", k, process.name)
     try:
         evaluate = process.trait(k).trait_type.evaluate
     except AttributeError:
@@ -218,6 +223,10 @@ def main():
     For a more precise description, please look at the web documentation:
     http://brainvisa.info/capsul/user_doc/user_guide_tree/index.html
     '''
+
+    # Set up logging on stderr. This must be called before any logging takes
+    # place, to avoid "No handlers could be found for logger" errors.
+    logging.basicConfig()
 
     parser = OptionParser(description='Run a single CAPSUL process',
         usage=usage)
