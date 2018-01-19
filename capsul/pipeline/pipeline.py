@@ -1219,7 +1219,8 @@ class Pipeline(Process):
 
         self._disable_update_nodes_and_plugs_activation -= 1
 
-    def workflow_graph(self, remove_disabled_steps=True):
+    def workflow_graph(self, remove_disabled_steps=True,
+                       remove_disabled_nodes=True):
         """ Generate a workflow graph
 
         Returns
@@ -1230,6 +1231,10 @@ class Pipeline(Process):
         remove_disabled_steps: bool (optional)
             When set, disabled steps (and their children) will not be included
             in the workflow graph.
+            Default: True
+        remove_disabled_nodes: bool (optional)
+            When set, disabled nodes will not be included in the workflow
+            graph.
             Default: True
         """
 
@@ -1279,7 +1284,8 @@ class Pipeline(Process):
                 continue
 
             # Select only active Process nodes
-            if node.activated and not isinstance(node, Switch) \
+            if (node.activated or not remove_disabled_nodes) \
+                    and not isinstance(node, Switch) \
                     and (not remove_disabled_steps
                          or node not in disabled_nodes):
 

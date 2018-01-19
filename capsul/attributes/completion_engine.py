@@ -272,7 +272,8 @@ class ProcessCompletionEngine(traits.HasTraits):
 
             if use_topological_order:
                 # proceed in topological order
-                graph = self.process.workflow_graph()
+                graph = self.process.workflow_graph(
+                    remove_disabled_steps=False, remove_disabled_nodes=False)
                 self.completion_progress_total = len(graph._nodes) + 0.05
                 index = 0
                 for node_name, node_meta in graph.topological_sort():
