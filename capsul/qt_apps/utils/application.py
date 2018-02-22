@@ -13,10 +13,10 @@ import logging
 import warnings
 
 # Soma import
-from soma.qt_gui.qt_backend import QtGui, QtCore
+from soma.qt_gui.qt_backend import Qt
 
 
-class Application(QtGui.QApplication):
+class Application(Qt.QApplication):
     """ Base Aplication class.
 
     Used to set some user options
@@ -51,7 +51,7 @@ class Application(QtGui.QApplication):
             line.
         """
         # Inheritance
-        QtGui.QApplication.__init__(self, [])
+        Qt.QApplication.__init__(self, [])
 
         # Extra application options
         extra_options = extra_options or []
@@ -126,7 +126,7 @@ class Application(QtGui.QApplication):
         if self.options.redirect:
 
             # Create a message box
-            self.message_box = QtGui.QTextEdit()
+            self.message_box = Qt.QTextEdit()
 
             # Redirect stdout and stderr
             sys.stdout = EmittingStream()
@@ -134,10 +134,10 @@ class Application(QtGui.QApplication):
 
             # Connect with text written signal
             self.connect(sys.stdout,
-                         QtCore.SIGNAL('textWritten(QString)'),
+                         Qt.SIGNAL('textWritten(QString)'),
                          self._on_text_print)
             self.connect(sys.stderr,
-                         QtCore.SIGNAL('textWritten(QString)'),
+                         Qt.SIGNAL('textWritten(QString)'),
                          self._on_text_print)
 
             # Update root logger handler
@@ -157,7 +157,7 @@ class Application(QtGui.QApplication):
         self.message_box.show()
 
 
-class EmittingStream(QtCore.QObject):
+class EmittingStream(Qt.QObject):
     """ Logging emitting string basic handler.
     """
     def write(self, text):
