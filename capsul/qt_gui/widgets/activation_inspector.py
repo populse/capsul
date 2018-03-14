@@ -74,7 +74,7 @@ class ActivationInspectorApp(Application):
         #ui_file = os.path.join(resources.__path__[0], "activation_inspector.ui")
 
         # Create and show the activation/pipeline/controller windows
-        self.pipeline_window = PipelineDevelopperView(self.pipeline)
+        self.pipeline_window = PipelineDevelopperView(self.pipeline, show_sub_pipelines=True)
         self.controller_window = ScrollControllerWidget(self.pipeline,live=True)
         self.activation_window = ActivationInspector(
             self.pipeline, ui_file, self.record_file,
@@ -248,8 +248,8 @@ class ActivationInspector(QtGui.QWidget):
                 self.activations.append(current_activations.copy())
 
                 # > Add a line to the activation display
-                self.ui.events.addItem("{0} {1}:{2}".format(
-                    activation, node, plug))
+                self.ui.events.addItem("{0}{1} {2}:{3}".format(
+                    iteration, activation, node, plug))
 
             # Select the last activation step so the pipeline will be
             # in his final configuration
