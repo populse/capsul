@@ -2017,11 +2017,13 @@ class Pipeline(Process):
             setattr(steps, step, True)
 
     def _change_processes_selection(self, selection_name, selection_group):
+        self.delay_update_nodes_and_plugs_activation()
         for group, processes in \
                 six.iteritems(self.processes_selection[selection_name]):
             enabled = (group == selection_group)
             for node_name in processes: 
                 self.nodes[node_name].enabled = enabled
+        self.restore_update_nodes_and_plugs_activation()
 
     def add_processes_selection(self, selection_parameter, selection_groups,
                                 value=None):
