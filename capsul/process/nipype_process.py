@@ -18,7 +18,7 @@ import six
 logger = logging.getLogger(__name__)
 
 # Trait import
-from traits.api import Directory, CTrait, Undefined
+from traits.api import Directory, CTrait, Undefined, TraitError
 
 # Soma import
 from soma.controller.trait_utils import trait_ids
@@ -236,9 +236,13 @@ def nipype_factory(nipype_instance):
         process_instance.trait(trait_name).desc = trait.desc
         process_instance.trait(trait_name).output = False
 
-        # initialize value with nipype interface initial value
-        setattr(process_instance, trait_name,
-                getattr(nipype_instance.inputs, trait_name))
+        # initialize value with nipype interface initial value, (if we can...)
+        try:
+            setattr(process_instance, trait_name,
+                    getattr(nipype_instance.inputs, trait_name))
+        except TraitError:
+            # the value in the nipype trait is actually invalid...
+            pass
 
         # Add the callback to update nipype traits when a process input
         # trait is modified
