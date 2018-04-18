@@ -974,11 +974,15 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     for format, values in six.iteritems(formats):
         merged_formats.update(values)
 
+    if study_config is None:
+        study_config = pipeline.get_study_config()
+
     if not isinstance(pipeline, Pipeline):
         # "pipeline" is actally a single process (or should, if it is not a
         # pipeline). Get it into a pipeine (with a single node) to make the
         # workflow.
         new_pipeline = Pipeline()
+        new_pipeline.set_study_config(study_config)
         new_pipeline.add_process('main', pipeline)
         new_pipeline.autoexport_nodes_parameters()
         pipeline = new_pipeline
@@ -986,9 +990,6 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     temp_subst_list = [(x1, x2[0]) for x1, x2 in six.iteritems(temp_map)]
     temp_subst_map = dict(temp_subst_list)
     shared_map = {}
-
-    if study_config is None:
-        study_config = pipeline.get_study_config()
 
     swf_paths = _get_swf_paths(study_config)
     transfers = _get_transfers(pipeline, swf_paths[0], merged_formats)
