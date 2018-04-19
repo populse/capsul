@@ -23,6 +23,7 @@ import six
 
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
+from soma.qt_gui.qt_backend.Qt import QMessageBox
 from soma.sorted_dictionary import SortedDictionary
 from capsul.api import Switch, PipelineNode, OptionalOutputSwitch
 from capsul.pipeline import pipeline_tools
@@ -146,6 +147,7 @@ class Plug(QtGui.QGraphicsPolygonItem):
             self.scene().plug_right_clicked.emit(self.name)
             event.accept()
 
+
 class EmbeddedSubPipelineItem(QtGui.QGraphicsProxyWidget):
     '''
     QGraphicsItem containing a sub-pipeline view
@@ -169,7 +171,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
     def __init__(self, name, parameters, pipeline,
                  parent=None, process=None, sub_pipeline=None,
                  colored_parameters=True,
-                 logical_view=False, labels=[]):
+                 logical_view=False, labels=[],
+                 show_opt_inputs=False, show_opt_outputs=True):
         super(NodeGWidget, self).__init__(parent)
         self.style = 'default'
         self.name = name
@@ -187,6 +190,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.colored_parameters = colored_parameters
         self.logical_view = logical_view
         self.pipeline = pipeline
+
+        # Added to choose to visualize optional parameters
+        self.show_opt_inputs = show_opt_inputs
+        self.show_opt_outputs = show_opt_outputs
 
         self.labels = []
         self.scene_labels = labels
@@ -351,7 +358,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         for in_param, pipeline_plug in six.iteritems(self.parameters):
             output = (not pipeline_plug.output if self.name in (
                 'inputs', 'outputs') else pipeline_plug.output)
-            if output:
+            if output or (not self.show_opt_inputs and pipeline_plug.optional):
                 continue
             param_text = self._parameter_text(in_param)
             param_name = QtGui.QGraphicsTextItem(self)
@@ -374,7 +381,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         for out_param, pipeline_plug in six.iteritems(self.parameters):
             output = (not pipeline_plug.output if self.name in (
                 'inputs', 'outputs') else pipeline_plug.output)
-            if not output:
+            if not output or (not self.show_opt_outputs and pipeline_plug.optional):
                 continue
             param_text = self._parameter_text(out_param)
             if out_param in selections:
@@ -398,6 +405,12 @@ class NodeGWidget(QtGui.QGraphicsItem):
             self.out_plugs[out_param] = plug
             self.out_params[out_param] = param_name
             pos = pos + param_name.boundingRect().size().height()
+
+    def change_input_view(self):
+        self.show_opt_inputs = not self.show_opt_inputs
+
+    def change_output_view(self):
+        self.show_opt_outputs = not self.show_opt_outputs
 
     def _build_logical_view_plugs(self):
         margin = 5
@@ -598,15 +611,23 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 output = (not pipeline_plug.output if self.name in (
                     'inputs', 'outputs') else pipeline_plug.output)
                 if output:
-                    params = self.out_params
-                    plugs = self.out_plugs
-                    npos = no + len(self.in_params)
-                    no += 1
+                    # Added to choose to visualize optional parameters
+                    if not pipeline_plug.optional or (self.show_opt_outputs and pipeline_plug.optional):
+                        params = self.out_params
+                        plugs = self.out_plugs
+                        npos = no + len(self.in_params)
+                        no += 1
+                    else:
+                        continue
                 else:
-                    params = self.in_params
-                    plugs = self.in_plugs
-                    npos = ni
-                    ni += 1
+                    # Added to choose to visualize optional parameters
+                    if not pipeline_plug.optional or (self.show_opt_inputs and pipeline_plug.optional):
+                        params = self.in_params
+                        plugs = self.in_plugs
+                        npos = ni
+                        ni += 1
+                    else:
+                        continue
                 pos = margin * 2 + self.title.boundingRect().size().height() \
                     + param_item.boundingRect().size().height() * npos
                 new_param_item = params.get(param_name)
@@ -671,7 +692,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
         return param_text
 
     def update_node(self):
-        # print('update_node', self.name)
         self._set_brush()
         self.box_title.setBrush(self.title_brush)
         self.box.setBrush(self.bg_brush)
@@ -706,6 +726,18 @@ class NodeGWidget(QtGui.QGraphicsItem):
         if not self.logical_view:
             # check removed params
             to_remove = []
+
+            # Added to choose to visualize optional parameters
+            for param, pipeline_plug in six.iteritems(self.parameters):
+                output = (not pipeline_plug.output if self.name in (
+                    'inputs', 'outputs') else pipeline_plug.output)
+                if output:
+                    if pipeline_plug.optional and not self.show_opt_outputs:
+                        to_remove.append(param)
+                else:
+                    if pipeline_plug.optional and not self.show_opt_inputs:
+                        to_remove.append(param)
+
             for param in self.in_params:
                 if param not in self.parameters:
                     to_remove.append(param)
@@ -878,6 +910,11 @@ class NodeGWidget(QtGui.QGraphicsItem):
             self.scene().node_right_clicked.emit(self.name, self.process)
             event.accept()
 
+        if event.button() == QtCore.Qt.LeftButton \
+                and self.process is not None:
+            self.scene().node_clicked.emit(self.name, self.process)
+            event.accept()
+
 
 class Link(QtGui.QGraphicsPathItem):
 
@@ -938,6 +975,8 @@ class PipelineScene(QtGui.QGraphicsScene):
     # Signal emitted when a sub pipeline has to be open.
     subpipeline_clicked = QtCore.Signal(str, Process,
                                         QtCore.Qt.KeyboardModifiers)
+    # Signal emitted when a node box is clicked
+    node_clicked = QtCore.Signal(str, Process)
     # Signal emitted when a node box is right-clicked
     node_right_clicked = QtCore.Signal(str, Controller)
     # Signal emitted when a plug is clicked
@@ -1611,7 +1650,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     Based on Qt QGraphicsView, this can be used as a Qt QWidget.
 
-    Qt signals are emitted on a right click on a node box, and on a double 
+    Qt signals are emitted on a right click on a node box, and on a double
     click on a sub-pipeline box, to allow handling at a higher level. Default
     behaviors can be enabled using constructor parameters.
 
@@ -1622,6 +1661,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     ----------
     subpipeline_clicked
     node_right_clicked
+    node_clicked
     plug_clicked
     plug_right_clicked
     link_right_clicked
@@ -1658,6 +1698,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     subpipeline_clicked = QtCore.Signal(str, Process,
                                         QtCore.Qt.KeyboardModifiers)
     '''Signal emitted when a sub pipeline has to be open.'''
+    node_clicked = QtCore.Signal(str, Process)
+    '''Signal emitted when a node box has to be open.'''
     node_right_clicked = QtCore.Signal(str, Controller)
     '''Signal emitted when a node box is right-clicked'''
     plug_clicked = QtCore.Signal(str)
@@ -1827,7 +1869,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         parent:  QWidget (optional)
             parent widget
         show_sub_pipelines:  bool (optional)
-            if set, sub-pipelines will appear as red/pink boxes and a double 
+            if set, sub-pipelines will appear as red/pink boxes and a double
             click on one of them will open another window with the sub-pipeline
             structure in it
         allow_open_controller:  bool (optional)
@@ -1904,6 +1946,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.colored_parameters = self.colored_parameters
         self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
         self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
+        self.scene.node_clicked.connect(self.node_clicked)
         self.scene.node_right_clicked.connect(self.node_right_clicked)
         self.scene.node_right_clicked.connect(self.onOpenProcessController)
         self.scene.plug_clicked.connect(self.plug_clicked)
@@ -2223,9 +2266,107 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             export_all_outputs.triggered.connect(
                 self.export_node_all_unconnected_outputs)
 
+        # Added to choose to visualize optional parameters
+        gnode = self.scene.gnodes[self.current_node_name]
+
+        menu.addSeparator()
+        show_opt_inputs = menu.addAction(
+            'Show optional inputs')
+        show_opt_inputs.setCheckable(True)
+        show_opt_inputs.triggered.connect(
+            self.show_optional_inputs
+        )
+        if gnode.show_opt_inputs:
+            show_opt_inputs.setChecked(True)
+
+        show_opt_outputs = menu.addAction(
+            'Show optional outputs')
+        show_opt_outputs.setCheckable(True)
+        show_opt_outputs.triggered.connect(
+            self.show_optional_outputs
+        )
+        if gnode.show_opt_outputs:
+            show_opt_outputs.setChecked(True)
+
         menu.exec_(QtGui.QCursor.pos())
         del self.current_node_name
         del self.current_process
+
+    def show_optional_inputs(self):
+        '''
+        Added to choose to visualize optional inputs.
+        '''
+
+        gnode = self.scene.gnodes[self.current_node_name]
+        connected_plugs = []
+
+        # The show_opt_inputs attribute is not changed yet
+        if gnode.show_opt_inputs:
+            # Verifying that the plugs are not connected to another node
+            for param, pipeline_plug in six.iteritems(gnode.parameters):
+                output = (not pipeline_plug.output if gnode.name in (
+                    'inputs', 'outputs') else pipeline_plug.output)
+                if not output:
+                    if pipeline_plug.optional and pipeline_plug.links_from and gnode.show_opt_inputs:
+                        connected_plugs.append(param)
+            if connected_plugs:
+                if len(connected_plugs) == 1:
+                    text = "Please remove links from this plug:\n"
+                else:
+                    text = "Please remove links from these plugs:\n"
+                for plug_name in connected_plugs:
+                    text += plug_name + ", "
+                text = text[:-2] + '.'
+
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setText(text)
+                msg.setWindowTitle("Error while changing the view of the node")
+                msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+                msg.exec_()
+                return
+
+        # Changing the show_opt_outputs attribute
+        gnode.change_input_view()
+        self.scene.update_pipeline()
+
+    def show_optional_outputs(self):
+        '''
+        Added to choose to visualize optional outputs.
+        '''
+
+        gnode = self.scene.gnodes[self.current_node_name]
+        connected_plugs = []
+
+        # The show_opt_outputs attribute is not changed yet
+        if gnode.show_opt_outputs:
+            # Verifying that the plugs are not connected to another node
+            for param, pipeline_plug in six.iteritems(gnode.parameters):
+                output = (not pipeline_plug.output if gnode.name in (
+                    'inputs', 'outputs') else pipeline_plug.output)
+                if output:
+                    if pipeline_plug.optional and pipeline_plug.links_to and gnode.show_opt_outputs:
+                        connected_plugs.append(param)
+            if connected_plugs:
+                if len(connected_plugs) == 1:
+                    text = "Please remove links from this plug:\n"
+                else:
+                    text = "Please remove links from these plugs:\n"
+                for plug_name in connected_plugs:
+                    text += plug_name + ", "
+                text = text[:-2] + '.'
+
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setText(text)
+                msg.setWindowTitle("Error while changing the view of the node")
+                msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+                msg.exec_()
+                return
+
+        # Changing the show_opt_outputs attribute
+        gnode.change_output_view()
+        self.scene.update_pipeline()
 
     def open_background_menu(self):
         '''
@@ -2517,9 +2658,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                         for key, value in six.iteritems(self.scene.pos)])
         pprint(posdict)
 
-    def del_node(self):
+    def del_node(self, node_name=None):
         pipeline = self.scene.pipeline
-        node_name = self.current_node_name
+        if not node_name:
+            node_name = self.current_node_name
         node = pipeline.nodes[node_name]
         # FIXME: should rather be in a method Pipeline.remove_node()
         for plug_name, plug in six.iteritems(node.plugs):
@@ -3155,6 +3297,4 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             pipeline_tools.save_pipeline(pipeline, filename)
             self._pipeline_filename = unicode(filename)
             pipeline.node_position = old_pos
-
-
 
