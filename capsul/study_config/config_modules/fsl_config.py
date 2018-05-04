@@ -1,6 +1,3 @@
-import os
-import os.path as osp
-import six
 from traits.api import File, Bool, Undefined, String
 
 from capsul.study_config.study_config import StudyConfigModule

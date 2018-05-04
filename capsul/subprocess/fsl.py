@@ -149,5 +149,6 @@ def check_output(study_config, command, **kwargs):
     '''
     Equivalent to Python subprocess.check_output for FSL commands
     '''
+    check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
     return subprocess.check_output(cmd, **kwargs)
