@@ -62,7 +62,8 @@ def create_xml_pipeline(module, name, xml_file):
 
     for child in xml_pipeline:
         if child.tag == 'doc':
-            builder.set_documentation(child.text.strip())
+            if child.text is not None:
+                builder.set_documentation(child.text.strip())
         elif child.tag == 'process':
             process_name = child.get('name')
             module = child.get('module')
