@@ -34,6 +34,16 @@ def save_py_pipeline(pipeline, py_file):
     from capsul.study_config.process_instance import get_process_instance
     from traits.api import Undefined
 
+    def get_repr_value(value):
+        # TODO: handle None/Undefined in lists/dicts etc
+        if value is Undefined:
+            repvalue = 'traits.Undefined'
+        elif value is None:
+            repvalue = 'None'
+        else:
+            repvalue = repr(value)
+        return repvalue
+
     def _write_process(process, pyf, name, enabled):
         if isinstance(process, NipypeProcess):
             mod = process._nipype_interface.__module__
@@ -60,6 +70,14 @@ def save_py_pipeline(pipeline, py_file):
         print('        self.add_process("%s", "%s"%s)' % (name, procname,
                                                           node_options),
               file=pyf)
+        for pname in process.user_traits():
+            value = getattr(process, pname)
+            init_value = getattr(proc_copy, pname)
+            if value != init_value \
+                    and not (value is Undefined and init_value == ''):
+                repvalue = get_repr_value(value)
+                print('        self.nodes["%s"].process.%s = %s'
+                      % (name, pname, repvalue), file=pyf)
         #if isinstance(process, NipypeProcess):
             ## WARNING: not sure I'm doing the right things for nipype. To be
             ## fixed if needed.
@@ -311,6 +329,7 @@ def save_py_pipeline(pipeline, py_file):
     pyf = open(py_file, 'w')
 
     print('from capsul.api import Pipeline', file=pyf)
+    print('import traits.api as traits', file=pyf)
     print(file=pyf)
     print(file=pyf)
     print('class %s(Pipeline):' % class_name, file=pyf)

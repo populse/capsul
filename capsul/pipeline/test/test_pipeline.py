@@ -66,6 +66,10 @@ class MyPipeline(Pipeline):
         self.nodes['node1'].process.name = 'MyPipeline.node1'
         self.nodes['node2'].process.name = 'MyPipeline.node2'
 
+        # intial internal values
+        self.nodes['constant'].process.other_input = 14.65
+        self.nodes['constant'].process.input_image = 'blah'
+
 
 class TestPipeline(unittest.TestCase):
 
@@ -144,6 +148,9 @@ class TestPipeline(unittest.TestCase):
                 ("constant->node1->node2", "node1->constant->node2"),
             '%s not in ("constant->node1->node2", "node1->constant->node2")'
                 % pipeline2.workflow_repr)
+        d1 = pipeline_tools.dump_pipeline_state_as_dict(pipeline)
+        d2 = pipeline_tools.dump_pipeline_state_as_dict(pipeline2)
+        self.assertEqual(d1, d2)
 
     def test_pipeline_io_py(self):
         if self.debug:
