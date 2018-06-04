@@ -866,7 +866,11 @@ class Pipeline(Process):
         self.add_trait(pipeline_parameter, trait)
 
         # Propagate the parameter value to the new exported one
-        self.set_parameter(pipeline_parameter, node.get_plug_value(plug_name))
+        try:
+            self.set_parameter(pipeline_parameter,
+                               node.get_plug_value(plug_name))
+        except traits.TraitError:
+            pass
 
         # Do not forget to link the node with the pipeline node
 

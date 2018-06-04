@@ -181,7 +181,10 @@ class Node(Controller):
                         value):
         """ Spread the source plug value to the destination plug.
         """
-        dest_node.set_plug_value(dest_plug_name, value)
+        try:
+            dest_node.set_plug_value(dest_plug_name, value)
+        except traits.TraitError:
+            pass
 
     def _value_callback_with_logging(
             self, log_stream, prefix, source_plug_name, dest_node,
