@@ -34,14 +34,18 @@ def save_py_pipeline(pipeline, py_file):
     from traits.api import Undefined
 
     def _write_process(process, pyf, name, enabled):
-        mod = process.__module__
-        # if process is a function with XML decorator, we need to
-        # retreive the original function name.
-        func = getattr(process, '_function', None)
-        if func:
-            classname = func.__name__
+        if isinstance(process, NipypeProcess):
+            mod = process._nipype_interface.__module__
+            classname = process._nipype_interface.__class__.__name__
         else:
-            classname = process.__class__.__name__
+            mod = process.__module__
+            # if process is a function with XML decorator, we need to
+            # retreive the original function name.
+            func = getattr(process, '_function', None)
+            if func:
+                classname = func.__name__
+            else:
+                classname = process.__class__.__name__
         procname = '.'.join((mod, classname))
         print('        self.add_process("%s", "%s")' % (name, procname),
               file=pyf)

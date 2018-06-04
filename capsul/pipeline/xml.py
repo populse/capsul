@@ -246,14 +246,18 @@ def save_xml_pipeline(pipeline, xml_file):
 
     def _write_process(process, parent, name):
         procnode = ET.SubElement(parent, 'process')
-        mod = process.__module__
-        # if process is a function with XML decorator, we need to
-        # retreive the original function name.
-        func = getattr(process, '_function', None)
-        if func:
-            classname = func.__name__
+        if isinstance(process, NipypeProcess):
+            mod = process._nipype_interface.__module__
+            classname = process._nipype_interface.__class__.__name__
         else:
-            classname = process.__class__.__name__
+            mod = process.__module__
+            # if process is a function with XML decorator, we need to
+            # retreive the original function name.
+            func = getattr(process, '_function', None)
+            if func:
+                classname = func.__name__
+            else:
+                classname = process.__class__.__name__
         procnode.set('module', "%s.%s" % (mod, classname))
         procnode.set('name', name)
         if isinstance(process, NipypeProcess):
@@ -262,7 +266,7 @@ def save_xml_pipeline(pipeline, xml_file):
             for param in process.inputs_to_copy:
                 elem = ET.SubElement(procnode, 'nipype')
                 elem.set('name', param)
-                if param in proces.inputs_to_clean:
+                if param in process.inputs_to_clean:
                     elem.set('copyfile', 'discard')
                 else:
                     elem.set('copyfile', 'true')
