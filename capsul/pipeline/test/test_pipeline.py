@@ -11,8 +11,10 @@ import unittest
 from traits.api import File, Float
 from capsul.api import Process
 from capsul.api import Pipeline
+from capsul.api import get_process_instance
 import tempfile
 import os
+import sys
 
 
 class DummyProcess(Process):
@@ -67,13 +69,26 @@ class MyPipeline(Pipeline):
 
 class TestPipeline(unittest.TestCase):
 
+    debug = False
+
     def setUp(self):
         self.pipeline = MyPipeline()
+        self.temp_files = []
+
+    def tearDown(self):
+        if hasattr(self, 'temp_files'):
+            for filename in self.temp_files:
+                try:
+                    os.unlink(filename)
+                except:
+                    pass
+            self.temp_files = []
 
     def test_constant(self):
         graph = self.pipeline.workflow_graph()
         self.assertTrue(
-            self.pipeline.nodes['constant'].process.trait('input_image').optional)
+            self.pipeline.nodes['constant'].process.trait(
+                'input_image').optional)
         ordered_list = graph.topological_sort()
         self.pipeline.workflow_ordered_nodes()
         self.assertTrue(
@@ -99,10 +114,62 @@ class TestPipeline(unittest.TestCase):
             if os.path.exists(tmp[1]):
                 os.unlink(tmp[1])
 
+    def run_pipeline_io(self, filename):
+        pipeline = MyPipeline()
+        from capsul.pipeline import pipeline_tools
+        pipeline_tools.save_pipeline(pipeline, filename)
+        pipeline2 = get_process_instance(filename)
+        pipeline2.workflow_ordered_nodes()
+
+        if self.debug:
+            from soma.qt_gui.qt_backend import QtGui
+            from capsul.qt_gui.widgets import PipelineDevelopperView
+            import sys
+            app = QtGui.QApplication.instance()
+            if not app:
+                app = QtGui.QApplication(sys.argv)
+            view1 = PipelineDevelopperView(
+                pipeline, allow_open_controller=True, enable_edition=True,
+                show_sub_pipelines=True)
+
+            view2 = PipelineDevelopperView(
+                pipeline2, allow_open_controller=True, enable_edition=True,
+                show_sub_pipelines=True)
+            view1.show()
+            view2.show()
+            app.exec_()
+
+        self.assertTrue(
+            pipeline2.workflow_repr in
+                ("constant->node1->node2", "node1->constant->node2"),
+            '%s not in ("constant->node1->node2", "node1->constant->node2")'
+                % pipeline2.workflow_repr)
+
+    def test_pipeline_io_py(self):
+        if self.debug:
+            filename = '/tmp/pipeline.py'
+        else:
+            fd, filename = tempfile.mkstemp(prefix='test_pipeline',
+                                            suffix='.py')
+            os.close(fd)
+            self.temp_files.append(filename)
+        self.run_pipeline_io(filename)
+
+    def test_pipeline_xml(self):
+        if self.debug:
+            filename = '/tmp/pipeline.xml'
+        else:
+            fd, filename = tempfile.mkstemp(prefix='test_pipeline',
+                                            suffix='.xml')
+            os.close(fd)
+            self.temp_files.append(filename)
+        self.run_pipeline_io(filename)
 
 def test():
     """ Function to execute unitest
     """
+    if '-d' in sys.argv[1:]:
+        TestPipeline.debug = True
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
     return runtime.wasSuccessful()
@@ -111,7 +178,7 @@ def test():
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
 
-    if 1:
+    if '-v' in sys.argv[1:]:
         import sys
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
