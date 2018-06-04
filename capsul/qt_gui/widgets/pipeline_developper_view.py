@@ -3225,7 +3225,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 'do_autoexport_nodes_parameters': False,
                 'node_position': {}
             }
-            pipeline_class = type(le.text(), (Pipeline,), class_kwargs)
+            name = le.text()
+            if type(name) is not str: # unicode ?
+                name = name.encode()
+            pipeline_class = type(name, (Pipeline,), class_kwargs)
             pipeline = pipeline_class()
             self.set_pipeline(pipeline)
             self._pipeline_filename = ''
@@ -3290,8 +3293,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             None, 'Save the pipeline', old_filename,
             'Compatible files (*.xml *.py);; All (*)')
         if filename:
-            posdict = dict([(key, (value.x(), value.y())) \
-                            for key, value in six.iteritems(self.scene.pos)])
+            posdict = {}
+            for key, value in six.iteritems(self.scene.pos):
+                if hasattr(value, 'x'):
+                    posdict[key] = (value.x(), value.y())
+                else:
+                    posdict[key] = (value[0], value[1])
             old_pos = pipeline.node_position
             pipeline.node_position = posdict
             pipeline_tools.save_pipeline(pipeline, filename)
