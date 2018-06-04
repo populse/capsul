@@ -243,6 +243,7 @@ def save_xml_pipeline(pipeline, xml_file):
         OptionalOutputSwitch
     from capsul.pipeline.process_iteration import ProcessIteration
     from capsul.process.process import NipypeProcess
+    from capsul.study_config.process_instance import get_process_instance
 
     def _write_process(process, parent, name):
         procnode = ET.SubElement(parent, 'process')
@@ -260,6 +261,7 @@ def save_xml_pipeline(pipeline, xml_file):
                 classname = process.__class__.__name__
         procnode.set('module', "%s.%s" % (mod, classname))
         procnode.set('name', name)
+        proc_copy = get_process_instance("%s.%s" % (mod, classname))
         if isinstance(process, NipypeProcess):
             # WARNING: not sure I'm doing the right things for nipype. To be
             # fixed if needed.
@@ -286,7 +288,9 @@ def save_xml_pipeline(pipeline, xml_file):
         for param_name, trait in six.iteritems(process.user_traits()):
             if param_name not in ('nodes_activation', 'selection_changed'):
                 value = getattr(process, param_name)
-                if value not in (None, Undefined, '', []):
+                if value not in (None, Undefined, '', []) \
+                        or (trait.optional
+                            and not proc_copy.trait(param_name).optional):
                     value = repr(value)
                     elem = ET.SubElement(procnode, 'set')
                     elem.set('name', param_name)

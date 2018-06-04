@@ -31,6 +31,7 @@ def save_py_pipeline(pipeline, py_file):
         OptionalOutputSwitch
     from capsul.pipeline.process_iteration import ProcessIteration
     from capsul.process.process import NipypeProcess
+    from capsul.study_config.process_instance import get_process_instance
     from traits.api import Undefined
 
     def _write_process(process, pyf, name, enabled):
@@ -47,7 +48,17 @@ def save_py_pipeline(pipeline, py_file):
             else:
                 classname = process.__class__.__name__
         procname = '.'.join((mod, classname))
-        print('        self.add_process("%s", "%s")' % (name, procname),
+        proc_copy = get_process_instance(procname)
+        make_opt = []
+        for tname, trait in six.iteritems(proc_copy.user_traits()):
+            ntrait = process.trait(tname)
+            if ntrait.optional and not trait.optional:
+                make_opt.append(tname)
+        node_options = ''
+        if len(make_opt) != 0:
+            node_options += ', make_optional=%s' % repr(make_opt)
+        print('        self.add_process("%s", "%s"%s)' % (name, procname,
+                                                          node_options),
               file=pyf)
         #if isinstance(process, NipypeProcess):
             ## WARNING: not sure I'm doing the right things for nipype. To be
