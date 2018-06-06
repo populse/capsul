@@ -172,7 +172,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
                  parent=None, process=None, sub_pipeline=None,
                  colored_parameters=True,
                  logical_view=False, labels=[],
-                 show_opt_inputs=False, show_opt_outputs=True):
+                 show_opt_inputs=True, show_opt_outputs=True):
         super(NodeGWidget, self).__init__(parent)
         self.style = 'default'
         self.name = name
