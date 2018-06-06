@@ -18,6 +18,8 @@ except ImportError:
     import subprocess
 import six
 import sys
+import json
+from datetime import date, time, datetime
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -1039,3 +1041,72 @@ def save_pipeline(pipeline, filename):
     if not saved:
         # fallback to XML
         save_py_pipeline(pipeline, filename)
+
+
+def load_pipeline_parameters(filename, pipeline):
+    """
+    Loading and setting pipeline parameters (inputs and outputs) from a Json file.
+    """
+
+    if filename:
+        with open(filename, 'r', encoding='utf8') as file:
+            dic = json.load(file)
+
+        if "pipeline_parameters" not in dic.keys():
+            raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
+
+        for trait_name, trait_value in dic["pipeline_parameters"].items():
+            if trait_name not in pipeline.user_traits().keys():
+                # Should we raise an error or just "continue"?
+                raise KeyError('No "{0}" parameter in pipeline.'.format(trait_name))
+
+            try:
+                setattr(pipeline, trait_name, trait_value)
+            except traits.TraitError:
+                # This case happen when the trait type is date, time or datetime
+                # Couldn't find an other solution for now
+                setattr(pipeline, trait_name, None)
+
+        pipeline.update_nodes_and_plugs_activation()
+
+
+def save_pipeline_parameters(filename, pipeline):
+    """
+    Saving pipeline parameters (inputs and outputs) to a Json file.
+    """
+
+    def check_value(val):
+        """
+        Checking if the value is a list, Undefined, a date or a time
+        :param val: value
+        :return: the serializable value
+        """
+        if type(val) in [list, traits.TraitListObject, traits.List]:
+            for idx, element in enumerate(val):
+                new_list_value = check_value(element)
+                val[idx] = new_list_value
+
+        if val is traits.Undefined:
+            val = ""
+
+        if type(val) in [date, time, datetime]:
+            val = str(val)
+
+        return val
+
+    if filename:
+        # Generating the dictionary
+        param_dic = {}
+        for trait_name, trait in pipeline.user_traits().items():
+            if trait_name in ["nodes_activation"]:
+                continue
+            value = check_value(getattr(pipeline, trait_name))
+            param_dic[trait_name] = value
+
+        # In the future, more information may be added to this dictionary
+        dic = {}
+        dic["pipeline_parameters"] = param_dic
+
+        # Saving the dictionary in the Json file
+        with open(filename, 'w', encoding='utf8') as file:
+            json.dump(dic, file)

@@ -172,7 +172,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
                  parent=None, process=None, sub_pipeline=None,
                  colored_parameters=True,
                  logical_view=False, labels=[],
-                 show_opt_inputs=False, show_opt_outputs=True):
+                 show_opt_inputs=True, show_opt_outputs=True):
         super(NodeGWidget, self).__init__(parent)
         self.style = 'default'
         self.name = name
@@ -2455,6 +2455,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             new_pipeline.triggered.connect(self.new_pipeline)
             load_pipeline = menu.addAction('Load pipeline (clear current)')
             load_pipeline.triggered.connect(self.load_pipeline)
+            save_parameters = menu.addAction('Save pipeline parameters')
+            save_parameters.triggered.connect(self.save_pipeline_parameters)
+            load_parameters = menu.addAction('Load pipeline parameters')
+            load_parameters.triggered.connect(self.load_pipeline_parameters)
 
         menu.addSeparator()
         save = menu.addAction('Save pipeline')
@@ -3304,4 +3308,26 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             pipeline_tools.save_pipeline(pipeline, filename)
             self._pipeline_filename = unicode(filename)
             pipeline.node_position = old_pos
+
+    def load_pipeline_parameters(self):
+        """
+        Loading and setting pipeline parameters (inputs and outputs) from a Json file.
+        """
+        pipeline = self.scene.pipeline
+        filename = qt_backend.getOpenFileName(
+            None, 'Load pipeline parameters', '',
+            'Compatible files (*.json)')
+
+        pipeline_tools.load_pipeline_parameters(filename, pipeline)
+
+    def save_pipeline_parameters(self):
+        """
+        Saving pipeline parameters (inputs and outputs) to a Json file.
+        """
+        pipeline = self.scene.pipeline
+        filename = qt_backend.getSaveFileName(
+            None, 'Save pipeline parameters', '',
+            'Compatible files (*.json)')
+
+        pipeline_tools.save_pipeline_parameters(filename, pipeline)
 
