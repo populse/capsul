@@ -279,7 +279,7 @@ class Pipeline(Process):
         """
         # Add the trait
         super(Pipeline, self).add_trait(name, trait)
-        self.get(name)
+        #self.get(name)
 
         # If we insert a user trait, create the associated plug
         if getattr(self, 'pipeline_node', False) and self.is_user_trait(trait):
