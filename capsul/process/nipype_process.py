@@ -20,9 +20,6 @@ logger = logging.getLogger(__name__)
 # Trait import
 from traits.api import Directory, CTrait, Undefined, TraitError
 
-# Soma import
-from soma.controller.trait_utils import trait_ids
-
 # Capsul import
 from .process import NipypeProcess
 
@@ -163,11 +160,6 @@ def nipype_factory(nipype_instance):
                 # Synchronize traits: check file existance
                 for out_name, out_value in six.iteritems(nipype_outputs):
 
-                    # Get trait type
-                    trait_type = trait_ids(
-                        process_instance._nipype_interface.output_spec().
-                        trait(out_name))
-
                     # Set the output process trait value
                     process_instance.set_parameter(
                         "_" + out_name, out_value)
@@ -216,7 +208,7 @@ def nipype_factory(nipype_instance):
     # > input traits
     for trait_name, trait in nipype_instance.input_spec().items():
 
-        # Check if trait name already used in calss attributes:
+        # Check if trait name already used in class attributes:
         # For instance nipype.interfaces.fsl.FLIRT has a save_log bool input
         # trait.
         if hasattr(process_instance, trait_name):
