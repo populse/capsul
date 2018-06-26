@@ -53,7 +53,7 @@ CAPSUL is a powerful tool to define and share processing pipelines.
 
 # Capsul dependencies
 SPHINX_MIN_VERSION = 1.0
-SOMA_MIN_VERSION = "4.6.0"
+SOMA_MIN_VERSION = "4.6.1"
 
 # dependencies
 SOMA_WORKFLOW_MIN_VERSION = "2.9.0"
@@ -66,16 +66,16 @@ NIPYPE_VERSION = "0.10.0"
 
 # Main setup parameters
 NAME = "capsul"
-ORGANISATION = "CEA"
-MAINTAINER = ""
-MAINTAINER_EMAIL = ""
+ORGANISATION = "Populse"
+MAINTAINER = "Populse team"
+MAINTAINER_EMAIL = "support@brainvisa.info"
 DESCRIPTION = description
 LONG_DESCRIPTION = long_description
-URL = ""
-DOWNLOAD_URL = ""
+URL = "https://github.com/neurospin/capsul"
+DOWNLOAD_URL = "https://github.com/neurospin/capsul"
 LICENSE = "CeCILL-B"
 CLASSIFIERS = CLASSIFIERS
-AUTHOR = "BrainVISA team"
+AUTHOR = "Populse team"
 AUTHOR_EMAIL = "support@brainvisa.info"
 PLATFORMS = "OS Independent"
 ISRELEASE = ""
@@ -84,6 +84,7 @@ PROVIDES = ["capsul"]
 REQUIRES = [
     "traits>={0}".format(TRAITS_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
+    "six",
 ]
 EXTRA_REQUIRES = {
     "doc": [
