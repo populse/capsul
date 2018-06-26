@@ -892,7 +892,12 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
     def mouseDoubleClickEvent(self, event):
         if self.sub_pipeline:
-            self.scene().subpipeline_clicked.emit(self.name, self.sub_pipeline,
+            if isinstance(self.sub_pipeline, weakref.ProxyTypes):
+                # get the "real" object
+                process = self.sub_pipeline.__init__.__self__
+            else:
+                process = self.sub_pipeline
+            self.scene().subpipeline_clicked.emit(self.name, process,
                                                   event.modifiers())
             event.accept()
         else:
@@ -905,14 +910,16 @@ class NodeGWidget(QtGui.QGraphicsItem):
             item.mousePressEvent(event)
             return
         super(NodeGWidget, self).mousePressEvent(event)
-        if event.button() == QtCore.Qt.RightButton \
-                and self.process is not None:
-            self.scene().node_right_clicked.emit(self.name, self.process)
+        if isinstance(self.process, weakref.ProxyTypes):
+            process = self.process.__init__.__self__ # get the "real" object
+        else:
+            process = self.process
+        if event.button() == QtCore.Qt.RightButton and process is not None:
+            self.scene().node_right_clicked.emit(self.name, process)
             event.accept()
 
-        if event.button() == QtCore.Qt.LeftButton \
-                and self.process is not None:
-            self.scene().node_clicked.emit(self.name, self.process)
+        if event.button() == QtCore.Qt.LeftButton and process is not None:
+            self.scene().node_clicked.emit(self.name, process)
             event.accept()
 
 
