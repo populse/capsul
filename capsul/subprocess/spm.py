@@ -142,9 +142,12 @@ def auto_configuration(study_config):
     
     # Matlab
     # determine SPM version (currently only 8 or 12 are supported)
-    if osp.isdir(osp.join(study_config.spm_directory, 'toolbox', 'OldNorm')):
+    if study_config.spm_directory is not Undefined \
+            and osp.isdir(osp.join(study_config.spm_directory, 'toolbox',
+                                   'OldNorm')):
         spm_version = '12'
-    elif osp.isdir(osp.join(study_config.spm_directory, 'templates')):
+    elif study_config.spm_directory is not Undefined \
+            and osp.isdir(osp.join(study_config.spm_directory, 'templates')):
         spm_version = '8'
     else:
         spm_version = Undefined
@@ -156,9 +159,8 @@ def auto_configuration(study_config):
                 ' "%s" contains SPM %s' % (study_config.spm_version, 
                                             study_config.spm_directory, 
                                             spm_version))
-      
-    
-    
+
+
 def spm_command(study_config, batch_file):
     if study_config.spm_standalone:
         cmd = [osp.join(study_config.spm_directory, 
