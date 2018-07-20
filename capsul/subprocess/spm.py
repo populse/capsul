@@ -5,11 +5,7 @@ from __future__ import absolute_import
 
 import os.path as osp
 import glob
-try:
-    import subprocess32 as subprocess
-except ImportError:
-    import subprocess
-
+import soma.subprocess
 from traits.api import Undefined
 
 from soma.path import find_in_path
@@ -47,7 +43,7 @@ def find_spm(spm_version='', matlab_exec='matlab', matlab_path=None):
 
     # Try to execute the command
     try:
-        stdout = subprocess.check_output(command)
+        stdout = soma.subprocess.check_output(command)
     except OSError:
         raise Exception("Could not find SPM.")
 
@@ -173,9 +169,9 @@ def spm_command(study_config, batch_file):
         raise NotImplementedError('Running SPM with matlab is not '
                                   'implemented yet')
 
-class Popen(subprocess.Popen):
+class Popen(soma.subprocess.Popen):
     '''
-    Equivalent to Python subprocess.Popen for SPM batch
+    Equivalent to Python soma.subprocess.Popen for SPM batch
     '''
     def __init__(self, study_config, batch_file, **kwargs):
         check_spm_configuration(study_config)
@@ -186,32 +182,32 @@ class Popen(subprocess.Popen):
         
 def call(study_config, batch_file, **kwargs):
     '''
-    Equivalent to Python subprocess.call for SPM batch
+    Equivalent to Python soma.subprocess.call for SPM batch
     '''
     check_spm_configuration(study_config)
     cmd = spm_command(study_config, batch_file)
-    return subprocess.call(cmd, **kwargs)
+    return soma.subprocess.call(cmd, **kwargs)
 
 def check_call(study_config, batch_file, **kwargs):
     '''
-    Equivalent to Python subprocess.check_call for SPM batch
+    Equivalent to Python soma.subprocess.check_call for SPM batch
     '''
     check_spm_configuration(study_config)
     cmd = spm_command(study_config, batch_file)
-    return subprocess.check_call(cmd, **kwargs)
+    return soma.subprocess.check_call(cmd, **kwargs)
 
 
 def check_output(study_config, command, **kwargs):
     '''
-    Equivalent to Python subprocess.check_output for SPM batch
+    Equivalent to Python soma.subprocess.check_output for SPM batch
     '''
     check_spm_configuration(study_config)
     cmd = spm_command(study_config, batch_file)
-    return subprocess.check_output(cmd, **kwargs)
+    return soma.subprocess.check_output(cmd, **kwargs)
 
 if __name__ == '__main__':
     from capsul.api import StudyConfig
-    from capsul.subprocess.spm import check_call as call_spm
+    from capsul.soma.subprocess.spm import check_call as call_spm
     import tempfile
     
     sc = StudyConfig(spm_directory='/home/yc176684/spm12-standalone-7219')

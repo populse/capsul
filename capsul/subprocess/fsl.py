@@ -19,7 +19,7 @@ from __future__ import absolute_import
 
 import os
 import os.path as osp
-import subprocess
+import soma.subprocess
 
 from traits.api import Undefined
 
@@ -119,9 +119,9 @@ def auto_configuration(study_config):
         if bet:
             study_config.fsl_prefix = osp.basename(bet)[:-3]
 
-class Popen(subprocess.Popen):
+class Popen(soma.subprocess.Popen):
     '''
-    Equivalent to Python subprocess.Popen for FSL commands
+    Equivalent to Python soma.subprocess.Popen for FSL commands
     '''
     def __init__(self, study_config, command, **kwargs):
         check_fsl_configuration(study_config)
@@ -130,25 +130,25 @@ class Popen(subprocess.Popen):
         
 def call(study_config, command, **kwargs):
     '''
-    Equivalent to Python subprocess.call for FSL commands
+    Equivalent to Python soma.subprocess.call for FSL commands
     '''
     check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
-    return subprocess.call(cmd, **kwargs)
+    return soma.subprocess.call(cmd, **kwargs)
 
 def check_call(study_config, command, **kwargs):
     '''
-    Equivalent to Python subprocess.check_call for FSL commands
+    Equivalent to Python soma.subprocess.check_call for FSL commands
     '''
     check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
-    return subprocess.check_call(cmd, **kwargs)
+    return soma.subprocess.check_call(cmd, **kwargs)
 
 
 def check_output(study_config, command, **kwargs):
     '''
-    Equivalent to Python subprocess.check_output for FSL commands
+    Equivalent to Python soma.subprocess.check_output for FSL commands
     '''
     check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
-    return subprocess.check_output(cmd, **kwargs)
+    return soma.subprocess.check_output(cmd, **kwargs)

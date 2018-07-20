@@ -9,10 +9,7 @@
 # System import
 import os
 import re
-try:
-    import subprocess32 as subprocess
-except ImportError:
-    import subprocess
+import soma.subprocess
 import logging
 
 # Define the logger
@@ -42,8 +39,8 @@ def environment(sh_file=None, env={}):
     # we're using shell=True
     # Pass empty environment to get only the prgram variables
     command = ["bash", "-c", ". '{0}' ; /usr/bin/printenv".format(sh_file)]
-    process = subprocess.Popen(command, env=env,
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = soma.subprocess.Popen(command, env=env,
+                               stdout=soma.subprocess.PIPE, stderr=soma.subprocess.PIPE)
     stdout, stderr = process.communicate()
     if process.returncode != 0:
         raise Exception(

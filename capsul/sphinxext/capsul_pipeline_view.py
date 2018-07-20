@@ -15,7 +15,7 @@ from optparse import OptionParser
 import sys
 import logging
 import tempfile
-import subprocess
+import soma.subprocess
 
 # Get the module name passed in argument
 default_output_dir = os.path.join("source", "generated")

@@ -13,10 +13,7 @@ from socket import getfqdn
 from datetime import datetime as datetime
 from copy import deepcopy
 import json
-try:
-    import subprocess32 as subprocess
-except ImportError:
-    import subprocess
+import soma.subprocess
 import logging
 import shutil
 import six
@@ -322,7 +319,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # If yes, we can make use of it to execute the process
         if self.__class__.get_commandline != Process.get_commandline:
             commandline = self.get_commandline()
-            subprocess.check_call(commandline)
+            soma.subprocess.check_call(commandline)
 
         # Otherwise raise an error
         else:
