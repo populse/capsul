@@ -15,7 +15,6 @@ import hashlib
 import time
 import shutil
 import json
-import numpy
 import logging
 import six
 import sys
@@ -705,6 +704,8 @@ class CapsulResultEncoder(json.JSONEncoder):
     """ Deal with ProcessResult in json.
     """
     def default(self, obj):
+        import numpy
+
         # File special case
         if isinstance(obj, ProcessResult):
             result_dict = {}
