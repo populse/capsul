@@ -704,7 +704,11 @@ class CapsulResultEncoder(json.JSONEncoder):
     """ Deal with ProcessResult in json.
     """
     def default(self, obj):
-        import numpy
+        try:
+            import numpy
+        except ImportError:
+            # numpy is not here
+            numpy = None
 
         # File special case
         if isinstance(obj, ProcessResult):
@@ -723,7 +727,7 @@ class CapsulResultEncoder(json.JSONEncoder):
             return "<skip_nipype_interface_result>"
 
         # Array special case
-        if isinstance(obj, numpy.ndarray):
+        if numpy is not None and isinstance(obj, numpy.ndarray):
             return obj.tolist()
 
         # Call the base class default method
