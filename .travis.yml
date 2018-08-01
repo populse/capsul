@@ -35,7 +35,7 @@ install:
     # to test notebooks
     - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then pip install jupyter nbconvert; fi
     - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || echo "testing without nipype."
-    #- pip install soma-workflow
+    - pip install soma-workflow
     - python setup.py install
     - export CAPSUL_SOURCE_DIR=$PWD
     # don't stay in source directory to actually use the installed capsul
