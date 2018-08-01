@@ -25,10 +25,10 @@ install:
     - svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/branches/bug_fix /tmp/soma-base
     - python /tmp/soma-base/setup.py install
     # until we release soma-workflow 2.9
-    - git clone https://github.com/neurospin/soma-workflow.git /tmp/soma-workflow
-    - pushd /tmp/soma-workflow
-    - python /tmp/soma-workflow/setup.py install
-    - popd
+    #- git clone https://github.com/neurospin/soma-workflow.git /tmp/soma-workflow
+    #- pushd /tmp/soma-workflow
+    #- python /tmp/soma-workflow/setup.py install
+    #- popd
     - pip install argparse
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install importlib; fi
     - pip install nose-cov
