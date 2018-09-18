@@ -22,6 +22,7 @@ from traits.api import Str
 from traits.api import Bool
 from traits.api import Any
 from traits.api import Undefined
+from traits.api import TraitError
 
 # Capsul import
 from soma.controller.trait_utils import trait_ids
@@ -467,7 +468,10 @@ class ProcessNode(Node):
         """
         if not isinstance(self.get_trait(plug_name).handler,
                           traits.Event):
-            return getattr(self.process, plug_name)
+            try:
+                return getattr(self.process, plug_name)
+            except TraitError:
+                return Undefined
         else:
             return None
 
