@@ -282,6 +282,9 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         _replace_transfers(
             process_cmdline, process, iproc_transfers, oproc_transfers)
 
+        # handle native specification (cluster-specific specs as in
+        # soma-workflow)
+        native_spec = getattr(process, 'native_specification', None)
         # Return the soma-workflow job
         job = swclient.Job(
             name=job_name,
@@ -292,7 +295,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             referenced_output_files
                 =output_replaced_paths \
                     + [x[0] for x in oproc_transfers.values()],
-            priority=priority)
+            priority=priority,
+            native_specification=native_spec)
         if step_name:
             job.user_storage = step_name
         return job
