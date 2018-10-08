@@ -297,6 +297,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     + [x[0] for x in oproc_transfers.values()],
             priority=priority,
             native_specification=native_spec)
+        # handle parallel job info (as in soma-workflow)
+        parallel_job_info = getattr(process, 'parallel_job_info', None)
+        if parallel_job_info:
+            job.parallel_job_info = parallel_job_info
         if step_name:
             job.user_storage = step_name
         return job
