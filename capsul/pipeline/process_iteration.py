@@ -107,6 +107,62 @@ class ProcessIteration(Process):
             if mod:
                 setattr(self, param, new_value)
 
+    def change_iterative_plug(self, parameter, iterative=None):
+        '''
+        Change a parameter to be iterative (or non-iterative)
+
+        Parameters
+        ----------
+        parameter: str
+            parameter name
+        iterative: bool or None
+            if None, the iterative state will be toggled. If True or False, the
+            parameter state will be set accordingly.
+        '''
+        if parameter not in self.process.user_traits():
+            raise ValueError('Cannot iterate on parameter %s '
+              'that is not a parameter of process %s'
+              % (parameter, self.process.id))
+
+        is_iterative = parameter in self.iterative_parameters
+        if is_iterative == iterative:
+            return # nothing to be done
+        if iterative is None:
+            iterative = not is_iterative
+
+        trait = self.process.trait(parameter)
+        if iterative:
+
+            # switch to iterative
+            self.regular_parameters.remove(parameter)
+            self.iterative_parameters.add(parameter)
+            self.remove_trait(parameter)
+            # Create iterative process parameter by copying process parameter
+            # and changing iterative parameter to list
+            self.add_trait(parameter, List(trait, output=trait.output,
+                                      optional=trait.optional))
+            if trait.groups:
+                self.trait(parameter).groups = trait.groups
+
+            # if it is an output, the output list has to be
+            # resized according to inputs
+            if trait.output:
+                inputs = []
+                for param in self.iterative_parameters:
+                    if not self.process.trait(param).output:
+                        inputs.append(param)
+                self.on_trait_change(self._resize_outputs, inputs)
+
+        else:
+
+            # switch to non-iterative
+            self.remove_trait(parameter)
+            self.iterative_parameters.remove(parameter)
+            self.regular_parameters.add(parameter)
+            self.add_trait(parameter, trait)
+            # copy initial value of the underlying process to self
+            setattr(self, parameter, getattr(self.process, parameter))
+
     def _run_process(self):
         # Check that all iterative parameter value have the same size
         no_output_value = None

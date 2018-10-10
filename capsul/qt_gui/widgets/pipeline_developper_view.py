@@ -30,11 +30,13 @@ from capsul.pipeline import pipeline_tools
 from capsul.api import Pipeline
 from capsul.api import Process
 from capsul.api import get_process_instance
+from capsul.pipeline.pipeline_nodes import ProcessNode
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 import capsul.pipeline.xml as capsulxml
 from capsul.study_config import process_instance
+from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
 
@@ -3091,10 +3093,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         node_name, plug_name = str(name).split(':')
         plug_name = str(plug_name)
         if node_name in ('inputs', 'outputs'):
-            plug = self.scene.pipeline.pipeline_node.plugs[plug_name]
+            node = self.scene.pipeline.pipeline_node
         else:
-            plug = self.scene.pipeline.nodes[node_name].plugs[plug_name]
+            node = self.scene.pipeline.nodes[node_name]
+        plug = node.plugs[plug_name]
         output = plug.output
+        self._temp_node = node
         self._temp_plug = plug
         self._temp_plug_name = (node_name, plug_name)
 
@@ -3118,6 +3122,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             export_action.triggered.connect(self._export_plug)
             if existing:
                 export_action.setEnabled(False)
+            if isinstance(node, ProcessNode) \
+                    and isinstance(node.process, ProcessIteration):
+                iter_action = menu.addAction('iterative plug')
+                iter_action.setCheckable(True)
+                iter_action.setChecked(
+                    plug_name in node.process.iterative_parameters)
+                iter_action.toggled[bool].connect(self._change_iterative_plug)
 
         else:
             del_plug = menu.addAction('Remove plug')
@@ -3128,6 +3139,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         menu.exec_(QtGui.QCursor.pos())
         del self._temp_plug
         del self._temp_plug_name
+        del self._temp_node
 
     class _PlugEdit(QtGui.QDialog):
         def __init__(self, show_weak=True, parent=None):
@@ -3167,6 +3179,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 is_optional=dial.optional.isChecked(),
                 weak_link=dial.weak.isChecked())
             self.scene.update_pipeline()
+
+    def _change_iterative_plug(self, checked):
+        node = self._temp_node
+        node_name, name = self._temp_plug_name
+        node.process.change_iterative_plug(name, checked)
+        self.scene.update_pipeline()
 
     def _remove_plug(self):
         if self._temp_plug_name[0] in ('inputs', 'outputs'):
