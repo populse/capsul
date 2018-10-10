@@ -17,6 +17,7 @@ from soma.sorted_dictionary import OrderedDict
 
 from capsul.process.xml import string_to_value
 from capsul.pipeline.pipeline_construction import PipelineConstructor
+from soma.controller import Controller
 
 from traits.api import Undefined
 
@@ -291,10 +292,19 @@ def save_xml_pipeline(pipeline, xml_file):
                 if value not in (None, Undefined, '', []) \
                         or (trait.optional
                             and not proc_copy.trait(param_name).optional):
-                    value = repr(value)
+                    if isinstance(value, Controller):
+                        value_repr = repr(dict(value.export_to_dict()))
+                    else:
+                        value_repr = repr(value)
+                    try:
+                        eval(value_repr)
+                    except:
+                        print('warning, value of parameter %s cannot be saved'
+                              % param_name)
+                        continue
                     elem = ET.SubElement(procnode, 'set')
                     elem.set('name', param_name)
-                    elem.set('value', value)
+                    elem.set('value', value_repr)
         return procnode
 
     def _write_iteration(process_iter, parent, name):
