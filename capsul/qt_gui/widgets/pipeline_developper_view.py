@@ -1945,11 +1945,12 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         if self.scene:
             pos = self.scene.pos
             #pprint(dict((i, (j.x(), j.y())) for i, j in six.iteritems(pos)))
-        for i, j in six.iteritems(pipeline.node_position):
-            if isinstance(j, QtCore.QPointF):
-                pos[i] = j
-            else:
-                pos[i] = QtCore.QPointF(*j)
+        if hasattr(pipeline, 'node_position'):
+            for i, j in six.iteritems(pipeline.node_position):
+                if isinstance(j, QtCore.QPointF):
+                    pos[i] = j
+                else:
+                    pos[i] = QtCore.QPointF(*j)
         self.scene = PipelineScene(self)
         self.scene.set_enable_edition(self._enable_edition)
         self.scene.logical_view = self._logical_view
