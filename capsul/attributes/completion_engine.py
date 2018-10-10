@@ -557,12 +557,16 @@ class ProcessCompletionEngine(traits.HasTraits):
         '''Remove notification callbacks previously set to listen switches
         state changes.
         '''
-        if isinstance(self.process, Pipeline):
-            for name, node in six.iteritems(self.process.nodes):
-                if isinstance(node, Switch) \
-                        and hasattr(node, 'completion_engine'):
-                    completion_engine = node.completion_engine
-                    completion_engine.remove_switch_observer(self)
+        try:
+            if isinstance(self.process, Pipeline):
+                for name, node in six.iteritems(self.process.nodes):
+                    if isinstance(node, Switch) \
+                            and hasattr(node, 'completion_engine'):
+                        completion_engine = node.completion_engine
+                        completion_engine.remove_switch_observer(self)
+        except ReferenceError:
+            # the process has already been destroyed
+            pass
 
 
 class SwitchCompletionEngine(ProcessCompletionEngine):
