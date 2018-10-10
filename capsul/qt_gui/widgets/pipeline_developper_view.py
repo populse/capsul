@@ -2830,6 +2830,40 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         remb = Qt.QPushButton('-')
         addlay.addWidget(remb)
 
+        def add_clicked():
+            d = Qt.QDialog()
+            d.setModal(True)
+            la = Qt.QHBoxLayout()
+            d.setLayout(la)
+            l = Qt.QLineEdit()
+            la.addWidget(l)
+            l.returnPressed.connect(d.accept)
+            r = d.exec_()
+            if r:
+                name = l.text()
+                if name not in steps.user_traits():
+                    n = listw.count()
+                    listw.addItem(name)
+                    listw.item(n).setSelected(True)
+
+        def remove_clicked():
+            selected = []
+            for i in range(listw.count()):
+                item = listw.item(i)
+                if item.isSelected():
+                    selected.append((i, item.text()))
+            if len(selected) != 0:
+                r = Qt.QMessageBox.question(
+                    wid, 'remove steps',
+                    'remove the following steps from the whole pipeline ?\n%s'
+                    % repr([s[1] for s in selected]))
+                if r == Qt.QMessageBox.Yes:
+                    for s in reversed(selected):
+                        listw.takeItem(s[0])
+
+        addb.clicked.connect(add_clicked)
+        remb.clicked.connect(remove_clicked)
+
         oklay = Qt.QHBoxLayout()
         lay.addLayout(oklay)
         ok = Qt.QPushButton('OK')
