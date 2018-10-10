@@ -236,6 +236,17 @@ class NodeGWidget(QtGui.QGraphicsItem):
         else:
             return "[{0}]".format(self.name)
 
+    def update_labels(self, labels):
+        ''' Update colored labels
+        '''
+        self.labels = []
+        for item in self.label_items:
+            item.deleteLater()  # FIXME there should be another way !
+        self.label_items = []
+        for label in labels:
+            self._get_label(label)
+        self._create_label_marks()
+
     def _get_label(self, label, register=True):
         class Label(object):
             def __init__(self, label, color):
@@ -1288,6 +1299,19 @@ class PipelineScene(QtGui.QGraphicsScene):
                             active=source_plug.activated \
                                 and dest_plug.activated,
                             weak=weak_link)
+        self._update_steps()
+
+    def _update_steps(self):
+        pipeline = self.pipeline
+        steps = pipeline.pipeline_steps
+        for node_name, node in six.iteritems(pipeline.nodes):
+            gnode = self.gnodes.get(node_name)
+            if gnode is None:
+                continue
+            labels = ['step: %s' % n for n in steps.user_traits()
+                      if node_name in steps.trait(n).nodes]
+            #print('update step labels on', node_name, ':', labels)
+            gnode.update_labels(labels)
 
     def _update_logical_pipeline(self):
         # update nodes plugs and links in logical view mode
@@ -1368,6 +1392,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                             active=source_plug.activated \
                                 and dest_plug.activated,
                             weak=weak_link)
+        self._update_steps()
 
     def set_enable_edition(self, state=True):
         self._enable_edition = state
@@ -2278,6 +2303,16 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 'Export all unconnected outputs')
             export_all_outputs.triggered.connect(
                 self.export_node_all_unconnected_outputs)
+            step = None
+            if steps is not None:
+                my_steps = [step_name for step_name in steps.user_traits()
+                            if node.name in steps.trait(step_name).nodes]
+                if len(my_steps) == 1:
+                    step = my_steps[0]
+                elif len(my_steps) >= 2:
+                    step = repr(my_steps)
+            change_step = menu.addAction('change step: %s' % step)
+            change_step.triggered.connect(self._change_step)
 
         # Added to choose to visualize optional parameters
         gnode = self.scene.gnodes[self.current_node_name]
@@ -2762,6 +2797,75 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
     def export_all_unconnected_outputs(self):
         self.export_plugs(inputs=False, outputs=True, optional=True)
+
+    def _change_step(self):
+        node_name = self.current_node_name
+        node = self.scene.pipeline.nodes[node_name]
+        steps = getattr(self.scene.pipeline, 'pipeline_steps', None)
+        steps_defined = True
+        if steps is None:
+            steps = Controller()
+            steps_defined = False
+
+        wid = Qt.QDialog()
+        wid.setModal(True)
+        lay = Qt.QVBoxLayout()
+        wid.setLayout(lay)
+
+        listw = Qt.QListWidget()
+        listw.setSelectionMode(listw.MultiSelection)
+        lay.addWidget(listw)
+        n = 0
+        for step in steps.user_traits():
+            listw.addItem(step)
+            nodes = steps.trait(step).nodes
+            if node_name in nodes:
+                item = listw.item(n)
+                item.setSelected(True)
+            n += 1
+        addlay = Qt.QHBoxLayout()
+        lay.addLayout(addlay)
+        addb = Qt.QPushButton('+')
+        addlay.addWidget(addb)
+        remb = Qt.QPushButton('-')
+        addlay.addWidget(remb)
+
+        oklay = Qt.QHBoxLayout()
+        lay.addLayout(oklay)
+        ok = Qt.QPushButton('OK')
+        oklay.addWidget(ok)
+        cancel = Qt.QPushButton('Cancel')
+        oklay.addWidget(cancel)
+        ok.clicked.connect(wid.accept)
+        cancel.clicked.connect(wid.reject)
+
+        res = wid.exec_()
+        if res:
+            items = set()
+            for i in range(listw.count()):
+                item = listw.item(i)
+                name = item.text()
+                sel = item.isSelected()
+                items.add(name)
+                trait = steps.trait(name)
+                if sel:
+                    if trait is None:
+                        self.scene.pipeline.add_pipeline_step(
+                            name, [node_name])
+                        steps = self.scene.pipeline.pipeline_steps
+                    else:
+                        nodes = steps.trait(name).nodes
+                        if node_name not in nodes:
+                            nodes.append(node_name)
+                elif trait is not None:
+                    if node_name in trait.nodes:
+                        trait.nodes.remove(node_name)
+            steps = list(steps.user_traits().keys())
+            for step in steps:
+                if step not in items:
+                    self.scene.pipeline.remove_pipeline_step(step)
+            self.scene.update_pipeline()
+
 
     class ProcessModuleInput(QtGui.QDialog):
         def __init__(self):
