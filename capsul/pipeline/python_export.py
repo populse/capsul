@@ -9,6 +9,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
+from soma.controller import Controller
 import os
 import six
 import sys
@@ -322,13 +323,29 @@ def save_py_pipeline(pipeline, py_file):
                       #% (param_name, repr(trait.default)), file=pyf)
             value = getattr(pipeline, param_name)
             if value != trait.default and value not in (None, '', Undefined):
+                if isinstance(value, Controller):
+                    value_repr = repr(dict(value.export_to_dict()))
+                else:
+                    value_repr = repr(value)
+                try:
+                    eval(value_repr)
+                except:
+                    print('warning, value of parameter %s cannot be saved'
+                          % param_name)
+                    continue
                 if first:
                     first = False
                     print('\n        # default and initial values', file=pyf)
                 print('        self.%s = %s'
-                      % (param_name, repr(value)), file=pyf)
+                      % (param_name, value_repr), file=pyf)
 
     class_name = type(pipeline).__name__
+    if class_name == 'Pipeline':
+        # don't accept the base Pipeline class
+        class_name = os.path.basename(py_file)
+        if '.' in class_name:
+            class_name = class_name[:class_name.index('.')]
+        class_name[0] = class_name[0].upper()
 
     pyf = open(py_file, 'w')
 
