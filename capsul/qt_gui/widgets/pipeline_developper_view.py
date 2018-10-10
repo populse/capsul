@@ -2861,8 +2861,38 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                     for s in reversed(selected):
                         listw.takeItem(s[0])
 
+        def up_clicked():
+            selected = []
+            for i in range(listw.count()):
+                item = listw.item(i)
+                if item.isSelected():
+                    selected.append(i)
+            if len(selected) != 0 and selected[0] != 0:
+                for i in selected:
+                    item = listw.takeItem(i)
+                    listw.insertItem(i-1, item)
+                    item.setSelected(True)
+
+        def down_clicked():
+            selected = []
+            for i in range(listw.count()):
+                item = listw.item(i)
+                if item.isSelected():
+                    selected.append(i)
+            if len(selected) != 0 and selected[-1] != listw.count() - 1:
+                for i in reversed(selected):
+                    item = listw.takeItem(i)
+                    listw.insertItem(i + 1, item)
+                    item.setSelected(True)
+
         addb.clicked.connect(add_clicked)
         remb.clicked.connect(remove_clicked)
+        up = Qt.QPushButton('^')
+        addlay.addWidget(up)
+        down = Qt.QPushButton('v')
+        addlay.addWidget(down)
+        up.clicked.connect(up_clicked)
+        down.clicked.connect(down_clicked)
 
         oklay = Qt.QHBoxLayout()
         lay.addLayout(oklay)
@@ -2876,11 +2906,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         res = wid.exec_()
         if res:
             items = set()
+            sitems = []
             for i in range(listw.count()):
                 item = listw.item(i)
                 name = item.text()
                 sel = item.isSelected()
                 items.add(name)
+                sitems.append(name)
                 trait = steps.trait(name)
                 if sel:
                     if trait is None:
@@ -2898,6 +2930,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             for step in steps:
                 if step not in items:
                     self.scene.pipeline.remove_pipeline_step(step)
+            # reorder traits if needed
+            steps = self.scene.pipeline.pipeline_steps
+            if list(steps.user_traits().keys()) != sitems:
+                values = [steps.trait(step).nodes for step in sitems]
+                for step in sitems:
+                    steps.remove_trait(step)
+                for step, nodes in zip(sitems, values):
+                    self.scene.pipeline.add_pipeline_step(step, nodes)
+
             self.scene.update_pipeline()
 
 
