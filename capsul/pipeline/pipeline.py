@@ -1978,9 +1978,8 @@ class Pipeline(Process):
                     'pipeline.get_step_nodes("my_step")'))
             self.trait('pipeline_steps').expanded = False
             self.pipeline_steps = Controller()
-        self.pipeline_steps.add_trait(step_name, Bool)
+        self.pipeline_steps.add_trait(step_name, Bool(nodes=nodes))
         trait = self.pipeline_steps.trait(step_name)
-        trait.nodes = nodes
         setattr(self.pipeline_steps, step_name, enabled)
 
     def remove_pipeline_step(self, step_name):
