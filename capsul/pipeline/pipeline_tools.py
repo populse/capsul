@@ -118,6 +118,14 @@ def pipeline_node_colors(pipeline, node):
     LIGHT_APPLE_2 = (0.95, 1., 0.73)
     LIGHT_APPLE_3 = (0.55, 0.6, 0.3)
 
+    ORANGE_1 = (0.92, 0.69, 0.53)
+    #ORANGE_2 = (0.73, 0.4, 0.26)
+    ORANGE_2 = (0.86, 0.54, 0.3)
+    ORANGE_3 = (0.4, 0.2, 0.1)
+    LIGHT_ORANGE_1 = (1., 0.93, 0.88)
+    LIGHT_ORANGE_2 = (0.9, 0.8, 0.7)
+    LIGHT_ORANGE_3 = (0.4, 0.3, 0.2)
+
     _colors = {
         'default': (BLUE_1, BLUE_2, BLUE_3, LIGHT_BLUE_1, LIGHT_BLUE_2,
                     LIGHT_BLUE_3),
@@ -133,6 +141,8 @@ def pipeline_node_colors(pipeline, node):
                       LIGHT_SKY_3),
         'optional_output_switch': (APPLE_1, APPLE_2, APPLE_3, LIGHT_APPLE_1,
                                    LIGHT_APPLE_2, LIGHT_APPLE_3),
+        'custom_node': (ORANGE_1, ORANGE_2, ORANGE_3, LIGHT_ORANGE_1,
+                        LIGHT_ORANGE_2, LIGHT_ORANGE_3),
     }
     if node is pipeline.pipeline_node:
         style = 'pipeline_io'
@@ -145,11 +155,13 @@ def pipeline_node_colors(pipeline, node):
     elif isinstance(node, ProcessNode) \
             and isinstance(node.process, ProcessIteration):
         style = 'iteration'
-    elif isinstance(node, ProcessNode) \
-            and hasattr(node.process, 'completion_engine'):
-        style = 'attributed'
+    elif isinstance(node, ProcessNode):
+        if hasattr(node.process, 'completion_engine'):
+            style = 'attributed'
+        else:
+            style = 'default'
     else:
-        style = 'default'
+        style = 'custom_node'
     if node.activated and node.enabled:
         color_1, color_2, color_3 = _colors[style][0:3]
     else:

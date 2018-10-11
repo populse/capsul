@@ -30,7 +30,7 @@ from capsul.pipeline import pipeline_tools
 from capsul.api import Pipeline
 from capsul.api import Process
 from capsul.api import get_process_instance
-from capsul.pipeline.pipeline_nodes import ProcessNode
+from capsul.pipeline.pipeline_nodes import Node, ProcessNode
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
@@ -935,7 +935,11 @@ class NodeGWidget(QtGui.QGraphicsItem):
             event.accept()
 
         if event.button() == QtCore.Qt.LeftButton and process is not None:
-            self.scene().node_clicked.emit(self.name, process)
+            if isinstance(process, Process):
+                self.scene().process_clicked.emit(self.name, process)
+            else:
+                print('emit Node')
+                self.scene().node_clicked.emit(self.name, process)
             event.accept()
 
 
@@ -999,7 +1003,8 @@ class PipelineScene(QtGui.QGraphicsScene):
     subpipeline_clicked = QtCore.Signal(str, Process,
                                         QtCore.Qt.KeyboardModifiers)
     # Signal emitted when a node box is clicked
-    node_clicked = QtCore.Signal(str, Process)
+    process_clicked = QtCore.Signal(str, Process)
+    node_clicked = QtCore.Signal(str, Node)
     # Signal emitted when a node box is right-clicked
     node_right_clicked = QtCore.Signal(str, Controller)
     # Signal emitted when a plug is clicked
@@ -1035,7 +1040,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.gnodes[name] = gnode
 
     def add_node(self, node_name, node):
-        if isinstance(node, Switch):
+        if not isinstance(node, ProcessNode):
             process = node
         if hasattr(node, 'process'):
             process = node.process
@@ -1303,7 +1308,11 @@ class PipelineScene(QtGui.QGraphicsScene):
 
     def _update_steps(self):
         pipeline = self.pipeline
+        if not hasattr(pipeline, 'pipeline_steps'):
+            return
         steps = pipeline.pipeline_steps
+        if steps is None:
+            return
         for node_name, node in six.iteritems(pipeline.nodes):
             gnode = self.gnodes.get(node_name)
             if gnode is None:
@@ -1698,6 +1707,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     ----------
     subpipeline_clicked
     node_right_clicked
+    process_clicked
     node_clicked
     plug_clicked
     plug_right_clicked
@@ -1735,7 +1745,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     subpipeline_clicked = QtCore.Signal(str, Process,
                                         QtCore.Qt.KeyboardModifiers)
     '''Signal emitted when a sub pipeline has to be open.'''
-    node_clicked = QtCore.Signal(str, Process)
+    process_clicked = QtCore.Signal(str, Process)
+    node_clicked = QtCore.Signal(str, Node)
     '''Signal emitted when a node box has to be open.'''
     node_right_clicked = QtCore.Signal(str, Controller)
     '''Signal emitted when a node box is right-clicked'''
@@ -1778,13 +1789,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     class ProcessNameEdit(Qt.QLineEdit):
         ''' A specialized QLineEdit with completion for process name
         '''
-        def __init__(self, parent=None):
+        def __init__(self, parent=None,
+                     class_type_check=process_instance.is_process):
             super(PipelineDevelopperView.ProcessNameEdit,
                   self).__init__(parent)
             self.compl = QtGui.QCompleter([])
             self.setCompleter(self.compl)
             self.textEdited.connect(self.on_text_edited)
             self.py_cache = {} # cache for loaded python files
+            self.class_type_check = class_type_check
 
         @staticmethod
         def _execfile(filename):
@@ -1809,7 +1822,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             file_dict = self.load_py(filename)
             processes = []
             for name, item in six.iteritems(file_dict):
-                if process_instance.is_process(item) or inspect.ismodule(item):
+                if self.class_type_check(item) or inspect.ismodule(item):
                     processes.append(name)
             return processes
 
@@ -1833,7 +1846,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                     # add process/pipeline objects in current_mod
                     procs = [item for k, item
                                 in six.iteritems(mod.__dict__)
-                             if process_instance.is_process(item)
+                             if self.class_type_check(item)
                                 or inspect.ismodule(item)]
                     compl.update(['.'.join([current_mod, c.__name__])
                                   for c in procs])
@@ -1984,6 +1997,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.colored_parameters = self.colored_parameters
         self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
         self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
+        self.scene.process_clicked.connect(self.node_clicked)
         self.scene.node_clicked.connect(self.node_clicked)
         self.scene.node_right_clicked.connect(self.node_right_clicked)
         self.scene.node_right_clicked.connect(self.onOpenProcessController)
@@ -2469,6 +2483,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self.add_optional_output_switch)
             add_iter_proc = menu.addAction('Add iterative process in pipeline')
             add_iter_proc.triggered.connect(self.add_iterative_process)
+            #add_node = menu.addAction('Add custom node in pipeline')
+            #add_node.triggered.connect(self.add_node)
 
             menu.addSeparator()
             export_mandatory_plugs = menu.addAction(
@@ -2943,12 +2959,14 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
 
     class ProcessModuleInput(QtGui.QDialog):
-        def __init__(self):
+        def __init__(self, display_str='process module/name',
+                     class_type_check=process_instance.is_process):
             super(PipelineDevelopperView.ProcessModuleInput, self).__init__()
-            self.setWindowTitle('process module/name:')
+            self.setWindowTitle('%s:' % display_str)
             layout = QtGui.QGridLayout(self)
             layout.addWidget(QtGui.QLabel('module/process:'), 0, 0)
-            self.proc_line = PipelineDevelopperView.ProcessNameEdit()
+            self.proc_line = PipelineDevelopperView.ProcessNameEdit(
+                class_type_check=class_type_check)
             layout.addWidget(self.proc_line, 0, 1)
             layout.addWidget(QtGui.QLabel('node name'), 1, 0)
             self.name_line = QtGui.QLineEdit()
@@ -2985,6 +3003,36 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             pipeline.add_process(node_name, process)
 
             node = pipeline.nodes[node_name]
+            gnode = self.scene.add_node(node_name, node)
+            gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
+
+    def add_node(self):
+        '''
+        Insert a custom node in the pipeline. Asks for the node
+        module/name, and the node name before inserting.
+        '''
+
+        def is_pipeline_node(item):
+            return item is not Node and isinstance(item, Node)
+
+        node_name_gui = PipelineDevelopperView.ProcessModuleInput(
+            display_str='node module/name', class_type_check=is_pipeline_node)
+        node_name_gui.resize(800, node_name_gui.sizeHint().height())
+
+        res = node_name_gui.exec_()
+        if res:
+            node_module = unicode(node_name_gui.proc_line.text())
+            node_name = str(node_name_gui.name_line.text())
+            pipeline = self.scene.pipeline
+            try:
+                ## TODO
+                node = get_node_instance(
+                  unicode(node_name_gui.proc_line.text()))
+            except Exception as e:
+                print(e)
+                return
+            pipeline.nodes[node_name] = node
+
             gnode = self.scene.add_node(node_name, node)
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
