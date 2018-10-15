@@ -3025,7 +3025,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             node_name = str(node_name_gui.name_line.text())
             pipeline = self.scene.pipeline
             try:
-                ## TODO
+                ## TODO
                 node = get_node_instance(
                   unicode(node_name_gui.proc_line.text()))
             except Exception as e:
