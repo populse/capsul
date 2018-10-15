@@ -98,7 +98,7 @@ class CatNode(Node):
         c.add_trait('separator', traits.Str(None))
         c.add_trait('output', traits.Str())
         c.add_trait('is_output', traits.Bool(True))
-        c.add_trait('param_type', traits.Str('string'))
+        c.add_trait('param_type', traits.Str('Str'))
         return c
 
     @classmethod
@@ -110,10 +110,10 @@ class CatNode(Node):
             outputs = []
             inputs.append(conf_controller.output)
         t = {}
-        if conf_controller.param_type == 'string':
+        if conf_controller.param_type == 'Str':
             t = dict((p, traits.Str(traits.Undefined))
                      for p in inputs + outputs)
-        elif conf_controller.param_type == 'file':
+        elif conf_controller.param_type == 'File':
             t = dict((p, traits.File(traits.Undefined))
                      for p in inputs + outputs)
         print('inputs:', inputs)
