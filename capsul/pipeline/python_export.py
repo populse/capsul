@@ -102,6 +102,21 @@ def save_py_pipeline(pipeline, py_file):
                     #elem.set('name', param)
                     #elem.set('use_default', 'true')
 
+    def _write_custom_node(node, pyf, name, enabled):
+        mod = node.__module__
+        classname = node.__class__.__name__
+        nodename = '.'.join((mod, classname))
+        if hasattr(node, 'configured_controller'):
+            c = node.configured_controller()
+            print(
+                '        self.nodes["%s"] = get_node_instance("%s", self, %s)'
+                % (name, nodename, repr(dict(c.export_to_dict()))), file=pyf)
+        else:
+            print('        self.nodes["%s"] = get_node_instance("%s", self)'
+                  % (name, nodename), file=pyf)
+        # TODO: optional plugs
+        # TODO: values on unconnected plugs
+
     def _write_iteration(process_iter, pyf, name, enabled):
         process = process_iter.process
         if isinstance(process, NipypeProcess):
@@ -185,8 +200,11 @@ def save_py_pipeline(pipeline, py_file):
             elif isinstance(node, ProcessNode) \
                     and isinstance(node.process, ProcessIteration):
                 _write_iteration(node.process, pyf, node_name, node.enabled)
-            else:
+            elif isinstance(node, ProcessNode):
                 _write_process(node.process, pyf, node_name, node.enabled)
+            else:
+                # custom node
+                _write_custom_node(node, pyf, node_name, node.enabled)
 
     def _write_processes_selections(pipeline, pyf):
         selection_parameters = []
@@ -345,11 +363,13 @@ def save_py_pipeline(pipeline, py_file):
         class_name = os.path.basename(py_file)
         if '.' in class_name:
             class_name = class_name[:class_name.index('.')]
-        class_name[0] = class_name[0].upper()
+        class_name = class_name[0].upper() + class_name[1:]
 
     pyf = open(py_file, 'w')
 
     print('from capsul.api import Pipeline', file=pyf)
+    print('from capsul.study_config.process_instance import get_node_instance',
+          file=pyf)
     print('import traits.api as traits', file=pyf)
     print(file=pyf)
     print(file=pyf)

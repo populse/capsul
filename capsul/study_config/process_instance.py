@@ -22,6 +22,8 @@ from capsul.pipeline.pipeline import Pipeline
 from capsul.process.nipype_process import nipype_factory
 from capsul.process.xml import create_xml_process
 from capsul.pipeline.xml import create_xml_pipeline
+from capsul.pipeline.pipeline_nodes import Node
+from soma.controller import Controller
 
 # Nipype import
 try:
@@ -54,6 +56,12 @@ def is_process(item):
         if match:
             return True
     return False
+
+
+def is_pipeline_node(item):
+    """ Check if the input is an instance of pipeline Node
+    """
+    return item is not Node and isinstance(item, Node)
 
 
 def get_process_instance(process_or_id, study_config=None, **kwargs):
@@ -339,3 +347,64 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                              "for process %s" % result)
         result.set_study_config(study_config)
     return result
+
+
+def get_node_class(class_str):
+    """
+    Get a custom node class from module + class string.
+    The class name is optional if the module contains only one node class.
+    """
+    cls = None
+    try:
+        mod = importlib.import_module(class_str)
+        for name, val in six.iteritems(mod.__dict__):
+            if inspect.isclass(val) and val.__name__ != 'Node' \
+                    and issubclass(val, Node):
+                cls = val
+                break
+        else:
+            return None
+    except ImportError:
+        name = class_str.split('.')[-1]
+        modname = class_str[:-len(name) - 1]
+        mod = importlib.import_module(modname)
+        cls = getattr(mod, name)
+    if cls is None:
+        return None
+    return name, cls
+
+
+def get_node_instance(class_str, pipeline, conf_dict=None):
+    """
+    Get a custom node instance from a module + class name (see
+    :func:`get_node_class`) and a configuration dict or Controller.
+    The configuration contains parameters needed to instantiate the node type.
+    Each node class may specify its parameters via its class method
+    `configure_node`.
+    """
+    cls_and_name = get_node_class(class_str)
+    if cls_and_name is None:
+        raise ValueError("Could not find node class %s" % class_str)
+    name, cls = cls_and_name
+
+    if isinstance(conf_dict, Controller):
+        conf_controller = conf_dict
+    elif conf_dict is not None:
+        if hasattr(cls, 'configure_controller'):
+            conf_controller = cls.configure_controller()
+            if conf_controller is None:
+                raise ValueError("node type %s has a configuration controller "
+                                 "problem (see %s.configure_controller()"
+                                 % (class_str, class_str))
+            conf_controller.import_from_dict(conf_dict)
+        else:
+            conf_controller = Controller()
+    else:
+        conf_controller = Controller()
+    if hasattr(cls, 'build_node'):
+        node = cls.build_node(pipeline, name, conf_controller)
+    else:
+        # probably bound to fail...
+        node = cls(pipeline, name, [], [])
+    return node
+

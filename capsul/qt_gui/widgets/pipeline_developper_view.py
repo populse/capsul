@@ -48,7 +48,7 @@ except ImportError:
 from soma.qt_gui import qt_backend
 qt_backend.init_traitsui_handler()
 
-#from soma.qt_gui.controller_widget import ScrollControllerWidget
+from soma.qt_gui.controller_widget import ScrollControllerWidget
 from capsul.qt_gui.widgets.attributed_process_widget \
     import AttributedProcessWidget
 
@@ -2483,8 +2483,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self.add_optional_output_switch)
             add_iter_proc = menu.addAction('Add iterative process in pipeline')
             add_iter_proc.triggered.connect(self.add_iterative_process)
-            #add_node = menu.addAction('Add custom node in pipeline')
-            #add_node.triggered.connect(self.add_node)
+            add_node = menu.addAction('Add custom node in pipeline')
+            add_node.triggered.connect(self.add_node)
 
             menu.addSeparator()
             export_mandatory_plugs = menu.addAction(
@@ -3012,6 +3012,51 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         module/name, and the node name before inserting.
         '''
 
+        def configure_node(cls):
+            conf_controller = cls.configure_controller()
+            print('configure_node crl:', conf_controller.export_to_dict())
+            w = Qt.QDialog()
+            w.setWindowTitle('Custom node parameterization')
+            l = Qt.QVBoxLayout()
+            w.setLayout(l)
+            c = ScrollControllerWidget(conf_controller, live=True)
+            l.addWidget(c)
+            h = Qt.QHBoxLayout()
+            l.addLayout(h)
+            ok = Qt.QPushButton('OK')
+            h.addWidget(ok)
+            cancel = Qt.QPushButton('Cancel')
+            h.addWidget(cancel)
+            ok.clicked.connect(w.accept)
+            cancel.clicked.connect(w.reject)
+            res = w.exec_()
+            if res:
+                return conf_controller
+            else:
+                return None
+
+        def get_node_instance(class_str, pipeline):
+            print('get_node_instance:', class_str)
+            cls_and_name = process_instance.get_node_class(class_str)
+            print('cls:', cls_and_name)
+            if cls_and_name is None:
+                return None
+            name, cls = cls_and_name
+            print('name:', name, ', cls:', cls)
+            if hasattr(cls, 'configure_controller'):
+                conf_controller = configure_node(cls)
+                if conf_controller is None:
+                    return None # abort
+            else:
+                conf_controller = Controller()
+            print('controller:', conf_controller.export_to_dict())
+            if hasattr(cls, 'build_node'):
+                node = cls.build_node(pipeline, name, conf_controller)
+            else:
+                # probably bound to fail...
+                node = cls(pipeline, name, [], [])
+            return node
+
         def is_pipeline_node(item):
             return item is not Node and isinstance(item, Node)
 
@@ -3025,11 +3070,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             node_name = str(node_name_gui.name_line.text())
             pipeline = self.scene.pipeline
             try:
-                ## TODO
                 node = get_node_instance(
-                  unicode(node_name_gui.proc_line.text()))
+                  unicode(node_name_gui.proc_line.text()), pipeline)
+                print('Node:', node)
             except Exception as e:
                 print(e)
+                return
+            if node is None:
                 return
             pipeline.nodes[node_name] = node
 

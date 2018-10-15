@@ -260,6 +260,12 @@ def save_xml_pipeline(pipeline, xml_file):
                 classname = func.__name__
             else:
                 classname = process.__class__.__name__
+                if class_name == 'Pipeline':
+                    # don't accept the base Pipeline class
+                    class_name = name
+                    if '.' in class_name:
+                        class_name = class_name[:class_name.index('.')]
+                    class_name = class_name[0].upper() + class_name[1:]
         procnode.set('module', "%s.%s" % (mod, classname))
         procnode.set('name', name)
         proc_copy = get_process_instance("%s.%s" % (mod, classname))

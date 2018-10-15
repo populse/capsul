@@ -79,6 +79,26 @@ class Plug(Controller):
 class Node(Controller):
     """ Basic Node structure of the pipeline that need to be tuned.
 
+    It is possible to defile custom nodes inheriting Node. To be usable in all
+    contexts (GUI construction, pipeline save / reload), custom nodes should
+    define a few additional instance and class methods which will allow
+    automatic systems (such as :func:`~capsul.study_config.get_node_instance`)
+    to reinstantiate and save them:
+
+    * configure_controller(cls): classmethod
+        return a Controller instance which specifies parameters needed to build
+        the node instance. Typically it may contain a paremeters (plugs) list
+        and other specifications.
+    * configured_controller(self): instance method:
+        on an instance, returns a Controller instance in the same shape as
+        configure_controller above, but with values filled from the instance.
+        This controller will allow saving parameters needed to instantiate
+        again the node with the same state.
+    * build_node(cls, pipeline, name, conf_controller): class method
+        returns an instance of the node class, built using appropriate
+        parameters (using configure_controller() or configured_controller()
+        from another instance)
+
     Attributes
     ----------
     name : str
