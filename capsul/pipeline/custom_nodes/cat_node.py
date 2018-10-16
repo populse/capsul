@@ -58,7 +58,6 @@ class CatNode(Node):
             self._output = output
         else:
             self._output = last_input
-        print('output:', self._output)
 
     def set_callbacks(self, update_callback=None):
         inputs = [name for name, plug in six.iteritems(self.plugs)
@@ -88,7 +87,7 @@ class CatNode(Node):
                     if not plug.output and name != 'separator'
                         and name != self._output]
         c.output = self._output
-        c.separator = getattr(self, 'separator', None)
+        c.separator = getattr(self, 'separator', traits.Undefined)
         return c
 
     @classmethod
@@ -116,8 +115,6 @@ class CatNode(Node):
         elif conf_controller.param_type == 'File':
             t = dict((p, traits.File(traits.Undefined))
                      for p in inputs + outputs)
-        print('inputs:', inputs)
-        print('outputs:', outputs)
         node = CatNode(pipeline, name, inputs, outputs,
                        separator=conf_controller.separator, param_types=t)
         return node

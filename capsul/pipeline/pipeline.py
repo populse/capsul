@@ -626,6 +626,37 @@ class Pipeline(Process):
 
         self._set_subprocess_context_name(node, name)
 
+    def add_custom_node(self, name, node_type, parameters=None):
+        """
+        Inserts a custom node (Node subclass instance which is not a Process)
+        in the pipeline.
+
+        Parameters
+        ----------
+        node_type: str or Node subclass or Node instance
+            node type to be built. Either a class (Node subclass) or a Node
+            instance (the node will be re-instantiated), or a string
+            describing a module and class.
+        parameters: dict or Controller or None
+            configuration dict or Controller defining parameters needed to
+            build the node. The controller should be obtained using the node
+            class's `configure_node()` static method, then filled with the
+            desired values.
+            If not given the node is supposed to be built with no parameters,
+            which will not work for every node type.
+        """
+        # It is necessary not to import study_config.process_instance at
+        # the module level because there are circular dependencies between
+        # modules. For instance, Pipeline class needs get_process_instance
+        # which needs create_xml_pipeline which needs Pipeline class.
+        from capsul.study_config.process_instance import get_node_instance
+        node = get_node_instance(node_type, self, parameters)
+        if node is None:
+            raise ValueError(
+                "could not build a Node of type '%s' with the given parameters"
+                % node_type)
+        self.nodes[name] = node
+
     def parse_link(self, link):
         """ Parse a link comming from export_parameter method.
 
@@ -1289,7 +1320,7 @@ class Pipeline(Process):
 
             # Select only active Process nodes
             if (node.activated or not remove_disabled_nodes) \
-                    and not isinstance(node, Switch) \
+                    and isinstance(node, ProcessNode) \
                     and (not remove_disabled_steps
                          or node not in disabled_nodes):
 

@@ -10,6 +10,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 from soma.controller import Controller
+import traits.api as traits
 import os
 import six
 import sys
@@ -108,14 +109,28 @@ def save_py_pipeline(pipeline, py_file):
         nodename = '.'.join((mod, classname))
         if hasattr(node, 'configured_controller'):
             c = node.configured_controller()
+            params = dict((p, v) for p, v in six.iteritems(c.export_to_dict())
+                          if v not in (None, traits.Undefined))
             print(
-                '        self.nodes["%s"] = get_node_instance("%s", self, %s)'
-                % (name, nodename, repr(dict(c.export_to_dict()))), file=pyf)
+                '        self.add_custom_node("%s", "%s", %s)'
+                % (name, nodename, get_repr_value(params)), file=pyf)
         else:
-            print('        self.nodes["%s"] = get_node_instance("%s", self)'
+            print('        self.add_custom_node("%s", "%s")'
                   % (name, nodename), file=pyf)
-        # TODO: optional plugs
-        # TODO: values on unconnected plugs
+        # optional plugs
+        for plug_name, plug in six.iteritems(node.plugs):
+            if plug.optional:
+                print('        self.nodes["%s"].plugs["%s"].optional = True'
+                      % (name, plug_name), file=pyf)
+        # non-default: values of unconnected plugs
+        for plug_name, plug in six.iteritems(node.plugs):
+            if len(plug.links_from) == 0 and len(plug.links_to) == 0 \
+                    and node.trait(plug_name) is not None \
+                    and getattr(node, plug_name) \
+                        != node.trait(plug_name).default:
+                value = getattr(node, plug_name)
+                print('        self.nodes["%s"].%s = %s'
+                      % (name, plug_name, get_repr_value(value)), file=pyf)
 
     def _write_iteration(process_iter, pyf, name, enabled):
         process = process_iter.process
@@ -368,8 +383,6 @@ def save_py_pipeline(pipeline, py_file):
     pyf = open(py_file, 'w')
 
     print('from capsul.api import Pipeline', file=pyf)
-    print('from capsul.study_config.process_instance import get_node_instance',
-          file=pyf)
     print('import traits.api as traits', file=pyf)
     print(file=pyf)
     print(file=pyf)

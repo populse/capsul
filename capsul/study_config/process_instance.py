@@ -349,14 +349,21 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
     return result
 
 
-def get_node_class(class_str):
+def get_node_class(node_type):
     """
     Get a custom node class from module + class string.
     The class name is optional if the module contains only one node class.
+    It is OK to pass a Node subclass or a Node instance also.
     """
+    if inspect.isclass(node_type):
+        if issubclass(node_type, Node):
+            return node_type # already a Node class
+        return Node
+    if isinstance(node_type, Node):
+        return node_type.__class__
     cls = None
     try:
-        mod = importlib.import_module(class_str)
+        mod = importlib.import_module(node_type)
         for name, val in six.iteritems(mod.__dict__):
             if inspect.isclass(val) and val.__name__ != 'Node' \
                     and issubclass(val, Node):
@@ -365,8 +372,8 @@ def get_node_class(class_str):
         else:
             return None
     except ImportError:
-        name = class_str.split('.')[-1]
-        modname = class_str[:-len(name) - 1]
+        name = node_type.split('.')[-1]
+        modname = node_type[:-len(name) - 1]
         mod = importlib.import_module(modname)
         cls = getattr(mod, name)
     if cls is None:
@@ -374,17 +381,32 @@ def get_node_class(class_str):
     return name, cls
 
 
-def get_node_instance(class_str, pipeline, conf_dict=None):
+def get_node_instance(node_type, pipeline, conf_dict=None):
     """
     Get a custom node instance from a module + class name (see
     :func:`get_node_class`) and a configuration dict or Controller.
     The configuration contains parameters needed to instantiate the node type.
     Each node class may specify its parameters via its class method
     `configure_node`.
+
+    Parameters
+    ----------
+    node_type: str or Node subclass or Node instance
+        node type to be built. Either a class (Node subclass) or a Node
+        instance (the node will be re-instantiated), or a string
+        describing a module and class.
+    pipeline: Pipeline
+        pipeline in which the node will be inserted.
+    conf_dict: dict or Controller
+        configuration dict or Controller defining parameters needed to build
+        the node. The controller should be obtained using the node class's
+        `configure_node()` static method, then filled with the desired values.
+        If not given the node is supposed to be built with no parameters, which
+        will not work for every node type.
     """
-    cls_and_name = get_node_class(class_str)
+    cls_and_name = get_node_class(node_type)
     if cls_and_name is None:
-        raise ValueError("Could not find node class %s" % class_str)
+        raise ValueError("Could not find node class %s" % node_type)
     name, cls = cls_and_name
 
     if isinstance(conf_dict, Controller):
@@ -395,7 +417,7 @@ def get_node_instance(class_str, pipeline, conf_dict=None):
             if conf_controller is None:
                 raise ValueError("node type %s has a configuration controller "
                                  "problem (see %s.configure_controller()"
-                                 % (class_str, class_str))
+                                 % (node_type, node_type))
             conf_controller.import_from_dict(conf_dict)
         else:
             conf_controller = Controller()
