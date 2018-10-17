@@ -100,16 +100,17 @@ class CatNode(Node):
 
     def configured_controller(self):
         c = self.configure_controller()
-        c.parameters = self._concat_sequence + [self._concat_plug]
+        c.parameters = self._concat_sequence
+        c.concat_plug = self._concat_plug
         param_types = [self.trait(x).trait_type.__class__.__name__
-                       for x in c.parameters]
-        c.outputs = [x for x in c.parameters if self.trait(x).output]
+                       for x in c.parameters + [c.concat_plug]]
+        c.outputs = [x for x in c.parameters + [c.concat_plug]
+                     if self.trait(x).output]
         if self._has_separator:
             param_types.append(
                 self.trait('separator').trait_type.__class__.__name__)
             c.separator = self.separator
         c.param_types = param_types
-        c.concat_plug = self._concat_plug
         return c
 
     @classmethod
