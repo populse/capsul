@@ -1290,9 +1290,9 @@ class Pipeline(Process):
                 # Plug need to be activated
                 if dest_node.activated:
 
-                    # If plug links to a switch, we need to address the switch
-                    # plugs
-                    if not isinstance(dest_node, Switch):
+                    # If plug links to an inert node (switch...), we need to
+                    # address the node plugs
+                    if isinstance(dest_node, ProcessNode):
                         dependencies.add((node_name, dest_node_name))
                     else:
                         for switch_plug in dest_node.plugs.itervalues():
