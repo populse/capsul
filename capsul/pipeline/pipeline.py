@@ -626,7 +626,8 @@ class Pipeline(Process):
 
         self._set_subprocess_context_name(node, name)
 
-    def add_custom_node(self, name, node_type, parameters=None):
+    def add_custom_node(self, name, node_type, parameters=None,
+                        make_optional=(), **kwargs):
         """
         Inserts a custom node (Node subclass instance which is not a Process)
         in the pipeline.
@@ -644,18 +645,32 @@ class Pipeline(Process):
             desired values.
             If not given the node is supposed to be built with no parameters,
             which will not work for every node type.
+        make_optional: list or tuple
+            paramters names to be made optional
+        kwargs: default values of node parameters
         """
         # It is necessary not to import study_config.process_instance at
         # the module level because there are circular dependencies between
         # modules. For instance, Pipeline class needs get_process_instance
         # which needs create_xml_pipeline which needs Pipeline class.
         from capsul.study_config.process_instance import get_node_instance
-        node = get_node_instance(node_type, self, parameters)
+        node = get_node_instance(node_type, self, parameters, **kwargs)
         if node is None:
             raise ValueError(
                 "could not build a Node of type '%s' with the given parameters"
                 % node_type)
         self.nodes[name] = node
+
+        # Change plug default properties
+        for parameter_name in node.plugs:
+            # Optional plug
+            if parameter_name in make_optional:
+                node.plugs[parameter_name].optional = True
+                trait = node.trait(parameter_name)
+                if trait is not None:
+                    trait.optional = True
+
+        return node
 
     def parse_link(self, link):
         """ Parse a link comming from export_parameter method.

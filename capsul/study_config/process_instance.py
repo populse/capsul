@@ -381,7 +381,7 @@ def get_node_class(node_type):
     return name, cls
 
 
-def get_node_instance(node_type, pipeline, conf_dict=None):
+def get_node_instance(node_type, pipeline, conf_dict=None, **kwargs):
     """
     Get a custom node instance from a module + class name (see
     :func:`get_node_class`) and a configuration dict or Controller.
@@ -403,6 +403,8 @@ def get_node_instance(node_type, pipeline, conf_dict=None):
         `configure_node()` static method, then filled with the desired values.
         If not given the node is supposed to be built with no parameters, which
         will not work for every node type.
+    kwargs:
+        default values of the node instance parameters.
     """
     cls_and_name = get_node_class(node_type)
     if cls_and_name is None:
@@ -428,5 +430,10 @@ def get_node_instance(node_type, pipeline, conf_dict=None):
     else:
         # probably bound to fail...
         node = cls(pipeline, name, [], [])
+
+    # Set the instance default parameters
+    for name, value in six.iteritems(kwargs):
+        setattr(node, name, value)
+
     return node
 

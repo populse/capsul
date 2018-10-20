@@ -125,6 +125,12 @@ class PipelineConstructor(object):
         """
         self._calls.append(('add_optional_output_switch', args, kwargs))
 
+    def add_custom_node(self, *args, **kwargs):
+        """ Adds an custon Node subtype to the pipeline
+        """
+        self._calls.append(('add_custom_node', args, kwargs))
+
+
     def set_node_enabled(self, name, state):
         """ Enables or disabled a node
         """

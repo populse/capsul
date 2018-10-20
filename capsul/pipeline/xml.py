@@ -152,6 +152,35 @@ def create_xml_pipeline(module, name, xml_file):
             enabled = child.get('enabled')
             if enabled == 'false':
                 builder.set_node_enabled(switch_name, False)
+
+        elif child.tag == 'custom_node':
+            node_name = child.get('name')
+            module = child.get('module')
+            params = {}
+            kwargs = {}
+            make_optional = []
+            for process_child in child:
+                if process_child.tag == 'config':
+                    for p, value in process_child.items():
+                          params[p] = string_to_value(value)
+                elif process_child.tag == 'set':
+                    name = process_child.get('name')
+                    value = process_child.get('value')
+                    value = string_to_value(value)
+                    if value is not None:
+                        kwargs[name] = value
+                    make_optional.append(name)
+                else:
+                    raise ValueError('Invalid tag in <process>: %s' %
+                                     process_child.tag)
+            # TODO optional plugs
+            builder.add_custom_node(node_name, module, params, make_optional,
+                                    **kwargs)
+
+            enabled = child.get('enabled')
+            if enabled == 'false':
+                builder.set_node_enabled(node_name, False)
+
         elif child.tag == 'link':
             source = child.get('source')
             dest = child.get('dest')
@@ -313,6 +342,49 @@ def save_xml_pipeline(pipeline, xml_file):
                     elem.set('value', value_repr)
         return procnode
 
+    def _write_custom_node(node, parent, name):
+        etnode = ET.SubElement(parent, 'custom_node')
+        mod = node.__module__
+        classname = node.__class__.__name__
+        nodename = '.'.join((mod, classname))
+        etnode.set('module', "%s.%s" % (mod, classname))
+        etnode.set('name', name)
+        if hasattr(node, 'configured_controller'):
+            c = node.configured_controller()
+            if len(c.user_traits()) != 0:
+                et = ET.SubElement(etnode, 'config')
+                for param_name in c.user_traits():
+                    value = getattr(c, param_name)
+                    if isinstance(value, Controller):
+                        value_repr = repr(dict(value.export_to_dict()))
+                    else:
+                        value_repr = repr(value)
+                    try:
+                        eval(value_repr)
+                    except:
+                        print('warning, value of parameter %s cannot be saved'
+                              % param_name)
+                        continue
+                    et.set(param_name, value_repr)
+        # set initial values
+        for param_name, plug in six.iteritems(node.plugs):
+            trait = node.trait(param_name)
+            value = getattr(node, param_name)
+            if value not in (None, Undefined, '', []) or trait.optional:
+                if isinstance(value, Controller):
+                    value_repr = repr(dict(value.export_to_dict()))
+                else:
+                    value_repr = repr(value)
+                try:
+                    eval(value_repr)
+                except:
+                    print('warning, value of parameter %s cannot be saved'
+                          % param_name)
+                    continue
+                elem = ET.SubElement(etnode, 'set')
+                elem.set('name', param_name)
+                elem.set('value', value_repr)
+
     def _write_iteration(process_iter, parent, name):
         procnode = _write_process(process_iter.process, parent, name)
         iteration_params = ', '.join(process_iter.iterative_parameters)
@@ -370,8 +442,10 @@ def save_xml_pipeline(pipeline, xml_file):
             elif isinstance(node, ProcessNode) \
                     and isinstance(node.process, ProcessIteration):
                 xmlnode = _write_iteration(node.process, root, node_name)
-            else:
+            elif isinstance(node, ProcessNode):
                 xmlnode = _write_process(node.process, root, node_name)
+            else:
+                xmlnode = _write_custom_node(node, root, node_name)
             if not node.enabled:
                 xmlnode.set('enabled', 'false')
 
