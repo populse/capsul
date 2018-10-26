@@ -7,7 +7,7 @@
 ##########################################################################
 
 # System import
-from __future__ import division
+from __future__ import division, print_function
 import soma.subprocess
 import os
 
@@ -98,5 +98,5 @@ def clean_coverage_report(nose_coverage):
 
 if __name__ == "__main__":
     rate, report = run_all_tests()
-    print report
-    print rate
+    print(report)
+    print(rate)
