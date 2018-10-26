@@ -64,12 +64,13 @@ def clean_coverage_report(nose_coverage):
     total = [0, 0]
     for line in lines:
 
+        #print(line)
         # Select modules
-        if ((line.startswith("capsul.pipeline.") or
-           line.startswith("capsul.process.") or
-           line.startswith("soma.controller.") or
-           line.startswith("capsul.study_config.") or
-           line.startswith("capsul.utils")) and header is not None):
+        if ((line.startswith(b"capsul.pipeline.") or
+           line.startswith(b"capsul.process.") or
+           line.startswith(b"soma.controller.") or
+           line.startswith(b"capsul.study_config.") or
+           line.startswith(b"capsul.utils")) and header is not None):
 
             # Remove the Missing lines
             percent_index = line.find("%")
@@ -77,19 +78,19 @@ def clean_coverage_report(nose_coverage):
             # Get module coverage
             total[0] += int(line[percent_index - 3: percent_index])
             total[1] += 1
-        if line.startswith("Name"):
+        if line.startswith(b"Name"):
             header = line
-        if line.startswith("Ran"):
+        if line.startswith(b"Ran"):
             tcount = line
     # Get capsul coverage rate
     coverge_rate = total[0] / total[1]
-    coverage_report.insert(0, header.replace("Missing", ""))
+    coverage_report.insert(0, header.replace(b"Missing", ""))
 
     # Format report
-    coverage_report.insert(1, "-" * 70)
-    coverage_report.append("-" * 70)
-    coverage_report.append("TOTAL {0}%".format(int(coverge_rate)))
-    coverage_report.append("-" * 70)
+    coverage_report.insert(1, b"-" * 70)
+    coverage_report.append(b"-" * 70)
+    coverage_report.append(b"TOTAL {0}%".format(int(coverge_rate)))
+    coverage_report.append(b"-" * 70)
     coverage_report.append(tcount)
     coverage_report = "\n".join(coverage_report)
 

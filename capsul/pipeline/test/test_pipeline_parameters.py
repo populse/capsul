@@ -4,6 +4,7 @@ import shutil
 import unittest
 import tempfile
 from datetime import date, time, datetime
+import sys
 
 from capsul.api import Process, Pipeline
 from capsul.pipeline.pipeline_tools import save_pipeline_parameters, load_pipeline_parameters
@@ -17,7 +18,10 @@ def load_pipeline_dictionary(filename):
     :param filename: the json filename
     """
     if filename:
-        with open(filename, 'r', encoding='utf8') as file:
+        kwargs = {}
+        if sys.version_info[0] >= 3:
+            kwargs['encoding'] = 'utf8'
+        with open(filename, 'r', **kwargs) as file:
             dic = json.load(file)
         return dic
 

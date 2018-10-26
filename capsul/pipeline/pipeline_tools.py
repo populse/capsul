@@ -1058,7 +1058,10 @@ def load_pipeline_parameters(filename, pipeline):
     """
 
     if filename:
-        with open(filename, 'r', encoding='utf8') as file:
+        kwargs = {}
+        if sys.version_info[0] >= 3:
+            kwargs['encoding'] = 'utf8'
+        with open(filename, 'r', **kwargs) as file:
             dic = json.load(file)
 
         if "pipeline_parameters" not in dic.keys():
@@ -1117,5 +1120,9 @@ def save_pipeline_parameters(filename, pipeline):
         dic["pipeline_parameters"] = param_dic
 
         # Saving the dictionary in the Json file
-        with open(filename, 'w', encoding='utf8') as file:
+        kwargs = {}
+        if sys.version_info[0] >= 3:
+            kwargs['encoding'] = 'utf8'
+        with open(filename, 'w', **kwargs) as file:
             json.dump(dic, file)
+

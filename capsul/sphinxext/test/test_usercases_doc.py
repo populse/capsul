@@ -6,6 +6,8 @@
 # for details.
 ##########################################################################
 
+from __future__ import with_statement
+
 # System import
 import unittest
 
@@ -30,7 +32,6 @@ def pilot_dummy_test():
     ------
 
     Start with some imports."""
-    from future import with_statement
     import socket
 
     """
