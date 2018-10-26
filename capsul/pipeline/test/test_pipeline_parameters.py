@@ -10,6 +10,9 @@ from capsul.api import Process, Pipeline
 from capsul.pipeline.pipeline_tools import save_pipeline_parameters, load_pipeline_parameters
 from traits.api import Float, File, String, Int, List, TraitListObject, Time, Date, Undefined, TraitError
 
+if sys.version_info[0] >= 3:
+    unicode = str
+
 
 def load_pipeline_dictionary(filename):
     """
@@ -328,9 +331,9 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(dic["pipeline_parameters"]["in_2"], in_2)
         self.assertEqual(dic["pipeline_parameters"]["out"], out)
 
-        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), str)
-        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), str)
-        self.assertEqual(type(dic["pipeline_parameters"]["out"]), str)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), unicode)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), unicode)
+        self.assertEqual(type(dic["pipeline_parameters"]["out"]), unicode)
 
     def test_file(self):
         class Pipeline1(Pipeline):
@@ -361,13 +364,13 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(pipeline1.in_2, in_2)
         self.assertEqual(pipeline1.out, out)
 
-        self.assertEqual(type(pipeline1.in_1), str)
-        self.assertEqual(type(pipeline1.in_2), str)
+        self.assertEqual(type(pipeline1.in_1), unicode)
+        self.assertEqual(type(pipeline1.in_2), unicode)
         self.assertEqual(type(pipeline1.out), TraitListObject)
 
         for idx, element in enumerate(pipeline1.out):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
         # Verifying the dictionary
         dic = load_pipeline_dictionary(self.path)
@@ -375,8 +378,8 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(dic["pipeline_parameters"]["in_2"], in_2)
         self.assertEqual(dic["pipeline_parameters"]["out"], out)
 
-        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), str)
-        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), str)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), unicode)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), unicode)
         self.assertEqual(type(dic["pipeline_parameters"]["out"]), list)
 
     def test_list_int(self):
@@ -570,15 +573,15 @@ class TestPipelineMethods(unittest.TestCase):
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_1"]):
             self.assertEqual(element, in_1[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_2"]):
             self.assertEqual(element, in_2[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["out"]):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
     def test_list_file(self):
         class Pipeline1(Pipeline):
@@ -615,15 +618,15 @@ class TestPipelineMethods(unittest.TestCase):
 
         for idx, element in enumerate(pipeline1.in_1):
             self.assertEqual(element, in_1[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
         for idx, element in enumerate(pipeline1.in_2):
             self.assertEqual(element, in_2[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
         for idx, element in enumerate(pipeline1.out):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
         # Verifying the dictionary
         dic = load_pipeline_dictionary(self.path)
@@ -637,15 +640,15 @@ class TestPipelineMethods(unittest.TestCase):
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_1"]):
             self.assertEqual(element, in_1[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_2"]):
             self.assertEqual(element, in_2[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["out"]):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
     def test_list_list(self):
         class Pipeline1(Pipeline):
@@ -747,21 +750,21 @@ class TestPipelineMethods(unittest.TestCase):
 
         for idx, element in enumerate(pipeline1.out):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), str)
+            self.assertEqual(type(element), unicode)
 
         # Verifying the dictionary
         dic = load_pipeline_dictionary(self.path)
-        self.assertEqual(dic["pipeline_parameters"]["in_1"], str(in_1))
-        self.assertEqual(dic["pipeline_parameters"]["in_2"], str(in_2))
+        self.assertEqual(dic["pipeline_parameters"]["in_1"], unicode(in_1))
+        self.assertEqual(dic["pipeline_parameters"]["in_2"], unicode(in_2))
         self.assertEqual(dic["pipeline_parameters"]["out"], out)
 
-        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), str)
-        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), str)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), unicode)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), unicode)
         self.assertEqual(type(dic["pipeline_parameters"]["out"]), list)
 
         for idx, element in enumerate(pipeline1.out):
-            self.assertEqual(element, str(out[idx]))
-            self.assertEqual(type(element), str)
+            self.assertEqual(element, unicode(out[idx]))
+            self.assertEqual(type(element), unicode)
 
 
 if __name__ == '__main__':
