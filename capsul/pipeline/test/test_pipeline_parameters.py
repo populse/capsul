@@ -1,3 +1,6 @@
+
+from __future__ import print_function
+
 import os
 import json
 import shutil
@@ -767,6 +770,14 @@ class TestPipelineMethods(unittest.TestCase):
             self.assertEqual(type(element), unicode)
 
 
+# a function test*() has to be defined in a test module in order to be
+# taken into account by the main test module capsul.test.test_capsul
+def test():
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipelineMethods)
+    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
+    return runtime.wasSuccessful()
+
+
 if __name__ == '__main__':
-    unittest.main()
+    test()
 
