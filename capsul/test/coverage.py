@@ -16,8 +16,13 @@ import sys
 import capsul
 
 
-def run_all_tests():
+def run_all_tests(modules=[]):
     """ Run Capsul unitests and get a coverage report and a covergae rate
+
+    Parameters
+    ----------
+    modules: list
+        list of [sub] modules to be tested. Default: ['capsul']
 
     Returns
     -------
@@ -33,7 +38,9 @@ def run_all_tests():
         nosetests = 'nosetests%d' % sys.version_info[0]
     else:
         nosetests = 'nosetests'
-    cmd = "%s --with-coverage capsul" % nosetests
+    if not modules:
+        modules = ['capsul']
+    cmd = "%s --with-coverage %s" % (nosetests, ' '.join(modules))
     process = soma.subprocess.Popen(cmd, stdout=soma.subprocess.PIPE,
                                stderr=soma.subprocess.PIPE, shell=True)
     stdout, stderr = process.communicate()
@@ -121,6 +128,7 @@ def clean_coverage_report(nose_coverage):
 
 
 if __name__ == "__main__":
-    rate, report = run_all_tests()
+    modules = sys.argv[1:]
+    rate, report = run_all_tests(modules)
     print(report)
     print(rate)
