@@ -424,7 +424,10 @@ def get_node_instance(node_type, pipeline, conf_dict=None, **kwargs):
         else:
             conf_controller = Controller()
     else:
-        conf_controller = Controller()
+        if hasattr(cls, 'configure_controller'):
+            conf_controller = cls.configure_controller()
+        else:
+            conf_controller = Controller()
     if hasattr(cls, 'build_node'):
         node = cls.build_node(pipeline, name, conf_controller)
     else:
