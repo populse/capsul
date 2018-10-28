@@ -275,7 +275,8 @@ def save_xml_pipeline(pipeline, xml_file):
     from capsul.process.process import NipypeProcess
     from capsul.study_config.process_instance import get_process_instance
 
-    def _write_process(process, parent, name):
+    def _write_process(process, parent, name, dont_write_plug_values=set(),
+                       init_plug_values={}):
         procnode = ET.SubElement(parent, 'process')
         if isinstance(process, NipypeProcess):
             mod = process._nipype_interface.__module__
@@ -321,9 +322,15 @@ def save_xml_pipeline(pipeline, xml_file):
                     elem.set('name', param)
                     elem.set('use_default', 'true')
         # set initial values
+        dont_write_plug_values = set(dont_write_plug_values)
+        dont_write_plug_values.update(('nodes_activation',
+                                       'selection_changed'))
         for param_name, trait in six.iteritems(process.user_traits()):
-            if param_name not in ('nodes_activation', 'selection_changed'):
-                value = getattr(process, param_name)
+            if param_name not in dont_write_plug_values:
+                if param_name in init_plug_values:
+                    value = init_plug_values[param_name]
+                else:
+                    value = getattr(process, param_name)
                 if value not in (None, Undefined, '', []) \
                         or (trait.optional
                             and not proc_copy.trait(param_name).optional):
@@ -386,7 +393,10 @@ def save_xml_pipeline(pipeline, xml_file):
                 elem.set('value', value_repr)
 
     def _write_iteration(process_iter, parent, name):
-        procnode = _write_process(process_iter.process, parent, name)
+        iter_values = dict([(p, getattr(process_iter, p))
+                            for p in process_iter.iterative_parameters])
+        procnode = _write_process(
+            process_iter.process, parent, name, init_plug_values=iter_values)
         iteration_params = ', '.join(process_iter.iterative_parameters)
         procnode.set('iteration', iteration_params)
         return procnode
