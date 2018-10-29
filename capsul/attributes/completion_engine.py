@@ -96,7 +96,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         to be deleted
         '''
         self.process = None
-    
+
     def get_attribute_values(self):
         ''' Get attributes Controller associated to a process
 
@@ -117,6 +117,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         schemas = self._get_schemas()
 
         study_config = self.process.get_study_config()
+
         proc_attr_cls = ProcessAttributes
 
         if 'AttributesConfig' in study_config.modules:
@@ -433,7 +434,11 @@ class ProcessCompletionEngine(traits.HasTraits):
         Reverts install_auto_completion()
         '''
         if self.process is not None:
-            self.get_attribute_values().on_trait_change(
+            try:
+                av = self.process.get_completion_engine()
+            except ReferenceError:
+                return
+            av.on_trait_change(
                 self.attributes_changed, 'anytrait', remove=True)
 
             if isinstance(self.process, Pipeline):
@@ -496,7 +501,11 @@ class ProcessCompletionEngine(traits.HasTraits):
         ''' Get schemas dictionary from process and its StudyConfig
         '''
         schemas = {}
-        study_config = self.process.get_study_config()
+        try:
+            study_config = self.process.get_study_config()
+        except ReferenceError:
+            # process is deleted
+            return schemas
         factory = getattr(study_config.modules_data, 'attributes_factory',
                           None)
         if factory is not None:
