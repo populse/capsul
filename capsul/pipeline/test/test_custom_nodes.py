@@ -8,6 +8,7 @@ from capsul.pipeline import xml
 import traits.api as traits
 import os
 import tempfile
+import sys
 
 
 class TestProcess(Process):
@@ -94,7 +95,7 @@ class Pipeline1(Pipeline):
         self.export_parameter('LOO', 'exclude', 'left_out')
         self.export_parameter('output_file', 'base', 'output_directory')
         self.export_parameter('output_file', 'subject')
-        self.export_parameter('test', 'out1', 'test_output', is_optional=True)
+        #self.export_parameter('test', 'out1', 'test_output', is_optional=True)
         self.add_link('LOO.filtered->train1.in1')
         self.add_link('main_inputs->train2.in1')
         self.add_link('train1.out1->train2.in2')
@@ -128,9 +129,10 @@ class PipelineLOO(Pipeline):
     def pipeline_definition(self):
         self.add_iterative_process('train', Pipeline1,
                                    iterative_plugs=['left_out',
-                                                    'subject',
-                                                    'test_output'],
-                                   do_not_export=['test_output'])
+                                                    'subject'])
+                                   #,
+                                                    #'test_output']),
+                                   #do_not_export=['test_output'])
         self.export_parameter('train', 'main_inputs')
         self.export_parameter('train', 'subject', 'subjects')
         #self.export_parameter('train', 'test_output', 'test_outputs')
@@ -156,7 +158,7 @@ class TestCustomNodes(unittest.TestCase):
         self.assertEqual(pipeline.nodes['train2'].process.out1,
                          os.path.join(pipeline.output_directory,
                                       pipeline.subject))
-        self.assertEqual(pipeline.test_output,
+        self.assertEqual(pipeline.nodes['test'].process.out1,
                          os.path.join(pipeline.output_directory,
                                       '%s_test_output' % pipeline.subject))
         out_trait_type \
@@ -260,7 +262,7 @@ def test():
 if __name__ == '__main__':
     print("RETURNCODE: ", test())
 
-    if True:
+    if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
         import sys
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
@@ -268,27 +270,30 @@ if __name__ == '__main__':
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
-        pipeline = Pipeline1()
-        pipeline.main_inputs = ['/dir/file%d' % i for i in range(4)]
-        pipeline.left_out = pipeline.main_inputs[2]
-        pipeline.subject = 'subject2'
-        pipeline.output_directory = '/dir/out_dir'
-        view1 = PipelineDevelopperView(pipeline, allow_open_controller=True,
-                                       show_sub_pipelines=True,
-                                       enable_edition=True)
-        view1.show()
+        #pipeline = Pipeline1()
+        #pipeline.main_inputs = ['/dir/file%d' % i for i in range(4)]
+        #pipeline.left_out = pipeline.main_inputs[2]
+        #pipeline.subject = 'subject2'
+        #pipeline.output_directory = '/dir/out_dir'
+        #view1 = PipelineDevelopperView(pipeline, allow_open_controller=True,
+                                       #show_sub_pipelines=True,
+                                       #enable_edition=True)
+        #view1.show()
 
         pipeline2 = PipelineLOO()
         pipeline2.main_inputs = ['/dir/file%d' % i for i in range(4)]
         pipeline2.left_out = pipeline2.main_inputs[2]
         pipeline2.subjects = ['subject%d' % i for i in range(4)]
         pipeline2.output_directory = '/dir/out_dir'
+        wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
+                                                      create_directories=False)
         view2 = PipelineDevelopperView(pipeline2, allow_open_controller=True,
                                        show_sub_pipelines=True,
                                        enable_edition=True)
         view2.show()
 
         app.exec_()
-        del view1
+        #del view1
+        del view2
 
 
