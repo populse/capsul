@@ -2,8 +2,8 @@
 CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean 
 ===============================================================
 
-.. image:: https://travis-ci.org/neurospin/capsul.svg?branch=master
-    :target: https://api.travis-ci.org/neurospin/capsul
+.. image:: https://travis-ci.org/populse/capsul.svg?branch=master
+    :target: https://api.travis-ci.org/populse/capsul
   
 .. image:: https://pypip.in/version/capsul/badge.png
     :target: https://pypi.python.org/pypi/capsul/
@@ -20,7 +20,7 @@ CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean
 Documentation
 =============
 
-  Visit CAPSUL (http://neurospin.github.io/capsul) main page!
+  Visit CAPSUL (http://populse.github.io/capsul) main page!
 
 Download
 ========
