@@ -61,7 +61,7 @@ Install system-wide
 .. code-block:: shell
 
    sudo apt-get install git
-   git clone https://github.com/neurospin/capsul.git /tmp/capsul
+   git clone https://github.com/populse/capsul.git /tmp/capsul
    cd /tmp/capsul
    python setup.py install # On Ubuntu 16.04, use python3 for Python 3
    cd /tmp
@@ -82,7 +82,7 @@ Install user-wide
 .. code-block:: shell
 
    sudo apt-get install git
-   git clone https://github.com/neurospin/capsul.git /tmp/capsul
+   git clone https://github.com/populse/capsul.git /tmp/capsul
    cd /tmp/capsul
    python setup.py install --user
    cd /tmp

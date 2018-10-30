@@ -10,7 +10,7 @@ CAPSUL
 Capsul is a free and open-source `Python <http://python.org>`_ library for encapsulating algorithms and chain them in pipelines. It has unique features for building and dealing with complex pipelines. It is designed to make it easy to execute pipelines in various environments ranging from a local computer to a remote computing center. Capsul is connected to :somaworkflow:`soma-workflow <index.html>` in order to manage all the difficulties of running a lot of pipelines in parallel.
 
 * doc of the current stable release: http://brainvisa.info/capsul/
-* sources on gitHub: https://github.com/neurospin/capsul
+* sources on gitHub: https://github.com/populse/capsul
 
 
 Main features
