@@ -22,25 +22,13 @@ before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew uninstall --ignore-dependencies python; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python3; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install freetype; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link --overwrite freetype; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libpng; fi
-
-    # linux
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  wget https://repo.continuum.io/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O miniconda.sh; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then chmod +x miniconda.sh; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./miniconda.sh -b -p $HOME/miniconda; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export PATH=/home/travis/miniconda/bin:$PATH; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then hash -r; fi
+    #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install freetype; fi
+    #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link --overwrite freetype; fi
+    #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libpng; fi
 
 install:
-    # DON'T update conda, the latest version fails.
-    #- conda update --yes conda
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then conda create -n testenv --yes pip python=$TRAVIS_PYTHON_VERSION; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source activate testenv; fi
-    - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install ordereddict; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then conda install --yes numpy scipy nose six; else pip install numpy nose six; fi
-    - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then conda install --yes traits; else pip install traits; fi
+    - pip install numpy nose six
+    - pip install traits
     #- svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/branches/bug_fix /tmp/soma-base
     - git clone https://github.com/populse/soma-base.git /tmp/soma-base
     - python /tmp/soma-base/setup.py install
