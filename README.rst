@@ -17,8 +17,8 @@ CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean
     :target: https://pypi.python.org/pypi/capsul/
     :alt: License
 
-.. image:: https://codecov.io/github/populse/populse_db/coverage.svg?branch=master
-    :target: https://codecov.io/github/populse/populse_db
+.. image:: https://codecov.io/github/populse/capsul/coverage.svg?branch=master
+    :target: https://codecov.io/github/populse/capsul
     :alt: Coverage
 
 .. image:: https://img.shields.io/badge/python-2.6%2C%202.7%2C%203.5-yellow.svg
