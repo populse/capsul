@@ -27,7 +27,8 @@ before_install:
     #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libpng; fi
 
 install:
-    - pip install numpy nose six
+    - pip install numpy six
+    # - pip install nose
     - pip install traits
     #- svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/branches/bug_fix /tmp/soma-base
     - git clone https://github.com/populse/soma-base.git /tmp/soma-base
@@ -39,7 +40,8 @@ install:
     #- popd
     - pip install argparse
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install importlib; fi
-    - pip install nose-cov
+    #- pip install nose-cov
+    - pip install codecov;
     # to test notebooks
     - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then pip install jupyter nbconvert; fi
     - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || echo "testing without nipype."
@@ -50,5 +52,7 @@ install:
     - cd ..
 
 script:
-    - python -m capsul.test.test_capsul
+    - coverage run -m capsul.test.test_capsul
 
+after_success:
+    - codecov
