@@ -1,0 +1,32 @@
+environment:
+
+  matrix:
+
+    - PYTHON: "C:\\Python27"
+    - PYTHON: "C:\\Python35"
+
+build: off
+
+install:
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "python -m pip install --upgrade pip"
+  - "pip install numpy six"
+  - "pip install six"
+  - "pip install traits"
+  - "pip install soma-workflow"
+  - "python setup.py install"
+  - "git clone --depth=50 --branch=master https://github.com/populse/soma-base.git C:\\projects\\soma-base"
+  - "SET PYTHONPATH=C:\\projects\\capsul\\python;%PYTHONPATH%"
+  - "SET PYTHONPATH=C:\\projects\\soma-base\\python;%PYTHONPATH%"
+
+test_script:
+  - "python --version"
+  - "python -m capsul.test.test_capsul"
+
+notifications:
+  - provider: Email
+    to:
+      - '{{commitAuthorEmail}}'
+    on_build_failure: true
+    on_build_success: false
+on_build_status_changed: true
