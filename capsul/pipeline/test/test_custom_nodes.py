@@ -224,52 +224,56 @@ class TestCustomNodes(unittest.TestCase):
         sc = StudyConfig()
         pipeline = sc.get_process_instance(Pipeline1)
         py_file = tempfile.NamedTemporaryFile(suffix='_capsul.py')
-        if not os.path.exists(os.path.dirname(py_file)):
+        pyfname = py_file.name
+        if not os.path.exists(os.path.dirname(pyfname)):
             try:
-                os.makedirs(os.path.dirname(py_file))
+                os.makedirs(os.path.dirname(pyfname))
             except:
                 pass
-        python_export.save_py_pipeline(pipeline, py_file.name)
-        pipeline2 = sc.get_process_instance(py_file.name)
+        python_export.save_py_pipeline(pipeline, pyfname)
+        pipeline2 = sc.get_process_instance(pyfname)
         self._test_custom_nodes(pipeline)
 
     def test_custom_nodes_xml_io(self):
         sc = StudyConfig()
         pipeline = sc.get_process_instance(Pipeline1)
         xml_file = tempfile.NamedTemporaryFile(suffix='_capsul.xml')
-        if not os.path.exists(os.path.dirname(xml_file)):
+        xmlfname = xml_file.name
+        if not os.path.exists(os.path.dirname(xmlfname)):
             try:
-                os.makedirs(os.path.dirname(xml_file))
+                os.makedirs(os.path.dirname(xmlfname))
             except:
                 pass
-        xml.save_xml_pipeline(pipeline, xml_file.name)
-        pipeline2 = sc.get_process_instance(xml_file.name)
+        xml.save_xml_pipeline(pipeline, xmlfname)
+        pipeline2 = sc.get_process_instance(xmlfname)
         self._test_custom_nodes(pipeline2)
 
     def test_loo_py_io(self):
         sc = StudyConfig()
         pipeline = sc.get_process_instance(PipelineLOO)
         py_file = tempfile.NamedTemporaryFile(suffix='_capsul.py')
-        if not os.path.exists(os.path.dirname(py_file)):
+        pyfname = py_file.name
+        if not os.path.exists(os.path.dirname(pyfname)):
             try:
-                os.makedirs(os.path.dirname(py_file))
+                os.makedirs(os.path.dirname(pyfname))
             except:
                 pass
-        python_export.save_py_pipeline(pipeline, py_file.name)
-        pipeline2 = sc.get_process_instance(py_file.name)
+        python_export.save_py_pipeline(pipeline, pyfname)
+        pipeline2 = sc.get_process_instance(pyfname)
         self._test_loo_pipeline(pipeline2)
 
     def test_loo_xml_io(self):
         sc = StudyConfig()
         pipeline = sc.get_process_instance(PipelineLOO)
         xml_file = tempfile.NamedTemporaryFile(suffix='_capsul.xml')
-        if not os.path.exists(os.path.dirname(xml_file)):
+        xmlfname = xml_file.name
+        if not os.path.exists(os.path.dirname(xmlfname)):
             try:
-                os.makedirs(os.path.dirname(xml_file))
+                os.makedirs(os.path.dirname(xmlfname))
             except:
                 pass
-        xml.save_xml_pipeline(pipeline, xml_file.name)
-        pipeline2 = sc.get_process_instance(xml_file.name)
+        xml.save_xml_pipeline(pipeline, xmlfname)
+        pipeline2 = sc.get_process_instance(xmlfname)
         self._test_loo_pipeline(pipeline2)
 
 
