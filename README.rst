@@ -5,7 +5,7 @@ CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean
 .. image:: https://travis-ci.org/populse/capsul.svg?branch=master
     :target: https://api.travis-ci.org/populse/capsul
 
-.. image:: https://ci.appveyor.com/api/projects/status/capsul?svg=true
+.. image:: https://ci.appveyor.com/api/projects/status/75hbw4yvnnus1kn1?svg=true
     :target: https://ci.appveyor.com/project/populse/capsul
 
 .. image:: https://pypip.in/version/capsul/badge.png
