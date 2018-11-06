@@ -146,6 +146,16 @@ class PipelineLOO(Pipeline):
 
 
 class TestCustomNodes(unittest.TestCase):
+    def setUp(self):
+        self.temp_files = []
+
+    def tearDown(self):
+        for f in self.temp_files:
+            try:
+                os.unlink(f)
+            except:
+                pass
+        self.temp_files = []
 
     def _test_custom_nodes(self, pipeline):
         pipeline.main_inputs = ['/dir/file%d' % i for i in range(4)]
@@ -223,13 +233,10 @@ class TestCustomNodes(unittest.TestCase):
     def test_custom_nodes_py_io(self):
         sc = StudyConfig()
         pipeline = sc.get_process_instance(Pipeline1)
-        py_file = tempfile.NamedTemporaryFile(suffix='_capsul.py')
-        pyfname = py_file.name
-        if not os.path.exists(os.path.dirname(pyfname)):
-            try:
-                os.makedirs(os.path.dirname(pyfname))
-            except:
-                pass
+        py_file = tempfile.mkstemp(suffix='_capsul.py')
+        pyfname = py_file[1]
+        os.close(py_file[0])
+        self.temp_files.append(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
         pipeline2 = sc.get_process_instance(pyfname)
         self._test_custom_nodes(pipeline)
@@ -237,13 +244,10 @@ class TestCustomNodes(unittest.TestCase):
     def test_custom_nodes_xml_io(self):
         sc = StudyConfig()
         pipeline = sc.get_process_instance(Pipeline1)
-        xml_file = tempfile.NamedTemporaryFile(suffix='_capsul.xml')
-        xmlfname = xml_file.name
-        if not os.path.exists(os.path.dirname(xmlfname)):
-            try:
-                os.makedirs(os.path.dirname(xmlfname))
-            except:
-                pass
+        xml_file = tempfile.mkstemp(suffix='_capsul.xml')
+        xmlfname = xml_file[1]
+        os.close(xml_file[0])
+        self.temp_files.append(xmlfname)
         xml.save_xml_pipeline(pipeline, xmlfname)
         pipeline2 = sc.get_process_instance(xmlfname)
         self._test_custom_nodes(pipeline2)
@@ -251,13 +255,10 @@ class TestCustomNodes(unittest.TestCase):
     def test_loo_py_io(self):
         sc = StudyConfig()
         pipeline = sc.get_process_instance(PipelineLOO)
-        py_file = tempfile.NamedTemporaryFile(suffix='_capsul.py')
-        pyfname = py_file.name
-        if not os.path.exists(os.path.dirname(pyfname)):
-            try:
-                os.makedirs(os.path.dirname(pyfname))
-            except:
-                pass
+        py_file = tempfile.mkstemp(suffix='_capsul.py')
+        pyfname = py_file[1]
+        os.close(py_file[0])
+        self.temp_files.append(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
         pipeline2 = sc.get_process_instance(pyfname)
         self._test_loo_pipeline(pipeline2)
@@ -265,13 +266,10 @@ class TestCustomNodes(unittest.TestCase):
     def test_loo_xml_io(self):
         sc = StudyConfig()
         pipeline = sc.get_process_instance(PipelineLOO)
-        xml_file = tempfile.NamedTemporaryFile(suffix='_capsul.xml')
-        xmlfname = xml_file.name
-        if not os.path.exists(os.path.dirname(xmlfname)):
-            try:
-                os.makedirs(os.path.dirname(xmlfname))
-            except:
-                pass
+        xml_file = tempfile.mkstemp(suffix='_capsul.xml')
+        xmlfname = xml_file[1]
+        os.close(xml_file[0])
+        self.temp_files.append(xmlfname)
         xml.save_xml_pipeline(pipeline, xmlfname)
         pipeline2 = sc.get_process_instance(xmlfname)
         self._test_loo_pipeline(pipeline2)
