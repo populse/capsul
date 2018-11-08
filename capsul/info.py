@@ -83,7 +83,9 @@ VERSION = __version__
 PROVIDES = ["capsul"]
 REQUIRES = [
     "traits>={0}".format(TRAITS_MIN_VERSION),
-    "soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
+    # activate the following line after soma-base > 4.6.1 is released
+    #"soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
+    "soma-base>={0}".format(SOMA_MIN_VERSION),
     "six",
 ]
 EXTRA_REQUIRES = {
