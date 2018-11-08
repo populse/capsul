@@ -121,7 +121,7 @@ def auto_configuration(study_config):
 
 class Popen(soma.subprocess.Popen):
     '''
-    Equivalent to Python soma.subprocess.Popen for FSL commands
+    Equivalent to Python subprocess.Popen for FSL commands
     '''
     def __init__(self, study_config, command, **kwargs):
         check_fsl_configuration(study_config)
@@ -130,7 +130,7 @@ class Popen(soma.subprocess.Popen):
         
 def call(study_config, command, **kwargs):
     '''
-    Equivalent to Python soma.subprocess.call for FSL commands
+    Equivalent to Python subprocess.call for FSL commands
     '''
     check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
@@ -138,7 +138,7 @@ def call(study_config, command, **kwargs):
 
 def check_call(study_config, command, **kwargs):
     '''
-    Equivalent to Python soma.subprocess.check_call for FSL commands
+    Equivalent to Python subprocess.check_call for FSL commands
     '''
     check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
@@ -147,7 +147,7 @@ def check_call(study_config, command, **kwargs):
 
 def check_output(study_config, command, **kwargs):
     '''
-    Equivalent to Python soma.subprocess.check_output for FSL commands
+    Equivalent to Python subprocess.check_output for FSL commands
     '''
     check_fsl_configuration(study_config)
     cmd = fsl_command_with_environment(study_config, command)
