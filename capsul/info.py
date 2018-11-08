@@ -83,7 +83,7 @@ VERSION = __version__
 PROVIDES = ["capsul"]
 REQUIRES = [
     "traits>={0}".format(TRAITS_MIN_VERSION),
-    "soma-base>={0}".format(SOMA_MIN_VERSION),
+    "soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
     "six",
 ]
 EXTRA_REQUIRES = {
