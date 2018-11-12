@@ -541,8 +541,9 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             call_name = '%s()' % class_name
 
         # Construct the command line
+        python_command = os.path.basename(sys.executable)
         commandline = [
-            "python",
+            python_command,
             "-c",
             ("import sys; from {0} import {1}; kwargs={2}; "
              "kwargs.update(dict((sys.argv[i * 2 + {3}], "
