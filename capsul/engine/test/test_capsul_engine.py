@@ -37,7 +37,10 @@ class TestCapsulEngine(unittest.TestCase):
         
     def test_populse_db_engine(self):
         if populse_db is None:
-            self.skipTest('populse_db is not installed')
+            if sys.version_info[:2] >= (2, 7):
+                self.skipTest('populse_db is not installed')
+            else:
+                return # no skip exception in python 2.6, so just do nothing
         tmp = tempfile.mktemp(suffix='.sqlite')
         ce = capsul_engine(tmp)
         ce.save()
