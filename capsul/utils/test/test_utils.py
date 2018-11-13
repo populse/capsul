@@ -50,36 +50,6 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(interface_version is None or
                         isinstance(interface_version, dict))
 
-    def test_trait_string_description(self):
-        """ Method to test if we can build a string description for a trait.
-        """
-        trait = CTrait(0)
-        trait.handler = Float()
-        trait.ouptut = False
-        trait.optional = True
-        trait.desc = "bla"
-        manhelp = get_trait_desc("float_trait", trait, 5)
-        self.assertEqual(
-            manhelp[0],
-            "float_trait: a float (['Float'] - optional, default value: 5)")
-        self.assertEqual(manhelp[1], "    bla")
-
-    def test_trait(self):
-        """ Method to test trait characterisitics: value, type.
-        """
-        self.assertTrue(is_trait_value_defined(5))
-        self.assertFalse(is_trait_value_defined(""))
-        self.assertFalse(is_trait_value_defined(None))
-        self.assertFalse(is_trait_value_defined(Undefined))
-
-        trait = CTrait(0)
-        trait.handler = Float()
-        self.assertFalse(is_trait_pathname(trait))
-        for handler in [File(), Directory()]:
-            trait.handler = handler
-            self.assertTrue(is_trait_pathname(trait))
-
-
 
 def test():
     """ Function to execute unitest
