@@ -19,6 +19,7 @@ from soma.serialization import to_json, from_json
 from .database_json import JSONDBEngine
 from .execution_context import ExecutionContext
 
+from capsul.study_config.study_config import StudyConfig
 
 class CapsulEngine(Controller):
     default_modules = ['capsul.engine.module.fsl']
@@ -35,6 +36,8 @@ class CapsulEngine(Controller):
         
         self._database_location = database_location
         self._database = database
+
+        self.study_config = StudyConfig()
         
         self.modules = modules
         self.load_modules()
@@ -152,15 +155,43 @@ class CapsulEngine(Controller):
         self.database.set_json_value('config', config)
         self.database.commit()
     
+    
+    #
+    # Method imported from self.database
+    #
+    def set_named_directory(self, name, path):
+        return self.database.set_named_directory(name, path)
+    
+    def named_directory(self, name):
+        return self.database.named_directory(name)
+    
+    def named_directories(self):
+        return self.database.set_named_directories()
+    
+    
+    def set_json_value(self, name, json_value):
+        return self.database.set_json_value(name, json_value)
+
+    def json_value(self, name):
+        return self.database.json_value(name)
+        
+    
+    def set_path_metadata(self, path, metadata, named_directory=None):
+        return self.database.set_path_metadata(name, path, metadata, named_directory)
+    
+    def path_metadata(self, path, named_directory=None):
+        return self.database.set_path_metadata(name, path, named_directory)
+
+
+
     def get_process_instance(self, process_or_id, **kwargs):
         '''
         The supported way to get a process instance is to use this method.
-        For now, it simply calls capsul.api.get_process_instance but it may
-        change in the future.
+        For now, it simply calls self.study_config.get_process_instance
+        but it will change in the future.
         '''
-        instance = self.execution_context.get_process_instance(process_or_id,
-                                                               capsul_engine=self, 
-                                                               **kwargs)
+        instance = self.study_config.get_process_instance(process_or_id,
+                                                          **kwargs)
         return instance
 
 
@@ -199,7 +230,7 @@ def database_factory(database_location):
         engine.set_named_directory('capsul_engine', engine_directory)
     return engine
 
-def engine(database_location=None, modules=None):
+def capsul_engine(database_location=None, modules=None):
     '''
     User facrory for creating capsul engines
     '''

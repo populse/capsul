@@ -168,9 +168,8 @@ class StudyConfig(Controller):
             files (or from init_config).
         """
 
-        # Inheritance
         super(StudyConfig, self).__init__()
-
+        
         if study_name:
             self.study_name = study_name
 

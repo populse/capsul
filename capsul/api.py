@@ -15,6 +15,7 @@ from capsul.pipeline.pipeline_nodes import ProcessNode
 from capsul.pipeline.pipeline_nodes import PipelineNode
 from capsul.pipeline.pipeline_nodes import Switch
 from capsul.pipeline.pipeline_nodes import OptionalOutputSwitch
+from capsul.engine import capsul_engine
 from capsul.study_config.process_instance import get_process_instance
 from capsul.study_config.study_config import StudyConfig
 from capsul.utils.finder import find_processes

@@ -9,19 +9,21 @@ try:
 except ImportError:
     populse_db = None
 
-from capsul.engine import engine
+from capsul.api import Pipeline, capsul_engine
 
 class TestCapsulEngine(unittest.TestCase):
     def test_default_engine(self):
         tmp = tempfile.mktemp(suffix='.json')
-        ce = engine(tmp)
+        ce = capsul_engine(tmp)
         ce.save()
         try:
-            ce2 = engine(tmp)
+            ce2 = capsul_engine(tmp)
             self.assertEqual(ce.execution_context.to_json(),
                              ce2.execution_context.to_json())
             self.assertEqual(ce.database.named_directory('capsul_engine'),
                              ce2.database.named_directory('capsul_engine'))
+            self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
+                                  Pipeline)
         finally:
             if os.path.exists(tmp):
                 os.remove(tmp)
@@ -30,14 +32,16 @@ class TestCapsulEngine(unittest.TestCase):
         if populse_db is None:
             self.skipTest('populse_db is not installed')
         tmp = tempfile.mktemp(suffix='.sqlite')
-        ce = engine(tmp)
+        ce = capsul_engine(tmp)
         ce.save()
         try:
-            ce2 = engine(tmp)
+            ce2 = capsul_engine(tmp)
             self.assertEqual(ce.execution_context.to_json(),
                              ce2.execution_context.to_json())
             self.assertEqual(ce.database.named_directory('capsul_engine'),
                              ce2.database.named_directory('capsul_engine'))
+            self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
+                                  Pipeline)
         finally:
             if os.path.exists(tmp):
                 os.remove(tmp)

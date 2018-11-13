@@ -26,8 +26,12 @@ def init_module(capul_engine, module_name, loaded_module):
 def update_execution_context(capsul_engine):
     if capsul_engine.fsl.config is not Undefined:
         capsul_engine.execution_context.environ['FSL_CONFIG'] = capsul_engine.fsl.config
+        capsul_engine.study_config.fsl_config = capsul_engine.fsl.config
     if capsul_engine.fsl.prefix is not Undefined:
         capsul_engine.execution_context.environ['FSL_PREFIX'] = capsul_engine.fsl.prefix
+        capsul_engine.study_config.fsl_prefix = capsul_engine.fsl.prefix
+    if capsul_engine.fsl.use is not Undefined:
+        capsul_engine.study_config.use_fsl = capsul_engine.fsl.use
 
 
 def check_fsl_configuration(study_config):

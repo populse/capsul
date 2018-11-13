@@ -6,8 +6,6 @@ from traits.api import DictStrStr, ListStr
 from soma.controller import Controller
 from soma.serialization import JSONSerializable
 
-from capsul.api import get_process_instance
-
 # Global execution context used when running processes
 active_execution_context = None
 
@@ -83,15 +81,6 @@ class ExecutionContext(Controller):
         if sys_path_error:
             raise ValueError('sys.path was modified and execution context modifications cannot be undone')
 
-
-    def get_process_instance(self, process_or_id, **kwargs):
-        '''
-        The supported way to get a process instance is to use this method.
-        For now, it simply calls capsul.api.get_process_instance but it may
-        change in the future.
-        '''
-        instance = get_process_instance(process_or_id, **kwargs)
-        return instance
 
 
 def from_json(python_path_first=[], 
