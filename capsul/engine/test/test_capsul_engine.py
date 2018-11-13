@@ -3,6 +3,7 @@ from __future__ import print_function
 import unittest
 import tempfile
 import os
+import sys
 
 try:
     import populse_db
@@ -22,8 +23,14 @@ class TestCapsulEngine(unittest.TestCase):
                              ce2.execution_context.to_json())
             self.assertEqual(ce.database.named_directory('capsul_engine'),
                              ce2.database.named_directory('capsul_engine'))
-            self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
-                                  Pipeline)
+            if sys.version_info[:2] >= (2, 7):
+                self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
+                                      Pipeline)
+            else:
+                self.assertTrue(isinstance(
+                    ce.get_process_instance(
+                        'capsul.pipeline.test.test_pipeline.MyPipeline'),
+                    Pipeline))
         finally:
             if os.path.exists(tmp):
                 os.remove(tmp)
@@ -40,8 +47,14 @@ class TestCapsulEngine(unittest.TestCase):
                              ce2.execution_context.to_json())
             self.assertEqual(ce.database.named_directory('capsul_engine'),
                              ce2.database.named_directory('capsul_engine'))
-            self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
-                                  Pipeline)
+            if sys.version_info[:2] >= (2, 7):
+                self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
+                                      Pipeline)
+            else:
+                self.assertTrue(isinstance(
+                    ce.get_process_instance(
+                        'capsul.pipeline.test.test_pipeline.MyPipeline'),
+                    Pipeline))
         finally:
             if os.path.exists(tmp):
                 os.remove(tmp)
