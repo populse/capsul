@@ -3,6 +3,7 @@ from __future__ import print_function
 import unittest
 import tempfile
 import os
+import sys
 
 try:
     import populse_db
@@ -22,8 +23,14 @@ class TestCapsulEngine(unittest.TestCase):
                              ce2.execution_context.to_json())
             self.assertEqual(ce.database.named_directory('capsul_engine'),
                              ce2.database.named_directory('capsul_engine'))
-            self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
-                                  Pipeline)
+            if sys.version_info[:2] >= (2, 7):
+                self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
+                                      Pipeline)
+            else:
+                self.assertTrue(isinstance(
+                    ce.get_process_instance(
+                        'capsul.pipeline.test.test_pipeline.MyPipeline'),
+                    Pipeline))
         finally:
             del ce
             del ce2
@@ -32,7 +39,10 @@ class TestCapsulEngine(unittest.TestCase):
         
     def test_populse_db_engine(self):
         if populse_db is None:
-            self.skipTest('populse_db is not installed')
+            if sys.version_info[:2] >= (2, 7):
+                self.skipTest('populse_db is not installed')
+            else:
+                return # no skip exception in python 2.6, so just do nothing
         tmp = tempfile.mktemp(suffix='.sqlite')
         ce = capsul_engine(tmp)
         ce.save()
@@ -42,8 +52,14 @@ class TestCapsulEngine(unittest.TestCase):
                              ce2.execution_context.to_json())
             self.assertEqual(ce.database.named_directory('capsul_engine'),
                              ce2.database.named_directory('capsul_engine'))
-            self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
-                                  Pipeline)
+            if sys.version_info[:2] >= (2, 7):
+                self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
+                                      Pipeline)
+            else:
+                self.assertTrue(isinstance(
+                    ce.get_process_instance(
+                        'capsul.pipeline.test.test_pipeline.MyPipeline'),
+                    Pipeline))
         finally:
             del ce
             del ce2
