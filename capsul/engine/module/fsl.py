@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 import six
+import weakref
 
 from soma.controller import Controller
 from soma.functiontools import SomaPartial
@@ -17,7 +18,8 @@ class FSLConfig(Controller):
 def load_module(capsul_engine, module_name):
     capsul_engine.add_trait('fsl', Instance(FSLConfig))
     capsul_engine.fsl = FSLConfig()
-    capsul_engine.fsl.on_trait_change(SomaPartial(update_execution_context, capsul_engine))
+    capsul_engine.fsl.on_trait_change(SomaPartial(update_execution_context, 
+                                                  weakref.proxy(capsul_engine)))
 
 def init_module(capul_engine, module_name, loaded_module):
     if capul_engine.fsl.use is True:
@@ -25,10 +27,12 @@ def init_module(capul_engine, module_name, loaded_module):
 
 def update_execution_context(capsul_engine):
     if capsul_engine.fsl.config is not Undefined:
-        capsul_engine.execution_context.environ['FSL_CONFIG'] = capsul_engine.fsl.config
+        capsul_engine.execution_context.environ['FSL_CONFIG'] \
+            = capsul_engine.fsl.config
         capsul_engine.study_config.fsl_config = capsul_engine.fsl.config
     if capsul_engine.fsl.prefix is not Undefined:
-        capsul_engine.execution_context.environ['FSL_PREFIX'] = capsul_engine.fsl.prefix
+        capsul_engine.execution_context.environ['FSL_PREFIX'] \
+            = capsul_engine.fsl.prefix
         capsul_engine.study_config.fsl_prefix = capsul_engine.fsl.prefix
     if capsul_engine.fsl.use is not Undefined:
         capsul_engine.study_config.use_fsl = capsul_engine.fsl.use

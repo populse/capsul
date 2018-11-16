@@ -31,6 +31,8 @@ class PopulseDBEngine(DatabaseEngine):
     
     def close(self):
         self.db.__exit__(None, None, None)
+        self.db = None
+        self.dbs = None
     
     
     def commit(self):
