@@ -25,6 +25,8 @@ class TestCapsulEngine(unittest.TestCase):
             self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
                                   Pipeline)
         finally:
+            del ce
+            del ce2
             if os.path.exists(tmp):
                 os.remove(tmp)
         
@@ -43,6 +45,8 @@ class TestCapsulEngine(unittest.TestCase):
             self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
                                   Pipeline)
         finally:
+            del ce
+            del ce2
             if os.path.exists(tmp):
                 os.remove(tmp)
 

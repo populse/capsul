@@ -24,6 +24,15 @@ class PopulseDBEngine(DatabaseEngine):
                               'path is stored in named_directory collection')
         self.dbs = self.db.__enter__()
             
+    
+    def __del__(self):
+        self.close()
+    
+    
+    def close(self):
+        self.db.__exit__(None, None, None)
+    
+    
     def commit(self):
         self.dbs.save_modifications()
     
