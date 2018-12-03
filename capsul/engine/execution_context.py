@@ -53,7 +53,7 @@ class ExecutionContext(Controller):
         
         self._environ_backup = {}
         for n, v in self.environ.items():
-            self._environ_backup = os.environ.get(n)
+            self._environ_backup[n] = os.environ.get(n)
             os.environ[n] = v
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -71,7 +71,7 @@ class ExecutionContext(Controller):
         del self._sys_path_first
         del self._sys_path_last
         
-        for n, v in self._environ_backup:
+        for n, v in self._environ_backup.items():
             if v is None:
                 os.environ.pop(n, None)
             else:

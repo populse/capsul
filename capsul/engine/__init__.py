@@ -22,12 +22,13 @@ from .execution_context import ExecutionContext
 from capsul.study_config.study_config import StudyConfig
 
 class CapsulEngine(Controller):
-    default_modules = ['capsul.engine.module.fsl']
+    default_modules = ['capsul.engine.module.spm',
+                       'capsul.engine.module.fsl']
         
     def __init__(self, 
                  database_location,
                  database,
-                 modules=None):
+                 config=None):
         '''
         CapsulEngine constructor should not be called directly.
         Use engine() factory function instead.
@@ -39,7 +40,10 @@ class CapsulEngine(Controller):
 
         self.study_config = StudyConfig()
         
-        self.modules = modules
+        db_config = database.json_value('config')
+        self.modules = database.json_value('modules')
+        if self.modules is None:
+            self.modules = self.default_modules
         self.load_modules()
         
         execution_context = from_json(database.json_value('execution_context'))
@@ -50,15 +54,15 @@ class CapsulEngine(Controller):
         self._processing_engine = from_json(database.json_value('processing_engine'))        
         self._metadata_engine = from_json(database.json_value('metadata_engine'))
         
-        config = database.json_value('config')
-        if config:
-            for n, v in config.items():
-                if isinstance(v, dict):
-                    o = getattr(self, n)
-                    if isinstance(o, Controller):
-                        o.import_from_dict(v)
-                        continue
-                setattr(self, n, v)
+        for cfg in (db_config, config):
+            if cfg:
+                for n, v in cfg.items():
+                    if isinstance(v, dict):
+                        o = getattr(self, n)
+                        if isinstance(o, Controller):
+                            o.import_from_dict(v)
+                            continue
+                    setattr(self, n, v)
 
         self.init_modules()
 
@@ -230,13 +234,13 @@ def database_factory(database_location):
         engine.set_named_directory('capsul_engine', engine_directory)
     return engine
 
-def capsul_engine(database_location=None, modules=None):
+def capsul_engine(database_location=None, config=None):
     '''
     User facrory for creating capsul engines
     '''
     if database_location is None:
         database_location = osp.expanduser('~/.config/capsul/capsul_engine.json')
     database = database_factory(database_location)
-    capsul_engine = CapsulEngine(database_location, database, modules=modules)
+    capsul_engine = CapsulEngine(database_location, database, config=config)
     return capsul_engine
     
