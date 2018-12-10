@@ -56,6 +56,26 @@ class ExecutionContext(Controller):
             self._environ_backup[n] = os.environ.get(n)
             os.environ[n] = v
 
+        # This code is specific to Nipype/SPM and should be
+        # in a dedicated module. It is put here until 
+        # modularity is added to this method.
+        if os.environ.get('SPM_STANDALONE'):
+            nipype = True
+            try:
+                from nipype.interfaces import spm
+            except ImportError:
+                nipype = False
+            if nipype:
+                import glob
+                spm_directory = os.environ.get('SPM_DIRECTORY', '')
+                spm_exec_glob = osp.join(spm_directory, 'mcr', 'v*')
+                spm_exec = glob.glob(spm_exec_glob)
+                if spm_exec:
+                    spm_exec = spm_exec[0]
+                    spm.SPMCommand.set_mlab_paths(
+                        matlab_cmd=osp.join(spm_directory, 'run_spm%s.sh' % os.environ.get('SPM_VERSION','')) + ' ' + spm_exec + ' script',
+                        use_mcr=True)
+
     def __exit__(self, exc_type, exc_value, traceback):
         sys_path_error = False
         if self._sys_path_first:

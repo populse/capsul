@@ -1,4 +1,5 @@
 import glob
+import os
 import os.path as osp
 import weakref
 
@@ -61,7 +62,7 @@ def check_configuration_values(capsul_engine):
     if capsul_engine.spm.directory is Undefined:
         return 'SPM directory is not defined'
     if capsul_engine.spm.version is Undefined:
-        return 'SPM version is not defined'
+        return 'SPM version is not defined (maybe %s is not a valid SPM directory)' % capsul_engine.spm.directory
     if capsul_engine.spm.standalone is Undefined:
         return 'Selection of SPM installation type : Standalone or Matlab'
     if not osp.isdir(capsul_engine.spm.directory):
