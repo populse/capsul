@@ -12,6 +12,7 @@ from __future__ import print_function
 import os
 import logging
 import tempfile
+
 import soma.subprocess
 import six
 import sys
@@ -57,6 +58,7 @@ def pipeline_node_colors(pipeline, node):
         3-tuples of float values between 0. and 1. style is "default",
         "switch" or "pipeline".
     '''
+
     def _color_disabled(color):
         target = [0.86, 0.94, 0.86]
         new_color = ((color[0] + target[0]) / 2,
@@ -64,39 +66,53 @@ def pipeline_node_colors(pipeline, node):
                      (color[2] + target[2]) / 2)
         return new_color
 
-    BLUE_1 = (0.7, 0.7, 0.9)
-    BLUE_2 = (0.5, 0.5, 0.7)
-    BLUE_3 = (0.2, 0.2, 0.4)
-    LIGHT_BLUE_1 = (0.95, 0.95, 1.0)
-    LIGHT_BLUE_2 = (0.85, 0.85, 0.9)
-    LIGHT_BLUE_3 = (0.3, 0.3, 0.5)
+    #     BLUE_1 = (0.7, 0.7, 0.9)
+    #     BLUE_2 = (0.5, 0.5, 0.7)
+    #     BLUE_3 = (0.2, 0.2, 0.4)
+    #     LIGHT_BLUE_1 = (0.95, 0.95, 1.0)
+    #     LIGHT_BLUE_2 = (0.85, 0.85, 0.9)
+    #     LIGHT_BLUE_3 = (0.3, 0.3, 0.5)
 
-    SEA_1 = (0.7, 0.8, 1.)
-    SEA_2 = (0.5, 0.6, 0.9)
-    SEA_3 = (0.2, 0.3, 0.6)
-    LIGHT_SEA_1 = (0.95, 0.95, 1.0)
-    LIGHT_SEA_2 = (0.8, 0.8, 1.)
-    LIGHT_SEA_3 = (0.2, 0.2, 0.7)
+    # for process nodes
+    GREENDARK_1 = (0.1, 0.7, 0.1)  # active
+    GREENDARK_2 = (0.1, 0.5, 0.1)
+    GREENDARK_3 = (0.1, 0.3, 0.1)
+    LIGHT_GREENDARK_1 = (0.1, 0.4, 0.1)  # not active
+    LIGHT_GREENDARK_2 = (0.1, 0.3, 0.1)
+    LIGHT_GREENDARK_3 = (0.1, 0.1, 0.1)
 
-    #GRAY_1 = (0.7, 0.7, 0.8, 1)
-    #GRAY_2 = (0.4, 0.4, 0.4, 1)
-    #LIGHT_GRAY_1 = (0.7, 0.7, 0.8, 1)
-    #LIGHT_GRAY_2 = (0.6, 0.6, 0.7, 1)
+    # for inputs and outputs nodes
+    SEA_1 = (0.2, 0.8, 1.0)  # active
+    SEA_2 = (0.2, 0.4, 0.9)
+    SEA_3 = (0.0, 0.2, 0.6)
+    LIGHT_SEA_1 = (0.2, 0.5, 0.7)  # not active
+    LIGHT_SEA_2 = (0.2, 0.1, 0.6)
+    LIGHT_SEA_3 = (0.0, 0.0, 0.4)
 
-    SAND_1 = (0.8, 0.7, 0.3)
-    SAND_2 = (1., 0.9, 0.5)
+    # for switch nodes
+    SAND_1 = (0.8, 0.7, 0.5)
+    SAND_2 = (0.7, 0.6, 0.5)
     SAND_3 = (0.5, 0.45, 0.2)
     LIGHT_SAND_1 = (0.85, 0.78, 0.48)
     LIGHT_SAND_2 = (1., 0.95, 0.73)
     LIGHT_SAND_3 = (0.6, 0.55, 0.3)
 
-    PURPLE_1 = (0.85, 0.8, 0.85)
-    PURPLE_2 = (0.8, 0.75, 0.8)
-    PURPLE_3 = (0.5, 0.45, 0.5)
-    DEEP_PURPLE_1 = (0.8, 0.7, 0.8)
-    DEEP_PURPLE_2 = (0.6, 0.5, 0.6)
-    DEEP_PURPLE_3 = (0.4, 0.35, 0.4)
+    # for pipeline nodes
+    PURPLE_1 = (0.5, 0, 0)  # not active
+    PURPLE_2 = (0.4, 0, 0)
+    PURPLE_3 = (0.3, 0, 0)
+    DEEP_PURPLE_1 = (0.75, 0.2, 0.1)  # active
+    DEEP_PURPLE_2 = (0.55, 0.2, 0.1)
+    DEEP_PURPLE_3 = (0.35, 0.2, 0.1)
 
+#     PURPLE_1 = (0.85, 0.8, 0.85)
+#     PURPLE_2 = (0.8, 0.75, 0.8)
+#     PURPLE_3 = (0.5, 0.45, 0.5)
+#     DEEP_PURPLE_1 = (0.8, 0.7, 0.8)
+#     DEEP_PURPLE_2 = (0.6, 0.5, 0.6)
+#     DEEP_PURPLE_3 = (0.4, 0.35, 0.4)
+
+    # for iteration nodes
     GREEN_1 = (0.7, 0.9, 0.7)
     GREEN_2 = (0.5, 0.7, 0.5)
     GREEN_3 = (0.2, 0.4, 0.2)
@@ -104,6 +120,7 @@ def pipeline_node_colors(pipeline, node):
     LIGHT_GREEN_2 = (0.85, 0.9, 0.85)
     LIGHT_GREEN_3 = (0.3, 0.5, 0.3)
 
+    # for attributed nodes
     SKY_1 = (0.6, 0.7, 1.)
     SKY_2 = (0.3, 0.5, 0.8)
     SKY_3 = (0., 0.2, 0.5)
@@ -118,6 +135,7 @@ def pipeline_node_colors(pipeline, node):
     LIGHT_APPLE_2 = (0.95, 1., 0.73)
     LIGHT_APPLE_3 = (0.55, 0.6, 0.3)
 
+    # for custom_nodes
     ORANGE_1 = (0.92, 0.69, 0.53)
     #ORANGE_2 = (0.73, 0.4, 0.26)
     ORANGE_2 = (0.86, 0.54, 0.3)
@@ -127,8 +145,8 @@ def pipeline_node_colors(pipeline, node):
     LIGHT_ORANGE_3 = (0.4, 0.3, 0.2)
 
     _colors = {
-        'default': (BLUE_1, BLUE_2, BLUE_3, LIGHT_BLUE_1, LIGHT_BLUE_2,
-                    LIGHT_BLUE_3),
+        'default': (GREENDARK_1, GREENDARK_2, GREENDARK_3, LIGHT_GREENDARK_1, LIGHT_GREENDARK_2,
+                    LIGHT_GREENDARK_3),
         'switch': (SAND_1, SAND_2, SAND_3, LIGHT_SAND_1, LIGHT_SAND_2,
                    LIGHT_SAND_3),
         'pipeline': (DEEP_PURPLE_1, DEEP_PURPLE_2, DEEP_PURPLE_3, PURPLE_1,
@@ -138,7 +156,7 @@ def pipeline_node_colors(pipeline, node):
         'iteration': (GREEN_1, GREEN_2, GREEN_3, LIGHT_GREEN_1, LIGHT_GREEN_2,
                       LIGHT_GREEN_3),
         'attributed': (SKY_1, SKY_2, SKY_3, LIGHT_SKY_1, LIGHT_SKY_2,
-                      LIGHT_SKY_3),
+                       LIGHT_SKY_3),
         'optional_output_switch': (APPLE_1, APPLE_2, APPLE_3, LIGHT_APPLE_1,
                                    LIGHT_APPLE_2, LIGHT_APPLE_3),
         'custom_node': (ORANGE_1, ORANGE_2, ORANGE_3, LIGHT_ORANGE_1,
@@ -155,13 +173,11 @@ def pipeline_node_colors(pipeline, node):
     elif isinstance(node, ProcessNode) \
             and isinstance(node.process, ProcessIteration):
         style = 'iteration'
-    elif isinstance(node, ProcessNode):
-        if hasattr(node.process, 'completion_engine'):
-            style = 'attributed'
-        else:
-            style = 'default'
+    elif isinstance(node, ProcessNode) \
+            and hasattr(node.process, 'completion_engine'):
+        style = 'attributed'
     else:
-        style = 'custom_node'
+        style = 'default'
     if node.activated and node.enabled:
         color_1, color_2, color_3 = _colors[style][0:3]
     else:
@@ -320,7 +336,7 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
                             color = old_edge[0]['color']
                     if isinstance(color, tuple):
                         color = '#%02x%02x%02x' \
-                            % tuple([int(c * 255.9) for c in color])
+                                % tuple([int(c * 255.9) for c in color])
                     props = {'color': color, 'style': style}
                     edges[edge] = (props, active, weak)
         if node_name == '' and include_io:
@@ -427,6 +443,7 @@ def save_dot_graph(dot_graph, filename, **kwargs):
     **kwargs: additional attributes for the dot graph
       like nodesep=0.1 or rankdir="TB"
     '''
+
     def _str_repr(item):
         if isinstance(item, basestring):
             return '"%s"' % item
@@ -436,11 +453,11 @@ def save_dot_graph(dot_graph, filename, **kwargs):
     props = {'rankdir': 'LR'}
     props.update(kwargs)
     propsstr = ' '.join(['='.join([aname, _str_repr(val)])
-                           for aname, val in six.iteritems(props)])
+                         for aname, val in six.iteritems(props)])
     rankdir = props['rankdir']
 
     fileobj.write('digraph {%s;\n' % propsstr)
-    nodesep = 20. # in qt scale space
+    nodesep = 20.  # in qt scale space
     scale = 1. / 67.
     for id, node, props in dot_graph[0]:
         if rankdir == 'TB' and 'orientation' in props:
@@ -451,13 +468,13 @@ def save_dot_graph(dot_graph, filename, **kwargs):
         if len(props) != 0:
             attstr = ' ' + attstr
         fileobj.write('  %s [label="%s" style="filled"%s];\n'
-            % (id, node, attstr))
+                      % (id, node, attstr))
     for edge, descr in six.iteritems(dot_graph[1]):
         props = descr[0]
         attstr = ' '.join(['='.join([aname, _str_repr(val)])
                            for aname, val in six.iteritems(props)])
         fileobj.write('  "%s" -> "%s" [%s];\n'
-            % (edge[0], edge[1], attstr))
+                      % (edge[0], edge[1], attstr))
     fileobj.write('}\n')
 
 
@@ -552,7 +569,7 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
             for param in node.plugs:
                 trait = process.trait(param)
                 if trait.output and (isinstance(trait.trait_type, traits.File)
-                        or isinstance(trait.trait_type, traits.Directory)):
+                                     or isinstance(trait.trait_type, traits.Directory)):
                     value = getattr(process, param)
                     if value is not None and value is not traits.Undefined \
                             and os.path.exists(value):
@@ -562,12 +579,12 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
                         for n, t in six.iteritems(process.user_traits()):
                             if not t.output and (isinstance(t.trait_type,
                                                             traits.File)
-                                    or isinstance(t.trait_type,
-                                                  traits.Directory)):
+                                                 or isinstance(t.trait_type,
+                                                               traits.Directory)):
                                 v = getattr(process, n)
                                 if v == value:
                                     disable = False
-                                    break # found in inputs
+                                    break  # found in inputs
                         if disable:
                             # disable step
                             print('disable step', step, 'because of:',
@@ -621,7 +638,8 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
             if not getattr(steps, step):
                 disabled_nodes.update(trait.nodes)
 
-    nodes = pipeline.nodes.items()
+    # nodes = pipeline.nodes.items()
+    nodes = list(pipeline.nodes.items())
     while nodes:
         node_name, node = nodes.pop(0)
         if node_name == '' or not hasattr(node, 'process'):
@@ -692,7 +710,8 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
             disabled_nodes.update(
                 [pipeline.nodes[node_name] for node_name in trait.nodes])
 
-    nodes = pipeline.nodes.items()
+    # nodes = pipeline.nodes.items()
+    nodes = list(pipeline.nodes.items())
     while nodes:
         node_name, node = nodes.pop(0)
         if node_name == '' or not hasattr(node, 'process'):
@@ -722,10 +741,10 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
                                 and (origin_node in disabled_nodes
                                      or origin_parent in disabled_nodes):
                             # file coming from another disabled node
-                            #if not value or value is traits.Undefined:
-                                ## temporary one
-                                #print('TEMP: %s.%s' % (node_name, plug_name))
-                                #value = None
+                            # if not value or value is traits.Undefined:
+                            ## temporary one
+                            # print('TEMP: %s.%s' % (node_name, plug_name))
+                            # value = None
                             keep_me = True
                         elif origin_node is None:
                             # unplugged: does not come from anywhere else
@@ -771,7 +790,7 @@ def where_is_plug_value_from(plug, recursive=True):
         origin node is in a runtime pipeline step, which only records top-level
         nodes.
     '''
-    links = [link + (None, ) for link in plug.links_from]
+    links = [link + (None,) for link in plug.links_from]
     while links:
         node_name, param_name, node, in_plug, weak, parent = links.pop(0)
         if not node.activated or not node.enabled:
@@ -782,7 +801,7 @@ def where_is_plug_value_from(plug, recursive=True):
             switch_value = node.switch
             switch_input = '%s_switch_%s' % (switch_value, param_name)
             in_plug = node.plugs[switch_input]
-            links += [link + (parent, ) for link in in_plug.links_from]
+            links += [link + (parent,) for link in in_plug.links_from]
         elif recursive and isinstance(node, PipelineNode):
             # either output from a sibling sub_pipeline
             # or input from parent pipeline
@@ -793,13 +812,14 @@ def where_is_plug_value_from(plug, recursive=True):
                 new_parent = node
             else:
                 new_parent = parent
-            links += [link + (new_parent, ) for link in in_plug.links_from]
+            links += [link + (new_parent,) for link in in_plug.links_from]
         else:
             # output of a process: found it
             # in non-recursive mode, a pipeline is regarded as a process.
             return node, param_name, parent
     # not found
     return None, None, None
+
 
 def dump_pipeline_state_as_dict(pipeline):
     '''
@@ -825,6 +845,7 @@ def dump_pipeline_state_as_dict(pipeline):
     state_dict: dict
         pipeline state
     '''
+
     def should_keep_value(node, plug, components):
         '''
         Tells if a plug has already been taken into account in the plugs graph.
@@ -850,6 +871,7 @@ def dump_pipeline_state_as_dict(pipeline):
         pipeline state. Otherwise it should be discarded (set from another
         connected plug).
         '''
+
         def _component(plug, components):
             for comp in components:
                 if plug in comp:
@@ -939,6 +961,7 @@ def dump_pipeline_state_as_dict(pipeline):
     prune_empty_dicts(state_dict)
     return state_dict
 
+
 def set_pipeline_state_from_dict(pipeline, state_dict):
     '''
     Set a pipeline (or process) state from a dict description.
@@ -965,6 +988,7 @@ def set_pipeline_state_from_dict(pipeline, state_dict):
         if sub_nodes:
             nodes += [(proc.nodes[node_name], sub_dict)
                       for node_name, sub_dict in six.iteritems(sub_nodes)]
+
 
 def get_output_directories(process):
     '''
@@ -1023,6 +1047,7 @@ def get_output_directories(process):
                     nodes.append((node, node_name, sub_node_dict))
     return root_dirs, all_dirs
 
+
 def create_output_directories(process):
     '''
     Create output directories for a process, pipeline or node.
@@ -1030,6 +1055,7 @@ def create_output_directories(process):
     for directory in get_output_directories(process)[1]:
         if not os.path.exists(directory):
             os.makedirs(directory)
+
 
 def save_pipeline(pipeline, filename):
     '''
@@ -1058,10 +1084,7 @@ def load_pipeline_parameters(filename, pipeline):
     """
 
     if filename:
-        kwargs = {}
-        if sys.version_info[0] >= 3:
-            kwargs['encoding'] = 'utf8'
-        with open(filename, 'r', **kwargs) as file:
+        with open(filename, 'r', encoding='utf8') as file:
             dic = json.load(file)
 
         if "pipeline_parameters" not in dic.keys():
@@ -1120,9 +1143,5 @@ def save_pipeline_parameters(filename, pipeline):
         dic["pipeline_parameters"] = param_dic
 
         # Saving the dictionary in the Json file
-        kwargs = {}
-        if sys.version_info[0] >= 3:
-            kwargs['encoding'] = 'utf8'
-        with open(filename, 'w', **kwargs) as file:
+        with open(filename, 'w', encoding='utf8') as file:
             json.dump(dic, file)
-
