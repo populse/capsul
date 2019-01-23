@@ -7,6 +7,7 @@
 ##########################################################################
 
 from __future__ import print_function
+from __future__ import absolute_import
 
 # System import
 import os
@@ -20,6 +21,7 @@ import sys
 import types
 import inspect
 import six
+import json
 
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
@@ -32,6 +34,7 @@ from capsul.api import Process
 from capsul.api import get_process_instance
 from capsul.pipeline.pipeline_nodes import Node, ProcessNode
 from capsul.pipeline.process_iteration import ProcessIteration
+from PyQt5.Qt import QGraphicsView
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 import capsul.pipeline.xml as capsulxml
@@ -40,12 +43,19 @@ from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
 
+# Populse_MIA import
+# from populse_mia.pipeline_manager.capsul_files import pipeline_tools
+
 try:
     from traits import api as traits
 except ImportError:
     from enthought.traits import api as traits
 
+# Import to resolve CI bug
+from PyQt5.QtWidgets import QGraphicsView
+
 from soma.qt_gui import qt_backend
+
 qt_backend.init_traitsui_handler()
 
 from soma.qt_gui.controller_widget import ScrollControllerWidget
@@ -54,6 +64,8 @@ from capsul.qt_gui.widgets.attributed_process_widget \
 
 if sys.version_info[0] >= 3:
     unicode = str
+
+
     def values(d):
         return list(d.values())
 else:
@@ -64,69 +76,96 @@ else:
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-GRAY_1 = QtGui.QColor.fromRgbF(0.7, 0.7, 0.8, 1)
+GRAY_1 = QtGui.QColor.fromRgbF(0.7, 0.7, 0.8, 0.1)
 GRAY_2 = QtGui.QColor.fromRgbF(0.4, 0.4, 0.4, 1)
-LIGHT_GRAY_1 = QtGui.QColor.fromRgbF(0.7, 0.7, 0.8, 1)
-LIGHT_GRAY_2 = QtGui.QColor.fromRgbF(0.6, 0.6, 0.7, 1)
+LIGHT_GRAY_1 = QtGui.QColor.fromRgbF(0.2, 0.2, 0.2, 1)
+LIGHT_GRAY_2 = QtGui.QColor.fromRgbF(0.2, 0.2, 0.2, 1)
 
-RED_2 = QtGui.QColor.fromRgb(234, 131, 31)
+# Colors for links and plugs
+
+ORANGE_1 = QtGui.QColor.fromRgb(220, 80, 20)
+ORANGE_2 = QtGui.QColor.fromRgb(220, 120, 20)
+BLUE_1 = QtGui.QColor.fromRgb(50, 150, 250)
+BLUE_2 = QtGui.QColor.fromRgb(50, 50, 250)
+PURPLE_2 = QtGui.QColor.fromRgb(200, 0, 200)
+RED_2 = QtGui.QColor.fromRgb(200, 0, 0)
+GREEN_2 = QtGui.QColor.fromRgb(0, 100, 0)
+BLACK_2 = QtGui.QColor.fromRgb(10, 10, 10)
+WHITE_2 = QtGui.QColor.fromRgb(255, 255, 255)
+
+ANTHRACITE_1 = QtGui.QColor.fromRgbF(0.05, 0.05, 0.05)
+LIGHT_ANTHRACITE_1 = QtGui.QColor.fromRgbF(0.25, 0.25, 0.25)
 
 
 # -----------------------------------------------------------------------------
 # Classes and functions
 # -----------------------------------------------------------------------------
 
+class ColorType:
+
+    def __init__(self):
+        pass
+
+    def colorLink(self, x):
+        return {
+            'Str': PURPLE_2,
+            'Float': ORANGE_1,
+            'Int': BLUE_2,
+            'List': RED_2,
+            'File': ORANGE_2
+        }[x]
+
+
 class Plug(QtGui.QGraphicsPolygonItem):
 
-    def __init__(self, name, height, width, activated=True,
+    def __init__(self, color, name, height, width, activated=True,
                  optional=False, parent=None):
         super(Plug, self).__init__(parent)
         self.name = name
-        color = self._color(activated, optional)
-        if True:
+        #         self.color = self._color(activated, optional)
+        self.color = color
+        if optional:
             brush = QtGui.QBrush(QtCore.Qt.SolidPattern)
-            brush.setColor(color)
+            brush.setColor(self.color)
+            polygon = QtGui.QPolygonF([QtCore.QPointF(0, 0),
+                                       QtCore.QPointF(width / 1.5, 0),
+                                       QtCore.QPointF(width / 1.5, (height - 5)),
+                                       QtCore.QPointF(0, (height - 5))
+                                       ])
+        #             self.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+        else:
+            brush = QtGui.QBrush(QtCore.Qt.SolidPattern)
+            brush.setColor(self.color)
             polygon = QtGui.QPolygonF([QtCore.QPointF(0, 0),
                                        QtCore.QPointF(
                                            width, (height - 5) / 2.0),
                                        QtCore.QPointF(0, height - 5)
-                                       ])
-            self.setPen(QtGui.QPen(QtCore.Qt.NoPen))
-        else:
-            brush = QtGui.QBrush(QtCore.Qt.Dense4Pattern)
-            brush.setColor(color)
-            polygon = QtGui.QPolygonF([QtCore.QPointF(0, 0),
-                                       QtCore.QPointF(
-                                           width / 3.0, (height - 5) / 4.0),
-                                       QtCore.QPointF(width / 3.0, 0),
-                                       QtCore.QPointF(
-                                           width, (height - 5) / 2.0),
-                                       QtCore.QPointF(
-                                           width / 3.0, (height - 5)),
-                                       QtCore.QPointF(
-                                           width / 3.0, (height - 5) * 0.75),
-                                       QtCore.QPointF(0, height - 5),
                                        ])
         self.setPolygon(polygon)
         self.setBrush(brush)
         self.setZValue(3)
         self.setAcceptedMouseButtons(QtCore.Qt.LeftButton)
 
-    def _color(self, activated, optional):
-        if optional:
-            if activated:
-                color = QtCore.Qt.darkGreen
-            else:
-                color = QtGui.QColor('#BFDB91')
-        else:
-            if activated:
-                color = QtCore.Qt.black
-            else:
-                color = QtCore.Qt.gray
-        return color
+    #     def _color(self, activated, optional):
+    #         if optional:
+    #             if activated:
+    #                 color = QtCore.Qt.darkGreen
+    #             else:
+    #                 color = QtGui.QColor('#BFDB91')
+    #         else:
+    #             if activated:
+    #                 color = QtCore.Qt.black
+    #             else:
+    #                 color = QtCore.Qt.gray
+    #         return color
 
-    def update_plug(self, activated, optional):
-        color = self._color(activated, optional)
+    #     def update_plug(self, activated, optional):
+    #         color = self._color(activated, optional)
+    #         brush = QtGui.QBrush(QtCore.Qt.SolidPattern)
+    #         brush.setColor(color)
+    #         self.setBrush(brush)
+
+    def update_plug(self, color):
         brush = QtGui.QBrush(QtCore.Qt.SolidPattern)
         brush.setColor(color)
         self.setBrush(brush)
@@ -137,15 +176,13 @@ class Plug(QtGui.QGraphicsPolygonItem):
             self.boundingRect().size().height() / 2.0)
         return self.mapToParent(point)
 
-
     def mousePressEvent(self, event):
-        #print('plug pressed.')
         super(Plug, self).mousePressEvent(event)
         if event.button() == QtCore.Qt.LeftButton:
             self.scene().plug_clicked.emit(self.name)
             event.accept()
         elif event.button() == QtCore.Qt.RightButton:
-            #print('plug: right click')
+            # print('plug: right click')
             self.scene().plug_right_clicked.emit(self.name)
             event.accept()
 
@@ -160,7 +197,7 @@ class EmbeddedSubPipelineItem(QtGui.QGraphicsProxyWidget):
         old_height = sub_pipeline_wid.sizeHint().height()
         sizegrip = QtGui.QSizeGrip(None)
         new_height = old_height \
-            + sub_pipeline_wid.horizontalScrollBar().height()
+                     + sub_pipeline_wid.horizontalScrollBar().height()
         sub_pipeline_wid.setCornerWidget(sizegrip)
         sub_pipeline_wid.setHorizontalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOn)
@@ -168,14 +205,42 @@ class EmbeddedSubPipelineItem(QtGui.QGraphicsProxyWidget):
         self.setWidget(sub_pipeline_wid)
 
 
-class NodeGWidget(QtGui.QGraphicsItem):
+class boxItem(QtGui.QGraphicsRectItem):
+    def __init__(self, parent=None):
+        super(boxItem, self).__init__(parent)
+        #         self.setFlags(self.ItemIsFocusable)
+        self.penBox = 0;
+        self.name = ""
 
+    def focusInEvent(self, event):
+        self.setPen(QtGui.QPen(QtGui.QColor(150, 150, 250), 3, QtCore.Qt.DashDotLine))
+        return QtGui.QGraphicsRectItem.focusInEvent(self, event)
+
+    def focusOutEvent(self, event):
+        self.setPen(self.penBox)
+        return QtGui.QGraphicsRectItem.focusOutEvent(self, event)
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Delete:
+            self.scene()._node_keydelete_clicked(self)
+        else:
+            super(boxItem, self).keyPressEvent(event)
+
+
+class NodeGWidget(QtGui.QGraphicsItem):
     def __init__(self, name, parameters, pipeline,
                  parent=None, process=None, sub_pipeline=None,
                  colored_parameters=True,
                  logical_view=False, labels=[],
                  show_opt_inputs=True, show_opt_outputs=True):
         super(NodeGWidget, self).__init__(parent)
+
+        self.infoActived = QtGui.QGraphicsTextItem('', self)
+        self.colType = ColorType()
+
+        self.setFlags(self.ItemIsSelectable)
+        self.setCursor(Qt.QCursor(QtCore.Qt.PointingHandCursor))
+
         self.style = 'default'
         self.name = name
         self.parameters = SortedDictionary(
@@ -219,7 +284,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
         self._set_brush()
         self.setAcceptedMouseButtons(
-            QtCore.Qt.LeftButton|QtCore.Qt.RightButton|QtCore.Qt.MiddleButton)
+            QtCore.Qt.LeftButton | QtCore.Qt.RightButton | QtCore.Qt.MiddleButton)
 
         self._build()
         if colored_parameters:
@@ -227,8 +292,11 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
     def __del__(self):
         if self.colored_parameters:
-            self.process.on_trait_change(self._repaint_parameter, remove=True)
-        #super(NodeGWidget, self).__del__()
+            try:
+                self.process.on_trait_change(self._repaint_parameter, remove=True)
+            except:
+                return
+        # super(NodeGWidget, self).__del__()
 
     def get_title(self):
         if self.sub_pipeline is None:
@@ -252,6 +320,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             def __init__(self, label, color):
                 self.text = label
                 self.color = color
+
         for l in self.scene_labels:
             if label == l.text:
                 if register and l not in self.labels:
@@ -303,13 +372,15 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_item.setHtml(param_text)
 
     def _build(self):
-        margin = 5
+        margin = 0
         self.title = QtGui.QGraphicsTextItem(self.get_title(), self)
-        font = self.title.font()
-        font.setWeight(QtGui.QFont.Bold)
+        #         font = self.title.font()
+        font = QtGui.QFont("Times", 11, QtGui.QFont.Bold)
+        #         font.setWeight(QtGui.QFont.Bold)
         self.title.setFont(font)
         self.title.setPos(margin, margin)
         self.title.setZValue(2)
+        self.title.setDefaultTextColor(QtCore.Qt.white)
         self.title.setParentItem(self)
 
         if self.logical_view:
@@ -318,22 +389,114 @@ class NodeGWidget(QtGui.QGraphicsItem):
             self._build_regular_view_plugs()
         self._create_label_marks()
 
-        self.box = QtGui.QGraphicsRectItem(self)
+        self.ctr = self.contentsRect()
+        self.wmin = self.ctr.width()
+        self.hmin = self.ctr.height()
+
+        font1 = QtGui.QFont("Times", 12, QtGui.QFont.Normal)
+        font1.setItalic(True)
+        self.infoActived.setFont(font1)
+        self.infoActived.setZValue(2)
+        self.infoActived.setDefaultTextColor(QtCore.Qt.red)
+        self.infoActived.setParentItem(self)
+
+        self.box = boxItem(self)
+        self.box.setFlags(self.box.ItemIsFocusable)
         self.box.setBrush(self.bg_brush)
         self.box.setPen(QtGui.QPen(QtCore.Qt.NoPen))
         self.box.setZValue(-1)
+        self.box.penBox = self.box.pen()
+        self.box.name = self.name
         self.box.setParentItem(self)
-        self.box.setRect(self.contentsRect())
+
+        self.sizer = HandleItem(self)
+        self.sizer.wmin = self.wmin
+        self.sizer.hmin = self.hmin
+        self.sizer.setPos(self.ctr.width(), self.ctr.height())
+        self.sizer.posChangeCallbacks.append(self.changeSize)
+        self.sizer.setFlag(self.sizer.ItemIsSelectable, True)
 
         self.box_title = QtGui.QGraphicsRectItem(self)
-        rect = self.title.mapRectToParent(self.title.boundingRect())
-        brect = self.contentsRect()
-        brect.setWidth(brect.right() - margin)
-        rect.setWidth(brect.width())
-        self.box_title.setRect(rect)
         self.box_title.setBrush(self.title_brush)
         self.box_title.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+        self.box_title.setZValue(1)
         self.box_title.setParentItem(self)
+
+        self.changeSize(self.ctr.width(), self.ctr.height())
+
+    def changeSize(self, w, h):
+        limit = False
+        factor_h = 35
+
+        if h < self.hmin:
+            h = self.hmin
+            limit = True
+
+        if w < self.wmin:
+            w = self.wmin
+            limit = True
+
+        winMax, woutMax = 0, 0
+
+        self.box.setRect(0.0, 0.0, w, h)
+        self.box_title.setRect(0.0, 0.0, w, 30)
+        self.title.setPos(w / 2 - self.title.boundingRect().size().width() / 2, 0)
+        self.infoActived.setPos(w / 2 - self.infoActived.boundingRect().size().width() / 2, h + 2)
+
+        #         rect = self.title.mapRectToParent(self.title.boundingRect())
+        #         rect.setWidth(w)
+        #         self.box_title.setRect(rect)
+
+        y1 = h / (len(self.in_plugs) + 1)
+        dy = y1
+        for inp in self.in_plugs:
+            self.in_plugs[inp].setPos(0, y1)
+            self.in_params[inp].setPos(self.in_plugs[inp].boundingRect().size().width(), y1)
+            if winMax < self.in_params[inp].boundingRect().size().width():
+                winMax = self.in_params[inp].boundingRect().size().width()
+            y1 += dy
+
+        y2 = h / (len(self.out_plugs) + 1)
+        dy = y2
+        for outp in self.out_plugs:
+            self.out_plugs[outp].setPos(w, y2)
+            self.out_params[outp].setPos(w - self.out_params[outp].boundingRect().size().width() - 5, y2)
+            if woutMax < self.out_params[outp].boundingRect().size().width():
+                woutMax = self.out_params[outp].boundingRect().size().width()
+            y2 += dy
+
+        if w < winMax + woutMax + 15:
+            w = winMax + woutMax + 15
+            self.updateSize(w, h)
+            self.sizer.setPos(w, h)
+            self.wmin = w
+
+        if limit:
+            self.sizer.setPos(w, h)
+            return
+
+        # if self.hmin < factor_h * len(self.in_plugs):
+        #     self.hmin = factor_h * len(self.in_plugs)
+        #     self.updateSize(w, self.hmin)
+        # if self.hmin < factor_h * len(self.out_plugs):
+        #     self.hmin = factor_h * len(self.out_plugs)
+        #     self.updateSize(w, self.hmin)
+
+    def updateSize(self, w, h):
+        # print("wmin =",self.wmin,", w=",w)
+        if w<self.wmin:
+            w=self.wmin
+        margin = 20
+        factor_h = 35.0
+        h = factor_h * len(self.in_plugs)+margin
+        self.hmin=h
+
+        if h < factor_h * len(self.out_plugs):
+            h = factor_h * len(self.out_plugs) + margin
+            self.hmin = h
+        self.sizer.hmin = h
+        self.changeSize(w, h + margin)
+        self.sizer.setPos(w, h + margin)
 
     def _colored_text_item(self, label, text=None, margin=2):
         labelc = self._get_label(label, False)
@@ -378,7 +541,17 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_name.setHtml(param_text)
 
             plug_name = '%s:%s' % (self.name, in_param)
-            plug = Plug(plug_name,
+
+            trait_type_str = str(self.process.user_traits()[in_param].trait_type)
+            trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
+            trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
+            try:
+                #                 color = self.colorLink(trait_type_str)
+                color = self.colType.colorLink(trait_type_str)
+            except:
+                color = ORANGE_2
+
+            plug = Plug(color, plug_name,
                         param_name.boundingRect().size().height(),
                         plug_width, activated=pipeline_plug.activated,
                         optional=pipeline_plug.optional, parent=self)
@@ -405,7 +578,18 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 param_name.setHtml(param_text)
 
             plug_name = '%s:%s' % (self.name, out_param)
-            plug = Plug(plug_name,
+
+            trait_type_str = str(self.process.user_traits()[in_param].trait_type)
+            trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
+            trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
+            try:
+                #                 color = self.colorLink(trait_type_str)
+                color = self.colType.colorLink(trait_type_str)
+
+            except:
+                color = ORANGE_2
+
+            plug = Plug(color, plug_name,
                         param_name.boundingRect().size().height(),
                         plug_width, activated=pipeline_plug.activated,
                         optional=pipeline_plug.optional, parent=self)
@@ -447,7 +631,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_name = QtGui.QGraphicsTextItem(self)
             param_name.setHtml('')
             plug_name = '%s:inputs' % self.name
-            plug = Plug(plug_name,
+
+            color = QtCore.Qt.black
+
+            plug = Plug(color, plug_name,
                         param_name.boundingRect().size().height(),
                         plug_width, activated=True,
                         optional=False, parent=self)
@@ -463,7 +650,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_name = QtGui.QGraphicsTextItem(self)
             param_name.setHtml('')
             plug_name = '%s:outputs' % self.name
-            plug = Plug(plug_name,
+
+            color = QtCore.Qt.black
+
+            plug = Plug(color, plug_name,
                         param_name.boundingRect().size().height(),
                         plug_width, activated=True,
                         optional=False, parent=self)
@@ -515,6 +705,22 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.out_params = {}
         self.out_plugs = {}
 
+    def updateInfoActived(self, state):
+        if state:
+            self.infoActived.setPlainText('')
+        else:
+            self.infoActived.setPlainText('disabled')
+
+    def fonced_viewer(self, det):
+        if det:
+            #             color=QtGui.QColor(150, 150, 250)
+            self.setOpacity(0.2)
+        else:
+            #             color=self.color
+            self.setOpacity(1)
+
+    #         self._set_pen(self.active, self.weak, color)
+
     def _set_brush(self):
         pipeline = self.pipeline
         if self.name in ('inputs', 'outputs'):
@@ -526,24 +732,31 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.style = style
         color_1 = QtGui.QColor.fromRgbF(*color_1)
         color_2 = QtGui.QColor.fromRgbF(*color_2)
+        #         color_1 = ANTHRACITE_1
+        #         color_2 = LIGHT_ANTHRACITE_1
         gradient = QtGui.QLinearGradient(0, 0, 0, 50)
         gradient.setColorAt(0, color_1)
         gradient.setColorAt(1, color_2)
         self.bg_brush = QtGui.QBrush(gradient)
 
         if node.activated:
-            color_1 = GRAY_1
-            color_2 = GRAY_2
+            #             color_1 = GRAY_1
+            #             color_2 = GRAY_2
+            self.updateInfoActived(True)
+
         else:
-            color_1 = LIGHT_GRAY_1
-            color_2 = LIGHT_GRAY_2
+            #             color_1 = LIGHT_GRAY_1
+            #             color_2 = LIGHT_GRAY_2
+            self.updateInfoActived(False)
+
         if node in pipeline.disabled_pipeline_steps_nodes():
             color_1 = self._color_disabled(color_1)
             color_2 = self._color_disabled(color_2)
-        gradient = QtGui.QLinearGradient(0, 0, 0, 50)
-        gradient.setColorAt(1, color_1)
-        gradient.setColorAt(0, color_2)
-        self.title_brush = QtGui.QBrush(gradient)
+
+        gradient = QtGui.QLinearGradient(0, 2, 5, 100)
+        gradient.setColorAt(1, GRAY_1)
+        gradient.setColorAt(0, GRAY_2)
+        self.title_brush = QtGui.QBrush(LIGHT_GRAY_2)
 
     def _color_disabled(self, color):
         target = [220, 240, 220]
@@ -565,14 +778,17 @@ class NodeGWidget(QtGui.QGraphicsItem):
         param_text = self._parameter_text(param_name)
         if self.name == 'inputs' and not self.logical_view \
                 and 'select: ' + param_name in \
-                    [l.text for l in self.scene_labels]:
+                [l.text for l in self.scene_labels]:
             param_name_item = self._colored_text_item('select: ' + param_name,
                                                       param_text, 0)
         else:
             param_name_item = QtGui.QGraphicsTextItem(self)
             param_name_item.setHtml(param_text)
         plug_name = '%s:%s' % (self.name, param_name)
-        plug = Plug(plug_name,
+
+        color = QtCore.Qt.black
+
+        plug = Plug(color, plug_name,
                     param_name_item.boundingRect().size().height(),
                     plug_width, activated=pipeline_plug.activated,
                     optional=pipeline_plug.optional, parent=self)
@@ -584,7 +800,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             # FIXME: sub-pipeline size
             xpos = plug.boundingRect().size().width() + margin
             pxpos = plug.boundingRect().size().width() + margin * 2 \
-                + param_name_item.boundingRect().size().width()
+                    + param_name_item.boundingRect().size().width()
         else:
             plugs = self.in_plugs
             params = self.in_params
@@ -595,9 +811,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
             params_size = 0
             if output:
                 pxpos = self.title.boundingRect().width() \
-                    - plug.boundingRect().width()
+                        - plug.boundingRect().width()
         pos = margin * 2 + self.title.boundingRect().size().height() \
-            + param_name_item.boundingRect().size().height() * params_size
+              + param_name_item.boundingRect().size().height() * params_size
         param_name_item.setPos(xpos, pos)
         plug.setPos(pxpos, pos)
         param_name_item.setParentItem(self)
@@ -606,6 +822,11 @@ class NodeGWidget(QtGui.QGraphicsItem):
         params[param_name] = param_name_item
         if output:
             self._shift_params()
+
+        self.updateSize(self.box.boundingRect().size().width(), self.box.boundingRect().size().height())
+        self.sizer.setPos(self.box.boundingRect().size().width(), self.box.boundingRect().size().height())
+
+    #         self.hmin=self.box.boundingRect().size().height()
 
     def _shift_params(self):
         margin = 5
@@ -642,7 +863,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
                     else:
                         continue
                 pos = margin * 2 + self.title.boundingRect().size().height() \
-                    + param_item.boundingRect().size().height() * npos
+                      + param_item.boundingRect().size().height() * npos
                 new_param_item = params.get(param_name)
                 if new_param_item is None:
                     continue
@@ -659,7 +880,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             else:
                 nparams = len(self.in_params) + len(self.out_params)
             pos = margin * 2 + self.title.boundingRect().size().height() \
-                + param_item.boundingRect().size().height() * nparams
+                  + param_item.boundingRect().size().height() * nparams
         else:
             pos = margin * 2 + self.title.boundingRect().size().height()
         for label_item in self.label_items:
@@ -686,13 +907,13 @@ class NodeGWidget(QtGui.QGraphicsItem):
         if self.logical_view:
             return ''
         pipeline_plug = self.parameters[param_name]
-        #output = (not pipeline_plug.output if self.name in (
-            #'inputs', 'outputs') else pipeline_plug.output)
+        # output = (not pipeline_plug.output if self.name in (
+        # 'inputs', 'outputs') else pipeline_plug.output)
         output = pipeline_plug.output
         if output:
-            param_text = '<font color="#400000">%s</font>' % param_name
+            param_text = '<font color="#400000"><b>%s</b></font>' % param_name
         else:
-            param_text = param_name
+            param_text = '<font color="#111111"><b>%s</b></font>' % param_name
         try:
             value = getattr(self.process, param_name)
         except traits.TraitError:
@@ -702,7 +923,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         else:
             trait = self.process.user_traits()[param_name]
             if (isinstance(trait.trait_type, traits.File) \
-                    or isinstance(trait.trait_type, traits.Directory)) \
+                or isinstance(trait.trait_type, traits.Directory)) \
                     and os.path.exists(value):
                 param_text = '<b>%s</b>' % param_text
         return param_text
@@ -725,17 +946,30 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 if self.logical_view:
                     param = 'inputs'
             gplug = plugs.get(param)
-            if gplug is None: # new parameter ?
+            if gplug is None:  # new parameter ?
                 self._create_parameter(param, pipeline_plug)
                 gplug = plugs.get(param)
             if not self.logical_view:
-                gplug.update_plug(pipeline_plug.activated,
-                                  pipeline_plug.optional)
+                #                 gplug.update_plug(pipeline_plug.activated,
+                #                                   pipeline_plug.optional)
+
+                trait_type_str = str(self.process.user_traits()[param].trait_type)
+                trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
+                trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
+                try:
+                    #                     color = self.colorLink(trait_type_str)
+                    color = self.colType.colorLink(trait_type_str)
+
+                except:
+                    color = ORANGE_2
+
+                gplug.update_plug(color)
+
                 if isinstance(params[param], QtGui.QGraphicsProxyWidget):
                     # colored parameters are widgets
                     params[param].widget().findChild(
                         QtGui.QLabel, 'label').setText(
-                            self._parameter_text(param))
+                        self._parameter_text(param))
                 else:
                     params[param].setHtml(self._parameter_text(param))
 
@@ -751,7 +985,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
                     if pipeline_plug.optional and not self.show_opt_outputs:
                         to_remove.append(param)
                 else:
-                    if pipeline_plug.optional and not self.show_opt_inputs:
+                    if pipeline_plug.optional and not self.show_opt_inputs :
                         to_remove.append(param)
 
             for param in self.in_params:
@@ -765,13 +999,15 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
         self._shift_params()
 
-        rect = self.title.mapRectToParent(self.title.boundingRect())
-        margin = 5
-        brect = self.boundingRect()
-        brect.setWidth(brect.right() - margin)
-        rect.setWidth(brect.width())
-        self.box_title.setRect(rect)
-        self.box.setRect(self.boundingRect())
+        #         rect = self.title.mapRectToParent(self.title.boundingRect())
+        #         margin = 5
+        #         brect = self.boundingRect()
+        #         brect.setWidth(brect.right() - margin)
+        #         rect.setWidth(brect.width())
+        #         self.box_title.setRect(rect)
+        #         self.box.setRect(self.boundingRect())
+
+        self.updateSize(self.box.boundingRect().size().width(), self.box.boundingRect().size().height())
 
     def contentsRect(self):
         brect = QtCore.QRectF(0, 0, 0, 0)
@@ -834,15 +1070,16 @@ class NodeGWidget(QtGui.QGraphicsItem):
         param_width = self.in_params_width()
         pos = margin * 2 + self.title.boundingRect().size().height()
         opos = param_width \
-            + self.embedded_subpipeline.boundingRect().width() # + margin ?
+               + self.embedded_subpipeline.boundingRect().width()  # + margin ?
         for name, param in six.iteritems(self.out_params):
             param.setPos(opos, param.pos().y())
             plug = self.out_plugs[name]
             plug.setPos(opos + margin + param.boundingRect().size().width(),
-                plug.pos().y())
-        rect = self.box_title.boundingRect()
+                        plug.pos().y())
+        #         rect = self.box_title.boundingRect()
+        rect = self.box.boundingRect()
         rect.setWidth(self.contentsRect().width())
-        self.box_title.setRect(rect)
+        #         self.box_title.setRect(rect)
         self.box.setRect(self.boundingRect())
 
     def resize_subpipeline_on_hide(self):
@@ -851,10 +1088,11 @@ class NodeGWidget(QtGui.QGraphicsItem):
             plug = self.out_plugs[name]
             param.setPos(plug.boundingRect().width() + margin, param.pos().y())
             plug.setPos(plug.boundingRect().size().width() + margin +
-                param.boundingRect().size().width() + margin, plug.pos().y())
-        rect = self.box_title.boundingRect()
+                        param.boundingRect().size().width() + margin, plug.pos().y())
+        #         rect = self.box_title.boundingRect()
+        rect = self.box.boundingRect()
         rect.setWidth(self.contentsRect().width())
-        self.box_title.setRect(rect)
+        #         self.box_title.setRect(rect)
         self.box.setRect(self.boundingRect())
 
     def in_params_width(self):
@@ -890,9 +1128,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 self.resize_subpipeline_on_show()
         else:
             sub_view = PipelineDevelopperView(sub_pipeline,
-                show_sub_pipelines=True,
-                allow_open_controller=allow_open_controller,
-                enable_edition=self.scene().edition_enabled())
+                                              show_sub_pipelines=True,
+                                              allow_open_controller=allow_open_controller,
+                                              enable_edition=self.scene().edition_enabled())
             if scale is not None:
                 sub_view.scale(scale, scale)
             pwid = EmbeddedSubPipelineItem(sub_view)
@@ -921,13 +1159,13 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
     def mousePressEvent(self, event):
         item = self.scene().itemAt(event.scenePos(), Qt.QTransform())
-        #print('NodeGWidget click, item:', item)
+        # print('NodeGWidget click, item:', item)
         if isinstance(item, Plug):
             item.mousePressEvent(event)
             return
         super(NodeGWidget, self).mousePressEvent(event)
         if isinstance(self.process, weakref.ProxyTypes):
-            process = self.process.__init__.__self__ # get the "real" object
+            process = self.process.__init__.__self__  # get the "real" object
         else:
             process = self.process
         if event.button() == QtCore.Qt.RightButton and process is not None:
@@ -938,64 +1176,172 @@ class NodeGWidget(QtGui.QGraphicsItem):
             if isinstance(process, Process):
                 self.scene().process_clicked.emit(self.name, process)
             else:
-                print('emit Node')
                 self.scene().node_clicked.emit(self.name, process)
+
+        if event.button() == QtCore.Qt.LeftButton and event.modifiers() == QtCore.Qt.ControlModifier:
+            self.scene().node_clicked_ctrl.emit(self.name, process)
+            self.scene().clearSelection()
+            self.box.setSelected(True)
+            return QtGui.QGraphicsItem.mousePressEvent(self, event)
             event.accept()
+
+    def keyPressEvent(self, event):
+
+        super(NodeGWidget, self).keyPressEvent(event)
+
+        if event.key() == QtCore.Qt.Key_Up:
+            self.setPos(self.x(), self.y() - 1)
+        if event.key() == QtCore.Qt.Key_Down:
+            self.setPos(self.x(), self.y() + 1)
+        if event.key() == QtCore.Qt.Key_Left:
+            self.setPos(self.x() - 1, self.y())
+        if event.key() == QtCore.Qt.Key_Right:
+            self.setPos(self.x() + 1, self.y())
+
+        return QtGui.QGraphicsItem.keyPressEvent(self, event)
+        event.accept()
+
+
+class HandleItem(QtGui.QGraphicsRectItem):
+    """ A handle that can be moved by the mouse """
+
+    def __init__(self, parent=None):
+        super(HandleItem, self).__init__(Qt.QRectF(-10.0, -10.0, 10.0, 10.0), parent)
+        #         self.setRect(Qt.QRectF(-4.0,-4.0,4.0,4.0))
+        self.posChangeCallbacks = []
+        self.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+        self.setBrush(QtGui.QBrush(QtCore.Qt.yellow))
+        self.setFlag(self.ItemIsMovable, True)
+        self.setFlag(self.ItemSendsScenePositionChanges, True)
+        self.setCursor(QtGui.QCursor(QtCore.Qt.SizeFDiagCursor))
+        self.wmin = 0.0
+        self.hmin = 0.0
+        self.hmax = 0.0
+
+        self.effectiveOpacity()
+        self.setOpacity(0.01)
+
+    def itemChange(self, change, value):
+        if change == self.ItemPositionChange:
+            self.x, self.y = value.x(), value.y()
+            if self.x < self.wmin:
+                self.x = self.wmin
+            if self.y < self.hmin:
+                self.y = self.hmin
+            # TODO: make this a signal?
+            # This cannot be a signal because this is not a QObject
+            for cb in self.posChangeCallbacks:
+                res = cb(self.x, self.y)
+
+                if res:
+                    self.x, self.y = res
+                    if self.x < self.wmin:
+                        self.x = self.wmin
+                    if self.y < self.hmin:
+                        self.y = self.hmin
+
+                    value = QtCore.QPointF(self.x, self.y)
+            #                     value = Qt.QPointF(x, y)      #### ??
+            self.hmax = value.y()
+            return value
+        # Call superclass method:
+
+        return super(HandleItem, self).itemChange(change, value)
+
+    def mouseReleaseEvent(self, mouseEvent):
+        self.setSelected(False)
+        self.setPos(self.x, self.y)
+        return QtGui.QGraphicsRectItem.mouseReleaseEvent(self, mouseEvent)
 
 
 class Link(QtGui.QGraphicsPathItem):
 
-    def __init__(self, origin, target, active, weak, parent=None):
+    def __init__(self, origin, target, active, weak, color, parent=None):
         super(Link, self).__init__(parent)
-        self._set_pen(active, weak)
+
+        self._set_pen(active, weak, color)
+
+        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, False)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, True)
 
         path = QtGui.QPainterPath()
         path.moveTo(origin.x(), origin.y())
-        path.cubicTo(origin.x() + 100, origin.y(),
-                     target.x() - 100, target.y(),
-                     target.x(), target.y())
+        path.cubicTo(origin.x() + 90, origin.y(),
+                     target.x() - 90, target.y(),
+                     target.x() - 5, target.y())
         self.setPath(path)
         self.setZValue(0.5)
         self.active = active
         self.weak = weak
+        self.color = color
+        self.effectiveOpacity()
 
-    def _set_pen(self, active, weak):
-        pen = QtGui.QPen()
-        pen.setWidth(2)
+    def _set_pen(self, active, weak, color):
+        self.pen = QtGui.QPen()
+        self.pen.setWidth(3)
+
         if active:
-            pen.setBrush(RED_2)
+            self.pen.setBrush(color)
         else:
-            pen.setBrush(QtCore.Qt.gray)
+            self.pen.setBrush(QtCore.Qt.gray)
         if weak:
-            pen.setStyle(QtCore.Qt.DashLine)
-        pen.setCapStyle(QtCore.Qt.RoundCap)
-        pen.setJoinStyle(QtCore.Qt.RoundJoin)
-        self.setPen(pen)
+            self.pen.setStyle(QtCore.Qt.DashLine)
+        self.pen.setCapStyle(QtCore.Qt.RoundCap)
+        self.pen.setJoinStyle(QtCore.Qt.RoundJoin)
+        self.setPen(self.pen)
 
     def update(self, origin, target):
         path = QtGui.QPainterPath()
         path.moveTo(origin.x(), origin.y())
-        path.cubicTo(origin.x() + 100, origin.y(),
-                     target.x() - 100, target.y(),
-                     target.x(), target.y())
+        path.cubicTo(origin.x() + 90, origin.y(),
+                     target.x() - 90, target.y(),
+                     target.x() - 5, target.y())
 
         self.setPath(path)
 
-    def update_activation(self, active, weak):
-        self._set_pen(active, weak)
+    def update_activation(self, active, weak, color):
+        if color == 'current':
+            color = self.color
+        self._set_pen(active, weak, color)
         self.active = active
         self.weak = weak
 
+    def fonced_viewer(self, det):
+        if det:
+            #             color=QtGui.QColor(150, 150, 250)
+            self.setOpacity(0.2)
+        else:
+            #             color=self.color
+            self.setOpacity(1)
+
+    #         self._set_pen(self.active, self.weak, color)
+
     def mousePressEvent(self, event):
         item = self.scene().itemAt(event.scenePos(), Qt.QTransform())
-        #print('Link click, item:', item)
+        # print('Link click, item:', item)
         if event.button() == QtCore.Qt.RightButton:
             # not a signal since we don't jhave enough identity information in
             # self: the scene has to help us.
             self.scene()._link_right_clicked(self)
-            event.accept()
         else:
             super(Link, self).mousePressEvent(event)
+        event.accept()
+
+    def focusInEvent(self, event):
+        self.setPen(QtGui.QPen(QtGui.QColor(150, 150, 250), 3, QtCore.Qt.DashDotDotLine))
+        return QtGui.QGraphicsPathItem.focusInEvent(self, event)
+
+    def focusOutEvent(self, event):
+        self.setPen(self.pen)
+        return QtGui.QGraphicsPathItem.focusOutEvent(self, event)
+
+    def keyPressEvent(self, event):
+
+        if event.key() == QtCore.Qt.Key_Delete:
+            self.scene()._link_keydelete_clicked(self)
+            event.accept()
+        else:
+            super(Link, self).keyPressEvent(event)
 
 
 class PipelineScene(QtGui.QGraphicsScene):
@@ -1005,6 +1351,10 @@ class PipelineScene(QtGui.QGraphicsScene):
     # Signal emitted when a node box is clicked
     process_clicked = QtCore.Signal(str, Process)
     node_clicked = QtCore.Signal(str, Node)
+    # Signal emitted when a node box is clicked with ctrl
+    node_clicked_ctrl = QtCore.Signal(str, Process)
+    # Signal emitted when a switch box is clicked
+    switch_clicked = QtCore.Signal(str, Switch)
     # Signal emitted when a node box is right-clicked
     node_right_clicked = QtCore.Signal(str, Controller)
     # Signal emitted when a plug is clicked
@@ -1014,8 +1364,13 @@ class PipelineScene(QtGui.QGraphicsScene):
     # Signal emitted when a link is right-clicked
     link_right_clicked = QtCore.Signal(str, str, str, str)
 
+    link_keydelete_clicked = QtCore.Signal(str, str, str, str)
+
+    node_keydelete_clicked = QtCore.Signal(str)
+
     def __init__(self, parent=None):
         super(PipelineScene, self).__init__(parent)
+
         self.gnodes = {}
         self.glinks = {}
         self._pos = 50
@@ -1025,19 +1380,28 @@ class PipelineScene(QtGui.QGraphicsScene):
         self._enable_edition = False
         self.labels = []
 
+        #         pen = QtGui.QPen(QtGui.QColor(250,100,0),2)
+        #         self.l = QtCore.QLineF(-10,0,10,0)
+        #         self.addLine(self.l,pen)
+        #         self.l = QtCore.QLineF(0,-10,0,10)
+        #         self.addLine(self.l,pen)
+
+        self.colType = ColorType()
+
         self.changed.connect(self.update_paths)
 
     def _add_node(self, name, gnode):
         self.addItem(gnode)
         pos = self.pos.get(name)
         if pos is None:
-            gnode.setPos(self._pos, self._pos)
+            gnode.setPos(2 * self._pos, self._pos)
             self._pos += 100
         else:
             if not isinstance(pos, Qt.QPointF):
                 pos = Qt.QPointF(pos[0], pos[1])
             gnode.setPos(pos)
         self.gnodes[name] = gnode
+        gnode.update_node()
 
     def add_node(self, node_name, node):
         if not isinstance(node, ProcessNode):
@@ -1056,9 +1420,11 @@ class PipelineScene(QtGui.QGraphicsScene):
             colored_parameters=self.colored_parameters,
             logical_view=self.logical_view, labels=self.labels)
         self._add_node(node_name, gnode)
+        gnode.update_node()
         return gnode
 
     def add_link(self, source, dest, active, weak):
+        #         print("add link ", source, dest)
         source_gnode_name, source_param = source
         if not source_gnode_name:
             source_gnode_name = 'inputs'
@@ -1068,8 +1434,17 @@ class PipelineScene(QtGui.QGraphicsScene):
         if self.logical_view:
             source_param = 'outputs'
             dest_param = 'inputs'
+        try:
+            typeq = self.typeLink(source_gnode_name, source_param)
+            #             color = self.colorLink(typeq)
+            color = self.colType.colorLink(typeq)
+
+        except:
+            color = ORANGE_2
+        #         verif=((str(dest_gnode_name), str(dest_param)))
+        #         print(str(verif) in str(self.glinks.keys()))
         source_dest = ((str(source_gnode_name), str(source_param)),
-            (str(dest_gnode_name), str(dest_param)))
+                       (str(dest_gnode_name), str(dest_param)))
         if source_dest in self.glinks:
             # already done
             if self.logical_view:
@@ -1080,10 +1455,11 @@ class PipelineScene(QtGui.QGraphicsScene):
                 if not weak or not glink.weak:
                     weak = False
                 if glink.weak != weak or glink.active != active:
-                    glink.update_activation(active, weak)
-            return # already done
+                    glink.update_activation(active, weak, "current")
+            return  # already done
         source_gnode = self.gnodes[source_gnode_name]
         dest_gnode = self.gnodes.get(dest_gnode_name)
+
         if dest_gnode is not None:
             if dest_param in dest_gnode.in_plugs:
                 glink = Link(
@@ -1091,7 +1467,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                         source_gnode.out_plugs[source_param].get_plug_point()),
                     dest_gnode.mapToScene(
                         dest_gnode.in_plugs[dest_param].get_plug_point()),
-                    active, weak)
+                    active, weak, color)
                 self.glinks[source_dest] = glink
                 self.addItem(glink)
 
@@ -1133,7 +1509,9 @@ class PipelineScene(QtGui.QGraphicsScene):
                     dest_gnode.in_plugs[dest_param].get_plug_point()))
 
     def set_pipeline(self, pipeline):
+
         self.pipeline = pipeline
+
         self.labels = []
         pipeline_inputs = SortedDictionary()
         pipeline_outputs = SortedDictionary()
@@ -1144,7 +1522,8 @@ class PipelineScene(QtGui.QGraphicsScene):
                 pipeline_inputs[name] = plug
         if pipeline_inputs:
             self._add_node(
-                'inputs', NodeGWidget('inputs', pipeline_inputs, pipeline,
+                'inputs', NodeGWidget(
+                    'inputs', pipeline_inputs, pipeline,
                     process=pipeline,
                     colored_parameters=self.colored_parameters,
                     logical_view=self.logical_view))
@@ -1170,7 +1549,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                             (source_node_name, source_parameter),
                             (dest_node_name, dest_parameter),
                             active=source_plug.activated \
-                                and dest_plug.activated,
+                                   and dest_plug.activated,
                             weak=weak_link)
 
     def update_pipeline(self):
@@ -1183,6 +1562,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         # normal view
         pipeline = self.pipeline
         removed_nodes = []
+        #         print(self.gnodes)
         for node_name, gnode in six.iteritems(self.gnodes):
             if gnode.logical_view:
                 gnode.clear_plugs()
@@ -1279,7 +1659,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             else:
                 active = source_plug.activated and dest_plug.activated
                 weak = [x[4] for x in source_plug.links_to \
-                    if x[:2] == (dest_node_name, dest_param)]
+                        if x[:2] == (dest_node_name, dest_param)]
                 if len(weak) == 0:
                     # link removed
                     remove_glink = True
@@ -1288,7 +1668,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             if remove_glink:
                 to_remove.append(source_dest)
             else:
-                glink.update_activation(active, weak)
+                glink.update_activation(active, weak, "current")
         for source_dest in to_remove:
             self._remove_link(source_dest)
         # check added links
@@ -1302,7 +1682,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                             (source_node_name, source_parameter),
                             (dest_node_name, dest_parameter),
                             active=source_plug.activated \
-                                and dest_plug.activated,
+                                   and dest_plug.activated,
                             weak=weak_link)
         self._update_steps()
 
@@ -1399,7 +1779,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                             (source_node_name, source_parameter),
                             (dest_node_name, dest_parameter),
                             active=source_plug.activated \
-                                and dest_plug.activated,
+                                   and dest_plug.activated,
                             weak=weak_link)
         self._update_steps()
 
@@ -1418,6 +1798,9 @@ class PipelineScene(QtGui.QGraphicsScene):
                 pview = self.parent()
                 pview.print_node_positions()
             elif event.key() == QtCore.Qt.Key_T:
+                for item in self.items():
+                    if isinstance(item, boxItem):
+                        item.focusOutEvent(Qt.QFocusEvent(Qt.QEvent.FocusOut))
                 # toggle logical / full view
                 pview = self.parent()
                 pview.switch_logical_view()
@@ -1426,6 +1809,11 @@ class PipelineScene(QtGui.QGraphicsScene):
                 # auto-set nodes positions
                 pview = self.parent()
                 pview.auto_dot_node_positions()
+
+        #             elif Qt.QKeySequence(event.key()+int(event.modifiers())) == Qt.QKeySequence("Ctrl+Z"):
+        #                 self.undoTyping_clicked.emit()
+
+        return QtGui.QGraphicsScene.keyPressEvent(self, event)
 
     def link_tooltip_text(self, source_dest):
         '''Tooltip text for the fiven link
@@ -1451,7 +1839,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             dest_node_name = ''
         splug = source_node.plugs[source_dest[0][1]]
         link = [l for l in splug.links_to \
-            if l[0] == dest_node_name and l[1] == source_dest[1][1]][0]
+                if l[0] == dest_node_name and l[1] == source_dest[1][1]][0]
         if splug.activated and link[3].activated:
             active = '<font color="#ffa000">activated</font>'
         else:
@@ -1462,7 +1850,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             weak = '<b>strong</b>'
         name = source_dest[0][1]
         value = getattr(proc, name)
-        #trait = proc.user_traits()[name]
+        # trait = proc.user_traits()[name]
         trait_type = proc.user_traits()[name].trait_type
         trait_type_str = str(trait_type)
         trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
@@ -1487,7 +1875,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     <td>%s</td>
   </tr>
 ''' \
-            % (source_dest[0][1], active, weak, typestr, str(value))
+              % (source_dest[0][1], active, weak, typestr, str(value))
         if isinstance(trait_type, traits.File) \
                 or isinstance(trait_type, traits.Directory) \
                 or isinstance(trait_type, traits.Any):
@@ -1498,7 +1886,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     </tr>
 '''
             elif not isinstance(trait_type, traits.Any):
-                msg +=  '''    <tr>
+                msg += '''    <tr>
       <td></td>
       <td><font color="#a0a0a0">non-existing path</font></td>
     </tr>
@@ -1576,7 +1964,7 @@ class PipelineScene(QtGui.QGraphicsScene):
       <td>%s</td>
     </tr>
 ''' \
-            % (name, output, optional, enabled, activated, typestr, str(value))
+              % (name, output, optional, enabled, activated, typestr, str(value))
         if isinstance(trait_type, traits.File) \
                 or isinstance(trait_type, traits.Directory) \
                 or isinstance(trait_type, traits.Any):
@@ -1587,7 +1975,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     </tr>
 '''
             elif not isinstance(trait_type, traits.Any):
-                msg +=  '''    <tr>
+                msg += '''    <tr>
       <td></td>
       <td><font color="#a0a0a0">non-existing path</font></td>
     </tr>
@@ -1599,13 +1987,11 @@ class PipelineScene(QtGui.QGraphicsScene):
             msg += self.html_doc(desc)
         return msg
 
-
     def node_tooltip_text(self, node):
         process = node.process
         msg = getattr(process, '__doc__', '')
-        #msg = self.html_doc(doc)
+        # msg = self.html_doc(doc)
         return msg
-
 
     def _parentgnode(self, item):
         if qt_backend.get_qt_backend() != 'PyQt5':
@@ -1642,10 +2028,10 @@ class PipelineScene(QtGui.QGraphicsScene):
                     found = True
                     break
             if not found:
-              for name, plug in six.iteritems(node.out_plugs):
-                  if plug is item:
-                      found = True
-                      break
+                for name, plug in six.iteritems(node.out_plugs):
+                    if plug is item:
+                        found = True
+                        break
             if found:
                 text = self.plug_tooltip_text(node, name)
                 item.setToolTip(text)
@@ -1681,7 +2067,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 
     def _link_right_clicked(self, link):
         # find the link in list
-        #print('Scene._link_right_clicked:', link)
+        # print('Scene._link_right_clicked:', link)
         for source_dest, glink in six.iteritems(self.glinks):
             if glink is link:
                 self.link_right_clicked.emit(
@@ -1689,8 +2075,40 @@ class PipelineScene(QtGui.QGraphicsScene):
                     source_dest[1][0], source_dest[1][1])
                 break
 
+    def _link_keydelete_clicked(self, link):
+        for source_dest, glink in six.iteritems(self.glinks):
+            if glink is link:
+                self.link_keydelete_clicked.emit(
+                    source_dest[0][0], source_dest[0][1],
+                    source_dest[1][0], source_dest[1][1])
+                break
 
-class PipelineDevelopperView(QtGui.QGraphicsView):
+    def _node_keydelete_clicked(self, node):
+        self.node_keydelete_clicked.emit(node.name)
+
+    def typeLink(self, name_node, name_plug):
+
+        if name_node in ('inputs', 'outputs'):
+            proc = self.pipeline
+            splug = self.pipeline.pipeline_node.plugs[name_plug]
+        else:
+            src = self.pipeline.nodes[name_node]
+            splug = src.plugs[name_plug]
+            proc = src
+            if hasattr(src, 'process'):
+                proc = src.process
+
+        value = getattr(proc, name_plug)
+
+        trait = proc.user_traits()[name_plug]
+        trait_type = trait.trait_type
+        trait_type_str = str(trait_type)
+        trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
+        trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
+        return trait_type_str
+
+
+class PipelineDevelopperView(QGraphicsView):
     '''
     Pipeline representation as a graph, using boxes and arrows.
 
@@ -1709,6 +2127,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     node_right_clicked
     process_clicked
     node_clicked
+    node_clicked_ctrl
     plug_clicked
     plug_right_clicked
     link_right_clicked
@@ -1748,6 +2167,10 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     process_clicked = QtCore.Signal(str, Process)
     node_clicked = QtCore.Signal(str, Node)
     '''Signal emitted when a node box has to be open.'''
+    node_clicked_ctrl = QtCore.Signal(str, Process)
+    '''Signal emitted when a node box has to be in the foreground.'''
+    switch_clicked = QtCore.Signal(str, Switch)
+    '''Signal emitted when a switch box has to be open.'''
     node_right_clicked = QtCore.Signal(str, Controller)
     '''Signal emitted when a node box is right-clicked'''
     plug_clicked = QtCore.Signal(str)
@@ -1756,6 +2179,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     '''Signal emitted when a plug is right-clicked'''
     link_right_clicked = QtCore.Signal(str, str, str, str)
     '''Signal emitted when a link is right-clicked'''
+    edit_sub_pipeline = QtCore.Signal(Pipeline)
+    '''Signal emitted when a sub-pipeline has to be edited'''
+    open_filter = QtCore.Signal(str)
+    '''Signal emitted when an Input Filter has to be opened'''
+    export_to_db_scans = QtCore.Signal(str)
+    '''Signal emitted when an Input Filter has to be linked to database_scans'''
+    link_keydelete_clicked = QtCore.Signal(str, str, str, str)
+    node_keydelete_clicked = QtCore.Signal(str)
+
     scene = None
     '''
     type: PipelineScene
@@ -1796,7 +2228,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self.compl = QtGui.QCompleter([])
             self.setCompleter(self.compl)
             self.textEdited.connect(self.on_text_edited)
-            self.py_cache = {} # cache for loaded python files
+            self.py_cache = {}  # cache for loaded python files
             self.class_type_check = class_type_check
 
         @staticmethod
@@ -1804,7 +2236,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             # This chunk of code cannot be put inline in python 2.6
             glob_dict = {}
             exec(compile(open(filename, "rb").read(), filename, 'exec'),
-                  glob_dict, glob_dict)
+                 glob_dict, glob_dict)
             return glob_dict
 
         def load_py(self, filename):
@@ -1812,7 +2244,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 try:
                     self.py_cache[filename] \
                         = PipelineDevelopperView.ProcessNameEdit._execfile(
-                            filename)
+                        filename)
                 except Exception as e:
                     print('exception while executing file %s:' % filename, e)
                     return {}
@@ -1845,9 +2277,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                         paths = [os.path.dirname(mod.__file__)]
                     # add process/pipeline objects in current_mod
                     procs = [item for k, item
-                                in six.iteritems(mod.__dict__)
+                             in six.iteritems(mod.__dict__)
                              if self.class_type_check(item)
-                                or inspect.ismodule(item)]
+                             or inspect.ismodule(item)]
                     compl.update(['.'.join([current_mod, c.__name__])
                                   for c in procs])
             if not mod:
@@ -1871,8 +2303,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                         # look for matching xml files
                         for f in os.listdir(pathname):
                             if (f.endswith('.xml')
-                                    or os.path.isdir(os.path.join(pathname,
-                                                                  f))) \
+                                or os.path.isdir(os.path.join(pathname,
+                                                              f))) \
                                     and f.startswith(filename):
                                 compl.add(os.path.join(pathname, f))
                             elif f.endswith('.py'):
@@ -1892,7 +2324,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                             sel.add(f)
                         elif '.' not in f \
                                 and os.path.isdir(os.path.join(
-                                    path, f)):
+                            path, f)):
                             sel.add(f)
                 except OSError:
                     pass
@@ -1901,13 +2333,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             if current_mod is not None:
                 cm = [current_mod]
             compl.update(['.'.join(cm + [f]) for f in sel \
-                if f.startswith(modpath[-1])])
+                          if f.startswith(modpath[-1])])
             model = self.compl.model()
             model.setStringList(list(compl))
 
     def __init__(self, pipeline=None, parent=None, show_sub_pipelines=False,
-            allow_open_controller=False, logical_view=False,
-            enable_edition=False):
+                 allow_open_controller=False, logical_view=False,
+                 enable_edition=False):
         '''PipelineDevelopperView
 
         Parameters
@@ -1934,13 +2366,22 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             adding process boxes, drawing links etc. If pipeline is not
             specified, then edition will be activated anyway.
         '''
+
         super(PipelineDevelopperView, self).__init__(parent)
+
+        # self.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+        self.setAlignment(QtCore.Qt.AlignCenter)
+        self.centerOn(0,0)
+
+        self.setRenderHints(Qt.QPainter.Antialiasing | Qt.QPainter.SmoothPixmapTransform)
+        self.setBackgroundBrush(QtGui.QColor(60, 60, 60))
         self.scene = None
         self.colored_parameters = True
         self._show_sub_pipelines = show_sub_pipelines
         self._allow_open_controller = allow_open_controller
         self._logical_view = logical_view
         self._enable_edition = enable_edition
+        self._pipeline_filename = ""
 
         if pipeline is None:
             pipeline = Pipeline()
@@ -1956,7 +2397,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 pipeline.node_position["inputs"] = (0., 0.)
                 pipeline.node_position[process.name] = (300., 0.)
                 pipeline.node_position["outputs"] = (600., 0.)
-                #pipeline.scene_scale_factor = 0.5
+                # pipeline.scene_scale_factor = 0.5
             else:
                 raise Exception("Expect a Pipeline or a Process, not a "
                                 "'{0}'.".format(repr(pipeline)))
@@ -1967,6 +2408,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.plug_clicked.connect(self._plug_clicked)
         self.plug_right_clicked.connect(self._plug_right_clicked)
         self.link_right_clicked.connect(self._link_clicked)
+        self.node_clicked_ctrl.connect(self._node_clicked_ctrl)
+        self.link_keydelete_clicked.connect(self._link_delete_clicked)
+        self.node_keydelete_clicked.connect(self._node_delete_clicked)
 
     def __del__(self):
         if self.scene.pipeline:
@@ -1978,13 +2422,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                                      'selection_changed', remove=True)
             pipeline.on_trait_change(self._reset_pipeline,
                                      'user_traits_changed', remove=True)
-        #super(PipelineDevelopperView, self).__del__()
+        # super(PipelineDevelopperView, self).__del__()
 
     def _set_pipeline(self, pipeline):
         pos = {}
         if self.scene:
             pos = self.scene.pos
-            #pprint(dict((i, (j.x(), j.y())) for i, j in six.iteritems(pos)))
+            # pprint(dict((i, (j.x(), j.y())) for i, j in six.iteritems(pos)))
         if hasattr(pipeline, 'node_position'):
             for i, j in six.iteritems(pipeline.node_position):
                 if isinstance(j, QtCore.QPointF):
@@ -1999,11 +2443,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
         self.scene.process_clicked.connect(self.node_clicked)
         self.scene.node_clicked.connect(self.node_clicked)
+        self.scene.node_clicked_ctrl.connect(self._node_clicked_ctrl)
+        self.scene.switch_clicked.connect(self.switch_clicked)
         self.scene.node_right_clicked.connect(self.node_right_clicked)
         self.scene.node_right_clicked.connect(self.onOpenProcessController)
         self.scene.plug_clicked.connect(self.plug_clicked)
         self.scene.plug_right_clicked.connect(self.plug_right_clicked)
         self.scene.link_right_clicked.connect(self.link_right_clicked)
+        self.scene.link_keydelete_clicked.connect(self.link_keydelete_clicked)
+        self.scene.node_keydelete_clicked.connect(self.node_keydelete_clicked)
         self.scene.pos = pos
         self.scene.set_pipeline(pipeline)
         self.setWindowTitle(pipeline.name)
@@ -2015,13 +2463,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 pipeline.scene_scale_factor, pipeline.scene_scale_factor)
         self.reset_initial_nodes_positions()
 
-
     def set_pipeline(self, pipeline):
         '''
         Assigns a new pipeline to the view.
         '''
         self._set_pipeline(pipeline)
-
         # Setup callback to update view when pipeline state is modified
         pipeline.on_trait_change(self._reset_pipeline, 'selection_changed',
                                  dispatch='ui')
@@ -2052,8 +2498,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self._reset_pipeline()
 
     def _reset_pipeline(self):
-        # print('reset pipeline')
-        #self._set_pipeline(pipeline)
+        # self._set_pipeline(pipeline)
         self.scene.logical_view = self._logical_view
         self.scene.update_pipeline()
 
@@ -2110,12 +2555,24 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 self._grab = True
                 self._grabpos = event.pos()
 
+            #             print("background clicked")
+
+            for source_dest, glink in six.iteritems(self.scene.glinks):
+                glink.fonced_viewer(False)
+            for node_name, gnode in six.iteritems(self.scene.gnodes):
+                gnode.fonced_viewer(False)
+
     def mouseReleaseEvent(self, event):
         self._grab = False
         if self._grab_link:
             event.accept()
-            self._release_grab_link(event)
+            try:
+                self._release_grab_link(event)
+            except:
+                print("type source to destination no compatible")
+
         super(PipelineDevelopperView, self).mouseReleaseEvent(event)
+        self.scene.update()
 
     def mouseMoveEvent(self, event):
         if self._grab:
@@ -2156,15 +2613,16 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                     print('node not found in:')
                     print(self.scene.gnodes.keys())
             sub_view = PipelineDevelopperView(sub_pipeline,
-                show_sub_pipelines=self._show_sub_pipelines,
-                allow_open_controller=self._allow_open_controller,
-                enable_edition=self.edition_enabled(),
-                logical_view=self._logical_view)
+                                              show_sub_pipelines=self._show_sub_pipelines,
+                                              allow_open_controller=self._allow_open_controller,
+                                              enable_edition=self.edition_enabled(),
+                                              logical_view=self._logical_view)
             # set self.window() as QObject parent (not QWidget parent) to
             # prevent the sub_view to close/delete immediately
             QtCore.QObject.setParent(sub_view, self.window())
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.setWindowTitle(node_name)
+            self.scene.update()
             sub_view.show()
 
     def window(self):
@@ -2210,7 +2668,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
     def open_node_menu(self, node_name, process):
         """ right-click popup menu for nodes
         """
-        node_name = unicode(node_name) # in case it is a QString
+        node_name = unicode(node_name)  # in case it is a QString
         node_type = 'process'
         if isinstance(process, OptionalOutputSwitch):
             node_type = 'opt. output switch'
@@ -2226,7 +2684,19 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         if node_name in ('inputs', 'outputs'):
             node_name = ''
         node = self.scene.pipeline.nodes[node_name]
+
+        # Input_Filter
+        if process.name == "Input_Filter":
+            open_filter = menu.addAction('Open filter')
+            open_filter.triggered.connect(self.emit_open_filter)
+
+            export_to_db_scans = menu.addAction('Export to database_scans')
+            export_to_db_scans.triggered.connect(self.emit_export_to_db_scans)
+
+            menu.addSeparator()
+
         controller_action = QtGui.QAction('open node controller', menu)
+        controller_action.setDisabled(True)
         controller_action.triggered.connect(self.openProcessController)
         menu.addAction(controller_action)
 
@@ -2350,9 +2820,29 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         if gnode.show_opt_outputs:
             show_opt_outputs.setChecked(True)
 
+        # Emit a signal to edit the node if it is a PipelineNode
+        if isinstance(node, PipelineNode):
+            menu.addSeparator()
+            edit_sub_pipeline = menu.addAction('Edit sub-pipeline')
+            edit_sub_pipeline.triggered.connect(self.emit_edit_sub_pipeline)
+
         menu.exec_(QtGui.QCursor.pos())
         del self.current_node_name
         del self.current_process
+
+    def emit_export_to_db_scans(self):
+        self.export_to_db_scans.emit(self.current_node_name)
+
+    def emit_open_filter(self):
+        self.open_filter.emit(self.current_node_name)
+
+    def emit_edit_sub_pipeline(self):
+        node = self.scene.pipeline.nodes[self.current_node_name]
+        sub_pipeline = node.process
+        if isinstance(sub_pipeline, weakref.ProxyTypes):
+            # get the "real" object
+            sub_pipeline = sub_pipeline.__init__.__self__
+        self.edit_sub_pipeline.emit(sub_pipeline)
 
     def show_optional_inputs(self):
         '''
@@ -2362,14 +2852,22 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         gnode = self.scene.gnodes[self.current_node_name]
         connected_plugs = []
 
+        # print(self.current_node_name)
+        # print(gnode.in_plugs)
+
+        # for source_dest, link in six.iteritems(self.scene.glinks):
+        #     print(source_dest,",",self.current_node_name in str(source_dest))
+
+
         # The show_opt_inputs attribute is not changed yet
         if gnode.show_opt_inputs:
             # Verifying that the plugs are not connected to another node
             for param, pipeline_plug in six.iteritems(gnode.parameters):
+                # print(param," : ",pipeline_plug.activated)
                 output = (not pipeline_plug.output if gnode.name in (
                     'inputs', 'outputs') else pipeline_plug.output)
                 if not output:
-                    if pipeline_plug.optional and pipeline_plug.links_from and gnode.show_opt_inputs:
+                    if pipeline_plug.optional and pipeline_plug.links_from and gnode.show_opt_inputs :
                         connected_plugs.append(param)
             if connected_plugs:
                 if len(connected_plugs) == 1:
@@ -2473,8 +2971,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
         if self._enable_edition:
             menu.addSeparator()
-            add_proc = menu.addAction('Add process in pipeline')
-            add_proc.triggered.connect(self.add_process)
+            """add_proc = menu.addAction('Add process in pipeline')
+            add_proc.triggered.connect(self.add_process)"""
             add_switch = menu.addAction('Add switch in pipeline')
             add_switch.triggered.connect(self.add_switch)
             add_optional_output_switch = menu.addAction(
@@ -2532,7 +3030,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         del self.click_pos
 
     def enableNode(self, checked):
-        self.scene.pipeline.nodes[self.current_node_name].enabled = checked
+        if self.current_node_name in ['inputs', 'outputs']:
+            node_name = ''
+        else:
+            node_name = self.current_node_name
+        self.scene.pipeline.nodes[node_name].enabled = checked
 
     def enable_step(self, step_name, state):
         setattr(self.scene.pipeline.pipeline_steps, step_name, state)
@@ -2588,7 +3090,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         if len(overwritten_outputs) == 0 and len(missing_inputs) == 0:
             QtGui.QMessageBox.information(
                 self, 'Pipeline ready', 'All input files are available. '
-                'No output file will be overwritten.')
+                                        'No output file will be overwritten.')
         else:
             dialog = QtGui.QWidget()
             layout = QtGui.QVBoxLayout(dialog)
@@ -2611,11 +3113,11 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         pipeline view nodes accordingly.
         '''
         scene = self.scene
-        scale = 67. # dpi
+        scale = 67.  # dpi
         nodes_sizes = dict([(name,
                              (gnode.boundingRect().width(),
                               gnode.boundingRect().height()))
-                             for name, gnode in six.iteritems(scene.gnodes)])
+                            for name, gnode in six.iteritems(scene.gnodes)])
         dgraph = pipeline_tools.dot_graph_from_pipeline(
             scene.pipeline, nodes_sizes=nodes_sizes)
         tfile, tfile_name = tempfile.mkstemp()
@@ -2630,15 +3132,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
         rects = dict([(name, node.boundingRect())
                       for name, node in six.iteritems(scene.gnodes)])
-        pos = dict([(name, (-rects[name].width()/2 + pos[0]*scale,
-                            -rects[name].height()/2 - pos[1]*scale))
+        pos = dict([(name, (-rects[name].width() / 2 + pos[0] * scale,
+                            -rects[name].height() / 2 - pos[1] * scale))
                     for id, name, pos in nodes_pos])
         minx = min([x[0] for x in six.itervalues(pos)])
         miny = min([x[1] for x in six.itervalues(pos)])
         pos = dict([(name, (p[0] - minx, p[1] - miny))
                     for name, p in six.iteritems(pos)])
-        print('pos:')
-        print(pos)
+        #         print('pos:')
+        #         print(pos)
         scene.pos = pos
         for node, position in six.iteritems(pos):
             gnode = scene.gnodes[node]
@@ -2692,11 +3194,18 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         type (active, weak) between two given boxes: all parameters are not
         represented.
         '''
-        filename = QtGui.QFileDialog.getSaveFileName(
+        file_dialog = QtGui.QFileDialog(filter='Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')
+        file_dialog.setDefaultSuffix('.png')
+        file_dialog.setFileMode(QtGui.QFileDialog.AnyFile)
+        file_dialog.setAcceptMode(QtGui.QFileDialog.AcceptSave)
+        if file_dialog.exec_():
+            filename = file_dialog.selectedFiles()
+
+        '''filename = QtGui.QFileDialog.getSaveFileName(
             None, 'Save image of the pipeline', '',
-            'Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')
+            'Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')'''
         if filename:
-            pipeline_tools.save_dot_image(self.scene.pipeline, filename)
+            pipeline_tools.save_dot_image(self.scene.pipeline, filename[0])
 
     def reset_initial_nodes_positions(self):
         '''
@@ -2722,12 +3231,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             if isinstance(p, Qt.QPointF):
                 return (p.x(), p.y())
             return p
+
         posdict = dict([(key, conv_pos(value)) \
                         for key, value in six.iteritems(self.scene.pos)])
         pprint(posdict)
 
     def del_node(self, node_name=None):
+
         pipeline = self.scene.pipeline
+
         if not node_name:
             node_name = self.current_node_name
         node = pipeline.nodes[node_name]
@@ -2737,15 +3249,15 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 for link_def in list(plug.links_from):
                     src_node, src_plug = link_def[:2]
                     link_descr = '%s.%s->%s.%s' \
-                        % (src_node, src_plug, node_name, plug_name)
+                                 % (src_node, src_plug, node_name, plug_name)
                     pipeline.remove_link(link_descr)
             else:
                 for link_def in list(plug.links_to):
                     dst_node, dst_plug = link_def[:2]
                     link_descr = '%s.%s->%s.%s' \
-                        % (node_name, plug_name, dst_node, dst_plug)
+                                 % (node_name, plug_name, dst_node, dst_plug)
                     pipeline.remove_link(link_descr)
-        #pipeline.remove_node(node) # unfortunately this method doesn't exist
+        # pipeline.remove_node(node) # unfortunately this method doesn't exist
         del pipeline.nodes[node_name]
         if hasattr(node, 'process'):
             pipeline.list_process_in_pipeline.remove(node.process)
@@ -2763,9 +3275,9 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             if parameter_name in ("nodes_activation", "selection_changed"):
                 continue
             if (((node_name, parameter_name) not in pipeline.do_not_export and
-                ((outputs and plug.output and not plug.links_to) or
-                    (inputs and not plug.output and not plug.links_from)) and
-                (optional or not node.get_trait(parameter_name).optional))):
+                 ((outputs and plug.output and not plug.links_to) or
+                  (inputs and not plug.output and not plug.links_from)) and
+                 (optional or not node.get_trait(parameter_name).optional))):
                 pipeline.export_parameter(node_name, parameter_name)
 
     def export_plugs(self, inputs=True, outputs=True, optional=False):
@@ -2971,8 +3483,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             layout.addWidget(QtGui.QLabel('node name'), 1, 0)
             self.name_line = QtGui.QLineEdit()
             layout.addWidget(self.name_line, 1, 1)
-            #hlay = QtGui.QHBoxLayout()
-            #layout.addLayout(hlay, 1, 1)
+            # hlay = QtGui.QHBoxLayout()
+            # layout.addLayout(hlay, 1, 1)
             ok = QtGui.QPushButton('OK')
             layout.addWidget(ok, 2, 0)
             cancel = QtGui.QPushButton('Cancel')
@@ -2996,7 +3508,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             pipeline = self.scene.pipeline
             try:
                 process = get_process_instance(
-                  unicode(proc_name_gui.proc_line.text()))
+                    unicode(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
                 return
@@ -3087,8 +3599,8 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         def __init__(self):
             super(PipelineDevelopperView.IterativeProcessInput,
                   self).__init__()
-            #hlay = Qt.QHBoxLayout()
-            #self.layout().addLayout(hlay)
+            # hlay = Qt.QHBoxLayout()
+            # self.layout().addLayout(hlay)
             lay = self.layout()
             item = lay.itemAtPosition(2, 0)
             widget = item.widget()
@@ -3104,7 +3616,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self.plugs.setSelectionMode(Qt.QListWidget.ExtendedSelection)
             lay.addWidget(self.plugs, 2, 1)
             self.proc_line.textChanged.connect(self.set_plugs)
-            #self.proc_line.editingFinished.connect(self.set_plugs)
+            # self.proc_line.editingFinished.connect(self.set_plugs)
 
         def set_plugs(self, text):
             self.plugs.clear()
@@ -3133,7 +3645,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             pipeline = self.scene.pipeline
             try:
                 process = get_process_instance(
-                  unicode(proc_name_gui.proc_line.text()))
+                    unicode(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
                 return
@@ -3242,14 +3754,23 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         plug_name = str(plug_name)
         gnode = self.scene.gnodes[node_name]
         plug = gnode.out_plugs.get(plug_name)
+
+        typeq = self.scene.typeLink(node_name, plug_name)
+        try:
+            #             color = self.scene.colorLink(typeq)
+            color = self.scene.colType.colorLink(typeq)
+
+        except:
+            color = ORANGE_2
         if not plug:
-            return # probably an input plug
+            return  # probably an input plug
         plug_pos = plug.mapToScene(plug.mapFromParent(plug.get_plug_point()))
         self._grabpos = self.mapFromScene(plug_pos)
         self._temp_link = Link(
             plug_pos,
             self.mapToScene(self.mapFromGlobal(QtGui.QCursor.pos())),
-            True, False)
+            True, False, color)
+        self._temp_link.pen.setBrush(RED_2)
         self.scene.addItem(self._temp_link)
 
         self._grab_link = True
@@ -3259,7 +3780,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         pos = self.mapToScene(event.pos())
         self._temp_link.update(self.mapToScene(self._grabpos), pos)
 
-    def _release_grab_link(self, event):
+    def _release_grab_link(self, event, ret=False):
         max_square_dist = 100.
         self._grab_link = False
         # delete the temp link
@@ -3296,9 +3817,58 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
                 dst = '%s.%s' % tuple(plug)
             else:
                 dst = plug[1]
-            self.scene.pipeline.add_link('%s->%s' % (src, dst))
-            self.scene.update_pipeline()
+            #             if (src != dst) and ("inputs."+src != dst) and not self.isInputYet(dst) :
+
+            if (src != dst) and ("inputs." + src != dst):
+                self.scene.pipeline.add_link('%s->%s' % (src, dst))
+                self.scene.update_pipeline()
+
+            if ret:
+                self._grabbed_plug = None
+                return '%s->%s' % (src, dst)
         self._grabbed_plug = None
+
+    #     def isInputYet(self,dest):##################################################################### add by OM
+    #         for listK in self.scene.glinks.keys():
+    #             if ( eval(str(eval(str(listK))[1]))[0]+"."+ eval(str(eval(str(listK))[1]))[1]==dest or eval(str(eval(str(listK))[1]))[0]+"."+ eval(str(eval(str(listK))[1]))[1]=="outputs."+dest):
+    #                 print("input '",dest, "' already used !!")
+    #                 return True
+    #         return False
+
+    def _node_delete_clicked(self, name_node):
+        #
+
+        if name_node not in ('inputs', 'outputs'):
+            self.current_node_name = name_node
+            self.del_node()
+
+    def _link_delete_clicked(self, src_node, src_plug, dst_node, dst_plug):
+        src_node = str(src_node)
+        src_plug = str(src_plug)
+        dst_node = str(dst_node)
+        dst_plug = str(dst_plug)
+
+        #         print(src_node,",",src_plug,",",dst_node,",",dst_plug)
+
+        if self.is_logical_view() or not self.edition_enabled():
+            # in logical view, links are not real links
+            return
+        if src_node in ('', 'inputs'):
+            src = src_plug
+            snode = self.scene.pipeline.pipeline_node
+        else:
+            src = '%s.%s' % (src_node, src_plug)
+            snode = self.scene.pipeline.nodes[src_node]
+        if dst_node in ('', 'outputs'):
+            dst = dst_plug
+            dnode = self.scene.pipeline.pipeline_node
+        else:
+            dst = '%s.%s' % (dst_node, dst_plug)
+            dnode = self.scene.pipeline.nodes[dst_node]
+        name = '%s->%s' % (src, dst)
+        self._current_link = name  # (src_node, src_plug, dst_node, dst_plug)
+        self._del_link()
+        del self._current_link
 
     def _link_clicked(self, src_node, src_plug, dst_node, dst_plug):
         src_node = str(src_node)
@@ -3321,7 +3891,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             dst = '%s.%s' % (dst_node, dst_plug)
             dnode = self.scene.pipeline.nodes[dst_node]
         name = '%s->%s' % (src, dst)
-        self._current_link = name #(src_node, src_plug, dst_node, dst_plug)
+        self._current_link = name  # (src_node, src_plug, dst_node, dst_plug)
 
         menu = QtGui.QMenu('Link: %s' % name)
         title = menu.addAction('Link: %s' % name)
@@ -3346,8 +3916,23 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         menu.exec_(QtGui.QCursor.pos())
         del self._current_link
 
+    def _node_clicked_ctrl(self, name, process):
+
+        for source_dest, glink in six.iteritems(self.scene.glinks):
+            glink.fonced_viewer(False)
+            #             print("source-dest ",source_dest)
+            if name not in str(source_dest):
+                glink.fonced_viewer(True)
+        #             else:
+        #                 print(source_dest[0])
+        for node_name, gnode in six.iteritems(self.scene.gnodes):
+            #             print("    node_name",node_name)
+            gnode.fonced_viewer(False)
+            if name not in str(node_name):
+                gnode.fonced_viewer(True)
+
     def _change_weak_link(self, weak):
-        #src_node, src_plug, dst_node, dst_plug = self._current_link
+        # src_node, src_plug, dst_node, dst_plug = self._current_link
         link_def = self._current_link
         self.scene.pipeline.remove_link(link_def)
         self.scene.pipeline.add_link(link_def, weak_link=weak)
@@ -3360,6 +3945,13 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.update_pipeline()
 
     def _plug_right_clicked(self, name):
+
+        for node_name, gnode in six.iteritems(self.scene.gnodes):
+            if node_name in 'inputs':
+                self.inputYet = True
+            if node_name in 'outputs':
+                self.outputYet = False
+
         if self.is_logical_view() or not self.edition_enabled():
             # in logival view, links are not editable since they do not reflect
             # the details of reality
@@ -3447,11 +4039,20 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
         res = dial.exec_()
         if res:
-            self.scene.pipeline.export_parameter(
-                self._temp_plug_name[0], self._temp_plug_name[1],
-                pipeline_parameter=str(dial.name_line.text()),
-                is_optional=dial.optional.isChecked(),
-                weak_link=dial.weak.isChecked())
+            # for node_name, gnode in six.iteritems(self.scene.gnodes):
+            #     print("list Nodes",node_name)
+            try:
+                self.scene.pipeline.export_parameter(
+                    self._temp_plug_name[0], self._temp_plug_name[1],
+                    pipeline_parameter=str(dial.name_line.text()),
+                    is_optional=dial.optional.isChecked(),
+                    weak_link=dial.weak.isChecked())
+            #             print(str(dial.name_line.text()))
+            #             self.scene.gnodes.changeHmin(15)
+            except Exception as e:
+                print('exception while export plug:', e)
+                pass
+
             self.scene.update_pipeline()
 
     def _change_iterative_plug(self, checked):
@@ -3461,22 +4062,35 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         self.scene.update_pipeline()
 
     def _remove_plug(self):
+
         if self._temp_plug_name[0] in ('inputs', 'outputs'):
-            #print 'remove plug:', self._temp_plug_name[1]
+            # print 'remove plug:', self._temp_plug_name[1]
+            print('#' * 50)
+            print(self._temp_plug_name)
+            print(self._temp_plug)
+            for trait_name, trait in self.scene.pipeline.traits().items():
+                print(trait_name, trait)
+                if trait.handler is None:
+                    print('HANDLER IS NONE')
+                else:
+                    print('HANDLER:', trait.handler)
+                    if trait.has_items:
+                        print("HANDLER HAS ITEMS")
+
             self.scene.pipeline.remove_trait(self._temp_plug_name[1])
             self.scene.update_pipeline()
 
     def _edit_plug(self):
         dial = self._PlugEdit(show_weak=False)
         dial.name_line.setText(self._temp_plug_name[1])
-        dial.name_line.setEnabled(False) ## FIXME
+        dial.name_line.setEnabled(False)  ## FIXME
         dial.optional.setChecked(self._temp_plug.optional)
         res = dial.exec_()
         if res:
             plug = self._temp_plug
             plug.optional = dial.optional.isChecked()
 
-            #print 'TODO.'
+            # print 'TODO.'
             self.scene.update_pipeline()
 
     def _prune_plugs(self):
@@ -3509,7 +4123,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         if not self.confirm_erase_pipeline():
             return
         w = Qt.QDialog(self)
-        w.setWindowModality(Qt.Qt.WindowModal)
+        w.setModal(True)
         w.setWindowTitle('Pipeline name')
         l = Qt.QVBoxLayout()
         w.setLayout(l)
@@ -3540,7 +4154,7 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
             self.set_pipeline(pipeline)
             self._pipeline_filename = ''
 
-    def load_pipeline(self):
+    def load_pipeline(self, filename='', load_pipeline=True):
         class LoadProcessUi(Qt.QDialog):
             def __init__(self, parent=None, old_filename=''):
                 super(LoadProcessUi, self).__init__(parent)
@@ -3575,19 +4189,25 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
         if not self.confirm_erase_pipeline():
             return
 
-        old_filename = getattr(self, '_pipeline_filename', '')
-        dialog = LoadProcessUi(self, old_filename=old_filename)
-        dialog.setWindowTitle('Load pipeline')
-        dialog.setWindowModality(Qt.Qt.WindowModal)
-        res = dialog.exec_()
+        if not filename:
+            old_filename = getattr(self, '_pipeline_filename', '')
+            dialog = LoadProcessUi(self, old_filename=old_filename)
+            dialog.setWindowTitle('Load pipeline')
+            dialog.setModal(True)
+            res = dialog.exec_()
 
-        if res:
-            filename = dialog.proc_edit.text()
-            if filename:
+            if res:
+                filename = dialog.proc_edit.text()
+
+        if filename:
+            if not load_pipeline:
+                return filename
+            else:
                 pipeline = get_process_instance(filename)
                 if pipeline is not None:
                     self.set_pipeline(pipeline)
                     self._pipeline_filename = filename
+                    return filename
 
     def save_pipeline(self):
         '''
@@ -3634,3 +4254,100 @@ class PipelineDevelopperView(QtGui.QGraphicsView):
 
         pipeline_tools.save_pipeline_parameters(filename, pipeline)
 
+    def load_pipeline_parameters(self):
+        """
+        Loading and setting pipeline parameters (inputs and outputs) from a Json file.
+        :return:
+        """
+
+        def hinted_tuple_hook(obj):
+            
+            if '__tuple__' in obj:
+                return tuple(obj['items'])
+            
+            else:
+                return obj
+
+        filename = qt_backend.getOpenFileName(
+                                              None, 'Load the pipeline parameters', '',
+                                              'Compatible files (*.json)')
+
+        if filename:
+            with open(filename, 'r', encoding='utf8') as fileJson:
+                dic = json.load(fileJson)
+
+            dic = json.loads(dic, object_hook=hinted_tuple_hook)
+
+            if "pipeline_parameters" not in dic.keys():
+                raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
+
+            for trait_name, trait_value in dic["pipeline_parameters"].items():
+                
+                if trait_name not in self.scene.pipeline.user_traits().keys():
+                    print('No "{0}" parameter in pipeline.'.format(trait_name))
+                    
+                try:
+                    setattr(self.scene.pipeline, trait_name, trait_value)
+                    
+                except traits.TraitError:
+                    print("Error for the plug {0}".format(trait_name))
+
+            self.scene.pipeline.update_nodes_and_plugs_activation()
+
+    def save_pipeline_parameters(self):
+        """
+        Saving pipeline parameters (inputs and outputs) to a Json file.
+        :return:
+        """
+
+        class MultiDimensionalArrayEncoder(json.JSONEncoder):
+        
+            def encode(self, obj):
+                
+                def hint_tuples(item):
+
+                    if isinstance(item, tuple):
+                        return {'__tuple__': True, 'items': [hint_tuples(e) for e in item]}
+                    
+                    if isinstance(item, list):
+                        return [hint_tuples(e) for e in item]
+                
+                    if isinstance(item, dict):
+                        return {key: hint_tuples(value) for key, value in item.items()}
+                    
+                    else:
+                        return item
+
+                return super(MultiDimensionalArrayEncoder, self).encode(hint_tuples(obj))
+
+        pipeline = self.scene.pipeline
+
+        filename = qt_backend.getSaveFileName(
+            None, 'Save the pipeline parameters', '',
+            'Compatible files (*.json)')
+
+        if filename:
+            from traits.api import Undefined
+            # Generating the dictionary
+            param_dic = {}
+            
+            for trait_name, trait in pipeline.user_traits().items():
+                
+                if trait_name in ["nodes_activation"]:
+                    continue
+                
+                value = getattr(pipeline, trait_name)
+                
+                if value is Undefined:
+                    value = ""
+                    
+                param_dic[trait_name] = value
+
+            # In the future, more information may be added to this dictionary
+            dic = {}
+            dic["pipeline_parameters"] = param_dic
+            jsonstring = MultiDimensionalArrayEncoder().encode(dic)
+           
+            # Saving the dictionary in the Json file
+            with open(filename, 'w', encoding='utf8') as file:
+                json.dump(jsonstring, file)
