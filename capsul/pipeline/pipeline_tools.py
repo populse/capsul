@@ -17,6 +17,7 @@ import six
 import sys
 import json
 from datetime import date, time, datetime
+import io
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -1085,7 +1086,7 @@ def load_pipeline_parameters(filename, pipeline):
     """
 
     if filename:
-        with open(filename, 'r', encoding='utf8') as file:
+        with io.open(filename, 'r', encoding='utf8') as file:
             dic = json.load(file)
 
         if "pipeline_parameters" not in dic.keys():
@@ -1144,5 +1145,9 @@ def save_pipeline_parameters(filename, pipeline):
         dic["pipeline_parameters"] = param_dic
 
         # Saving the dictionary in the Json file
-        with open(filename, 'w', encoding='utf8') as file:
-            json.dump(dic, file)
+        if sys.version_info[0] >= 3:
+            with open(filename, 'w', encoding='utf8') as file:
+                json.dump(dic, file)
+        else:
+            with open(filename, 'w') as file:
+                json.dump(dic, file)

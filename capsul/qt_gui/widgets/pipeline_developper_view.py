@@ -22,6 +22,7 @@ import types
 import inspect
 import six
 import json
+import io
 
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
@@ -42,9 +43,6 @@ from capsul.study_config import process_instance
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
-
-# Populse_MIA import
-# from populse_mia.pipeline_manager.capsul_files import pipeline_tools
 
 try:
     from traits import api as traits
@@ -4229,27 +4227,27 @@ class PipelineDevelopperView(QGraphicsView):
             self._pipeline_filename = unicode(filename)
             pipeline.node_position = old_pos
 
-    def load_pipeline_parameters(self):
-        """
-        Loading and setting pipeline parameters (inputs and outputs) from a Json file.
-        """
-        pipeline = self.scene.pipeline
-        filename = qt_backend.getOpenFileName(
-            None, 'Load pipeline parameters', '',
-            'Compatible files (*.json)')
+    #def load_pipeline_parameters(self):
+        #"""
+        #Loading and setting pipeline parameters (inputs and outputs) from a Json file.
+        #"""
+        #pipeline = self.scene.pipeline
+        #filename = qt_backend.getOpenFileName(
+            #None, 'Load pipeline parameters', '',
+            #'Compatible files (*.json)')
 
-        pipeline_tools.load_pipeline_parameters(filename, pipeline)
+        #pipeline_tools.load_pipeline_parameters(filename, pipeline)
 
-    def save_pipeline_parameters(self):
-        """
-        Saving pipeline parameters (inputs and outputs) to a Json file.
-        """
-        pipeline = self.scene.pipeline
-        filename = qt_backend.getSaveFileName(
-            None, 'Save pipeline parameters', '',
-            'Compatible files (*.json)')
+    #def save_pipeline_parameters(self):
+        #"""
+        #Saving pipeline parameters (inputs and outputs) to a Json file.
+        #"""
+        #pipeline = self.scene.pipeline
+        #filename = qt_backend.getSaveFileName(
+            #None, 'Save pipeline parameters', '',
+            #'Compatible files (*.json)')
 
-        pipeline_tools.save_pipeline_parameters(filename, pipeline)
+        #pipeline_tools.save_pipeline_parameters(filename, pipeline)
 
     def load_pipeline_parameters(self):
         """
@@ -4270,7 +4268,7 @@ class PipelineDevelopperView(QGraphicsView):
                                               'Compatible files (*.json)')
 
         if filename:
-            with open(filename, 'r', encoding='utf8') as fileJson:
+            with io.open(filename, 'r', encoding='utf8') as fileJson:
                 dic = json.load(fileJson)
 
             dic = json.loads(dic, object_hook=hinted_tuple_hook)
@@ -4346,5 +4344,9 @@ class PipelineDevelopperView(QGraphicsView):
             jsonstring = MultiDimensionalArrayEncoder().encode(dic)
            
             # Saving the dictionary in the Json file
-            with open(filename, 'w', encoding='utf8') as file:
-                json.dump(jsonstring, file)
+            if sys.version_info[0] >= 3:
+                with open(filename, 'w', encoding='utf8') as file:
+                    json.dump(jsonstring, file)
+            else:
+                with open(filename, 'w') as file:
+                    json.dump(jsonstring, file)
