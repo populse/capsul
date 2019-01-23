@@ -34,7 +34,7 @@ from capsul.api import Process
 from capsul.api import get_process_instance
 from capsul.pipeline.pipeline_nodes import Node, ProcessNode
 from capsul.pipeline.process_iteration import ProcessIteration
-from PyQt5.Qt import QGraphicsView
+from soma.qt_gui.qt_backend.Qt import QGraphicsView
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 import capsul.pipeline.xml as capsulxml
@@ -50,9 +50,6 @@ try:
     from traits import api as traits
 except ImportError:
     from enthought.traits import api as traits
-
-# Import to resolve CI bug
-from PyQt5.QtWidgets import QGraphicsView
 
 from soma.qt_gui import qt_backend
 
