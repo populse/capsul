@@ -667,19 +667,21 @@ class NodeGWidget(QtGui.QGraphicsItem):
             margin = 5
             plug_width = 12
             xpos = margin + plug_width
-            ypos = 0
-            if self.out_params:
-                params = self.out_params
-            elif self.in_params:
-                params = self.in_params
-            if params:
-                ypos = max([p.boundingRect().bottom()
-                            for p in params.values()])
-            else:
-                ypos = margin * 2 + self.title.boundingRect().size().height()
-            child = self.childItems()[-1]
-            item_rect = self.mapRectFromItem(child, child.boundingRect())
-            ypos = item_rect.bottom()
+            ypos = None
+            params = dict(self.in_params)
+            params.update(self.out_params)
+            child = None
+            for param in params.values():
+                y = self.mapRectFromItem(param, param.boundingRect()).bottom()
+                if ypos is None or ypos < y:
+                    ypos = y
+                    child = param
+            #if ypos is None:
+                #ypos = margin * 2 + self.title.boundingRect().size().height()
+            if child is None:
+                child = self.childItems()[-1]
+                item_rect = self.mapRectFromItem(child, child.boundingRect())
+                ypos = item_rect.bottom()
             for label in labels:
                 color = label.color
                 text = label.text
@@ -687,6 +689,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 label_item.setPos(xpos, ypos)
                 label_item.setParentItem(self)
                 self.label_items.append(label_item)
+                ypos = self.mapRectFromItem(
+                    label_item, label_item.boundingRect()).bottom()
 
     def clear_plugs(self):
         for plugs, params in ((self.in_plugs, self.in_params),
