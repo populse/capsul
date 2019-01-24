@@ -2377,6 +2377,7 @@ class PipelineDevelopperView(QGraphicsView):
         self._logical_view = logical_view
         self._enable_edition = enable_edition
         self._pipeline_filename = ""
+        self._restricted_edition = False
 
         if pipeline is None:
             pipeline = Pipeline()
@@ -2522,6 +2523,28 @@ class PipelineDevelopperView(QGraphicsView):
         '''
         self._enable_edition = state
         self.scene.set_enable_edition(state)
+
+    def is_restricted_edition_mode(self):
+        '''
+        Get the restricted mode status
+
+        Returns
+        -------
+        enabled: bool
+        '''
+        return self._restricted_edition
+
+    def set_restricted_edition_mode(self, enabled):
+        '''
+        Set the restricted edition mode. In restricted mode, some background
+        menu actions ("add process", "open node controller"...) are not
+        available.
+
+        Parameters
+        -------
+        enabled: bool
+        '''
+        self._restricted_edition = enabled
 
     def wheelEvent(self, event):
         done = False
@@ -2690,10 +2713,10 @@ class PipelineDevelopperView(QGraphicsView):
 
             menu.addSeparator()
 
-        controller_action = QtGui.QAction('open node controller', menu)
-        controller_action.setDisabled(True)
-        controller_action.triggered.connect(self.openProcessController)
-        menu.addAction(controller_action)
+        if not self._restricted_edition:
+            controller_action = QtGui.QAction('open node controller', menu)
+            controller_action.triggered.connect(self.openProcessController)
+            menu.addAction(controller_action)
 
         disable_action = QtGui.QAction('Enable/disable node', menu)
         disable_action.setCheckable(True)
@@ -2966,8 +2989,9 @@ class PipelineDevelopperView(QGraphicsView):
 
         if self._enable_edition:
             menu.addSeparator()
-            """add_proc = menu.addAction('Add process in pipeline')
-            add_proc.triggered.connect(self.add_process)"""
+            if not self._restricted_edition:
+                add_proc = menu.addAction('Add process in pipeline')
+                add_proc.triggered.connect(self.add_process)
             add_switch = menu.addAction('Add switch in pipeline')
             add_switch.triggered.connect(self.add_switch)
             add_optional_output_switch = menu.addAction(
