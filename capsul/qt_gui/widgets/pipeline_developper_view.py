@@ -1401,6 +1401,30 @@ class PipelineScene(QtGui.QGraphicsScene):
             gnode.setPos(pos)
         self.gnodes[name] = gnode
         gnode.update_node()
+        
+         #repositioning 'inputs' node
+        if name == 'inputs':
+            pos_left_most=(0,0)
+            for el in self.gnodes:
+                if el!='inputs' and el!='outputs':
+                    if pos_left_most[0] > self.gnodes[el].pos().x():
+                        pos_left_most=(self.gnodes[el].pos().x(),self.gnodes[el].pos().y())
+            xl = pos_left_most[0]-(2*self.gnodes[name].boundingRect().size().width())
+            yl = pos_left_most[1]
+            self.gnodes[name].setPos(xl,yl)
+#             gnode.update_node()    
+             
+        #repositioning 'outputs' node
+        if name == 'outputs':
+            pos_right_most=(0,0)
+            for el in self.gnodes:
+                if el!='inputs' and el!='outputs':
+                    if pos_right_most[0] < self.gnodes[el].pos().x() + self.gnodes[el].boundingRect().size().width() :
+                        pos_right_most=(self.gnodes[el].pos().x() + self.gnodes[el].boundingRect().size().width(),self.gnodes[el].pos().y())
+            xl = pos_right_most[0]+self.gnodes[name].boundingRect().size().width()
+            yl = pos_right_most[1]
+            self.gnodes[name].setPos(xl,yl)
+#             gnode.update_node()
 
     def add_node(self, node_name, node):
         if not isinstance(node, ProcessNode):
