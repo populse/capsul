@@ -4336,8 +4336,8 @@ class PipelineDevelopperView(QGraphicsView):
                         return [hint_tuples(e) for e in item]
                 
                     if isinstance(item, dict):
-                        return {key: hint_tuples(value) for key, value in item.items()}
-                    
+                        return dict((key, hint_tuples(value)) for key, value in item.items())
+
                     else:
                         return item
 
