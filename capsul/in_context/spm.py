@@ -34,9 +34,9 @@ def spm_command(spm_batch_filename):
         if not spm_exec:
             raise ValueError('Cannot find SPM executable: %s' % spm_exec_glob)
         spm_exec = spm_exec[0]
-        print '---- BATCH SMP ----'
-        print open(spm_batch_filename).read()
-        print '-------------------'
+        print('---- BATCH SMP ----')
+        print(open(spm_batch_filename).read())
+        print('-------------------')
         cmd = [osp.join(spm_directory, 
                         'run_spm%s.sh' % os.environ.get('SPM_VERSION', '')),
                spm_exec,
