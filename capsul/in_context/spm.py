@@ -15,7 +15,7 @@ For calling SPM command with this module, the first arguent of
 command line must be the SPM batch file to execute with Matlab.
 '''
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import glob
 import os
