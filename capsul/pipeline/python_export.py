@@ -311,6 +311,20 @@ def save_py_pipeline(pipeline, py_file):
         if hasattr(pipeline, "scene_scale_factor"):
             print('        self.scene_scale_factor = %s'
                   % repr(pipeline.scene_scale_factor), file=pyf)
+            
+    ########### add by Irmage OM #########################       
+    def _write_nodes_dimensions(pipeline, pyf):
+        node_dimension = getattr(pipeline, "node_dimension", None)
+        if node_dimension:
+            print('\n        # nodes dimensions', file=pyf)
+            print('        self.node_dimension = {', file=pyf)
+            for node_name, dim in six.iteritems(pipeline.node_dimension):
+                if not isinstance(dim, (list, tuple)):
+                    dim = (dim.width(), dim.height())
+                print('            "%s": %s,' % (node_name, repr(dim)),
+                      file=pyf)
+            print('        }', file=pyf)
+    ######################################################  
 
     def _write_doc(pipeline, pyf):
         if hasattr(pipeline, "__doc__"):
@@ -399,6 +413,7 @@ def save_py_pipeline(pipeline, py_file):
     _write_steps(pipeline, pyf)
     _write_values(pipeline, pyf)
     _write_nodes_positions(pipeline, pyf)
+    _write_nodes_dimensions(pipeline, pyf) #add by Irmage OM
 
     print('\n        self.do_autoexport_nodes_parameters = False', file=pyf)
 
