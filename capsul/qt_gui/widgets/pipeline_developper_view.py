@@ -469,10 +469,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
         if limit:
             self.sizer.setPos(w, h)
-            return
-        
-        self.w=w
-        self.h=h
+
+        self.update_labels([l.text for l in self.labels])
 
         # if self.hmin < factor_h * len(self.in_plugs):
         #     self.hmin = factor_h * len(self.in_plugs)
@@ -527,6 +525,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         margin = 5
         plug_width = 12
         pos = margin + margin + self.title.boundingRect().size().height()
+        pos0 = pos
         if self.name == 'inputs':
             selections = self.pipeline.get_processes_selections()
         else:
@@ -565,6 +564,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             self.in_params[in_param] = param_name
             pos = pos + param_name.boundingRect().size().height()
 
+        pos = pos0
         for out_param, pipeline_plug in six.iteritems(self.parameters):
             output = (not pipeline_plug.output if self.name in (
                 'inputs', 'outputs') else pipeline_plug.output)
@@ -4328,6 +4328,7 @@ class PipelineDevelopperView(QGraphicsView):
             dialog = LoadProcessUi(self, old_filename=old_filename)
             dialog.setWindowTitle('Load pipeline')
             dialog.setModal(True)
+            dialog.resize(800, dialog.sizeHint().height())
             res = dialog.exec_()
 
             if res:
@@ -4458,8 +4459,8 @@ class PipelineDevelopperView(QGraphicsView):
                         return [hint_tuples(e) for e in item]
                 
                     if isinstance(item, dict):
-                        return {key: hint_tuples(value) for key, value in item.items()}
-                    
+                        return dict((key, hint_tuples(value)) for key, value in item.items())
+
                     else:
                         return item
 
