@@ -434,6 +434,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         winMax, woutMax = 0, 0
 
         self.box.setRect(0.0, 0.0, w, h)
+
         self.box_title.setRect(0.0, 0.0, w, 30)
         self.title.setPos(w / 2 - self.title.boundingRect().size().width() / 2, 0)
         self.infoActived.setPos(w / 2 - self.infoActived.boundingRect().size().width() / 2, h + 2)
@@ -493,6 +494,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.sizer.hmin = h
         self.changeSize(w, h + margin)
         self.sizer.setPos(w, h + margin)
+        
+        
 
     def _colored_text_item(self, label, text=None, margin=2):
         labelc = self._get_label(label, False)
@@ -1008,9 +1011,26 @@ class NodeGWidget(QtGui.QGraphicsItem):
         #         rect.setWidth(brect.width())
         #         self.box_title.setRect(rect)
         #         self.box.setRect(self.boundingRect())
+        
+        ################a dd by Irmage OM #############################################
+        try :
+            dim = self.scene().dim.get(self.box.name)
+            if isinstance(dim, Qt.QPointF):
+                dim=(dim.x(),dim.y())
+            
+            self.updateSize(dim[0],dim[1])
+            self.sizer.setPos(dim[0],dim[1])
+#             self.scene().dim[self.box.name] = (dim[0],dim[1]) 
+#             print("update_node : self.scene().dim ",dim)
 
-        self.updateSize(self.box.boundingRect().size().width(), self.box.boundingRect().size().height())
+        except:
+            dim = (self.box.boundingRect().size().width(), self.box.boundingRect().size().height())
+            self.updateSize(dim[0],dim[1])
+#             self.scene().dim[self.box.name] = (dim[0],dim[1]) 
+#             print("update_node : boundingRect()")
+        ##############################################################################
 
+        
     def contentsRect(self):
         brect = QtCore.QRectF(0, 0, 0, 0)
         first = True
@@ -1377,6 +1397,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.glinks = {}
         self._pos = 50
         self.pos = {}
+        self.dim = {} # add by Irmage OM for recorded dimension of Nodes
         self.colored_parameters = True
         self.logical_view = False
         self._enable_edition = False
@@ -1394,6 +1415,22 @@ class PipelineScene(QtGui.QGraphicsScene):
 
     def _add_node(self, name, gnode):
         self.addItem(gnode)
+        
+        ################# add by Irmage OM ####################
+        dim = self.dim.get(name)
+#         print("_add_node : dim : ",dim," , type =",type(dim).__name__)
+
+        if dim is not None:
+            if isinstance(dim, Qt.QPointF):
+                dim=(dim.x(),dim.y())
+
+            gnode.updateSize(dim[0],dim[1])
+            gnode.sizer.setPos(dim[0],dim[1])
+
+#         gnode.update_node()
+
+        ######################################################
+        
         pos = self.pos.get(name)
         if pos is None:
             gnode.setPos(2 * self._pos, self._pos)
@@ -1402,8 +1439,10 @@ class PipelineScene(QtGui.QGraphicsScene):
             if not isinstance(pos, Qt.QPointF):
                 pos = Qt.QPointF(pos[0], pos[1])
             gnode.setPos(pos)
+        
         self.gnodes[name] = gnode
-        gnode.update_node()
+#         gnode.update_node()
+        
         
          #repositioning 'inputs' node
         if name == 'inputs':
@@ -1428,6 +1467,10 @@ class PipelineScene(QtGui.QGraphicsScene):
             yl = pos_right_most[1]
             self.gnodes[name].setPos(xl,yl)
 #             gnode.update_node()
+
+        ################" add by Irmage #############################################
+        self.setSceneRect(QtCore.QRectF())
+        #############################################################################
 
     def add_node(self, node_name, node):
         if not isinstance(node, ProcessNode):
@@ -1522,6 +1565,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         for i in self.items():
             if isinstance(i, NodeGWidget):
                 self.pos[i.name] = i.pos()
+#                 self.dim[i.name] = (i.boundingRect().width(),i.boundingRect().height()) # add by Irmage OM
+                self.dim[i.name] = (i.w,i.h) # add by Irmage OM
 
         for source_dest, glink in six.iteritems(self.glinks):
             source, dest = source_dest
@@ -2425,6 +2470,7 @@ class PipelineDevelopperView(QGraphicsView):
                 pipeline.node_position[process.name] = (300., 0.)
                 pipeline.node_position["outputs"] = (600., 0.)
                 # pipeline.scene_scale_factor = 0.5
+                pipeline.node_dimension[process.name] = (300., 200.) #add by Irmage OM
             else:
                 raise Exception("Expect a Pipeline or a Process, not a "
                                 "'{0}'.".format(repr(pipeline)))
@@ -2453,8 +2499,10 @@ class PipelineDevelopperView(QGraphicsView):
 
     def _set_pipeline(self, pipeline):
         pos = {}
+        dim = {}
         if self.scene:
             pos = self.scene.pos
+            dim = self.scene.dim #add by Irmage OM
             # pprint(dict((i, (j.x(), j.y())) for i, j in six.iteritems(pos)))
         if hasattr(pipeline, 'node_position'):
             for i, j in six.iteritems(pipeline.node_position):
@@ -2462,6 +2510,18 @@ class PipelineDevelopperView(QGraphicsView):
                     pos[i] = j
                 else:
                     pos[i] = QtCore.QPointF(*j)
+        
+        ############### add by Irmage OM #######################
+        if hasattr(pipeline, 'node_dimension'):
+            for i, j in six.iteritems(pipeline.node_dimension):
+                if isinstance(j, QtCore.QPointF):
+                    dim[i] = j
+                else:
+                    dim[i] = QtCore.QPointF(*j)
+                    
+#         print("_set_pipeline : ",pos," ; ",dim)
+        #######################################################            
+        
         self.scene = PipelineScene(self)
         self.scene.set_enable_edition(self._enable_edition)
         self.scene.logical_view = self._logical_view
@@ -2480,6 +2540,7 @@ class PipelineDevelopperView(QGraphicsView):
         self.scene.link_keydelete_clicked.connect(self.link_keydelete_clicked)
         self.scene.node_keydelete_clicked.connect(self.node_keydelete_clicked)
         self.scene.pos = pos
+        self.scene.dim = dim #add by Irmage
         self.scene.set_pipeline(pipeline)
         self.setWindowTitle(pipeline.name)
         self.setScene(self.scene)
@@ -2489,6 +2550,11 @@ class PipelineDevelopperView(QGraphicsView):
             self.scale(
                 pipeline.scene_scale_factor, pipeline.scene_scale_factor)
         self.reset_initial_nodes_positions()
+        
+        ################" add by Irmage #############################################
+        self.fitInView(self.sceneRect(), QtCore.Qt.KeepAspectRatio)
+        #############################################################################
+        
 
     def set_pipeline(self, pipeline):
         '''
@@ -3263,6 +3329,21 @@ class PipelineDevelopperView(QGraphicsView):
         be found in the "node_position" variable of the pipeline.
         '''
         scene = self.scene
+#         ############## add by Irmage OM ###################
+#         dim = getattr(scene.pipeline, 'node_dimension') 
+#         if dim is not None:
+#             scene.dim = dim
+#             print()
+#             for node, dimension in six.iteritems(dim):
+#                 gnode = scene.gnodes.get(node)
+#                 if gnode is not None:
+#                     if isinstance(dimension, QtCore.QPointF):
+#                         dimension = (dim.x(),dim.y())
+# #                     else:
+# #                         dimension = dim.width(),dim.height()
+#                     gnode.update(0,0,*dimension)
+#         #####################################################
+        
         pos = getattr(scene.pipeline, 'node_position')
         if pos is not None:
             scene.pos = pos
@@ -3272,6 +3353,8 @@ class PipelineDevelopperView(QGraphicsView):
                     if isinstance(position, QtCore.QPointF):
                         position = (position.x(), position.y())
                     gnode.setPos(*position)
+
+
 
     def switch_logical_view(self):
         self.set_logical_view(not self.is_logical_view())
@@ -4194,7 +4277,8 @@ class PipelineDevelopperView(QGraphicsView):
             class_kwargs = {
                 '__module__': '__main__',
                 'do_autoexport_nodes_parameters': False,
-                'node_position': {}
+                'node_position': {},
+                'node_dimension': {}
             }
             name = le.text()
             if type(name) is not str: # unicode ?
@@ -4277,6 +4361,17 @@ class PipelineDevelopperView(QGraphicsView):
                     posdict[key] = (value.x(), value.y())
                 else:
                     posdict[key] = (value[0], value[1])
+            dimdict = {}
+            for key, value in six.iteritems(self.scene.dim):
+                if hasattr(value, 'x'):
+                    dimdict[key] = (value.x(), value.y())
+                else:
+                    dimdict[key] = (value[0], value[1])
+#             dimdict = dict([(key, (value[0], value[1])) \
+#                             for key, value in six.iteritems(self.scene.dim)]) #add by Irmage OM
+            
+            pipeline.node_dimension = dimdict # add by Irmage OM
+            
             old_pos = pipeline.node_position
             pipeline.node_position = posdict
             pipeline_tools.save_pipeline(pipeline, filename)

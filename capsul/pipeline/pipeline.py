@@ -17,6 +17,8 @@ import os
 import shutil
 import six
 from soma.utils.weak_proxy import weak_proxy, get_ref
+from builtins import getattr
+from apt_offline_core.AptOfflineMagicLib import NONE
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -204,6 +206,17 @@ class Pipeline(Process):
             self.node_position = node_position.copy()
         else:
             self.node_position = {}
+        
+        
+        ###############add by Irmage OM ######################### 
+        node_dimension = getattr(self,'node_dimension', None)
+        if node_dimension:
+            self.node_dimension = node_dimension.copy()
+        else:
+            self.node_dimension = {}
+        #########################################################
+            
+            
         self.pipeline_node = PipelineNode(self, '', self)
         self.nodes[''] = self.pipeline_node
         self.do_not_export = set()
