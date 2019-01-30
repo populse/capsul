@@ -17,8 +17,6 @@ import os
 import shutil
 import six
 from soma.utils.weak_proxy import weak_proxy, get_ref
-from builtins import getattr
-from apt_offline_core.AptOfflineMagicLib import NONE
 
 # Define the logger
 logger = logging.getLogger(__name__)
