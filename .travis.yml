@@ -29,7 +29,7 @@ before_install:
 install:
     - pip install numpy six
     # - pip install nose
-    - pip install traits
+    - if [ ${TRAVIS_PYTHON_VERSION} == "2.6" ]; then pip install "traits==4.6.0"; else pip install traits ;fi
     #- svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/branches/bug_fix /tmp/soma-base
     - git clone https://github.com/populse/soma-base.git /tmp/soma-base
     - python /tmp/soma-base/setup.py install
