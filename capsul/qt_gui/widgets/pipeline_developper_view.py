@@ -1561,12 +1561,11 @@ class PipelineScene(QtGui.QGraphicsScene):
             self.removeItem(glink)
             del self.glinks[new_source_dest]
 
-    def update_paths(self):
-        for i in self.items():
-            if isinstance(i, NodeGWidget):
-                self.pos[i.name] = i.pos()
-#                 self.dim[i.name] = (i.boundingRect().width(),i.boundingRect().height()) # add by Irmage OM
-                self.dim[i.name] = (i.w,i.h) # add by Irmage OM
+    def update_paths(self, regions=[]):
+        for name, i in six.iteritems(self.gnodes):
+            self.pos[i.name] = i.pos()
+            br = i.boundingRect()
+            self.dim[i.name] = (br.width(), br.height())
 
         for source_dest, glink in six.iteritems(self.glinks):
             source, dest = source_dest
@@ -4363,20 +4362,20 @@ class PipelineDevelopperView(QGraphicsView):
                     posdict[key] = (value[0], value[1])
             dimdict = {}
             for key, value in six.iteritems(self.scene.dim):
-                if hasattr(value, 'x'):
-                    dimdict[key] = (value.x(), value.y())
+                if hasattr(value, 'boundingRect'):
+                    dimdict[key] = (value.boundingRect().width(),
+                                    value.boundingRect().height())
                 else:
                     dimdict[key] = (value[0], value[1])
-#             dimdict = dict([(key, (value[0], value[1])) \
-#                             for key, value in six.iteritems(self.scene.dim)]) #add by Irmage OM
-            
-            pipeline.node_dimension = dimdict # add by Irmage OM
-            
+
+            pipeline.node_dimension = dimdict
             old_pos = pipeline.node_position
+            old_dim = pipeline.node_dimension
             pipeline.node_position = posdict
             pipeline_tools.save_pipeline(pipeline, filename)
             self._pipeline_filename = unicode(filename)
             pipeline.node_position = old_pos
+            pipeline.node_dimension = old_dim
 
     #def load_pipeline_parameters(self):
         #"""
