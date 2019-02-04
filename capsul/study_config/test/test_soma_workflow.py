@@ -171,6 +171,11 @@ class TestSomaWorkflow(unittest.TestCase):
         self.composite_pipeline = MyCompositePipeline()
 
     def tearDown(self):
+        swm = self.study_config.modules['SomaWorkflowConfig']
+        swc = swm.get_workflow_controller()
+        if swc is not None:
+            # stop workflow controler and wait for thread termination
+            swc.stop_engine()
         shutil.rmtree(self.soma_workflow_temp_dir)
 
     def test_atomic_dependencies(self):

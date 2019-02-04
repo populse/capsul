@@ -165,6 +165,11 @@ class TestTemporary(unittest.TestCase):
         self.study_config = study_config
 
     def tearDown(self):
+        swm = self.study_config.modules['SomaWorkflowConfig']
+        swc = swm.get_workflow_controller()
+        if swc is not None:
+            # stop workflow controler and wait for thread termination
+            swc.stop_engine()
         if '--keep-tmp' not in sys.argv[1:]:
             if os.path.exists(self.output):
               os.unlink(self.output)
