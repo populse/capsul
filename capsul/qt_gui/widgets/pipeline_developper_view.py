@@ -384,9 +384,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
             self._build_regular_view_plugs()
         self._create_label_marks()
 
-        self.ctr = self.contentsRect()
-        self.wmin = self.ctr.width()
-        self.hmin = self.ctr.height()
+        ctr = self.contentsRect()
+        self.wmin = ctr.width()
+        self.hmin = ctr.height()
 
         font1 = QtGui.QFont("Times", 12, QtGui.QFont.Normal)
         font1.setItalic(True)
@@ -407,7 +407,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.sizer = HandleItem(self)
         self.sizer.wmin = self.wmin
         self.sizer.hmin = self.hmin
-        self.sizer.setPos(self.ctr.width(), self.ctr.height())
+        self.sizer.setPos(ctr.width(), ctr.height())
         self.sizer.posChangeCallbacks.append(self.changeSize)
         self.sizer.setFlag(self.sizer.ItemIsSelectable, True)
 
@@ -417,7 +417,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.box_title.setZValue(1)
         self.box_title.setParentItem(self)
 
-        self.changeSize(self.ctr.width(), self.ctr.height())
+        self.changeSize(ctr.width(), ctr.height())
 
     def changeSize(self, w, h):
         limit = False
@@ -464,7 +464,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         if w < winMax + woutMax + 15:
             w = winMax + woutMax + 15
             self.updateSize(w, h)
-            self.sizer.setPos(w, h)
+            #self.sizer.setPos(w, h)
             self.wmin = w
 
         if limit:
@@ -1019,7 +1019,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 dim=(dim.x(),dim.y())
             
             self.updateSize(dim[0],dim[1])
-            self.sizer.setPos(dim[0],dim[1])
 #             self.scene().dim[self.box.name] = (dim[0],dim[1]) 
 #             print("update_node : self.scene().dim ",dim)
 
@@ -1425,7 +1424,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                 dim=(dim.x(),dim.y())
 
             gnode.updateSize(dim[0],dim[1])
-            gnode.sizer.setPos(dim[0],dim[1])
+            #gnode.sizer.setPos(dim[0],dim[1])
 
 #         gnode.update_node()
 
@@ -1564,7 +1563,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     def update_paths(self, regions=[]):
         for name, i in six.iteritems(self.gnodes):
             self.pos[i.name] = i.pos()
-            br = i.boundingRect()
+            br = i.box.boundingRect()
             self.dim[i.name] = (br.width(), br.height())
 
         for source_dest, glink in six.iteritems(self.glinks):
