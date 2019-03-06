@@ -63,7 +63,7 @@ class CVFilterNode(Node):
 
     def configured_controller(self):
         c = self.configure_controller()
-        c.param_type = self.trait('learn_list').trait_type.__class__.__name__
+        c.param_type = self.trait('inputs').inner_traits[0].trait_type.__class__.__name__
         c.is_output = self.trait('learn_list').output
         return c
 
