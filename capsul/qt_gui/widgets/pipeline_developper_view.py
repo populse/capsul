@@ -2513,9 +2513,9 @@ class PipelineDevelopperView(QGraphicsView):
         if hasattr(pipeline, 'node_dimension'):
             for i, j in six.iteritems(pipeline.node_dimension):
                 if isinstance(j, QtCore.QPointF):
-                    dim[i] = j
+                    dim[i] = (j.x(), j.y())
                 else:
-                    dim[i] = QtCore.QPointF(*j)
+                    dim[i] = j
                     
 #         print("_set_pipeline : ",pos," ; ",dim)
         #######################################################            
