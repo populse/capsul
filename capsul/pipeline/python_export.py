@@ -42,6 +42,8 @@ def save_py_pipeline(pipeline, py_file):
             repvalue = 'traits.Undefined'
         elif value is None:
             repvalue = 'None'
+        elif isinstance(value, Controller):
+            repvalue = repr(dict(value.export_to_dict()))
         else:
             repvalue = repr(value)
         return repvalue
