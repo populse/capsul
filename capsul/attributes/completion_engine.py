@@ -436,7 +436,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         if self.process is not None:
             try:
                 av = self.process.get_completion_engine()
-            except ReferenceError:
+            except (ReferenceError, AttributeError):
                 return
             av.on_trait_change(
                 self.attributes_changed, 'anytrait', remove=True)
