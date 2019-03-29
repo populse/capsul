@@ -52,7 +52,7 @@ class CatNode(Node):
             node_inputs.append({'name': concat_plug,
                                 'optional': concat_plug in make_optional})
         self._has_separator = False
-        if separator not in (None, traits.Undefined):
+        if separator is not None:
             self._has_separator = True
             node_inputs.insert(-1, {'name': 'separator', 'optional': True})
             param_types = dict(param_types)
