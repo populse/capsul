@@ -367,7 +367,7 @@ def main():
     kwargs = {}
     todel = []
     for arg in args:
-        if type(arg) in types.StringTypes:
+        if type(arg) in six.string_types:
             m = kwre.match(arg)
             if m is not None:
                 kwargs[m.group(1)] = convert_commandline_parameter(m.group(3))
