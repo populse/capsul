@@ -13,4 +13,4 @@
 # Folders #
 ###########
 build/
-
+/doc/source/*/generated/
