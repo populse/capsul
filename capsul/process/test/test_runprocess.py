@@ -51,12 +51,12 @@ class TestRunProcess(unittest.TestCase):
             "f=0.5"
         ])
         self.assertEqual(ret, 0)
-        # ret = subprocess.call([
-        #     sys.executable, "-m", "capsul.run",
-        #     "capsul.process.test.test_runprocess.DummyProcess",
-        #     "0.5"
-        # ])
-        # self.assertEqual(ret, 0)
+        ret = subprocess.call([
+            sys.executable, "-m", "capsul.run",
+            "capsul.process.test.test_runprocess.DummyProcess",
+            "0.5"
+        ])
+        self.assertEqual(ret, 0)
 
     def test_run_dummy_process_wrong_args(self):
        ret = subprocess.call([

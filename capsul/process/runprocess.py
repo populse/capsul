@@ -385,8 +385,8 @@ def main():
     iterated = options.iterate_on
     try:
         process = get_process_with_params(process_name, study_config, iterated,
-                                          attributes=attributes, *args,
-                                          **kwargs)
+                                          attributes,
+                                          *args, **kwargs)
     except ProcessParamError as e:
         print("error: {0}".format(e), file=sys.stderr)
         sys.exit(1)
