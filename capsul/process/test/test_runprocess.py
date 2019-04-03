@@ -32,7 +32,7 @@ class TestRunProcess(unittest.TestCase):
 
     def test_python_m_capsul(self):
         # No __main__.py in Python 2.6, no unittest.skipif either...
-        if sys.version_info > (2, 6):
+        if sys.version_info >= (2, 7):
             ret = subprocess.call([sys.executable, "-m", "capsul", "--help"])
             self.assertEqual(ret, 0)
 
