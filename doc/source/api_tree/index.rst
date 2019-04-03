@@ -154,3 +154,61 @@ Classes
     fom_completion_engine.FomPathCompletionEngine
 
 
+:mod:`capsul.subprocess`: Running external software
+===================================================
+
+.. currentmodule:: capsul.subprocess.fsl
+
+:mod:`capsul.subprocess.fsl` Classes
+------------------------------------
+
+.. autosummary::
+    :toctree: generated/capsul-subprocess/
+    :template: class.rst
+
+    Popen
+
+:mod:`capsul.subprocess.fsl` Functions
+--------------------------------------
+
+.. autosummary::
+    :toctree: generated/capsul-subprocess/
+    :template: function.rst
+
+    fsl_command_with_environment
+    check_fsl_configuration
+    check_configuration_values
+    auto_configuration
+    call
+    check_call
+    check_output
+
+.. currentmodule:: capsul.subprocess.spm
+
+:mod:`capsul.subprocess.spm` Classes
+------------------------------------
+
+.. autosummary::
+    :toctree: generated/capsul-subprocess/
+    :template: class.rst
+
+    Popen
+
+:mod:`capsul.subprocess.spm` Functions
+--------------------------------------
+
+.. autosummary::
+    :toctree: generated/capsul-subprocess/
+    :template: function.rst
+
+    find_spm
+    check_spm_configuration
+    check_configuration_values
+    auto_configuration
+    spm_command
+    call
+    check_call
+    check_output
+
+
+

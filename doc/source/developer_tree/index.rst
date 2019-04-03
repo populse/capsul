@@ -65,5 +65,28 @@ Pipeline nodes sorting and workflow helper
     :toctree: generated/capsul-studyconfig/
     :template: function.rst
 
-    spm_config.find_spm
+
+:mod:`capsul.subprocess`: Running external software
+===================================================
+
+.. currentmodule:: capsul.subprocess.fsl
+
+.. autosummary::
+    :toctree: generated/capsul-subprocess/
+    :template: class.rst
+
+.. autosummary::
+    :toctree: generated/capsul-subprocess/
+    :template: function.rst
+
+.. currentmodule:: capsul.subprocess.spm
+
+.. autosummary::
+    :toctree: generated/capsul-subprocess/
+    :template: class.rst
+
+.. autosummary::
+    :toctree: generated/capsul-subprocess/
+    :template: function.rst
+
 
