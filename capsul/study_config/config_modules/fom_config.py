@@ -90,7 +90,7 @@ class FomConfig(StudyConfigModule):
                 fom,
                 selection={},
                 directories=directories,
-                prefered_formats=set((formats)))
+                preferred_formats=set((formats)))
             self.study_config.modules_data.fom_atp[fom_type] = atp
             pta = PathToAttributes(fom, selection={})
             self.study_config.modules_data.fom_pta[fom_type] = pta

@@ -293,7 +293,7 @@ class FomPathCompletionEngine(PathCompletionEngine):
             for i in parameter_attributes if i in allowed_attributes)
         d['fom_process'] = name
         d['fom_parameter'] = parameter
-        d['fom_format'] = 'fom_prefered'
+        d['fom_format'] = 'fom_preferred'
         path_value = None
         for h in atp.find_paths(d):
             path_value = h[0]
