@@ -159,14 +159,17 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
-html_theme = 'scikit-learn'
+#html_theme = 'scikit-learn'
+html_theme = 'default'
+html_style = 'custom.css'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {'oldversion': False, 'collapsiblesidebar': True,
-                      'google_analytics': True, 'surveybanner': False,
-                      'sprintbanner': True}
+#html_theme_options = {'oldversion': False, 'collapsiblesidebar': True,
+                      #'google_analytics': True, 'surveybanner': False,
+                      #'sprintbanner': True}
+html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = ['_themes']
