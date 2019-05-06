@@ -49,6 +49,7 @@ Documentation contents
 
     installation
     documentation
+    status
 
 
 License
