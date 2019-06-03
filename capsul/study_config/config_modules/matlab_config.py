@@ -1,6 +1,7 @@
 import os
 from traits.api import File, Undefined, Bool
 from capsul.study_config.study_config import StudyConfigModule
+from capsul.engine import CapsulEngine
 
 
 class MatlabConfig(StudyConfigModule):
@@ -24,6 +25,13 @@ class MatlabConfig(StudyConfigModule):
             self.study_config.engine.load_module('capsul.engine.module.matlab')
             self.study_config.engine.init_module('capsul.engine.module.matlab')
         self.sync_from_engine()
+
+        if type(self.study_config.engine) is not CapsulEngine:
+            # engine is a proxy, thus we are initialized from a real
+            # CapsulEngine, which holds the reference values
+            self.sync_from_engine()
+        else:
+            self.sync_to_engine()
 
         # the following should be moved to CapsulEngine module
         if self.study_config.use_matlab is False:
@@ -53,8 +61,8 @@ class MatlabConfig(StudyConfigModule):
             self.study_config.use_matlab = False
             if force_configuration:
                 raise EnvironmentError('"%s" does not exists. Matlab '
-                                       'configuration is not valid.' % \
-                                       self.study_config.matlab_exec)
+                                      'configuration is not valid.' % \
+                                      self.study_config.matlab_exec)
             return
 
     def initialize_callbacks(self):

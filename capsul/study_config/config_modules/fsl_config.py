@@ -1,6 +1,7 @@
 from traits.api import File, Bool, Undefined, String
 
 from capsul.study_config.study_config import StudyConfigModule
+from capsul.engine import CapsulEngine
 from capsul.subprocess.fsl import check_fsl_configuration
 
 class FSLConfig(StudyConfigModule):
@@ -25,7 +26,16 @@ class FSLConfig(StudyConfigModule):
                 not in self.study_config.engine._loaded_modules:
             self.study_config.engine.load_module('capsul.engine.module.fsl')
             self.study_config.engine.init_module('capsul.engine.module.fsl')
-        self.sync_from_engine()
+        if type(self.study_config.engine) is not CapsulEngine:
+            # engine is a proxy, thus we are initialized from a real
+            # CapsulEngine, which holds the reference values
+            self.sync_from_engine()
+        else:
+            self.sync_to_engine()
+        # this test aims to raise an exception in case of incorrect setting,
+        # complygin to capsul 2.x behavior.
+        if self.study_config.use_fsl is True:
+            check_fsl_configuration(self.study_config)
 
     def initialize_callbacks(self):
         self.study_config.on_trait_change(

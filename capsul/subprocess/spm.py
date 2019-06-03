@@ -71,7 +71,6 @@ def check_spm_configuration(study_config):
         raise EnvironmentError('SPMConfig module is missing in StudyConfig.')
     if not study_config.use_spm:
         return
-    #sync_from_engine(study_config)
 
     #if getattr(study_config, '_spm_config_checked', False):
         ## Check SPM configuration only once
@@ -90,33 +89,6 @@ def check_spm_configuration(study_config):
     #study_config.use_spm = True
     #study_config._spm_config_checked = True
 
-def sync_from_engine(study_config):
-    if 'SPMConfig' in study_config.modules \
-            and 'capsul.engine.module.spm' in study_config.engine.modules:
-        engine = study_config.engine.spm
-        study_config.spm_directory = engine.directory
-        study_config.spm_standalone = engine.standalone
-        study_config.spm_version = engine.version
-        if study_config.spm_directory not in (None, Undefined):
-            spm_exec = glob.glob(osp.join(study_config.spm_directory, 'mcr',
-                                          'v*'))
-            if len(spm_exec) != 0:
-                study_config.spm_exec = spm_exec[0]
-            else:
-                study_config.spm_exec = Undefined
-        else:
-            study_config.spm_exec = Undefined
-        study_config.use_spm = engine.use
-
-def sync_to_engine(study_config):
-    if 'SPMConfig' in study_config.modules \
-            and 'capsul.engine.module.spm' in study_config.engine.modules:
-        engine = study_config.engine.spm
-        engine.directory = study_config.spm_directory
-        engine.standalone = study_config.spm_standalone
-        engine.version = study_config.spm_version
-        engine.use = study_config.use_spm
-
 def check_configuration_values(study_config):
     '''
     Obsolete.
@@ -125,7 +97,6 @@ def check_configuration_values(study_config):
     message if there is an error or None if everything is good.
     '''
     spm_engine.check_spm_configuration_values(study_config.engine)
-    sync_from_engine(study_config)
 
     #if study_config.spm_directory is Undefined:
         #return 'No SPM directory defined'

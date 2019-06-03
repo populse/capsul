@@ -6,6 +6,7 @@ import weakref
 from soma.controller import Controller
 from soma.functiontools import SomaPartial
 from traits.api import File, Bool, Undefined, String, Instance
+from soma.path import find_in_path
 
 class FSLConfig(Controller):
     config = File(Undefined, output=False,
