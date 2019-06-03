@@ -100,10 +100,12 @@ def sync_from_engine(study_config):
         if study_config.spm_directory not in (None, Undefined):
             spm_exec = glob.glob(osp.join(study_config.spm_directory, 'mcr',
                                           'v*'))
+            if len(spm_exec) != 0:
+                study_config.spm_exec = spm_exec[0]
+            else:
+                study_config.spm_exec = Undefined
         else:
-            spm_exec = Undefined
-        if spm_exec:
-            study_config.spm_exec = spm_exec[0]
+            study_config.spm_exec = Undefined
         study_config.use_spm = engine.use
 
 def sync_to_engine(study_config):
