@@ -25,36 +25,37 @@ class MatlabConfig(StudyConfigModule):
             self.study_config.engine.init_module('capsul.engine.module.matlab')
         self.sync_from_engine()
 
-        #if self.study_config.use_matlab is False:
-            ## Configuration is explicitely asking not to use SPM
-            #return
+        # the following should be moved to CapsulEngine module
+        if self.study_config.use_matlab is False:
+            # Configuration is explicitely asking not to use SPM
+            return
 
-        #if self.study_config.use_matlab is Undefined:
-            ## If use_matlab is not defined, Matlab configuration will
-            ## be done if possible but there will be no error if it cannot be
-            ## done.
-            #force_configuration = False
-        #else:
-            ## If use_matlab is True configuration must be valid otherwise
-            ## an EnvironmentError is raised
-            #force_configuration = True
+        if self.study_config.use_matlab is Undefined:
+            # If use_matlab is not defined, Matlab configuration will
+            # be done if possible but there will be no error if it cannot be
+            # done.
+            force_configuration = False
+        else:
+            # If use_matlab is True configuration must be valid otherwise
+            # an EnvironmentError is raised
+            force_configuration = True
 
-        #if self.study_config.matlab_exec is Undefined:
-            ## matlab_exec is not set, it will not be possible to activate
-            ##Matlab
-            #self.study_config.use_matlab = False
-            #if force_configuration:
-                #raise EnvironmentError('matlab_exec must be defined in order '
-                                       #'to use Matlab')
-            #return
+        if self.study_config.matlab_exec is Undefined:
+            # matlab_exec is not set, it will not be possible to activate
+            #Matlab
+            self.study_config.use_matlab = False
+            if force_configuration:
+                raise EnvironmentError('matlab_exec must be defined in order '
+                                       'to use Matlab')
+            return
 
-        #if not os.path.exists(self.study_config.matlab_exec):
-            #self.study_config.use_matlab = False
-            #if force_configuration:
-                #raise EnvironmentError('"%s" does not exists. Matlab '
-                                       #'configuration is not valid.' % \
-                                       #self.study_config.matlab_exec)
-            #return
+        if not os.path.exists(self.study_config.matlab_exec):
+            self.study_config.use_matlab = False
+            if force_configuration:
+                raise EnvironmentError('"%s" does not exists. Matlab '
+                                       'configuration is not valid.' % \
+                                       self.study_config.matlab_exec)
+            return
 
     def initialize_callbacks(self):
         self.study_config.on_trait_change(self.sync_to_engine, 'matlab_exec')
