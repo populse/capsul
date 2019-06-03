@@ -38,8 +38,6 @@ class CapsulEngine(Controller):
         self._database_location = database_location
         self._database = database
 
-        self.study_config = StudyConfig()
-        
         db_config = database.json_value('config')
         self.modules = database.json_value('modules')
         if self.modules is None:
@@ -65,6 +63,8 @@ class CapsulEngine(Controller):
                     setattr(self, n, v)
 
         self.init_modules()
+
+        self.study_config = StudyConfig(engine=self)
 
     @property
     def database(self):

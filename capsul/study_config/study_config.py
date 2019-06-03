@@ -14,6 +14,7 @@ import logging
 import json
 import sys
 import six
+import weakref
 if sys.version_info[:2] >= (2, 7):
     from collections import OrderedDict
 else:
@@ -60,6 +61,10 @@ class WorkflowExecutionError(Exception):
 
 class StudyConfig(Controller):
     """ Class to store the study parameters and processing options.
+
+    StudyConfig is deprecated and will probably be removed in Capsul 3.
+    Please use :class:`~capsul.engine.CapsulEngine` instead and its
+    construction function, :func:`~capsul.engine.capsul_engine` when possible.
 
     This in turn is used to evaluate a Process instance or a Pipeline.
 
@@ -149,7 +154,7 @@ class StudyConfig(Controller):
              "is the name of the process.")
 
     def __init__(self, study_name=None, init_config=None, modules=None,
-                 **override_config):
+                 engine=None, **override_config):
         """ Initilize the StudyConfig class
 
         Parameters
@@ -162,6 +167,9 @@ class StudyConfig(Controller):
         modules: list of string (default self.default_modules).
             the names of configuration module classes that will be included
             in this study configuration.
+        engine: CapsulEngine
+            this parameter is temporary, it just helps to handle the transition
+            to :class:`capsul.engine.CapsulEngine`. Don't use it in client code.
         override_config: dictionary
             The content of these keyword parameters will be set on the
             configuration after it has been initialized from configuration
@@ -172,6 +180,13 @@ class StudyConfig(Controller):
         
         if study_name:
             self.study_name = study_name
+
+        if engine is None:
+            from capsul.engine import capsul_engine
+            self.engine = capsul_engine()
+            self.engine.study_config = weakref.proxy(self)
+        else:
+            self.engine = weakref.proxy(engine)
 
         # Read the configuration for the given study
         if init_config is None:

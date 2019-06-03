@@ -17,10 +17,31 @@ class FSLConfig(StudyConfigModule):
             output=False,
             desc='Parameter to tell that we need to configure FSL'))
 
-
     def initialize_module(self):
         """ Set up FSL environment variables according to current
         configuration.
         """
-        if self.study_config.use_fsl is True:
-            check_fsl_configuration(self.study_config)
+        if 'capsul.engine.module.fsl' \
+                not in self.study_config.engine._loaded_modules:
+            self.study_config.engine.load_module('capsul.engine.module.fsl')
+            self.study_config.engine.init_module('capsul.engine.module.fsl')
+        self.sync_from_engine()
+
+    def initialize_callbacks(self):
+        self.study_config.on_trait_change(
+            self.sync_to_engine, '[fsl_config, fsl_prefix, use_fsl]')
+        self.study_config.engine.fsl.on_trait_change(
+            self.sync_from_engine, '[config, prefix, use]')
+        #if self.study_config.use_fsl is True:
+            #check_fsl_configuration(self.study_config)
+
+    def sync_to_engine(self):
+        self.study_config.engine.fsl.config = self.study_config.fsl_config
+        self.study_config.engine.fsl.prefix= self.study_config.fsl_prefix
+        self.study_config.engine.fsl.use = self.study_config.use_fsl
+
+    def sync_from_engine(self):
+        self.study_config.fsl_config = self.study_config.engine.fsl.config
+        self.study_config.fsl_prefix = self.study_config.engine.fsl.prefix
+        self.study_config.use_fsl = self.study_config.engine.fsl.use
+
