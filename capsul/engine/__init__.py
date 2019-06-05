@@ -9,7 +9,7 @@ import json
 import os.path as osp
 import re
 
-from traits.api import Undefined
+from traits.api import Undefined, Dict, String, Undefined
 
 from soma.controller import Controller
 from soma.serialization import to_json, from_json
@@ -40,7 +40,9 @@ class CapsulEngine(Controller):
     
     default_modules = ['capsul.engine.module.spm',
                        'capsul.engine.module.fsl']
-        
+    
+    computing_config = Dict(String, Controller)
+    
     def __init__(self, 
                  database_location,
                  database,
@@ -54,7 +56,12 @@ class CapsulEngine(Controller):
         self._database_location = database_location
         self._database = database
 
+        self.global_config = Controller()
+        self.computing_config = {}
+        
         db_config = database.json_value('config')
+        if db_config is None:
+            db_config = {}
 
         self._loaded_modules = {}
         self.modules = database.json_value('modules')
@@ -62,27 +69,46 @@ class CapsulEngine(Controller):
             self.modules = self.default_modules
         self.load_modules()
         
-        execution_context = from_json(database.json_value('execution_context'))
-        if execution_context is None:
-            execution_context = ExecutionContext()
-        self._execution_context = execution_context
-            
-        self._processing_engine = from_json(database.json_value('processing_engine'))        
         self._metadata_engine = from_json(database.json_value('metadata_engine'))
         
-        for cfg in (db_config, config):
+        for cfg in (db_config.get('global_config', {}), config):
             if cfg:
                 for n, v in cfg.items():
                     if isinstance(v, dict):
-                        o = getattr(self, n)
+                        o = getattr(self.global_config, n)
                         if isinstance(o, Controller):
                             o.import_from_dict(v)
                             continue
-                    setattr(self, n, v)
+                    setattr(self.global_config, n, v)
+        
+        for computing_resource, computing_config in db_config.get('computing_config', {}).items():
+            self.computing_config[computing_resource] = self.global_config.copy(with_values=False)
+            if computing_config:
+                for n, v in computing_config.items():
+                    if isinstance(v, dict):
+                        o = getattr(self.computing_config[computing_resource], n)
+                        if isinstance(o, Controller):
+                            o.import_from_dict(v)
+                            continue
+                    setattr(self.computing_config[computing_resource], n, v)
 
         self.init_modules()
 
         self.study_config = StudyConfig(engine=self)
+
+    def config(self, name, computing_resource):
+        result = getattr(self.computing_resource[computing_resource], name, None)
+        if result in (None, Undefined):
+            result = getattr(self.global_config, name)
+        return result
+    
+    def add_computing_resource(self, computing_resource):
+        self.computing_config[computing_resource] = self.global_config.copy(with_values=False)
+        
+        
+    def remove_computing_resource(self, computing_resource):
+        del self.computing_config[computing_resource]
+
 
     @property
     def database(self):
@@ -210,24 +236,17 @@ class CapsulEngine(Controller):
               obtained using traits defined on capsul engine (ignoring values
               that are undefined).
         '''
-        self.database.set_json_value('execution_context', 
-                                     to_json(self._execution_context))
-        if self._processing_engine:
-            self.database.set_json_value('processing_engine', 
-                                        to_json(self._processing_engine))
         if self._metadata_engine:
             self.database.set_json_value('metadata_engine', 
                                         to_json(self._metadata_engine))
         config = {}
-        for n in self.user_traits().keys():
-            v = getattr(self, n)
-            if v is Undefined:
-                continue
-            if isinstance(v, Controller):
-                v = v.export_to_dict(exclude_undefined=True)
-                if not v:
-                    continue
-            config[n] = v
+        global_config = self.global_config.export_to_dict(exclude_undefined=True)
+        if global_config:
+            config['global_config'] = global_config
+        computing_config = self.computing_config.export_to_dict(exclude_undefined=True)
+        if computing_config:
+            config['computing_config'] = computing_config
+        
         self.database.set_json_value('config', config)
         self.database.commit()
     
@@ -235,6 +254,9 @@ class CapsulEngine(Controller):
     #
     # Method imported from self.database
     #
+    
+    # TODO: take computing resource in account in the following methods
+    
     def set_named_directory(self, name, path):
         return self.database.set_named_directory(name, path)
     
@@ -274,9 +296,9 @@ class CapsulEngine(Controller):
 
     def start(self, process, history=True):
         '''
-        Asynchronously start the exection of a process in the environment
-        defined by self.processing_engine. Returns a string that is an uuid
-        of the process execution and can be used to get the status of the 
+        Asynchronously start the exection of a process in the connected 
+        computing environment. Returns a string that is an identifier of the
+        process execution and can be used to get the status of the 
         execution or wait for its termination.
         
         if history is True, an entry of the process execution is stored in
@@ -287,9 +309,56 @@ class CapsulEngine(Controller):
         '''
         raise NotImplementedError()
 
+
+    def connect(self, computing_ressource):
+        '''
+        Connect the capsul engine to a computing resource
+        '''
+        raise NotImplementedError()
+
+    
+    def connected_to(self):
+        '''
+        Return the name of the computing resource this capsul engine is
+        connected to or None if it is not connected.
+        '''
+        raise NotImplementedError()
+
+    
+    def disconnect(self):
+        '''
+        Disconnect from a computing ressource.
+        '''
+        raise NotImplementedError()
+
+
+    def environment_builder(self):
+        '''
+        Return a string that contains a Python script that must be run in
+        the computing environment in order to define the environment variables
+        that must be given to all processes.
+        '''
+        raise NotImplementedError()
+    
+    
     def executions(self):
+        '''
+        List the execution identifiers of all processes that have been started
+        but not disposed in the connected computing ressource. Raises an
+        exception if the computing resource is not connected.
+        '''
+        raise NotImplementedError()
         
-        
+
+    def dispose(self, execution_id):
+        '''
+        Update the database with the current state of a process execution and
+        free the resources used in the computing resource (i.e. remove the 
+        workflow from SomaWorkflow).
+        '''
+        raise NotImplementedError()
+    
+    
     def interrupt(self, execution_id):
         '''
         Try to stop the execution of a process. Does not wait for the process
@@ -306,17 +375,24 @@ class CapsulEngine(Controller):
     
     def status(self, execution_id):
         '''
-        Return information about a process execution. The content of this
-        information is still to be defined.
+        Return a simple value with the status of an execution (queued, 
+        running, terminated, error, etc.)
         '''
         raise NotImplementedError()
 
+
     def detailed_information(self, execution_id):
-        
+        '''
+        Return complete (and possibly big) information about a process
+        execution.
+        '''
+        raise NotImplementedError()
+
     
     def call(self, process, history=True):
         eid = self.start(process, history)
         return self.wait(eid)
+    
     
     def check_call(self, process, history=True):
         eid = self.start(process, history)
@@ -324,7 +400,10 @@ class CapsulEngine(Controller):
         self.raise_for_status(status, eid)
 
     def raise_for_status(self, status, execution_id=None):
-        ...
+        '''
+        Raise an exception if a process execution failed
+        '''
+        raise NotImplementedError()
         
     
 _populsedb_url_re = re.compile(r'^\w+(\+\w+)?://(.*)')

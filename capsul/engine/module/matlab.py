@@ -9,17 +9,13 @@ class MatlabConfig(Controller):
                       desc='Full path of the matlab executable')
     
 def load_module(capsul_engine, module_name):
-    capsul_engine.add_trait('matlab', Instance(MatlabConfig))
-    capsul_engine.matlab = MatlabConfig()
-    capsul_engine.matlab.on_trait_change(SomaPartial(update_execution_context, 
-                                                     weakref.proxy(capsul_engine)))
+    capsul_engine.global_config.add_trait('matlab', Instance(MatlabConfig))
+    capsul_engine.global_config.matlab = MatlabConfig()
 
 def init_module(capul_engine, module_name, loaded_module):
     pass
 
 
-def update_execution_context(capsul_engine):
-    if capsul_engine.matlab.executable is not Undefined:
-        capsul_engine.execution_context.environ['MATLAB_EXECUTABLE'] \
-            = capsul_engine.matlab.executable
+def build_environ(config, environ):
+  environ['MATLAB_EXECUTABLE'] = config['matlab']['executable']
 
