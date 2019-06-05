@@ -17,5 +17,6 @@ def init_module(capul_engine, module_name, loaded_module):
 
 
 def build_environ(config, environ):
-  environ['MATLAB_EXECUTABLE'] = config['matlab']['executable']
+    if 'matlab' in config:
+        environ['MATLAB_EXECUTABLE'] = config['matlab']['executable']
 
