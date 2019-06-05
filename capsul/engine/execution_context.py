@@ -2,7 +2,7 @@ import os
 import os.path as osp
 import sys
 
-from traits.api import DictStrStr, ListStr
+from traits.api import Dict, List, Unicode
 from soma.controller import Controller
 from soma.serialization import JSONSerializable
 
@@ -20,9 +20,9 @@ class ExecutionContext(Controller):
     and used to build the execution environment of each job.
     '''
     
-    python_path_first = ListStr()
-    python_path_last = ListStr()
-    environ = DictStrStr()
+    python_path_first = List(Unicode())
+    python_path_last = List(Unicode)
+    environ = Dict(Unicode(), Unicode())
     
     #def __init__(self, python_path_first=[], python_path_last=[],
                  #environ = {}):
@@ -104,10 +104,12 @@ class ExecutionContext(Controller):
 
 
 def from_json(python_path_first=[], 
-                                python_path_last=[]):
+              python_path_last=[],
+              environ={}):
     '''
     Creates an ExecutionContext from a set of parameters extracted from a
     JSON format.
     '''
     return ExecutionContext(python_path_first=python_path_first,
-                            python_path_last=python_path_last)
+                            python_path_last=python_path_last,
+                            environ=environ)

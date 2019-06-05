@@ -65,6 +65,33 @@ Pipeline nodes sorting and workflow helper
     :toctree: generated/capsul-studyconfig/
     :template: function.rst
 
+:mod:`capsul.engine.database_json`: JSON Database
+=================================================
+
+.. currentmodule:: capsul.engine.database_json
+
+.. automodule:: capsul.engine.database_json
+
+
+:mod:`capsul.engine`: Capsul Configuration
+================================================
+
+.. currentmodule:: capsul.engine
+
+.. autosummary::
+    :toctree: generated/capsul-engine/
+    :template: class.rst
+
+    CapsulEngine
+    database.DatabaseEngine
+
+.. autosummary::
+    :toctree: generated/capsul-engine/
+    :template: function.rst
+    
+    capsul_engine
+    database_factory
+
 
 :mod:`capsul.subprocess`: Running external software
 ===================================================

@@ -85,7 +85,7 @@ def fsl_check_call(command, **kwargs):
     return soma.subprocess.check_call(cmd, **kwargs)
 
 
-def check_output(command, **kwargs):
+def fsl_check_output(command, **kwargs):
     '''
     Equivalent to Python subprocess.check_output for FSL commands
     '''

@@ -1,10 +1,8 @@
 '''
 This module defines the main API to interact with Capsul processes.
 In order to execute a process, it is mandatory to have an instance of
-:py:class:`Platform`. Such an instance can be created with constructor
-or by using a JSON representation of the instance (created by 
-:py:meth:`Platform.to_json`) with
-:py:func:`soma.serialization.from_json`
+:py:class:`CapsulEngine`. Such an instance can be created with factory
+:py:func:`capsul_engine`
 '''
 import sys
 import json
@@ -22,6 +20,24 @@ from .execution_context import ExecutionContext
 from capsul.study_config.study_config import StudyConfig
 
 class CapsulEngine(Controller):
+    '''
+    A CapsulEngine is the mandatory entry point of all software using Capsul. It contains objects to store configuration and metadata, define execution environment (possibly remote) and perform pipelines execution.
+    
+    A CapsulEngine must be created using capsul.engine.capsul_engine function. For instance :
+    
+    from capsul.engine import capsul_engine
+    ce = capsul_engine()
+    
+    By default, CapsulEngine only store necessary configuration. But it may be necessary to modify Python environment globally to apply this configuration. For instance, Nipype must be configured globally. If SPM is configured in CapsulEngine, it is necessary to explicitely activate the configuration in order to modify the global configuration of Nipype for SPM. This activation is done by explicitely activating the execution context of the capsul engine with the following code :
+    
+    from capsul.engine import capsul_engine
+    ce = capsul_engine()
+    # Nipype is not configured here
+    with ce.execution_context():
+        # Nipype is configured here
+    # Nipype may not be configured here
+    '''
+    
     default_modules = ['capsul.engine.module.spm',
                        'capsul.engine.module.fsl']
         
@@ -31,7 +47,7 @@ class CapsulEngine(Controller):
                  config=None):
         '''
         CapsulEngine constructor should not be called directly.
-        Use engine() factory function instead.
+        Use capsul_engine() factory function instead.
         '''
         super(CapsulEngine, self).__init__()
         
@@ -39,6 +55,8 @@ class CapsulEngine(Controller):
         self._database = database
 
         db_config = database.json_value('config')
+
+        self._loaded_modules = {}
         self.modules = database.json_value('modules')
         if self.modules is None:
             self.modules = self.default_modules
@@ -98,16 +116,51 @@ class CapsulEngine(Controller):
                                      to_json(self._metadata_engine))
     
     def load_modules(self):
+        '''
+        Call self.load_module for each required module. The list of modules
+        to load is located in self.modules (if it is None,
+        self.default_modules is used).
+        '''
         if self.modules is None:
             modules = self.default_modules
         else:
             modules = self.modules
         
-        self._loaded_modules = {}
         for module in modules:
             self.load_module(module)
             
     def load_module(self, module):
+        '''
+        Load a module if it has not already been loaded (is this case,
+        nothing is done)
+        
+        A module is a fully qualified name of a Python module (as accepted
+        by Python import statement). Such a module must define the two
+        following functions (and may define two others, see below):
+        
+        def load_module(capsul_engine, module_name):        
+        def init_module(capul_engine, module_name, loaded_module):
+
+        load_module of each module is called once before reading and applyin
+        the configuration. It can be used to add traits to the CapsulEngine
+        in order to define the configuration options that are used by the
+        module. Values of these traits are automatically stored in
+        configuration in database when self.save() is used, and they are
+        retrieved from database before initializing modules.
+        
+        init_module of each module is called once after the reading of
+        configuration and the setting of capsul engine attributes defined in
+        traits.
+        
+        A module may define the following functions:
+        
+        def enter_execution_context(execution_context)
+        def exit_execution_context(execution_context)
+        
+        enter_execution_context (resp. exit_execution_context) is called each
+        time the capsul engine's exection context is activated (resp.
+        deactivated). 
+        '''
         if module not in self._loaded_modules:
             __import__(module)
             python_module = sys.modules.get(module)
@@ -121,6 +174,11 @@ class CapsulEngine(Controller):
         return False
     
     def init_modules(self):
+        '''
+        Call self.init_module for each required module. The list of modules
+        to initialize is located in self.modules (if it is None,
+        self.default_modules is used).
+        '''
         if self.modules is None:
             modules = self.default_modules
         else:
@@ -129,6 +187,9 @@ class CapsulEngine(Controller):
             self.init_module(module)
     
     def init_module(self, module):
+        '''
+        Initialize a module by calling its init_module function.
+        '''
         python_module = sys.modules.get(module)
         if python_module is None:
             raise ValueError('Cannot find %s in Python modules' % module)
@@ -138,6 +199,17 @@ class CapsulEngine(Controller):
         initializer(self, module, self._loaded_modules[module])
     
     def save(self):
+        '''
+        Save the full status of the CapsulEngine in the database.
+        The folowing items are set in the database:
+        
+          'execution_context': a JSON serialization of self.execution_context
+          'processing_engine': a JSON serialization of self.processing_engine
+          'metadata_engine': a JSON serialization of self.metadata_engine
+          'config': a dictionary containing configuration. This dictionary is
+              obtained using traits defined on capsul engine (ignoring values
+              that are undefined).
+        '''
         self.database.set_json_value('execution_context', 
                                      to_json(self._execution_context))
         if self._processing_engine:
@@ -187,10 +259,12 @@ class CapsulEngine(Controller):
         return self.database.set_path_metadata(name, path, named_directory)
 
 
-
+    #
+    # Processes and pipelines related methods
+    #
     def get_process_instance(self, process_or_id, **kwargs):
         '''
-        The supported way to get a process instance is to use this method.
+        The only official way to get a process instance is to use this method.
         For now, it simply calls self.study_config.get_process_instance
         but it will change in the future.
         '''
@@ -198,9 +272,68 @@ class CapsulEngine(Controller):
                                                           **kwargs)
         return instance
 
+    def start(self, process, history=True):
+        '''
+        Asynchronously start the exection of a process in the environment
+        defined by self.processing_engine. Returns a string that is an uuid
+        of the process execution and can be used to get the status of the 
+        execution or wait for its termination.
+        
+        if history is True, an entry of the process execution is stored in
+        the database. The content of this entry is to be defined but it will
+        contain the process parameters (to restart the process) and will be 
+        updated on process termination (for instance to store execution time
+        if possible).
+        '''
+        raise NotImplementedError()
 
+    def executions(self):
+        
+        
+    def interrupt(self, execution_id):
+        '''
+        Try to stop the execution of a process. Does not wait for the process
+        to be terminated.
+        '''
+        raise NotImplementedError()
+    
+    def wait(self, execution_id):
+        '''
+        Wait for the end of a process execution (either normal termination,
+        interruption or error).
+        '''
+        raise NotImplementedError()
+    
+    def status(self, execution_id):
+        '''
+        Return information about a process execution. The content of this
+        information is still to be defined.
+        '''
+        raise NotImplementedError()
+
+    def detailed_information(self, execution_id):
+        
+    
+    def call(self, process, history=True):
+        eid = self.start(process, history)
+        return self.wait(eid)
+    
+    def check_call(self, process, history=True):
+        eid = self.start(process, history)
+        status = self.wait(eid)
+        self.raise_for_status(status, eid)
+
+    def raise_for_status(self, status, execution_id=None):
+        ...
+        
+    
 _populsedb_url_re = re.compile(r'^\w+(\+\w+)?://(.*)')
 def database_factory(database_location):
+    '''
+    Create a DatabaseEngine from its location string. This location can be
+    either a sqlite file path (ending with '.sqlite' or ':memory:' for an 
+    in memory database for testing) or a populse_db URL.
+    '''
     global _populsedb_url_re 
     
     engine = None
@@ -236,10 +369,24 @@ def database_factory(database_location):
 
 def capsul_engine(database_location=None, config=None):
     '''
-    User facrory for creating capsul engines
+    User facrory for creating capsul engines.
+    
+    If no database_location is given, the default value is
+    '~/.config/capsul/capsul_engine.sqlite' where ~ is replaced by the
+    current use home directory (with os.path.expanduser).
+    
+    Configuration is read from a dictionary stored in the database with
+    the key 'config' (i.e. using database.json_value('config')). Then,
+    the content of the config parameter is recursively merged into the
+    configuration (replacing items with the same name).
+    
+    Before initialization of the CapsulEngine, modules are loaded. The
+    list of loaded modules is searched in the 'modules' value in the
+    database (i.e. in database.json_value('modules')) ; if no list is
+    defined in the database, CapsulEngine.default_modules is used.
     '''
     if database_location is None:
-        database_location = osp.expanduser('~/.config/capsul/capsul_engine.json')
+        database_location = osp.expanduser('~/.config/capsul/capsul_engine.sqlite')
     database = database_factory(database_location)
     capsul_engine = CapsulEngine(database_location, database, config=config)
     return capsul_engine

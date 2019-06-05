@@ -7,11 +7,14 @@ import json
 from capsul.engine.database import DatabaseEngine
 
 class JSONDBEngine(DatabaseEngine):
+    '''
+    A JSON dictionary implementation of :py:class:`capsul.engine.database.DatabaseEngine`
+    '''
     def __init__(self, json_filename):
         self.json_filename = osp.normpath(osp.abspath(json_filename))
         self.read_json()
     
-    def read_json(self):        
+    def read_json(self):
         if osp.exists(self.json_filename):
             self.json_dict = json.load(open(self.json_filename))
             self.modified = False
