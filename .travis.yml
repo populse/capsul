@@ -34,8 +34,11 @@ install:
     #- svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/branches/bug_fix /tmp/soma-base
     - git clone https://github.com/populse/soma-base.git /tmp/soma-base
     - python /tmp/soma-base/setup.py install
+    - pwd
+    - which python
     - pip install -U setuptools pip
     - git clone https://github.com/populse/populse_db.git /tmp/populse_db
+    - cd /tmp/populse_db
     - PYTHONPATH="/tmp/populse_db/lib/python${TRAVIS_PYTHON_VERSION}/site-packages:$PYTHONPATH" python /tmp/populse_db/setup.py install
     # until we release soma-workflow 2.9
     #- git clone https://github.com/neurospin/soma-workflow.git /tmp/soma-workflow
