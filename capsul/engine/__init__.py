@@ -361,8 +361,13 @@ def database_factory(database_location):
         # Import populse_db related module only
         # if used in order to add a mandatory
         # dependency on the project
-        from .database_populse import PopulseDBEngine
-        engine = PopulseDBEngine(populse_db)
+        try:
+            from .database_populse import PopulseDBEngine
+            engine = PopulseDBEngine(populse_db)
+        except ImportError:
+            # database is not available, fallback to json
+            engine_directory = osp.abspath(osp.dirname(database_location))
+            engine = JSONDBEngine(database_location)
     if engine_directory:
         engine.set_named_directory('capsul_engine', engine_directory)
     return engine
