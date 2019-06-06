@@ -87,7 +87,6 @@ REQUIRES = [
     #"soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
     "six",
-    "populse_db",
 ]
 EXTRA_REQUIRES = {
     "doc": [
@@ -102,6 +101,7 @@ EXTRA_REQUIRES = {
         "networkx>={0}".format(NETWORKX_MIN_VERSION),
         "nipype=={0}".format(NIPYPE_VERSION),
     ],
+    "database": ["populse_db"],
 
 }
 
