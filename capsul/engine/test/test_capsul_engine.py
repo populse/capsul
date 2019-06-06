@@ -46,6 +46,7 @@ class TestCapsulEngine(unittest.TestCase):
         tmp = tempfile.mktemp(suffix='.sqlite')
         ce = capsul_engine(tmp)
         ce.save()
+        ce2 = None
         try:
             ce2 = capsul_engine(tmp)
             self.assertEqual(ce.execution_context.to_json(),
