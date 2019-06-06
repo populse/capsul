@@ -35,7 +35,7 @@ install:
     - git clone https://github.com/populse/soma-base.git /tmp/soma-base
     - python /tmp/soma-base/setup.py install
     - git clone https://github.com/populse/populse_db.git /tmp/populse_db
-    - python /tmp/populse_db/setup.py install
+    - PYTHONPATH="/tmp/populse_db/lib/python${TRAVIS_PYTHON_VERSION}/site-packages:$PYTHONPATH" python /tmp/populse_db/setup.py install
     # until we release soma-workflow 2.9
     #- git clone https://github.com/neurospin/soma-workflow.git /tmp/soma-workflow
     #- pushd /tmp/soma-workflow
