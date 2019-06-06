@@ -288,8 +288,8 @@ class CapsulEngine(Controller):
         raise NotImplementedError()
 
     def executions(self):
-        
-        
+        raise NotImplementedError()
+
     def interrupt(self, execution_id):
         '''
         Try to stop the execution of a process. Does not wait for the process
@@ -312,7 +312,7 @@ class CapsulEngine(Controller):
         raise NotImplementedError()
 
     def detailed_information(self, execution_id):
-        
+        raise NotImplementedError()
     
     def call(self, process, history=True):
         eid = self.start(process, history)
@@ -324,7 +324,7 @@ class CapsulEngine(Controller):
         self.raise_for_status(status, eid)
 
     def raise_for_status(self, status, execution_id=None):
-        ...
+        raise NotImplementedError()
         
     
 _populsedb_url_re = re.compile(r'^\w+(\+\w+)?://(.*)')
