@@ -31,6 +31,7 @@ before_install:
     #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libpng; fi
 
 install:
+    - python --version
     - pip install numpy six
     # - pip install nose
     - if [ ${TRAVIS_PYTHON_VERSION} == "2.6" ]; then pip install "traits==4.6.0"; else pip install traits ;fi
