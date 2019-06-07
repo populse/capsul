@@ -11,11 +11,14 @@ class JSONDBEngine(DatabaseEngine):
     A JSON dictionary implementation of :py:class:`capsul.engine.database.DatabaseEngine`
     '''
     def __init__(self, json_filename):
-        self.json_filename = osp.normpath(osp.abspath(json_filename))
+        if json_filename is not None:
+            self.json_filename = osp.normpath(osp.abspath(json_filename))
+        else:
+            self.json_filename = None
         self.read_json()
     
     def read_json(self):
-        if osp.exists(self.json_filename):
+        if self.json_filename is not None and osp.exists(self.json_filename):
             self.json_dict = json.load(open(self.json_filename))
             self.modified = False
         else:
@@ -23,7 +26,7 @@ class JSONDBEngine(DatabaseEngine):
             self.modified = True
             
     def commit(self):
-        if self.modified:
+        if self.modified and self.json_filename is not None:
             parent = osp.dirname(self.json_filename)
             if not osp.exists(parent):
                 os.makedirs(parent)
