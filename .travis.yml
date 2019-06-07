@@ -4,16 +4,20 @@ matrix:
   include:
     - os: osx
       language: generic
+      name: python 3.5
     - os: linux
       language: python
+      name: python 2.6
       python:
         - 2.6
     - os: linux
       language: python
+      name: python 2.7
       python:
         - 2.7
     - os: linux
       language: python
+      name: python 3.5
       python:
         - 3.5
 
