@@ -101,9 +101,12 @@ EXTRA_REQUIRES = {
         "networkx>={0}".format(NETWORKX_MIN_VERSION),
         "nipype=={0}".format(NIPYPE_VERSION),
     ],
-    "database": ["populse_db"],
-
 }
+
+if sys.version_info[:2] >= (2, 7):
+    # populse_db does not work with python 2.6
+    # (or rather, its dependencies don't work)
+    EXTRA_REQUIRES["database"] = ["populse_db"]
 
 # tests to run
 test_commands = ['%s -m capsul.test.test_capsul' % sys.executable]
