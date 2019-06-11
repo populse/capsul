@@ -18,7 +18,7 @@ Documentation of the CAPSUL tools
                 </div>
 
                 <div class="span6 box">
-                    <h2><a href="api_tree/index.html">API</a></h2>
+                    <h2><a href="api/index.html">API</a></h2>
                     <blockquote>The exact API of all functions and classes, as given 
                         by the docstrings.
                     </blockquote>
