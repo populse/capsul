@@ -8,9 +8,14 @@ from soma.sorted_dictionary import OrderedDict
 from soma.controller import Controller
 from soma.functiontools import partial, SomaPartial
 
-    
+''' A schema defines attrinbutes used within a completion framework
+'''
+
 class AttributesSchema(object):
-    
+    '''
+    An AttributesSchema has a name, which is used as an identifier to specify completion.
+    '''
+
     # Name of the schema. Must be defined in subclasses.
     schema_name = None
 

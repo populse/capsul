@@ -833,8 +833,7 @@ def dump_pipeline_state_as_dict(pipeline):
     The dict may be saved, and used to restore a pipeline state, using
     :py:func:`set_pipeline_state_from_dict`.
 
-    Note that
-:py:meth:`pipeline.export_to_dict <soma.controller.controller.export_to_dict>`
+    Note that :py:meth:`pipeline.export_to_dict <soma.controller.controller.export_to_dict>`
     would almost do the job, but does not include the recursive aspect.
 
     Parameters

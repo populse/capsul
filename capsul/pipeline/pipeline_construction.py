@@ -6,6 +6,10 @@
 # for details.
 ##########################################################################
 
+'''
+This module is an internal machinery, the user needs not to know it and bother about it.
+'''
+
 from __future__ import absolute_import
 
 import xml.etree.cElementTree as ET

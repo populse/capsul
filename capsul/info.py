@@ -8,6 +8,9 @@
 
 import sys
 
+''' Information module describing the Capsul package.
+'''
+
 # Capsul current version
 version_major = 2
 version_minor = 2
