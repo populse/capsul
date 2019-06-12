@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Result viewer
+
+Classes
+=======
+:class:`ViewerWidget`
+---------------------
+'''
+
 # System import
 import logging
 import six

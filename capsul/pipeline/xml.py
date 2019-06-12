@@ -6,6 +6,17 @@
 # for details.
 ##########################################################################
 
+'''
+XML IO for pipelines
+
+Functions
+=========
+:func:`create_xml_pipeline`
+---------------------------
+:func:`save_xml_pipeline`
+-------------------------
+'''
+
 from __future__ import absolute_import
 
 import os

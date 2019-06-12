@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+A widget to visualize a pipeline as a simple workflow
+
+Classes
+=======
+:class:`PipelineUserView`
+-------------------------
+'''
+
 from __future__ import print_function
 
 # System import

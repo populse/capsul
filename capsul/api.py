@@ -29,9 +29,9 @@ Classes
 Functions
 ---------
 
-* :func:`capsul_engine`
-* :func:`get_process_instance`
-* :func:`find_processes`
+* :func:`~capsul.engine.capsul_engine`
+* :func:`~capsul.study_config.process_instance.get_process_instance`
+* :func:`~capsul.utils.finder.find_processes`
 
 '''
 

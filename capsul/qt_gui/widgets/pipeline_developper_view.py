@@ -6,6 +6,38 @@
 # for details.
 ##########################################################################
 
+'''
+A Pipeline structure viewer widget, which displays pipeline nodes as boxes and links as lines, and provides pipelin editor features.
+
+The only main class you should look at is the :class:`PipelineDevelopperView` widget, the remaining is internal infrastructure::
+
+    pv = PipelineDevelopperView(pipeline, allow_open_controller=True,
+                                enable_edition=True,show_sub_pipelines=True)
+    pv.show()
+
+Classes
+=======
+:class:`ColorType`
+------------------
+:class:`Plug`
+-------------
+:class:`EmbeddedSubPipelineItem`
+--------------------------------
+:class:`boxItem`
+----------------
+:class:`NodeGWidget`
+--------------------
+:class:`HandleItem`
+-------------------
+:class:`Link`
+-------------
+:class:`PipelineScene`
+----------------------
+:class:`PipelineDevelopperView`
+-------------------------------
+
+'''
+
 from __future__ import print_function
 from __future__ import absolute_import
 

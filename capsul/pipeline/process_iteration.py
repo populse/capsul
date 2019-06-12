@@ -6,6 +6,16 @@
 # for details.
 ##########################################################################
 
+'''
+Utility class for iterated nodes in a pipeline. This is mainly internal infrastructure, which a normal programmer should not have to bother about.
+A pipeline programmer will not instantiate :class:`ProcessIteration` directly, but rather use the :class:`~capsul.pipeline.pipeline.Pipeline` method :meth:`~capsul.pipeline.pipeline.Pipeline.add_iterative_process`.
+
+Classes
+=======
+:class:`ProcessIteration`
+-------------------------
+'''
+
 import sys
 import six
 from traits.api import List, Undefined

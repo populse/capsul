@@ -6,7 +6,12 @@
 # for details.
 ##########################################################################
 
-''' Pipeline main class
+''' Pipeline main class module
+
+Classes
+=======
+:class:`Pipeline`
+-----------------
 '''
 
 from __future__ import print_function

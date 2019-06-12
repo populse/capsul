@@ -6,6 +6,28 @@
 # for details.
 ##########################################################################
 
+''' Process main class and infrastructure
+
+Classes
+-------
+
+.. currentmodule:: capsul.process.process
+
+:class:`Process`
+++++++++++++++++
+:class:`FileCopyProcess`
+++++++++++++++++++++++++
+:class:`InteractiveProcess`
++++++++++++++++++++++++++++
+:class:`NipypeProcess`
+++++++++++++++++++++++
+:class:`ProcessMeta`
+++++++++++++++++++++
+:class:`ProcessResult`
+++++++++++++++++++++++
+
+'''
+
 # System import
 import os
 import operator

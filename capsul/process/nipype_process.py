@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Utilities to lik Capsul and NiPype interfaces
+
+Functions
+---------
+:func:`nipype_factory`
+++++++++++++++++++++++
+'''
+
 # System import
 import sys
 import os
