@@ -6,82 +6,71 @@ import weakref
 from soma.controller import Controller
 from soma.functiontools import SomaPartial
 from soma.path import find_in_path
-from traits.api import File, Bool, Undefined, String, Instance
+from traits.api import File, Bool, Undefined, String, Directory, Instance
 from soma.path import find_in_path
 
 class FSLConfig(Controller):
+    directory = Directory(Undefined, output=False,
+                          desc='Directory where FSL is installed')
     config = File(Undefined, output=False,
                   desc='Parameter to specify the fsl.sh path')
     prefix = String(Undefined,
                     desc='Prefix to add to FSL commands')
     use = Bool(Undefined,
                desc='Parameter to tell that FSL must be configured')
-    
+
+
 def load_module(capsul_engine, module_name):
     capsul_engine.global_config.add_trait('fsl', Instance(FSLConfig))
     capsul_engine.global_config.fsl = FSLConfig()
 
 
-def init_module(capul_engine, module_name, loaded_module):
-    if capul_engine.global_config.  fsl.use is True:
-        check_fsl_configuration(capul_engine)
-
-def build_environ(config, environ):
-    if 'fsl' in config:
-        environ['FSL_CONFIG'] = config['fsl']['config']
-        environ['FSL_PREFIX'] = config['fsl'].get('prefix', '')
-
-
-def check_fsl_configuration(capsul_engine):
-    '''
-    Check thas capsul_engine configuration is valid to call FSL commands.
-    If not, try to automatically configure FSL. Finally raises an
-    EnvironmentError if configuration is still wrong.
-    '''
-    # Configuration must be valid otherwise
-    # try to update configuration and recheck is validity
-    if check_configuration_values(capsul_engine) is not None:
-        auto_configuration(capsul_engine)
-        error_message = check_configuration_values(capsul_engine)
+def set_environ(config, environ):
+    fsl_config = config.get('fsl', {})
+    use = fsl_config.get('use')
+    if  use is True or (use is None and fsl_config):
+        error_message = check_environ(environ)
+        if error_message:
+            complete_environ(config, environ)
+        error_message = check_environ(environ)
         if error_message:
             raise EnvironmentError(error_message)
+
     
-def check_configuration_values(capsul_engine):
+def check_environ(environ):
     '''
     Check if the configuration is valid to run FLS and returns an error
     message if there is an error or None if everything is good.
     '''
-    fsl_prefix = getattr(capsul_engine.global_config.fsl, 'prefix', '')
-    if fsl_prefix is Undefined:
-        fsl_prefix = ''
-    if capsul_engine.global_config.fsl.config is Undefined:
+    fsl_prefix = environ.get('FSL_PREFIX', '')
+    fsl_config = environ.get('FSL_CONFIG')
+    if not fsl_config:
         if not find_in_path('%sbet' % fsl_prefix):
             return 'FSL command "%sbet" cannot be found in PATH' % fsl_prefix
     else:
         if fsl_prefix:
             return 'FSL configuration must either use fsl.config or fsl.prefix but not both'
-        if not osp.exists(capsul_engine.global_config.fsl.config):
-            return 'File "%s" does not exists' % capsul_engine.global_config.fsl.config
-        if not capsul_engine.global_config.fsl.config.endswith('fsl.sh'):
-            return 'File "%s" is not a path to fsl.sh script' % capsul_engine.global_config.fsl.config
+        if not osp.exists(fsl_config):
+            return 'File "%s" does not exists' % fsl_config
+        if not fsl_config.endswith('fsl.sh'):
+            return 'File "%s" is not a path to fsl.sh script' % fsl_config
     return None
 
-def auto_configuration(capsul_engine):
+
+def complete_environ(config, environ):
     '''
     Try to automatically set the capsul_engine configuration for FSL.
     '''
-    fsl_dir = os.environ.get('FSLDIR')
-    fsl_prefix = getattr(capsul_engine.global_config.fsl, 'prefix', '')
-    if fsl_prefix is Undefined:
-        fsl_prefix = ''
+    fsl_config = config.get('fsl', {})
+    fsl_dir = fsl_config.get('directory', os.environ.get('FSLDIR'))
+    fsl_prefix = environ.get('FSL_PREFIX', '')
     if fsl_dir and not fsl_prefix:
         # Try to set fsl_config from FSLDIR environment variable
         fsl_config = '%s/etc/fslconf/fsl.sh' % fsl_dir
         if osp.exists(fsl_config):
-            capsul_engine.global_config.fsl.config = fsl_config
+            environ['FSL_CONFIG'] = fsl_config
     elif not fsl_prefix:
         # Try to set fsl_prefix by searching fsl-*bet in PATH
         bet = find_in_path('fsl*-bet')
         if bet:
-            capsul_engine.global_config.fsl.prefix = osp.basename(bet)[:-3]
-
+            environ['FSL_PREFIX'] = osp.basename(bet)[:-3]

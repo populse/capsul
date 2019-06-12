@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import glob
 import os
 import os.path as osp
@@ -7,6 +9,8 @@ from soma.controller import Controller
 from soma.functiontools import SomaPartial
 from traits.api import Directory, Undefined, Instance, String, Bool
 
+from . import matlab
+
 class SPMConfig(Controller):
     directory = Directory(Undefined, output=False,
                           desc='Directory where SPM is installed')
@@ -15,80 +19,67 @@ class SPMConfig(Controller):
     standalone = Bool(Undefined, output=False,
                       desc='If this parameter is set to True, use the '
                       'standalone SPM version, otherwise use Matlab.')
-    use = Bool(Undefined, output=False,
-               desc='If this parameter is set to True, the SPM '
-                    'configuration is checked and must be valid '
-                    'otherwise an error is raised.')
+    use = Bool(Undefined, output=True,
+               desc='If this parameter is set to False, the SPM '
+                    'configuration is not checked on environment activation.')
     
 def load_module(capsul_engine, module_name):
     capsul_engine.load_module('capsul.engine.module.matlab')
     capsul_engine.global_config.add_trait('spm', Instance(SPMConfig))
     capsul_engine.global_config.spm = SPMConfig()
 
-def init_module(capul_engine, module_name, loaded_module):
-    if capul_engine.global_config.spm.use is True:
-        check_spm_configuration(capul_engine)
 
-def build_environ(config, environ):
-    if 'spm' in config:
-        environ['SPM_DIRECTORY'] = config['spm']['directory']
-        environ['SPM_VERSION'] = config['spm']['version']
-        environ['SPM_STANDALONE'] = config['spm']['standalone']
-
-
-def check_spm_configuration(capsul_engine):
-    '''
-    Check thas capsul_engine configuration is valid to call SPM commands.
-    If not, try to automatically configure SPM. Finally raises an
-    EnvironmentError if configuration is still wrong.
-    '''
-    # Configuration must be valid otherwise
-    # try to update configuration and recheck is validity
-    if check_configuration_values(capsul_engine) is not None:
-        auto_configuration(capsul_engine)
-        error_message = check_configuration_values(capsul_engine)
+def set_environ(config, environ):
+    spm_config = config.get('spm', {})
+    use = spm_config.get('use')
+    if  use is True or (use is None and 'directory' in spm_config):
+        error_message = check_environ(environ)
+        if error_message:
+            complete_environ(config, environ)
+        error_message = check_environ(environ)
         if error_message:
             raise EnvironmentError(error_message)
+
     
-def check_configuration_values(capsul_engine):
+def check_environ(environ):
     '''
     Check if the configuration is valid to run SPM and returns an error
     message if there is an error or None if everything is good.
     '''
-    if capsul_engine.global_config.spm.directory is Undefined:
+    if not environ.get('SPM_DIRECTORY'):
         return 'SPM directory is not defined'
-    if capsul_engine.global_config.spm.version is Undefined:
-        return 'SPM version is not defined (maybe %s is not a valid SPM directory)' % capsul_engine.global_config.spm.directory
-    if capsul_engine.global_config.spm.standalone is Undefined:
-        return 'Selection of SPM installation type : Standalone or Matlab'
-    if not osp.isdir(capsul_engine.global_config.spm.directory):
-        return 'No valid SPM directory: %s' % capsul_engine.global_config.spm.directory
-    if not capsul_engine.global_config.spm.standalone:
-        if capsul_engine.matlab.executable is Undefined:
-            return 'Matlab executable must be defined for SPM'
+    if not environ.get('SPM_VERSION'):
+        return 'SPM version is not defined (maybe %s is not a valid SPM directory)' % environ['SPM_DIRECTORY']
+    if not environ.get('SPM_STANDALONE'):
+        return 'No selection of SPM installation type : Standalone or Matlab'
+    if not osp.isdir(environ['SPM_DIRECTORY']):
+        return 'No valid SPM directory: %s' % environ['SPM_DIRECTORY']
+    if environ['SPM_STANDALONE'] != 'yes':
+        matlab_error = matlab.check_environ(environ)
+        if matlab_error:
+            return 'Matlab configuration must be valid for SPM: ' + matlab_error
     return None
 
-def auto_configuration(capsul_engine):
+def complete_environ(config, environ):
     '''
-    Try to automatically set the capsul_engine configuration for SPM.
+    Try to automatically complete environment for SPM
     '''
-    if capsul_engine.global_config.spm.directory is not Undefined:
-        mcr = glob.glob(osp.join(capsul_engine.global_config.spm.directory, 'spm*_mcr'))
+    spm_directory = config.get('spm', {}).get('directory')
+    if spm_directory:
+        environ['SPM_DIRECTORY'] = spm_directory
+        mcr = glob.glob(osp.join(spm_directory, 'spm*_mcr'))
         if mcr:
-            capsul_engine.global_config.spm.version = osp.basename(mcr[0])[3:-4]
-            capsul_engine.global_config.spm.standalone = True
+            environ['SPM_VERSION'] = osp.basename(mcr[0])[3:-4]
+            environ['SPM_STANDALONE'] = 'yes'
         else:
-            capsul_engine.global_config.spm.standalone = False
+            environ['SPM_STANDALONE'] = 'no'
             # determine SPM version (currently 8 or 12)
-            if osp.isdir(osp.join(
-                    capsul_engine.global_config.spm.directory, 'toolbox', 'OldNorm')):
-                capsul_engine.global_config.spm.version = '12'
-            elif os.path.isdir(os.path.join(
-                capsul_engine.global_config.spm.directory, 'templates')):
-                capsul_engine.global_config.spm.version = '8'
+            if osp.isdir(osp.join(spm_directory, 'toolbox', 'OldNorm')):
+                environ['SPM_VERSION'] = '12'
+            elif osp.isdir(osp.join(spm_directory, 'templates')):
+                environ['SPM_VERSION'] = '8'
             else:
-                if capsul_engine.global_config.spm.version is not Undefined:
-                    del capsul_engine.global_config.spm.version
+                environ.pop('SPM_VERSION', None)
 
 
 

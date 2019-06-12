@@ -4,36 +4,41 @@ In order to execute a process, it is mandatory to have an instance of
 :py:class:`CapsulEngine`. Such an instance can be created with factory
 :py:func:`capsul_engine`
 '''
+import six
 import sys
 import json
+import os
 import os.path as osp
 import re
+import tempfile
+import subprocess
 
 from traits.api import Undefined, Dict, String, Undefined
 
 from soma.controller import Controller
 from soma.serialization import to_json, from_json
+from soma.sorted_dictionary import SortedDictionary
 
 from .database_json import JSONDBEngine
 from .execution_context import ExecutionContext
 
-from capsul.study_config.study_config import StudyConfig
+#from capsul.study_config.study_config import StudyConfig
 
 class CapsulEngine(Controller):
     '''
-    A CapsulEngine is the mandatory entry point of all software using Capsul. It contains objects to store configuration and metadata, define execution environment (possibly remote) and perform pipelines execution.
+    A CapsulEngine is the mandatory entry point of all software using Capsul. It contains objects to store configuration and metadata, define execution environment(s) (possibly remote) and perform pipelines execution.
     
     A CapsulEngine must be created using capsul.engine.capsul_engine function. For instance :
     
     from capsul.engine import capsul_engine
     ce = capsul_engine()
     
-    By default, CapsulEngine only store necessary configuration. But it may be necessary to modify Python environment globally to apply this configuration. For instance, Nipype must be configured globally. If SPM is configured in CapsulEngine, it is necessary to explicitely activate the configuration in order to modify the global configuration of Nipype for SPM. This activation is done by explicitely activating the execution context of the capsul engine with the following code :
+    By default, CapsulEngine only store configuration. But it may be necessary to modify Python environment globally to apply this configuration. For instance, Nipype must be configured globally. If SPM is configured in CapsulEngine, it is necessary to explicitely activate the configuration in order to modify the global configuration of Nipype for SPM. This activation is done by explicitely activating the capsul engine with the following code :
     
     from capsul.engine import capsul_engine
     ce = capsul_engine()
     # Nipype is not configured here
-    with ce.execution_context():
+    with ce.:
         # Nipype is configured here
     # Nipype may not be configured here
     '''
@@ -63,7 +68,7 @@ class CapsulEngine(Controller):
         if db_config is None:
             db_config = {}
 
-        self._loaded_modules = {}
+        self._loaded_modules = SortedDictionary()
         self.modules = database.json_value('modules')
         if self.modules is None:
             self.modules = self.default_modules
@@ -92,21 +97,32 @@ class CapsulEngine(Controller):
                             continue
                     setattr(self.computing_config[computing_resource], n, v)
 
-        self.init_modules()
-
-        self.study_config = StudyConfig(engine=self)
+        #self.study_config = StudyConfig(engine=self)
 
     def config(self, name, computing_resource):
+        '''
+        Return a configuration attribute for a selected computing resource
+        name. If the attribute does not exist in the computing resource
+        configuration, it is searched in global configuration.
+        '''
         result = getattr(self.computing_resource[computing_resource], name, None)
         if result in (None, Undefined):
             result = getattr(self.global_config, name)
         return result
     
     def add_computing_resource(self, computing_resource):
+        '''
+        Add a new computing ressource in this capsul engine. Each computing
+        resouce can have its own configuration values that override gobal
+        configuration.
+        '''
         self.computing_config[computing_resource] = self.global_config.copy(with_values=False)
         
         
     def remove_computing_resource(self, computing_resource):
+        '''
+        Remove a computing resource configuration from this capsul engine
+        '''
         del self.computing_config[computing_resource]
 
 
@@ -117,19 +133,7 @@ class CapsulEngine(Controller):
     @property
     def database_location(self):
         return self._database_location
-    
-    @property
-    def execution_context(self):
-        return self._execution_context
-
-    @execution_context.setter
-    def execution_context(self, execution_context):
-        self._execution_context = execution_context
-    
-    @property
-    def processing_engine(self):
-        return self._processing_engine
-    
+        
     
     @property
     def metadata_engine(self):
@@ -199,38 +203,12 @@ class CapsulEngine(Controller):
             return True
         return False
     
-    def init_modules(self):
-        '''
-        Call self.init_module for each required module. The list of modules
-        to initialize is located in self.modules (if it is None,
-        self.default_modules is used).
-        '''
-        if self.modules is None:
-            modules = self.default_modules
-        else:
-            modules = self.modules
-        for module in modules:
-            self.init_module(module)
-    
-    def init_module(self, module):
-        '''
-        Initialize a module by calling its init_module function.
-        '''
-        python_module = sys.modules.get(module)
-        if python_module is None:
-            raise ValueError('Cannot find %s in Python modules' % module)
-        initializer = getattr(python_module, 'init_module', None)
-        if initializer is None:
-            raise ValueError('No function init_module() defined in %s' % module)
-        initializer(self, module, self._loaded_modules[module])
-    
+
     def save(self):
         '''
         Save the full status of the CapsulEngine in the database.
         The folowing items are set in the database:
         
-          'execution_context': a JSON serialization of self.execution_context
-          'processing_engine': a JSON serialization of self.processing_engine
           'metadata_engine': a JSON serialization of self.metadata_engine
           'config': a dictionary containing configuration. This dictionary is
               obtained using traits defined on capsul engine (ignoring values
@@ -322,7 +300,7 @@ class CapsulEngine(Controller):
         Return the name of the computing resource this capsul engine is
         connected to or None if it is not connected.
         '''
-        raise NotImplementedError()
+        return None
 
     
     def disconnect(self):
@@ -336,9 +314,38 @@ class CapsulEngine(Controller):
         '''
         Return a string that contains a Python script that must be run in
         the computing environment in order to define the environment variables
-        that must be given to all processes.
+        that must be given to all processes. The code of this script must be
+        executed in the processing context (i.e. on the, eventualy remote,
+        machine that will run the process). This code is supposed to be executed
+        in a new Python command and prints a JSON dictionary on standard output.
+        This dictionary contain environment variables that must be given to any
+        process using the environment of this capsul engine.
         '''
-        raise NotImplementedError()
+        environ = {}
+        import_lines = []
+        code_lines = []
+
+        config = self.global_config.export_to_dict(exclude_undefined=True,
+                                                   exclude_empty=True)
+        connected_computing_resource = self.connected_to()
+        if connected_computing_resource:
+            computing_config = self.computing_config[connected_computing_resource]
+            config.update(computing_config.export_to_dict(exclude_undefined=True,
+                                                          exclude_empty=True))
+        import_lines.append('from collections import OrderedDict')
+        import_lines.append('import json')
+        import_lines.append('import sys')
+        code_lines.append('config = %s' % repr(config))
+        code_lines.append('environ = {}')
+        for module in self._loaded_modules:
+            python_module = sys.modules[module]
+            if getattr(python_module, 'set_environ', None):
+                import_lines.append('import %s' % module)            
+                code_lines.append('%s.set_environ(config, environ)' % module)
+        code_lines.append('json.dump(environ, sys.stdout)')
+        
+        code = '\n'.join(import_lines) + '\n\n' + '\n'.join(code_lines)
+        return code
     
     
     def executions(self):
@@ -404,6 +411,30 @@ class CapsulEngine(Controller):
         Raise an exception if a process execution failed
         '''
         raise NotImplementedError()
+        
+
+    def __enter__(self):
+        code = self.environment_builder()
+        print code
+        tmp = tempfile.NamedTemporaryFile(suffix='.py')
+        tmp.write(code)
+        tmp.flush()
+        json_environ = subprocess.check_output([sys.executable, tmp.name])
+        environ = json.loads(json_environ)
+        
+        self._environ_backup = {}
+        for n in environ.keys():
+            v = os.environ.get(n)
+            self._environ_backup[n] = v
+            os.environ[n] = environ[n]
+            
+    def __exit__(self, exc_type, exc_value, traceback):        
+        for n, v in self._environ_backup.items():
+            if v is None:
+                os.environ.pop(n, None)
+            else:
+                os.environ[n] = v
+        del self._environ_backup
         
     
 _populsedb_url_re = re.compile(r'^\w+(\+\w+)?://(.*)')

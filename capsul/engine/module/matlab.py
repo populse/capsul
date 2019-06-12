@@ -1,3 +1,4 @@
+import os
 import weakref
 
 from soma.controller import Controller
@@ -12,11 +13,24 @@ def load_module(capsul_engine, module_name):
     capsul_engine.global_config.add_trait('matlab', Instance(MatlabConfig))
     capsul_engine.global_config.matlab = MatlabConfig()
 
-def init_module(capul_engine, module_name, loaded_module):
-    pass
+
+def set_environ(config, environ):
+    matlab_executable = config.get('matlab', {}).get('executable')
+    if matlab_executable:
+        environ['MATLAB_EXECUTABLE'] = matlab_executable
+        error = check_environ(environ)
+        if error:
+            raise EnvironmentError(error)
+
+def check_environ(environ):
+    matlab_executable = environ.get('MATLAB_EXECUTABLE')
+    if not matlab_executable:
+        return 'MATLAB_EXECUTABLE is not defined'
+    if not os.path.exists(matlab_executable):
+        return 'Matlab executable is defined as "%s" but this path does not exist' % matlab_executable
+    return None
+
+    
 
 
-def build_environ(config, environ):
-    if 'matlab' in config:
-        environ['MATLAB_EXECUTABLE'] = config['matlab']['executable']
 
