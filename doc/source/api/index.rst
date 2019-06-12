@@ -1,13 +1,7 @@
 :orphan:
 
-Capsul API
-==========
-
-.. * :doc:`api`
-.. * :doc:`process`
-.. * :doc:`pipeline`
-.. * :doc:`attributes`
-
+Capsul API modules
+==================
 
 .. toctree::
     :maxdepth: 1

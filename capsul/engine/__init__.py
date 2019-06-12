@@ -3,7 +3,20 @@ This module defines the main API to interact with Capsul processes.
 In order to execute a process, it is mandatory to have an instance of
 :py:class:`CapsulEngine`. Such an instance can be created with factory
 :py:func:`capsul_engine`
+
+Classes
+=======
+:class:`CapsulEngine`
+---------------------
+
+Functions
+=========
+:func:`database_factory`
+------------------------
+:func:`capsul_engine`
+---------------------
 '''
+
 import sys
 import json
 import os.path as osp

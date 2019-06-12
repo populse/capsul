@@ -1,4 +1,27 @@
 '''
+Classes
+=======
+:class:`Popen`
+--------------
+
+Functions
+=========
+:func:`find_spm`
+----------------
+:func:`check_spm_configuration`
+-------------------------------
+:func:`check_configuration_values`
+----------------------------------
+:func:`auto_configuration`
+--------------------------
+:func:`spm_command`
+-------------------
+:func:`call`
+------------
+:func:`check_call`
+------------------
+:func:`check_output`
+--------------------
 '''
 
 from __future__ import absolute_import
