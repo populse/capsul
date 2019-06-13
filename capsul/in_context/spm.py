@@ -4,11 +4,11 @@ configuration stored in ExecutionContext. To functions and class in
 this module it is mandatory to activate an ExecutionContext (using a
 with statement). For instance:
 
-   from capsul.engine import engine
-   from capsul.in_context.fsl import fsl_call
+   from capsul.engine import capsul_engine
+   from capsul.in_context.spm import spm_check_call
    
-   capsul_engine = engine()
-   with capsul_engine.execution_context:
+   ce = capsul_engine()
+   with ce:
      spm_check_call(spm_batch_filename)
 
 For calling SPM command with this module, the first arguent of
@@ -25,7 +25,7 @@ import soma.subprocess
 
 
 def spm_command(spm_batch_filename):
-    if os.environ.get('SPM_STANDALONE') == 'True':
+    if os.environ.get('SPM_STANDALONE') == 'yes':
         # Check that batch file exists and raise appropriate error if not
         open(spm_batch_filename)
         spm_directory = os.environ.get('SPM_DIRECTORY', '')
@@ -83,10 +83,9 @@ if __name__ == '__main__':
     from capsul.in_context.spm import spm_call
     import tempfile
     
-    ce = capsul_engine(config={
-        'spm': dict(directory='/casa/spm_directory',
-                    use=True)})
-    with ce.execution_context:
+    ce = capsul_engine()
+    ce.global_config.spm.directory = '/casa/spm12_standalone'
+    with ce:
         batch = tempfile.NamedTemporaryFile(suffix='.m')
         batch.write("fprintf(1, '%s', spm('dir'));")
         batch.flush()

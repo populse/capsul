@@ -20,7 +20,6 @@ from soma.serialization import to_json, from_json
 from soma.sorted_dictionary import SortedDictionary
 
 from .database_json import JSONDBEngine
-from .execution_context import ExecutionContext
 
 #from capsul.study_config.study_config import StudyConfig
 
@@ -169,27 +168,24 @@ class CapsulEngine(Controller):
         following functions (and may define two others, see below):
         
         def load_module(capsul_engine, module_name):        
-        def init_module(capul_engine, module_name, loaded_module):
-
-        load_module of each module is called once before reading and applyin
+        def set_environ(config, environ):
+        
+        load_module of each module is called once before reading and applying
         the configuration. It can be used to add traits to the CapsulEngine
         in order to define the configuration options that are used by the
         module. Values of these traits are automatically stored in
         configuration in database when self.save() is used, and they are
         retrieved from database before initializing modules.
         
-        init_module of each module is called once after the reading of
-        configuration and the setting of capsul engine attributes defined in
-        traits.
-        
-        A module may define the following functions:
-        
-        def enter_execution_context(execution_context)
-        def exit_execution_context(execution_context)
-        
-        enter_execution_context (resp. exit_execution_context) is called each
-        time the capsul engine's exection context is activated (resp.
-        deactivated). 
+        set__environ is called in the context of the processing (i.e. on 
+        he, possibly remote, machine that runs the pipelines). It receives
+        the configuration as a JSON compatible dictionary (for instance a
+        CapsulEngine attibute `capsul_engine.spm.directory` would be
+        config['spm']['directory']). The function must modify the environ
+        dictionary to set the environment variables that must be defined
+        for pipeline configuration. These variables are typically used by
+        modules in capsul.in_context module to manage running external
+        software with appropriate configuration. 
         '''
         if module not in self._loaded_modules:
             __import__(module)
@@ -484,10 +480,13 @@ def capsul_engine(database_location=None, config=None):
     '~/.config/capsul/capsul_engine.sqlite' where ~ is replaced by the
     current use home directory (with os.path.expanduser).
     
-    Configuration is read from a dictionary stored in the database with
-    the key 'config' (i.e. using database.json_value('config')). Then,
-    the content of the config parameter is recursively merged into the
-    configuration (replacing items with the same name).
+    Configuration is read from a dictionary stored in two database entries.
+    The first entry has the key 'global_config' (i.e.
+    database.json_value('global_config')), it contains the configuration
+    values that are shared by all processings engines. The secon entry is 
+    computing_config`. It contains a dictionary with one item per computing
+    resource where the key is the resource name and the value is configuration 
+    values that are specific to this computing resource.
     
     Before initialization of the CapsulEngine, modules are loaded. The
     list of loaded modules is searched in the 'modules' value in the

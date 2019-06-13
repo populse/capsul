@@ -4,11 +4,11 @@ configuration stored in ExecutionContext. To functions and class in
 this module it is mandatory to activate an ExecutionContext (using a
 with statement). For instance:
 
-   from capsul.engine import engine
+   from capsul.engine import capsul_engine
    from capsul.in_context.fsl import fsl_call
    
-   capsul_engine = engine()
-   with capsul_engine.execution_context:
+   ce = capsul_engine()
+   with ce:
      fsl_check_call(['bet', '/somewhere/myimage.nii'])
 
 For calling FSL command with this module, the first arguent of
