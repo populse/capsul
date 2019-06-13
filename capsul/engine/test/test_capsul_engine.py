@@ -19,8 +19,6 @@ class TestCapsulEngine(unittest.TestCase):
         ce.save()
         try:
             ce2 = capsul_engine(tmp)
-            self.assertEqual(ce.execution_context.to_json(),
-                             ce2.execution_context.to_json())
             self.assertEqual(ce.database.named_directory('capsul_engine'),
                              ce2.database.named_directory('capsul_engine'))
             if sys.version_info[:2] >= (2, 7):
@@ -48,10 +46,6 @@ class TestCapsulEngine(unittest.TestCase):
         ce.save()
         try:
             ce2 = capsul_engine(tmp)
-            self.assertEqual(ce.execution_context.to_json(),
-                             ce2.execution_context.to_json())
-            self.assertEqual(ce.database.named_directory('capsul_engine'),
-                             ce2.database.named_directory('capsul_engine'))
             if sys.version_info[:2] >= (2, 7):
                 self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
                                       Pipeline)

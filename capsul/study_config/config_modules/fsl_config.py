@@ -40,18 +40,18 @@ class FSLConfig(StudyConfigModule):
     def initialize_callbacks(self):
         self.study_config.on_trait_change(
             self.sync_to_engine, '[fsl_config, fsl_prefix, use_fsl]')
-        self.study_config.engine.fsl.on_trait_change(
+        self.study_config.engine.global_config.on_trait_change(
             self.sync_from_engine, '[config, prefix, use]')
         #if self.study_config.use_fsl is True:
             #check_fsl_configuration(self.study_config)
 
     def sync_to_engine(self):
-        self.study_config.engine.fsl.config = self.study_config.fsl_config
-        self.study_config.engine.fsl.prefix= self.study_config.fsl_prefix
-        self.study_config.engine.fsl.use = self.study_config.use_fsl
+        self.study_config.engine.global_config.fsl.config = self.study_config.fsl_config
+        self.study_config.engine.global_config.fsl.prefix= self.study_config.fsl_prefix
+        self.study_config.engine.global_config.fsl.use = self.study_config.use_fsl
 
     def sync_from_engine(self):
-        self.study_config.fsl_config = self.study_config.engine.fsl.config
-        self.study_config.fsl_prefix = self.study_config.engine.fsl.prefix
-        self.study_config.use_fsl = self.study_config.engine.fsl.use
+        self.study_config.fsl_config = self.study_config.engine.global_config.fsl.config
+        self.study_config.fsl_prefix = self.study_config.engine.global_config.fsl.prefix
+        self.study_config.use_fsl = self.study_config.engine.global_config.fsl.use
 

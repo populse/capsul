@@ -15,13 +15,13 @@ import subprocess
 
 from traits.api import Undefined, Dict, String, Undefined
 
-from soma.controller import Controller
+from soma.controller import Controller, controller_to_dict
 from soma.serialization import to_json, from_json
 from soma.sorted_dictionary import SortedDictionary
 
 from .database_json import JSONDBEngine
 
-#from capsul.study_config.study_config import StudyConfig
+from capsul.study_config.study_config import StudyConfig
 
 class CapsulEngine(Controller):
     '''
@@ -96,7 +96,7 @@ class CapsulEngine(Controller):
                             continue
                     setattr(self.computing_config[computing_resource], n, v)
 
-        #self.study_config = StudyConfig(engine=self)
+        self.study_config = StudyConfig(engine=self)
 
     def config(self, name, computing_resource):
         '''
@@ -214,10 +214,10 @@ class CapsulEngine(Controller):
             self.database.set_json_value('metadata_engine', 
                                         to_json(self._metadata_engine))
         config = {}
-        global_config = self.global_config.export_to_dict(exclude_undefined=True)
+        global_config = controller_to_dict(self.global_config, exclude_undefined=True)
         if global_config:
             config['global_config'] = global_config
-        computing_config = self.computing_config.export_to_dict(exclude_undefined=True)
+        computing_config = controller_to_dict(self.computing_config, exclude_undefined=True)
         if computing_config:
             config['computing_config'] = computing_config
         

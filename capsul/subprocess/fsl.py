@@ -64,7 +64,9 @@ def check_fsl_configuration(study_config):
     If not, try to automatically configure FSL. Finally raises an
     EnvironmentError if configuration is still wrong.
     '''
-    fsl_engine.check_fsl_configuration(study_config.engine)
+    error_message = fsl_engine.check_environ(os.environ)
+    if error_message:
+        raise EnvironmentError(error_message)
 
     #if getattr(study_config, '_fsl_config_checked', False):
         ## Check FLS configuration only once
@@ -88,7 +90,9 @@ def check_configuration_values(study_config):
     Check if the configuration is valid to run FLS and returns an error
     message if there is an error or None if everything is good.
     '''
-    fsl_engine.check_configuration_values(study_config.engine)
+    error_message = fsl_engine.check_environ(os.environ)
+    if error_message:
+        raise EnvironmentError(error_message)
 
     #fsl_prefix = getattr(study_config, 'fsl_prefix', '')
     #if fsl_prefix is Undefined:

@@ -58,7 +58,7 @@ class SPMConfig(StudyConfigModule):
             check_spm_configuration(self.study_config)
 
     def initialize_callbacks(self):
-        self.study_config.engine.spm.on_trait_change(self.sync_from_engine)
+        self.study_config.engine.global_config.spm.on_trait_change(self.sync_from_engine)
         self.study_config.on_trait_change(self.sync_to_engine,
                                           "[use_spm, spm_+]")
 
@@ -66,7 +66,7 @@ class SPMConfig(StudyConfigModule):
         if 'SPMConfig' in self.study_config.modules \
                 and 'capsul.engine.module.spm' \
                     in self.study_config.engine.modules:
-            engine = self.study_config.engine.spm
+            engine = self.study_config.engine.global_config.spm
             self.study_config.spm_directory = engine.directory
             self.study_config.spm_standalone = engine.standalone
             self.study_config.spm_version = engine.version
@@ -85,7 +85,7 @@ class SPMConfig(StudyConfigModule):
         if 'SPMConfig' in self.study_config.modules \
                 and 'capsul.engine.module.spm' \
                     in self.study_config.engine.modules:
-            engine = self.study_config.engine.spm
+            engine = self.study_config.engine.global_config.spm
             engine.directory = self.study_config.spm_directory
             engine.standalone = self.study_config.spm_standalone
             engine.version = self.study_config.spm_version
