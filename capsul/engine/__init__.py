@@ -415,7 +415,6 @@ class CapsulEngine(Controller):
 
     def __enter__(self):
         code = self.environment_builder()
-        print code
         tmp = tempfile.NamedTemporaryFile(suffix='.py')
         tmp.write(code)
         tmp.flush()
