@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Functions
+=========
+:func:`get_tool_version`
+------------------------
+:func:`get_nipype_interfaces_versions`
+--------------------------------------
+'''
+
 # System import
 import logging
 

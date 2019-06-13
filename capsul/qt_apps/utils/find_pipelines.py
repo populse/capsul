@@ -6,6 +6,17 @@
 # for details.
 ##########################################################################
 
+'''
+Functions
+=========
+:func:`find_pipelines_from_description`
+---------------------------------------
+:func:`find_pipeline_and_process`
+---------------------------------
+:func:`lists2dict`
+------------------
+'''
+
 # System import
 import logging
 import traceback

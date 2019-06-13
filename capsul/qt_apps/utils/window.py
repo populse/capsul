@@ -6,6 +6,13 @@
 # for details.
 ##########################################################################
 
+'''
+Classes
+=======
+:class:`MyQUiLoader`
+--------------------
+'''
+
 # Soma import
 from soma.qt_gui import qt_backend
 

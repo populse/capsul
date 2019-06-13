@@ -1,3 +1,8 @@
+'''
+:class:`ExcludeNode`
+--------------------
+'''
+
 
 from capsul.pipeline.pipeline_nodes import Node
 from soma.controller import Controller

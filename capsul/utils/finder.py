@@ -8,6 +8,11 @@
 
 '''
 Utilities to find processes
+
+Functions
+=========
+:func:`find_processes`
+----------------------
 '''
 
 import sys

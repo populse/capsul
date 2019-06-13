@@ -6,6 +6,13 @@
 # for details.
 ##########################################################################
 
+'''
+Classes
+=======
+:class:`CapsulMainWindow`
+-------------------------
+'''
+
 # System import
 import os
 import logging
