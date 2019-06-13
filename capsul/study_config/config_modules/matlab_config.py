@@ -1,3 +1,12 @@
+'''
+Matlab configuration module
+
+Classes
+=======
+:class:`MatlabConfig`
+---------------------
+'''
+
 import os
 from traits.api import File, Undefined, Bool
 from capsul.study_config.study_config import StudyConfigModule
@@ -5,6 +14,10 @@ from capsul.engine import CapsulEngine
 
 
 class MatlabConfig(StudyConfigModule):
+    '''
+    Matlab path configuration
+    '''
+
     def __init__(self, study_config, configuration):
         super(MatlabConfig, self).__init__(study_config, configuration)
         self.study_config.add_trait('matlab_exec', File(

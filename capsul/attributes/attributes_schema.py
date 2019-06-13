@@ -1,3 +1,20 @@
+''' A schema defines attrinbutes used within a completion framework
+
+Classes
+=======
+:class:`AttributesSchema`
+-------------------------
+:class:`EditableAttributes`
+---------------------------
+:class:`ProcessAttributes`
+--------------------------
+
+Functions
+=========
+:func:`set_attribute`
+---------------------
+'''
+
 from __future__ import print_function
 
 import six
@@ -8,8 +25,6 @@ from soma.sorted_dictionary import OrderedDict
 from soma.controller import Controller
 from soma.functiontools import partial, SomaPartial
 
-''' A schema defines attrinbutes used within a completion framework
-'''
 
 class AttributesSchema(object):
     '''

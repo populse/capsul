@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+FreeSurfer configuration module
+
+Classes
+=======
+:class:`FreeSurferConfig`
+-------------------------
+'''
+
 # System import
 import os
 import six

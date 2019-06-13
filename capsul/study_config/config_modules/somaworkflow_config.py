@@ -6,6 +6,17 @@
 # for details.
 ##########################################################################
 
+'''
+`Soma-Workflow <http://brainvisa.info/soma-workflow/>`_ configuration module
+
+Classes
+=======
+:class:`ResourceController`
+---------------------------
+:class:`SomaWorkflowConfig`
+---------------------------
+'''
+
 from traits.api import Bool, Str, Undefined, List, Dict, File
 from capsul.study_config.study_config import StudyConfigModule
 from soma.controller import Controller, ControllerTrait, OpenKeyController

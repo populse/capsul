@@ -1,3 +1,12 @@
+'''
+FSL configuration module
+
+Classes
+=======
+:class:`FSLConfig`
+------------------
+'''
+
 from traits.api import File, Bool, Undefined, String
 
 from capsul.study_config.study_config import StudyConfigModule
@@ -5,6 +14,10 @@ from capsul.engine import CapsulEngine
 from capsul.subprocess.fsl import check_fsl_configuration
 
 class FSLConfig(StudyConfigModule):
+    '''
+    `FSL <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki>`_ configuration module
+    '''
+
     def __init__(self, study_config, configuration):
         super(FSLConfig, self).__init__(study_config, configuration)
         self.study_config.add_trait('fsl_config', File(

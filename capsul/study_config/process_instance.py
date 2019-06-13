@@ -6,6 +6,23 @@
 # for details.
 ##########################################################################
 
+'''
+Process instance factory
+
+Functions
+=========
+:func:`is_process`
+------------------
+:func:`is_pipeline_node`
+------------------------
+:func:`get_process_instance`
+----------------------------
+:func:`get_node_class`
+----------------------
+:func:`get_node_instance`
+-------------------------
+'''
+
 # System import
 import sys
 import os.path as osp

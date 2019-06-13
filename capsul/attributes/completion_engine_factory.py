@@ -1,3 +1,11 @@
+'''
+Instantiate a default :class:`~capsul.attributes.completion_engine.ProcessCompletionEngine`
+
+Classes
+=======
+:class:`BuiltinProcessCompletionEngineFactory`
+----------------------------------------------
+'''
 
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     PathCompletionEngine, ProcessCompletionEngineFactory

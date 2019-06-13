@@ -6,6 +6,24 @@
 # for details.
 ##########################################################################
 
+'''
+Main :class:`StudyConfig` class for configuration of Capsul software, directories etc.
+
+Classes
+========
+:class:`WorkflowExecutionError`
+-------------------------------
+:class:`StudyConfig`
+--------------------
+:class:`StudyConfigModule`
+--------------------------
+
+Functions
+=========
+:func:`default_study_config`
+----------------------------
+'''
+
 from __future__ import print_function
 
 # System import

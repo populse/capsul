@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Process and pipeline execution management
+
+Functions
+=========
+:func:`run_process`
+-------------------
+'''
+
 # System import
 import os
 import logging

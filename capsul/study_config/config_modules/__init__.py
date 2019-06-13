@@ -5,3 +5,7 @@
 # http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 # for details.
 ##########################################################################
+
+'''
+:class:`~capsul.study_config.study_config.StudyConfig` configuration modules implementations
+'''
