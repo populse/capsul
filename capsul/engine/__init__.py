@@ -283,7 +283,6 @@ class CapsulEngine(Controller):
         '''
         raise NotImplementedError()
 
-
     def connect(self, computing_ressource):
         '''
         Connect the capsul engine to a computing resource
@@ -433,21 +432,24 @@ class CapsulEngine(Controller):
         
     
 _populsedb_url_re = re.compile(r'^\w+(\+\w+)?://(.*)')
+
 def database_factory(database_location):
     '''
     Create a DatabaseEngine from its location string. This location can be
     either a sqlite file path (ending with '.sqlite' or ':memory:' for an 
-    in memory database for testing) or a populse_db URL.
+    in memory database for testing) or a populse_db URL, or None.
     '''
     global _populsedb_url_re 
     
     engine = None
     engine_directory = None
 
-    if database_location.endswith('.json'):
+    if database_location is not None and database_location.endswith('.json'):
         engine_directory = osp.abspath(osp.dirname(database_location))
         engine = JSONDBEngine(database_location)
     else:
+        if database_location is None:
+            database_location = ':memory:'
         match = _populsedb_url_re.match(database_location)
         if match:
             path = match.groups(2)
@@ -466,8 +468,16 @@ def database_factory(database_location):
         # Import populse_db related module only
         # if used in order to add a mandatory
         # dependency on the project
-        from .database_populse import PopulseDBEngine
-        engine = PopulseDBEngine(populse_db)
+        try:
+            from .database_populse import PopulseDBEngine
+            engine = PopulseDBEngine(populse_db)
+        except ImportError:
+            # database is not available, fallback to json
+            if database_location != ':memory':
+                engine_directory = osp.abspath(osp.dirname(database_location))
+                if database_location.endswith('.sqlite'):
+                    database_location = database_location[:-6] + 'json'
+            engine = JSONDBEngine(database_location)
     if engine_directory:
         engine.set_named_directory('capsul_engine', engine_directory)
     return engine
@@ -493,8 +503,8 @@ def capsul_engine(database_location=None, config=None):
     database (i.e. in database.json_value('modules')) ; if no list is
     defined in the database, CapsulEngine.default_modules is used.
     '''
-    if database_location is None:
-        database_location = osp.expanduser('~/.config/capsul/capsul_engine.sqlite')
+    #if database_location is None:
+        #database_location = osp.expanduser('~/.config/capsul/capsul_engine.sqlite')
     database = database_factory(database_location)
     capsul_engine = CapsulEngine(database_location, database, config=config)
     return capsul_engine

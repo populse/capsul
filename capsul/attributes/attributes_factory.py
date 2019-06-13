@@ -13,8 +13,12 @@ from soma.factory import ClassFactory
 
 from capsul.attributes.attributes_schema import AttributesSchema
 
+''' Attributes factory module
+'''
 
 class AttributesFactory(ClassFactory):
+    ''' AttributesFactory holds an attributes schema
+    '''
     class_types = {
         'schema': AttributesSchema,
     }

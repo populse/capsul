@@ -4,16 +4,20 @@ matrix:
   include:
     - os: osx
       language: generic
+      name: python 2.7
     - os: linux
       language: python
+      name: python 2.6
       python:
         - 2.6
     - os: linux
       language: python
+      name: python 2.7
       python:
         - 2.7
     - os: linux
       language: python
+      name: python 3.5
       python:
         - 3.5
 
@@ -27,12 +31,19 @@ before_install:
     #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libpng; fi
 
 install:
+    - python --version
     - pip install numpy six
     # - pip install nose
     - if [ ${TRAVIS_PYTHON_VERSION} == "2.6" ]; then pip install "traits==4.6.0"; else pip install traits ;fi
+    - if [ ${TRAVIS_PYTHON_VERSION} == "2.6" ]; then pip install "lark-parser==0.6.5" "python-dateutil<2.7" "SQLAlchemy<1.2"; fi
     #- svn --non-interactive --username brainvisa --password Soma2009 export  https://bioproj.extra.cea.fr/neurosvn/brainvisa/soma/soma-base/branches/bug_fix /tmp/soma-base
     - git clone https://github.com/populse/soma-base.git /tmp/soma-base
     - python /tmp/soma-base/setup.py install
+    #- pip install -U setuptools pip
+    - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then git clone https://github.com/populse/populse_db.git /tmp/populse_db; fi
+    - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then pushd /tmp/populse_db; fi
+    - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then PYTHONPATH="/tmp/populse_db/lib/python${TRAVIS_PYTHON_VERSION}/site-packages:$PYTHONPATH" python /tmp/populse_db/setup.py install; fi
+    - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then popd; fi
     # until we release soma-workflow 2.9
     #- git clone https://github.com/neurospin/soma-workflow.git /tmp/soma-workflow
     #- pushd /tmp/soma-workflow

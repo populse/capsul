@@ -277,31 +277,35 @@ class TestPipeline(unittest.TestCase):
         os.unlink(tmpdb[1])
         config._database_file = tmpdb[1]
         controller = swclient.WorkflowController(config=config)
-        wf_id = controller.submit_workflow(workflow)
-        print('* running pipeline...')
-        swclient.Helper.wait_workflow(wf_id, controller)
-        print('* finished.')
-        workflow_status = controller.workflow_status(wf_id)
-        elements_status = controller.workflow_elements_status(wf_id)
-        failed_jobs = [element for element in elements_status[0] \
-            if element[1] != swconstants.DONE \
-                or element[3][0] != swconstants.FINISHED_REGULARLY]
-        if not debug:
-            controller.delete_workflow(wf_id)
-        # remove the temporary database
-        del controller
-        del config
-        if not debug:
-            os.unlink(tmpdb[1])
-        self.assertTrue(workflow_status == swconstants.WORKFLOW_DONE,
-            'Workflow did not finish regularly: %s' % workflow_status)
-        self.assertTrue(len(failed_jobs) == 0, 'Jobs failed: %s'
-                        % failed_jobs)
-        # check output files contents
-        for ifname, fname in zip(self.small_pipeline.files_to_create,
-                                 self.small_pipeline.output_image):
-            content = open(fname).read()
-            self.assertEqual(content, "file: %s\n" % ifname)
+        try:
+            wf_id = controller.submit_workflow(workflow)
+            print('* running pipeline...')
+            swclient.Helper.wait_workflow(wf_id, controller)
+            print('* finished.')
+            workflow_status = controller.workflow_status(wf_id)
+            elements_status = controller.workflow_elements_status(wf_id)
+            failed_jobs = [element for element in elements_status[0] \
+                if element[1] != swconstants.DONE \
+                    or element[3][0] != swconstants.FINISHED_REGULARLY]
+            if not debug:
+                controller.delete_workflow(wf_id)
+            self.assertTrue(workflow_status == swconstants.WORKFLOW_DONE,
+                'Workflow did not finish regularly: %s' % workflow_status)
+            self.assertTrue(len(failed_jobs) == 0, 'Jobs failed: %s'
+                            % failed_jobs)
+            # check output files contents
+            for ifname, fname in zip(self.small_pipeline.files_to_create,
+                                    self.small_pipeline.output_image):
+                content = open(fname).read()
+                self.assertEqual(content, "file: %s\n" % ifname)
+        finally:
+            # remove the temporary database
+            del controller
+            del config
+            if not debug:
+                os.unlink(tmpdb[1])
+                if os.path.exists(tmpdb[1] + '-journal'):
+                    os.unlink(tmpdb[1] + '-journal')
 
 def test():
     """ Function to execute unitest

@@ -1,5 +1,8 @@
 {% extends "!layout.html" %}
 
+<!-- page title -->
+{% set title = 'CAPSUL' %}
+
 {% block htmltitle %}
   {{ super() }}
   <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
@@ -9,8 +12,9 @@
   <link rel="icon" href="{{ pathto('_static/capsul_logo.svg', 1) }}"/>
 {% endblock %}
 
-<!-- sidebar -->
 {% block extrahead %}
+
+  <!-- sidebar -->
   {% if pagename != 'index' %}
    {% if theme_collapsiblesidebar|tobool %}
        <script type="text/javascript" src="{{ pathto('_static/sidebar.js', 1) }}"></script>
@@ -32,13 +36,6 @@
     var sidebarbutton = $('#sidebarbutton');
     sidebarbutton.css({'height': '900px'});
   </script>
-{% endblock %}
-
-<!-- page title -->
-    {% set title = 'CAPSUL' %}
-
-<!-- header -->
-{% block header %}
 
   <div class="header" style="display: inline; width: 80%; margin-left:10%;">
     <a href="{{pathto('index.html',1)}}">
@@ -103,61 +100,3 @@
 {%- endif %}
 
 {% endblock %}
-
-
-<!-- body -->
-{% block content %}
-<div class="content-wrapper">
-
-  {%- if pagename != 'documentation' %}
-    <div class="sphinxsidebar">
-      <div class="sphinxsidebarwrapper">
-
-        <!-- info setup -->
-        {%- if pagename != "installation" %}
-          <p class="doc-version">
-           This documentation is for {{project}} <strong>version {{ release|e }}</strong>
-          </p>
-        {%- endif %}
-<!--        <p class="citing">
-          If you use the software, please do not esitate to 
-          <a &mdash; <a href="https://bioproj.extra.cea.fr/redmine/projects/capsul/">
-          Report a Bug</a>.
-        </p>-->
-
-      <!-- toc tree -->
-      {{ toc }}
-
-      </div>
-    </div>
-  {% endif %}
-
-  <div class="content">
-    {%- block document %}
-      {{ super() }}
-    {%- endblock %}
-    <div class="clearer">
-    </div>
-  </div>
-  
-</div>
-{% endblock %}
-
-{% block relbar1 %}{% endblock %}
-{% block relbar2 %}{% endblock %}
-
-
-<!-- footer -->
-{%- block footer %}
-<div class="footer">
-{%- if show_copyright %}
-  {%- if hasdoc('copyright') %}
-    {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; {{ copyright }}.{% endtrans %}
-  {%- else %}
-    {% trans copyright=copyright|e %}&copy; {{ copyright }}.{% endtrans %}
-  {%- endif %}
-{%- endif %}
-</div>
-{%- endblock %}
-
-

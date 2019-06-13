@@ -6,6 +6,9 @@
 # for details.
 ##########################################################################
 
+''' Pipeline main class
+'''
+
 from __future__ import print_function
 from __future__ import absolute_import
 
@@ -46,7 +49,6 @@ from soma.controller import Controller
 from soma.controller import ControllerTrait
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
-
 
 class Pipeline(Process):
     """ Pipeline containing Process nodes, and links between node parameters.

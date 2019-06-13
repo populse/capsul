@@ -44,6 +44,7 @@ class TestCapsulEngine(unittest.TestCase):
         tmp = tempfile.mktemp(suffix='.sqlite')
         ce = capsul_engine(tmp)
         ce.save()
+        ce2 = None
         try:
             ce2 = capsul_engine(tmp)
             if sys.version_info[:2] >= (2, 7):
