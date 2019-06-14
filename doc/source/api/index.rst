@@ -105,6 +105,23 @@ Configuration Modules
 * :class:`smartcaching_config.SmartCachingConfig`
 
 
+:mod:`capsul.engine`: Configuration and execution
+=================================================
+
+.. currentmodule:: capsul.engine
+
+Classes
+-------
+
+* :class:`CapsulEngine`
+
+
+Functions
+---------
+
+* :func:`capsul_engine`
+
+
 :mod:`capsul.attributes`: Attributes and processes completion
 =============================================================
 
