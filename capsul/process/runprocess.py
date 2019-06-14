@@ -34,8 +34,29 @@
 # knowledge of the CeCILL license version 2 and that you accept its terms.
 
 """
-capsul.process.runprocess is not a real python module, but rather an executable script with commandline arguments and options parsing. It is provided as a module just to be easily called via the python command in a portable way:
-python -m capsul.process.runprocess <process name> <process arguments>
+capsul.process.runprocess is not a real python module, but rather an executable script with commandline arguments and options parsing. It is provided as a module just to be easily called via the python command in a portable way::
+
+    python -m capsul.process.runprocess <process name> <process arguments>
+
+Classes
+-------
+:class:`ProcessParamError`
+++++++++++++++++++++++++++
+
+Functions
+---------
+:func:`set_process_param_from_str`
+++++++++++++++++++++++++++++++++++
+:func:`get_process_with_params`
++++++++++++++++++++++++++++++++
+:func:`run_process_with_distribution`
++++++++++++++++++++++++++++++++++++++
+:func:`convert_commandline_parameter`
++++++++++++++++++++++++++++++++++++++
+:func:`main`
+++++++++++++
+
+
 """
 
 from __future__ import print_function
@@ -60,6 +81,8 @@ import six
 logger = logging.getLogger(__name__)
 
 class ProcessParamError(Exception):
+    ''' Exception used in the ``runprocess`` module
+    '''
     pass
 
 def set_process_param_from_str(process, k, arg):
@@ -212,6 +235,8 @@ def convert_commandline_parameter(i):
 
 # main
 def main():
+    ''' Run the :mod:`capsul.process.runprocess` module as a commandline
+    '''
 
     usage = '''Usage: python -m capsul [options] processname [arg1] [arg2] ...
     [argx=valuex] [argy=valuey] ...

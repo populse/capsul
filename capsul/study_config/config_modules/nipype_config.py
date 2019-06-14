@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+NiPype configuration module
+
+Classes
+=======
+:class:`NipypeConfig`
+---------------------
+'''
+
 # TRAITS import
 from traits.api import Bool, Undefined, List, Directory
 

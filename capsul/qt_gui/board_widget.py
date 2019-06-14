@@ -6,6 +6,13 @@
 # for details.
 ##########################################################################
 
+'''
+Classes
+=======
+:class:`BoardWidget`
+--------------------
+'''
+
 # System import
 import logging
 import six

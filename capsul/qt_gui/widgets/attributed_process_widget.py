@@ -1,3 +1,11 @@
+'''
+Process or pipeline parameters view with attributes handling.
+
+Classes
+=======
+:class:`AttributedProcessWidget`
+--------------------------------
+'''
 
 from __future__ import print_function
 

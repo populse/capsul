@@ -6,11 +6,22 @@
 # for details.
 ##########################################################################
 
+'''
+Process execution cache configuration module
+
+Classes
+=======
+:class:`SmartCachingConfig`
+---------------------------
+'''
+
 from traits.api import Bool, Undefined
 from capsul.study_config.study_config import StudyConfigModule
 
 
 class SmartCachingConfig(StudyConfigModule):
+    '''
+    '''
     def __init__(self, study_config, configuration):
         super(SmartCachingConfig, self).__init__(study_config, configuration)
         study_config.add_trait('use_smart_caching', Bool(

@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Tool to debug and understand process / pipeline parameters links
+
+Classes
+=======
+:class:`CapsulLinkDebuggerView`
+-------------------------------
+'''
+
 from __future__ import print_function
 
 # System import

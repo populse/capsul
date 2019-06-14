@@ -7,7 +7,14 @@
 ##########################################################################
 
 '''
-This module is an internal machinery, the user needs not to know it and bother about it.
+This module is an internal machinery, the user needs not to know it and bother about it. In brief it provide helper functions to build a pipeline from an IO serialization.
+
+Classes
+=======
+:class:`PipelineConstructor`
+----------------------------
+:class:`ConstructedPipeline`
+----------------------------
 '''
 
 from __future__ import absolute_import
@@ -76,7 +83,7 @@ class PipelineConstructor(object):
     
     def call_process_method(self, *args, **kwargs):
         """ Call a method of a process previously added
-        with add_process or add_iterative_process.
+        with add_process or add_itConstructedPipelineerative_process.
         """
         self._calls.append(('call_process_method', args, kwargs))
 

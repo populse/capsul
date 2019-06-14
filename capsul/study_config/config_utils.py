@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Utility functions for configuration
+
+Functions
+=========
+:func:`environment`
+-------------------
+'''
+
 # System import
 import os
 import re

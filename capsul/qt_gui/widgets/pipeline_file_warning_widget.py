@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+GUI for pipeline file inputs/outputs checking
+
+Classes
+=======
+:class:`PipelineFileWarningWidget`
+----------------------------------
+'''
+
 # System import
 import six
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt

@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Config module for :mod:`File Organization models (FOMs) <capsul.attributes.fom_completion_engine>`
+
+Classes
+=======
+:class:`FomConfig`
+------------------
+'''
+
 import os
 import six
 from traits.api import Bool, Str, Undefined

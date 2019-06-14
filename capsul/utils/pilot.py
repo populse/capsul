@@ -6,6 +6,13 @@
 # for details.
 ##########################################################################
 
+'''
+Functions
+=========
+:func:`pilotfunction`
+---------------------
+'''
+
 # System import
 import types
 import sys

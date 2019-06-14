@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Configuration module which links with `Axon <http://brainvisa.info/axon/user_doc>`_
+
+Classes
+=======
+:class:`BrainVISAConfig`
+------------------------
+'''
+
 import os
 from traits.api import Directory, Undefined
 from soma import config as soma_config
@@ -13,6 +22,10 @@ from capsul.study_config.study_config import StudyConfigModule
 
 
 class BrainVISAConfig(StudyConfigModule):
+    '''
+    Configuration module allowing to use `BrainVISA / Axon <http://brainvisa.info/axon/user_doc>`_ shared data in Capsul processes
+    '''
+
     def __init__(self, study_config, configuration):
         super(BrainVISAConfig, self).__init__(study_config, configuration)
         study_config.add_trait('shared_directory',Directory(

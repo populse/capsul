@@ -6,6 +6,17 @@
 # for details.
 ##########################################################################
 
+'''
+A tool to debug and inspect nodes activation / deactivation in a pipeline.
+
+Classes
+=======
+:class:`ActivationInspectorApp`
+-------------------------------
+:class:`ActivationInspector`
+----------------------------
+'''
+
 from __future__ import print_function
 
 # System import
@@ -32,7 +43,9 @@ from capsul.pipeline.pipeline_nodes import PipelineNode
 
 
 class ActivationInspectorApp(Application):
-    """ ActiovationInspector Application.
+    """ ActivationInspector Application.
+    While developing a pipeline, nodes are connected through links. Nodes will be automatically activated or disabled depending on their connections (a mandatory link to a disabled node will disable the current one).
+    You will often wonder why a node will not be activated. This tool helps to determine when and why by "playing" activation rules sequences step-by-step and displaying nodes which activate or deactivate at each step.
     """
     # Load some meta informations
     from capsul.info import __version__ as _version

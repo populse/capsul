@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Utilities to find processes
+
+Functions
+=========
+:func:`find_processes`
+----------------------
+'''
+
 import sys
 import os.path as osp
 import importlib
@@ -26,6 +35,8 @@ process_xml_re = re.compile(r'<process.*</process>', re.DOTALL)
 pipeline_xml_re = re.compile(r'<pipeline.*</pipeline>', re.DOTALL)
 
 def find_processes(module_name, ignore_import_error=True):
+    ''' Find processes in a module and iterate over them
+    '''
     importlib.import_module(module_name)
     module = sys.modules[module_name]
     module_names  = [module_name]

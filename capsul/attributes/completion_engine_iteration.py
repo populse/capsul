@@ -6,6 +6,16 @@
 # for details.
 ##########################################################################
 
+'''
+:class:`~capsul.attributes.completion_engine.ProcessCompletionEngine` dealing with process iterations.
+This is an internal machinery.
+
+Classes
+=======
+:class:`ProcessCompletionEngineIteration`
+-----------------------------------------
+'''
+
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory
@@ -20,7 +30,9 @@ if sys.version_info[0] >= 3:
 
 
 class ProcessCompletionEngineIteration(ProcessCompletionEngine):
-    ''' ProcessCompletionEngine specialization for iterative process.
+    '''
+    :class:`~capsul.attributes.completion_engine.ProcessCompletionEngine`
+    specialization for iterative process.
 
     Iterated attributes are given by get_iterated_attributes().
     Completion performs a single iteration step, stored in

@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Pipeline exportation function as a python source code file.
+
+Functions
+=========
+:func:`save_py_pipeline`
+------------------------
+'''
+
 from __future__ import print_function
 from __future__ import absolute_import
 

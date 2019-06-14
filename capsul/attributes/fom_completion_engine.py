@@ -1,5 +1,18 @@
 # -*- coding: utf-8 -*-
 
+'''
+Completion engine for File Organization Models (FOM).
+
+Classes
+=======
+:class:`FomProcessCompletionEngine`
+-----------------------------------
+:class:`FomPathCompletionEngine`
+--------------------------------
+:class:`FomProcessCompletionEngineIteration`
+--------------------------------------------
+'''
+
 from __future__ import print_function
 
 import os

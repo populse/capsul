@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Classes
+=======
+:class:`Application`
+--------------------
+:class:`EmittingStream`
+-----------------------
+'''
+
 # System import
 import sys
 import optparse

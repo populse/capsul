@@ -6,6 +6,47 @@
 # for details.
 ##########################################################################
 
+'''
+Miscelaneous pipeline handling utility functions
+
+Functions
+=========
+:func:`pipeline_node_colors`
+----------------------------
+:func:`pipeline_link_color`
+---------------------------
+:func:`dot_graph_from_pipeline`
+-------------------------------
+:func:`dot_graph_from_workflow`
+-------------------------------
+:func:`save_dot_graph`
+----------------------
+:func:`save_dot_image`
+----------------------
+:func:`disable_runtime_steps_with_existing_outputs`
+---------------------------------------------------
+:func:`nodes_with_existing_outputs`
+-----------------------------------
+:func:`nodes_with_missing_inputs`
+---------------------------------
+:func:`where_is_plug_value_from`
+--------------------------------
+:func:`dump_pipeline_state_as_dict`
+-----------------------------------
+:func:`set_pipeline_state_from_dict`
+------------------------------------
+:func:`get_output_directories`
+------------------------------
+:func:`create_output_directories`
+---------------------------------
+:func:`save_pipeline`
+---------------------
+:func:`load_pipeline_parameters`
+--------------------------------
+:func:`save_pipeline_parameters`
+--------------------------------
+'''
+
 from __future__ import print_function
 
 # System import

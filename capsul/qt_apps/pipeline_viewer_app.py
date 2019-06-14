@@ -6,6 +6,13 @@
 # for details.
 ##########################################################################
 
+'''
+Classes
+=======
+:class:`PipelineViewerApp`
+--------------------------
+'''
+
 # System import
 import os
 import logging

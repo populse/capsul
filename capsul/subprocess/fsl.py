@@ -13,6 +13,29 @@ Prefix areused  in Neurodebian install. For instance on Ubuntu 16.04
 Neurodebian FSL commands are prefixed with "fsl5.0-".
 The appropriate path and eventualy prefix are added from the configuration
 of the StudyConfig instance.
+
+Classes
+=======
+:class:`Popen`
+--------------
+
+Functions
+=========
+:func:`fsl_command_with_environment`
+------------------------------------
+:func:`check_fsl_configuration`
+-------------------------------
+:func:`check_configuration_values`
+----------------------------------
+:func:`auto_configuration`
+--------------------------
+:func:`call`
+------------
+:func:`check_call`
+------------------
+:func:`check_output`
+--------------------
+
 '''
 
 from __future__ import absolute_import

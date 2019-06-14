@@ -6,6 +6,17 @@
 # for details.
 ##########################################################################
 
+'''
+Functions
+=========
+:func:`fill_treectrl`
+---------------------
+:func:`add_tree_nodes`
+----------------------
+:func:`search_in_menu`
+----------------------
+'''
+
 import six
 # Soma import
 from soma.qt_gui.qt_backend import QtGui

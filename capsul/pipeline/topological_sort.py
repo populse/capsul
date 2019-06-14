@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Build graph with dependencies from a pipeline
+
+Classes
+=======
+:class:`GraphNode`
+------------------
+'''
+
 # System import
 import logging
 import six

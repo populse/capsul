@@ -6,6 +6,29 @@
 # for details.
 ##########################################################################
 
+'''
+Read and write a Process as an XML file.
+
+Classes
+=======
+:class:`XMLProcess`
+-------------------
+
+Functions
+=========
+:func:`string_to_value`
+-----------------------
+:func:`trait_from_xml`
+----------------------
+:func:`create_xml_process`
+--------------------------
+
+Decorator
+=========
+:func:`xml_process`
+-------------------
+'''
+
 from __future__ import absolute_import
 
 import sys

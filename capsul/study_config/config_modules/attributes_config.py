@@ -6,6 +6,15 @@
 # for details.
 ##########################################################################
 
+'''
+Attributes completion config module
+
+Classes
+=======
+:class:`AttributesConfig`
+-------------------------
+'''
+
 import os
 import six
 from traits.api import Bool, Str, Undefined, List, DictStrStr

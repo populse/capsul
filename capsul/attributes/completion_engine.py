@@ -1,3 +1,19 @@
+'''
+Completion system for Capsul
+
+Classes
+=======
+:class:`ProcessCompletionEngine`
+--------------------------------
+:class:`SwitchCompletionEngine`
+-------------------------------
+:class:`PathCompletionEngine`
+-----------------------------
+:class:`ProcessCompletionEngineFactory`
+---------------------------------------
+:class:`PathCompletionEngineFactory`
+------------------------------------
+'''
 
 from __future__ import print_function
 from soma.singleton import Singleton
@@ -737,6 +753,7 @@ class PathCompletionEngine(object):
 
 class ProcessCompletionEngineFactory(object):
     '''
+    Get a :class:`ProcessCompletionEngine` instance
     '''
     factory_id = 'basic'
 
@@ -763,6 +780,9 @@ class ProcessCompletionEngineFactory(object):
 
 
 class PathCompletionEngineFactory(object):
+    '''
+    Get a :class:`PathCompletionEngine` instance
+    '''
 
     factory_id = 'null'
 

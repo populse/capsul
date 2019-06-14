@@ -6,6 +6,25 @@
 # for details.
 ##########################################################################
 
+'''
+Node classes for CAPSUL pipeline elements
+
+Classes
+=======
+:class:`Plug`
+-------------
+:class:`Node`
+-------------
+:class:`ProcessNode`
+--------------------
+:class:`PipelineNode`
+---------------------
+:class:`Switch`
+---------------
+:class:`OptionalOutputSwitch`
+-----------------------------
+'''
+
 from __future__ import print_function
 
 # System import

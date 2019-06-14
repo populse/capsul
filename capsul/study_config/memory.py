@@ -8,6 +8,30 @@
 # Based on the nipype memory code: http://nipy.sourceforge.net/nipype/
 ##########################################################################
 
+'''
+Mamory caching. Probably mostly obsolete, this code is not much used now.
+
+Classes
+=======
+:class:`UnMemorizedProcess`
+---------------------------
+:class:`MemorizedProcess`
+-------------------------
+:class:`CapsulResultEncoder`
+----------------------------
+:class:`Memory`
+---------------
+
+Functions
+=========
+:func:`get_process_signature`
+-----------------------------
+:func:`has_attribute`
+---------------------
+:func:`file_fingerprint`
+------------------------
+'''
+
 # System import
 from __future__ import with_statement
 import os

@@ -8,9 +8,17 @@
 
 """Capsul Pipeline conversion into soma-workflow workflow.
 
-Available functions:
-workflow = workflow_from_pipeline(pipeline)
-controller, wf_id = workflow_run(workflow_name, workflow, study_config)
+Standard use case::
+
+    workflow = workflow_from_pipeline(pipeline)
+    controller, wf_id = workflow_run(workflow_name, workflow, study_config)
+
+Functions
+=========
+:func:`workflow_from_pipeline`
+------------------------------
+:func:`workflow_run`
+--------------------
 """
 
 from __future__ import print_function
