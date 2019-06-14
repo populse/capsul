@@ -176,13 +176,18 @@ Graphical widgets classes
 .. _capsul_gui_ref:
 
 :mod:`capsul.qt_gui.widgets`: Pipeline Viewers
-==============================================
+----------------------------------------------
 
 .. currentmodule:: capsul.qt_gui.widgets
 
 * :class:`~pipeline_developper_view.PipelineDevelopperView`
 * :class:`~pipeline_user_view.PipelineUserView`
 * :class:`~attributed_process_widget.AttributedProcessWidget`
+
+
+Graphical pipeline debugging tools
+----------------------------------
+
 * :class:`~activation_inspector.ActivationInspector`
 * :class:`~links_debugger.CapsulLinkDebuggerView`
 
