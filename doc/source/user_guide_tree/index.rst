@@ -125,6 +125,8 @@ To get help about a process, its parameters, and available attributes to control
 .. 
 .. Generating and saving workflows
 .. -------------------------------
+
+
 XML Specifications
 ##################
 
@@ -138,3 +140,11 @@ Advanced usage
 ##############
 
 :doc:`More advanced features can be found on this page. <advanced_usage>`
+
+
+.. toctree::
+    :hidden:
+
+    advanced_usage
+    xml_spec
+
