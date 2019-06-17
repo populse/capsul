@@ -89,28 +89,22 @@ def check_spm_configuration(study_config):
     If not, try to automatically configure SPM. Finally raises an
     EnvironmentError if configuration is still wrong.
     '''
-    spm_engine.check_spm_configuration(study_config.engine)
+    if getattr(study_config, '_spm_config_checked', False):
+        # Check SPM configuration only once
+        return
     if 'SPMConfig' not in study_config.modules:
         raise EnvironmentError('SPMConfig module is missing in StudyConfig.')
-    if not study_config.use_spm:
-        return
-
-    #if getattr(study_config, '_spm_config_checked', False):
-        ## Check SPM configuration only once
-        #return
-    #if 'SPMConfig' not in study_config.modules:
-        #raise EnvironmentError('SPMConfig module is missing in StudyConfig.')
-    #if study_config.use_spm is False:
-        #raise EnvironmentError('Configuration is set not to use SPM. Set use_spm to True in order to use SPM.')
-    ## Configuration must be valid otherwise
-    ## try to update configuration and recheck is validity
-    #if check_configuration_values(study_config) is not None:
-        #auto_configuration(study_config)
-        #error_message = check_configuration_values(study_config)
-        #if error_message:
-            #raise EnvironmentError(error_message)
-    #study_config.use_spm = True
-    #study_config._spm_config_checked = True
+    if study_config.use_spm is False:
+        raise EnvironmentError('Configuration is set not to use SPM. Set use_spm to True in order to use SPM.')
+    # Configuration must be valid otherwise
+    # try to update configuration and recheck is validity
+    if check_configuration_values(study_config) is not None:
+        auto_configuration(study_config)
+        error_message = check_configuration_values(study_config)
+        if error_message:
+            raise EnvironmentError(error_message)
+    study_config.use_spm = True
+    study_config._spm_config_checked = True
 
 def check_configuration_values(study_config):
     '''
@@ -119,25 +113,23 @@ def check_configuration_values(study_config):
     Check if the configuration is valid to run SPM and returns an error
     message if there is an error or None if everything is good.
     '''
-    spm_engine.check_spm_configuration_values(study_config.engine)
 
-    #if study_config.spm_directory is Undefined:
-        #return 'No SPM directory defined'
-    #if not osp.isdir(study_config.spm_directory):
-         #return "'%s' is not a valid SPM directory" % study_config.spm_directory
-    #if study_config.spm_standalone is Undefined:
-        #return 'SPM standalone usage is undefined'
-    #if study_config.spm_standalone:
-        #if study_config.spm_exec is Undefined:
-            #return 'spm_exec must be defined to use SPM standalone'
-        #if not osp.isdir(study_config.spm_exec):
-            #return '"%s" is not a valid mrc directory for SPM standalone' % study_config.spm_exec
-    #else:
-        #if not study_config.use_matlab:
-            #return 'Matlab is disabled. Cannot use SPM via Matlab'
-        
+    if study_config.spm_directory is Undefined:
+        return 'No SPM directory defined'
+    if not osp.isdir(study_config.spm_directory):
+         return "'%s' is not a valid SPM directory" % study_config.spm_directory
+    if study_config.spm_standalone is Undefined:
+        return 'SPM standalone usage is undefined'
+    if study_config.spm_standalone:
+        if study_config.spm_exec is Undefined:
+            return 'spm_exec must be defined to use SPM standalone'
+        if not osp.isdir(study_config.spm_exec):
+            return '"%s" is not a valid mrc directory for SPM standalone' % study_config.spm_exec
+    else:
+        if not study_config.use_matlab:
+            return 'Matlab is disabled. Cannot use SPM via Matlab'
 
-    
+
 
 def auto_configuration(study_config):
     '''
