@@ -58,6 +58,11 @@ class TestCapsulEngine(unittest.TestCase):
         finally:
             del ce
             del ce2
+            # garbage collect to ensure the database is closed
+            # (otherwise it can cause problems on Windows when removing the
+            # sqlite file)
+            import gc
+            gc.collect()
             if os.path.exists(tmp):
                 os.remove(tmp)
 
