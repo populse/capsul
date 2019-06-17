@@ -2,14 +2,14 @@
 Specific subprocess-like functions to call FSL taking into account 
 configuration stored in ExecutionContext. To functions and class in
 this module it is mandatory to activate an ExecutionContext (using a
-with statement). For instance:
+with statement). For instance::
 
    from capsul.engine import capsul_engine
-   from capsul.in_context.fsl import fsl_call
-   
+   from capsul.in_context.fsl import fsl_check_call
+
    ce = capsul_engine()
    with ce:
-     fsl_check_call(['bet', '/somewhere/myimage.nii'])
+       fsl_check_call(['bet', '/somewhere/myimage.nii'])
 
 For calling FSL command with this module, the first arguent of
 command line must be the FSL executable without any path nor prefix. 

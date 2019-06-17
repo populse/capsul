@@ -2,14 +2,14 @@
 Specific subprocess-like functions to call SPM taking into account 
 configuration stored in ExecutionContext. To functions and class in
 this module it is mandatory to activate an ExecutionContext (using a
-with statement). For instance:
+with statement). For instance::
 
    from capsul.engine import capsul_engine
    from capsul.in_context.spm import spm_check_call
    
    ce = capsul_engine()
    with ce:
-     spm_check_call(spm_batch_filename)
+      spm_check_call(spm_batch_filename)
 
 For calling SPM command with this module, the first arguent of
 command line must be the SPM batch file to execute with Matlab.

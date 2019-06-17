@@ -31,30 +31,13 @@ Node Types
 * :class:`PipelineNode`
 * :class:`Switch`
 
+* :mod:`Custom nodes types <capsul.pipeline.custom_nodes>`
+
 Plug
 -----
 
 * :class:`Plug`
 
-Workflow conversion
--------------------
-
-.. currentmodule:: capsul.pipeline.pipeline_workflow
-
-* :func:`workflow_from_pipeline`
-* :func:`workflow_run`
-
-.. currentmodule:: capsul.pipeline.pipeline_tools
-
-* :func:`pipeline_node_colors`
-* :func:`pipeline_link_color`
-* :func:`dot_graph_from_pipeline`
-* :func:`save_dot_graph`
-* :func:`save_dot_image`
-* :func:`nodes_with_existing_outputs`
-* :func:`nodes_with_missing_inputs`
-* :func:`disable_runtime_steps_with_existing_outputs`
-* :func:`where_is_plug_value_from`
 
 :mod:`capsul.process`: Process
 ===============================
@@ -77,19 +60,42 @@ Functions
 * :func:`get_process_instance`
 
 
+Configuration and execution
+===========================
+
+:mod:`capsul.engine`: Configuration and execution
+-------------------------------------------------
+
+This new system will replace :mod:`capsul.study_config` in Capsul v3.
+
+.. currentmodule:: capsul.engine
+
+Classes:
+++++++++
+
+* :class:`CapsulEngine`
+
+
+Functions:
+++++++++++
+
+* :func:`capsul_engine`
+
+
 :mod:`capsul.study_config`: Study Configuration
-===============================================
+-----------------------------------------------
 
 .. currentmodule:: capsul.study_config
 
-Study Configuration
--------------------
+Study Configuration:
+++++++++++++++++++++
 
 * :class:`~study_config.StudyConfig`
 * :class:`~memory.Memory`
 
-Configuration Modules
----------------------
+
+Configuration Modules:
+++++++++++++++++++++++
 
 .. currentmodule:: capsul.study_config.config_modules
 
@@ -103,23 +109,6 @@ Configuration Modules
 * :class:`fom_config.FomConfig`
 * :class:`attributes_config.AttributesConfig`
 * :class:`smartcaching_config.SmartCachingConfig`
-
-
-:mod:`capsul.engine`: Configuration and execution
-=================================================
-
-.. currentmodule:: capsul.engine
-
-Classes
--------
-
-* :class:`CapsulEngine`
-
-
-Functions
----------
-
-* :func:`capsul_engine`
 
 
 :mod:`capsul.attributes`: Attributes and processes completion
@@ -142,19 +131,33 @@ Classes
 * :class:`~fom_completion_engine.FomPathCompletionEngine`
 
 
-:mod:`capsul.subprocess`: Running external software
-===================================================
+Running external software
+=========================
 
-:mod:`capsul.subprocess.fsl` Classes
-------------------------------------
+:mod:`capsul.in_context`
+------------------------
+
+The new system which will be used in Capsul v3 is based on :class:`~capsul.engine.CapsulEngine` and is the module:
+
+:mod:`~capsul.in_context`
+
+
+:mod:`capsul.subprocess`
+------------------------
+
+This module is obsolete and will be replaced by :mod:`~capsul.in_process`. It is still used in Capsul v2 when using :class:`~caspul.study_config.study_config.StudyConfig`.
+
+
+:mod:`capsul.subprocess.fsl` Classes:
++++++++++++++++++++++++++++++++++++++
 
 .. currentmodule:: capsul.subprocess.fsl
 
 * :class:`Popen`
 
 
-:mod:`capsul.subprocess.fsl` Functions
---------------------------------------
+:mod:`capsul.subprocess.fsl` Functions:
++++++++++++++++++++++++++++++++++++++++
 
 * :func:`fsl_command_with_environment`
 * :func:`check_fsl_configuration`
@@ -167,13 +170,13 @@ Classes
 
 .. currentmodule:: capsul.subprocess.spm
 
-:mod:`capsul.subprocess.spm` Classes
-------------------------------------
+:mod:`capsul.subprocess.spm` Classes:
++++++++++++++++++++++++++++++++++++++
 
 * :class:`Popen`
 
-:mod:`capsul.subprocess.spm` Functions
---------------------------------------
+:mod:`capsul.subprocess.spm` Functions:
++++++++++++++++++++++++++++++++++++++++
 
 * :func:`find_spm`
 * :func:`check_spm_configuration`
@@ -183,6 +186,25 @@ Classes
 * :func:`call`
 * :func:`check_call`
 * :func:`check_output`
+
+
+Workflow conversion
+===================
+
+.. currentmodule:: capsul.pipeline.pipeline_workflow
+
+* :func:`workflow_from_pipeline`
+* :func:`workflow_run`
+
+.. currentmodule:: capsul.pipeline.pipeline_tools
+
+* :func:`dot_graph_from_pipeline`
+* :func:`save_dot_graph`
+* :func:`save_dot_image`
+* :func:`nodes_with_existing_outputs`
+* :func:`nodes_with_missing_inputs`
+* :func:`disable_runtime_steps_with_existing_outputs`
+* :func:`where_is_plug_value_from`
 
 
 GUI
