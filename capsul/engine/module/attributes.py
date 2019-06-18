@@ -59,7 +59,6 @@ def load_module(capsul_engine, module_name):
                                           Instance(AttributesConfig))
     capsul_engine.global_config.attributes = AttributesConfig()
 
-    if hasattr(capsul_engine, 'study_config'):
     # link with StudyConfig
     if hasattr(capsul_engine, 'study_config') \
             and 'AttributesConfig' not in capsul_engine.study_config.modules:
