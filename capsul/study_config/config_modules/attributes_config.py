@@ -96,34 +96,45 @@ class AttributesConfig(StudyConfigModule):
              'path_completion', 'attributes_schema_paths'])
 
 
-    def update_module(self):
-        factory = self.study_config.modules_data.attributes_factory
-        factory.module_path = self.study_config.attributes_schema_paths
-        self.sync_to_engine()
+    def update_module(self, param=None, value=None):
+        if param == 'attributes_schema_paths':
+            factory = self.study_config.modules_data.attributes_factory
+            factory.module_path = self.study_config.attributes_schema_paths
+        self.sync_to_engine(param, value)
 
 
-    def sync_to_engine(self):
-        self.study_config.engine.global_config.attributes.attributes_schemas \
-            = self.study_config.attributes_schemas
-        self.study_config.engine.global_config.attributes \
-              .attributes_schema_paths \
-                  = self.study_config.attributes_schema_paths
-        self.study_config.engine.global_config.attributes.process_completion \
-            = self.study_config.process_completion
-        self.study_config.engine.global_config.attributes.path_completion \
-            = self.study_config.path_completion
+    def sync_to_engine(self, param=None, value=None):
+        if param is not None:
+            setattr(self.study_config.engine.global_config.attributes, param,
+                    value)
+        else:
+            self.study_config.engine.global_config.attributes \
+                .attributes_schemas \
+                    = self.study_config.attributes_schemas
+            self.study_config.engine.global_config.attributes \
+                  .attributes_schema_paths \
+                      = self.study_config.attributes_schema_paths
+            self.study_config.engine.global_config.attributes \
+                .process_completion \
+                    = self.study_config.process_completion
+            self.study_config.engine.global_config.attributes.path_completion \
+                = self.study_config.path_completion
 
 
-    def sync_from_engine(self):
-        self.study_config.attributes_schemas \
-            = self.study_config.engine.global_config.attributes \
-                .attributes_schemas
-        self.study_config.attributes_schema_paths \
-            = self.study_config.engine.global_config.attributes \
-                .attributes_schema_paths
-        self.study_config.process_completion \
-            = self.study_config.engine.global_config.attributes \
-                .process_completion
-        self.study_config.path_completion \
-            = self.study_config.engine.global_config.attributes.path_completion
+    def sync_from_engine(self, param=None, value=None):
+        if param is not None:
+            setattr(self.study_config, param, value)
+        else:
+            self.study_config.attributes_schemas \
+                = self.study_config.engine.global_config.attributes \
+                    .attributes_schemas
+            self.study_config.attributes_schema_paths \
+                = self.study_config.engine.global_config.attributes \
+                    .attributes_schema_paths
+            self.study_config.process_completion \
+                = self.study_config.engine.global_config.attributes \
+                    .process_completion
+            self.study_config.path_completion \
+                = self.study_config.engine.global_config.attributes \
+                    .path_completion
 

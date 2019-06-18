@@ -88,11 +88,14 @@ def init_study_config(init_config={}):
                                init_config=init_config)
     study_config.input_directory = '/tmp/in'
     study_config.output_directory = '/tmp/out'
-    study_config.attributes_schema_paths.append(
-        'capsul.attributes.test.test_attributed_process')
+    study_config.attributes_schema_paths \
+        = study_config.attributes_schema_paths \
+            + ['capsul.attributes.test.test_attributed_process']
     study_config.attributes_schemas['input'] = 'custom_ex'
     study_config.attributes_schemas['output'] = 'custom_ex'
+    print('attributes_schema_paths:', study_config.attributes_schema_paths)
     study_config.path_completion = 'custom_ex'
+    print('attributes_schema_paths 2:', study_config.attributes_schema_paths)
 
     return study_config
 
