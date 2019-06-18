@@ -83,6 +83,9 @@ class CapsulEngine(Controller):
         self.modules = database.json_value('modules')
         if self.modules is None:
             self.modules = self.default_modules
+
+        self.study_config = StudyConfig(engine=self)
+
         self.load_modules()
         
         self._metadata_engine = from_json(database.json_value('metadata_engine'))
@@ -108,7 +111,6 @@ class CapsulEngine(Controller):
                             continue
                     setattr(self.computing_config[computing_resource], n, v)
 
-        self.study_config = StudyConfig(engine=self)
 
     def config(self, name, computing_resource):
         '''
@@ -169,7 +171,7 @@ class CapsulEngine(Controller):
         
         for module in modules:
             self.load_module(module)
-            
+
     def load_module(self, module):
         '''
         Load a module if it has not already been loaded (is this case,

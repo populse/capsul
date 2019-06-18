@@ -38,7 +38,6 @@ class FSLConfig(StudyConfigModule):
         if 'capsul.engine.module.fsl' \
                 not in self.study_config.engine._loaded_modules:
             self.study_config.engine.load_module('capsul.engine.module.fsl')
-            self.study_config.engine.init_module('capsul.engine.module.fsl')
         if type(self.study_config.engine) is not CapsulEngine:
             # engine is a proxy, thus we are initialized from a real
             # CapsulEngine, which holds the reference values
@@ -46,7 +45,7 @@ class FSLConfig(StudyConfigModule):
         else:
             self.sync_to_engine()
         # this test aims to raise an exception in case of incorrect setting,
-        # complygin to capsul 2.x behavior.
+        # complying to capsul 2.x behavior.
         if self.study_config.use_fsl is True:
             check_fsl_configuration(self.study_config)
 

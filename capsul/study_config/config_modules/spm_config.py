@@ -53,7 +53,6 @@ class SPMConfig(StudyConfigModule):
         if 'capsul.engine.module.spm' \
                 not in self.study_config.engine._loaded_modules:
             self.study_config.engine.load_module('capsul.engine.module.spm')
-            self.study_config.engine.init_module('capsul.engine.module.spm')
 
         if type(self.study_config.engine) is not CapsulEngine:
             # engine is a proxy, thus we are initialized from a real

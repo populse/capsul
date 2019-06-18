@@ -36,7 +36,6 @@ class MatlabConfig(StudyConfigModule):
         if 'capsul.engine.module.matlab' \
                 not in self.study_config.engine._loaded_modules:
             self.study_config.engine.load_module('capsul.engine.module.matlab')
-            self.study_config.engine.init_module('capsul.engine.module.matlab')
         self.sync_from_engine()
 
         if type(self.study_config.engine) is not CapsulEngine:
