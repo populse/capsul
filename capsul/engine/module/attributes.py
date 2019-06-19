@@ -52,7 +52,10 @@ class AttributesConfig(Controller):
             = ProcessAttributes
 
         factory.module_path = self.attributes_schema_paths
+        self.on_trait_change(self.update_factory, 'attributes_schema_paths')
 
+    def update_factory(self):
+        self.attributes_factory.module_path = self.attributes_schema_paths
 
 def load_module(capsul_engine, module_name):
     capsul_engine.global_config.add_trait('attributes',

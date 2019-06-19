@@ -51,7 +51,7 @@ class AttributesConfig(StudyConfigModule):
             'path_completion',
             Str(Undefined, output=False,
                 desc='path completion model name'))
-        self.study_config.modules_data.attributes_factory = AttributesFactory()
+        #self.study_config.modules_data.attributes_factory = AttributesFactory()
 
 
     def initialize_module(self):
@@ -59,20 +59,23 @@ class AttributesConfig(StudyConfigModule):
         '''
         from capsul.engine import CapsulEngine
 
-        factory = self.study_config.modules_data.attributes_factory
-        factory.class_types['schema'] = AttributesSchema
-        factory.class_types['process_completion'] \
-          = ProcessCompletionEngineFactory
-        factory.class_types['path_completion'] \
-          = PathCompletionEngineFactory
-        factory.class_types['process_attributes'] \
-          = ProcessAttributes
+        #factory = self.study_config.modules_data.attributes_factory
+        #factory.class_types['schema'] = AttributesSchema
+        #factory.class_types['process_completion'] \
+          #= ProcessCompletionEngineFactory
+        #factory.class_types['path_completion'] \
+          #= PathCompletionEngineFactory
+        #factory.class_types['process_attributes'] \
+          #= ProcessAttributes
 
-        factory.module_path = self.study_config.attributes_schema_paths
+        #factory.module_path = self.study_config.attributes_schema_paths
 
         if type(self.study_config.engine) is not CapsulEngine:
             # engine is a proxy, thus we are initialized from a real
             # CapsulEngine, which holds the reference values
+            self.study_config.modules_data.attributes_factory \
+                = self.study_config.engine.global_config.attributes \
+                    .attributes_factory
             self.sync_from_engine()
         else:
             # otherwise engine is "owned" by StudyConfig
@@ -81,6 +84,10 @@ class AttributesConfig(StudyConfigModule):
                 self.study_config.engine.modules.append(
                     'capsul.engine.module.attributes')
                 self.study_config.engine.load_modules()
+            self.study_config.modules_data.attributes_factory \
+                = self.study_config.engine.global_config.attributes \
+                    .attributes_factory
+
             self.sync_to_engine()
 
 
