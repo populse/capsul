@@ -78,10 +78,9 @@ class MatlabConfig(StudyConfigModule):
             return
 
     def initialize_callbacks(self):
-        self.study_config.on_trait_change(self.sync_to_engine,
-                                          ['matlab_exec', 'use_matlab'])
+        self.study_config.on_trait_change(self.sync_to_engine, 'matlab_exec')
         self.study_config.engine.matlab.on_trait_change(
-            self.sync_from_engine, ['executable', 'use'])
+            self.sync_from_engine, 'executable')
 
         #self.study_config.on_trait_change(self.initialize_module, 'use_matlab')
 
