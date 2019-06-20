@@ -37,7 +37,6 @@ class MatlabConfig(StudyConfigModule):
                 not in self.study_config.engine._loaded_modules:
             self.study_config.engine.load_module('capsul.engine.module.matlab')
             self.study_config.engine.init_module('capsul.engine.module.matlab')
-        self.sync_from_engine()
 
         if type(self.study_config.engine) is not CapsulEngine:
             # engine is a proxy, thus we are initialized from a real
@@ -79,17 +78,34 @@ class MatlabConfig(StudyConfigModule):
             return
 
     def initialize_callbacks(self):
-        self.study_config.on_trait_change(self.sync_to_engine, 'matlab_exec')
+        self.study_config.on_trait_change(self.sync_to_engine,
+                                          ['matlab_exec', 'use_matlab'])
         self.study_config.engine.matlab.on_trait_change(
-            self.sync_from_engine, 'executable')
+            self.sync_from_engine, ['executable', 'use'])
 
         #self.study_config.on_trait_change(self.initialize_module, 'use_matlab')
 
 
-    def sync_to_engine(self):
-        self.study_config.engine.matlab.executable \
-            = self.study_config.matlab_exec
+    def sync_to_engine(self, param=None, value=None):
+        if param is not None:
+            tparam = {'matlab_exec': 'executable'}
+            ceparam = tparam.get(param)
+            if ceparam is not None:
+                setattr(self.study_config.engine.matlab, ceparam, value)
+        else:
+            self.study_config.engine.matlab.executable \
+                = self.study_config.matlab_exec
 
-    def sync_from_engine(self):
-        self.study_config.matlab_exec \
-            = self.study_config.engine.matlab.executable
+    def sync_from_engine(self, param=None, value=None):
+        if param is not None:
+            tparam = {'executable': 'matlab_exec'}
+            scparam = tparam.get(param)
+            if scparam is not None:
+                setattr(self.study_config, scparam, value)
+        else:
+            self.study_config.matlab_exec \
+                = self.study_config.engine.matlab.executable
+        if self.study_config.matlab_exec not in (None, Undefined):
+            self.study_config.use_matlab = True
+        elif self.study_config.use_matlab:
+            self.use_matlab = None
