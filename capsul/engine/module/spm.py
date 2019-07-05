@@ -2,6 +2,8 @@ import glob
 import os
 import os.path as osp
 import weakref
+import subprocess
+
 
 from soma.controller import Controller
 from soma.functiontools import SomaPartial
@@ -31,7 +33,6 @@ def init_module(capul_engine, module_name, loaded_module):
     if capul_engine.spm.use is True:
         check_spm_configuration(capul_engine)
 
-
 def update_execution_context(capsul_engine):
     for attr, var in (('directory', 'SPM_DIRECTORY'),
                       ('version', 'SPM_VERSION'),
@@ -51,6 +52,7 @@ def check_spm_configuration(capsul_engine):
     if check_configuration_values(capsul_engine) is not None:
         auto_configuration(capsul_engine)
         error_message = check_configuration_values(capsul_engine)
+
         if error_message:
             raise EnvironmentError(error_message)
     
@@ -76,23 +78,55 @@ def auto_configuration(capsul_engine):
     '''
     Try to automatically set the capsul_engine configuration for SPM.
     '''
+#    if capsul_engine.spm.directory is not Undefined:
+#        mcr = glob.glob(osp.join(capsul_engine.spm.directory, 'spm*_mcr'))
+#        if mcr:
+#            capsul_engine.spm.version = osp.basename(mcr[0])[3:-4]
+#            capsul_engine.spm.standalone = True
+#        else:
+#            capsul_engine.spm.standalone = False
+#            # determine SPM version (currently 8 or 12)
+#            if osp.isdir(osp.join(
+#                    capsul_engine.spm.directory, 'toolbox', 'OldNorm')):
+#                capsul_engine.spm.version = '12'
+#            elif os.path.isdir(os.path.join(
+#                capsul_engine.spm.directory, 'templates')):
+#                capsul_engine.spm.version = '8'
+#            else:
+#                if capsul_engine.spm.version is not Undefined:
+#                    del capsul_engine.spm.version
+
+# it seems that spm*_mcr does not always exist. run_spm*.sh yes ?
     if capsul_engine.spm.directory is not Undefined:
-        mcr = glob.glob(osp.join(capsul_engine.spm.directory, 'spm*_mcr'))
+        mcr= glob.glob(osp.join(capsul_engine.spm.directory, 'run_spm*.sh'))
         if mcr:
-            capsul_engine.spm.version = osp.basename(mcr[0])[3:-4]
+            capsul_engine.spm.version = osp.basename(mcr[0])[7:-3]
             capsul_engine.spm.standalone = True
         else:
             capsul_engine.spm.standalone = False
-            # determine SPM version (currently 8 or 12)
-            if osp.isdir(osp.join(
-                    capsul_engine.spm.directory, 'toolbox', 'OldNorm')):
-                capsul_engine.spm.version = '12'
-            elif os.path.isdir(os.path.join(
-                capsul_engine.spm.directory, 'templates')):
-                capsul_engine.spm.version = '8'
+
+            matlab_cmd = 'addpath("' + capsul_engine.spm.directory + '"); [name, ~]=spm("Ver"); fprintf(2, \"%s\", name(4:end)); exit'
+            
+            try:
+                p = subprocess.Popen([capsul_engine.matlab.executable, '-nodisplay', '-nodesktop', '-nosplash', '-singleCompThread', '-batch', matlab_cmd], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                output,err = p.communicate()
+                rc = p.returncode
+
+            except FileNotFoundError as e:
+                print('\n {0}'.format(e))
+                rc = 111
+
+            except Exception as e:
+                print('\n {0}'.format(e))
+                rc = 111
+
+            if rc == 0:
+                 capsul_engine.spm.version = err.decode("utf-8")
+
             else:
+                 
                 if capsul_engine.spm.version is not Undefined:
                     del capsul_engine.spm.version
 
-
-
+            if (rc != 111) and (rc != 0):
+                print(err)
