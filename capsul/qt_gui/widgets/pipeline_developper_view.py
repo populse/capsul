@@ -4055,6 +4055,7 @@ class PipelineDevelopperView(QGraphicsView):
             dnode = self.scene.pipeline.nodes[dst_node]
         name = '%s->%s' % (src, dst)
         self._current_link = name  # (src_node, src_plug, dst_node, dst_plug)
+        self._current_link_def = (src_node, src_plug, dst_node, dst_plug)
 
         menu = QtGui.QMenu('Link: %s' % name)
         title = menu.addAction('Link: %s' % name)
@@ -4078,6 +4079,7 @@ class PipelineDevelopperView(QGraphicsView):
 
         menu.exec_(QtGui.QCursor.pos())
         del self._current_link
+        del self._current_link_def
 
     def _node_clicked_ctrl(self, name, process):
 
@@ -4102,9 +4104,20 @@ class PipelineDevelopperView(QGraphicsView):
         self.scene.update_pipeline()
 
     def _del_link(self):
-        # src_node, src_plug, dst_node, dst_plug = self._current_link
+        print(self._current_link)
+        src_node, src_plug, dst_node, dst_plug = self._current_link_def
         link_def = self._current_link
-        self.scene.pipeline.remove_link(link_def)
+        pipeline = self.scene.pipeline
+        pipeline.remove_link(link_def)
+        if src_node in ('', 'inputs'):
+            if len(pipeline.pipeline_node.plugs[src_plug].links_to) == 0:
+                # remove orphan pipeline plug
+                pipeline.remove_trait(src_plug)
+        elif dst_node is ('', 'outputs') \
+                and len(pipeline.pipeline_node.plugs[dst_plug].links_from) \
+                    == 0:
+            # remove orphan pipeline plug
+            pipeline.remove_trait(dst_plug)
         self.scene.update_pipeline()
 
     def _plug_right_clicked(self, name):
