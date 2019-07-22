@@ -159,8 +159,12 @@ Putting things together
 The modules containing these definitions must be registered in ``study_config.attributes_schema_paths``, and their names have to be used in ``study_config.attributes_schemas`` and ``study_config.path_completion``
 
 
+.. _fom:
+
 File Organization Model (FOM)
 =============================
+
+FOMs are defined in the :mod:`Soma-base library <soma.fom>` as an independent system, and used in Capsul as a files completion implementation.
 
 Using FOMs
 ----------
@@ -188,7 +192,84 @@ The rest works just as the above completion system.
 Defining FOMs
 -------------
 
+FOMs are JSON files placed in a FOM path defined somewhere in the application - generally ``<brainvisa_dir>/share/fom``. They define how a set of attributes are used to build paths for processes parameters.
+
+Ex:
+
+.. code-block:: json
+
+    {
+        "fom_name": "morphologist-auto-nonoverlap-1.0",
+
+        "fom_import": ["formats-brainvisa-1.0", "brainvisa-formats-3.2.0",
+                       "shared-brainvisa-1.0"],
+
+        "attribute_definitions" : {
+          "acquisition" : {"default_value" : "default_acquisition"},
+          "analysis" : {"default_value" : "default_analysis"},
+          "sulci_recognition_session" :  {"default_value" : "default_session"},
+          "graph_version": {"default_value": "3.1"},
+        },
+
+        "shared_patterns": {
+          "acquisition": "<center>/<subject>/t1mri/<acquisition>",
+          "analysis": "{acquisition}/<analysis>",
+          "recognition_analysis": "{analysis}/folds/<graph_version>/<sulci_recognition_session>_auto",
+        },
+
+        "processes" : {
+            "Morphologist" : {
+                "t1mri":
+                    [["input:{acquisition}/<subject>", "images"],
+                "imported_t1mri":
+                    [["output:{acquisition}/<subject>", "images"]],
+                "t1mri_referential":
+                    [["output:{acquisition}/registration/RawT1-<subject>_<acquisition>", "Referential"]],
+                "reoriented_t1mri":
+                    [["output:{acquisition}/<subject>", "images"]],
+                "t1mri_nobias":
+                    [["output:{analysis}/nobias_<subject>", "images" ]],
+                "split_brain":
+                    [["output:{analysis}/segmentation/voronoi_<subject>","images"]],
+                "left_graph":
+                    [["output:{analysis}/folds/<graph_version>/<side><subject>",
+                        "Graph and data",
+                        {"side": "L", "labelled": "No"}]],
+                "left_labelled_graph":
+                    [["output:{recognition_analysis}/<side><subject>_<sulci_recognition_session>_auto",
+                        "Graph and data", {"side": "L"}]],
+                "right_graph":
+                    [["output:{analysis}/folds/<graph_version>/<side><subject>",
+                        "Graph and data", {"side":"R","labelled":"No"}]],
+                "right_labelled_graph":
+                    [["output:{recognition_analysis}/<side><subject>_<sulci_recognition_session>_auto",
+                        "Graph and data", {"side": "R"}]],
+                "Talairach_transform":
+                    [["output:{acquisition}/registration/RawT1-<subject>_<acquisition>_TO_Talairach-ACPC",
+                        "Transformation matrix"]]
+            }
+        }
+    }
+
 
 Iterating processing over multiple data
 #######################################
+
+Iterating is done by creating a small pipeline containing an iterative node::
+
+    from capsul.api import Pipeline, StudyConfig
+    from capsul.attributes.completion_engine import ProcessCompletionEngine
+
+    study_config = StudyConfig('test_study', modules=['FomConfig'])
+    study_config.input_fom = 'morphologist-auto-nonoverlap-1.0'
+    study_config.output_fom = 'morphologist-auto-nonoverlap-1.0'
+
+    pipeline = Pipeline()
+    pipeline.set_study_config(study_config)
+    pipeline.add_iterative_process('morpho',
+                                   'morphologist.capsul.morphologist',
+                                   iterative_plugs=['t1mri'])
+    pipeline.autoexport_nodes_parameters(include_optional=True)
+    cm = ProcessCompletionEngine.get_completion_engine(pipeline)
+    cm.get_attribute_values().subject = ['s1', 's2', 's3']
 
