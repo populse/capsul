@@ -343,7 +343,11 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
                 % repr(names_search_list))
 
         iter_attrib = set()
-        for parameter in self.process.iterative_parameters:
+        if not self.process.iterative_parameters:
+            params = subprocess.user_traits().keys()
+        else:
+            params = self.process.iterative_parameters
+        for parameter in params:
             if subprocess.trait(parameter).output:
                 atp = output_atp
             else:

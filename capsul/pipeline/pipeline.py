@@ -484,22 +484,18 @@ class Pipeline(Process):
         inputs_to_clean: list of str (optional)
             a list of temporary items.
         """
-        # If no iterative plug are given as parameter, add a process
         if iterative_plugs is None:
-            self.add_process(name, process, do_not_export,
-                             make_optional, **kwargs)
+            iterative_plugs = []
 
-        # Otherwise, need to create a dynamic structure
-        else:
-            from .process_iteration import ProcessIteration
-            context_name = self._make_subprocess_context_name(name)
-            self.add_process(
-                name,
-                ProcessIteration(process, iterative_plugs,
-                                 study_config=self.study_config,
-                                 context_name=context_name),
-                do_not_export, make_optional, **kwargs)
-            return
+        from .process_iteration import ProcessIteration
+        context_name = self._make_subprocess_context_name(name)
+        self.add_process(
+            name,
+            ProcessIteration(process, iterative_plugs,
+                              study_config=self.study_config,
+                              context_name=context_name),
+            do_not_export, make_optional, **kwargs)
+        return
 
     def call_process_method(self, process_name, method,
                             *args, **kwargs):

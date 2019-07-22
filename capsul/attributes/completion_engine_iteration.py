@@ -60,6 +60,9 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         attribs = set()
         for parameter in self.process.iterative_parameters:
             attribs.update(param_attributes.get(parameter, {}).keys())
+        # if no iterative parameter has been declared, use all attributes
+        if not self.process.iterative_parameters:
+            return set(pattributes.user_traits().keys())
         return [param for param in pattributes.user_traits().keys()
                 if param in attribs]
 
