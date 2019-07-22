@@ -274,12 +274,37 @@ autoclass_content = "both"
 #except:
     #swf_version = ''
 
+try:
+    from soma_workflow import version as swver
+    somaworkflow_version = swver.shortVersion
+except:
+    somaworkflow_version = '2.9'
+try:
+    import soma.info
+    somabase_version = '%d.%d' % (soma.info.version_major,
+                                  soma.info.version_minor)
+except:
+    somabase_version = '4.6'
+
+pyversion = '%d.%d' % sys.version_info[:2]
+
 extlinks = {
-  'somabase': ('http://brainvisa.info/soma-base/sphinx/%s',
+  'somabase': ('http://brainvisa.info/soma-base-' + somabase_version + '/sphinx/%s',
     'somabase '),
-  'somaworkflow': ('http://brainvisa.info/soma-workflow/sphinx/%s',
+  'somaworkflow': ('http://brainvisa.info/soma-workflow-' + somaworkflow_version + '/sphinx/%s',
     'somaworkflow '),
 }
 
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {'http://docs.python.org/': None}
+
+docpath = os.path.join(os.path.dirname(os.path.dirname(
+    os.path.dirname(soma.__file__))), 'share', 'doc')
+
+intersphinx_mapping = {
+  'somabase': (os.path.join(docpath, 'soma-base-' + somabase_version +
+                              '/sphinx'), None),
+  'somaworkflow': (os.path.join(docpath, 'soma-workflow-'
+                                + somaworkflow_version + '/sphinx'), None),
+  'python': ('http://docs.python.org/%s' % pyversion, None),
+}
