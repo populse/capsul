@@ -67,7 +67,10 @@ class ProcessAttributes(Controller):
         self.editable_attributes = OrderedDict()
         self.parameter_attributes = {}
 
-    
+    def __getinitargs__(self):
+        # needed for self.copy()
+        return (self._process, self._schema_dict)
+
     def set_parameter_attributes(self, parameter, schema, editable_attributes, fixed_attibute_values):
         if parameter in self.parameter_attributes:
             raise KeyError('Attributes already set for parameter %s' % parameter)
