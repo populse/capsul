@@ -35,6 +35,7 @@ from capsul.attributes.attributes_schema import ProcessAttributes, \
     EditableAttributes
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
+from soma.sorted_dictionary import SortedDictionary
 
 
 class FomProcessCompletionEngine(ProcessCompletionEngine):
@@ -111,16 +112,45 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         """To get useful attributes by the fom"""
 
         process = self.process
+        study_config = process.study_config
+        modules_data = study_config.modules_data
 
         #Get attributes in input fom
         names_search_list = (self.name, process.id, process.name,
                              getattr(process, 'context_name', ''))
         capsul_attributes = self.get_attribute_values()
         matching_fom = False
+        input_found = False
+        output_found = False
 
-        for schema, fom \
-                in six.iteritems(process.study_config.modules_data.foms):
-            atp = process.study_config.modules_data.fom_atp.get(schema)
+        foms = SortedDictionary()
+        foms.update(modules_data.foms)
+        if study_config.auto_fom:
+            # in auto-fom mode, also search in additional and non-loaded FOMs
+            for schema, fom in six.iteritems(modules_data.all_foms):
+                if schema not in (study_config.input_fom,
+                                  study_config.output_fom,
+                                  study_config.shared_fom):
+                    foms[schema] = fom
+
+        def editable_attributes(attributes, fom):
+            ea = EditableAttributes()
+            for attribute in attributes:
+                if attribute.startswith('fom_'):
+                    continue # skip FOM internals
+                default_value = fom.attribute_definitions[attribute].get(
+                    'default_value', '')
+                ea.add_trait(attribute, Str(default_value))
+            return ea
+
+        for schema, fom in six.iteritems(foms):
+            if fom is None:
+                fom, atp, pta \
+                    = study_config.modules['FomConfig'].load_fom(schema)
+            else:
+                atp = modules_data.fom_atp.get(schema) \
+                    or modules_data.fom_atp['all'].get(schema)
+
             if atp is None:
                 continue
             for name in names_search_list:
@@ -130,16 +160,16 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             else:
                 continue
 
-            matching_fom = True
-            def editable_attributes(attributes, fom):
-                ea = EditableAttributes()
-                for attribute in attributes:
-                    if attribute.startswith('fom_'):
-                        continue # skip FOM internals
-                    default_value = fom.attribute_definitions[attribute].get(
-                        'default_value', '')
-                    ea.add_trait(attribute, Str(default_value))
-                return ea
+            if not matching_fom:
+                matching_fom = True
+            if schema == 'input':
+                input_found = True
+            elif schema == 'output':
+                output_found = True
+            elif matching_fom in (False, True, None):
+                matching_fom = schema, fom, atp, fom_patterns
+            #print('completion using FOM:', schema, 'for', process)
+            #break
 
             for parameter in fom_patterns:
                 param_attributes = atp.find_discriminant_attributes(
@@ -156,6 +186,44 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
         if not matching_fom:
             raise KeyError('Process not found in FOMs')
+        #print('matching_fom:', matching_fom)
+
+        if not input_found and matching_fom is not True:
+            schema, fom, atp, fom_patterns = matching_fom
+            schema = 'input'
+            for parameter in fom_patterns:
+                param_attributes = atp.find_discriminant_attributes(
+                        fom_parameter=parameter, fom_process=name)
+                if param_attributes:
+                    #process_attributes[parameter] = param_attributes
+                    ea = editable_attributes(param_attributes, fom)
+                    try:
+                        capsul_attributes.set_parameter_attributes(
+                            parameter, schema, ea, {})
+                    except KeyError:
+                        # param already registered
+                        pass
+            modules_data.foms[schema] = fom
+            modules_data.fom_atp[schema] = atp
+
+        if not output_found and matching_fom is not True:
+            schema, fom, atp, fom_patterns = matching_fom
+            schema = 'output'
+            for parameter in fom_patterns:
+                param_attributes = atp.find_discriminant_attributes(
+                        fom_parameter=parameter, fom_process=name)
+                if param_attributes:
+                    #process_attributes[parameter] = param_attributes
+                    ea = editable_attributes(param_attributes, fom)
+                    try:
+                        capsul_attributes.set_parameter_attributes(
+                            parameter, schema, ea, {})
+                    except KeyError:
+                        # param already registered
+                        pass
+            modules_data.foms[schema] = fom
+            modules_data.fom_atp[schema] = atp
+
 
         # in a pipeline, we still must iterate over nodes to find switches,
         # which have their own behaviour.

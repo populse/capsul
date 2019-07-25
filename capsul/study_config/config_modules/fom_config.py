@@ -21,6 +21,7 @@ from traits.api import Bool, Str, Undefined
 from soma.fom import AttributesToPaths, PathToAttributes
 from soma.application import Application
 from capsul.study_config.study_config import StudyConfigModule
+from soma.sorted_dictionary import SortedDictionary
 
 
 class FomConfig(StudyConfigModule):
@@ -45,6 +46,10 @@ class FomConfig(StudyConfigModule):
         self.study_config.add_trait('meshes_format',
                                     Str(Undefined, output=False,
             desc='Format used for meshes'))
+        self.study_config.add_trait(
+            'auto_fom',
+            Bool(True, output=False,
+                 desc='Look in all FOMs when a process is not found'))
         self.study_config.add_trait('use_fom', Bool(
             Undefined,
             output=False,
@@ -70,13 +75,73 @@ class FomConfig(StudyConfigModule):
             # probably not thread-safe.
             soma_app.initialize()
         self.study_config.modules_data.foms = {}
+        self.study_config.modules_data.all_foms = SortedDictionary()
+        self.study_config.modules_data.fom_atp = {'all': {}}
+        self.study_config.modules_data.fom_pta = {'all': {}}
+
         foms = (('input', self.study_config.input_fom),
-            ('output', self.study_config.output_fom),
-            ('shared', self.study_config.shared_fom))
+                ('output', self.study_config.output_fom),
+                ('shared', self.study_config.shared_fom))
         for fom_type, fom_filename in foms:
             if fom_filename != "":
-                fom = soma_app.fom_manager.load_foms(fom_filename)
+                fom, atp, pta = self.load_fom(fom_filename)
                 self.study_config.modules_data.foms[fom_type] = fom
+                self.study_config.modules_data.fom_atp[fom_type] = atp
+                self.study_config.modules_data.fom_pta[fom_type] = pta
+
+        self.study_config.use_fom = True
+        self.update_module()
+
+
+    def update_module(self):
+        if not self.study_config.use_fom:
+            return
+
+        modules_data = self.study_config.modules_data
+
+        if self.study_config.auto_fom \
+                and len(modules_data.all_foms) <= 3:
+            soma_app = Application('capsul', plugin_modules=['soma.fom'])
+            for schema in soma_app.fom_manager.find_foms():
+                if schema not in modules_data.all_foms:
+                    modules_data.all_foms[schema] = None # not loaded yet.
+
+        foms = (('input', self.study_config.input_fom),
+                ('output', self.study_config.output_fom),
+                ('shared', self.study_config.shared_fom))
+        for fom_type, fom_filename in foms:
+            if fom_filename != "":
+                fom = self.study_config.modules_data.all_foms.get(fom_filename)
+                if fom is None:
+                    fom, atp, pta = self.load_fom(fom_filename)
+                else:
+                    atp = self.study_config.modules_data.fom_atp['all'] \
+                        [fom_filename]
+                    pta = self.study_config.modules_data.fom_pta['all'] \
+                        [fom_filename]
+                self.study_config.modules_data.foms[fom_type] = fom
+                self.study_config.modules_data.fom_atp[fom_type] = atp
+                self.study_config.modules_data.fom_pta[fom_type] = pta
+
+        # update directories
+        directories = {}
+        directories['spm'] = self.study_config.spm_directory
+        directories['shared'] = self.study_config.shared_directory
+        directories['input'] = self.study_config.input_directory
+        directories['output'] = self.study_config.output_directory
+
+        for atp in modules_data.fom_atp['all'].values():
+            atp.directories = directories
+
+
+    def load_fom(self, schema):
+        soma_app = Application('capsul', plugin_modules=['soma.fom'])
+        if 'soma.fom' not in soma_app.loaded_plugin_modules:
+            # WARNING: this is unsafe, may erase configured things, and
+            # probably not thread-safe.
+            soma_app.initialize()
+        fom = soma_app.fom_manager.load_foms(schema)
+        self.study_config.modules_data.all_foms[schema] = fom
 
         # Create FOM completion data in self.study_config.modules_data
         formats = tuple(getattr(self.study_config, key) \
@@ -90,25 +155,21 @@ class FomConfig(StudyConfigModule):
         directories['input'] = self.study_config.input_directory
         directories['output'] = self.study_config.output_directory
 
-        self.study_config.modules_data.fom_atp = {}
-        self.study_config.modules_data.fom_pta = {}
+        atp = AttributesToPaths(
+            fom,
+            selection={},
+            directories=directories,
+            preferred_formats=set((formats)))
+        self.study_config.modules_data.fom_atp['all'][schema] = atp
+        pta = PathToAttributes(fom, selection={})
+        self.study_config.modules_data.fom_pta['all'][schema] = pta
+        return fom, atp, pta
 
-        for fom_type, fom \
-                in six.iteritems(self.study_config.modules_data.foms):
-            atp = AttributesToPaths(
-                fom,
-                selection={},
-                directories=directories,
-                preferred_formats=set((formats)))
-            self.study_config.modules_data.fom_atp[fom_type] = atp
-            pta = PathToAttributes(fom, selection={})
-            self.study_config.modules_data.fom_pta[fom_type] = pta
-        self.study_config.use_fom = True
     
     def initialize_callbacks(self):
         self.study_config.on_trait_change(
-            self.initialize_module,
+            self.update_module,
             ['use_fom', 'input_directory', 'input_fom', 'meshes_format',
              'output_directory', 'output_fom', 'shared_directory',
-             'shared_fom', 'spm_directory', 'volumes_format'])
+             'shared_fom', 'spm_directory', 'volumes_format', 'auto_fom'])
 
