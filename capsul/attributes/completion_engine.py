@@ -547,6 +547,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             process.study_config.on_trait_change(
                 process._remove_completion_engine,
                 'use_fom,input_fom,output_fom', remove=True)
+            del process._has_studyconfig_callback
 
     def _get_schemas(self):
         ''' Get schemas dictionary from process and its StudyConfig
