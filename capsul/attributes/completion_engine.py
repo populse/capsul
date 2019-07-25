@@ -522,6 +522,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         ## set the completion engine into the process
         if completion_engine is not None:
             process.completion_engine = completion_engine
+            process._has_studyconfig_callback = True
             if study_config is not None:
                 from capsul.process.process import Process
                 if not hasattr(Process, '_remove_completion_engine'):
@@ -540,10 +541,9 @@ class ProcessCompletionEngine(traits.HasTraits):
 
     @staticmethod
     def _del_process_callback(process):
-        print('process del:', process)
         if hasattr(process, 'study_config') \
-                and process.study_config is not None:
-            print('removing callback')
+                and process.study_config is not None \
+                and hasattr(process, '_has_studyconfig_callback'):
             process.study_config.on_trait_change(
                 process._remove_completion_engine,
                 'use_fom,input_fom,output_fom', remove=True)
