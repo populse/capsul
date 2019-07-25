@@ -32,6 +32,9 @@ import sys
 if sys.version_info[0] >= 3:
     unicode = str
 
+# DEBUG
+#ce_calls = 0
+
 
 class ProcessCompletionEngine(traits.HasTraits):
     ''' Parameters completion from attributes for a process instance, in the
@@ -491,7 +494,10 @@ class ProcessCompletionEngine(traits.HasTraits):
         ''' Get a ProcessCompletionEngine instance for a given process within
         the framework of its StudyConfig: factory function.
         '''
+        #global ce_calls
+        #ce_calls += 1
         engine_factory = None
+        study_config = None
         if hasattr(process, 'get_study_config'):
             # switches don't have a study_config at the moment.
             study_config = process.get_study_config()
@@ -514,10 +520,33 @@ class ProcessCompletionEngine(traits.HasTraits):
         # but this needs to setup many callbacks that we don't know easily
         # when to clear (process deletion etc)
         ## set the completion engine into the process
-        #if completion_engine is not None:
-            #process.completion_engine = completion_engine
+        if completion_engine is not None:
+            process.completion_engine = completion_engine
+            if study_config is not None:
+                from capsul.process.process import Process
+                if not hasattr(Process, '_remove_completion_engine'):
+                    Process._remove_completion_engine \
+                        = ProcessCompletionEngine._remove_completion_engine
+                    Process.__del__ \
+                        = ProcessCompletionEngine._del_process_callback
+                study_config.on_trait_change(process._remove_completion_engine,
+                                            'use_fom,input_fom,output_fom')
         return completion_engine
 
+    @staticmethod
+    def _remove_completion_engine(process):
+        if hasattr(process, 'completion_engine'):
+            del process.completion_engine
+
+    @staticmethod
+    def _del_process_callback(process):
+        print('process del:', process)
+        if hasattr(process, 'study_config') \
+                and process.study_config is not None:
+            print('removing callback')
+            process.study_config.on_trait_change(
+                process._remove_completion_engine,
+                'use_fom,input_fom,output_fom', remove=True)
 
     def _get_schemas(self):
         ''' Get schemas dictionary from process and its StudyConfig
