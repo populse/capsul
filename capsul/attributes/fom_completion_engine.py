@@ -189,7 +189,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         #print('matching_fom:', matching_fom)
 
         if not input_found and matching_fom is not True:
-            schema, fom, atp, fom_patterns = matching_fom
+            fom_type, fom, atp, fom_patterns = matching_fom
             schema = 'input'
             for parameter in fom_patterns:
                 param_attributes = atp.find_discriminant_attributes(
@@ -205,9 +205,10 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                         pass
             modules_data.foms[schema] = fom
             modules_data.fom_atp[schema] = atp
+            study_config.input_fom = fom_type
 
         if not output_found and matching_fom is not True:
-            schema, fom, atp, fom_patterns = matching_fom
+            fom_type, fom, atp, fom_patterns = matching_fom
             schema = 'output'
             for parameter in fom_patterns:
                 param_attributes = atp.find_discriminant_attributes(
@@ -223,6 +224,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                         pass
             modules_data.foms[schema] = fom
             modules_data.fom_atp[schema] = atp
+            study_config.output_fom = fom_type
 
 
         # in a pipeline, we still must iterate over nodes to find switches,
