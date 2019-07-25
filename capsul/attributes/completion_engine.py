@@ -530,8 +530,9 @@ class ProcessCompletionEngine(traits.HasTraits):
                         = ProcessCompletionEngine._remove_completion_engine
                     Process.__del__ \
                         = ProcessCompletionEngine._del_process_callback
-                study_config.on_trait_change(process._remove_completion_engine,
-                                            'use_fom,input_fom,output_fom')
+                study_config.on_trait_change(
+                    process._remove_completion_engine,
+                    'use_fom,input_fom,output_fom,shared_fom')
         return completion_engine
 
     @staticmethod
@@ -546,7 +547,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                 and hasattr(process, '_has_studyconfig_callback'):
             process.study_config.on_trait_change(
                 process._remove_completion_engine,
-                'use_fom,input_fom,output_fom', remove=True)
+                'use_fom,input_fom,output_fom,shared_fom', remove=True)
             del process._has_studyconfig_callback
 
     def _get_schemas(self):
