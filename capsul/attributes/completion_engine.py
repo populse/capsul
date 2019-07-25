@@ -507,9 +507,15 @@ class ProcessCompletionEngine(traits.HasTraits):
             engine_factory = ProcessCompletionEngineFactory()
         completion_engine = engine_factory.get_completion_engine(
             process, name=name)
-        # set the completion engine into the process
-        if completion_engine is not None:
-            process.completion_engine = completion_engine
+        # I remove the completion_engine cache because when the FOM config
+        # changes in StudyConfig, the completion engine may change also,
+        # and caching it will make use of an obsolete one.
+        # The other option is to remove the caches when the FOM config changes,
+        # but this needs to setup many callbacks that we don't know easily
+        # when to clear (process deletion etc)
+        ## set the completion engine into the process
+        #if completion_engine is not None:
+            #process.completion_engine = completion_engine
         return completion_engine
 
 
