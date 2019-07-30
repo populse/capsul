@@ -2,7 +2,7 @@ import glob
 import os
 import os.path as osp
 import weakref
-import subprocess
+#import subprocess # Only in case of matlab call (auto_configuration func)
 
 from soma.controller import Controller
 from soma.functiontools import SomaPartial
@@ -42,7 +42,7 @@ def update_execution_context(capsul_engine):
 
 def check_spm_configuration(capsul_engine):
     '''
-    Check thas capsul_engine configuration is valid to call SPM commands.
+    Check that capsul_engine configuration is valid to call SPM commands.
     If not, try to automatically configure SPM. Finally raises an
     EnvironmentError if configuration is still wrong.
     '''
