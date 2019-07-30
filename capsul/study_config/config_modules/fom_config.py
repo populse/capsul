@@ -134,6 +134,31 @@ class FomConfig(StudyConfigModule):
             atp.directories = directories
 
 
+    def update_formats(self):
+        directories = {}
+        directories['spm'] = self.study_config.spm_directory
+        directories['shared'] = self.study_config.shared_directory
+        directories['input'] = self.study_config.input_directory
+        directories['output'] = self.study_config.output_directory
+
+        for schema, fom in self.study_config.modules_data.all_foms.items():
+            formats = tuple(getattr(self.study_config, key) \
+                for key in self.study_config.user_traits() \
+                if key.endswith('_format') \
+                    and getattr(self.study_config, key) is not Undefined)
+
+            atp = AttributesToPaths(
+                fom,
+                selection={},
+                directories=directories,
+                preferred_formats=set((formats)))
+            old_atp = self.study_config.modules_data.fom_atp['all'].get(schema)
+            self.study_config.modules_data.fom_atp['all'][schema] = atp
+            if old_atp is not None:
+                for t in ('input', 'output', 'shared'):
+                    if self.study_config.modules_data.fom_atp.get(t) is old_atp:
+                        self.study_config.modules_data.fom_atp[t] = atp
+
     def load_fom(self, schema):
         soma_app = Application('capsul', plugin_modules=['soma.fom'])
         if 'soma.fom' not in soma_app.loaded_plugin_modules:
@@ -172,4 +197,6 @@ class FomConfig(StudyConfigModule):
             ['use_fom', 'input_directory', 'input_fom', 'meshes_format',
              'output_directory', 'output_fom', 'shared_directory',
              'shared_fom', 'spm_directory', 'volumes_format', 'auto_fom'])
+        self.study_config.on_trait_change(
+            self.update_formats, ['meshes_format', 'volumes_format'])
 

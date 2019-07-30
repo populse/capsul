@@ -254,7 +254,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         else:
             self.attrib_widget.hide()
             completion_engine = getattr(self.attributed_process,
-                                      'completion_engine', None)
+                                        'completion_engine', None)
             if completion_engine is not None:
                 completion_engine.get_attribute_values().on_trait_change(
                     completion_engine.attributes_changed, 'anytrait',
