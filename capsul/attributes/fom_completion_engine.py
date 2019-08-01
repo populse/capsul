@@ -378,13 +378,45 @@ class FomPathCompletionEngine(PathCompletionEngine):
         d['fom_parameter'] = parameter
         d['fom_format'] = 'fom_preferred'
         path_value = None
-        for h in atp.find_paths(d):
+        #path_values = []
+        #debug = getattr(self, 'debug', None)
+        for h in atp.find_paths(d):  # , debug=debug):
             path_value = h[0]
             # find_paths() is a generator which can sometimes generate
             # several values (formats). We are only interested in the
             # first one.
+            #path_values.append(h[0])
             break
+
+        #if len(path_values) > 0:
+            #path_value = path_values[0]
         return path_value
+
+
+    def open_values_attributes(self, process, parameter):
+        for schema in ('input', 'output', 'shared'):
+            fom = process.study_config.modules_data.foms[schema]
+            atp = process.study_config.modules_data.fom_atp[schema]
+
+            name = process.id
+            names_search_list = (process.id, process.name,
+                                getattr(process, 'context_name', ''))
+            for fname in names_search_list:
+                fom_patterns = fom.patterns.get(fname)
+                if fom_patterns is not None:
+                    name = fname
+                    break
+            else:
+                continue
+
+            values = atp.find_attributes_values()
+            attributes = [k for k, v in six.iteritems(values)
+                          if k not in ('fom_name', 'fom_process',
+                                       'fom_parameter', 'fom_format')
+                            and len(v) == 2 and v[1] == (u'', )]
+            return attributes
+
+        return None
 
 
 class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
