@@ -274,9 +274,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
             [(pname, param) for pname, param in six.iteritems(parameters)
              if not getattr(param, 'hidden', False)])
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
-        self.in_plugs = {}
+        self.in_plugs = SortedDictionary()
         self.in_params = {}
-        self.out_plugs = {}
+        self.out_plugs = SortedDictionary()
         self.out_params = {}
         self.process = process
         self.sub_pipeline = sub_pipeline
