@@ -787,6 +787,16 @@ class PathCompletionEngine(object):
         '''
         return None
 
+    def allowed_formats(self, process, parameter):
+        ''' List of possible formats names associated with a parameter
+        '''
+        return []
+
+    def allowed_extensions(self, process, parameter):
+        ''' List of possible file extensions associated with a parameter
+        '''
+        return []
+
 
 class ProcessCompletionEngineFactory(object):
     '''

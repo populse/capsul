@@ -394,6 +394,9 @@ class FomPathCompletionEngine(PathCompletionEngine):
 
 
     def open_values_attributes(self, process, parameter):
+        ''' Attributes with "open" values, not restricted to a list of possible
+        values
+        '''
         for schema in ('input', 'output', 'shared'):
             fom = process.study_config.modules_data.foms[schema]
             atp = process.study_config.modules_data.fom_atp[schema]
@@ -417,6 +420,33 @@ class FomPathCompletionEngine(PathCompletionEngine):
             return attributes
 
         return None
+
+
+    def allowed_formats(self, process, parameter):
+        ''' List of possible formats names associated with a parameter
+        '''
+        formats = []
+        for schema in ('input', 'output', 'shared'):
+            atp = process.study_config.modules_data.fom_atp[schema]
+            sub_f = atp.allowed_formats_for_parameter(process.name, parameter)
+            formats += [f for f in sub_f if f not in formats]
+        return formats
+
+
+    def allowed_extensions(self, process, parameter):
+        ''' List of possible file extensions associated with a parameter
+        '''
+        exts = set()
+        for schema in ('input', 'output', 'shared'):
+            atp = process.study_config.modules_data.fom_atp[schema]
+            sub_e = atp.allowed_extensions_for_parameter(
+                process_name=process.name, param=parameter)
+            exts.update(sub_e)
+        # sort and add dots
+        exts2 = sorted(['.%s' % e for e in exts if e])
+        if '' in exts:
+            exts2.append('')
+        return exts2
 
 
 class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
