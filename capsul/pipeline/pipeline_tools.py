@@ -139,12 +139,12 @@ def pipeline_node_colors(pipeline, node):
     LIGHT_SAND_3 = (0.6, 0.55, 0.3)
 
     # for pipeline nodes
-    PURPLE_1 = (0.5, 0, 0)  # not active
-    PURPLE_2 = (0.4, 0, 0)
-    PURPLE_3 = (0.3, 0, 0)
-    DEEP_PURPLE_1 = (0.75, 0.2, 0.1)  # active
-    DEEP_PURPLE_2 = (0.55, 0.2, 0.1)
-    DEEP_PURPLE_3 = (0.35, 0.2, 0.1)
+    PURPLE_1 = (0.5, 0.4, 0.6)  # not active
+    PURPLE_2 = (0.49, 0.27, 0.49)
+    PURPLE_3 = (0.62, 0.36, 0.63)
+    DEEP_PURPLE_1 = (0.72, 0.51, 0.74)  # active
+    DEEP_PURPLE_2 = (0.52, 0.41, 0.54)
+    DEEP_PURPLE_3 = (0.3, 0.31, 0.34)
 
 #     PURPLE_1 = (0.85, 0.8, 0.85)
 #     PURPLE_2 = (0.8, 0.75, 0.8)
