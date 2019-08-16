@@ -332,7 +332,7 @@ class Pipeline(Process):
                 for link in plug.links_from:
                     src = '%s.%s' % (link[0], link[1])
                     links_to_remove.append('%s->%s' % (src, name))
-                for link in links_to_remove    
+                for link in links_to_remove:    
                     self.remove_link(link)
                 del self.pipeline_node.plugs[name]
 
