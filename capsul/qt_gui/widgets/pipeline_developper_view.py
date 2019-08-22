@@ -4104,18 +4104,17 @@ class PipelineDevelopperView(QGraphicsView):
         self.scene.update_pipeline()
 
     def _del_link(self):
-        print(self._current_link)
+        print('\nRemoving the link: ', self._current_link)
         src_node, src_plug, dst_node, dst_plug = self._current_link_def
         link_def = self._current_link
         pipeline = self.scene.pipeline
         pipeline.remove_link(link_def)
-        if src_node in ('', 'inputs'):
-            if len(pipeline.pipeline_node.plugs[src_plug].links_to) == 0:
+        if (src_node in ('', 'inputs') and
+          len(pipeline.pipeline_node.plugs[src_plug].links_to) == 0):
                 # remove orphan pipeline plug
-                pipeline.remove_trait(src_plug)
-        elif dst_node is ('', 'outputs') \
-                and len(pipeline.pipeline_node.plugs[dst_plug].links_from) \
-                    == 0:
+            pipeline.remove_trait(src_plug)
+        elif (dst_node in ('', 'outputs') and
+          len(pipeline.pipeline_node.plugs[dst_plug].links_from) == 0):
             # remove orphan pipeline plug
             pipeline.remove_trait(dst_plug)
         self.scene.update_pipeline()
