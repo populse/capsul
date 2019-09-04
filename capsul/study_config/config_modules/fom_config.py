@@ -142,6 +142,8 @@ class FomConfig(StudyConfigModule):
         directories['output'] = self.study_config.output_directory
 
         for schema, fom in self.study_config.modules_data.all_foms.items():
+            if fom is None:
+                continue
             formats = tuple(getattr(self.study_config, key) \
                 for key in self.study_config.user_traits() \
                 if key.endswith('_format') \

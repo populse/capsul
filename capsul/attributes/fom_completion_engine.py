@@ -82,6 +82,9 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
     def __init__(self, process, name=None):
         super(FomProcessCompletionEngine, self).__init__(
             process=process, name=name)
+        self.input_fom = None
+        self.output_fom = None
+        self.shared_fom = None
 
 
     def get_attribute_values(self):
@@ -168,7 +171,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 output_found = True
             elif matching_fom in (False, True, None):
                 matching_fom = schema, fom, atp, fom_patterns
-            #print('completion using FOM:', schema, 'for', process)
+            # print('completion using FOM:', schema, 'for', process.id)
             #break
 
             for parameter in fom_patterns:
@@ -186,7 +189,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
         if not matching_fom:
             raise KeyError('Process not found in FOMs')
-        #print('matching_fom:', matching_fom)
+        #if isinstance(matching_fom, tuple): print('matching_fom:', matching_fom[0])
+        #else: print('matching fom:', matching_fom)
 
         if not input_found and matching_fom is not True:
             fom_type, fom, atp, fom_patterns = matching_fom
@@ -261,6 +265,28 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
             self._get_linked_attributes()
 
+        # remember foms for later
+        self.input_fom = study_config.input_fom
+        self.output_fom = study_config.output_fom
+        self.shared_fom = study_config.shared_fom
+
+
+    @staticmethod
+    def setup_fom(process):
+        completion_engine \
+            = ProcessCompletionEngine.get_completion_engine(process)
+        if not isinstance(completion_engine, FomPathCompletionEngine):
+            return
+        if not hasattr(completion_engine, 'input_fom') \
+                or completion_engine.input_fom is None:
+            completion_engine.create_attributes_with_fom()
+        if process.study_config.input_fom != completion_engine.input_fom:
+            process.study_config.input_fom = completion_engine.input_fom
+        if process.study_config.output_fom != completion_engine.output_fom:
+            process.study_config.output_fom = completion_engine.output_fom
+        if process.study_config.shared_fom != completion_engine.shared_fom:
+            process.study_config.shared_fom = completion_engine.shared_fom
+
 
     def path_attributes(self, filename, parameter=None):
         """By the path, find value of attributes"""
@@ -334,6 +360,8 @@ class FomPathCompletionEngine(PathCompletionEngine):
         parameter: str
         attributes: ProcessAttributes instance (Controller)
         '''
+        FomProcessCompletionEngine.setup_fom(process)
+
         input_fom = process.study_config.modules_data.foms['input']
         output_fom = process.study_config.modules_data.foms['output']
         input_atp = process.study_config.modules_data.fom_atp['input']
@@ -397,9 +425,15 @@ class FomPathCompletionEngine(PathCompletionEngine):
         ''' Attributes with "open" values, not restricted to a list of possible
         values
         '''
+        # print('open_values_attributes', process.id, parameter)
+
+        FomProcessCompletionEngine.setup_fom(process)
+
         for schema in ('input', 'output', 'shared'):
             fom = process.study_config.modules_data.foms[schema]
             atp = process.study_config.modules_data.fom_atp[schema]
+            # print('fom:', fom.fom_names)
+            # print('atp:', atp)
 
             name = process.id
             names_search_list = (process.id, process.name,
@@ -425,6 +459,8 @@ class FomPathCompletionEngine(PathCompletionEngine):
     def allowed_formats(self, process, parameter):
         ''' List of possible formats names associated with a parameter
         '''
+        FomProcessCompletionEngine.setup_fom(process)
+
         formats = []
         for schema in ('input', 'output', 'shared'):
             atp = process.study_config.modules_data.fom_atp[schema]
@@ -436,6 +472,8 @@ class FomPathCompletionEngine(PathCompletionEngine):
     def allowed_extensions(self, process, parameter):
         ''' List of possible file extensions associated with a parameter
         '''
+        FomProcessCompletionEngine.setup_fom(process)
+
         exts = set()
         for schema in ('input', 'output', 'shared'):
             atp = process.study_config.modules_data.fom_atp[schema]
@@ -452,6 +490,8 @@ class FomPathCompletionEngine(PathCompletionEngine):
 class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
     def get_iterated_attributes(self):
+        FomProcessCompletionEngine.setup_fom(process)
+
         subprocess = self.process.process
         input_fom = subprocess.study_config.modules_data.foms['input']
         output_fom = subprocess.study_config.modules_data.foms['output']
