@@ -225,7 +225,9 @@ class AttributedProcessWidget(QtGui.QWidget):
                         #setattr(process,name, Undefined)
                 completion_engine.complete_parameters()
 
-                if self.input_filename_controller.attributes_from_input_filename \
+                if hasattr(self, 'input_filename_controller') \
+                        and self.input_filename_controller. \
+                            attributes_from_input_filename \
                         != '':
                     completion_engine.path_attributes(
                         self.input_filename_controller.attributes_from_input_filename)

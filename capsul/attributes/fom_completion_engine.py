@@ -490,9 +490,10 @@ class FomPathCompletionEngine(PathCompletionEngine):
 class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
     def get_iterated_attributes(self):
-        FomProcessCompletionEngine.setup_fom(process)
-
         subprocess = self.process.process
+
+        FomProcessCompletionEngine.setup_fom(subprocess)
+
         input_fom = subprocess.study_config.modules_data.foms['input']
         output_fom = subprocess.study_config.modules_data.foms['output']
         input_atp = subprocess.study_config.modules_data.fom_atp['input']
