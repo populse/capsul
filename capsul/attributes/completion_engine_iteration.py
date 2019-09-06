@@ -154,7 +154,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                         getattr(attributes_set, attribute))
         parameters = {}
         for parameter in self.process.regular_parameters:
-            parameters[parameter] = getattr(self.process, parameter)
+            if not self.process.trait(parameter).forbid_completion:
+                parameters[parameter] = getattr(self.process, parameter)
 
         size = max([len(getattr(attributes_set, attribute))
                     for attribute in iterated_attributes])
@@ -175,9 +176,10 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 value = iterated_values[step]
                 setattr(step_attributes, attribute, value)
             for parameter in self.process.iterative_parameters:
-                values = getattr(self.process, parameter)
-                if isinstance(values, list) and len(values) > it_step:
-                    parameters[parameter] = values[it_step]
+                if not self.process.trait(parameter).forbid_completion:
+                    values = getattr(self.process, parameter)
+                    if isinstance(values, list) and len(values) > it_step:
+                        parameters[parameter] = values[it_step]
             completion_engine.complete_parameters(parameters)
             for parameter in self.process.iterative_parameters:
                 value = getattr(self.process.process, parameter)

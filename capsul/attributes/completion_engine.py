@@ -351,7 +351,10 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         # now complete process parameters:
         attributes = self.get_attribute_values()
-        for pname in self.process.user_traits():
+        for pname, trait in six.iteritems(self.process.user_traits()):
+            if trait.forbid_completion:
+                # completion has been explicitly disabled on this parameter
+                continue
             try:
                 value = self.attributes_to_path(pname, attributes)
                 if value is not None:  # should None be valid ?
