@@ -735,10 +735,25 @@ class Pipeline(Process):
         source, dest = link.split("->")
 
         # Parse the source and destination parameters
-        source_node_name, source_plug_name, source_node, source_plug = \
-            self.parse_parameter(source)
-        dest_node_name, dest_plug_name, dest_node, dest_plug = \
-            self.parse_parameter(dest)
+        err = False
+        try:
+            source_node_name, source_plug_name, source_node, source_plug = \
+                self.parse_parameter(source)
+        except ValueError:
+            err = True
+            source_node_name, source_plug_name, source_node, source_plug \
+                = (None, None, None, None)
+        try:
+            dest_node_name, dest_plug_name, dest_node, dest_plug = \
+                self.parse_parameter(dest)
+        except ValueError:
+            if err or (source_node is not None and source_plug is not None):
+                raise
+            dest_node_name, dest_plug_name, dest_node, dest_plug \
+                = (None, None, None, None)
+            err = False
+        if err and dest_node is not None and dest_plug is not None:
+            raise
 
         return (source_node_name, source_plug_name, source_node, source_plug,
                 dest_node_name, dest_plug_name, dest_node, dest_plug)
