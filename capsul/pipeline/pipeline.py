@@ -139,39 +139,64 @@ class Pipeline(Process):
     sub-pipeline within the context of a higher one does generally not make
     sense.
 
+    **Main methods**
+
+    * :meth:`pipeline_definition`
+    * :meth:`add_process`
+    * :meth:`add_switch`
+    * :meth:`add_custom_node`
+    * :meth:`add_iterative_process`
+    * :meth:`add_optional_output_switch`
+    * :meth:`add_processes_selection`
+    * :meth:`add_link`
+    * :meth:`remove_link`
+    * :meth:`export_parameter`
+    * :meth:`autoexport_nodes_parameters`
+    * :meth:`add_pipeline_step`
+    * :meth:`define_pipeline_steps`
+    * :meth:`define_groups_as_steps`
+    * :meth:`remove_pipeline_step`
+    * :meth:`enable_all_pipeline_steps`
+    * :meth:`disabled_pipeline_steps_nodes`
+    * :meth:`get_pipeline_step_nodes`
+    * :meth:`find_empty_parameters`
+    * :meth:`count_items`
+
     Attributes
     ----------
-    `nodes`: dict {node_name: node}
+    nodes: dict {node_name: node}
         a dictionary containing the pipline nodes and where the pipeline node
         name is ''
-    `workflow_list`: list
+    workflow_list: list
         a list of odered nodes that can be executed
-    `workflow_repr`: str
+    workflow_repr: str
         a string representation of the workflow list <node_i>-><node_i+1>
 
-    Methods
-    -------
-    pipeline_definition
-    add_trait
-    add_process
-    add_switch
-    add_link
-    remove_link
-    export_parameter
-    workflow_ordered_nodes
-    workflow_graph
-    update_nodes_and_plugs_activation
-    parse_link
-    parse_parameter
-    find_empty_parameters
-    count_items
-    define_pipeline_steps
-    add_pipeline_step
-    remove_pipeline_step
-    disabled_pipeline_steps_nodes
-    get_pipeline_step_nodes
-    enable_all_pipeline_steps
     """
+
+    #Methods
+    #-------
+    #pipeline_definition
+    #add_trait
+    #add_process
+    #add_switch
+    #add_link
+    #remove_link
+    #export_parameter
+    #workflow_ordered_nodes
+    #workflow_graph
+    #update_nodes_and_plugs_activation
+    #parse_link
+    #parse_parameter
+    #find_empty_parameters
+    #count_items
+    #define_pipeline_steps
+    #add_pipeline_step
+    #remove_pipeline_step
+    #disabled_pipeline_steps_nodes
+    #get_pipeline_step_nodes
+    #enable_all_pipeline_steps
+    #"""
 
     selection_changed = Event()
     
@@ -375,6 +400,46 @@ class Pipeline(Process):
                     make_optional=None, inputs_to_copy=None,
                     inputs_to_clean=None, skip_invalid=False, **kwargs):
         """ Add a new node in the pipeline
+
+        **Note about invalid nodes:**
+
+        A pipeline can typically offer alternatives (through a switch) to
+        different algorithmic nodes, which may have different dependencies, or
+        may be provided through external modules, thus can be missing. To handle
+        this, Capsul can be telled that a process node can be invalid (or
+        missing) without otherwise interfering the rest of the pipeline. This is
+        done using the "skip_invalid" option. When used, the process to be added
+        is tested, and if its instanciation fails, it will not be added in the
+        pipeline, but will not trigger an error. Instead the missing node will
+        be marked as "allowed invalid", and links and exports built using this
+        node will silently do nothing. thus the pipeline will work normally,
+        without the invalid node.
+
+        Such nodes are generally gathered through a switch mechanism. However
+        the switch inputs shuld be restricted to actually available nodes. The
+        recommended method is to check that nodes have actually been added in
+        the pipeline. Then links can be made normally as if the nodes were all
+        present::
+
+            self.add_process('method1', 'module1.Module1', skip_invalid=True)
+            self.add_process('method2', 'module2.Module2', skip_invalid=True)
+            self.add_process('method3', 'module3.Module3', skip_invalid=True)
+
+            input_params = [n for n in ['method1', 'method2', 'method3']
+                            if n in self.nodes]
+            self.add_switch('select_method', input_params, 'output')
+
+            self.add_link('method1.input->select_method.method1_switch_output')
+            self.add_link('method2.input->select_method.method2_switch_output')
+            self.add_link('method3.input->select_method.method3_switch_output')
+
+        A last note about invalid nodes:
+
+        When saving a pipeline (through the :class:`graphical editor
+        <capsul.qt_gui.widgets.pipeline_developper_view.PipelineDevelopperView>`
+        typically), missing nodes *will not be saved* because they are not
+        actually in the pipeline. So be careful to save only pipelines with full
+        features.
 
         Parameters
         ----------
