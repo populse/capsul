@@ -419,11 +419,9 @@ class Pipeline(Process):
                                            study_config=self.study_config,
                                            **kwargs)
         except:
-            print('cannot instantiate', process)
             if skip_invalid:
                 process = None
                 self._invalid_nodes.add(name)
-                print('invalid process:', self, name)
                 return
             else:
                 raise
@@ -770,11 +768,9 @@ class Pipeline(Process):
             node_name = name[:dot]
             node = self.nodes.get(node_name)
             if node is None:
-                print('parse_parameter', self, node_name, name, ': node is None')
                 if node_name in self._invalid_nodes:
                     node = None
                     plug = None
-                    print('invalid plug')
                 else:
                     raise ValueError("{0} is not a valid node name".format(
                                     node_name))
@@ -784,9 +780,7 @@ class Pipeline(Process):
         plug = None
         if node is not None:
             if plug_name not in node.plugs:
-                print('plug not in list:', node.plugs.keys())
                 if plug_name not in node.invalid_plugs:
-                    print('not an invalid one:', node.invalid_plugs)
                     # adhoc search: look for an invalid node which is the
                     # beginning of the plug name: probably an auto_exported one
                     # from an invalid node
@@ -952,11 +946,8 @@ class Pipeline(Process):
 
         # Get the node and parameter
         node = self.nodes.get(node_name)
-        print('export_parameter', self, node_name, plug_name, pipeline_parameter)
-        if node is None: print('export Node is None')
         if node is None and node in self._invalid_nodes:
             # export an invalid plug: mark it as invalid
-            print('export an invalid plug:', node_name, pipeline_parameter)
             self.pipeline_node.invalid_plugs.add(pipeline_parameter)
             return
         # Make a copy of the trait
