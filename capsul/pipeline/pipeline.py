@@ -373,7 +373,7 @@ class Pipeline(Process):
 
     def add_process(self, name, process, do_not_export=None,
                     make_optional=None, inputs_to_copy=None,
-                    inputs_to_clean=None, skip_failed=False, **kwargs):
+                    inputs_to_clean=None, skip_invalid=False, **kwargs):
         """ Add a new node in the pipeline
 
         Parameters
@@ -390,7 +390,7 @@ class Pipeline(Process):
             a list of item to copy.
         inputs_to_clean: list of str (optional)
             a list of temporary items.
-        skip_failed: bool
+        skip_invalid: bool
             if True, if the process is failing (cannot be instantiated), don't
             throw an exception but instread don't insert the node, and mark
             it as such in order to make add_link() to also silently do nothing.
@@ -420,7 +420,7 @@ class Pipeline(Process):
                                            **kwargs)
         except:
             print('cannot instantiate', process)
-            if skip_failed:
+            if skip_invalid:
                 process = None
                 self._invalid_nodes.add(name)
                 print('invalid process:', self, name)
