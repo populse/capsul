@@ -204,6 +204,7 @@ class Pipeline(Process):
         self.attributes = {}
         self.nodes_activation = Controller()
         self.nodes = SortedDictionary()
+        self._invalid_nodes = set()
         # Get node_position from the Pipeline class if it is
         # defined
         node_position = getattr(self,'node_position', None)
@@ -372,7 +373,7 @@ class Pipeline(Process):
 
     def add_process(self, name, process, do_not_export=None,
                     make_optional=None, inputs_to_copy=None,
-                    inputs_to_clean=None, **kwargs):
+                    inputs_to_clean=None, skip_failed=False, **kwargs):
         """ Add a new node in the pipeline
 
         Parameters
@@ -389,6 +390,13 @@ class Pipeline(Process):
             a list of item to copy.
         inputs_to_clean: list of str (optional)
             a list of temporary items.
+        skip_failed: bool
+            if True, if the process is failing (cannot be instantiated), don't
+            throw an exception but instread don't insert the node, and mark
+            it as such in order to make add_link() to also silently do nothing.
+            This option is useful for optional process nodes which may or may
+            not be available depending on their dependencies, typically in a
+            switch offering several alternative methods.
         """
         # Unique constrains
         make_optional = set(make_optional or [])
@@ -406,8 +414,19 @@ class Pipeline(Process):
         # which needs create_xml_pipeline which needs Pipeline class.
         from capsul.study_config.process_instance import get_process_instance
         # Create a process node
-        process = get_process_instance(process, study_config=self.study_config,
-                                       **kwargs)
+        try:
+            process = get_process_instance(process,
+                                           study_config=self.study_config,
+                                           **kwargs)
+        except:
+            print('cannot instantiate', process)
+            if skip_failed:
+                process = None
+                self._invalid_nodes.add(name)
+                print('invalid process:', self, name)
+                return
+            else:
+                raise
         # set full contextual name on process instance
         self._set_subprocess_context_name(process, name)
 
@@ -751,16 +770,44 @@ class Pipeline(Process):
             node_name = name[:dot]
             node = self.nodes.get(node_name)
             if node is None:
-                raise ValueError("{0} is not a valid node name".format(
-                                 node_name))
+                print('parse_parameter', self, node_name, name, ': node is None')
+                if node_name in self._invalid_nodes:
+                    node = None
+                    plug = None
+                    print('invalid plug')
+                else:
+                    raise ValueError("{0} is not a valid node name".format(
+                                    node_name))
             plug_name = name[dot + 1:]
 
         # Check if plug nexists
-        if plug_name not in node.plugs:
-            raise ValueError(
-                "'{0}' is not a valid parameter name for node '{1}'".format(
-                    plug_name, (node_name if node_name else "pipeline")))
-        return node_name, plug_name, node, node.plugs[plug_name]
+        plug = None
+        if node is not None:
+            if plug_name not in node.plugs:
+                print('plug not in list:', node.plugs.keys())
+                if plug_name not in node.invalid_plugs:
+                    print('not an invalid one:', node.invalid_plugs)
+                    # adhoc search: look for an invalid node which is the
+                    # beginning of the plug name: probably an auto_exported one
+                    # from an invalid node
+                    err = True
+                    if hasattr(node, 'process') \
+                            and hasattr(node.process, '_invalid_nodes'):
+                        invalid = node.process._invalid_nodes
+                        for ip in invalid:
+                            if plug_name.startswith(ip + '_'):
+                                err = False
+                                node.invalid_plugs.add(plug_name)
+                                break
+                    if err:
+                        raise ValueError(
+                            "'{0}' is not a valid parameter name for "
+                            "node '{1}'".format(
+                                plug_name, (node_name if node_name
+                                            else "pipeline")))
+            else:
+                plug = node.plugs[plug_name]
+        return node_name, plug_name, node, plug
 
     def add_link(self, link, weak_link=False):
         """ Add a link between pipeline nodes.
@@ -783,6 +830,10 @@ class Pipeline(Process):
         (source_node_name, source_plug_name, source_node,
          source_plug, dest_node_name, dest_plug_name, dest_node,
          dest_plug) = self.parse_link(link)
+        if source_node is None or dest_node is None or source_plug is None \
+                or dest_plug is None:
+            # link from/to an invalid node
+            return
 
         # Assure that pipeline plugs are not linked
         if (not source_plug.output and source_node is not self.pipeline_node) \
@@ -843,6 +894,10 @@ class Pipeline(Process):
          source_plug, dest_node_name, dest_plug_name, dest_node,
          dest_plug) = self.parse_link(link)
 
+        if source_node is None or dest_node is None or source_plug is None \
+                or dest_plug is None:
+            return
+
         # Update plugs memory of the pipeline
         source_plug.links_to.discard((dest_node_name, dest_plug_name,
                                       dest_node, dest_plug, True))
@@ -891,8 +946,19 @@ class Pipeline(Process):
         is_optional: bool (optional)
             sets the exported parameter to be optional
         """
+        # If a tuned name is not specified, used the plug name
+        if not pipeline_parameter:
+            pipeline_parameter = plug_name
+
         # Get the node and parameter
-        node = self.nodes[node_name]
+        node = self.nodes.get(node_name)
+        print('export_parameter', self, node_name, plug_name, pipeline_parameter)
+        if node is None: print('export Node is None')
+        if node is None and node in self._invalid_nodes:
+            # export an invalid plug: mark it as invalid
+            print('export an invalid plug:', node_name, pipeline_parameter)
+            self.pipeline_node.invalid_plugs.add(pipeline_parameter)
+            return
         # Make a copy of the trait
         source_trait = node.get_trait(plug_name)
         trait = Trait(source_trait)
@@ -901,10 +967,6 @@ class Pipeline(Process):
         if trait is None:
             raise ValueError("Node {0} ({1}) has no parameter "
                              "{2}".format(node_name, node.name, plug_name))
-
-        # If a tuned name is not specified, used the plug name
-        if not pipeline_parameter:
-            pipeline_parameter = plug_name
 
         # Check the the pipeline parameter name is not already used
         if pipeline_parameter in self.user_traits():
