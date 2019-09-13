@@ -230,6 +230,7 @@ class Pipeline(Process):
         self.nodes_activation = Controller()
         self.nodes = SortedDictionary()
         self._invalid_nodes = set()
+        self._skip_invalid_nodes = set()
         # Get node_position from the Pipeline class if it is
         # defined
         node_position = getattr(self,'node_position', None)
@@ -478,6 +479,8 @@ class Pipeline(Process):
         # modules. For instance, Pipeline class needs get_process_instance
         # which needs create_xml_pipeline which needs Pipeline class.
         from capsul.study_config.process_instance import get_process_instance
+        if skip_invalid:
+            self._skip_invalid_nodes.add(name)
         # Create a process node
         try:
             process = get_process_instance(process,
@@ -597,7 +600,8 @@ class Pipeline(Process):
                                                                  **kwargs)
     
     def add_switch(self, name, inputs, outputs, export_switch=True,
-                   make_optional=(), output_types=None, switch_value=None):
+                   make_optional=(), output_types=None, switch_value=None,
+                   opt_nodes=None):
         """ Add a switch node in the pipeline
 
         Parameters
@@ -628,6 +632,13 @@ class Pipeline(Process):
         switch_value: str (optional)
             Initial value of the switch parameter (one of the inputs names).
             Defaults to 1st input.
+        opt_nodes: bool or list
+            tells that switch values are node names, and some of them may be
+            optional and missing. In such a case, missing nodes are not addes
+            as inputs. If a list is passed, then it is a list of node names
+            which length should match the number of inputs, and which order
+            tells nodes related to inputs (in case inputs names are not
+            directly node names).
 
         Examples
         --------
@@ -648,9 +659,17 @@ class Pipeline(Process):
             raise ValueError("Pipeline cannot have two nodes with the same "
                              "name: {0}".format(name))
 
+        if opt_nodes:
+            if opt_nodes is True:
+                opt_nodes = inputs
+            opt_inputs = list(zip(inputs, opt_nodes))
+            # filter inputs
+            inputs = [i for i, n in opt_inputs if n in self.nodes]
         # Create the node
         node = Switch(self, name, inputs, outputs, make_optional=make_optional,
                       output_types=output_types)
+        if opt_nodes:
+            node._optional_input_nodes = opt_inputs
         self.nodes[name] = node
 
         # Export the switch controller to the pipeline node
@@ -1026,7 +1045,7 @@ class Pipeline(Process):
 
         # Get the node and parameter
         node = self.nodes.get(node_name)
-        if node is None and node in self._invalid_nodes:
+        if node is None and node_name in self._invalid_nodes:
             # export an invalid plug: mark it as invalid
             self.pipeline_node.invalid_plugs.add(pipeline_parameter)
             return
