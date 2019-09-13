@@ -192,8 +192,7 @@ def save_py_pipeline(pipeline, py_file):
         inputs = list(inputs)
         opt_inputs = getattr(switch, '_optional_input_nodes', None)
         if opt_inputs:
-            opt_inputs = [i[1] for i in opt_inputs
-                          if '%s_switch_%s' % (i[0], outputs[0]) in inputs]
+            opt_inputs = [i[1] for i in opt_inputs if i[0] in inputs]
             if opt_inputs == inputs:
                 opt_inputs = True
             options += ', opt_nodes=%s' % repr(opt_inputs)
