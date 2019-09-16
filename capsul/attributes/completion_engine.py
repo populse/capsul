@@ -285,6 +285,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         # as this blocking mechanism does not exist yet, we do it this way for
         # now, but it is sub-optimal since many parameters will be set many
         # times.
+        print('complete_parameters:', self.process.name)
+
         use_topological_order = True
         if isinstance(self.process, Pipeline):
             attrib_values = self.get_attribute_values().export_to_dict()
@@ -349,17 +351,71 @@ class ProcessCompletionEngine(traits.HasTraits):
                 index += 1
                 self.completion_progress = index
 
-        # now complete process parameters:
         attributes = self.get_attribute_values()
+
+        # if some attributes are list, we must separate list and non-list
+        # attributes, and use an un-listed controller to get a path
+        attributes_single = Controller()
+        have_list = False
+        for a, t in six.iteritems(attributes.user_traits()):
+            if isinstance(t.trait_type, traits.List):
+                attributes_single.add_trait(a, t.inner_traits[0])
+                value = getattr(attributes, a)
+                if len(value) == 0:
+                    setattr(attributes_single, a, t.inner_traits[0].default)
+                else:
+                    setattr(attributes_single, a, value[0])
+                have_list = True
+            else:
+                attributes_single.add_trait(a, t)
+        if have_list:
+            # if any attribute is a list, get an additional controller
+            # for list values
+            attributes_list = attributes_single.copy(with_values=False)
+            print('some attributes are lists')
+
+        # now complete process parameters:
         for pname, trait in six.iteritems(self.process.user_traits()):
             if trait.forbid_completion:
                 # completion has been explicitly disabled on this parameter
                 continue
             try:
-                value = self.attributes_to_path(pname, attributes)
+                print('param:', pname, attributes.export_to_dict())
+                if isinstance(self.process.trait(pname).trait_type,
+                              traits.List):
+                    nmax = 0
+                    # FIXME: why [0][0]; check what it is...
+                    for a in attributes.parameter_attributes[pname][0][0] \
+                            .user_traits().keys():
+                        value = getattr(attributes, a)
+                        nmax = max(nmax, len(value))
+                    value = []
+                    print('nmax:', nmax)
+                    # param is a list: call iteratively the path completion
+                    # for each attributes values set
+                    for item in range(nmax):
+                        print('item;', item)
+                        for a, t in six.iteritems(attributes.user_traits()):
+                            print(a)
+                            if isinstance(t.trait_type, traits.List):
+                                value = getattr(attributes, a)
+                                if len(value) == 0:
+                                    setattr(attributes_list, a,
+                                            t.inner_traits[0].default)
+                                else:
+                                    if len(value) <= item:
+                                        item = -1
+                                    setattr(attributes_list, a, value[item])
+                        print('attribs:', attributes_list.export_to_dict())
+                        value.append(
+                            self.attributes_to_path(pname, attributes_list))
+                else:
+                    value = self.attributes_to_path(pname, attributes_single)
+                print('value:', value)
                 if value is not None:  # should None be valid ?
                     setattr(self.process, pname, value)
-            except:
+            except Exception as e:
+                print(e)
                 pass
         self.completion_progress = self.completion_progress_total
 

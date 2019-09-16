@@ -18,9 +18,9 @@ from __future__ import print_function
 import os
 import six
 try:
-    from traits.api import Str, HasTraits
+    from traits.api import Str, HasTraits, List
 except ImportError:
-    from enthought.traits.api import Str, HasTraits
+    from enthought.traits.api import Str, HasTraits, List
 
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
@@ -136,14 +136,17 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                                   study_config.shared_fom):
                     foms[schema] = fom
 
-        def editable_attributes(attributes, fom):
+        def editable_attributes(attributes, fom, is_list=False):
             ea = EditableAttributes()
             for attribute in attributes:
                 if attribute.startswith('fom_'):
                     continue # skip FOM internals
                 default_value = fom.attribute_definitions[attribute].get(
                     'default_value', '')
-                ea.add_trait(attribute, Str(default_value))
+                if is_list:
+                    ea.add_trait(attribute, List(Str(default_value)))
+                else:
+                    ea.add_trait(attribute, Str(default_value))
             return ea
 
         for schema, fom in six.iteritems(foms):
@@ -178,8 +181,12 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 param_attributes = atp.find_discriminant_attributes(
                         fom_parameter=parameter, fom_process=name)
                 if param_attributes:
+                    is_list = False
+                    trait= process.trait(parameter)
+                    if trait and isinstance(trait.trait_type, List):
+                        is_list = True
                     #process_attributes[parameter] = param_attributes
-                    ea = editable_attributes(param_attributes, fom)
+                    ea = editable_attributes(param_attributes, fom, is_list)
                     try:
                         capsul_attributes.set_parameter_attributes(
                             parameter, schema, ea, {})
@@ -199,8 +206,12 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 param_attributes = atp.find_discriminant_attributes(
                         fom_parameter=parameter, fom_process=name)
                 if param_attributes:
+                    is_list = False
+                    trait= process.trait(parameter)
+                    if trait and isinstance(trait.trait_type, List):
+                        is_list = True
                     #process_attributes[parameter] = param_attributes
-                    ea = editable_attributes(param_attributes, fom)
+                    ea = editable_attributes(param_attributes, fom, is_list)
                     try:
                         capsul_attributes.set_parameter_attributes(
                             parameter, schema, ea, {})
@@ -218,8 +229,12 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 param_attributes = atp.find_discriminant_attributes(
                         fom_parameter=parameter, fom_process=name)
                 if param_attributes:
+                    is_list = False
+                    trait= process.trait(parameter)
+                    if trait and isinstance(trait.trait_type, List):
+                        is_list = True
                     #process_attributes[parameter] = param_attributes
-                    ea = editable_attributes(param_attributes, fom)
+                    ea = editable_attributes(param_attributes, fom, is_list)
                     try:
                         capsul_attributes.set_parameter_attributes(
                             parameter, schema, ea, {})
@@ -360,6 +375,8 @@ class FomPathCompletionEngine(PathCompletionEngine):
         parameter: str
         attributes: ProcessAttributes instance (Controller)
         '''
+        print('FomPathCompletionEngine.attributes_to_path:', process.name, parameter, attributes.export_to_dict())
+
         FomProcessCompletionEngine.setup_fom(process)
 
         input_fom = process.study_config.modules_data.foms['input']
@@ -418,6 +435,7 @@ class FomPathCompletionEngine(PathCompletionEngine):
 
         #if len(path_values) > 0:
             #path_value = path_values[0]
+        print('path_value:', path_value)
         return path_value
 
 
