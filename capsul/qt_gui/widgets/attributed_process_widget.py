@@ -16,7 +16,7 @@ from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.controller import Controller
 from soma.qt_gui.controller_widget \
     import ControllerWidget, ScrollControllerWidget
-from traits.api import File, HasTraits, Any, Directory, Undefined
+from traits.api import File, HasTraits, Any, Directory, Undefined, List
 
 
 class AttributedProcessWidget(QtGui.QWidget):
@@ -281,9 +281,11 @@ class AttributedProcessWidget(QtGui.QWidget):
                     self.controller_widget.controller_widget._controls):
             for group, control in six.iteritems(control_groups):
                 trait, control_class, control_instance, control_label = control
-                if not isinstance(trait.trait_type, File) \
-                        and not isinstance(trait.trait_type, Any) \
-                        and not isinstance(trait.trait_type, Directory):
+                if not isinstance(trait.trait_type, (File, Any, Directory)) \
+                        and (not isinstance(trait.trait_type, List)
+                             or not isinstance(
+                                trait.inner_traits[0].trait_type,
+                                (File, Directory, Any))):
                     continue
                 control_instance.setVisible(visible)
                 if isinstance(control_label, tuple):
@@ -303,7 +305,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         '''
         Toggle the visibility of paths parameters
         '''
-        self.show_completion(None)
+        self.show_completion(visible)
 
     def _completion_progress_changed(self, obj, name, old, new):
         completion_engine = getattr(self.attributed_process,
