@@ -2484,7 +2484,7 @@ class PipelineDevelopperView(QGraphicsView):
         self._enable_edition = enable_edition
         self._pipeline_filename = ""
         self._restricted_edition = False
-        self.clinical_mode = False
+        self.disable_overwrite = False
 
         if pipeline is None:
             pipeline = Pipeline()
@@ -4537,7 +4537,7 @@ class PipelineDevelopperView(QGraphicsView):
             self.save_pipeline_parameters()
             return ''
 
-        if os.path.exists(filename) and self.clinical_mode:
+        if os.path.exists(filename) and self.disable_overwrite:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
             msg.setText('This file already exists, you do not have the '
