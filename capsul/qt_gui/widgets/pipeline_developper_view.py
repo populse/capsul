@@ -2484,6 +2484,7 @@ class PipelineDevelopperView(QGraphicsView):
         self._enable_edition = enable_edition
         self._pipeline_filename = ""
         self._restricted_edition = False
+        self.disable_overwrite = False
 
         if pipeline is None:
             pipeline = Pipeline()
@@ -4489,24 +4490,27 @@ class PipelineDevelopperView(QGraphicsView):
         """
 
         class MultiDimensionalArrayEncoder(json.JSONEncoder):
-        
+
             def encode(self, obj):
-                
+
                 def hint_tuples(item):
 
                     if isinstance(item, tuple):
-                        return {'__tuple__': True, 'items': [hint_tuples(e) for e in item]}
-                    
+                        return {'__tuple__': True,
+                                'items': [hint_tuples(e) for e in item]}
+
                     if isinstance(item, list):
                         return [hint_tuples(e) for e in item]
-                
+
                     if isinstance(item, dict):
-                        return dict((key, hint_tuples(value)) for key, value in item.items())
+                        return dict((key, hint_tuples(value)) for key, value in
+                                    item.items())
 
                     else:
                         return item
 
-                return super(MultiDimensionalArrayEncoder, self).encode(hint_tuples(obj))
+                return super(MultiDimensionalArrayEncoder, self).encode(
+                    hint_tuples(obj))
 
         pipeline = self.scene.pipeline
 
@@ -4514,28 +4518,59 @@ class PipelineDevelopperView(QGraphicsView):
             None, 'Save the pipeline parameters', '',
             'Compatible files (*.json)')
 
+        if not filename:  # save widget was cancelled by the user
+            return ''
+
+        if os.path.splitext(filename)[1] == '':  # which means no extension
+            filename += '.json'
+
+        elif os.path.splitext(filename)[1] != '.json':
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText('The parameters must be saved in the ".json" format, '
+                        'not the "{0}" format'.format(
+                os.path.splitext(filename)[1]))
+            msg.setWindowTitle("Warning")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.buttonClicked.connect(msg.close)
+            msg.exec()
+            self.save_pipeline_parameters()
+            return ''
+
+        if os.path.exists(filename) and self.disable_overwrite:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText('This file already exists, you do not have the '
+                        'rights to overwrite it.')
+            msg.setWindowTitle("Warning")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.buttonClicked.connect(msg.close)
+            msg.exec()
+            self.save_pipeline_parameters()
+            return ''
+
         if filename:
             from traits.api import Undefined
             # Generating the dictionary
             param_dic = {}
-            
+
             for trait_name, trait in pipeline.user_traits().items():
-                
+
                 if trait_name in ["nodes_activation"]:
                     continue
-                
+
                 value = getattr(pipeline, trait_name)
-                
+
                 if value is Undefined:
                     value = ""
-                    
+
                 param_dic[trait_name] = value
 
             # In the future, more information may be added to this dictionary
             dic = {}
             dic["pipeline_parameters"] = param_dic
             jsonstring = MultiDimensionalArrayEncoder().encode(dic)
-           
+
             # Saving the dictionary in the Json file
             if sys.version_info[0] >= 3:
                 with open(filename, 'w', encoding='utf8') as file:
