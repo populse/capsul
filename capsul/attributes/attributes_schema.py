@@ -24,6 +24,7 @@ from soma.sorted_dictionary import OrderedDict
 
 from soma.controller import Controller
 from soma.functiontools import partial, SomaPartial
+import traits.api as traits
 
 
 class AttributesSchema(object):
@@ -71,7 +72,8 @@ class ProcessAttributes(Controller):
         # needed for self.copy()
         return (self._process, self._schema_dict)
 
-    def set_parameter_attributes(self, parameter, schema, editable_attributes, fixed_attibute_values):
+    def set_parameter_attributes(self, parameter, schema, editable_attributes,
+                                 fixed_attibute_values):
         if parameter in self.parameter_attributes:
             raise KeyError('Attributes already set for parameter %s' % parameter)
         if isinstance(editable_attributes, six.string_types) or isinstance(editable_attributes, EditableAttributes):
@@ -96,7 +98,23 @@ class ProcessAttributes(Controller):
             parameter_editable_attributes.append(ea)
             if add_editable_attributes:
                 for name, trait in six.iteritems(ea.user_traits()):
-                    self.add_trait(name, trait)
+                    if name in self.user_traits():
+                        if isinstance(self.trait(name).trait_type,
+                                      traits.List):
+                            # a process attribute trait may have been changed
+                            # into a list. Here we assume attributes are only
+                            # strings (at this point - it can be changed at
+                            # higher lever afterwards), so change it back into
+                            # a single value trait.
+                            self.remove_trait(name)
+                            self.add_trait(name, trait)
+                        # else don't add it again: this way non-list versions
+                        # of attributes get priority. If both exist, lists
+                        # should get one single value (otherwise there is an
+                        # ambiguity or inconsistency), so the attribute should
+                        # not be a list.
+                    else:
+                        self.add_trait(name, trait)
                     f = SomaPartial(set_attribute, ea)
                     self.on_trait_change(f, name)
         self.parameter_attributes[parameter] = (parameter_editable_attributes, fixed_attibute_values)

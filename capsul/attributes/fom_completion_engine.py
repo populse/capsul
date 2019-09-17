@@ -375,8 +375,6 @@ class FomPathCompletionEngine(PathCompletionEngine):
         parameter: str
         attributes: ProcessAttributes instance (Controller)
         '''
-        print('FomPathCompletionEngine.attributes_to_path:', process.name, parameter, attributes.export_to_dict())
-
         FomProcessCompletionEngine.setup_fom(process)
 
         input_fom = process.study_config.modules_data.foms['input']
@@ -435,7 +433,6 @@ class FomPathCompletionEngine(PathCompletionEngine):
 
         #if len(path_values) > 0:
             #path_value = path_values[0]
-        print('path_value:', path_value)
         return path_value
 
 
