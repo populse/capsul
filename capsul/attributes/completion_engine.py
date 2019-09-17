@@ -391,8 +391,12 @@ class ProcessCompletionEngine(traits.HasTraits):
                 if isinstance(self.process.trait(pname).trait_type,
                               traits.List):
                     nmax = 0
+                    param_att = attributes.parameter_attributes.get(pname)
+                    if param_att is None:
+                        continue  # no completion for you
+
                     # FIXME: why [0][0]; check what it is...
-                    for a in attributes.parameter_attributes[pname][0][0] \
+                    for a in param_att[0][0] \
                             .user_traits().keys():
                         att_value = getattr(attributes, a)
                         if not isinstance(att_value, list):
@@ -423,7 +427,9 @@ class ProcessCompletionEngine(traits.HasTraits):
                 if value is not None:  # should None be valid ?
                     setattr(self.process, pname, value)
             except Exception as e:
-                print(e)
+                print('Exception:', e)
+                import traceback
+                traceback.print_exc()
                 #pass
         self.completion_progress = self.completion_progress_total
 
