@@ -387,6 +387,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             if trait.forbid_completion:
                 # completion has been explicitly disabled on this parameter
                 continue
+            value = []  # for the try.. except
             try:
                 if isinstance(self.process.trait(pname).trait_type,
                               traits.List):
@@ -400,7 +401,8 @@ class ProcessCompletionEngine(traits.HasTraits):
                             .user_traits().keys():
                         att_value = getattr(attributes, a)
                         if not isinstance(att_value, list):
-                            nmax = max(nmax, 1)
+                            if att_value is not None:
+                                nmax = max(nmax, 1)
                         else:
                             nmax = max(nmax, len(att_value))
                     value = []
@@ -422,12 +424,17 @@ class ProcessCompletionEngine(traits.HasTraits):
                                             att_value[item])
                         value.append(
                             self.attributes_to_path(pname, attributes_list))
+                    # avoid case of invalid attribute values
+                    if value == [None]:
+                        value = []
                 else:
                     value = self.attributes_to_path(pname, attributes_single)
                 if value is not None:  # should None be valid ?
                     setattr(self.process, pname, value)
             except Exception as e:
                 print('Exception:', e)
+                print('param:', pname)
+                print('value:', repr(value))
                 import traceback
                 traceback.print_exc()
                 #pass
