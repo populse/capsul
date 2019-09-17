@@ -355,24 +355,32 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         # if some attributes are list, we must separate list and non-list
         # attributes, and use an un-listed controller to get a path
-        attributes_single = Controller()
-        have_list = False
-        for a, t in six.iteritems(attributes.user_traits()):
-            if isinstance(t.trait_type, traits.List):
-                attributes_single.add_trait(a, t.inner_traits[0])
-                value = getattr(attributes, a)
-                if len(value) == 0:
-                    setattr(attributes_single, a, t.inner_traits[0].default)
-                else:
-                    setattr(attributes_single, a, value[0])
-                have_list = True
-            else:
-                attributes_single.add_trait(a, t)
-                setattr(attributes_single, a, getattr(attributes, a))
+        have_list = any([isinstance(t.trait_type, traits.List)
+                         for t in attributes.user_traits().values()])
         if have_list:
-            # if any attribute is a list, get an additional controller
-            # for list values
+            attributes_single = ProcessAttributes(attributes._process,
+                                                  attributes._schema_dict)
+            for a, t in six.iteritems(attributes.user_traits()):
+                if isinstance(t.trait_type, traits.List):
+                    attributes_single.add_trait(a, t.inner_traits[0])
+                    value = getattr(attributes, a)
+                    if len(value) == 0:
+                        setattr(attributes_single, a, t.inner_traits[0].default)
+                    else:
+                        setattr(attributes_single, a, value[0])
+                    have_list = True
+                else:
+                    attributes_single.add_trait(a, t)
+                    setattr(attributes_single, a, getattr(attributes, a))
+            attributes_single.editable_attributes = attributes.editable_attributes
+            attributes_single.parameter_attributes \
+                = attributes.parameter_attributes
+
+            # get an additional temp controller for list values
             attributes_list = attributes_single.copy(with_values=True)
+        else:
+            # no list parameter
+            attributes_single = attributes
 
         # now complete process parameters:
         for pname, trait in six.iteritems(self.process.user_traits()):
