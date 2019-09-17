@@ -4533,7 +4533,7 @@ class PipelineDevelopperView(QGraphicsView):
             msg.setWindowTitle("Warning")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.buttonClicked.connect(msg.close)
-            msg.exec()
+            msg.exec_()
             self.save_pipeline_parameters()
             return ''
 
@@ -4545,7 +4545,7 @@ class PipelineDevelopperView(QGraphicsView):
             msg.setWindowTitle("Warning")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.buttonClicked.connect(msg.close)
-            msg.exec()
+            msg.exec_()
             self.save_pipeline_parameters()
             return ''
 
