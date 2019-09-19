@@ -6,7 +6,7 @@ from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     PathCompletionEngine, PathCompletionEngineFactory
 from capsul.attributes.attributes_schema import ProcessAttributes, \
     AttributesSchema, EditableAttributes
-from traits.api import Str, Float, File, String, Undefined
+from traits.api import Str, Float, File, String, Undefined, List
 from soma_workflow import configuration as swconfig
 import unittest
 import os
@@ -32,6 +32,16 @@ class DummyProcess(Process):
         open(self.bidule, 'w').write(open(self.truc).read())
 
 
+class DummyListProcess(Process):
+    truc = List(File(output=False))
+    bidule = List(File(output=False))
+    result = File(output=True)
+
+    def _run_process(self):
+        open(self.result, 'w').write(
+            '{\n    truc=%s,\n    bidule=%s\n}' % truc, bidule)
+
+
 class CustomAttributesSchema(AttributesSchema):
     factory_id = 'custom_ex'
 
@@ -51,10 +61,21 @@ class DummyProcessAttributes(ProcessAttributes):
 
     def __init__(self, process, schema_dict):
         super(DummyProcessAttributes, self).__init__(process, schema_dict)
-        self.set_parameter_attributes('truc', 'input', 'Acquisition',
-                                      dict(type='array'))
-        self.set_parameter_attributes('bidule', 'output', 'Acquisition',
-                                      dict(type='array'))
+        self.set_parameter_attributes('truc', 'input', 'Acquisition', {})
+        self.set_parameter_attributes('bidule', 'output', 'Acquisition', {})
+
+
+class DummyListProcessAttributes(ProcessAttributes):
+    factory_id = 'DummyListProcess'
+
+    def __init__(self, process, schema_dict):
+        super(DummyListProcessAttributes, self).__init__(process, schema_dict)
+        self.set_parameter_attributes('truc', 'input', 'Acquisition', {},
+                                      is_list=True)
+        self.set_parameter_attributes('bidule', 'input', 'Acquisition', {},
+                                      is_list=True)
+        self.set_parameter_attributes('result', 'output', 'Group', {})
+
 
 class MyPathCompletion(PathCompletionEngineFactory, PathCompletionEngine):
     factory_id = 'custom_ex'
@@ -180,6 +201,32 @@ class TestCompletion(unittest.TestCase):
                              '/tmp/out/DummyProcess_bidule_muppets_stalter',
                              '/tmp/out/DummyProcess_bidule_muppets_waldorf']])
 
+    def test_list_completion(self):
+        study_config = self.study_config
+        process = study_config.get_process_instance(
+            'capsul.attributes.test.test_attributed_process.DummyListProcess')
+        from capsul.attributes.test.test_attributed_process \
+            import DummyListProcessAttributes, MyPathCompletion
+        patt = ProcessCompletionEngine.get_completion_engine(process)
+        atts = patt.get_attribute_values()
+        self.assertTrue(isinstance(patt, ProcessCompletionEngine))
+        self.assertTrue(isinstance(atts, DummyListProcessAttributes))
+        self.assertTrue(isinstance(
+            patt.get_path_completion_engine(),
+            MyPathCompletion))
+        atts.center = ['jojo', 'koko']
+        atts.subject = ['barbapapa', 'barbatruc']
+        atts.group = 'cartoon'
+        patt.complete_parameters()
+        self.assertEqual(process.truc,
+                         ['/tmp/in/DummyListProcess_truc_jojo_barbapapa',
+                          '/tmp/in/DummyListProcess_truc_koko_barbatruc',])
+        self.assertEqual(process.bidule,
+                         ['/tmp/in/DummyListProcess_bidule_jojo_barbapapa',
+                          '/tmp/in/DummyListProcess_bidule_koko_barbatruc'])
+        self.assertEqual(process.result,
+                         '/tmp/out/DummyListProcess_result_cartoon')
+
 
     def test_run_iteraton_sequential(self):
         study_config = self.study_config
@@ -202,7 +249,9 @@ class TestCompletion(unittest.TestCase):
         atts = cm.get_attribute_values()
         atts.center = ['muppets']
         atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
+        print('iter attribs:', atts.export_to_dict())
         cm.complete_parameters()
+        print('completed')
 
         # create input files
         for s in atts.subject:
@@ -212,6 +261,7 @@ class TestCompletion(unittest.TestCase):
 
         # run
         study_config.use_soma_workflow = False
+        print('iter attribs 2:', atts.export_to_dict())
         study_config.run(pipeline)
 
         # check outputs

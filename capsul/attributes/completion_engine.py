@@ -28,6 +28,7 @@ from soma.utils.weak_proxy import weak_proxy, get_ref
 from soma.functiontools import SomaPartial
 import six
 import sys
+import copy
 
 if sys.version_info[0] >= 3:
     unicode = str
@@ -358,26 +359,57 @@ class ProcessCompletionEngine(traits.HasTraits):
         have_list = any([isinstance(t.trait_type, traits.List)
                          for t in attributes.user_traits().values()])
         if have_list:
-            attributes_single = ProcessAttributes(attributes._process,
-                                                  attributes._schema_dict)
-            for a, t in six.iteritems(attributes.user_traits()):
-                if isinstance(t.trait_type, traits.List):
-                    attributes_single.add_trait(a, t.inner_traits[0])
-                    value = getattr(attributes, a)
-                    if len(value) == 0:
-                        setattr(attributes_single, a, t.inner_traits[0].default)
-                    else:
-                        setattr(attributes_single, a, value[0])
-                    have_list = True
-                else:
-                    attributes_single.add_trait(a, t)
-                    setattr(attributes_single, a, getattr(attributes, a))
-            attributes_single.editable_attributes = attributes.editable_attributes
-            attributes_single.parameter_attributes \
-                = attributes.parameter_attributes
+            attributes_single = attributes.copy_to_single(with_values=True)
+            print('attributes:', attributes.export_to_dict())
+            print('attributes_single:', attributes_single.export_to_dict())
+            #for a, t in six.iteritems(attributes.user_traits()):
+                #if isinstance(t.trait_type, traits.List):
+                    #attributes_single.remove_trait(a)
+                    #attributes_single.add_trait(a, t.inner_traits[0])
+                    #value = getattr(attributes, a)
+                    #if len(value) == 0:
+                        #setattr(attributes_single, a,
+                                #t.inner_traits[0].default)
+                    #else:
+                        #setattr(attributes_single, a, value[0])
+                    ## WARNING FIXME
+                    ## now a is desynchronized between attributes_single object
+                    ## and its internal parameter_attributes EditableAttributes
+                    ## (which have traits of type List)
+
+            #attributes_single = ProcessAttributes(attributes._process,
+                                                  #attributes._schema_dict)
+            #for a, t in six.iteritems(attributes.user_traits()):
+                #if isinstance(t.trait_type, traits.List):
+                    #attributes_single.remove_trait(a)
+                    #attributes_single.add_trait(a, t.inner_traits[0])
+                    #value = getattr(attributes, a)
+                    #if len(value) == 0:
+                        #setattr(attributes_single, a,
+                                #t.inner_traits[0].default)
+                    #else:
+                        #setattr(attributes_single, a, value[0])
+                    ## WARNING FIXME
+                    ## now a is desynchronized between attributes_single object
+                    ## and its internal parameter_attributes EditableAttributes
+                    ## (which have traits of type List)
+                #else:
+                    #attributes_single.add_trait(a, t)
+                    #setattr(attributes_single, a, getattr(attributes, a))
+            #attributes_single.editable_attributes \
+                #= attributes.editable_attributes
+            #attributes_single.parameter_attributes \
+                #= attributes.parameter_attributes
 
             # get an additional temp controller for list values
             attributes_list = attributes_single.copy(with_values=True)
+            print('** attributes_list:', attributes_list.export_to_dict())
+
+            #attributes_list = Controller.copy(attributes_single, with_values=True)
+            #attributes_list.editable_attributes \
+                #= copy.deepcopy(attributes.editable_attributes)
+            #attributes_list.parameter_attributes \
+                #= copy.deepcopy(attributes.parameter_attributes)
         else:
             # no list parameter
             attributes_single = attributes
@@ -422,13 +454,20 @@ class ProcessCompletionEngine(traits.HasTraits):
                                         item = -1
                                     setattr(attributes_list, a,
                                             att_value[item])
+                        print('list item value for', pname, ':', self.attributes_to_path(pname, attributes_list))
+                        print('for attribs:', attributes_list.export_to_dict())
+                        print('param_attributes:', attributes_list.parameter_attributes.get(pname))
                         value.append(
                             self.attributes_to_path(pname, attributes_list))
                     # avoid case of invalid attribute values
                     if value == [None]:
                         value = []
                 else:
-                    value = self.attributes_to_path(pname, attributes_single)
+                    if pname in attributes.parameter_attributes:
+                        value = self.attributes_to_path(pname,
+                                                        attributes_single)
+                    else:
+                        value = None  # not in pattern: don't complete
                 if value is not None:  # should None be valid ?
                     setattr(self.process, pname, value)
             except Exception as e:

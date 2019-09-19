@@ -25,6 +25,7 @@ from soma.sorted_dictionary import OrderedDict
 from soma.controller import Controller
 from soma.functiontools import partial, SomaPartial
 import traits.api as traits
+import copy
 
 
 class AttributesSchema(object):
@@ -73,7 +74,7 @@ class ProcessAttributes(Controller):
         return (self._process, self._schema_dict)
 
     def set_parameter_attributes(self, parameter, schema, editable_attributes,
-                                 fixed_attibute_values):
+                                 fixed_attibute_values, is_list=False):
         if parameter in self.parameter_attributes:
             raise KeyError('Attributes already set for parameter %s' % parameter)
         if isinstance(editable_attributes, six.string_types) or isinstance(editable_attributes, EditableAttributes):
@@ -97,10 +98,17 @@ class ProcessAttributes(Controller):
                 raise TypeError('Invalid value for editable attributes: {0}'.format(ea))
             parameter_editable_attributes.append(ea)
             if add_editable_attributes:
-                for name, trait in six.iteritems(ea.user_traits()):
+                for name in list(ea.user_traits().keys()):
+                    # don't use items() since traits may change during iter.
+                    trait = ea.trait(name)
+                    if is_list:
+                        trait = traits.List(trait)
+                        ea.remove_trait(name)
+                        ea.add_trait(name, trait)
                     if name in self.user_traits():
-                        if isinstance(self.trait(name).trait_type,
-                                      traits.List):
+                        if not is_list \
+                                and isinstance(self.trait(name).trait_type,
+                                               traits.List):
                             # a process attribute trait may have been changed
                             # into a list. Here we assume attributes are only
                             # strings (at this point - it can be changed at
@@ -117,7 +125,8 @@ class ProcessAttributes(Controller):
                         self.add_trait(name, trait)
                     f = SomaPartial(set_attribute, ea)
                     self.on_trait_change(f, name)
-        self.parameter_attributes[parameter] = (parameter_editable_attributes, fixed_attibute_values)
+        self.parameter_attributes[parameter] = (parameter_editable_attributes,
+                                                fixed_attibute_values)
 
     def get_parameters_attributes(self):
         pa = {}
@@ -142,3 +151,63 @@ class ProcessAttributes(Controller):
             if attributes:
                 pa[parameter] = attributes
         return pa
+
+    def copy(self, with_values=True):
+        other = self.__class__(self._process, self._schema_dict)
+        ea_map = {}
+        for parameter, pa in six.iteritems(self.parameter_attributes):
+            if parameter not in other.parameter_attributes:
+                # otherwise assume this has been done in a subclass constructor
+                eas, fa = pa
+                oeas = []
+                for ea in eas:
+                    oea = ea_map.get(ea)
+                    if oea is None:
+                        oea = ea.copy()
+                    oeas.append(oea)
+                other.set_parameter_attributes(parameter, '', oeas, fa,
+                                              is_list=False)
+        # copy the values
+        if with_values:
+            for name in self.user_traits():
+                setattr(other, name, getattr(self, name))
+                print('copy:', getattr(self, name), getattr(other, name))
+
+        return other
+
+    def copy_to_single(self, with_values=True):
+        other = ProcessAttributes(self._process, self._schema_dict)
+
+        ea_map = {}
+        for parameter, pa in six.iteritems(self.parameter_attributes):
+            if parameter not in other.parameter_attributes:
+                # otherwise assume this has been done in a subclass constructor
+                eas, fa = pa
+                oeas = []
+                for ea in eas:
+                    oea = ea_map.get(ea)
+                    if oea is None:
+                        oea = EditableAttributes()
+                        for name, trait in six.iteritems(ea.user_traits()):
+                            if isinstance(trait.trait_type, traits.List):
+                                trait = trait.inner_traits[0]
+                            oea.add_trait(name, trait)
+                        ea_map[ea] = oea
+                    oeas.append(oea)
+                other.set_parameter_attributes(parameter, '', oeas, fa,
+                                               is_list=False)
+        print('copy_to_single user_traits:', other.user_traits().keys())
+        # copy the values
+        if with_values:
+            for name in self.user_traits():
+                value = getattr(self, name)
+                print('copy single value:', name, value)
+                if isinstance(value, list):
+                    if len(value) != 0:
+                        value = value[0]
+                    else:
+                        value = self.trait(name).inner_traits[0].default
+                if value is not None:
+                    setattr(other, name, value)
+        return other
+
