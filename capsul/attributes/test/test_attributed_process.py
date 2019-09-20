@@ -215,14 +215,18 @@ class TestCompletion(unittest.TestCase):
         atts.subject = ['barbapapa', 'barbatruc']
         atts.group = 'cartoon'
         patt.complete_parameters()
-        self.assertEqual(process.truc,
-                         ['/tmp/in/DummyListProcess_truc_jojo_barbapapa',
-                          '/tmp/in/DummyListProcess_truc_koko_barbatruc',])
-        self.assertEqual(process.bidule,
-                         ['/tmp/in/DummyListProcess_bidule_jojo_barbapapa',
-                          '/tmp/in/DummyListProcess_bidule_koko_barbatruc'])
-        self.assertEqual(process.result,
-                         '/tmp/out/DummyListProcess_result_cartoon')
+        self.assertEqual([os.path.normpath(p) for p in process.truc],
+                         [os.path.normpath(p) for p in
+                            ['/tmp/in/DummyListProcess_truc_jojo_barbapapa',
+                             '/tmp/in/DummyListProcess_truc_koko_barbatruc',]])
+        self.assertEqual([os.path.normpath(p) for p in process.bidule],
+                         [os.path.normpath(p) for p in
+                            ['/tmp/in/DummyListProcess_bidule_jojo_barbapapa',
+                             '/tmp/in/DummyListProcess_bidule_koko_barbatruc']]
+        )
+        self.assertEqual(os.path.normpath(process.result),
+                         os.path.normpath(
+                            '/tmp/out/DummyListProcess_result_cartoon'))
 
 
     def test_run_iteraton_sequential(self):
