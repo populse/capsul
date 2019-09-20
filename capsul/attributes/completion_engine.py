@@ -362,7 +362,8 @@ class ProcessCompletionEngine(traits.HasTraits):
                          for t in attributes.user_traits().values()])
         if have_list:
             attributes_single = attributes.copy_to_single(with_values=True)
-            attributes_list = attributes_single.copy(with_values=True)
+            attributes_list = attributes_single.copy_to_single(
+                with_values=True)
         else:
             # no list parameter
             attributes_single = attributes

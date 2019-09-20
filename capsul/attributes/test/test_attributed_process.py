@@ -70,10 +70,8 @@ class DummyListProcessAttributes(ProcessAttributes):
 
     def __init__(self, process, schema_dict):
         super(DummyListProcessAttributes, self).__init__(process, schema_dict)
-        self.set_parameter_attributes('truc', 'input', 'Acquisition', {},
-                                      is_list=True)
-        self.set_parameter_attributes('bidule', 'input', 'Acquisition', {},
-                                      is_list=True)
+        self.set_parameter_attributes('truc', 'input', 'Acquisition', {})
+        self.set_parameter_attributes('bidule', 'input', 'Acquisition', {})
         self.set_parameter_attributes('result', 'output', 'Group', {})
 
 
@@ -207,6 +205,7 @@ class TestCompletion(unittest.TestCase):
             import DummyListProcessAttributes, MyPathCompletion
         patt = ProcessCompletionEngine.get_completion_engine(process)
         atts = patt.get_attribute_values()
+        print('\n** atts:', atts.export_to_dict())
         self.assertTrue(isinstance(patt, ProcessCompletionEngine))
         self.assertTrue(isinstance(atts, DummyListProcessAttributes))
         self.assertTrue(isinstance(

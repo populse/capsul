@@ -92,7 +92,7 @@ class ProcessAttributes(Controller):
         return (self._process, self._schema_dict)
 
     def set_parameter_attributes(self, parameter, schema, editable_attributes,
-                                 fixed_attibute_values, is_list=False):
+                                 fixed_attibute_values, allow_list=True):
         '''
         Set attributes associated with a single process parameter.
 
@@ -106,13 +106,16 @@ class ProcessAttributes(Controller):
             EditableAttributes or id containing attributes traits
         fixed_attibute_values: dict (str/str)
             values of non-editable attributes
-        is_list: bool
-            if True, attributes will be lists in order to handle parameters
-            of type list of files (or similar)
+        allow_list: bool
+            if True (the default), it the process parameter is a list, then
+            attributes are transformed into lists.
         '''
         if parameter in self.parameter_attributes:
-            raise KeyError('Attributes already set for parameter %s' % parameter)
-        if isinstance(editable_attributes, six.string_types) or isinstance(editable_attributes, EditableAttributes):
+            raise KeyError('Attributes already set for parameter %s'
+                           % parameter)
+        print('\nset_parameter_attributes', parameter)
+        if isinstance(editable_attributes, six.string_types) \
+                or isinstance(editable_attributes, EditableAttributes):
             editable_attributes = [editable_attributes]
         parameter_editable_attributes = []
         for ea in editable_attributes:
@@ -130,9 +133,21 @@ class ProcessAttributes(Controller):
                     self.editable_attributes[key] = ea
                     add_editable_attributes = True
             else:
-                raise TypeError('Invalid value for editable attributes: {0}'.format(ea))
+                raise TypeError(
+                    'Invalid value for editable attributes: {0}'.format(ea))
             parameter_editable_attributes.append(ea)
             if add_editable_attributes:
+                print('param', parameter, 'is list:', isinstance(self._process.trait(parameter).trait_type,
+                                     traits.List))
+                is_list = allow_list \
+                      and isinstance(self._process.trait(parameter).trait_type,
+                                     traits.List)
+                print('is_list:', is_list)
+                if not allow_list:
+                    import traceback
+                    print('------ tb -----')
+                    traceback.print_stack()
+                    print('-----------')
                 for name in list(ea.user_traits().keys()):
                     # don't use items() since traits may change during iter.
                     trait = ea.trait(name)
@@ -204,8 +219,7 @@ class ProcessAttributes(Controller):
                     if oea is None:
                         oea = ea.copy()
                     oeas.append(oea)
-                other.set_parameter_attributes(parameter, '', oeas, fa,
-                                              is_list=False)
+                other.set_parameter_attributes(parameter, '', oeas, fa)
         # copy the values
         if with_values:
             for name in self.user_traits():
@@ -241,7 +255,7 @@ class ProcessAttributes(Controller):
                         ea_map[ea] = oea
                     oeas.append(oea)
                 other.set_parameter_attributes(parameter, '', oeas, fa,
-                                               is_list=False)
+                                               allow_list=False)
         # copy the values
         if with_values:
             for name in self.user_traits():

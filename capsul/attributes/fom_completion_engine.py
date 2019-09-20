@@ -136,17 +136,14 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                                   study_config.shared_fom):
                     foms[schema] = fom
 
-        def editable_attributes(attributes, fom, is_list=False):
+        def editable_attributes(attributes, fom):
             ea = EditableAttributes()
             for attribute in attributes:
                 if attribute.startswith('fom_'):
                     continue # skip FOM internals
                 default_value = fom.attribute_definitions[attribute].get(
                     'default_value', '')
-                if is_list:
-                    ea.add_trait(attribute, List(Str(default_value)))
-                else:
-                    ea.add_trait(attribute, Str(default_value))
+                ea.add_trait(attribute, Str(default_value))
             return ea
 
         for schema, fom in six.iteritems(foms):
@@ -181,12 +178,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 param_attributes = atp.find_discriminant_attributes(
                         fom_parameter=parameter, fom_process=name)
                 if param_attributes:
-                    is_list = False
                     trait= process.trait(parameter)
-                    if trait and isinstance(trait.trait_type, List):
-                        is_list = True
-                    #process_attributes[parameter] = param_attributes
-                    ea = editable_attributes(param_attributes, fom, is_list)
+                    ea = editable_attributes(param_attributes, fom)
                     try:
                         capsul_attributes.set_parameter_attributes(
                             parameter, schema, ea, {})
@@ -206,12 +199,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 param_attributes = atp.find_discriminant_attributes(
                         fom_parameter=parameter, fom_process=name)
                 if param_attributes:
-                    is_list = False
                     trait= process.trait(parameter)
-                    if trait and isinstance(trait.trait_type, List):
-                        is_list = True
-                    #process_attributes[parameter] = param_attributes
-                    ea = editable_attributes(param_attributes, fom, is_list)
+                    ea = editable_attributes(param_attributes, fom)
                     try:
                         capsul_attributes.set_parameter_attributes(
                             parameter, schema, ea, {})
@@ -229,12 +218,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 param_attributes = atp.find_discriminant_attributes(
                         fom_parameter=parameter, fom_process=name)
                 if param_attributes:
-                    is_list = False
                     trait= process.trait(parameter)
-                    if trait and isinstance(trait.trait_type, List):
-                        is_list = True
-                    #process_attributes[parameter] = param_attributes
-                    ea = editable_attributes(param_attributes, fom, is_list)
+                    ea = editable_attributes(param_attributes, fom)
                     try:
                         capsul_attributes.set_parameter_attributes(
                             parameter, schema, ea, {})
