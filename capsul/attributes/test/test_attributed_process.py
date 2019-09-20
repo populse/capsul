@@ -176,13 +176,11 @@ class TestCompletion(unittest.TestCase):
 
     def test_iteration(self):
         study_config = self.study_config
-        pipeline = Pipeline()
-        pipeline.set_study_config(study_config)
-        pipeline.add_iterative_process(
+        pipeline = study_config.get_iteration_pipeline(
+            'iter',
             'dummy',
             'capsul.attributes.test.test_attributed_process.DummyProcess',
             ['truc', 'bidule'])
-        pipeline.autoexport_nodes_parameters()
         cm = ProcessCompletionEngine.get_completion_engine(pipeline)
         atts = cm.get_attribute_values()
         atts.center = ['muppets']
@@ -238,20 +236,16 @@ class TestCompletion(unittest.TestCase):
         os.mkdir(study_config.input_directory)
         os.mkdir(study_config.output_directory)
 
-        pipeline = Pipeline()
-        pipeline.set_study_config(study_config)
-        pipeline.add_iterative_process(
+        pipeline = study_config.get_iteration_pipeline(
+            'iter',
             'dummy',
             'capsul.attributes.test.test_attributed_process.DummyProcess',
             ['truc', 'bidule'])
-        pipeline.autoexport_nodes_parameters()
         cm = ProcessCompletionEngine.get_completion_engine(pipeline)
         atts = cm.get_attribute_values()
         atts.center = ['muppets']
         atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
-        print('iter attribs:', atts.export_to_dict())
         cm.complete_parameters()
-        print('completed')
 
         # create input files
         for s in atts.subject:
@@ -261,7 +255,6 @@ class TestCompletion(unittest.TestCase):
 
         # run
         study_config.use_soma_workflow = False
-        print('iter attribs 2:', atts.export_to_dict())
         study_config.run(pipeline)
 
         # check outputs

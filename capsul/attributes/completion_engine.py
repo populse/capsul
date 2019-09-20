@@ -130,8 +130,11 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         '''
         if not self._rebuild_attributes \
-                and self.trait('capsul_attributes') is not None \
-                and hasattr(self, 'capsul_attributes'):
+                and 'capsul_attributes' in self._instance_traits():
+            # we have to use this private HasTraits method _instance_traits()
+            # to know if we actually have an instance trait, because
+            # class traits are automatically added whenever we access an
+            # attribute of another instance which doesn't have it (!)
             return self.capsul_attributes
 
         schemas = self._get_schemas()
@@ -190,7 +193,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                             continue
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):
-                        if attributes.trait(attribute) is None:
+                        if attribute not in attributes._instance_traits():
                             attributes.add_trait(attribute, trait)
                             setattr(attributes, attribute,
                                     getattr(sub_attributes, attribute))
@@ -286,7 +289,6 @@ class ProcessCompletionEngine(traits.HasTraits):
         # as this blocking mechanism does not exist yet, we do it this way for
         # now, but it is sub-optimal since many parameters will be set many
         # times.
-        # print('complete_parameters:', self.process.name)
 
         use_topological_order = True
         if isinstance(self.process, Pipeline):
@@ -360,56 +362,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                          for t in attributes.user_traits().values()])
         if have_list:
             attributes_single = attributes.copy_to_single(with_values=True)
-            print('attributes:', attributes.export_to_dict())
-            print('attributes_single:', attributes_single.export_to_dict())
-            #for a, t in six.iteritems(attributes.user_traits()):
-                #if isinstance(t.trait_type, traits.List):
-                    #attributes_single.remove_trait(a)
-                    #attributes_single.add_trait(a, t.inner_traits[0])
-                    #value = getattr(attributes, a)
-                    #if len(value) == 0:
-                        #setattr(attributes_single, a,
-                                #t.inner_traits[0].default)
-                    #else:
-                        #setattr(attributes_single, a, value[0])
-                    ## WARNING FIXME
-                    ## now a is desynchronized between attributes_single object
-                    ## and its internal parameter_attributes EditableAttributes
-                    ## (which have traits of type List)
-
-            #attributes_single = ProcessAttributes(attributes._process,
-                                                  #attributes._schema_dict)
-            #for a, t in six.iteritems(attributes.user_traits()):
-                #if isinstance(t.trait_type, traits.List):
-                    #attributes_single.remove_trait(a)
-                    #attributes_single.add_trait(a, t.inner_traits[0])
-                    #value = getattr(attributes, a)
-                    #if len(value) == 0:
-                        #setattr(attributes_single, a,
-                                #t.inner_traits[0].default)
-                    #else:
-                        #setattr(attributes_single, a, value[0])
-                    ## WARNING FIXME
-                    ## now a is desynchronized between attributes_single object
-                    ## and its internal parameter_attributes EditableAttributes
-                    ## (which have traits of type List)
-                #else:
-                    #attributes_single.add_trait(a, t)
-                    #setattr(attributes_single, a, getattr(attributes, a))
-            #attributes_single.editable_attributes \
-                #= attributes.editable_attributes
-            #attributes_single.parameter_attributes \
-                #= attributes.parameter_attributes
-
-            # get an additional temp controller for list values
             attributes_list = attributes_single.copy(with_values=True)
-            print('** attributes_list:', attributes_list.export_to_dict())
-
-            #attributes_list = Controller.copy(attributes_single, with_values=True)
-            #attributes_list.editable_attributes \
-                #= copy.deepcopy(attributes.editable_attributes)
-            #attributes_list.parameter_attributes \
-                #= copy.deepcopy(attributes.parameter_attributes)
         else:
             # no list parameter
             attributes_single = attributes
@@ -454,9 +407,6 @@ class ProcessCompletionEngine(traits.HasTraits):
                                         item = -1
                                     setattr(attributes_list, a,
                                             att_value[item])
-                        print('list item value for', pname, ':', self.attributes_to_path(pname, attributes_list))
-                        print('for attribs:', attributes_list.export_to_dict())
-                        print('param_attributes:', attributes_list.parameter_attributes.get(pname))
                         value.append(
                             self.attributes_to_path(pname, attributes_list))
                     # avoid case of invalid attribute values
@@ -729,8 +679,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         '''Clear attributes controller cache, to allow rebuilding it after
         a change. This is generally a callback attached to switches changes.
         '''
-        if self.trait('capsul_attributes') is not None \
-                and hasattr(self, 'capsul_attributes'):
+        if 'capsul_attributes' in self._instance_traits():
             self.remove_trait('capsul_attributes')
 
 
@@ -761,8 +710,7 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
         self.remove_switch_observer()
 
     def get_attribute_values(self):
-        if self.trait('capsul_attributes') is not None \
-                and hasattr(self, 'capsul_attributes'):
+        if 'capsul_attributes' in self._instance_traits():
             return self.capsul_attributes
 
         self.add_trait('capsul_attributes', ControllerTrait(Controller()))

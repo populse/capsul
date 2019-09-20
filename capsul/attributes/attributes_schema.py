@@ -46,6 +46,9 @@ class AttributesSchema(object):
 
 
 class EditableAttributes(Controller):
+    ''' A set of attributes (group) used to define process parameters
+    attributes. Attributes are traits in the EditableAttributes Controller.
+    '''
     def __str__(self):
         return '<{0}({1})>'.format(self.__class__.__name__, None)
 
@@ -60,6 +63,21 @@ def set_attribute(object, name, value):
 class ProcessAttributes(Controller):
     '''
     This is the base class for managing attributes for a process.
+
+    It stores attributes associated with a Process, for each of its parameters.
+    Attribute values can be accessed "globally" (for the whole process) as
+    ProcessAttributes instance traits.
+    Or each parameter attributes set may be accessed individually, using
+    :meth:`get_parameters_attributes()`.
+
+    To define attributes for a process, the programmer may subclass
+    ProcessAttributes and define some EditableAttributes in it. Each
+    EditableAttributes is a group of attributes (traits in the EditableAttributes instance or subclass).
+
+    A ProcessAttributes subclass should be registered to a factory to be linked
+    to a process name, using the `factory_id` class variable.
+
+    See Capsul :ref:`advanced usage doc <completion>` for details.
     '''
     
     def __init__(self, process, schema_dict):
@@ -75,6 +93,23 @@ class ProcessAttributes(Controller):
 
     def set_parameter_attributes(self, parameter, schema, editable_attributes,
                                  fixed_attibute_values, is_list=False):
+        '''
+        Set attributes associated with a single process parameter.
+
+        Parameters
+        ----------
+        parameter: str
+            process parameter name
+        schema: str
+            schema used for it (input, output, shared)
+        editable_attributes: str, EditableAttributes instance, or list of them
+            EditableAttributes or id containing attributes traits
+        fixed_attibute_values: dict (str/str)
+            values of non-editable attributes
+        is_list: bool
+            if True, attributes will be lists in order to handle parameters
+            of type list of files (or similar)
+        '''
         if parameter in self.parameter_attributes:
             raise KeyError('Attributes already set for parameter %s' % parameter)
         if isinstance(editable_attributes, six.string_types) or isinstance(editable_attributes, EditableAttributes):
@@ -129,6 +164,8 @@ class ProcessAttributes(Controller):
                                                 fixed_attibute_values)
 
     def get_parameters_attributes(self):
+        ''' Get attributes for each process parameter
+        '''
         pa = {}
         for parameter, trait in six.iteritems(self._process.user_traits()):
             if trait.output:
@@ -153,6 +190,8 @@ class ProcessAttributes(Controller):
         return pa
 
     def copy(self, with_values=True):
+        ''' overloads :meth:`soma.Controller.copy`
+        '''
         other = self.__class__(self._process, self._schema_dict)
         ea_map = {}
         for parameter, pa in six.iteritems(self.parameter_attributes):
@@ -171,11 +210,18 @@ class ProcessAttributes(Controller):
         if with_values:
             for name in self.user_traits():
                 setattr(other, name, getattr(self, name))
-                print('copy:', getattr(self, name), getattr(other, name))
 
         return other
 
     def copy_to_single(self, with_values=True):
+        ''' Similar to :meth:`copy`, excepts that it converts list attributes
+        into single values. This is useful within the completion system
+        infrastructure, to get from an attributes set containing lists
+        (process parameters which are lists), a single value allowing to
+        determine a single path.
+
+        This method is merely useful to the end user.
+        '''
         other = ProcessAttributes(self._process, self._schema_dict)
 
         ea_map = {}
@@ -196,12 +242,10 @@ class ProcessAttributes(Controller):
                     oeas.append(oea)
                 other.set_parameter_attributes(parameter, '', oeas, fa,
                                                is_list=False)
-        print('copy_to_single user_traits:', other.user_traits().keys())
         # copy the values
         if with_values:
             for name in self.user_traits():
                 value = getattr(self, name)
-                print('copy single value:', name, value)
                 if isinstance(value, list):
                     if len(value) != 0:
                         value = value[0]

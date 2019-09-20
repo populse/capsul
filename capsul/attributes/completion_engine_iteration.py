@@ -16,6 +16,8 @@ Classes
 -----------------------------------------
 '''
 
+from __future__ import print_function
+
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory
@@ -105,8 +107,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         -------
         attributes: Controller
         '''
-        t = self.trait('capsul_attributes')
-        if t is None or not hasattr(self, 'capsul_attributes'):
+        if 'capsul_attributes' in self._instance_traits():
+            t = self.trait('capsul_attributes')
             try:
                 pattributes = ProcessCompletionEngine.get_completion_engine(
                     self.process.process).get_attribute_values()
@@ -193,10 +195,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         ''' Complete the parameters on the iterated process for a given
         iteration step.
         '''
-        print('complete_iteration_step', step)
         try:
             attributes_set = self.get_attribute_values()
-            print('attributes_set:', attributes_set.export_to_dict())
             completion_engine = ProcessCompletionEngine.get_completion_engine(
                 self.process.process, self.name)
             step_attributes = completion_engine.get_attribute_values()
@@ -205,7 +205,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             # no completion
             return
         iterated_attributes = self.get_iterated_attributes()
-        print('iterated_attributes:', iterated_attributes)
         self.capsul_iteration_step = step
         for attribute in iterated_attributes:
             iterated_values = getattr(attributes_set, attribute)
@@ -223,6 +222,5 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             values = getattr(self.process, parameter)
             if len(values) > self.capsul_iteration_step:
                 parameters[parameter] = values[self.capsul_iteration_step]
-        print('parameters:', parameters)
         completion_engine.complete_parameters(parameters)
 

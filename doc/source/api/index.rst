@@ -123,6 +123,9 @@ Classes
 * :class:`~fom_completion_engine.FomProcessCompletionEngine`
 * :class:`~fom_completion_engine.FomProcessCompletionEngineIteration`
 * :class:`~fom_completion_engine.FomPathCompletionEngine`
+* :class:`~attributes_schema.AttributesSchema`
+* :class:`~attributes_schema.ProcessAttributes`
+* :class:`~attributes_schema.EditableAttributes`
 
 
 :mod:`capsul.subprocess`: Running external software
