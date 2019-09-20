@@ -107,8 +107,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         -------
         attributes: Controller
         '''
-        if 'capsul_attributes' in self._instance_traits():
-            t = self.trait('capsul_attributes')
+        if 'capsul_attributes' not in self._instance_traits():
             try:
                 pattributes = ProcessCompletionEngine.get_completion_engine(
                     self.process.process).get_attribute_values()
