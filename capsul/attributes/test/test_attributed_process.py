@@ -205,7 +205,6 @@ class TestCompletion(unittest.TestCase):
             import DummyListProcessAttributes, MyPathCompletion
         patt = ProcessCompletionEngine.get_completion_engine(process)
         atts = patt.get_attribute_values()
-        print('\n** atts:', atts.export_to_dict())
         self.assertTrue(isinstance(patt, ProcessCompletionEngine))
         self.assertTrue(isinstance(atts, DummyListProcessAttributes))
         self.assertTrue(isinstance(
