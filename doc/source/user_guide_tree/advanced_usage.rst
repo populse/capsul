@@ -257,7 +257,7 @@ Ex:
 Iterating processing over multiple data
 #######################################
 
-Iterating is done by creating a small pipeline containing an iterative node::
+Iterating is done by creating a small pipeline containing an iterative node. This can be done using the utility method :meth:`~capsul.study_config.study_config.StudyConfig.get_iteration_pipeline` of :class:`~capsul.study_config.study_config.StudyConfig`::
 
     from capsul.api import Pipeline, StudyConfig
     from capsul.attributes.completion_engine import ProcessCompletionEngine
@@ -266,12 +266,19 @@ Iterating is done by creating a small pipeline containing an iterative node::
     study_config.input_fom = 'morphologist-auto-nonoverlap-1.0'
     study_config.output_fom = 'morphologist-auto-nonoverlap-1.0'
 
+    pipeline = study_config.get_iteration_pipeline(
+        'iter', 'morpho', 'morphologist.capsul.morphologist',
+        iterative_plugs=['t1mri'])
+
+    cm = ProcessCompletionEngine.get_completion_engine(pipeline)
+    cm.get_attribute_values().subject = ['s1', 's2', 's3']
+    cm.complete_parameters()
+
+Note that :meth:`~capsul.study_config.study_config.StudyConfig.get_iteration_pipeline` is the equivalent of::
+
     pipeline = Pipeline()
     pipeline.set_study_config(study_config)
     pipeline.add_iterative_process('morpho',
                                    'morphologist.capsul.morphologist',
                                    iterative_plugs=['t1mri'])
     pipeline.autoexport_nodes_parameters(include_optional=True)
-    cm = ProcessCompletionEngine.get_completion_engine(pipeline)
-    cm.get_attribute_values().subject = ['s1', 's2', 's3']
-
