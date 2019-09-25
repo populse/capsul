@@ -113,6 +113,10 @@ class ProcessAttributes(Controller):
         if parameter in self.parameter_attributes:
             raise KeyError('Attributes already set for parameter %s'
                            % parameter)
+        if parameter not in self._process._instance_traits():
+            #print('WARNING: parameter', parameter,
+                  #'not in process', self._process.name)
+            return
         if isinstance(editable_attributes, six.string_types) \
                 or isinstance(editable_attributes, EditableAttributes):
             editable_attributes = [editable_attributes]
@@ -137,8 +141,8 @@ class ProcessAttributes(Controller):
             parameter_editable_attributes.append(ea)
             if add_editable_attributes:
                 is_list = allow_list \
-                      and isinstance(self._process.trait(parameter).trait_type,
-                                     traits.List)
+                        and isinstance(self._process.trait(parameter).trait_type,
+                                       traits.List)
                 for name in list(ea.user_traits().keys()):
                     # don't use items() since traits may change during iter.
                     trait = ea.trait(name)
