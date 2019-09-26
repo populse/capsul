@@ -90,6 +90,7 @@ REQUIRES = [
     #"soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
     "six",
+    "yaml"
 ]
 EXTRA_REQUIRES = {
     "doc": [
