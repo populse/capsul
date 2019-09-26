@@ -17,7 +17,7 @@ Classes
 
 import os
 import six
-from traits.api import Bool, Str, Undefined
+from traits.api import Bool, Str, Undefined, List, Directory
 from soma.fom import AttributesToPaths, PathToAttributes
 from soma.application import Application
 from capsul.study_config.study_config import StudyConfigModule
@@ -50,6 +50,10 @@ class FomConfig(StudyConfigModule):
             'auto_fom',
             Bool(True, output=False,
                  desc='Look in all FOMs when a process is not found'))
+        self.study_config.add_trait(
+            'fom_path',
+            List(Directory(output=False),
+                 desc='list of additional directories where to look for FOMs'))
         self.study_config.add_trait('use_fom', Bool(
             Undefined,
             output=False,
@@ -70,6 +74,7 @@ class FomConfig(StudyConfigModule):
             return
         
         soma_app = Application('capsul', plugin_modules=['soma.fom'])
+
         if 'soma.fom' not in soma_app.loaded_plugin_modules:
             # WARNING: this is unsafe, may erase configured things, and
             # probably not thread-safe.
@@ -79,15 +84,15 @@ class FomConfig(StudyConfigModule):
         self.study_config.modules_data.fom_atp = {'all': {}}
         self.study_config.modules_data.fom_pta = {'all': {}}
 
-        foms = (('input', self.study_config.input_fom),
-                ('output', self.study_config.output_fom),
-                ('shared', self.study_config.shared_fom))
-        for fom_type, fom_filename in foms:
-            if fom_filename != "":
-                fom, atp, pta = self.load_fom(fom_filename)
-                self.study_config.modules_data.foms[fom_type] = fom
-                self.study_config.modules_data.fom_atp[fom_type] = atp
-                self.study_config.modules_data.fom_pta[fom_type] = pta
+        #foms = (('input', self.study_config.input_fom),
+                #('output', self.study_config.output_fom),
+                #('shared', self.study_config.shared_fom))
+        #for fom_type, fom_filename in foms:
+            #if fom_filename != "":
+                #fom, atp, pta = self.load_fom(fom_filename)
+                #self.study_config.modules_data.foms[fom_type] = fom
+                #self.study_config.modules_data.fom_atp[fom_type] = atp
+                #self.study_config.modules_data.fom_pta[fom_type] = pta
 
         self.study_config.use_fom = True
         self.update_module()
@@ -99,9 +104,15 @@ class FomConfig(StudyConfigModule):
 
         modules_data = self.study_config.modules_data
 
+        soma_app = Application('capsul', plugin_modules=['soma.fom'])
+        fom_path = [p for p in self.study_config.fom_path
+                              if p not in soma_app.fom_path] \
+            + soma_app.fom_path
+        soma_app.fom_manager.paths = fom_path
+        soma_app.fom_manager.find_foms()
+
         if self.study_config.auto_fom \
                 and len(modules_data.all_foms) <= 3:
-            soma_app = Application('capsul', plugin_modules=['soma.fom'])
             for schema in soma_app.fom_manager.find_foms():
                 if schema not in modules_data.all_foms:
                     modules_data.all_foms[schema] = None # not loaded yet.
@@ -167,7 +178,12 @@ class FomConfig(StudyConfigModule):
             # WARNING: this is unsafe, may erase configured things, and
             # probably not thread-safe.
             soma_app.initialize()
+        old_fom_path = soma_app.fom_path
+        soma_app.fom_path = [p for p in self.study_config.fom_path
+                              if p not in soma_app.fom_path] \
+            + soma_app.fom_path
         fom = soma_app.fom_manager.load_foms(schema)
+        soma_app.fom_path = old_fom_path
         self.study_config.modules_data.all_foms[schema] = fom
 
         # Create FOM completion data in self.study_config.modules_data
@@ -192,6 +208,21 @@ class FomConfig(StudyConfigModule):
         self.study_config.modules_data.fom_pta['all'][schema] = pta
         return fom, atp, pta
 
+
+    def reset_foms(self):
+        # print('reset foms, with path:', self.study_config.fom_path)
+        soma_app = Application('capsul', plugin_modules=['soma.fom'])
+        if 'soma.fom' not in soma_app.loaded_plugin_modules:
+            # WARNING: this is unsafe, may erase configured things, and
+            # probably not thread-safe.
+            soma_app.initialize()
+        fom_path = [p for p in self.study_config.fom_path
+                              if p not in soma_app.fom_path] \
+            + soma_app.fom_path
+        soma_app.fom_manager.paths = fom_path
+        soma_app.fom_manager.find_foms()
+        self.update_module()
+
     
     def initialize_callbacks(self):
         self.study_config.on_trait_change(
@@ -201,4 +232,5 @@ class FomConfig(StudyConfigModule):
              'shared_fom', 'spm_directory', 'volumes_format', 'auto_fom'])
         self.study_config.on_trait_change(
             self.update_formats, ['meshes_format', 'volumes_format'])
+        self.study_config.on_trait_change(self.reset_foms, 'fom_path')
 
