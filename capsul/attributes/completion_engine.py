@@ -290,6 +290,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         # now, but it is sub-optimal since many parameters will be set many
         # times.
 
+        verbose = False
         use_topological_order = True
         if isinstance(self.process, Pipeline):
             attrib_values = self.get_attribute_values().export_to_dict()
@@ -422,11 +423,12 @@ class ProcessCompletionEngine(traits.HasTraits):
                 if value is not None:  # should None be valid ?
                     setattr(self.process, pname, value)
             except Exception as e:
-                print('Exception:', e)
-                print('param:', pname)
-                print('value:', repr(value))
-                import traceback
-                traceback.print_exc()
+                if verbose:
+                    print('Exception:', e)
+                    print('param:', pname)
+                    print('value:', repr(value))
+                    import traceback
+                    traceback.print_exc()
                 #pass
         self.completion_progress = self.completion_progress_total
 

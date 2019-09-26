@@ -177,15 +177,13 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             for parameter in fom_patterns:
                 param_attributes = atp.find_discriminant_attributes(
                         fom_parameter=parameter, fom_process=name)
-                if param_attributes:
-                    trait= process.trait(parameter)
-                    ea = editable_attributes(param_attributes, fom)
-                    try:
-                        capsul_attributes.set_parameter_attributes(
-                            parameter, schema, ea, {})
-                    except KeyError:
-                        # param already registered
-                        pass
+                ea = editable_attributes(param_attributes, fom)
+                try:
+                    capsul_attributes.set_parameter_attributes(
+                        parameter, schema, ea, {})
+                except KeyError:
+                    # param already registered
+                    pass
 
         if not matching_fom:
             raise KeyError('Process not found in FOMs')
@@ -198,15 +196,13 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             for parameter in fom_patterns:
                 param_attributes = atp.find_discriminant_attributes(
                         fom_parameter=parameter, fom_process=name)
-                if param_attributes:
-                    trait= process.trait(parameter)
-                    ea = editable_attributes(param_attributes, fom)
-                    try:
-                        capsul_attributes.set_parameter_attributes(
-                            parameter, schema, ea, {})
-                    except KeyError:
-                        # param already registered
-                        pass
+                ea = editable_attributes(param_attributes, fom)
+                try:
+                    capsul_attributes.set_parameter_attributes(
+                        parameter, schema, ea, {})
+                except KeyError:
+                    # param already registered
+                    pass
             modules_data.foms[schema] = fom
             modules_data.fom_atp[schema] = atp
             study_config.input_fom = fom_type
@@ -217,15 +213,13 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             for parameter in fom_patterns:
                 param_attributes = atp.find_discriminant_attributes(
                         fom_parameter=parameter, fom_process=name)
-                if param_attributes:
-                    trait= process.trait(parameter)
-                    ea = editable_attributes(param_attributes, fom)
-                    try:
-                        capsul_attributes.set_parameter_attributes(
-                            parameter, schema, ea, {})
-                    except KeyError:
-                        # param already registered
-                        pass
+                ea = editable_attributes(param_attributes, fom)
+                try:
+                    capsul_attributes.set_parameter_attributes(
+                        parameter, schema, ea, {})
+                except KeyError:
+                    # param already registered
+                    pass
             modules_data.foms[schema] = fom
             modules_data.fom_atp[schema] = atp
             study_config.output_fom = fom_type

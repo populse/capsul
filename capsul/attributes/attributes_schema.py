@@ -114,8 +114,8 @@ class ProcessAttributes(Controller):
             raise KeyError('Attributes already set for parameter %s'
                            % parameter)
         if parameter not in self._process._instance_traits():
-            #print('WARNING: parameter', parameter,
-                  #'not in process', self._process.name)
+            print('WARNING: parameter', parameter,
+                  'not in process', self._process.name)
             return
         if isinstance(editable_attributes, six.string_types) \
                 or isinstance(editable_attributes, EditableAttributes):
