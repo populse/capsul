@@ -214,10 +214,17 @@ class ProcessAttributes(Controller):
                     if oea is None:
                         oea = ea.copy()
                     oeas.append(oea)
-                other.set_parameter_attributes(parameter, '', oeas, fa)
+                other.set_parameter_attributes(parameter, '', oeas, fa,
+                                               allow_list=False)
         # copy the values
         if with_values:
             for name in self.user_traits():
+                #print('copy attribs:', self, name, getattr(self, name))
+                #print('   to:', other.trait(name).trait_type)
+                #if isinstance(other.trait(name).trait_type, traits.List):
+                    #print('    ', other.trait(name).inner_traits[0].trait_type)
+                #if isinstance(self.trait(name).trait_type, traits.List):
+                    #print('    self list:', self.trait(name).inner_traits[0].trait_type)
                 setattr(other, name, getattr(self, name))
 
         return other
