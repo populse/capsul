@@ -254,6 +254,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         """Ensure that trait.output and trait.optional are set to a
         boolean value before calling parent class add_trait.
         """
+        if not "_metadata" in trait.__dict__:
+            trait._metadata = {}
         if trait._metadata is not None:
             trait._metadata['output'] = bool(trait.output)
             trait._metadata['optional'] = bool(trait.optional)
