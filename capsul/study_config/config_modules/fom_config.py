@@ -109,11 +109,11 @@ class FomConfig(StudyConfigModule):
                               if p not in soma_app.fom_path] \
             + soma_app.fom_path
         soma_app.fom_manager.paths = fom_path
-        soma_app.fom_manager.find_foms()
+        soma_app.fom_manager.fom_files()
 
         if self.study_config.auto_fom \
                 and len(modules_data.all_foms) <= 3:
-            for schema in soma_app.fom_manager.find_foms():
+            for schema in soma_app.fom_manager.fom_files():
                 if schema not in modules_data.all_foms:
                     modules_data.all_foms[schema] = None # not loaded yet.
 
@@ -169,10 +169,14 @@ class FomConfig(StudyConfigModule):
             self.study_config.modules_data.fom_atp['all'][schema] = atp
             if old_atp is not None:
                 for t in ('input', 'output', 'shared'):
-                    if self.study_config.modules_data.fom_atp.get(t) is old_atp:
+                    if self.study_config.modules_data.fom_atp.get(t) \
+                            is old_atp:
                         self.study_config.modules_data.fom_atp[t] = atp
 
     def load_fom(self, schema):
+        #print('=== load fom', schema, '===')
+        #import time
+        #t0 = time.time()
         soma_app = Application('capsul', plugin_modules=['soma.fom'])
         if 'soma.fom' not in soma_app.loaded_plugin_modules:
             # WARNING: this is unsafe, may erase configured things, and
@@ -206,6 +210,7 @@ class FomConfig(StudyConfigModule):
         self.study_config.modules_data.fom_atp['all'][schema] = atp
         pta = PathToAttributes(fom, selection={})
         self.study_config.modules_data.fom_pta['all'][schema] = pta
+        #print('   load fom done:', time.time() - t0, 's')
         return fom, atp, pta
 
 
@@ -216,11 +221,7 @@ class FomConfig(StudyConfigModule):
             # WARNING: this is unsafe, may erase configured things, and
             # probably not thread-safe.
             soma_app.initialize()
-        fom_path = [p for p in self.study_config.fom_path
-                              if p not in soma_app.fom_path] \
-            + soma_app.fom_path
-        soma_app.fom_manager.paths = fom_path
-        soma_app.fom_manager.find_foms()
+        soma_app.fom_manager.clear_cache()
         self.update_module()
 
     
