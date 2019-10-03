@@ -684,7 +684,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             output[trait_name] = getattr(self, trait_name)
         return output
 
-    def get_help(self, returnhelp=False):
+    def get_help(self, returnhelp=False, use_labels=False):
         """ Generate description of a process parameters.
 
         Parameters
@@ -692,6 +692,9 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         returnhelp: bool (optional, default False)
             if True return the help string message formatted in rst,
             otherwise display the raw help string message on the console.
+        use_labels: bool
+            if True, input and output sections will get a RestructuredText
+            label to avoid ambiguities.
         """
         # Create the help content variable
         doctring = [""]
@@ -733,8 +736,16 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 ]
 
         # Append the input and output traits help
-        full_help = (doctring + self.get_input_help(returnhelp) + [""] +
-                     self.get_output_help(returnhelp) + [""])
+        if use_labels:
+            in_label = ['.. _%s.%s_inputs:\n\n' % (self.__module__, self.name)]
+            out_label = ['.. _%s.%s_outputs:\n\n'
+                         % (self.__module__, self.name)]
+        else:
+            in_label = []
+            out_label = []
+        full_help = (doctring + in_label + self.get_input_help(returnhelp)
+                     + [""] + out_label
+                     + self.get_output_help(returnhelp) + [""])
         full_help = "\n".join(full_help)
 
         # Return the full process help
