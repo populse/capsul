@@ -27,7 +27,38 @@ from soma.sorted_dictionary import SortedDictionary
 class FomConfig(StudyConfigModule):
     '''FOM (File Organization Model) configuration module for StudyConfig
 
-    Note: FomConfig needs BrainVISAConfig to be part of StudyConfig modules.
+    .. note::
+        :class:`~capsul.study_config.config_modules.fom_config.FomConfig`
+        needs :class:`~capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig`
+        to be part of
+        :class:`~capsul.study_config.study_config.StudyConfig` modules.
+
+    This module adds the following options (traits) in the
+    :class:`~capsul.study_config.study_config.StudyConfig` object:
+
+    input_fom: str
+        input FOM
+    output_fom: str
+        output FOM
+    shared_fom: str
+        shared data FOM
+    volumes_format: str
+        Format used for volumes
+    meshes_format: str
+        Format used for meshes
+    auto_fom: bool (default: True)
+        Look in all FOMs when a process is not found. Note that auto_fom
+        looks for the first FOM matching the process to get
+        completion for, and does not handle ambiguities. Moreover
+        it brings an overhead (typically 6-7 seconds) the first
+        time it is used since it has to parse all available FOMs.
+    fom_path: list of directories
+        list of additional directories where to look for FOMs (in addition to
+        the standard share/foms)
+    use_fom: bool
+        Use File Organization Models for file parameters completion'
+
+    *Methods:*
     '''
 
     dependencies = ['BrainVISAConfig', 'SPMConfig', 'AttributesConfig']
@@ -49,7 +80,12 @@ class FomConfig(StudyConfigModule):
         self.study_config.add_trait(
             'auto_fom',
             Bool(True, output=False,
-                 desc='Look in all FOMs when a process is not found'))
+                 desc='Look in all FOMs when a process is not found (in '
+                 'addition to the standard share/foms). Note that auto_fom '
+                 'looks for the first FOM matching the process to get '
+                 'completion for, and does not handle ambiguities. Moreover '
+                 'it brings an overhead (typically 6-7 seconds) the first '
+                 'time it is used since it has to parse all available FOMs.'))
         self.study_config.add_trait(
             'fom_path',
             List(Directory(output=False),

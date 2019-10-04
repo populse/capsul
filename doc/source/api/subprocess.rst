@@ -2,6 +2,9 @@
 capsul.subprocess module
 ========================
 
+.. inheritance-diagram:: capsul.subprocess capsul.subprocess.fsl capsul.subprocess.spm
+    :parts: 2
+
 .. automodule:: capsul.subprocess
     :members:
 

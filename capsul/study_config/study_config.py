@@ -110,16 +110,16 @@ class StudyConfig(Controller):
 
     Attributes
     ----------
-    `input_directory` : str
+    input_directory : str
         parameter to set the study input directory
-    `output_directory` : str
+    output_directory : str
         parameter to set the study output directory
-    `generate_logging` : bool (default False)
+    generate_logging : bool (default False)
         parameter to control the log generation
-    `create_output_directories` : bool (default True)
+    create_output_directories : bool (default True)
         Create parent directories of all output File or Directory before
         running a process
-    `process_output_directory` : bool (default False)
+    process_output_directory : bool (default False)
         Create a process specific output_directory by appending a
         subdirectory to output_directory. This subdirectory is named 
         '<count>-<name>' where <count> if self.process_counter and <name> 
@@ -830,6 +830,9 @@ def default_study_config():
     
 
 class StudyConfigModule(object):
+    '''
+    :class:`StudyConfig` module base class (abstract)
+    '''
     @property
     def name(self):
         """The name of a module that can be used in configuration to select

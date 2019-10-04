@@ -59,6 +59,7 @@ extensions = [ 'sphinx.ext.autodoc',
                napoleon,
                'sphinx.ext.extlinks',
                'sphinx.ext.ifconfig',
+               'sphinx.ext.inheritance_diagram',
              ]
 
 try:
@@ -72,6 +73,13 @@ try:
     os.environ['ALLOW_GUI'] = '0'
 except ImportError:
     nbsphinx = None
+
+# inheritance_diagram config
+inheritance_graph_attrs = dict(rankdir="LR", size='"13.0, 40.0"',
+                               fontsize=14)  #, ratio='compress')
+#inheritance_alias = {'subprocess32.Popen': 'Popen', 'subprocess.Popen': 'Popen', 'capsul.subprocess.fsl.Popen': 'fsl_Popen', 'capsul.subprocess.spm.Popen': 'spm_Popen'}
+
+#
 
 # Remove some numpy-linked warnings
 numpydoc_show_class_members = False

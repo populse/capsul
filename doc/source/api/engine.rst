@@ -2,6 +2,9 @@
 capsul.engine module
 ====================
 
+.. inheritance-diagram:: capsul.engine capsul.engine.database_json capsul.engine.database_populse capsul.engine.database capsul.engine.execution_context capsul.engine.module
+    :parts: 1
+
 Main module
 -----------
 

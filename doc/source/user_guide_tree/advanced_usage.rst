@@ -196,6 +196,8 @@ Defining FOMs
 
 FOMs are JSON files placed in a FOM path defined somewhere in the application - generally ``<brainvisa_dir>/share/fom``. They define how a set of attributes are used to build paths for processes parameters.
 
+In Capsul a StudyConfig option, `StudyConfig.fom_path` is defined in the :class:`~capsul.study_config.config_modules.fom_config.FomConfig` module to handle the FOM search path.
+
 Ex:
 
 .. code-block:: json

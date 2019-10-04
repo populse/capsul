@@ -2,7 +2,8 @@
 Specific subprocess-like functions to call FSL taking into account a 
 potential configuration done in StudyConfig. If a StudyConfig is not
 configured to use FSL, it may be automatically configured. Automatic
-configuration had been tested in the two following cases :
+configuration had been tested in the two following cases:
+
 - FSL was installed from the FMRIB site and, at least, FSLDIR 
   environment variable is set (fsl.sh can be sourced or not)
 - FSL was installed from Neurodebian packages
