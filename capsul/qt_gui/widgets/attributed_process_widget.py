@@ -96,6 +96,10 @@ class AttributedProcessWidget(QtGui.QWidget):
         param_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                    QtGui.QSizePolicy.Expanding)
 
+        # use concise shape for lists GUI
+        from  soma.qt_gui.controls import OffscreenListControlWidget
+        ControllerWidget._defined_controls['List'] = OffscreenListControlWidget
+
         # Create controller widget for process and object_attribute
         self.controller_widget = ScrollControllerWidget(process, live=True,
             parent=param_widget)
