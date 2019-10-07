@@ -16,6 +16,7 @@ import os
 from optparse import OptionParser
 import logging
 import sys
+import distutils.spawn
 
 # Get the module name passed in argument
 default_output_dir = os.path.join("source", "generated")
@@ -72,7 +73,8 @@ from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 # Generate shemas first
 ###############################################################################
 
-if schema:
+if schema and distutils.spawn.find_executable('dot'):
+    # schemas need the dot tool
     import subprocess
     cmd = [sys.executable, '-m', 'capsul.sphinxext.capsul_pipeline_view',
        '-i', options.module, '-o', base_outdir]
