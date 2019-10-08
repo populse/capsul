@@ -156,7 +156,7 @@ for sorted_modules, dtype in ([sorted_pipelines, "pipeline"],
 ###############################################################################
 
 # First get all unique modules
-modules = set(sorted_processes.keys() + sorted_pipelines.keys())
+modules = set(list(sorted_processes.keys()) + list(sorted_pipelines.keys()))
 
 # Go through all unique modules
 for module_name in modules:

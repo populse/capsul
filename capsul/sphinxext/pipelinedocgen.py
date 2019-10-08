@@ -11,6 +11,7 @@ from __future__ import print_function
 # System import
 import os
 import logging
+import six
 
 # Define logger
 logger = logging.getLogger(__file__)
@@ -126,7 +127,7 @@ class PipelineHelpWriter(object):
         """
         # Check output directory
         if returnrst is False:
-            if not isinstance(outdir, basestring):
+            if not isinstance(outdir, six.string_types):
                 raise Exception("If 'returnrst' is False, need a valid output "
                                 "directory.")
             if not os.path.exists(outdir):
