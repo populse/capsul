@@ -78,6 +78,15 @@ except ImportError:
 inheritance_graph_attrs = dict(rankdir="LR", size='"13.0, 40.0"',
                                fontsize=14)  #, ratio='compress')
 #inheritance_alias = {'subprocess32.Popen': 'Popen', 'subprocess.Popen': 'Popen', 'capsul.subprocess.fsl.Popen': 'fsl_Popen', 'capsul.subprocess.spm.Popen': 'spm_Popen'}
+import distutils.spawn
+if not distutils.spawn.find_executable('dot'):
+    # dot is not installed, inheritance_diagram will not work
+    import sphinx.ext.inheritance_diagram
+    def null(*args, **kwargs):
+        pass
+    sphinx.ext.inheritance_diagram.render_dot_html = null
+    sphinx.ext.inheritance_diagram.render_dot_latex = null
+    sphinx.ext.inheritance_diagram.render_dot_texinfo = null
 
 #
 
