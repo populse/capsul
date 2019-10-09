@@ -2669,7 +2669,7 @@ class PipelineDevelopperView(QGraphicsView):
         available.
 
         Parameters
-        -------
+        ----------
         enabled: bool
         '''
         self._restricted_edition = enabled
