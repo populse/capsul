@@ -224,7 +224,7 @@ Ex:
         "processes" : {
             "Morphologist" : {
                 "t1mri":
-                    [["input:{acquisition}/<subject>", "images"],
+                    [["input:{acquisition}/<subject>", "images"]],
                 "imported_t1mri":
                     [["output:{acquisition}/<subject>", "images"]],
                 "t1mri_referential":
