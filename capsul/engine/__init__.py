@@ -58,7 +58,49 @@ class CapsulEngine(Controller):
             # Nipype is configured here
         # Nipype may not be configured here
 
-    CapsulEngine is the replacement of the older :class:`~capsul.study_config.study_config.StudyConfig`, which is still present in Capsul 2.2 for backward compatibility, but will disapear in later versions. In Capsul 2.2 both objects exist, and are syn chronized internally, which means that a StudyConfig object wille also ceate a CapsulEngine, and the other way, and modifications in the StudyConfig object will change the corresponding item in CapsulEngine and vice versa. Functionalities of StudyConfig are moving internally to CapsulEngine, StudyConfig being merely a wrapper.
+    .. note::
+
+        CapsulEngine is the replacement of the older :class:`~capsul.study_config.study_config.StudyConfig`, which is still present in Capsul 2.2 for backward compatibility, but will disapear in later versions. In Capsul 2.2 both objects exist, and are syn chronized internally, which means that a StudyConfig object wille also ceate a CapsulEngine, and the other way, and modifications in the StudyConfig object will change the corresponding item in CapsulEngine and vice versa. Functionalities of StudyConfig are moving internally to CapsulEngine, StudyConfig being merely a wrapper.
+
+    **Using CapsulEngine**
+
+    It is used to store configuration variables, and to handle execution within the configured context. The configuration has 2 independent axes: configuration modules, which provide additional configutation variables, and computing resources.
+
+    *Computing resources*
+
+    Capsul is using :somaworkflow:`Soma-Workflow <index.html>` to run processes, and is thus able to connect and execute on a remote computing server. The remote computing resource may have a different configuration from the client one (paths for software or data, available external software etc). So configurations specific to different computing resources should be handled in CapsulEngine. For this, the configuration section is split into several configuration instances, one for each computing resource.
+
+    As this is a little bit complex to handle at first, a "global" configuraiton is used to maintain all common configuration options. It is typically used to work on the local machine, especially for users who only work locally. This configuration object is found under the ``global_config`` object in a CapsulEngine instance. It is a :class:`~soma.controller.controller.Controller` object::
+
+        >>> from capsul.api import capsul_engine
+        >>> ce = capsul_engine()
+        >>> config = ce.global_config
+        >>> print(config.export_to_dict())
+        OrderedDict([('fsl', OrderedDict([('config', <undefined>), ('directory', <undefined>), ('prefix', <undefined>), ('use', <undefined>)])), ('matlab', OrderedDict([('executable', <undefined>)])), ('spm', OrderedDict([('directory', <undefined>), ('standalone', <undefined>), ('use', <undefined>), ('version', <undefined>)])), ('axon', OrderedDict([('shared_directory', <undefined>)])), ('attributes', OrderedDict([('attributes_schema_paths', [u'capsul.attributes.completion_engine_factory']), ('attributes_schemas', OrderedDict()), ('path_completion', <undefined>), ('process_completion', 'builtin')]))])
+
+    Whenever a new computing resource is used, it can be added as a new configuration using :meth:`add_computing_resource`. Configuration options for this resource are a merge of the global one, and the specific ones::
+
+        >>> ce.add_computing_resource('computing_server')
+        >>> ce.global_config.spm.directory = '/tmp'
+        >>> print(ce.config('spm.directory', 'computing_server')
+        '/tmp'
+        >>> ce.set_config('spm.directory', '/home/myself', 'computing_server')
+        >>> print(ce.config('spm.directory', 'computing_server')
+        '/home/myself'
+        >>> print(ce.config('spm.directory')
+        '/tmp'
+
+    *configuration modules*
+
+    The configuration is handled through a set of configuration modules. Each is dedicated for a topic (for instance handling a specific external software paths, or managing process parameters completion,; etc). A module adds a configuration Controller, with its own variables, and is able to manage runtime configuration of programs, if needed, through environment variables. Capsul comes with a set of prefedined modules:
+    :class:`~capsul.engine.module.attributes.AttributesConfig`,
+    :class:`~capsul.engine.module.axon.AxonConfig`,
+    :class:`~capsul.engine.module.fom.FomConfig`,
+    :class:`~capsul.engine.module.fsl.FSLConfig`,
+    :class:`~capsul.engine.module.matlab.MatlabConfig`,
+    :class:`~capsul.engine.module.spm.SPMConfig`
+
+    **Methods**
     '''
     
     default_modules = ['capsul.engine.module.spm',
@@ -71,7 +113,9 @@ class CapsulEngine(Controller):
                  database,
                  config=None):
         '''
-        CapsulEngine constructor should not be called directly.
+        CapsulEngine.__init__(self, database_location, database, config=None)
+
+        The CapsulEngine constructor should not be called directly.
         Use :func:`capsul_engine` factory function instead.
         '''
         super(CapsulEngine, self).__init__()
@@ -119,16 +163,58 @@ class CapsulEngine(Controller):
                     setattr(self.computing_config[computing_resource], n, v)
 
 
-    def config(self, name, computing_resource):
+    def config(self, name, computing_resource=None):
         '''
         Return a configuration attribute for a selected computing resource
         name. If the attribute does not exist in the computing resource
         configuration, it is searched in global configuration.
         '''
-        result = getattr(self.computing_resource[computing_resource], name, None)
+        # look into sub-objects recursively
+        names = name.split('.')
+        result =  Undefined
+        if computing_resource is not None:
+            result = self.computing_config[computing_resource]
+            for n in names:
+                result = getattr(result, n, Undefined)
+                if result is Undefined:
+                    break
+            #result = getattr(self.computing_resource[computing_resource], name, None)
         if result in (None, Undefined):
-            result = getattr(self.global_config, name)
+            result = self.global_config
+            for n in names:
+                result = getattr(result, n, Undefined)
+                if result is Undefined:
+                    break
+            #result = getattr(self.global_config, name)
         return result
+
+    def set_config(self, name, value, computing_resource=None):
+        '''
+        Set a configuration attribute value for a specified computing resource.
+        If the resource is not specified, then the global configuration object will be used.
+
+        Parameters
+        ----------
+        name: str
+            name of the configuration variable, which may include dots. Ex: "spm.directory"
+        value: depending on the attribute
+            configuration value to set
+        computing_resource: str
+            name of the computing resource
+        '''
+        names = name.split('.')
+        if computing_resource is None:
+            obj = self.global_config
+        else:
+            obj = self.computing_config[computing_resource]
+        var = names[-1]
+        names = names[:-1]
+        print('obj:', obj, ', names:', names, ', var:', var)
+        for n in names:
+            obj = getattr(obj, n)
+        print('result obj:', obj)
+        print(obj.export_to_dict())
+        setattr(obj, var, value)
     
     def add_computing_resource(self, computing_resource):
         '''
@@ -136,7 +222,14 @@ class CapsulEngine(Controller):
         resouce can have its own configuration values that override gobal
         configuration.
         '''
-        self.computing_config[computing_resource] = self.global_config.copy(with_values=False)
+        self.computing_config[computing_resource] \
+            = self.global_config.copy(with_values=False)
+        config = self.computing_config[computing_resource]
+        # copy modules
+        for name in self.global_config.user_traits().keys():
+            value = getattr(self.global_config, name)
+            if isinstance(value, Controller):
+                setattr(config, name, value.copy(with_values=False))
         
         
     def remove_computing_resource(self, computing_resource):
@@ -310,7 +403,7 @@ class CapsulEngine(Controller):
         '''
         raise NotImplementedError()
 
-    def connect(self, computing_ressource):
+    def connect(self, computing_resource):
         '''
         Connect the capsul engine to a computing resource
         '''

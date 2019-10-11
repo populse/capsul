@@ -18,12 +18,17 @@ from soma import config as soma_config
 class AxonConfig(Controller):
     '''
     Configuration module allowing to use `Axon <http://brainvisa.info/axon/user_doc>`_ shared data in Capsul processes
+
+    Configuration variables:
+
+    shared_directory: str
+        directory for Brainvisa software shared data
     '''
 
     shared_directory = Directory(
         Undefined,
         output=False,
-        desc='Study shared directory')
+        desc='directory for Brainvisa software shared data')
 
 
 def load_module(capsul_engine, module_name):

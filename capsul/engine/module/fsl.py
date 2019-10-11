@@ -10,14 +10,28 @@ from traits.api import File, Bool, Undefined, String, Directory, Instance
 from soma.path import find_in_path
 
 class FSLConfig(Controller):
+    '''
+    FSL software configuration module for Capsul
+
+    Configuratioon variables:
+
+    directory: str
+        Directory where FSL is installed
+    config: str
+        fsl.sh path
+    prefix: str
+        Prefix to add to FSL commands
+    use: bool
+        Tells that FSL must be configured
+    '''
     directory = Directory(Undefined, output=False,
                           desc='Directory where FSL is installed')
     config = File(Undefined, output=False,
-                  desc='Parameter to specify the fsl.sh path')
+                  desc='fsl.sh path')
     prefix = String(Undefined,
                     desc='Prefix to add to FSL commands')
     use = Bool(Undefined,
-               desc='Parameter to tell that FSL must be configured')
+               desc='Tells that FSL must be configured')
 
 
 def load_module(capsul_engine, module_name):

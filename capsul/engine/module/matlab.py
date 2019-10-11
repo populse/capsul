@@ -6,6 +6,14 @@ from soma.functiontools import SomaPartial
 from traits.api import File, Undefined, Instance
 
 class MatlabConfig(Controller):
+    '''
+    Matlab software configuration module for :class:`~capsul.engine.capsulEngine`
+
+    Configuration variables:
+
+    executable: str
+        Full path of the matlab executable
+    '''
     executable = File(Undefined, output=False,
                       desc='Full path of the matlab executable')
     

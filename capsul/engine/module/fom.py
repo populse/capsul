@@ -28,6 +28,9 @@ import weakref
 class FomConfig(Controller):
     '''FOM (File Organization Model) configuration module for CapsulEngine
 
+    See :ref:`completion` for a more complete documentation about
+    parameters completion.
+
     .. note::
         :class:`~capsul.engine.modules.fom.FomConfig`
         needs :class:`~capsul.engine.modules.axon.AxonConfig`

@@ -42,3 +42,21 @@ capsul.engine.module submodule
 .. automodule:: capsul.engine.module
     :members:
 
+.. automodule:: capsul.engine.module.attributes
+    :members:
+
+.. automodule:: capsul.engine.module.axon
+    :members:
+
+.. automodule:: capsul.engine.module.fom
+    :members:
+
+.. automodule:: capsul.engine.module.fsl
+    :members:
+
+.. automodule:: capsul.engine.module.matlab
+    :members:
+
+.. automodule:: capsul.engine.module.spm
+    :members:
+

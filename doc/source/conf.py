@@ -306,9 +306,13 @@ except:
 pyversion = '%d.%d' % sys.version_info[:2]
 
 extlinks = {
-  'somabase': ('http://brainvisa.info/soma-base-' + somabase_version + '/sphinx/%s',
+  #'somabase': ('http://brainvisa.info/soma-base-' + somabase_version + '/sphinx/%s',
+    #'somabase '),
+  #'somaworkflow': ('http://brainvisa.info/soma-workflow-' + somaworkflow_version + '/sphinx/%s',
+    #'somaworkflow '),
+  'somabase': ('http://brainvisa.info/soma-base/sphinx/%s',
     'somabase '),
-  'somaworkflow': ('http://brainvisa.info/soma-workflow-' + somaworkflow_version + '/sphinx/%s',
+  'somaworkflow': ('http://brainvisa.info/soma-workflow/sphinx/%s',
     'somaworkflow '),
 }
 

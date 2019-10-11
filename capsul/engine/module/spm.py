@@ -13,6 +13,21 @@ from traits.api import Directory, Undefined, Instance, String, Bool
 from . import matlab
 
 class SPMConfig(Controller):
+    '''
+    spm software configuration module for :class:`~capsul.engine.CapsulEngine`
+
+    Configuration variablles:
+
+    directory: str
+        Directory where SPM is installed
+    version: str
+        Version of SPM release (8 or 12)
+    standalone: bool
+        If this parameter is set to True, use the standalone SPM version, otherwise use Matlab.
+    use: bool
+        If this parameter is set to False, the SPM '
+        'configuration is not checked on environment activation
+    '''
     directory = Directory(Undefined, output=False,
                           desc='Directory where SPM is installed')
     version = String(Undefined, output=False,

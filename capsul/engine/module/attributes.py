@@ -19,14 +19,29 @@ from capsul.attributes.completion_engine \
 
 
 class AttributesConfig(Controller):
-    '''Attributes-based completion configuration module for StudyConfig
+    '''Attributes-based completion configuration module for
+    :class:`~capsul.engine.CapsulEngine`.
+
+    See :ref:`completion` for a more complete documentation about
+    parameters completion.
+
+    This module adds the following options (traits):
+
+    attributes_schema_paths: list(str)
+        attributes shchemas modules names
+    attributes_schemas: dict(str, str)
+        attributes shchemas names
+    process_completion: str
+        process completion model name
+    path_completion: str
+        path completion model name
     '''
 
     default_paths = ['capsul.attributes.completion_engine_factory']
     attributes_schema_paths = \
         List(default_paths, Str(Undefined, output=False),
              output=False,
-             desc='attributes shchema module name')
+             desc='attributes shchemas modules names')
     attributes_schemas = \
         DictStrStr(output=False,
                    desc='attributes shchemas names')
