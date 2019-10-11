@@ -9,7 +9,7 @@ def configure_all():
     is present in os.environ. This environment must have been set by the
     CapsulEngine mecanism.
     '''
-    print '!!!'
+    print('!!!')
     configure_spm()
 
 
