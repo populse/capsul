@@ -2,6 +2,9 @@
 capsul.sphinxext module
 =======================
 
+.. inheritance-diagram:: capsul.sphinxext capsul.sphinxext.layoutdocgen capsul.sphinxext.load_pilots capsul.sphinxext.pipelinedocgen capsul.sphinxext.usecasesdocgen
+    :parts: 1
+
 .. automodule:: capsul.sphinxext
     :members:
 

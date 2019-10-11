@@ -15,21 +15,22 @@ import logging
 def load_pilots(root, path, root_module_name):
     """ Load all the pilot functions.
 
-    Path is recursively scanned for __init__.py files.
-    Any function declared inside whose name start with 'pilot_' will be loaded.
+    Path is recursively scanned for ``__init__.py`` files.
+    Any function declared inside whose name start with ``pilot_`` will be
+    loaded.
 
     Parameters
     ----------
-    root : str (mandatory)
+    root: str (mandatory)
         path to the use_cases module.
-    path : str
+    path: str
         path to the module.
     root_module_name: str (mandatory)
         the name of the package.
 
     Returns
     -------
-    pilots : dict
+    pilots: dict
         a dict with module name as keys referencing to function module
         used for unitest.
     """

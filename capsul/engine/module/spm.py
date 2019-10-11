@@ -4,6 +4,7 @@ import glob
 import os
 import os.path as osp
 import weakref
+#import subprocess # Only in case of matlab call (auto_configuration func)
 
 from soma.controller import Controller
 from soma.functiontools import SomaPartial
@@ -28,7 +29,6 @@ def load_module(capsul_engine, module_name):
     capsul_engine.global_config.add_trait('spm', Instance(SPMConfig))
     capsul_engine.global_config.spm = SPMConfig()
 
-
 def set_environ(config, environ):
     spm_config = config.get('spm', {})
     use = spm_config.get('use')
@@ -37,6 +37,7 @@ def set_environ(config, environ):
         if error_message:
             complete_environ(config, environ)
         error_message = check_environ(environ)
+
         if error_message:
             raise EnvironmentError(error_message)
 
@@ -69,8 +70,18 @@ def complete_environ(config, environ):
         environ['SPM_DIRECTORY'] = spm_directory
         mcr = glob.glob(osp.join(spm_directory, 'spm*_mcr'))
         if mcr:
-            environ['SPM_VERSION'] = osp.basename(mcr[0])[3:-4]
+            fileName = osp.basename(mcr[0])
+            inc = 1
+
+            while fileName[fileName.find('spm') + 3:
+                           fileName.find('spm') + 3 + inc].isdigit():
+                environ['SPM_VERSION'] = fileName[fileName.find('spm') + 3:
+                                                  fileName.find('spm') + 3
+                                                                       + inc]
+                inc+=1
+        
             environ['SPM_STANDALONE'] = 'yes'
+            
         else:
             environ['SPM_STANDALONE'] = 'no'
             # determine SPM version (currently 8 or 12)
@@ -81,5 +92,35 @@ def complete_environ(config, environ):
             else:
                 environ.pop('SPM_VERSION', None)
 
-
-
+# For SPM with MATLAB license, if we want to get the SPM version from a system
+# call to matlab:.
+#            matlab_cmd = ('addpath("' + capsul_engine.spm.directory + '");'
+#                          ' [name, ~]=spm("Ver");'
+#                          ' fprintf(2, \"%s\", name(4:end));'
+#                          ' exit')
+#
+#            try:
+#                p = subprocess.Popen([capsul_engine.matlab.executable,
+#                                       '-nodisplay', '-nodesktop',
+#                                       '-nosplash', '-singleCompThread',
+#                                       '-batch', matlab_cmd],
+#                                     stdin=subprocess.PIPE,
+#                                     stdout=subprocess.PIPE,
+#                                     stderr=subprocess.PIPE)
+#                output, err = p.communicate()
+#                rc = p.returncode
+#
+#            except FileNotFoundError as e:
+#                print('\n {0}'.format(e))
+#                rc = 111
+#
+#            except Exception as e:
+#                print('\n {0}'.format(e))
+#                rc = 111
+#
+#            if (rc != 111) and (rc != 0):
+#                print(err)
+#
+#            if rc == 0:
+#                 capsul_engine.spm.version = err.decode("utf-8")
+#

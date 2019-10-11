@@ -16,6 +16,8 @@ Classes
 -----------------------------------------
 '''
 
+from __future__ import print_function
+
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory
@@ -60,6 +62,9 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         attribs = set()
         for parameter in self.process.iterative_parameters:
             attribs.update(param_attributes.get(parameter, {}).keys())
+        # if no iterative parameter has been declared, use all attributes
+        if not self.process.iterative_parameters:
+            return set(pattributes.user_traits().keys())
         return [param for param in pattributes.user_traits().keys()
                 if param in attribs]
 
@@ -102,8 +107,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         -------
         attributes: Controller
         '''
-        t = self.trait('capsul_attributes')
-        if t is None or not hasattr(self, 'capsul_attributes'):
+        if 'capsul_attributes' not in self._instance_traits():
             try:
                 pattributes = ProcessCompletionEngine.get_completion_engine(
                     self.process.process).get_attribute_values()
@@ -151,7 +155,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                         getattr(attributes_set, attribute))
         parameters = {}
         for parameter in self.process.regular_parameters:
-            parameters[parameter] = getattr(self.process, parameter)
+            if not self.process.trait(parameter).forbid_completion:
+                parameters[parameter] = getattr(self.process, parameter)
 
         size = max([len(getattr(attributes_set, attribute))
                     for attribute in iterated_attributes])
@@ -172,9 +177,10 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 value = iterated_values[step]
                 setattr(step_attributes, attribute, value)
             for parameter in self.process.iterative_parameters:
-                values = getattr(self.process, parameter)
-                if isinstance(values, list) and len(values) > it_step:
-                    parameters[parameter] = values[it_step]
+                if not self.process.trait(parameter).forbid_completion:
+                    values = getattr(self.process, parameter)
+                    if isinstance(values, list) and len(values) > it_step:
+                        parameters[parameter] = values[it_step]
             completion_engine.complete_parameters(parameters)
             for parameter in self.process.iterative_parameters:
                 value = getattr(self.process.process, parameter)

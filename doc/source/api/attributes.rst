@@ -3,6 +3,9 @@
 capsul.attributes module
 ========================
 
+.. inheritance-diagram:: capsul.attributes capsul.attributes.attributes_factory capsul.attributes.attributes_schema capsul.attributes.completion_engine_factory capsul.attributes.completion_engine_iteration capsul.attributes.completion_engine capsul.attributes.fom_completion_engine
+    :parts: 1
+
 .. automodule:: capsul.attributes
     :members:
 

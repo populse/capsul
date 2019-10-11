@@ -28,9 +28,13 @@ from soma.utils.weak_proxy import weak_proxy, get_ref
 from soma.functiontools import SomaPartial
 import six
 import sys
+import copy
 
 if sys.version_info[0] >= 3:
     unicode = str
+
+# DEBUG
+#ce_calls = 0
 
 
 class ProcessCompletionEngine(traits.HasTraits):
@@ -126,8 +130,11 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         '''
         if not self._rebuild_attributes \
-                and self.trait('capsul_attributes') is not None \
-                and hasattr(self, 'capsul_attributes'):
+                and 'capsul_attributes' in self._instance_traits():
+            # we have to use this private HasTraits method _instance_traits()
+            # to know if we actually have an instance trait, because
+            # class traits are automatically added whenever we access an
+            # attribute of another instance which doesn't have it (!)
             return self.capsul_attributes
 
         schemas = self._get_schemas()
@@ -186,7 +193,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                             continue
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):
-                        if attributes.trait(attribute) is None:
+                        if attribute not in attributes._instance_traits():
                             attributes.add_trait(attribute, trait)
                             setattr(attributes, attribute,
                                     getattr(sub_attributes, attribute))
@@ -282,6 +289,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         # as this blocking mechanism does not exist yet, we do it this way for
         # now, but it is sub-optimal since many parameters will be set many
         # times.
+
+        verbose = False
         use_topological_order = True
         if isinstance(self.process, Pipeline):
             attrib_values = self.get_attribute_values().export_to_dict()
@@ -346,15 +355,81 @@ class ProcessCompletionEngine(traits.HasTraits):
                 index += 1
                 self.completion_progress = index
 
-        # now complete process parameters:
         attributes = self.get_attribute_values()
-        for pname in self.process.user_traits():
+
+        # if some attributes are list, we must separate list and non-list
+        # attributes, and use an un-listed controller to get a path
+        have_list = any([isinstance(t.trait_type, traits.List)
+                         for t in attributes.user_traits().values()])
+        if have_list:
+            attributes_single = attributes.copy_to_single(with_values=True)
+            attributes_list = attributes_single.copy_to_single(
+                with_values=True)
+        else:
+            # no list parameter
+            attributes_single = attributes
+
+        # now complete process parameters:
+        for pname, trait in six.iteritems(self.process.user_traits()):
+            if trait.forbid_completion:
+                # completion has been explicitly disabled on this parameter
+                continue
+            value = []  # for the try.. except
             try:
-                value = self.attributes_to_path(pname, attributes)
+                if isinstance(self.process.trait(pname).trait_type,
+                              traits.List):
+                    nmax = 0
+                    param_att = attributes.parameter_attributes.get(pname)
+                    if param_att is None:
+                        continue  # no completion for you
+
+                    # FIXME: why [0][0]; check what it is...
+                    for a in param_att[0][0] \
+                            .user_traits().keys():
+                        att_value = getattr(attributes, a)
+                        if not isinstance(att_value, list):
+                            if att_value is not None:
+                                nmax = max(nmax, 1)
+                        else:
+                            nmax = max(nmax, len(att_value))
+                    value = []
+                    # param is a list: call iteratively the path completion
+                    # for each attributes values set
+                    for item in range(nmax):
+                        for a, t in six.iteritems(attributes.user_traits()):
+                            if isinstance(t.trait_type, traits.List):
+                                att_value = getattr(attributes, a)
+                                if not isinstance(att_value, list):
+                                    setattr(attributes_list, a, att_value)
+                                elif len(att_value) == 0:
+                                    setattr(attributes_list, a,
+                                            t.inner_traits[0].default)
+                                else:
+                                    if len(att_value) <= item:
+                                        item = -1
+                                    setattr(attributes_list, a,
+                                            att_value[item])
+                        value.append(
+                            self.attributes_to_path(pname, attributes_list))
+                    # avoid case of invalid attribute values
+                    if value == [None]:
+                        value = []
+                else:
+                    if pname in attributes.parameter_attributes:
+                        value = self.attributes_to_path(pname,
+                                                        attributes_single)
+                    else:
+                        value = None  # not in pattern: don't complete
                 if value is not None:  # should None be valid ?
                     setattr(self.process, pname, value)
-            except:
-                pass
+            except Exception as e:
+                if verbose:
+                    print('Exception:', e)
+                    print('param:', pname)
+                    print('value:', repr(value))
+                    import traceback
+                    traceback.print_exc()
+                #pass
         self.completion_progress = self.completion_progress_total
 
 
@@ -491,7 +566,10 @@ class ProcessCompletionEngine(traits.HasTraits):
         ''' Get a ProcessCompletionEngine instance for a given process within
         the framework of its StudyConfig: factory function.
         '''
+        #global ce_calls
+        #ce_calls += 1
         engine_factory = None
+        study_config = None
         if hasattr(process, 'get_study_config'):
             # switches don't have a study_config at the moment.
             study_config = process.get_study_config()
@@ -507,11 +585,42 @@ class ProcessCompletionEngine(traits.HasTraits):
             engine_factory = ProcessCompletionEngineFactory()
         completion_engine = engine_factory.get_completion_engine(
             process, name=name)
-        # set the completion engine into the process
+        # I remove the completion_engine cache because when the FOM config
+        # changes in StudyConfig, the completion engine may change also,
+        # and caching it will make use of an obsolete one.
+        # The other option is to remove the caches when the FOM config changes,
+        # but this needs to setup many callbacks that we don't know easily
+        # when to clear (process deletion etc)
+        ## set the completion engine into the process
         if completion_engine is not None:
             process.completion_engine = completion_engine
+            process._has_studyconfig_callback = True
+            if study_config is not None:
+                from capsul.process.process import Process
+                if not hasattr(Process, '_remove_completion_engine'):
+                    Process._remove_completion_engine \
+                        = ProcessCompletionEngine._remove_completion_engine
+                    Process.__del__ \
+                        = ProcessCompletionEngine._del_process_callback
+                study_config.on_trait_change(
+                    process._remove_completion_engine,
+                    'use_fom,input_fom,output_fom,shared_fom')
         return completion_engine
 
+    @staticmethod
+    def _remove_completion_engine(process):
+        if hasattr(process, 'completion_engine'):
+            del process.completion_engine
+
+    @staticmethod
+    def _del_process_callback(process):
+        if hasattr(process, 'study_config') \
+                and process.study_config is not None \
+                and hasattr(process, '_has_studyconfig_callback'):
+            process.study_config.on_trait_change(
+                process._remove_completion_engine,
+                'use_fom,input_fom,output_fom,shared_fom', remove=True)
+            del process._has_studyconfig_callback
 
     def _get_schemas(self):
         ''' Get schemas dictionary from process and its StudyConfig
@@ -573,8 +682,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         '''Clear attributes controller cache, to allow rebuilding it after
         a change. This is generally a callback attached to switches changes.
         '''
-        if self.trait('capsul_attributes') is not None \
-                and hasattr(self, 'capsul_attributes'):
+        if 'capsul_attributes' in self._instance_traits():
             self.remove_trait('capsul_attributes')
 
 
@@ -605,8 +713,7 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
         self.remove_switch_observer()
 
     def get_attribute_values(self):
-        if self.trait('capsul_attributes') is not None \
-                and hasattr(self, 'capsul_attributes'):
+        if 'capsul_attributes' in self._instance_traits():
             return self.capsul_attributes
 
         self.add_trait('capsul_attributes', ControllerTrait(Controller()))
@@ -749,6 +856,16 @@ class PathCompletionEngine(object):
         attributes: ProcessAttributes instance (Controller)
         '''
         return None
+
+    def allowed_formats(self, process, parameter):
+        ''' List of possible formats names associated with a parameter
+        '''
+        return []
+
+    def allowed_extensions(self, process, parameter):
+        ''' List of possible file extensions associated with a parameter
+        '''
+        return []
 
 
 class ProcessCompletionEngineFactory(object):

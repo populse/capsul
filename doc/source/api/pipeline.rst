@@ -1,7 +1,9 @@
 
-
 capsul.pipeline module
 ======================
+
+.. inheritance-diagram:: capsul.pipeline capsul.pipeline.pipeline capsul.pipeline.pipeline_construction capsul.pipeline.pipeline_nodes capsul.pipeline.pipeline_tools capsul.pipeline.pipeline_workflow capsul.pipeline.process_iteration capsul.pipeline.python_export capsul.pipeline.topological_sort capsul.pipeline.xml capsul.pipeline.custom_nodes capsul.pipeline.custom_nodes.cat_node capsul.pipeline.custom_nodes.cvfilter_node capsul.pipeline.custom_nodes.exclude_node
+    :parts: 1
 
 .. automodule:: capsul.pipeline
     :members:

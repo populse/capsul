@@ -28,6 +28,18 @@ from capsul.attributes.completion_engine \
 
 class AttributesConfig(StudyConfigModule):
     '''Attributes-based completion configuration module for StudyConfig
+
+    This module adds the following options (traits) in the
+    :class:`~capsul.study_config.study_config.StudyConfig` object:
+
+    attributes_schema_paths: list of str (filenames)
+        attributes shchema module name
+    attributes_schemas: dict(str, str)
+        attributes shchemas names
+    process_completion: str (default:'builtin')
+        process completion model name
+    path_completion: str
+        path completion model name
     '''
 
     dependencies = []

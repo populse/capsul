@@ -57,7 +57,7 @@ def save_py_pipeline(pipeline, py_file):
             repvalue = repr(value)
         return repvalue
 
-    def _write_process(process, pyf, name, enabled):
+    def _write_process(process, pyf, name, enabled, skip_invalid):
         if isinstance(process, NipypeProcess):
             mod = process._nipype_interface.__module__
             classname = process._nipype_interface.__class__.__name__
@@ -80,12 +80,14 @@ def save_py_pipeline(pipeline, py_file):
         node_options = ''
         if len(make_opt) != 0:
             node_options += ', make_optional=%s' % repr(make_opt)
+        if skip_invalid:
+            node_options += ', skip_invalid=True'
         print('        self.add_process("%s", "%s"%s)' % (name, procname,
                                                           node_options),
               file=pyf)
         for pname in process.user_traits():
             value = getattr(process, pname)
-            init_value = getattr(proc_copy, pname)
+            init_value = getattr(proc_copy, pname, Undefined)
             if value != init_value \
                     and not (value is Undefined and init_value == ''):
                 repvalue = get_repr_value(value)
@@ -171,6 +173,7 @@ def save_py_pipeline(pipeline, py_file):
         outputs = []
         optional = []
         opt_in = []
+        options = ''
         for plug_name, plug in six.iteritems(switch.plugs):
             if plug.output:
                 outputs.append(plug_name)
@@ -186,12 +189,19 @@ def save_py_pipeline(pipeline, py_file):
         optional_p = ''
         if len(optional) != 0:
             optional_p = ', make_optional=%s' % repr(optional)
-        value_p = ''
         inputs = list(inputs)
+        opt_inputs = getattr(switch, '_optional_input_nodes', None)
+        if opt_inputs:
+            opt_inputs = [i[1] for i in opt_inputs if i[0] in inputs]
+            if opt_inputs == inputs:
+                opt_inputs = True
+            options += ', opt_nodes=%s' % repr(opt_inputs)
+        value_p = ''
         if switch.switch != inputs[0]:
             value_p = ', switch_value=%s' % repr(switch.switch)
-        print('        self.add_switch("%s", %s, %s%s%s, export_switch=False)'
-              % (name, repr(inputs), repr(outputs), optional_p, value_p),
+        print('        self.add_switch("%s", %s, %s%s%s%s, export_switch=False)'
+              % (name, repr(inputs), repr(outputs), optional_p, value_p,
+                 options),
               file=pyf)
 
     def _write_optional_output_switch(switch, pyf, name, enabled):
@@ -215,9 +225,17 @@ def save_py_pipeline(pipeline, py_file):
 
     def _write_processes(pipeline, pyf):
         print('        # nodes', file=pyf)
+        nodes = []
+        proc_nodes = []
+        # sort nodes, processes first
         for node_name, node in six.iteritems(pipeline.nodes):
             if node_name == "":
                 continue
+            if isinstance(node, ProcessNode):
+                proc_nodes.append((node_name, node))
+            else:
+                nodes.append((node_name, node))
+        for node_name, node in proc_nodes + nodes:
             if isinstance(node, OptionalOutputSwitch):
                 _write_optional_output_switch(node, pyf, node_name,
                                               node.enabled)
@@ -227,7 +245,8 @@ def save_py_pipeline(pipeline, py_file):
                     and isinstance(node.process, ProcessIteration):
                 _write_iteration(node.process, pyf, node_name, node.enabled)
             elif isinstance(node, ProcessNode):
-                _write_process(node.process, pyf, node_name, node.enabled)
+                _write_process(node.process, pyf, node_name, node.enabled,
+                               node_name in pipeline._skip_invalid_nodes)
             else:
                 # custom node
                 _write_custom_node(node, pyf, node_name, node.enabled)

@@ -110,16 +110,16 @@ class StudyConfig(Controller):
 
     Attributes
     ----------
-    `input_directory` : str
+    input_directory : str
         parameter to set the study input directory
-    `output_directory` : str
+    output_directory : str
         parameter to set the study output directory
-    `generate_logging` : bool (default False)
+    generate_logging : bool (default False)
         parameter to control the log generation
-    `create_output_directories` : bool (default True)
+    create_output_directories : bool (default True)
         Create parent directories of all output File or Directory before
         running a process
-    `process_output_directory` : bool (default False)
+    process_output_directory : bool (default False)
         Create a process specific output_directory by appending a
         subdirectory to output_directory. This subdirectory is named 
         '<count>-<name>' where <count> if self.process_counter and <name> 
@@ -777,10 +777,45 @@ class StudyConfig(Controller):
 
         """
         return get_process_instance(process_or_id, study_config=self,
-                                           **kwargs)
+                                    **kwargs)
+
+    def get_iteration_pipeline(self, pipeline_name, node_name, process_or_id,
+                               iterative_plugs=None, do_not_export=None,
+                               make_optional=None, **kwargs):
+        """ Create a pipeline with an iteration node iterating the given
+        process.
+
+        Parameters
+        ----------
+        pipeline_name: str
+            pipeline name
+        node_name: str
+            iteration node name in the pipeline
+        process_or_id: process description
+            as in :meth:`get_process_instance`
+        iterative_plugs: list (optional)
+            passed to :meth:`Pipeline.add_iterative_process`
+        do_not_export: list
+            passed to :meth:`Pipeline.add_iterative_process`
+        make_optional: list
+            passed to :meth:`Pipeline.add_iterative_process`
+
+        Returns
+        -------
+        pipeline: :class:`Pipeline` instance
+        """
+        pipeline = Pipeline()
+        pipeline.name = pipeline_name
+        pipeline.set_study_config(self)
+        pipeline.add_iterative_process(node_name, process_or_id,
+                                       iterative_plugs, do_not_export,
+                                       **kwargs)
+        pipeline.autoexport_nodes_parameters(include_optional=True)
+        return pipeline
 
 
 _default_study_config = None
+
 def default_study_config():
     """
     On the first call create a StudyConfig instance with defaut configuration
@@ -795,6 +830,9 @@ def default_study_config():
     
 
 class StudyConfigModule(object):
+    '''
+    :class:`StudyConfig` module base class (abstract)
+    '''
     @property
     def name(self):
         """The name of a module that can be used in configuration to select

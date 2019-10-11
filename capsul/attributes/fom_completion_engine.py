@@ -18,9 +18,9 @@ from __future__ import print_function
 import os
 import six
 try:
-    from traits.api import Str, HasTraits
+    from traits.api import Str, HasTraits, List
 except ImportError:
-    from enthought.traits.api import Str, HasTraits
+    from enthought.traits.api import Str, HasTraits, List
 
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
@@ -35,6 +35,7 @@ from capsul.attributes.attributes_schema import ProcessAttributes, \
     EditableAttributes
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
+from soma.sorted_dictionary import SortedDictionary
 
 
 class FomProcessCompletionEngine(ProcessCompletionEngine):
@@ -81,6 +82,9 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
     def __init__(self, process, name=None):
         super(FomProcessCompletionEngine, self).__init__(
             process=process, name=name)
+        self.input_fom = None
+        self.output_fom = None
+        self.shared_fom = None
 
 
     def get_attribute_values(self):
@@ -111,16 +115,45 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         """To get useful attributes by the fom"""
 
         process = self.process
+        study_config = process.study_config
+        modules_data = study_config.modules_data
 
         #Get attributes in input fom
         names_search_list = (self.name, process.id, process.name,
                              getattr(process, 'context_name', ''))
         capsul_attributes = self.get_attribute_values()
         matching_fom = False
+        input_found = False
+        output_found = False
 
-        for schema, fom \
-                in six.iteritems(process.study_config.modules_data.foms):
-            atp = process.study_config.modules_data.fom_atp.get(schema)
+        foms = SortedDictionary()
+        foms.update(modules_data.foms)
+        if study_config.auto_fom:
+            # in auto-fom mode, also search in additional and non-loaded FOMs
+            for schema, fom in six.iteritems(modules_data.all_foms):
+                if schema not in (study_config.input_fom,
+                                  study_config.output_fom,
+                                  study_config.shared_fom):
+                    foms[schema] = fom
+
+        def editable_attributes(attributes, fom):
+            ea = EditableAttributes()
+            for attribute in attributes:
+                if attribute.startswith('fom_'):
+                    continue # skip FOM internals
+                default_value = fom.attribute_definitions[attribute].get(
+                    'default_value', '')
+                ea.add_trait(attribute, Str(default_value))
+            return ea
+
+        for schema, fom in six.iteritems(foms):
+            if fom is None:
+                fom, atp, pta \
+                    = study_config.modules['FomConfig'].load_fom(schema)
+            else:
+                atp = modules_data.fom_atp.get(schema) \
+                    or modules_data.fom_atp['all'].get(schema)
+
             if atp is None:
                 continue
             for name in names_search_list:
@@ -130,32 +163,67 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             else:
                 continue
 
-            matching_fom = True
-            def editable_attributes(attributes, fom):
-                ea = EditableAttributes()
-                for attribute in attributes:
-                    if attribute.startswith('fom_'):
-                        continue # skip FOM internals
-                    default_value = fom.attribute_definitions[attribute].get(
-                        'default_value', '')
-                    ea.add_trait(attribute, Str(default_value))
-                return ea
+            if not matching_fom:
+                matching_fom = True
+            if schema == 'input':
+                input_found = True
+            elif schema == 'output':
+                output_found = True
+            elif matching_fom in (False, True, None):
+                matching_fom = schema, fom, atp, fom_patterns
+            # print('completion using FOM:', schema, 'for', process.id)
+            #break
 
             for parameter in fom_patterns:
                 param_attributes = atp.find_discriminant_attributes(
                         fom_parameter=parameter, fom_process=name)
-                if param_attributes:
-                    #process_attributes[parameter] = param_attributes
-                    ea = editable_attributes(param_attributes, fom)
-                    try:
-                        capsul_attributes.set_parameter_attributes(
-                            parameter, schema, ea, {})
-                    except KeyError:
-                        # param already registered
-                        pass
+                ea = editable_attributes(param_attributes, fom)
+                try:
+                    capsul_attributes.set_parameter_attributes(
+                        parameter, schema, ea, {})
+                except KeyError:
+                    # param already registered
+                    pass
 
         if not matching_fom:
             raise KeyError('Process not found in FOMs')
+        #if isinstance(matching_fom, tuple): print('matching_fom:', matching_fom[0])
+        #else: print('matching fom:', matching_fom)
+
+        if not input_found and matching_fom is not True:
+            fom_type, fom, atp, fom_patterns = matching_fom
+            schema = 'input'
+            for parameter in fom_patterns:
+                param_attributes = atp.find_discriminant_attributes(
+                        fom_parameter=parameter, fom_process=name)
+                ea = editable_attributes(param_attributes, fom)
+                try:
+                    capsul_attributes.set_parameter_attributes(
+                        parameter, schema, ea, {})
+                except KeyError:
+                    # param already registered
+                    pass
+            modules_data.foms[schema] = fom
+            modules_data.fom_atp[schema] = atp
+            study_config.input_fom = fom_type
+
+        if not output_found and matching_fom is not True:
+            fom_type, fom, atp, fom_patterns = matching_fom
+            schema = 'output'
+            for parameter in fom_patterns:
+                param_attributes = atp.find_discriminant_attributes(
+                        fom_parameter=parameter, fom_process=name)
+                ea = editable_attributes(param_attributes, fom)
+                try:
+                    capsul_attributes.set_parameter_attributes(
+                        parameter, schema, ea, {})
+                except KeyError:
+                    # param already registered
+                    pass
+            modules_data.foms[schema] = fom
+            modules_data.fom_atp[schema] = atp
+            study_config.output_fom = fom_type
+
 
         # in a pipeline, we still must iterate over nodes to find switches,
         # which have their own behaviour.
@@ -190,6 +258,28 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                                     getattr(sub_attributes, attribute))
 
             self._get_linked_attributes()
+
+        # remember foms for later
+        self.input_fom = study_config.input_fom
+        self.output_fom = study_config.output_fom
+        self.shared_fom = study_config.shared_fom
+
+
+    @staticmethod
+    def setup_fom(process):
+        completion_engine \
+            = ProcessCompletionEngine.get_completion_engine(process)
+        if not isinstance(completion_engine, FomPathCompletionEngine):
+            return
+        if not hasattr(completion_engine, 'input_fom') \
+                or completion_engine.input_fom is None:
+            completion_engine.create_attributes_with_fom()
+        if process.study_config.input_fom != completion_engine.input_fom:
+            process.study_config.input_fom = completion_engine.input_fom
+        if process.study_config.output_fom != completion_engine.output_fom:
+            process.study_config.output_fom = completion_engine.output_fom
+        if process.study_config.shared_fom != completion_engine.shared_fom:
+            process.study_config.shared_fom = completion_engine.shared_fom
 
 
     def path_attributes(self, filename, parameter=None):
@@ -264,6 +354,8 @@ class FomPathCompletionEngine(PathCompletionEngine):
         parameter: str
         attributes: ProcessAttributes instance (Controller)
         '''
+        FomProcessCompletionEngine.setup_fom(process)
+
         input_fom = process.study_config.modules_data.foms['input']
         output_fom = process.study_config.modules_data.foms['output']
         input_atp = process.study_config.modules_data.fom_atp['input']
@@ -308,19 +400,94 @@ class FomPathCompletionEngine(PathCompletionEngine):
         d['fom_parameter'] = parameter
         d['fom_format'] = 'fom_preferred'
         path_value = None
-        for h in atp.find_paths(d):
+        #path_values = []
+        #debug = getattr(self, 'debug', None)
+        for h in atp.find_paths(d):  # , debug=debug):
             path_value = h[0]
             # find_paths() is a generator which can sometimes generate
             # several values (formats). We are only interested in the
             # first one.
+            #path_values.append(h[0])
             break
+
+        #if len(path_values) > 0:
+            #path_value = path_values[0]
         return path_value
+
+
+    def open_values_attributes(self, process, parameter):
+        ''' Attributes with "open" values, not restricted to a list of possible
+        values
+        '''
+        # print('open_values_attributes', process.id, parameter)
+
+        FomProcessCompletionEngine.setup_fom(process)
+
+        for schema in ('input', 'output', 'shared'):
+            fom = process.study_config.modules_data.foms[schema]
+            atp = process.study_config.modules_data.fom_atp[schema]
+            # print('fom:', fom.fom_names)
+            # print('atp:', atp)
+
+            name = process.id
+            names_search_list = (process.id, process.name,
+                                getattr(process, 'context_name', ''))
+            for fname in names_search_list:
+                fom_patterns = fom.patterns.get(fname)
+                if fom_patterns is not None:
+                    name = fname
+                    break
+            else:
+                continue
+
+            values = atp.find_attributes_values()
+            attributes = [k for k, v in six.iteritems(values)
+                          if k not in ('fom_name', 'fom_process',
+                                       'fom_parameter', 'fom_format')
+                            and len(v) == 2 and v[1] == (u'', )]
+            return attributes
+
+        return None
+
+
+    def allowed_formats(self, process, parameter):
+        ''' List of possible formats names associated with a parameter
+        '''
+        FomProcessCompletionEngine.setup_fom(process)
+
+        formats = []
+        for schema in ('input', 'output', 'shared'):
+            atp = process.study_config.modules_data.fom_atp[schema]
+            sub_f = atp.allowed_formats_for_parameter(process.name, parameter)
+            formats += [f for f in sub_f if f not in formats]
+        return formats
+
+
+    def allowed_extensions(self, process, parameter):
+        ''' List of possible file extensions associated with a parameter
+        '''
+        FomProcessCompletionEngine.setup_fom(process)
+
+        exts = set()
+        for schema in ('input', 'output', 'shared'):
+            atp = process.study_config.modules_data.fom_atp[schema]
+            sub_e = atp.allowed_extensions_for_parameter(
+                process_name=process.name, param=parameter)
+            exts.update(sub_e)
+        # sort and add dots
+        exts2 = sorted(['.%s' % e for e in exts if e])
+        if '' in exts:
+            exts2.append('')
+        return exts2
 
 
 class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
     def get_iterated_attributes(self):
         subprocess = self.process.process
+
+        FomProcessCompletionEngine.setup_fom(subprocess)
+
         input_fom = subprocess.study_config.modules_data.foms['input']
         output_fom = subprocess.study_config.modules_data.foms['output']
         input_atp = subprocess.study_config.modules_data.fom_atp['input']
@@ -343,7 +510,11 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
                 % repr(names_search_list))
 
         iter_attrib = set()
-        for parameter in self.process.iterative_parameters:
+        if not self.process.iterative_parameters:
+            params = subprocess.user_traits().keys()
+        else:
+            params = self.process.iterative_parameters
+        for parameter in params:
             if subprocess.trait(parameter).output:
                 atp = output_atp
             else:

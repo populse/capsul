@@ -162,6 +162,7 @@ class Node(Controller):
         self.pipeline = weak_proxy(pipeline)
         self.name = name
         self.plugs = SortedDictionary()
+        self.invalid_plugs = set()
         # _callbacks -> (src_plug_name, dest_node, dest_plug_name)
         self._callbacks = {}
 

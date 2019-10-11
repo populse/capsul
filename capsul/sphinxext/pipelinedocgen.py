@@ -11,6 +11,7 @@ from __future__ import print_function
 # System import
 import os
 import logging
+import six
 
 # Define logger
 logger = logging.getLogger(__file__)
@@ -75,27 +76,27 @@ class PipelineHelpWriter(object):
 
         # Generate the page title: name of the pipeline
         ad += ":orphan:\n\n"
-        chap_title = pipeline
-        ad += (chap_title + "\n" +
-               self.rst_section_levels[1] * len(chap_title) + "\n\n")
-
-        # Generate a bookmark (for cross references)
-        pipeline_name = pipeline_instance.__class__.__name__
-        label = pipeline + ":"
-        ad += "\n.. _{0}\n\n".format(label)
-        # ad += "\n.. index:: {0}\n\n".format(pipeline_name)
-
-        # Add a subtitle
-        ad += (pipeline_name + "\n" +
-               self.rst_section_levels[2] * len(pipeline_name) + "\n\n")
 
         # Set the current module
         currentmodule = ".".join(pipeline_instance.id.split(".")[:-1])
         ad += ".. currentmodule:: {0}\n\n".format(currentmodule)
 
+        # Generate a bookmark (for cross references)
+        pipeline_name = pipeline_instance.__class__.__name__
+        label = pipeline + ":"
+        ad += "\n.. _{0}\n\n".format(label)
+
+        chap_title = pipeline
+        ad += (chap_title + "\n" +
+               self.rst_section_levels[1] * len(chap_title) + "\n\n")
+
+        # Add a subtitle
+        ad += (pipeline_name + "\n" +
+               self.rst_section_levels[2] * len(pipeline_name) + "\n\n")
+
         # Then add the trait description
         # It will generate two sections: input and output
-        ad += pipeline_instance.get_help(returnhelp=True)
+        ad += pipeline_instance.get_help(returnhelp=True, use_labels=True)
 
         # Add schema if generated
         if schema:
@@ -126,7 +127,7 @@ class PipelineHelpWriter(object):
         """
         # Check output directory
         if returnrst is False:
-            if not isinstance(outdir, basestring):
+            if not isinstance(outdir, six.string_types):
                 raise Exception("If 'returnrst' is False, need a valid output "
                                 "directory.")
             if not os.path.exists(outdir):

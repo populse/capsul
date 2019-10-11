@@ -8,9 +8,10 @@ class DatabaseEngine:
     name).
     
     To instanciate a :py:class:`DatabaseEngine` one must use the factory 
-    To date, two concrete :py:class:`DatabaseEngine` implementations exist :
-      - :py:class:`capsul.engine.database_json.JSONDBEngine`
-      - :py:class:`capsul.engine.database_populse.PopulseDBEngine`
+    To date, two concrete :py:class:`DatabaseEngine` implementations exist:
+
+    - :py:class:`capsul.engine.database_json.JSONDBEngine`
+    - :py:class:`capsul.engine.database_populse.PopulseDBEngine`
     
     '''
     

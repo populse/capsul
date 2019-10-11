@@ -17,7 +17,7 @@ Classes
 
 import os
 import six
-from traits.api import Bool, Str, Undefined
+from traits.api import Bool, Str, Undefined, List, Directory
 from soma.fom import AttributesToPaths, PathToAttributes
 from soma.application import Application
 from capsul.study_config.study_config import StudyConfigModule
@@ -28,7 +28,38 @@ import weakref
 class FomConfig(StudyConfigModule):
     '''FOM (File Organization Model) configuration module for StudyConfig
 
-    Note: FomConfig needs BrainVISAConfig to be part of StudyConfig modules.
+    .. note::
+        :class:`~capsul.study_config.config_modules.fom_config.FomConfig`
+        needs :class:`~capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig`
+        to be part of
+        :class:`~capsul.study_config.study_config.StudyConfig` modules.
+
+    This module adds the following options (traits) in the
+    :class:`~capsul.study_config.study_config.StudyConfig` object:
+
+    input_fom: str
+        input FOM
+    output_fom: str
+        output FOM
+    shared_fom: str
+        shared data FOM
+    volumes_format: str
+        Format used for volumes
+    meshes_format: str
+        Format used for meshes
+    auto_fom: bool (default: True)
+        Look in all FOMs when a process is not found. Note that auto_fom
+        looks for the first FOM matching the process to get
+        completion for, and does not handle ambiguities. Moreover
+        it brings an overhead (typically 6-7 seconds) the first
+        time it is used since it has to parse all available FOMs.
+    fom_path: list of directories
+        list of additional directories where to look for FOMs (in addition to
+        the standard share/foms)
+    use_fom: bool
+        Use File Organization Models for file parameters completion'
+
+    *Methods:*
     '''
 
     dependencies = ['BrainVISAConfig', 'SPMConfig', 'AttributesConfig']
@@ -47,6 +78,19 @@ class FomConfig(StudyConfigModule):
         self.study_config.add_trait('meshes_format',
                                     Str(Undefined, output=False,
             desc='Format used for meshes'))
+        self.study_config.add_trait(
+            'auto_fom',
+            Bool(True, output=False,
+                 desc='Look in all FOMs when a process is not found (in '
+                 'addition to the standard share/foms). Note that auto_fom '
+                 'looks for the first FOM matching the process to get '
+                 'completion for, and does not handle ambiguities. Moreover '
+                 'it brings an overhead (typically 6-7 seconds) the first '
+                 'time it is used since it has to parse all available FOMs.'))
+        self.study_config.add_trait(
+            'fom_path',
+            List(Directory(output=False),
+                 desc='list of additional directories where to look for FOMs'))
         self.study_config.add_trait('use_fom', Bool(
             Undefined,
             output=False,
@@ -91,11 +135,12 @@ class FomConfig(StudyConfigModule):
             self.sync_to_engine,
             ['use_fom', 'input_directory', 'input_fom', 'meshes_format',
              'output_directory', 'output_fom', 'shared_directory',
-             'shared_fom', 'spm_directory', 'volumes_format'])
+             'shared_fom', 'spm_directory', 'volumes_format', 'auto_fom',
+             'fom_path'])
         self.study_config.engine.global_config.fom.on_trait_change(
             self.sync_from_engine,
-            ['use','input_directory', 'input_fom', 'meshes_format',
-             'output_directory', 'output_fom', 'shared_fom', 'volumes_format'])
+            ['use','input_directory', 'output_directory', 'input_fom',
+             'output_fom', 'meshes_format'])
         self.study_config.engine.global_config.spm.on_trait_change(
             self.sync_from_engine, 'directory')
         self.study_config.engine.global_config.axon.on_trait_change(
@@ -164,4 +209,8 @@ class FomConfig(StudyConfigModule):
                     getattr(getattr(self.study_config.engine.global_config,
                                     mod), p))
 
+
+    def load_fom(self, schema):
+        return self.study_config.engine.global_config.fom.load_fom(
+            schema, self.study_config.engine.global_config)
 

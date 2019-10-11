@@ -39,19 +39,19 @@ class CapsulEngine(Controller):
     '''
     A CapsulEngine is the mandatory entry point of all software using Capsul. It contains objects to store configuration and metadata, define execution environment(s) (possibly remote) and perform pipelines execution.
     
-    A CapsulEngine must be created using capsul.engine.capsul_engine function. For instance :
+    A CapsulEngine must be created using capsul.engine.capsul_engine function. For instance::
     
-    from capsul.engine import capsul_engine
-    ce = capsul_engine()
+        from capsul.engine import capsul_engine
+        ce = capsul_engine()
     
-    By default, CapsulEngine only store configuration. But it may be necessary to modify Python environment globally to apply this configuration. For instance, Nipype must be configured globally. If SPM is configured in CapsulEngine, it is necessary to explicitely activate the configuration in order to modify the global configuration of Nipype for SPM. This activation is done by explicitely activating the capsul engine with the following code :
+    By default, CapsulEngine only store necessary configuration. But it may be necessary to modify Python environment globally to apply this configuration. For instance, Nipype must be configured globally. If SPM is configured in CapsulEngine, it is necessary to explicitely activate the configuration in order to modify the global configuration of Nipype for SPM. This activation is done by explicitely activating the execution context of the capsul engine with the following code::
     
-    from capsul.engine import capsul_engine
-    ce = capsul_engine()
-    # Nipype is not configured here
-    with ce.:
-        # Nipype is configured here
-    # Nipype may not be configured here
+        from capsul.engine import capsul_engine
+        ce = capsul_engine()
+        # Nipype is not configured here
+        with ce.execution_context():
+            # Nipype is configured here
+        # Nipype may not be configured here
     '''
     
     default_modules = ['capsul.engine.module.spm',
@@ -65,7 +65,7 @@ class CapsulEngine(Controller):
                  config=None):
         '''
         CapsulEngine constructor should not be called directly.
-        Use capsul_engine() factory function instead.
+        Use :func:`capsul_engine` factory function instead.
         '''
         super(CapsulEngine, self).__init__()
         
@@ -219,10 +219,16 @@ class CapsulEngine(Controller):
         Save the full status of the CapsulEngine in the database.
         The folowing items are set in the database:
         
-          'metadata_engine': a JSON serialization of self.metadata_engine
-          'config': a dictionary containing configuration. This dictionary is
-              obtained using traits defined on capsul engine (ignoring values
-              that are undefined).
+        'execution_context':
+            a JSON serialization of self.execution_context
+        'processing_engine':
+            a JSON serialization of self.processing_engine
+        'metadata_engine':
+            a JSON serialization of self.metadata_engine
+        'config':
+            a dictionary containing configuration. This dictionary is
+            obtained using traits defined on capsul engine (ignoring values
+            that are undefined).
         '''
         if self._metadata_engine:
             self.database.set_json_value('metadata_engine', 

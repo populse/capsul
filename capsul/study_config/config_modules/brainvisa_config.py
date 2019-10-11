@@ -23,8 +23,14 @@ from capsul.study_config.study_config import StudyConfigModule
 
 class BrainVISAConfig(StudyConfigModule):
     '''
-    Configuration module allowing to use `BrainVISA / Axon <http://brainvisa.info/axon/user_doc>`_ shared data in Capsul processes
-    '''
+    Configuration module allowing to use `BrainVISA / Axon <http://brainvisa.info/axon/user_doc>`_ shared data in Capsul processes.
+
+    This module adds the following options (traits) in the
+    :class:`~capsul.study_config.study_config.StudyConfig` object:
+
+    shared_directory: str (filename)
+        Study shared directory
+     '''
 
     def __init__(self, study_config, configuration):
         super(BrainVISAConfig, self).__init__(study_config, configuration)

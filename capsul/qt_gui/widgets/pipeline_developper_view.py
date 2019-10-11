@@ -274,9 +274,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
             [(pname, param) for pname, param in six.iteritems(parameters)
              if not getattr(param, 'hidden', False)])
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
-        self.in_plugs = {}
+        self.in_plugs = SortedDictionary()
         self.in_params = {}
-        self.out_plugs = {}
+        self.out_plugs = SortedDictionary()
         self.out_params = {}
         self.process = process
         self.sub_pipeline = sub_pipeline
@@ -2484,6 +2484,7 @@ class PipelineDevelopperView(QGraphicsView):
         self._enable_edition = enable_edition
         self._pipeline_filename = ""
         self._restricted_edition = False
+        self.disable_overwrite = False
 
         if pipeline is None:
             pipeline = Pipeline()
@@ -2668,7 +2669,7 @@ class PipelineDevelopperView(QGraphicsView):
         available.
 
         Parameters
-        -------
+        ----------
         enabled: bool
         '''
         self._restricted_edition = enabled
@@ -4055,6 +4056,7 @@ class PipelineDevelopperView(QGraphicsView):
             dnode = self.scene.pipeline.nodes[dst_node]
         name = '%s->%s' % (src, dst)
         self._current_link = name  # (src_node, src_plug, dst_node, dst_plug)
+        self._current_link_def = (src_node, src_plug, dst_node, dst_plug)
 
         menu = QtGui.QMenu('Link: %s' % name)
         title = menu.addAction('Link: %s' % name)
@@ -4078,6 +4080,7 @@ class PipelineDevelopperView(QGraphicsView):
 
         menu.exec_(QtGui.QCursor.pos())
         del self._current_link
+        del self._current_link_def
 
     def _node_clicked_ctrl(self, name, process):
 
@@ -4102,9 +4105,19 @@ class PipelineDevelopperView(QGraphicsView):
         self.scene.update_pipeline()
 
     def _del_link(self):
-        # src_node, src_plug, dst_node, dst_plug = self._current_link
+        print('\nRemoving the link: ', self._current_link)
+        src_node, src_plug, dst_node, dst_plug = self._current_link_def
         link_def = self._current_link
-        self.scene.pipeline.remove_link(link_def)
+        pipeline = self.scene.pipeline
+        pipeline.remove_link(link_def)
+        if (src_node in ('', 'inputs') and
+          len(pipeline.pipeline_node.plugs[src_plug].links_to) == 0):
+                # remove orphan pipeline plug
+            pipeline.remove_trait(src_plug)
+        elif (dst_node in ('', 'outputs') and
+          len(pipeline.pipeline_node.plugs[dst_plug].links_from) == 0):
+            # remove orphan pipeline plug
+            pipeline.remove_trait(dst_plug)
         self.scene.update_pipeline()
 
     def _plug_right_clicked(self, name):
@@ -4477,24 +4490,27 @@ class PipelineDevelopperView(QGraphicsView):
         """
 
         class MultiDimensionalArrayEncoder(json.JSONEncoder):
-        
+
             def encode(self, obj):
-                
+
                 def hint_tuples(item):
 
                     if isinstance(item, tuple):
-                        return {'__tuple__': True, 'items': [hint_tuples(e) for e in item]}
-                    
+                        return {'__tuple__': True,
+                                'items': [hint_tuples(e) for e in item]}
+
                     if isinstance(item, list):
                         return [hint_tuples(e) for e in item]
-                
+
                     if isinstance(item, dict):
-                        return dict((key, hint_tuples(value)) for key, value in item.items())
+                        return dict((key, hint_tuples(value)) for key, value in
+                                    item.items())
 
                     else:
                         return item
 
-                return super(MultiDimensionalArrayEncoder, self).encode(hint_tuples(obj))
+                return super(MultiDimensionalArrayEncoder, self).encode(
+                    hint_tuples(obj))
 
         pipeline = self.scene.pipeline
 
@@ -4502,28 +4518,59 @@ class PipelineDevelopperView(QGraphicsView):
             None, 'Save the pipeline parameters', '',
             'Compatible files (*.json)')
 
+        if not filename:  # save widget was cancelled by the user
+            return ''
+
+        if os.path.splitext(filename)[1] == '':  # which means no extension
+            filename += '.json'
+
+        elif os.path.splitext(filename)[1] != '.json':
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText('The parameters must be saved in the ".json" format, '
+                        'not the "{0}" format'.format(
+                os.path.splitext(filename)[1]))
+            msg.setWindowTitle("Warning")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.buttonClicked.connect(msg.close)
+            msg.exec_()
+            self.save_pipeline_parameters()
+            return ''
+
+        if os.path.exists(filename) and self.disable_overwrite:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText('This file already exists, you do not have the '
+                        'rights to overwrite it.')
+            msg.setWindowTitle("Warning")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.buttonClicked.connect(msg.close)
+            msg.exec_()
+            self.save_pipeline_parameters()
+            return ''
+
         if filename:
             from traits.api import Undefined
             # Generating the dictionary
             param_dic = {}
-            
+
             for trait_name, trait in pipeline.user_traits().items():
-                
+
                 if trait_name in ["nodes_activation"]:
                     continue
-                
+
                 value = getattr(pipeline, trait_name)
-                
+
                 if value is Undefined:
                     value = ""
-                    
+
                 param_dic[trait_name] = value
 
             # In the future, more information may be added to this dictionary
             dic = {}
             dic["pipeline_parameters"] = param_dic
             jsonstring = MultiDimensionalArrayEncoder().encode(dic)
-           
+
             # Saving the dictionary in the Json file
             if sys.version_info[0] >= 3:
                 with open(filename, 'w', encoding='utf8') as file:

@@ -72,7 +72,7 @@ function returning a value:
     def add(a, b):
          return a + b
 
-If the process need to return several values, they must me declared with
+If the process need to return several values, they must be declared with
 ``<output>`` elements located between ``<return>`` and
 ``</return>``. The function must return the output values either in a
 list or in a dictionary. If it is a list the order of the ``<output>``
@@ -150,7 +150,7 @@ attribute can have the following values:
 
 When a parameter accepts multiple types, they must be separated by a
 ``|``. For instance a parameter accepting either a file or a list of
-file would use ``type="file|list_file"``.
+files would use ``type="file|list_file"``.
 
 Process roles
 ~~~~~~~~~~~~~

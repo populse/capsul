@@ -115,20 +115,20 @@ def pipeline_node_colors(pipeline, node):
     #     LIGHT_BLUE_3 = (0.3, 0.3, 0.5)
 
     # for process nodes
-    GREENDARK_1 = (0.1, 0.7, 0.1)  # active
-    GREENDARK_2 = (0.1, 0.5, 0.1)
-    GREENDARK_3 = (0.1, 0.3, 0.1)
-    LIGHT_GREENDARK_1 = (0.1, 0.4, 0.1)  # not active
-    LIGHT_GREENDARK_2 = (0.1, 0.3, 0.1)
-    LIGHT_GREENDARK_3 = (0.1, 0.1, 0.1)
+    GREENDARK_1 = (0.1, 0.9, 0.1)  # active
+    GREENDARK_2 = (0.1, 0.7, 0.1)
+    GREENDARK_3 = (0.1, 0.5, 0.1)
+    LIGHT_GREENDARK_1 = (0.1, 0.6, 0.1)  # not active
+    LIGHT_GREENDARK_2 = (0.1, 0.5, 0.1)
+    LIGHT_GREENDARK_3 = (0.1, 0.3, 0.1)
 
     # for inputs and outputs nodes
-    SEA_1 = (0.2, 0.8, 1.0)  # active
-    SEA_2 = (0.2, 0.4, 0.9)
-    SEA_3 = (0.0, 0.2, 0.6)
-    LIGHT_SEA_1 = (0.2, 0.5, 0.7)  # not active
-    LIGHT_SEA_2 = (0.2, 0.1, 0.6)
-    LIGHT_SEA_3 = (0.0, 0.0, 0.4)
+    SEA_1 = (0.0, 0.9, 0.85)  # active
+    SEA_2 = (0.0, 0.6, 0.85)
+    SEA_3 = (0.0, 0.3, 0.85)
+    LIGHT_SEA_1 = (0.0, 0.5, 0.5)  # not active
+    LIGHT_SEA_2 = (0.0, 0.4, 0.5)
+    LIGHT_SEA_3 = (0.0, 0.3, 0.5)
 
     # for switch nodes
     SAND_1 = (0.8, 0.7, 0.5)
@@ -139,12 +139,12 @@ def pipeline_node_colors(pipeline, node):
     LIGHT_SAND_3 = (0.6, 0.55, 0.3)
 
     # for pipeline nodes
-    PURPLE_1 = (0.5, 0, 0)  # not active
-    PURPLE_2 = (0.4, 0, 0)
-    PURPLE_3 = (0.3, 0, 0)
-    DEEP_PURPLE_1 = (0.75, 0.2, 0.1)  # active
-    DEEP_PURPLE_2 = (0.55, 0.2, 0.1)
-    DEEP_PURPLE_3 = (0.35, 0.2, 0.1)
+    PURPLE_1 = (0.5, 0.4, 0.6)  # not active
+    PURPLE_2 = (0.49, 0.27, 0.49)
+    PURPLE_3 = (0.62, 0.36, 0.63)
+    DEEP_PURPLE_1 = (0.72, 0.51, 0.74)  # active
+    DEEP_PURPLE_2 = (0.52, 0.41, 0.54)
+    DEEP_PURPLE_3 = (0.3, 0.31, 0.34)
 
 #     PURPLE_1 = (0.85, 0.8, 0.85)
 #     PURPLE_2 = (0.8, 0.75, 0.8)

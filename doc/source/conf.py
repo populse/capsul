@@ -59,6 +59,7 @@ extensions = [ 'sphinx.ext.autodoc',
                napoleon,
                'sphinx.ext.extlinks',
                'sphinx.ext.ifconfig',
+               'sphinx.ext.inheritance_diagram',
              ]
 
 try:
@@ -72,6 +73,22 @@ try:
     os.environ['ALLOW_GUI'] = '0'
 except ImportError:
     nbsphinx = None
+
+# inheritance_diagram config
+inheritance_graph_attrs = dict(rankdir="LR", size='"13.0, 40.0"',
+                               fontsize=14)  #, ratio='compress')
+#inheritance_alias = {'subprocess32.Popen': 'Popen', 'subprocess.Popen': 'Popen', 'capsul.subprocess.fsl.Popen': 'fsl_Popen', 'capsul.subprocess.spm.Popen': 'spm_Popen'}
+import distutils.spawn
+if not distutils.spawn.find_executable('dot'):
+    # dot is not installed, inheritance_diagram will not work
+    import sphinx.ext.inheritance_diagram
+    def null(*args, **kwargs):
+        pass
+    sphinx.ext.inheritance_diagram.render_dot_html = null
+    sphinx.ext.inheritance_diagram.render_dot_latex = null
+    sphinx.ext.inheritance_diagram.render_dot_texinfo = null
+
+#
 
 # Remove some numpy-linked warnings
 numpydoc_show_class_members = False
@@ -274,17 +291,38 @@ autoclass_content = "both"
 #except:
     #swf_version = ''
 
+try:
+    from soma_workflow import version as swver
+    somaworkflow_version = swver.shortVersion
+except:
+    somaworkflow_version = '2.9'
+try:
+    import soma.info
+    somabase_version = '%d.%d' % (soma.info.version_major,
+                                  soma.info.version_minor)
+except:
+    somabase_version = '4.6'
+
+pyversion = '%d.%d' % sys.version_info[:2]
+
 extlinks = {
-  'somabase': ('http://brainvisa.info/soma-base/sphinx/%s',
+  'somabase': ('http://brainvisa.info/soma-base-' + somabase_version + '/sphinx/%s',
     'somabase '),
-  'somaworkflow': ('http://brainvisa.info/soma-workflow/sphinx/%s',
+  'somaworkflow': ('http://brainvisa.info/soma-workflow-' + somaworkflow_version + '/sphinx/%s',
     'somaworkflow '),
 }
 
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {'http://docs.python.org/': None}
 
+docpath = os.path.join(os.path.dirname(os.path.dirname(
+    os.path.dirname(soma.__file__))), 'share', 'doc')
+
 intersphinx_mapping = {
-  'python': ('http://docs.python.org/%d.%d' % sys.version_info[:2], None),
+  'somabase': (os.path.join(docpath, 'soma-base-' + somabase_version +
+                              '/sphinx'), None),
+  'somaworkflow': (os.path.join(docpath, 'soma-workflow-'
+                                + somaworkflow_version + '/sphinx'), None),
+  'python': ('http://docs.python.org/%s' % pyversion, None),
   'traits': ('http://docs.enthought.com/traits', None),
 }

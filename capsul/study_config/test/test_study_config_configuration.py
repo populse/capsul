@@ -146,8 +146,10 @@ tests_standard_files = [
 # Test StudyConfig('my_study')
 [[('my_study',), {}],[
     {   'use_fom': True, 
+        'auto_fom': True,
         'shared_fom': "",
         'input_fom': "",
+        'fom_path': [],
         'somaworkflow_computing_resources_config': {},
         "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,
@@ -236,8 +238,10 @@ tests_custom_files = [
 # Test StudyConfig('my_study')
 [[('my_study',), {}],[
     {   'use_fom': True, 
+        'auto_fom': True,
         'shared_fom': "",
         'input_fom': "",
+        'fom_path': [],
         'somaworkflow_computing_resources_config': {},
         "somaworkflow_keep_succeeded_workflows": False,
         "somaworkflow_keep_failed_workflows": True,

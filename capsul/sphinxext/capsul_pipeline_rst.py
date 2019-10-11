@@ -15,6 +15,8 @@ from __future__ import print_function
 import os
 from optparse import OptionParser
 import logging
+import sys
+import distutils.spawn
 
 # Get the module name passed in argument
 default_output_dir = os.path.join("source", "generated")
@@ -40,6 +42,8 @@ parser.add_option("-s", "--short", action="append", dest="short_names",
                   help="use short prefix names for modules names. "
                   "Ex: morphologist.capsul.morphologist=morpho. "
                   "Several -s options may be specified.")
+parser.add_option('--schema', action='store_true', dest='schema',
+                  help='also build pipelines schemas images.')
 (options, args) = parser.parse_args()
 if options.module is None:
     parser.error("Wrong number of arguments.")
@@ -59,11 +63,29 @@ else:
 
 base_outdir = options.outdir
 short_names = dict([x.split("=") for x in options.short_names])
+schema = options.schema
 
 # Capsul import
 from capsul.qt_apps.utils.find_pipelines import find_pipeline_and_process
 from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 
+###############################################################################
+# Generate shemas first
+###############################################################################
+
+if schema and distutils.spawn.find_executable('dot'):
+    # schemas need the dot tool
+    import subprocess
+    cmd = [sys.executable, '-m', 'capsul.sphinxext.capsul_pipeline_view',
+       '-i', options.module, '-o', base_outdir]
+    if options.verbose:
+        cmd.append('-v')
+    if options.short_names:
+        for n in short_names:
+            cmd += ['-s', n]
+    print('generating schemas:')
+    print(*cmd)
+    subprocess.check_call(cmd)
 
 # Get all pipelines and processes
 descriptions = find_pipeline_and_process(os.path.basename(options.module))
@@ -134,7 +156,7 @@ for sorted_modules, dtype in ([sorted_pipelines, "pipeline"],
 ###############################################################################
 
 # First get all unique modules
-modules = set(sorted_processes.keys() + sorted_pipelines.keys())
+modules = set(list(sorted_processes.keys()) + list(sorted_pipelines.keys()))
 
 # Go through all unique modules
 for module_name in modules:
@@ -150,3 +172,4 @@ for module_name in modules:
     docwriter.write_main_index(outdir, module_name, options.module)
     logger.info("Index: an index has been written for module '{0}' at "
                 "location {1}.".format(module_name, os.path.abspath(outdir)))
+
