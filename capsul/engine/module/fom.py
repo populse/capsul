@@ -108,9 +108,8 @@ class FomConfig(Controller):
     def update_fom(self):
         '''Load configured FOMs and create FOM completion data
         '''
-        print('***update_fom ***')
+        # print('***update_fom ***')
         if self.use is False:
-            print('do nothing.')
             return
 
         capsul_config = self.study_config.engine.global_config
@@ -159,7 +158,6 @@ class FomConfig(Controller):
             atp.directories = directories
 
         self.use = True
-        print('use: True')
 
         # backward compatibility for StudyConfig
         self.study_config.modules_data.foms = self.foms
@@ -169,11 +167,11 @@ class FomConfig(Controller):
 
 
     def update_formats(self):
-        congig = self.study_config.engine.global_config
+        config = self.study_config.engine.global_config
         directories = {}
         if hasattr(config, 'spm'):
             directories['spm'] = config.spm.directory
-        if hasattr(capsul_config, 'axon'):
+        if hasattr(config, 'axon'):
             directories['shared'] = config.axon.shared_directory
         directories['input'] = self.input_directory
         directories['output'] = self.output_directory
@@ -253,7 +251,7 @@ class FomConfig(Controller):
 
 
 def load_module(capsul_engine, module_name):
-    print('load_module FOM')
+    # print('load_module FOM')
     capsul_engine.load_module('capsul.engine.module.axon')
     capsul_engine.load_module('capsul.engine.module.spm')
     capsul_engine.load_module('capsul.engine.module.attributes')
@@ -290,4 +288,3 @@ def load_module(capsul_engine, module_name):
         ['volumes_format', 'meshes_format'])
     capsul_engine.global_config.fom.on_trait_change(
         capsul_engine.global_config.fom.reset_foms, 'fom_path')
-    print('callbacks installed')
