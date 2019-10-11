@@ -67,7 +67,8 @@ install:
     - cd ..
 
 
-#script:
+script:
+    - ls
     #- coverage run -m capsul.test.test_capsul
 
 #after_success:
