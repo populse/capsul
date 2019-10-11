@@ -70,7 +70,7 @@ class FomConfig(Controller):
     meshes_format = Str(Undefined, output=False,
                         desc='Format used for meshes')
     auto_fom = Bool(
-        False, output=False,
+        True, output=False,
         desc='Look in all FOMs when a process is not found (in '
         'addition to the standard share/foms). Note that auto_fom '
         'looks for the first FOM matching the process to get '

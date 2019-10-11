@@ -140,7 +140,8 @@ class FomConfig(StudyConfigModule):
         self.study_config.engine.global_config.fom.on_trait_change(
             self.sync_from_engine,
             ['use','input_directory', 'output_directory', 'input_fom',
-             'output_fom', 'meshes_format'])
+             'output_fom', 'meshes_format', 'shared_fom', 'volumes_format',
+             'auto_fom', 'fom_path'])
         self.study_config.engine.global_config.spm.on_trait_change(
             self.sync_from_engine, 'directory')
         self.study_config.engine.global_config.axon.on_trait_change(
