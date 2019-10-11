@@ -74,7 +74,7 @@ after_success:
 
 deploy:
   provider: pages
-  githuib-token: $GITHUB_ACCESS_TOKEN
+  github-token: $GITHUB_ACCESS_TOKEN
   target-branch: gh-pages
   local-dir: doc/build/html
   on:
