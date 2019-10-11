@@ -81,4 +81,4 @@ deploy:
   local-dir: doc/build/html
   on:
     branch: autodoc
-    condifion: "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" = "2.7"
+    condifion: $TRAVIS_OS_NAME == linux && $TRAVIS_PYTHON_VERSION == 2.7
