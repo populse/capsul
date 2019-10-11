@@ -62,17 +62,15 @@ install:
     - python setup.py install
     - export CAPSUL_SOURCE_DIR=$PWD
     # don't stay in source directory to actually use the installed capsul
+    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then cd doc && make html && cd ..; fi
     - cd ..
+
 
 script:
     - coverage run -m capsul.test.test_capsul
 
 after_success:
     - codecov
-
-install:
-    - cd doc
-    - make html
 
 deploy:
   provider: pages
