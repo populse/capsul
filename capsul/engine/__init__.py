@@ -43,7 +43,12 @@ class CapsulEngine(Controller):
     
         from capsul.engine import capsul_engine
         ce = capsul_engine()
-    
+
+    Or::
+
+        from capsul.api import capsul_engine
+        ce = capsul_engine()
+
     By default, CapsulEngine only store necessary configuration. But it may be necessary to modify Python environment globally to apply this configuration. For instance, Nipype must be configured globally. If SPM is configured in CapsulEngine, it is necessary to explicitely activate the configuration in order to modify the global configuration of Nipype for SPM. This activation is done by explicitely activating the execution context of the capsul engine with the following code::
     
         from capsul.engine import capsul_engine
@@ -52,6 +57,8 @@ class CapsulEngine(Controller):
         with ce.execution_context():
             # Nipype is configured here
         # Nipype may not be configured here
+
+    CapsulEngine is the replacement of the older :class:`~capsul.study_config.study_config.StudyConfig`, which is still present in Capsul 2.2 for backward compatibility, but will disapear in later versions. In Capsul 2.2 both objects exist, and are syn chronized internally, which means that a StudyConfig object wille also ceate a CapsulEngine, and the other way, and modifications in the StudyConfig object will change the corresponding item in CapsulEngine and vice versa. Functionalities of StudyConfig are moving internally to CapsulEngine, StudyConfig being merely a wrapper.
     '''
     
     default_modules = ['capsul.engine.module.spm',
