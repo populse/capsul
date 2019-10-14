@@ -73,11 +73,10 @@ install:
 
 
 script:
-    - ls
-    #- coverage run -m capsul.test.test_capsul
+    - coverage run -m capsul.test.test_capsul
 
-#after_success:
-    #- codecov
+after_success:
+    - codecov
 
 deploy:
   provider: pages
