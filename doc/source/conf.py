@@ -77,6 +77,7 @@ try:
         # set this env variable to tell notebooks that we should not use
         # any GUI during notebooks execution
         os.environ['ALLOW_GUI'] = '0'
+        print('-- nbsphinx should work. --')
 except ImportError as e:
     nbsphinx = None
     print('Warning: nbsphinx could not be imported, the notebooks will not '
@@ -334,12 +335,15 @@ docpath = os.path.join(os.path.dirname(os.path.dirname(
     os.path.dirname(soma.__file__))), 'share', 'doc')
 
 intersphinx_mapping = {
-  'somabase': (os.path.join(docpath, 'soma-base-' + somabase_version +
-                              '/sphinx'), None),
-  'somaworkflow': (os.path.join(docpath, 'soma-workflow-'
-                                + somaworkflow_version + '/sphinx'), None),
+  'somabase': (os.environ.get('SOMABASE_INTERSPHINX_URL',
+                              os.path.join(docpath, 'soma-base-' + somabase_version + '/sphinx')),
+               None),
+  'somaworkflow': (os.environ.get('SOMAWORKFLOW_INTERSPHINX_URL',
+                                  os.path.join(docpath, 'soma-workflow-'
+                                  + somaworkflow_version + '/sphinx'),
+                   None),
   'python': ('http://docs.python.org/%s' % pyversion, None),
-  'traits': ('http://docs.enthought.com/traits', None),
+  'traits': ('https://docs.enthought.com/traits', None),
 }
 
 # init for Qt

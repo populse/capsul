@@ -23,6 +23,9 @@ Tutorial is available as a `Jupyter notebook <https://jupyter.org/>`_ (Jupyter i
 
           ../_static/tutorial/capsul_tutorial.ipynb
 
+  .. ifconfig:: 'nbsphinx' not in extensions
+
+      * `Download notebook <../_static/tutorial/capsul_tutorial.ipynb>`_ (for use with Jupyter)
 
 To run it, the following must be done:
 
