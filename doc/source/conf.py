@@ -338,4 +338,4 @@ try:
     qt_backend.set_qt_backend(compatible_qt5=True)
     print('Using Qt backend:', qt_backend.get_qt_backend())
 except:
-    print('Warning: Qt could not be loaded. GUI will not be documented.'
+    print('Warning: Qt could not be loaded. GUI will not be documented.')
