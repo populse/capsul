@@ -63,7 +63,7 @@ install:
     - python setup.py install
     - export CAPSUL_SOURCE_DIR=$PWD
     # don't stay in source directory to actually use the installed capsul
-    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then cd doc && make html && cd ..; fi
+    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then cd doc && make html && touch build/html/.nojerkyll && cd ..; fi
     - cd ..
 
 
