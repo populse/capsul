@@ -334,6 +334,14 @@ intersphinx_mapping = {
 
 # init for Qt
 try:
+    import PyQt5
+    print('PyQt5 loaded.')
+except Exception as e:
+    print('Could not load PyQt5')
+    print(e)
+    import traceback
+    traceback.print_exc()
+try:
     from soma.qt_gui import qt_backend
     qt_backend.set_qt_backend(compatible_qt5=True)
     print('Using Qt backend:', qt_backend.get_qt_backend())
