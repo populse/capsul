@@ -340,7 +340,7 @@ intersphinx_mapping = {
                None),
   'somaworkflow': (os.environ.get('SOMAWORKFLOW_INTERSPHINX_URL',
                                   os.path.join(docpath, 'soma-workflow-'
-                                  + somaworkflow_version + '/sphinx'),
+                                  + somaworkflow_version + '/sphinx')),
                    None),
   'python': ('http://docs.python.org/%s' % pyversion, None),
   'traits': ('https://docs.enthought.com/traits', None),
