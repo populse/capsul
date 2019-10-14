@@ -82,7 +82,7 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: $GITHUB_ACCESS_TOKEN
-  target-branch: gh-pages
+  target-branch: master
   local-dir: doc/build/html
   on:
     branch: autodoc
