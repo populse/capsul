@@ -2,7 +2,7 @@
 capsul.engine module
 ====================
 
-.. inheritance-diagram:: capsul.engine capsul.engine.database_json capsul.engine.database_populse capsul.engine.database capsul.engine.execution_context capsul.engine.module
+.. inheritance-diagram:: capsul.engine capsul.engine.database_json capsul.engine.database_populse capsul.engine.database capsul.engine.module
     :parts: 1
 
 Main module
@@ -28,12 +28,6 @@ capsul.engine.database submodule
 --------------------------------
 
 .. automodule:: capsul.engine.database
-    :members:
-
-capsul.engine.execution_context submodule
------------------------------------------
-
-.. automodule:: capsul.engine.execution_context
     :members:
 
 capsul.engine.module submodule

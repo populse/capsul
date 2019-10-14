@@ -11,6 +11,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from __future__ import print_function
 import sys, os
 import time
 
@@ -330,3 +331,11 @@ intersphinx_mapping = {
   'python': ('http://docs.python.org/%s' % pyversion, None),
   'traits': ('http://docs.enthought.com/traits', None),
 }
+
+# init for Qt
+try:
+    from soma.qt_gui import qt_backend
+    qt_backend.set_qt_backend(compatible_qt5=True)
+    print('Using Qt backend:', qt_backend.get_qt_backend())
+except:
+    print('Warning: Qt could not be loaded. GUI will not be documented.'
