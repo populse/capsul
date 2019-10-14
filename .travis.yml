@@ -68,6 +68,7 @@ install:
     # build doc; set .nojekyll otherwise github.io doesn't copy dirs starting
     # with '_' (such as '_static')
     - if [[  "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then cd doc && make html && touch build/html/.nojekyll && cd ..; fi
+    - if [[ -n "$GITHUB_ACCESS_TOKEN" ]]; then export PUSH_DOC_TO_GH_PAGES=yes; fi
     # don't stay in source directory to actually use the installed capsul
     - cd ..
 
@@ -86,4 +87,4 @@ deploy:
   local-dir: doc/build/html
   on:
     branch: autodoc
-    condition: $TRAVIS_OS_NAME == linux && $TRAVIS_PYTHON_VERSION == 3.5
+    condition: $PUSH_DOC_TO_GH_PAGES == yes && $TRAVIS_OS_NAME == linux && $TRAVIS_PYTHON_VERSION == 3.5
