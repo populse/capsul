@@ -57,13 +57,13 @@ install:
     - pip install codecov;
     # to test notebooks
     - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then pip install jupyter nbconvert; fi
-    - if [[ "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then pip install sphinx sphinx-gallery nbsphinx; fi
+    - if [[ "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then pip install sphinx sphinx-gallery nbsphinx PyQt5; fi
     - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || echo "testing without nipype."
     - pip install soma-workflow
     - python setup.py install
     - export CAPSUL_SOURCE_DIR=$PWD
     # don't stay in source directory to actually use the installed capsul
-    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then cd doc && make html && touch build/html/.nojekyll && cd ..; fi
+    - if [[  "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then cd doc && make html && touch build/html/.nojekyll && cd ..; fi
     - cd ..
 
 
@@ -82,4 +82,4 @@ deploy:
   local-dir: doc/build/html
   on:
     branch: autodoc
-    condition: $TRAVIS_OS_NAME == linux && $TRAVIS_PYTHON_VERSION == 2.7
+    condition: $TRAVIS_OS_NAME == linux && $TRAVIS_PYTHON_VERSION == 3.5
