@@ -83,8 +83,8 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: $GITHUB_ACCESS_TOKEN
-  target-branch: master
+  target-branch: gh-pages
   local-dir: doc/build/html
   on:
-    branch: autodoc
+    branch: master
     condition: $PUSH_DOC_TO_GH_PAGES == yes && $TRAVIS_OS_NAME == linux && $TRAVIS_PYTHON_VERSION == 3.5
