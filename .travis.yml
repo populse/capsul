@@ -62,8 +62,10 @@ install:
     - pip install soma-workflow
     - python setup.py install
     - export CAPSUL_SOURCE_DIR=$PWD
-    # don't stay in source directory to actually use the installed capsul
+    # build doc; set .nojekyll otherwise github.io doesn't copy dirs starting
+    # with '_' (such as '_static')
     - if [[  "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then cd doc && make html && touch build/html/.nojekyll && cd ..; fi
+    # don't stay in source directory to actually use the installed capsul
     - cd ..
 
 
