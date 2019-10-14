@@ -342,7 +342,7 @@ intersphinx_mapping = {
                                   os.path.join(docpath, 'soma-workflow-'
                                   + somaworkflow_version + '/sphinx')),
                    None),
-  'python': ('http://docs.python.org/%s' % pyversion, None),
+  'python': ('https://docs.python.org/%s' % pyversion, None),
   'traits': ('https://docs.enthought.com/traits', None),
 }
 

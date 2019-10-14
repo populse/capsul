@@ -57,13 +57,13 @@ install:
     - pip install codecov;
     # to test notebooks
     - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then pip install jupyter nbconvert; fi
-    - if [[ "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then sudo apt-get install -y pandoc; pip install sphinx sphinx-gallery pandoc nbsphinx PyQt5; fi
+    - if [[ "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then sudo apt-get install -y pandoc dot; pip install sphinx sphinx-gallery pandoc nbsphinx PyQt5; fi
     - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || echo "testing without nipype."
     - pip install soma-workflow
     - python setup.py install
     - export CAPSUL_SOURCE_DIR=$PWD
-    - export SOMABASE_INTERSPHINX_URL=http://brainvisa.info/soma-base/sphinx/objects.inv
-    - export SOMAWORKFLOW_INTERSPHINX_URL=http://brainvisa.info/soma-workflow/sphinx/objects.inv
+    - export SOMABASE_INTERSPHINX_URL=http://brainvisa.info/soma-base/sphinx
+    - export SOMAWORKFLOW_INTERSPHINX_URL=http://brainvisa.info/soma-workflow/sphinx
     - export QT_API=pyqt5
     # build doc; set .nojekyll otherwise github.io doesn't copy dirs starting
     # with '_' (such as '_static')
