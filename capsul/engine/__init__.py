@@ -54,7 +54,7 @@ class CapsulEngine(Controller):
         from capsul.engine import capsul_engine
         ce = capsul_engine()
         # Nipype is not configured here
-        with ce.execution_context():
+        with ce:
             # Nipype is configured here
         # Nipype may not be configured here
 
@@ -319,8 +319,6 @@ class CapsulEngine(Controller):
         Save the full status of the CapsulEngine in the database.
         The folowing items are set in the database:
         
-        'execution_context':
-            a JSON serialization of self.execution_context
         'processing_engine':
             a JSON serialization of self.processing_engine
         'metadata_engine':

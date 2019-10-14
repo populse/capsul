@@ -15,14 +15,17 @@ Tutorial is available as a `Jupyter notebook <https://jupyter.org/>`_ (Jupyter i
 
   .. ifconfig:: 'nbsphinx' in extensions
 
-      * `See the notebook contents <../_static/tutorial/capsul_tutorial.html>`_
+      * `See the notebook contents <../tutorial/capsul_tutorial.html>`_
       * `Download notebook <../_static/tutorial/capsul_tutorial.ipynb>`_ (for use with Jupyter)
 
       .. toctree::
           :hidden:
 
-          ../_static/tutorial/capsul_tutorial.ipynb
+          ../tutorial/capsul_tutorial
 
+  .. ifconfig:: 'nbsphinx' not in extensions
+
+      * `Download notebook <../_static/tutorial/capsul_tutorial.ipynb>`_ (for use with Jupyter)
 
 To run it, the following must be done:
 

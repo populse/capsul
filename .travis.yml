@@ -34,6 +34,7 @@ before_install:
 install:
     - python --version
     - pip install numpy six
+    - echo "TRAVIS_OS_NAME:" "$TRAVIS_OS_NAME"
     # - pip install nose
     - if [ ${TRAVIS_PYTHON_VERSION} == "2.6" ]; then pip install "traits==4.6.0"; else pip install traits ;fi
     - if [ ${TRAVIS_PYTHON_VERSION} == "2.6" ]; then pip install "lark-parser==0.6.5" "python-dateutil<2.7" "SQLAlchemy<1.2"; fi
@@ -56,15 +57,34 @@ install:
     - pip install codecov;
     # to test notebooks
     - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then pip install jupyter nbconvert; fi
+    - if [[ "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then sudo apt-get install -y pandoc graphviz; pip install sphinx sphinx-gallery pandoc nbsphinx PyQt5; fi
     - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || echo "testing without nipype."
     - pip install soma-workflow
     - python setup.py install
     - export CAPSUL_SOURCE_DIR=$PWD
+    - export SOMABASE_INTERSPHINX_URL=http://brainvisa.info/soma-base/sphinx
+    - export SOMAWORKFLOW_INTERSPHINX_URL=http://brainvisa.info/soma-workflow/sphinx
+    - export QT_API=pyqt5
+    # build doc; set .nojekyll otherwise github.io doesn't copy dirs starting
+    # with '_' (such as '_static')
+    - if [[  "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then cd doc && make html && touch build/html/.nojekyll && cd ..; fi
+    - if [[ -n "$GITHUB_ACCESS_TOKEN" ]]; then export PUSH_DOC_TO_GH_PAGES=yes; fi
     # don't stay in source directory to actually use the installed capsul
     - cd ..
+
 
 script:
     - coverage run -m capsul.test.test_capsul
 
 after_success:
     - codecov
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_ACCESS_TOKEN
+  target-branch: master
+  local-dir: doc/build/html
+  on:
+    branch: autodoc
+    condition: $PUSH_DOC_TO_GH_PAGES == yes && $TRAVIS_OS_NAME == linux && $TRAVIS_PYTHON_VERSION == 3.5

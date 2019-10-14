@@ -11,8 +11,10 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from __future__ import print_function
 import sys, os
 import time
+import shutil
 
 # Doc generation depends on being able to import capsul
 try:
@@ -65,14 +67,25 @@ extensions = [ 'sphinx.ext.autodoc',
 try:
     # nbsphinx converts ipython/jupyter notebooks to sphinx docs
     import nbsphinx
-    nbsphinx_allow_errors = True
-    extensions += ['nbsphinx',
-                   'sphinx.ext.mathjax']
-    # set this env variable to tell notebooks that we should not use
-    # any GUI during notebooks execution
-    os.environ['ALLOW_GUI'] = '0'
-except ImportError:
+    import distutils.spawn
+    if not distutils.spawn.find_executable('pandoc'):
+        print('Warning: pandoc is missing. Notebooks will not be included '
+              'in the docs')
+    else:
+        nbsphinx_allow_errors = True
+        extensions += ['nbsphinx',
+                      'sphinx.ext.mathjax']
+        # set this env variable to tell notebooks that we should not use
+        # any GUI during notebooks execution
+        os.environ['ALLOW_GUI'] = '0'
+        print('-- nbsphinx should work. --')
+except ImportError as e:
     nbsphinx = None
+    print('Warning: nbsphinx could not be imported, the notebooks will not '
+          'appear in the docs')
+    #print(e)
+    #import traceback
+    #traceback.print_exc()
 
 # inheritance_diagram config
 inheritance_graph_attrs = dict(rankdir="LR", size='"13.0, 40.0"',
@@ -323,10 +336,50 @@ docpath = os.path.join(os.path.dirname(os.path.dirname(
     os.path.dirname(soma.__file__))), 'share', 'doc')
 
 intersphinx_mapping = {
-  'somabase': (os.path.join(docpath, 'soma-base-' + somabase_version +
-                              '/sphinx'), None),
-  'somaworkflow': (os.path.join(docpath, 'soma-workflow-'
-                                + somaworkflow_version + '/sphinx'), None),
-  'python': ('http://docs.python.org/%s' % pyversion, None),
-  'traits': ('http://docs.enthought.com/traits', None),
+  'somabase': (os.environ.get('SOMABASE_INTERSPHINX_URL',
+                              os.path.join(docpath, 'soma-base-' + somabase_version + '/sphinx')),
+               None),
+  'somaworkflow': (os.environ.get('SOMAWORKFLOW_INTERSPHINX_URL',
+                                  os.path.join(docpath, 'soma-workflow-'
+                                  + somaworkflow_version + '/sphinx')),
+                   None),
+  'python': ('https://docs.python.org/%s' % pyversion, None),
+  'traits': ('https://docs.enthought.com/traits', None),
 }
+
+# init for Qt
+try:
+    from soma.qt_gui import qt_backend
+    qt_backend.set_qt_backend(compatible_qt5=True)
+    print('Using Qt backend:', qt_backend.get_qt_backend())
+except:
+    print('Warning: Qt could not be loaded. GUI will not be documented.')
+
+# Hack to copy files from sources to build dir
+out_dir = sys.argv[-1]
+src_dir = sys.argv[-2]
+print('source:', src_dir)
+print('dest:', out_dir)
+print('cwd:', os.getcwd())
+if not os.path.isabs(src_dir) and not os.path.exists(os.path.join(src_dir)):
+    # this strange config appears in MAkefile builds
+    src_dir = os.getcwd()
+    if not os.path.isabs(out_dir):
+        out_dir = os.path.join(os.path.dirname(os.getcwd()), out_dir)
+# nbsphinx 3/4 has a bug: it adds the 1st directory level to images paths.
+# so we have to move it into a 2nd level of 'tutorial'. Probably nbsphinx
+# is only working well for notebooks at the root of the source tree.
+out_tuto_path = os.path.join(out_dir, 'tutorial')
+out_tuto_img_path = os.path.join(out_tuto_path, 'tutorial')
+if os.path.exists(out_tuto_img_path):
+    os.rmtree(out_tuto_img_path)
+if not os.path.exists(out_tuto_path):
+    os.makedirs(out_tuto_path)
+shutil.copytree(os.path.join(src_dir, 'tutorial/images'), out_tuto_img_path)
+shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb'),
+             os.path.join(out_tuto_path, 'capsul_tutorial.ipynb'))
+if not os.path.exists(os.path.join(out_dir, '_static/tutorial')):
+    os.makedirs(os.path.join(out_dir, '_static/tutorial'))
+shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb'),
+             os.path.join(out_dir, '_static/tutorial/capsul_tutorial.ipynb'))
+
