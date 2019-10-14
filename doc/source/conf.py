@@ -360,6 +360,7 @@ out_dir = sys.argv[-1]
 src_dir = sys.argv[-2]
 print('source:', src_dir)
 print('dest:', out_dir)
+print('cwd:', os.getcwd())
 # nbsphinx 3/4 has a bug: it adds the 1st directory level to images paths.
 # so we have to move it into a 2nd level of 'tutorial'. Probably nbsphinx
 # is only working well for notebooks at the root of the source tree.
