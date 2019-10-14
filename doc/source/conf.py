@@ -361,6 +361,11 @@ src_dir = sys.argv[-2]
 print('source:', src_dir)
 print('dest:', out_dir)
 print('cwd:', os.getcwd())
+if not os.path.isabs(src_dir) and not os.path.exists(os.path.join(src_dir)):
+    # this strange config appears in MAkefile builds
+    src_dir = os.getcwd()
+    if not os.path.isabs(out_dir):
+        out_dir = os.path.join(os.path.dirname(os.getcwd()), out_dir)
 # nbsphinx 3/4 has a bug: it adds the 1st directory level to images paths.
 # so we have to move it into a 2nd level of 'tutorial'. Probably nbsphinx
 # is only working well for notebooks at the root of the source tree.
