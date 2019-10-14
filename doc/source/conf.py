@@ -72,8 +72,12 @@ try:
     # set this env variable to tell notebooks that we should not use
     # any GUI during notebooks execution
     os.environ['ALLOW_GUI'] = '0'
-except ImportError:
+except ImportError as e:
     nbsphinx = None
+    print('nbsphinx could not be imported, the notebooks will not appear in the docs')
+    print(e)
+    import traceback
+    traceback.print_exc()
 
 # inheritance_diagram config
 inheritance_graph_attrs = dict(rankdir="LR", size='"13.0, 40.0"',
@@ -333,14 +337,14 @@ intersphinx_mapping = {
 }
 
 # init for Qt
-try:
-    import PyQt5
-    print('PyQt5 loaded.')
-except Exception as e:
-    print('Could not load PyQt5')
-    print(e)
-    import traceback
-    traceback.print_exc()
+#try:
+    #import PyQt5
+    #print('PyQt5 loaded.')
+#except Exception as e:
+    #print('Could not load PyQt5')
+    #print(e)
+    #import traceback
+    #traceback.print_exc()
 try:
     from soma.qt_gui import qt_backend
     qt_backend.set_qt_backend(compatible_qt5=True)

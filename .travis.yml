@@ -64,7 +64,7 @@ install:
     - export CAPSUL_SOURCE_DIR=$PWD
     # build doc; set .nojekyll otherwise github.io doesn't copy dirs starting
     # with '_' (such as '_static')
-    - if [[  "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then cd doc && make html && touch build/html/.nojekyll && cd ..; fi
+    - if [[  "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then cd doc && QT_API=pyqt5 make html && touch build/html/.nojekyll && cd ..; fi
     # don't stay in source directory to actually use the installed capsul
     - cd ..
 
