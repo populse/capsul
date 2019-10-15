@@ -15,6 +15,7 @@ from __future__ import print_function
 import sys, os
 import time
 import shutil
+import subprocess
 
 # Doc generation depends on being able to import capsul
 try:
@@ -372,14 +373,24 @@ if not os.path.isabs(src_dir) and not os.path.exists(os.path.join(src_dir)):
 out_tuto_path = os.path.join(out_dir, 'tutorial')
 out_tuto_img_path = os.path.join(out_tuto_path, 'tutorial')
 if os.path.exists(out_tuto_img_path):
-    os.rmtree(out_tuto_img_path)
+    shutil.rmtree(out_tuto_img_path)
 if not os.path.exists(out_tuto_path):
     os.makedirs(out_tuto_path)
 shutil.copytree(os.path.join(src_dir, 'tutorial/images'), out_tuto_img_path)
-shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb'),
-             os.path.join(out_tuto_path, 'capsul_tutorial.ipynb'))
+shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb.in'),
+             os.path.join(out_tuto_path, 'capsul_tutorial.ipynb.in'))
 if not os.path.exists(os.path.join(out_dir, '_static/tutorial')):
     os.makedirs(os.path.join(out_dir, '_static/tutorial'))
-shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb'),
-             os.path.join(out_dir, '_static/tutorial/capsul_tutorial.ipynb'))
+shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb.in'),
+             os.path.join(out_dir, '_static/tutorial/capsul_tutorial.ipynb.in'))
+
+in_nb = os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb.in')
+out_nb = os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb')
+args = [sys.executable, '-m', 'jupyter', 'nbconvert', '--to', 'notebook', 
+        '--execute',
+        '--ExecutePreprocessor.kernel_name=python%d' % sys.version_info[0], 
+        '--output', out_nb, in_nb]
+print('exec:', *args)
+subprocess.check_call(args)
+
 
