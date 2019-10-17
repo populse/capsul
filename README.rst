@@ -33,12 +33,16 @@ CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean
 Documentation
 =============
 
-  Visit CAPSUL (http://populse.github.io/capsul) main page!
+  Visit CAPSUL (http://populse.github.io/capsul) main page for the docs of the git master branch.
+  
+  See the BrianVISA website (http://brainvisa.info/capsul/) for the docs of the released versions.
 
 Download
 ========
 
-  CAPSUL is available on pypi to download: .
+  CAPSUL is available on `pypi <https://pypi.org/project/capsul/>`_ to download:,
+  
+  or via the `BrainVISA distribution <http://brainvisa.info/web/download.html>`_.
 
 
 
