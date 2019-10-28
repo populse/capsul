@@ -87,8 +87,9 @@ class TestCompletion(unittest.TestCase):
                 },
             }
         }
-
-        json.dump(fom, open(os.path.join(tmp_fom, 'custom_fom.json'), 'w'))
+        
+        with open(os.path.join(tmp_fom, 'custom_fom.json'), 'w') as f:
+            json.dump(fom, f)
 
 
         self.study_config = init_study_config()

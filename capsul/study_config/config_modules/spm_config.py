@@ -50,25 +50,27 @@ class SPMConfig(StudyConfigModule):
             desc="If True, SPM configuration is checked on module initialization."))
 
     def initialize_module(self):
-        if 'capsul.engine.module.spm' \
-                not in self.study_config.engine._loaded_modules:
-            self.study_config.engine.load_module('capsul.engine.module.spm')
+        # Comment the following code to make tests work before removing StudyConfig
+        #if 'capsul.engine.module.spm' \
+                #not in self.study_config.engine._loaded_modules:
+            #self.study_config.engine.load_module('capsul.engine.module.spm')
 
-        if type(self.study_config.engine) is not CapsulEngine:
-            # engine is a proxy, thus we are initialized from a real
-            # CapsulEngine, which holds the reference values
-            self.sync_from_engine()
-        else:
-            self.sync_to_engine()
+        #if type(self.study_config.engine) is not CapsulEngine:
+            ## engine is a proxy, thus we are initialized from a real
+            ## CapsulEngine, which holds the reference values
+            #self.sync_from_engine()
+        #else:
+            #self.sync_to_engine()
         # this test aims to raise an exception in case of incorrect setting,
         # complygin to capsul 2.x behavior.
         if self.study_config.use_spm is True:
             check_spm_configuration(self.study_config)
 
-    def initialize_callbacks(self):
-        self.study_config.engine.global_config.spm.on_trait_change(self.sync_from_engine)
-        self.study_config.on_trait_change(self.sync_to_engine,
-                                          "[use_spm, spm_+]")
+    # Comment the following code to make tests work before removing StudyConfig
+    #def initialize_callbacks(self):
+        #self.study_config.engine.global_config.spm.on_trait_change(self.sync_from_engine)
+        #self.study_config.on_trait_change(self.sync_to_engine,
+                                          #"[use_spm, spm_+]")
 
     def sync_from_engine(self):
         if 'SPMConfig' in self.study_config.modules \
