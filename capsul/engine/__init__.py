@@ -32,8 +32,10 @@ from soma.serialization import to_json, from_json
 from soma.sorted_dictionary import SortedDictionary
 
 from .database_json import JSONDBEngine
+from .database_populse import PopulseDBEngine
 
-from capsul.study_config.study_config import StudyConfig
+from .settings import Settings
+from .module import default_modules
 
 class CapsulEngine(Controller):
     '''
@@ -102,16 +104,11 @@ class CapsulEngine(Controller):
 
     **Methods**
     '''
-    
-    default_modules = ['capsul.engine.module.spm',
-                       'capsul.engine.module.fsl']
-    
-    computing_config = Dict(String, Controller)
-    
+            
     def __init__(self, 
                  database_location,
                  database,
-                 config=None):
+                 require):
         '''
         CapsulEngine.__init__(self, database_location, database, config=None)
 
@@ -120,119 +117,34 @@ class CapsulEngine(Controller):
         '''
         super(CapsulEngine, self).__init__()
         
-        self._database_location = database_location
-        self._database = database
-
-        self.global_config = Controller()
-        self.computing_config = {}
+        self._settings = None
         
-        db_config = database.json_value('config')
-        if db_config is None:
-            db_config = {}
+        self._database_location = database_location
+        self._database = database        
 
-        self._loaded_modules = SortedDictionary()
-        self.modules = database.json_value('modules')
-        if self.modules is None:
-            self.modules = self.default_modules
-
-        self.study_config = StudyConfig(engine=self)
-
-        self.load_modules()
+        self._loaded_modules = set()
+        self.load_modules(require)
         
         self._metadata_engine = from_json(database.json_value('metadata_engine'))
         
-        for cfg in (db_config.get('global_config', {}), config):
-            if cfg:
-                for n, v in cfg.items():
-                    if isinstance(v, dict):
-                        o = getattr(self.global_config, n)
-                        if isinstance(o, Controller):
-                            o.import_from_dict(v)
-                            continue
-                    setattr(self.global_config, n, v)
+
+    @property
+    def settings(self):
+        if self._settings is None:
+            self._settings = Settings(self.database.db)
+        return self._settings
+
+    def add_config(name):
+        '''
+        Create a new configuration with the given name.
+        '''
         
-        for computing_resource, computing_config in db_config.get('computing_config', {}).items():
-            self.computing_config[computing_resource] = self.global_config.copy(with_values=False)
-            if computing_config:
-                for n, v in computing_config.items():
-                    if isinstance(v, dict):
-                        o = getattr(self.computing_config[computing_resource], n)
-                        if isinstance(o, Controller):
-                            o.import_from_dict(v)
-                            continue
-                    setattr(self.computing_config[computing_resource], n, v)
-
-
-    def config(self, name, computing_resource=None):
+    def config(name='global'):
         '''
-        Return a configuration attribute for a selected computing resource
-        name. If the attribute does not exist in the computing resource
-        configuration, it is searched in global configuration.
+        Return a configuration object 
         '''
-        # look into sub-objects recursively
-        names = name.split('.')
-        result =  Undefined
-        if computing_resource is not None:
-            result = self.computing_config[computing_resource]
-            for n in names:
-                result = getattr(result, n, Undefined)
-                if result is Undefined:
-                    break
-            #result = getattr(self.computing_resource[computing_resource], name, None)
-        if result in (None, Undefined):
-            result = self.global_config
-            for n in names:
-                result = getattr(result, n, Undefined)
-                if result is Undefined:
-                    break
-            #result = getattr(self.global_config, name)
-        return result
-
-    def set_config(self, name, value, computing_resource=None):
-        '''
-        Set a configuration attribute value for a specified computing resource.
-        If the resource is not specified, then the global configuration object will be used.
-
-        Parameters
-        ----------
-        name: str
-            name of the configuration variable, which may include dots. Ex: "spm.directory"
-        value: depending on the attribute
-            configuration value to set
-        computing_resource: str
-            name of the computing resource
-        '''
-        names = name.split('.')
-        if computing_resource is None:
-            obj = self.global_config
-        else:
-            obj = self.computing_config[computing_resource]
-        var = names[-1]
-        names = names[:-1]
-        print('obj:', obj, ', names:', names, ', var:', var)
-        for n in names:
-            obj = getattr(obj, n)
-        print('result obj:', obj)
-        print(obj.export_to_dict())
-        setattr(obj, var, value)
-    
-    def add_computing_resource(self, computing_resource):
-        '''
-        Add a new computing ressource in this capsul engine. Each computing
-        resouce can have its own configuration values that override gobal
-        configuration.
-        '''
-        self.computing_config[computing_resource] \
-            = self.global_config.copy(with_values=False)
-        config = self.computing_config[computing_resource]
-        # copy modules
-        for name in self.global_config.user_traits().keys():
-            value = getattr(self.global_config, name)
-            if isinstance(value, Controller):
-                setattr(config, name, value.copy(with_values=False))
         
-        
-    def remove_computing_resource(self, computing_resource):
+    def remove_config(self, name):
         '''
         Remove a computing resource configuration from this capsul engine
         '''
@@ -258,21 +170,19 @@ class CapsulEngine(Controller):
         self.database.set_json_value('metadata_engine', 
                                      to_json(self._metadata_engine))
     
-    def load_modules(self):
+    def load_modules(self, require):
         '''
         Call self.load_module for each required module. The list of modules
         to load is located in self.modules (if it is None,
-        self.default_modules is used).
+        capsul.module.default_modules is used).
         '''
-        if self.modules is None:
-            modules = self.default_modules
-        else:
-            modules = self.modules
+        if require is None:
+            require = default_modules
         
-        for module in modules:
+        for module in require:
             self.load_module(module)
 
-    def load_module(self, module):
+    def load_module(self, python_module_name):
         '''
         Load a module if it has not already been loaded (is this case,
         nothing is done)
@@ -301,46 +211,21 @@ class CapsulEngine(Controller):
         modules in capsul.in_context module to manage running external
         software with appropriate configuration. 
         '''
-        if module not in self._loaded_modules:
-            __import__(module)
-            python_module = sys.modules.get(module)
+        if '.' not in python_module_name:
+            python_module_name = 'capsul.engine.module.' + python_module_name
+        if python_module_name not in self._loaded_modules:
+            __import__(python_module_name)
+            python_module = sys.modules.get(python_module_name)
             if python_module is None:
-                raise ValueError('Cannot find %s in Python modules' % module)
-            loader = getattr(python_module, 'load_module', None)
-            if loader is None:
-                raise ValueError('No function load_module() defined in %s' % module)
-            self._loaded_modules[module] = loader(self, module)
+                raise ValueError('Cannot find %s in Python modules' % python_module_name)
+            settings_fields = getattr(python_module, 'settings_fields', None)
+            if settings_fields is not None:
+                with self.settings as settings:
+                    setting_module = settings.module(python_module_name, create=True)
+                    setting_fields(setting_module)
+            self._loaded_modules.add(python_module_name)
             return True
         return False
-    
-
-    def save(self):
-        '''
-        Save the full status of the CapsulEngine in the database.
-        The folowing items are set in the database:
-        
-        'processing_engine':
-            a JSON serialization of self.processing_engine
-        'metadata_engine':
-            a JSON serialization of self.metadata_engine
-        'config':
-            a dictionary containing configuration. This dictionary is
-            obtained using traits defined on capsul engine (ignoring values
-            that are undefined).
-        '''
-        if self._metadata_engine:
-            self.database.set_json_value('metadata_engine', 
-                                        to_json(self._metadata_engine))
-        config = {}
-        global_config = controller_to_dict(self.global_config, exclude_undefined=True)
-        if global_config:
-            config['global_config'] = global_config
-        computing_config = controller_to_dict(self.computing_config, exclude_undefined=True)
-        if computing_config:
-            config['computing_config'] = computing_config
-        
-        self.database.set_json_value('config', config)
-        self.database.commit()
     
     
     #
@@ -559,48 +444,31 @@ def database_factory(database_location):
     '''
     global _populsedb_url_re 
     
-    engine = None
     engine_directory = None
 
-    if database_location is not None and database_location.endswith('.json'):
+    if database_location is None:
+        database_location = ':memory:'
+    match = _populsedb_url_re.match(database_location)
+    if match:
+        path = match.groups(2)
+        _, path = osp.splitdrive(path)
+        if path.startswith(os.apth.sep):
+            engine_directory = osp.abspath(osp.dirname(path))
+        populse_db = database_location
+    elif database_location.endswith('.sqlite'):
+        populse_db = 'sqlite:///%s' % database_location
         engine_directory = osp.abspath(osp.dirname(database_location))
-        engine = JSONDBEngine(database_location)
+    elif database_location == ':memory:':
+        populse_db = 'sqlite:///:memory:'
     else:
-        if database_location is None:
-            database_location = ':memory:'
-        match = _populsedb_url_re.match(database_location)
-        if match:
-            path = match.groups(2)
-            _, path = osp.splitdrive(path)
-            if path.startswith(os.apth.sep):
-                engine_directory = osp.abspath(osp.dirname(path))
-            populse_db = database_location
-        elif database_location.endswith('.sqlite'):
-            populse_db = 'sqlite:///%s' % database_location
-            engine_directory = osp.abspath(osp.dirname(database_location))
-        elif database_location == ':memory:':
-            populse_db = 'sqlite:///:memory:'
-        else:
-            raise ValueError('Invalid database location: %s' % database_location)
-        
-        # Import populse_db related module only
-        # if used in order to add a mandatory
-        # dependency on the project
-        try:
-            from .database_populse import PopulseDBEngine
-            engine = PopulseDBEngine(populse_db)
-        except ImportError:
-            # database is not available, fallback to json
-            if database_location != ':memory':
-                engine_directory = osp.abspath(osp.dirname(database_location))
-                if database_location.endswith('.sqlite'):
-                    database_location = database_location[:-6] + 'json'
-            engine = JSONDBEngine(database_location)
+        raise ValueError('Invalid database location: %s' % database_location)
+    
+    engine = PopulseDBEngine(populse_db)
     if engine_directory:
         engine.set_named_directory('capsul_engine', engine_directory)
     return engine
 
-def capsul_engine(database_location=None, config=None):
+def capsul_engine(database_location=None, require=None):
     '''
     User facrory for creating capsul engines.
     
@@ -619,11 +487,11 @@ def capsul_engine(database_location=None, config=None):
     Before initialization of the CapsulEngine, modules are loaded. The
     list of loaded modules is searched in the 'modules' value in the
     database (i.e. in database.json_value('modules')) ; if no list is
-    defined in the database, CapsulEngine.default_modules is used.
+    defined in the database, capsul.module.default_modules is used.
     '''
     #if database_location is None:
         #database_location = osp.expanduser('~/.config/capsul/capsul_engine.sqlite')
     database = database_factory(database_location)
-    capsul_engine = CapsulEngine(database_location, database, config=config)
+    capsul_engine = CapsulEngine(database_location, database, require=require)
     return capsul_engine
     
