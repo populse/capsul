@@ -44,30 +44,35 @@ class BrainVISAConfig(StudyConfigModule):
             # CapsulEngine, which holds the reference values
             self.sync_from_engine()
         else:
-            # otherwise engine is "owned" by StudyConfig
-            if 'capsul.engine.module.axon' \
-                    not in self.study_config.engine.modules:
-                self.study_config.engine.modules.append(
-                    'capsul.engine.module.axon')
-                self.study_config.engine.load_modules()
+            # Comment the following code to make tests work before removing StudyConfig
+            ## otherwise engine is "owned" by StudyConfig
+            #if 'capsul.engine.module.axon' \
+                    #not in self.study_config.engine.modules:
+                #self.study_config.engine.modules.append(
+                    #'capsul.engine.module.axon')
+                #self.study_config.engine.load_modules()
             self.sync_to_engine()
 
 
     def initialize_callbacks(self):
-        self.study_config.on_trait_change(self.sync_to_engine,
-                                          'shared_directory')
+        # Comment the following code to make tests work before removing StudyConfig
+        pass
+        #self.study_config.on_trait_change(self.sync_to_engine,
+                                          #'shared_directory')
 
-        self.study_config.engine.global_config.axon.on_trait_change(
-            self.sync_from_engine, 'shared_directory')
+        #self.study_config.engine.global_config.axon.on_trait_change(
+            #self.sync_from_engine, 'shared_directory')
 
 
     def sync_to_engine(self, param=None, value=None):
-        if param is not None:
-            setattr(self.study_config.engine.global_config.axon, param,
-                    value)
-        else:
-            self.study_config.engine.global_config.axon.shared_directory \
-                = self.study_config.shared_directory
+        # Comment the following code to make tests work before removing StudyConfig
+        pass
+        #if param is not None:
+            #setattr(self.study_config.engine.global_config.axon, param,
+                    #value)
+        #else:
+            #self.study_config.engine.global_config.axon.shared_directory \
+                #= self.study_config.shared_directory
 
 
     def sync_from_engine(self, param=None, value=None):

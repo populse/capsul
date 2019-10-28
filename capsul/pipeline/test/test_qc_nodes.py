@@ -98,7 +98,7 @@ class TestQCNodes(unittest.TestCase):
         self.output_directory = tempfile.mkdtemp()
         self.study_config = StudyConfig(output_directory=self.output_directory)
 
-    def __del__(self):
+    def tearDown(self):
         """ Remove temporary items.
         """
         shutil.rmtree(self.output_directory)

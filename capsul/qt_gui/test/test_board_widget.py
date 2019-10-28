@@ -12,10 +12,8 @@ from capsul.api import Pipeline
 # Soma import
 try:
     from soma.qt_gui.qt_backend import QtGui, QtCore
-    import_tests = True
 except ImportError:
-    raise Warning('Skipping tests because no Qt GUI module can be imported')
-    import_tests = False
+    raise ImportError('Skipping tests because no Qt GUI module can be imported')
 
 # Capsul import involving GUI    
 from capsul.qt_gui.board_widget import BoardWidget

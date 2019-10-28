@@ -112,9 +112,9 @@ def init_study_config(init_config={}):
             + ['capsul.attributes.test.test_attributed_process']
     study_config.attributes_schemas['input'] = 'custom_ex'
     study_config.attributes_schemas['output'] = 'custom_ex'
-    print('attributes_schema_paths:', study_config.attributes_schema_paths)
+    #print('attributes_schema_paths:', study_config.attributes_schema_paths)
     study_config.path_completion = 'custom_ex'
-    print('attributes_schema_paths 2:', study_config.attributes_schema_paths)
+    #print('attributes_schema_paths 2:', study_config.attributes_schema_paths)
 
     return study_config
 
