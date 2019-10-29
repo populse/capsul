@@ -419,8 +419,9 @@ shutil.copytree(os.path.join(src_dir, 'tutorial/images'), out_tuto_img_path)
 in_nb = os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb.in')
 out_nb = os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb')
 args = [sys.executable, '-m', 'jupyter', 'nbconvert', '--to', 'notebook',
-        '--execute',
-        '--ExecutePreprocessor.kernel_name=python%d' % sys.version_info[0],
+        # Comment execution until v3 API is finished and exemples are fixed
+        #'--execute',
+        #'--ExecutePreprocessor.kernel_name=python%d' % sys.version_info[0],
         '--output', out_nb, in_nb]
 print('exec:', *args)
 subprocess.check_call(args)
