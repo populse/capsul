@@ -20,7 +20,6 @@ def load_tests(loader, standard_tests, pattern):
     suite = unittest.TestSuite()
     
     base = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-    print('base=', base)
     for root, dirs, files in os.walk(base):
         if '__init__.py' not in files:
             continue
@@ -45,11 +44,3 @@ def load_tests(loader, standard_tests, pattern):
 
 if __name__ == '__main__':
     unittest.main()
-                
-
-#import sys
-#from . import test_capsul
-#is_valid = test_capsul.is_valid_module()
-#if not is_valid:
-    #sys.exit(1)
-
