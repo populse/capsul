@@ -15,13 +15,15 @@ class TestCapsulEngine(unittest.TestCase):
         self.ce = capsul_engine(self.sqlite_file)
     
     def tearDown(self):
-        del self.ce
+        self.ce = None
+        sqlite_file = str(self.sqlite_file)
+        self.sqlite_file = None
         # garbage collect to ensure the database is closed
         # (otherwise it can cause problems on Windows when removing the
         # sqlite file)
         gc.collect()
-        if os.path.exists(self.sqlite_file):
-            os.remove(self.sqlite_file)
+        if os.path.exists(sqlite_file):
+            os.remove(sqlite_file)
 
 
     def test_engine(self):
