@@ -183,15 +183,44 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # run it with parameters
         MyProcess()(param2=12, out_param='/tmp/log.txt')
 
+    **Note about the File and Directory traits**
+
+    The :class:`~traits.trait_types.File` trait type represents a file
+    parameter. A file is actually two things: a filename (string), and the file itself (on the filesystem). For an input it is OK not to distinguish them, but for an output, there are two different cases:
+
+    * the file (on the filesystem) is an output, but the filename (string) is
+      given as an input: this is the classical "commandline" behavior, when we
+      tell the program where it should write its output file.
+    * the file is an output, and the filename is also an outut: this is rather a
+      "function return value" behavior: the process determines internally where
+      it should write the file, and tells as an output where it did.
+
+    To distinguish these two cases, in Capsul we normally add in the
+    :class:`~traits.trait_types.File` or :class:`~traits.trait_types.Directory`
+    trait a property ``input_filename`` which is True when the filename is an
+    input, and False when the filename is an output::
+
+        self.add_trait('out_file',
+                       traits.File(output=True, input_filename=False))
+
+    However as most of our processes are based on the "commandline behavior"
+    (the filename is an input) and we often forget to specify the
+    ``input_filename`` parameter, the default is the "filename is an input"
+    behavior, when not specified.
+
+    **Attributes**
+
     Attributes
     ----------
-    `name`: str
+    name: str
         the class name.
-    `id`: str
+    id: str
         the string description of the class location (ie., module.class).
-    `log_file`: str (default None)
+    log_file: str (default None)
         if None, the log will be generated in the current directory
         otherwise it will be written in log_file path.
+
+    **Methods**
 
     Methods
     -------
@@ -937,7 +966,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                         return False
                 return True
             if isinstance(trait.trait_type, (File, Directory)):
-                if trait.output and not trait.input_filename:
+                if trait.output and trait.input_filename is False:
+                    # filename is an output
                     return True
                 return value not in (Undefined, None, '')
             return trait.output or value not in (Undefined, None)

@@ -134,12 +134,22 @@ class ColorType:
         pass
 
     def colorLink(self, x):
+        print('colorLink', x)
+        if not isinstance(x, str):
+            # x is a trait
+            print('trait')
+            trait_type_str = x.trait_type.__class__.__name__
+            if trait_type_str in ('File', 'Directory') \
+                    and x.input_filename is False:
+                trait_type_str = 'File_out'
+            x = trait_type_str
         return {
             'Str': PURPLE_2,
             'Float': ORANGE_1,
             'Int': BLUE_2,
             'List': RED_2,
-            'File': ORANGE_2
+            'File': ORANGE_2,
+            'File_out': GREEN_2,
         }[x]
 
 
@@ -156,7 +166,8 @@ class Plug(QtGui.QGraphicsPolygonItem):
             brush.setColor(self.color)
             polygon = QtGui.QPolygonF([QtCore.QPointF(0, 0),
                                        QtCore.QPointF(width / 1.5, 0),
-                                       QtCore.QPointF(width / 1.5, (height - 5)),
+                                       QtCore.QPointF(width / 1.5,
+                                                      (height - 5)),
                                        QtCore.QPointF(0, (height - 5))
                                        ])
         #             self.setPen(QtGui.QPen(QtCore.Qt.NoPen))
@@ -574,12 +585,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
             plug_name = '%s:%s' % (self.name, in_param)
 
-            trait_type_str = str(self.process.user_traits()[in_param].trait_type)
-            trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
-            trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
             try:
                 #                 color = self.colorLink(trait_type_str)
-                color = self.colType.colorLink(trait_type_str)
+                color = self.colType.colorLink(self.process.trait(in_param))
             except:
                 color = ORANGE_2
 
@@ -612,12 +620,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
             plug_name = '%s:%s' % (self.name, out_param)
 
-            trait_type_str = str(self.process.user_traits()[in_param].trait_type)
-            trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
-            trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
             try:
                 #                 color = self.colorLink(trait_type_str)
-                color = self.colType.colorLink(trait_type_str)
+                color = self.colType.colorLink(self.process.trait(out_param))
 
             except:
                 color = ORANGE_2
@@ -990,12 +995,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 #                 gplug.update_plug(pipeline_plug.activated,
                 #                                   pipeline_plug.optional)
 
-                trait_type_str = str(self.process.user_traits()[param].trait_type)
-                trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
-                trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
                 try:
                     #                     color = self.colorLink(trait_type_str)
-                    color = self.colType.colorLink(trait_type_str)
+                    color = self.colType.colorLink(self.process.trait(param))
 
                 except:
                     color = ORANGE_2
@@ -2040,9 +2042,10 @@ class PipelineScene(QtGui.QGraphicsScene):
         value = getattr(proc, name)
         trait = proc.user_traits()[name]
         trait_type = trait.trait_type
-        trait_type_str = str(trait_type)
-        trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
-        trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
+        trait_type_str = trait_type.__class__.__name__
+        if trait_type_str in ('File', 'Directory') \
+                and trait.output and trait.input_filename is False:
+            trait_type_str += ', output filename'
         typestr = ('%s (%s)' % (str(type(value)), trait_type_str)).replace(
             '<', '').replace('>', '')
         msg = '''<h3>%s</h3>
