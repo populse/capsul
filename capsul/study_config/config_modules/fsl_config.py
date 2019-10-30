@@ -35,27 +35,29 @@ class FSLConfig(StudyConfigModule):
         """ Set up FSL environment variables according to current
         configuration.
         """
-        if 'capsul.engine.module.fsl' \
-                not in self.study_config.engine._loaded_modules:
-            self.study_config.engine.load_module('capsul.engine.module.fsl')
-        if type(self.study_config.engine) is not CapsulEngine:
-            # engine is a proxy, thus we are initialized from a real
-            # CapsulEngine, which holds the reference values
-            self.sync_from_engine()
-        else:
-            self.sync_to_engine()
+        # Comment the following code to make tests work before removing StudyConfig
+        #if 'capsul.engine.module.fsl' \
+                #not in self.study_config.engine._loaded_modules:
+            #self.study_config.engine.load_module('capsul.engine.module.fsl')
+        #if type(self.study_config.engine) is not CapsulEngine:
+            ## engine is a proxy, thus we are initialized from a real
+            ## CapsulEngine, which holds the reference values
+            #self.sync_from_engine()
+        #else:
+            #self.sync_to_engine()
         # this test aims to raise an exception in case of incorrect setting,
         # complying to capsul 2.x behavior.
         if self.study_config.use_fsl is True:
             check_fsl_configuration(self.study_config)
 
-    def initialize_callbacks(self):
-        self.study_config.on_trait_change(
-            self.sync_to_engine, '[fsl_config, fsl_prefix, use_fsl]')
-        self.study_config.engine.global_config.on_trait_change(
-            self.sync_from_engine, '[config, prefix, use]')
-        #if self.study_config.use_fsl is True:
-            #check_fsl_configuration(self.study_config)
+    # Comment the following code to make tests work before removing StudyConfig
+    #def initialize_callbacks(self):
+        #self.study_config.on_trait_change(
+            #self.sync_to_engine, '[fsl_config, fsl_prefix, use_fsl]')
+        #self.study_config.engine.global_config.on_trait_change(
+            #self.sync_from_engine, '[config, prefix, use]')
+        ##if self.study_config.use_fsl is True:
+            ##check_fsl_configuration(self.study_config)
 
     def sync_to_engine(self):
         self.study_config.engine.global_config.fsl.config = self.study_config.fsl_config
