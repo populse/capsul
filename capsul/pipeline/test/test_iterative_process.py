@@ -41,7 +41,8 @@ class DummyProcess(Process):
                        Float(optional=False, output=False))
 
         # Outputs
-        self.add_trait("output_image", File(optional=False, output=True))
+        self.add_trait("output_image", File(optional=False, output=True,
+                                            input_filename=False))
         self.add_trait("other_output", Float(optional=False, output=True))
 
         # Set default parameter
