@@ -633,12 +633,20 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         **Methods:**
 
         `capsul_job`: Capsul process run in python
-            The command will run the :meth:`_run_process` execution method of the process, after loading input parameters from a JSON dictionary file. The only second element in the commandline list is the process identifier (module/class as in :meth:`~capsul.engine.CapsulEngine.get_process_instance`). The location of the JSON file will be passed to the job execution through an environment variable `SOMAWF_INPUT_PARAMS`::
+            The command will run the :meth:`_run_process` execution method of
+            the process, after loading input parameters from a JSON dictionary
+            file. The only second element in the commandline list is the
+            process identifier (module/class as in
+            :meth:`~capsul.engine.CapsulEngine.get_process_instance`). The
+            location of the JSON file will be passed to the job execution
+            through an environment variable `SOMAWF_INPUT_PARAMS`::
 
                 return ['capsul_job', 'morphologist.capsul.morphologist']
 
         `format_string`: free commandlins with replacements for parameters
-            Command arguments can be, or contain, format strings in the shape `'%(param)s'`, where `param` is a parameter of the process. This way we can map values correctly, and call a foreign command::
+            Command arguments can be, or contain, format strings in the shape
+            `'%(param)s'`, where `param` is a parameter of the process. This
+            way we can map values correctly, and call a foreign command::
 
                 return ['format_string', 'ls', '%(input_dir)s']
 
@@ -652,7 +660,10 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         commandline: list of strings
             Arguments are in separate elements of the list.
         '''
-        pass
+        if getattr(self, 'get_commandline') != Process.get_commandline:
+            # get_commandline is overriden the old way: use it.
+            return ['format_string'] + self.get_commandline()
+        return ['capsul_job', self.id]
 
     def make_commandline_argument(self, *args):
         """This helper function may be used to build non-trivial commandline
