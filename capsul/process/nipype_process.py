@@ -22,12 +22,13 @@ import types
 import logging
 import traceback
 import six
+import nipype.interfaces.base.traits_extension as npe
 
 # Define the logger
 logger = logging.getLogger(__name__)
 
 # Trait import
-from traits.api import Directory, CTrait, Undefined, TraitError
+from traits.api import Directory, File, List, CTrait, Undefined, TraitError
 
 # Capsul import
 from .process import NipypeProcess
@@ -210,7 +211,7 @@ def nipype_factory(nipype_instance):
         process_trait.desc = nipype_trait.desc
         process_trait.optional = not nipype_trait.mandatory
         process_trait._metadata = {}
-        
+
         return process_trait
 
     # Add nipype traits to the process instance
@@ -265,11 +266,25 @@ def nipype_factory(nipype_instance):
 
         # Add the cloned trait to the process instance
         process_instance.add_trait(private_name, process_trait)
+        process_trait = process_instance.trait(private_name)
 
         # Need to copy all the nipype trait information
-        process_instance.trait(private_name).optional = not trait.mandatory
-        process_instance.trait(private_name).desc = trait.desc
-        process_instance.trait(private_name).output = True
-        process_instance.trait(private_name).enabled = False
+        process_trait.optional = not trait.mandatory
+        process_trait.desc = trait.desc
+        process_trait.output = True
+        process_trait.enabled = False
+
+        # SPM output File traits and lists of File should have the
+        # metatata input_filename=False
+        if process_instance._nipype_interface_name == 'spm':
+            if isinstance(process_trait.trait_type,
+                          (File, Directory, npe.File, npe.Directory)):
+                process_trait.input_filename = False
+            elif isinstance(process_trait.trait_type, List) \
+                    and isinstance(process_trait.inner_traits[0].trait_type,
+                                   (File, Directory, npe.File, npe.Directory)):
+                process_trait.inner_traits[0].output = True
+                process_trait.inner_traits[0].input_filename = False
+                process_trait.input_filename = False
 
     return process_instance

@@ -137,8 +137,7 @@ class ColorType:
         if not isinstance(x, str):
             # x is a trait
             trait_type_str = x.trait_type.__class__.__name__
-            if trait_type_str in ('File', 'Directory') \
-                    and x.input_filename is False:
+            if x.output and x.input_filename is False:
                 trait_type_str = 'File_out'
             x = trait_type_str
         return {
@@ -2041,8 +2040,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         trait = proc.user_traits()[name]
         trait_type = trait.trait_type
         trait_type_str = trait_type.__class__.__name__
-        if trait_type_str in ('File', 'Directory') \
-                and trait.output and trait.input_filename is False:
+        if trait.output and trait.input_filename is False:
             trait_type_str += ', output filename'
         typestr = ('%s (%s)' % (str(type(value)), trait_type_str)).replace(
             '<', '').replace('>', '')
