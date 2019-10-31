@@ -13,14 +13,26 @@ from __future__ import absolute_import
 #from . import matlab
     
 
-def init_settings_section(section):
-    section.add_field('directory', 'string',
-                      description='Directory where SPM is installed')
-    section.add_field('version', 'string',
-                      description='Version of SPM release (8 or 12)')
-    section.add_field('standalone', 'bool',
-                      description='If this parameter is set to True, use the '
-                                  'standalone SPM version, otherwise use Matlab.')
+def init_settings(capsul_engine):
+    with capsul_engine.settings as settings:
+        settings.ensure_module_fields('spm',
+            [dict(name='directory',
+                type='string',
+                description='Directory where SPM is installed'),
+            dict(name='version',
+                type='string',
+                description='Version of SPM release (8 or 12)'),
+            dict(name='standalone',
+                type='boolean',
+                description='If this parameter is set to True, use the '
+                            'standalone SPM version, otherwise use Matlab.')
+            ])
+        settings
+
+
+def config_dependencies(config):
+        if not config['standalone']:
+            return {'matlab': 'any'}
 
 #def set_environ(config, environ):
     #spm_config = config.get('spm', {})
