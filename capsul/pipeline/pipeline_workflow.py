@@ -28,6 +28,7 @@ import sys
 import six
 
 import soma_workflow.client as swclient
+import soma_workflow.info as swinfo
 
 from capsul.pipeline.pipeline import Pipeline, Switch
 from capsul.pipeline import pipeline_tools
@@ -194,6 +195,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             holds information about shared resource paths base dirs for
             soma-workflow.
             If not specified, no translation will be used.
+        forbidden_temp: dict
+            values forbidden for temporary files (?)
         name: string (optional)
             job name. If empty, use the process name.
         priority: int (optional)
@@ -252,6 +255,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         # check for special modified paths in parameters
         input_replaced_paths = []
         output_replaced_paths = []
+        # param_dict = {}
         for param_name, parameter in six.iteritems(process.user_traits()):
             if param_name not in ('nodes_activation', 'selection_changed'):
                 value = getattr(process, param_name)
