@@ -144,7 +144,7 @@ for sorted_modules, dtype in ([sorted_pipelines, "pipeline"],
         docwriter.write_index(
             outdir, "index",
             relative_to=os.path.join(base_outdir, short_name),
-            rst_extension=".txt")
+            rst_extension=".rst")
 
         # Just print a summary
         logger.info("{0}: '{1}' files written for module '{2}' at location "
@@ -169,7 +169,8 @@ for module_name in modules:
     outdir = os.path.join(base_outdir, short_name)
     print('short name:', short_name, ', outdir:', outdir)
 
-    docwriter.write_main_index(outdir, module_name, options.module)
+    docwriter.write_main_index(outdir, module_name, options.module,
+                               have_usecases=False)
     logger.info("Index: an index has been written for module '{0}' at "
                 "location {1}.".format(module_name, os.path.abspath(outdir)))
 

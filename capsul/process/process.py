@@ -804,15 +804,15 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         manhelpstr = ["[Mandatory]", ""]
 
         # Get all the mandatory input traits
-        mandatory_items = dict([x for x in six.iteritems(self.user_traits())
-                                if not x[1].output and not x[1].optional])
-        mandatory_items.update(self.traits(output=None, optional=False))
+        mandatory_items = [x for x in six.iteritems(self.user_traits())
+                           if not x[1].output and not x[1].optional]
+        #mandatory_items.update(self.traits(output=None, optional=False))
 
         # If we have mandatory inputs, get the corresponding string
         # descriptions
         data = []
         if mandatory_items:
-            for trait_name, trait in six.iteritems(mandatory_items):
+            for trait_name, trait in mandatory_items:
                 trait_desc = get_trait_desc(trait_name, trait)
                 data.append(trait_desc)
 
@@ -828,14 +828,16 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         opthelpstr = ["", "[Optional]", ""]
 
         # Get all optional input traits
-        optional_items = self.traits(output=False, optional=True)
-        optional_items.update(self.traits(output=None, optional=True))
+        optional_items = [x for x in six.iteritems(self.user_traits())
+                          if not x[1].output and x[1].optional]
+        #optional_items = self.traits(output=False, optional=True)
+        #optional_items.update(self.traits(output=None, optional=True))
 
         # If we have optional inputs, get the corresponding string
         # descriptions
         data = []
         if optional_items:
-            for trait_name, trait in six.iteritems(optional_items):
+            for trait_name, trait in optional_items:
                 data.append(
                     get_trait_desc(trait_name, trait))
 
@@ -871,8 +873,10 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # Generate an output section
         helpstr = ["Outputs", "~" * 7, ""]
 
-        # Get all the process output traits
-        items = self.traits(output=True)
+        # Get all the process output traits, keep their order
+        items = [(name, trait)
+                 for name, trait in six.iteritems(self.user_traits())
+                 if trait.output]
 
         # If we have no output trait, return no string description
         if not items:
@@ -881,7 +885,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # If we have some outputs, get the corresponding string
         # descriptions
         data = []
-        for trait_name, trait in six.iteritems(items):
+        for trait_name, trait in items:
             data.append(
                 get_trait_desc(trait_name, trait))
 

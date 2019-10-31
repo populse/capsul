@@ -276,7 +276,8 @@ class PipelineHelpWriter(object):
         idx.close()
 
     def write_main_index(self, outdir, module_name, root_module_name,
-                         froot="index", rst_extension=".rst"):
+                         froot="index", rst_extension=".rst",
+                         have_usecases=True):
         """ Make a reST API index file for the module
 
         Parameters
@@ -325,13 +326,15 @@ class PipelineHelpWriter(object):
             root_module_name, module_name)
         w(chap_title + "\n" +
           self.rst_section_levels[1] * len(chap_title) + "\n\n")
-        # # Generate a markup
-        label = module_name + "_ug"
-        w(".. _{0}:\n\n".format(label))
-        # # Some text description
-        w("Some live exemples containing useful snippet of codes.\n\n")
-        # # Include user guide index
-        w(".. include:: use_cases/index.txt\n\n")
+
+        if have_usecases:
+            # # Generate a markup
+            label = module_name + "_ug"
+            w(".. _{0}:\n\n".format(label))
+            # # Some text description
+            w("Some live exemples containing snippets of codes.\n\n")
+            # # Include user guide index
+            w(".. include:: use_cases/index%s\n\n" % rst_extension)
 
         # API page
         # # Generate a title
@@ -343,20 +346,24 @@ class PipelineHelpWriter(object):
         label = module_name + "_api"
         w(".. _{0}:\n\n".format(label))
         # # Some text description
-        w("The exact API of all functions and classes, as given by the "
-          "docstrings. For the *user guide* see the {0}_ug_ "
-          "section for further details.\n\n".format(module_name))
+        w("The API of functions and classes, as given by the "
+          "docstrings.")
+        if have_usecases:
+            w(" For the *user guide* see the {0}_ug_ "
+              "section for further details.\n\n".format(module_name))
+        else:
+            w("\n\n")
         # # Include pipeline and buildingblock indexes
         # ## Pipeline
         chap_title = "Pipelines"
         w(chap_title + "\n" +
           self.rst_section_levels[2] * len(chap_title) + "\n\n")
-        w(".. include:: pipeline/index.txt\n\n")
+        w(".. include:: pipeline/index%s\n\n" % rst_extension)
         # ## Buildingblocks
         chap_title = "Buildingblocks"
         w(chap_title + "\n" +
           self.rst_section_levels[2] * len(chap_title) + "\n\n")
-        w(".. include:: process/index.txt\n\n")
+        w(".. include:: process/index%s\n\n" % rst_extension)
 
         # Close file
         idx.close()
