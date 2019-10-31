@@ -134,10 +134,8 @@ class ColorType:
         pass
 
     def colorLink(self, x):
-        print('colorLink', x)
         if not isinstance(x, str):
             # x is a trait
-            print('trait')
             trait_type_str = x.trait_type.__class__.__name__
             if trait_type_str in ('File', 'Directory') \
                     and x.input_filename is False:
