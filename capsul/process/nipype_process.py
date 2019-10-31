@@ -22,7 +22,6 @@ import types
 import logging
 import traceback
 import six
-import nipype.interfaces.base.traits_extension as npe
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -213,6 +212,9 @@ def nipype_factory(nipype_instance):
         process_trait._metadata = {}
 
         return process_trait
+
+    # beginning of nipype_factory function
+    import nipype.interfaces.base.traits_extension as npe
 
     # Add nipype traits to the process instance
     # > input traits
