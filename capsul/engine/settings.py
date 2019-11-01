@@ -1,12 +1,26 @@
 import importlib
 from uuid import uuid4
 
+'''
+This module provides classes to store CapsulEngine settings for several execution environment and choose a configuration for a given execution environment. Setting management in Capsul has several features that makes it different from classical ways to deal with configuration:
+- several configurations of the same software
+- configuration selection for a specific environment
+- modular
+- modules dependencies
+- 
+'''
 class Settings:
     '''
-    CapsulEngine settings are stored in a populse_db database. This
-    class manage all interactions with configuration providing Pythonic
-    API and hiding details used to store elements in populse_db (such as
-    collection names).
+    Main class for the management of CapsulEngine settings. Since these settings are always stored in a populse_db database, it is necessary to activate a settings session in order to read or modify settings. This is done by using a with clause:
+    
+    ```
+    from capsul.api import capsul_engine
+    
+    # Create a CapsulEngine
+    ce = capsul_engine() 
+    with ce.settings as settings:
+        # Read or modify settings here
+    ```
     '''
     
     global_environment = 'global'
@@ -15,10 +29,16 @@ class Settings:
     config_id_field = 'config_id'
     
     def __init__(self, populse_db):
+        '''
+        Create a settins instance using the given populse_db instance
+        '''
         self.populse_db = populse_db
         self._dbs = None
         
     def __enter__(self):
+        '''
+        Starts a session to read or write settings
+        '''
         dbs = self.populse_db.__enter__()
         return SettingsSession(dbs)
 
@@ -28,18 +48,56 @@ class Settings:
     
     @staticmethod
     def module_name(module_name):
+        '''
+        Return a complete module name (which must be a valid Python module
+        name) given a possibly abbreviated module name. This method must
+        be used whenever a module name is written by a user (for instance
+        in a configuration file.
+        This method add the prefix `'capsul.engine.module.'` if the module
+        name does not contain a dot.
+        '''
         if '.' not in module_name:
             module_name = 'capsul.engine.module.' + module_name
         return module_name
     
     def select_configurations(self, environment, uses=None):
+        '''
+        Select a configuration for a given environment. A configuration is
+        a dictionary whose keys are module names and values are
+        configuration documents. The returned set of configuration per module
+        can be activaded with `capsul.api.activate_configurations()`.
+        
+        The uses parameter determine which modules
+        must be included in the configuration. If not given, this method 
+        considers all configurations for every module defined in settings.
+        This parameter is a dictionary whose keys are a module name and
+        values are populse_db queries used to select module.
+        
+        The enviroment parameter defines the execution environment in which
+        the configurations will be used. For each module, configurations are
+        filtered with the query. First, values are searched in the given
+        environment and, if no result is found, the `'global'` enviroment
+        (the value defined in `Settings.global_environment`) is used.
+        
+        example
+        -------
+        To select a SPM version greater than 8 for an environment called
+        `'my_environment'` one could use the following code:
+        ```
+        config = ce.select_configurations('my_environment',
+                                          uses={'spm': 'version > 8'})
+        ```
+        '''
         configurations = {}
         with self as settings:
             if uses is None:
                 uses = {}
-                for collection in (i.collection_name for i in settings._dbs.get_collections()):
+                for collection in (i.collection_name 
+                                   for i in 
+                                   settings._dbs.get_collections()):
                     if collection.startswith(Settings.collection_prefix):
-                        module_name = collection[len(Settings.collection_prefix):]
+                        module_name = \
+                            collection[len(Settings.collection_prefix):]
                         uses[module_name] = 'ALL'
             uses_stack = list(uses.items())
             while uses_stack:
@@ -47,12 +105,17 @@ class Settings:
                 module = self.module_name(module)
                 if module in configurations:
                     continue
-                configurations.setdefault('capsul_engine', {}).setdefault('uses', {})[module] = query
+                configurations.setdefault('capsul_engine', 
+                                          {}).setdefault('uses', 
+                                                         {})[module] = query
                 selected_config = None
-                full_query = '%s == "%s" AND (%s)' % (Settings.environment_field, environment, ('ALL' if query == 'any' else query))
+                full_query = '%s == "%s" AND (%s)' % (
+                    Settings.environment_field, environment, (
+                        'ALL' if query == 'any' else query))
                 collection = '%s%s' % (Settings.collection_prefix, module)
                 if settings._dbs.get_collection(collection):
-                    docs = list(settings._dbs.filter_documents(collection, full_query))
+                    docs = list(settings._dbs.filter_documents(collection, 
+                                                               full_query))
                 else:
                     docs = []
                 if len(docs) == 1:
@@ -61,13 +124,18 @@ class Settings:
                     if query == 'any':
                         selected_config = docs[0]
                     else:
-                        raise EnvironmentError('Cannot create configurations for environment "%s" because settings returned %d instances for module %s' % (environment, len(docs), module))
+                        raise EnvironmentError('Cannot create configurations '
+                            'for environment "%s" because settings returned '
+                            '%d instances for module %s' % (environment, 
+                                                            len(docs), module))
                 else:
                     full_query = '%s == "%s" AND (%s)' % (Settings.environment_field,
                                                           Settings.global_environment,
-                                                          ('ALL' if query == 'any' else query))
+                                                          ('ALL' if query == 'any' 
+                                                           else query))
                     if settings._dbs.get_collection(collection):
-                        docs = list(settings._dbs.filter_documents(collection, full_query))
+                        docs = list(settings._dbs.filter_documents(collection, 
+                                                                   full_query))
                     else:
                         docs = []
                     if len(docs) == 1:
@@ -76,7 +144,11 @@ class Settings:
                         if query == 'any':
                             selected_config = docs[0]
                         else:
-                            raise EnvironmentError('Cannot create configurations for environment "%s" because global settings returned %d instances for module %s' % (environment, len(docs), module))
+                            raise EnvironmentError('Cannot create '
+                                'configurations for environment "%s" because '
+                                'global settings returned %d instances for '
+                                'module %s' % (environment, len(docs),
+                                               module))
                 if selected_config:
                     # Remove values that are None
                     for k, v in list(selected_config.items()):
@@ -84,7 +156,9 @@ class Settings:
                             del selected_config[k]
                     configurations[module] = selected_config
                     python_module = importlib.import_module(module)
-                    config_dependencies = getattr(python_module, 'config_dependencies', None)
+                    config_dependencies = getattr(python_module, 
+                                                  'config_dependencies', 
+                                                  None)
                     if config_dependencies:
                         d = config_dependencies(selected_config)
                         if d:
@@ -94,19 +168,36 @@ class Settings:
     
 class SettingsSession:
     def __init__(self, populse_session):
+        '''
+        SettingsSession are created with Settings.__enter__ using a `with`
+        statement.
+        '''
         self._dbs = populse_session
 
     @staticmethod
     def collection_name(module):
+        '''
+        Return the name of the populse_db collection corresponding to a
+        settings module. The result is the full name of the module 
+        prefixed by Settings.collection_prefix (i.e. `'settings/'`).
+        '''
         module = Settings.module_name(module)
         collection = '%s%s' % (Settings.collection_prefix, module)
         return collection
     
     def ensure_module_fields(self, module, fields):
+        '''
+        Make sure that the given module exists in settings and create the given fields if they do not exist. `fields` is a list of dictionaries with three items:
+        - name: the name of the key
+        - type: the data type of the field (in populse_db format)
+        - description: the documentation of the field
+        '''
         collection = self.collection_name(module)
         if self._dbs.get_collection(collection) is None:
             self._dbs.add_collection(collection, Settings.config_id_field)
-            self._dbs.add_field(collection, Settings.environment_field, 'string', index=True)
+            self._dbs.add_field(collection, 
+                                Settings.environment_field, 
+                                'string', index=True)
         for field in fields:
             name = field['name']
             if self._dbs.get_field(collection, name) is None:
@@ -116,6 +207,14 @@ class SettingsSession:
         return collection
     
     def new_config(self, module, environment, values):
+        '''
+        Creates a new configuration document for a module in the given 
+        environment. Values is a dictionary used to set values for the 
+        document. The document mut have a unique string identifier in 
+        the `Settings.config_id_field` (i.e. `'config_id'`), if None is
+        given in `values` a unique random value is created (with 
+        `uuid.uuid4()`).
+        '''
         document = {
             Settings.environment_field: environment}
         document.update(values)
@@ -128,10 +227,16 @@ class SettingsSession:
         return SettingsConfig(self._dbs, collection, id)
 
     def configs(self, module, environment):
+        '''
+        Returns a generator that iterates over all configuration
+        documents created for the given module and environment.
+        '''
         collection = self.collection_name(module)
         if self._dbs.get_collection(collection) is not None:
             for d in self._dbs.find_documents(collection, 
-                                              '%s=="%s"' % (Settings.environment_field, environment)):
+                                              '%s=="%s"' % (
+                                                  Settings.environment_field,
+                                                  environment)):
                 id = d[Settings.config_id_field]
                 yield SettingsConfig(self._dbs, collection, id)
 
