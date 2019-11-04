@@ -661,7 +661,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         commandline: list of strings
             Arguments are in separate elements of the list.
         '''
-        if getattr(self, 'get_commandline') != Process.get_commandline:
+        if self.__class__.get_commandline != Process.get_commandline:
             # get_commandline is overriden the old way: use it.
             return ['format_string'] + self.get_commandline()
         return ['capsul_job', self.id]

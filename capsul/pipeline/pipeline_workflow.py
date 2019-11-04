@@ -273,8 +273,6 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         tval.pattern = value.pattern
                         if parameter.output:
                             output_replaced_paths.append(tval)
-                            if parameter.input_filename is not False:
-                                has_outputs = True
                         else:
                             if value in forbidden_temp:
                                 raise ValueError(
@@ -285,6 +283,9 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     else:
                         _translated_path(value, shared_map, shared_paths,
                                         parameter)
+                        if parameter.output \
+                                and parameter.input_filename is not False:
+                            has_outputs = True
 
         # Get the process command line
         #process_cmdline = process.get_commandline()
@@ -320,7 +321,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         # Return the soma-workflow job
         job = swclient.Job(
             name=job_name,
-            command=process_cmdline,
+            command=process_cmdline[1:],
             referenced_input_files
                 =input_replaced_paths \
                     + [x[0] for x in iproc_transfers.values()],
