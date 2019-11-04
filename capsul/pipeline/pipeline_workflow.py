@@ -225,6 +225,22 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 elif item is Undefined:
                     rlist[i] = ''
 
+        def _replace_in_dict(rdict, temp_map):
+            for name, item in six.iteritems(rdict):
+                if isinstance(item, (list, tuple)):
+                    deeperlist = list(item)
+                    _replace_in_list(deeperlist, temp_map)
+                    rdict[name] = deeperlist
+                elif item in temp_map:
+                    value = temp_map[item]
+                    value = value.__class__(value)
+                    if hasattr(item, 'pattern'):
+                        # temp case (differs from shared case)
+                        value.pattern = item.pattern
+                    rdict[name] = value
+                elif item is Undefined:
+                    rdict[dict] = ''
+
         def _replace_transfers(rlist, process, itransfers, otransfers):
             param_name = None
             i = 3
@@ -247,6 +263,22 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                             rlist[i] = value
                     param_name = None
                 i += 1
+
+        def _replace_dict_transfers(rdict, process, itransfers, otransfers):
+            for param_name, item in six.iteritems(rdict):
+                transfer = itransfers.get(param_name)
+                if transfer is None:
+                    transfer = otransfers.get(param_name)
+                if transfer is not None:
+                    value = transfer[0]
+                    if isinstance(item, list) or isinstance(item, tuple):
+                        # TODO: handle lists of files [transfers]
+                        #deeperlist = list(item)
+                        #_replace_in_list(deeperlist, transfers)
+                        #rdict[param_name] = deeperlist
+                        print('*** LIST! ***')
+                    else:
+                        rdict[param_name] = value
 
         job_name = name
         if not job_name:
@@ -314,6 +346,11 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         for name in forbidden_traits:
             if name in param_dict:
                 del param_dict[name]
+
+        _replace_in_dict(param_dict, temp_map)
+        _replace_in_dict(param_dict, shared_map)
+        _replace_dict_transfers(
+            param_dict, process, iproc_transfers, oproc_transfers)
 
         # handle native specification (cluster-specific specs as in
         # soma-workflow)
