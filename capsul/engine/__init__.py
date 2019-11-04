@@ -17,13 +17,14 @@ Functions
 ---------------------
 '''
 
-import sys
+import importlib
 import json
 import os
 import os.path as osp
 import re
 import tempfile
 import subprocess
+import sys
 
 from traits.api import Undefined, Dict, String, Undefined
 
@@ -134,23 +135,6 @@ class CapsulEngine(Controller):
             self._settings = Settings(self.database.db)
         return self._settings
 
-    def add_config(name):
-        '''
-        Create a new configuration with the given name.
-        '''
-        
-    def config(name='global'):
-        '''
-        Return a configuration object 
-        '''
-        
-    def remove_config(self, name):
-        '''
-        Remove a computing resource configuration from this capsul engine
-        '''
-        del self.computing_config[computing_resource]
-
-
     @property
     def database(self):
         return self._database
@@ -182,7 +166,7 @@ class CapsulEngine(Controller):
         for module in require:
             self.load_module(module)
 
-    def load_module(self, python_module_name):
+    def load_module(self, module_name):
         '''
         Load a module if it has not already been loaded (is this case,
         nothing is done)
@@ -211,23 +195,17 @@ class CapsulEngine(Controller):
         modules in capsul.in_context module to manage running external
         software with appropriate configuration. 
         '''
-        if '.' not in python_module_name:
-            python_module_name = 'capsul.engine.module.' + python_module_name
-        if python_module_name not in self._loaded_modules:
-            __import__(python_module_name)
-            python_module = sys.modules.get(python_module_name)
-            if python_module is None:
-                raise ValueError('Cannot find %s in Python modules' % python_module_name)
-            settings_fields = getattr(python_module, 'settings_fields', None)
-            if settings_fields is not None:
-                with self.settings as settings:
-                    setting_module = settings.module(python_module_name, create=True)
-                    setting_fields(setting_module)
-            self._loaded_modules.add(python_module_name)
+        module_name = self.settings.module_name(module_name)
+        if module_name not in self._loaded_modules:
+            self._loaded_modules.add(module_name)
+            python_module = importlib.import_module(module_name)
+            init_settings = getattr(python_module, 'init_settings', None)
+            if init_settings is not None:
+                init_settings(self)
             return True
         return False
     
-    
+        
     #
     # Method imported from self.database
     #
@@ -436,6 +414,7 @@ class CapsulEngine(Controller):
     
 _populsedb_url_re = re.compile(r'^\w+(\+\w+)?://(.*)')
 
+
 def database_factory(database_location):
     '''
     Create a DatabaseEngine from its location string. This location can be
@@ -495,3 +474,34 @@ def capsul_engine(database_location=None, require=None):
     capsul_engine = CapsulEngine(database_location, database, require=require)
     return capsul_engine
     
+
+configurations = None
+activated_modules = set()
+
+def activate_configuration(selected_configurations):
+    global configurations
+    
+    configurations = selected_configurations
+    modules = configurations.get('capsul_engine', {}).get('uses', {}).keys()
+    for i in modules:
+        activate_module(m)
+
+def activate_module(module_name):
+    global activated_modules
+    
+    if module_name not in activated_modules:
+        activated_modules.add(module_name)
+        module = importlib.import_module(module_name)
+        check_configurations = getattr(module, 'check_configurations', None)
+        complete_configurations = getattr(module, 'complete_configurations', None)
+        if check_configurations:
+            error = check_configurations()
+            if error:
+                if complete_configurations:
+                    complete_configurations()
+                    error = check_configurations()
+            if error:
+                raise EnvironmentError(error)
+        activate_configurations = getattr(module, 'activate_configurations', None)
+        if activate_configurations:
+            activate_configurations()

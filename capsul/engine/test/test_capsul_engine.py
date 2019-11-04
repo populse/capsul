@@ -25,35 +25,60 @@ class TestCapsulEngine(unittest.TestCase):
 
 
     def test_engine(self):
+        # In the following, we use explicit values for config_id_field
+        # (which is a single strin value that must be unique for each
+        # config). This is not mandatory but it avoid to have randomly
+        # generated values making testing result more difficult.
+        self.maxDiff = 2000
+        
+        cif = self.ce.settings.config_id_field
         with self.ce.settings as settings:
             # Create a new section object for 'fsl' in 'global' environment
-            fsl = settings.new_section('global', 'fsl')
-            fsl.version = 5 # Set global FSL version
+            fsl = settings.new_config('fsl', 'global', {cif:'5'})
+            fsl.directory = '/there'
             
             # Create two global SPM configurations
-            settings.new_section('global', 'spm', version=8)
-            settings.new_section('global', 'spm', version=12)
+            settings.new_config('spm', 'global', {'version': '8',
+                                                  'standalone': True,
+                                                  cif:'8'})
+            settings.new_config('spm', 'global', {'version': '12',
+                                                  'standalone': False,
+                                                  cif:'12'})
             # Create one SPM configuration for 'my_machine'
-            settings.new_section('my_machine', 'spm', version=20)
+            settings.new_config('spm', 'my_machine', {'version': '20',
+                                                      'standalone': True,
+                                                      cif:'20'})
     
         self.assertEqual(
-            self.ce.settings.config('my_machine'),
-            {u'capsul.engine.module.fsl': {u'config_environment': u'global',
-                                        u'version': 5},
-            u'capsul.engine.module.spm': {u'config_environment': u'my_machine',
-                                        u'version': 20}})
-        self.assertRaises(EnvironmentError, lambda: self.ce.settings.config('global'))
+            self.ce.settings.select_configurations('my_machine'),
+            {'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'ALL',
+                               'capsul.engine.module.matlab': 'ALL',
+                               'capsul.engine.module.spm': 'ALL'}},
+             'capsul.engine.module.fsl': {'config_environment': 'global',
+                                          'directory': '/there',
+                                          cif: '5'},
+             'capsul.engine.module.spm': {'config_environment': 'my_machine',
+                                           'version': '20',
+                                           'standalone': True,
+                                           cif: '20'}})
+        self.assertRaises(EnvironmentError, lambda: self.ce.settings.select_configurations('global'))
         self.assertEqual(
-            self.ce.settings.config('global', uses={'fsl': 'any'}),
-            {'capsul.engine.module.fsl': {u'config_environment': u'global', u'version': 5},
+            self.ce.settings.select_configurations('global', uses={'fsl': 'any'}),
+            {'capsul.engine.module.fsl': {'config_environment': 'global', 'directory': '/there', cif:'5'},
              'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'any'}}})
             
         self.assertEqual(
-            self.ce.settings.config('global', uses={'spm': 'any'}),
-            {'capsul.engine.module.spm': {u'config_environment': u'global', u'version': 8},
+            self.ce.settings.select_configurations('global', uses={'spm': 'any'}),
+            {'capsul.engine.module.spm': {'config_environment': 'global', 
+                                          'version': '8',
+                                          'standalone': True,
+                                          cif: '8'},
              'capsul_engine': {'uses': {'capsul.engine.module.spm': 'any'}}})
         self.assertEqual(
-            self.ce.settings.config('global', uses={'spm': 'version==12'}),
-            {'capsul.engine.module.spm': {u'config_environment': u'global',
-                                          u'version': 12},
-             'capsul_engine': {'uses': {'capsul.engine.module.spm': 'version==12'}}})
+            self.ce.settings.select_configurations('global', uses={'spm': 'version=="12"'}),
+            {'capsul.engine.module.spm': {'config_environment': 'global',
+                                          'version': '12',
+                                          'standalone': False,
+                                          cif: '12'},
+             'capsul_engine': {'uses': {'capsul.engine.module.spm': 'version=="12"',
+                                        'capsul.engine.module.matlab': 'any'}}})
