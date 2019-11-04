@@ -29,6 +29,7 @@ Classes
 '''
 
 # System import
+from __future__ import print_function
 import os
 import operator
 from socket import getfqdn
@@ -692,6 +693,56 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             else:
                 built_arg = built_arg + repr(arg)
         return built_arg
+
+    @staticmethod
+    def run_from_commandline(process_definition):
+        '''
+        Run a process from a commandline call. The process name (with module)
+        are given in argument, input parameters should be passed through a JSON
+        file which location is in the ``SOMAWF_INPUT_PARAMS`` environment
+        variable.
+
+        If the process has outputs, the ``SOMAWF_OUTUT_PARAMS`` environment
+        variable should contain the location of an output file which whill be
+        written with a dict containing output parameters values.
+        '''
+        ce = capsul_engine()
+        process = ce.get_process_instance(process_definition)
+        param_file = os.environ.get('SOMAWF_INPUT_PARAMS')
+        if param_file is None:
+            print('Warning: no input parameters, the env variable '
+                  'SOMAWF_INPUT_PARAMS is not set.', file=sys.stderr)
+            params = {}
+        else:
+            with open('param_file') as f:
+                params = json.load(f)
+        process.import_from_dict(params)
+        # actually run the process
+        result = process._run_process()
+        # collect output parameers
+        out_param_file = os.environ.get('SOMAWF_OUTPUT_PARAMS')
+        output_params = {}
+        if out_param_file is not None:
+            if result is None:
+                result = {}
+            reserved_params = ("nodes_activation", "selection_changed")
+            for param, trait in six.iteritems(process.user_traits()):
+                if param in reserved_params or not trait.output:
+                    continue
+                if isinstance(trait.trait_type, (File, Directory)) \
+                        and trait.input_filename is not False:
+                    continue
+                elif isinstance(trait.trait_type, List) \
+                        and isinstance(trait.inner_traits[0].trait_type,
+                                       (File, Directory)) \
+                        and trait.inner_traits[0].trait_type.input_filename \
+                            is not False \
+                        and trait.input_filename is not False:
+                    continue
+                output_params[param] = getattr(process, param)
+            output_params.update(result)
+            with open(out_param_file, 'w') as f:
+                json.dump(output_params, f)
 
     def get_log(self):
         """ Load the logging file.

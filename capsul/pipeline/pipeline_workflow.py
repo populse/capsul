@@ -255,9 +255,11 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         # check for special modified paths in parameters
         input_replaced_paths = []
         output_replaced_paths = []
-        # param_dict = {}
+        param_dict = {}
+        has_outputs = False
+        forbidden_traits = ('nodes_activation', 'selection_changed')
         for param_name, parameter in six.iteritems(process.user_traits()):
-            if param_name not in ('nodes_activation', 'selection_changed'):
+            if param_name not in forbidden_traits:
                 value = getattr(process, param_name)
                 if isinstance(value, list):
                     values = value
@@ -271,6 +273,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         tval.pattern = value.pattern
                         if parameter.output:
                             output_replaced_paths.append(tval)
+                            if parameter.input_filename is not False:
+                                has_outputs = True
                         else:
                             if value in forbidden_temp:
                                 raise ValueError(
@@ -283,7 +287,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                         parameter)
 
         # Get the process command line
-        process_cmdline = process.get_commandline()
+        #process_cmdline = process.get_commandline()
+        process_cmdline = process.params_to_command()
         # and replace in commandline
         iproc_transfers = transfers[0].get(process, {})
         oproc_transfers = transfers[1].get(process, {})
@@ -293,6 +298,21 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         _replace_in_list(process_cmdline, shared_map)
         _replace_transfers(
             process_cmdline, process, iproc_transfers, oproc_transfers)
+
+        use_input_params_file = False
+        if process_cmdline[0] == 'capsul_job':
+            python_command = os.path.basename(sys.executable)
+            process_cmdline = [
+                'capsul_job', python_command, '-m', '-c',
+                'from capsul.api import Process; '
+                'Process.run_from_commandline(%s)' % process_cmdline[1]]
+            use_input_params_file = True
+            param_dict = process.export_to_dict()
+        elif process_cmdline[0] == 'json_job':
+            use_input_params_file = True
+        for name in forbidden_traits:
+            if name in param_dict:
+                del param_dict[name]
 
         # handle native specification (cluster-specific specs as in
         # soma-workflow)
@@ -308,7 +328,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 =output_replaced_paths \
                     + [x[0] for x in oproc_transfers.values()],
             priority=priority,
-            native_specification=native_spec)
+            native_specification=native_spec,
+            param_dict=param_dict,
+            use_input_params_file=use_input_params_file,
+            has_outputs=has_outputs)
         # handle parallel job info (as in soma-workflow)
         parallel_job_info = getattr(process, 'parallel_job_info', None)
         if parallel_job_info:
