@@ -706,16 +706,19 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         variable should contain the location of an output file which whill be
         written with a dict containing output parameters values.
         '''
+        from capsul.engine import capsul_engine
+
         ce = capsul_engine()
         process = ce.get_process_instance(process_definition)
         param_file = os.environ.get('SOMAWF_INPUT_PARAMS')
         if param_file is None:
             print('Warning: no input parameters, the env variable '
                   'SOMAWF_INPUT_PARAMS is not set.', file=sys.stderr)
-            params = {}
+            params_conf = {}
         else:
-            with open('param_file') as f:
-                params = json.load(f)
+            with open(param_file) as f:
+                params_conf = json.load(f)
+        params = params_conf.get('parameters', {})
         process.import_from_dict(params)
         # actually run the process
         result = process._run_process()

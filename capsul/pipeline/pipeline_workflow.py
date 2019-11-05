@@ -336,9 +336,9 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         if process_cmdline[0] == 'capsul_job':
             python_command = os.path.basename(sys.executable)
             process_cmdline = [
-                'capsul_job', python_command, '-m', '-c',
+                'capsul_job', python_command, '-c',
                 'from capsul.api import Process; '
-                'Process.run_from_commandline(%s)' % process_cmdline[1]]
+                'Process.run_from_commandline("%s")' % process_cmdline[1]]
             use_input_params_file = True
             param_dict = process.export_to_dict()
         elif process_cmdline[0] == 'json_job':
@@ -370,6 +370,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             param_dict=param_dict,
             use_input_params_file=use_input_params_file,
             has_outputs=has_outputs)
+        # print('job command:', job.command)
         # handle parallel job info (as in soma-workflow)
         parallel_job_info = getattr(process, 'parallel_job_info', None)
         if parallel_job_info:
