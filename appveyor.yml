@@ -13,11 +13,13 @@ install:
   - "pip install numpy six"
   - "pip install six"
   - "pip install traits"
-  - "pip install soma-workflow"
+  #- "pip install soma-workflow"
   - "python setup.py install"
   - "git clone --depth=50 --branch=master https://github.com/populse/soma-base.git C:\\projects\\soma-base"
+  - "git clone --depth=50 --branch=master https://github.com/populse/soma-workflow.git C:\\projects\\soma-workflow"
   - "SET PYTHONPATH=C:\\projects\\capsul\\python;%PYTHONPATH%"
   - "SET PYTHONPATH=C:\\projects\\soma-base\\python;%PYTHONPATH%"
+  - "SET PYTHONPATH=C:\\projects\\soma-workflow\\python;%PYTHONPATH%"
 
 test_script:
   - "python --version"
