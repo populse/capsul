@@ -243,11 +243,9 @@ class TestPipeline(unittest.TestCase):
         for job in workflow.jobs:
             if not job.name.startswith('DummyProcess'):
                 continue
-            kwargs = eval(re.match('^.*kwargs=({.*}); kwargs.update.*$',
-                                   job.command[2]).group(1))
-            self.assertEqual(kwargs["other_input"], 5)
-            # get argument of 'input_image' file parameter
-            subject = job.command[4::2][job.command[3::2].index('input_image')]
+            param_dict = job.param_dict
+            self.assertEqual(param_dict["other_input"], 5)
+            subject = param_dict['input_image']
             subjects.add(subject)
             if sys.version_info >= (2, 7):
                 self.assertIn(subject,

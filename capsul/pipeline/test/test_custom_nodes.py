@@ -207,20 +207,17 @@ class TestCustomNodes(unittest.TestCase):
             deps)
         train1_jobs = [job for job in wf.jobs if job.name == 'train1']
         self.assertEqual(
-            sorted([job.command[job.command.index('out1') +1]
-                    for job in train1_jobs]),
+            sorted([job.param_dict['out1'] for job in train1_jobs]),
             [os.path.join(pipeline2.output_directory, 'subject%d_interm' % i)
              for i in range(4)])
         train2_jobs = [job for job in wf.jobs if job.name == 'train2']
         self.assertEqual(
-            sorted([job.command[job.command.index('out1') +1]
-                    for job in train2_jobs]),
+            sorted([job.param_dict['out1'] for job in train2_jobs]),
             [os.path.join(pipeline2.output_directory, 'subject%d' % i)
              for i in range(4)])
         test_jobs = [job for job in wf.jobs if job.name == 'test']
         self.assertEqual(
-            sorted([job.command[job.command.index('out1') +1]
-                    for job in test_jobs]),
+            sorted([job.param_dict['out1'] for job in test_jobs]),
             [os.path.join(pipeline2.output_directory,
                           'subject%d_test_output' % i)
              for i in range(4)])
