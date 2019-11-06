@@ -1754,7 +1754,10 @@ class Pipeline(Process):
                     t = parameter.inner_traits[0]
                     if not isinstance(t.trait_type, (File, Directory)):
                         continue
-                elif not isinstance(parameter.trait_type, (File, Directory)):
+                elif not isinstance(parameter.trait_type, (File, Directory)) \
+                        or (parameter.output
+                            and parameter.input_filename is False):
+                    # a file with its filename as an output is OK
                     continue
                 value = getattr(process, plug_name)
                 if isinstance(value, list):
@@ -1781,6 +1784,16 @@ class Pipeline(Process):
                             # linked to the main node: keep it as is
                             valid = False
                             break
+                        if hasattr(links[2], 'process'):
+                            lproc = links[2].process
+                            ltrait = lproc.trait(link[1])
+                            if ltrait.output \
+                                    and ltrait.input_filename is False:
+                                # connected to an output file which filename
+                                # is actually an output: it will be generated
+                                # by the process, thus is not a temporary
+                                valid = False
+                                break
                         # linked to an output plug of an intermediate pipeline:
                         # needed only if this pipeline plug is used later,
                         # or mandatory
