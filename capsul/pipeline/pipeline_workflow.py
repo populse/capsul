@@ -436,7 +436,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 else:
                     suffix = ''
                 swf_tmp = swclient.TemporaryPath(is_directory=is_directory,
-                    suffix=suffix)
+                    suffix=suffix, name='temporary_%d' % count)
                 tmp_file = TempFile('%d' % count)
                 count += 1
                 temp_map[tmp_file] = (swf_tmp, node, plug_name, optional)
