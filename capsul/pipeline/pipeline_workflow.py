@@ -316,7 +316,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         _translated_path(value, shared_map, shared_paths,
                                         parameter)
                         if parameter.output \
-                                and parameter.input_filename is not False:
+                                and parameter.input_filename is False:
                             has_outputs = True
 
         # Get the process command line
