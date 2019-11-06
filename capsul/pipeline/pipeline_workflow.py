@@ -239,7 +239,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         value.pattern = item.pattern
                     rdict[name] = value
                 elif item is Undefined:
-                    rdict[dict] = ''
+                    rdict[name] = ''
 
         def _replace_transfers(rlist, process, itransfers, otransfers):
             param_name = None
