@@ -62,6 +62,25 @@ class DummyProcess2(Process):
         with open(new_output, 'w') as f:
             f.write(open(self.input).read() + 'And a second output file\n')
 
+class DummyProcess2alt(Process):
+    """ Dummy Test Process
+    """
+    def __init__(self):
+        super(DummyProcess2alt, self).__init__()
+
+        # inputs
+        self.add_trait("input", File(optional=False))
+
+        # outputs
+        self.add_trait("outputs", List(File(output=True, input_filename=False),
+                                       output=True, input_filename=False))
+
+    def _run_process(self):
+        new_output = '%s_ter%s' % os.path.splitext(self.input)
+        self.outputs = [new_output]
+        with open(new_output, 'w') as f:
+            f.write(open(self.input).read() + 'And another output file\n')
+
 class DummyProcess3(Process):
     """ Dummy Test Process
     """
@@ -90,17 +109,32 @@ class DummyPipeline(Pipeline):
             "node2",
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess2')
         self.add_process(
+            "node2alt",
+            'capsul.pipeline.test.test_proc_with_outputs.DummyProcess2alt')
+        self.add_switch('node2_switch', ['node2', 'node2alt'], ['files'],
+                        output_types=[List(File(output=True,
+                                                input_filename=False),
+                                           output=True, input_filename=False)])
+        self.add_process(
             "node3",
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess3')
         # Links
         self.add_link("node1.output->node2.input")
-        self.add_link("node2.outputs->node3.input")
+        self.add_link("node1.output->node2alt.input")
+        self.add_link("node2.outputs->node2_switch.node2_switch_files")
+        self.add_link("node2alt.outputs->node2_switch.node2alt_switch_files")
+        self.add_link("node2_switch.files->node3.input")
 
-        self.node_position = {'inputs': (54.0, 298.0),
-            'node1': (173.0, 168.0),
-            'node2': (259.0, 320.0),
-            'node3': (405.0, 142.0),
-            'outputs': (518.0, 278.0)}
+        #self.export_parameter('node2alt', 'outputs', 'node2alt_outputs')
+
+        self.node_position = {
+            'inputs': (0.0, 155.7061),
+            'node1': (146.82718967435613, 124.69369999999998),
+            'node2': (303.38348967435616, 0.0),
+            'node2_switch': (467.2083896743562, 89.69369999999998),
+            'node2alt': (303.38348967435616, 124.69369999999998),
+            'node3': (709.7284896743562, 124.69369999999998),
+            'outputs': (868.9687193487123, 128.69369999999998)}
 
 
 class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
@@ -149,10 +183,11 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
     def test_direct_run(self):
         self.study_config.use_soma_workflow = False
+        self.pipeline.node2_switch = 'node2'
         self.pipeline()
         self.assertEqual(self.pipeline.nodes["node1"].process.output,
                          '/tmp/file_in_output.nii')
-        self.assertEqual(self.pipeline.nodes["node2"].process.outputs,
+        self.assertEqual(self.pipeline.nodes["node3"].process.input,
                          ['/tmp/file_in_output.nii', '/tmp/file_in_output_bis.nii'])
         res_out = open(self.pipeline.output).readlines()
         self.assertEqual(res_out,
@@ -160,8 +195,23 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'This is an output file\n',
                           'And a second output file\n'])
 
+    def test_direct_run_switch(self):
+        self.study_config.use_soma_workflow = False
+        # change switch and re-run
+        self.pipeline.node2_switch = 'node2alt'
+        self.pipeline()
+        self.assertEqual(self.pipeline.nodes["node1"].process.output,
+                         '/tmp/file_in_output.nii')
+        self.assertEqual(self.pipeline.nodes["node3"].process.input,
+                         ['/tmp/file_in_output_ter.nii'])
+        res_out = open(self.pipeline.output).readlines()
+        self.assertEqual(res_out,
+                         ['This is an output file\n',
+                          'And another output file\n'])
+
     def test_full_wf(self):
         self.study_config.use_soma_workflow = True
+        self.pipeline.node2_switch = 'node2'
 
         #workflow = pipeline_workflow.workflow_from_pipeline(self.pipeline)
         #import soma_workflow.client as swc
@@ -170,13 +220,31 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         result = self.study_config.run(self.pipeline, verbose=True)
         self.assertEqual(self.pipeline.nodes["node1"].process.output,
                          '/tmp/file_in_output.nii')
-        self.assertEqual(self.pipeline.nodes["node2"].process.outputs,
+        self.assertEqual(self.pipeline.nodes["node3"].process.input,
                          ['/tmp/file_in_output.nii', '/tmp/file_in_output_bis.nii'])
         res_out = open(self.pipeline.output).readlines()
         self.assertEqual(res_out,
                          ['This is an output file\n',
                           'This is an output file\n',
                           'And a second output file\n'])
+
+    def test_full_wf_switch(self):
+        self.study_config.use_soma_workflow = True
+        # change switch and re-run
+        self.pipeline.node2_switch = 'node2alt'
+        workflow = pipeline_workflow.workflow_from_pipeline(self.pipeline)
+        import soma_workflow.client as swc
+        swc.Helper.serialize('/tmp/workflow.workflow', workflow)
+
+        result = self.study_config.run(self.pipeline, verbose=True)
+        self.assertEqual(self.pipeline.nodes["node1"].process.output,
+                         '/tmp/file_in_output.nii')
+        self.assertEqual(self.pipeline.nodes["node3"].process.input,
+                         ['/tmp/file_in_output_ter.nii'])
+        res_out = open(self.pipeline.output).readlines()
+        self.assertEqual(res_out,
+                         ['This is an output file\n',
+                          'And another output file\n'])
 
 
 def test():
@@ -206,7 +274,7 @@ if __name__ == "__main__":
         pipeline = DummyPipeline()
         pipeline.input = '/tmp/file_in.nii'
         pipeline.output = '/tmp/file_out3.nii'
-        pipeline.nb_outputs = 3
+        pipeline.node2_switch = 'node2alt'
         view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view1.show()
