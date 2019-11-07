@@ -387,8 +387,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         if step_name:
             job.user_storage = step_name
         # associate job with process
-        #job.process = weakref.ref(process)
-        #job._do_not_pickle = ['process']
+        job.process = weakref.ref(process)
+        job._do_not_pickle = ['process']
         job.process_hash = id(process)
         return job
 
@@ -1144,13 +1144,24 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
     # post-process links to replace nodes with jobs
     param_links = {}
+    # expand jobs map because jobs keys may be tuples (for iterations)
+    jobs_map = {}
+    for process, job in six.iteritems(jobs):
+        while isinstance(process, tuple):
+            process = process[0]
+        jobs_map.setdefault(process, []).append(job)
     for dnode, dlinks in six.iteritems(links):
         if dnode is pipeline.pipeline_node:
             continue  # skip pipeline node
+        if isinstance(dnode.process, Pipeline):
+            continue  # FIXME handle this
         djlinks = {}
         for param, link in six.iteritems(dlinks):
-            djlinks[param] = (jobs[link[0].process], link[1])
-        param_links[jobs[dnode.process]] = djlinks
+            if not isinstance(link[0].process, Pipeline):  # FIXME handle this
+                for job in jobs_map[link[0].process]:
+                    djlinks[param] = (job, link[1])
+        for job in jobs_map[dnode.process]:
+            param_links[job] = djlinks
 
     all_jobs = six_values(jobs)
     root_jobs = six_values(root_jobs)

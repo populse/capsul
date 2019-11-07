@@ -1492,8 +1492,9 @@ class Pipeline(Process):
                     # address the node plugs
                     if isinstance(dest_node, ProcessNode):
                         dependencies.add((node_name, dest_node_name))
-                        links.setdefault(dest_node, {})[dest_plug_name] \
-                            = (node, plug_name)
+                        if output:
+                            links.setdefault(dest_node, {})[dest_plug_name] \
+                                = (node, plug_name)
                     elif isinstance(dest_node, Switch):
                         conn = dest_node.connections()
                         for c in conn:

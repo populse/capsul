@@ -199,6 +199,11 @@ class TestCustomNodes(unittest.TestCase):
         pipeline2.output_directory = '/dir/out_dir'
         wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
                                                       create_directories=False)
+        import six
+        #print('workflow:')
+        #print('jobs:', wf.jobs)
+        #print('dependencies:', wf.dependencies)
+        #print('links:', {n.name: {p: (l[0].name, l[1]) for p, l in six.iteritems(links)} for n, links in six.iteritems(wf.param_links)})
         self.assertEqual(len(wf.jobs), 12)
         self.assertEqual(len(wf.dependencies), 8)
         deps = sorted([['train1', 'train2'], ['train2', 'test']] * 4)
