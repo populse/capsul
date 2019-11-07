@@ -95,19 +95,6 @@ class DummyPipeline(Pipeline):
         # Links
         self.add_link("node1.output->node2.input")
         self.add_link("node2.outputs->node3.input")
-        # Outputs
-        #self.export_parameter("node1", "output",
-                              #pipeline_parameter="output1",
-                              #is_optional=True)
-        #self.export_parameter("node2", "output",
-                              #pipeline_parameter="output2",
-                              #is_optional=True)
-        #self.export_parameter("node2", "input",
-                              #pipeline_parameter="input2",
-                              #is_optional=True)
-        #self.export_parameter("node3", "input",
-                              #pipeline_parameter="input3",
-                              #is_optional=True)
 
         self.node_position = {'inputs': (54.0, 298.0),
             'node1': (173.0, 168.0),
@@ -160,40 +147,36 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
             shutil.rmtree(self.soma_workflow_temp_dir)
 
 
-    def xtest_structure(self):
-        self.pipeline.nb_outputs = 3
-        self.assertEqual(self.pipeline.nodes["node2"].process.input,
-                         ["", "", ""])
-        self.assertEqual(self.pipeline.nodes["node2"].process.output,
-                         ["", "", ""])
-
-    def xtest_direct_run(self):
+    def test_direct_run(self):
         self.study_config.use_soma_workflow = False
-        self.pipeline.nb_outputs = 3
         self.pipeline()
-        self.assertEqual(self.pipeline.nodes["node2"].process.input,
-                         ["", "", ""])
-        self.assertEqual(self.pipeline.nodes["node2"].process.output,
-                         ["", "", ""])
+        self.assertEqual(self.pipeline.nodes["node1"].process.output,
+                         '/tmp/file_in_output.nii')
+        self.assertEqual(self.pipeline.nodes["node2"].process.outputs,
+                         ['/tmp/file_in_output.nii', '/tmp/file_in_output_bis.nii'])
         res_out = open(self.pipeline.output).readlines()
-        self.assertEqual(len(res_out), 3)
+        self.assertEqual(res_out,
+                         ['This is an output file\n',
+                          'This is an output file\n',
+                          'And a second output file\n'])
 
-    def xtest_full_wf(self):
+    def test_full_wf(self):
         self.study_config.use_soma_workflow = True
-        self.pipeline.nb_outputs = 3
 
-        workflow = pipeline_workflow.workflow_from_pipeline(self.pipeline)
-        import soma_workflow.client as swc
-        swc.Helper.serialize('/tmp/workflow.workflow', workflow)
+        #workflow = pipeline_workflow.workflow_from_pipeline(self.pipeline)
+        #import soma_workflow.client as swc
+        #swc.Helper.serialize('/tmp/workflow.workflow', workflow)
 
         result = self.study_config.run(self.pipeline, verbose=True)
-        self.assertEqual(result, None)
-        self.assertEqual(self.pipeline.nodes["node2"].process.input,
-                         ["", "", ""])
-        self.assertEqual(self.pipeline.nodes["node2"].process.output,
-                         ["", "", ""])
+        self.assertEqual(self.pipeline.nodes["node1"].process.output,
+                         '/tmp/file_in_output.nii')
+        self.assertEqual(self.pipeline.nodes["node2"].process.outputs,
+                         ['/tmp/file_in_output.nii', '/tmp/file_in_output_bis.nii'])
         res_out = open(self.pipeline.output).readlines()
-        self.assertEqual(len(res_out), 3)
+        self.assertEqual(res_out,
+                         ['This is an output file\n',
+                          'This is an output file\n',
+                          'And a second output file\n'])
 
 
 def test():

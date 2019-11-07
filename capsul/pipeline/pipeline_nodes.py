@@ -754,6 +754,19 @@ class Switch(Node):
         self.pipeline.restore_update_nodes_and_plugs_activation()
         self.__block_output_propagation = False
 
+    def connections(self):
+        """ Returns the current internal connections between input and output
+        plugs
+
+        Returns
+        -------
+        connections: list
+            list of internal connections
+            [(input_plug_name, output_plug_name), ...]
+        """
+        return [('{0}_switch_{1}'.format(self.switch, plug_name), plug_name)
+                for plug_name in self._outputs]
+
     def _anytrait_changed(self, name, old, new):
         """ Add an event to the switch trait that enables us to select
         the desired option.

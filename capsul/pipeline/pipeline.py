@@ -1456,10 +1456,25 @@ class Pipeline(Process):
             Default: True
         """
 
-        def insert(pipeline, node_name, plug, dependencies):
+        def insert(pipeline, node_name, node, plug, dependencies, plug_name,
+                   links, output=None):
             """ Browse the plug links and add the correspondings edges
             to the node.
             """
+
+            if output is None:
+                process = getattr(node, 'process', node)
+                trait = process.trait(plug_name)
+                output = trait.output
+                if output:
+                    if isinstance(trait.trait_type, (File, Directory)) \
+                            and trait.input_filename is not False:
+                        output = False
+                    elif isinstance(trait.trait_type, List) \
+                            and isinstance(trait.inner_traits[0],
+                                          (File, Directory)) \
+                            and trait.input_filename is not False:
+                        output = False
 
             # Main loop
             for (dest_node_name, dest_plug_name, dest_node, dest_plug,
@@ -1477,14 +1492,24 @@ class Pipeline(Process):
                     # address the node plugs
                     if isinstance(dest_node, ProcessNode):
                         dependencies.add((node_name, dest_node_name))
+                        links.setdefault(dest_node, {})[dest_plug_name] \
+                            = (node, plug_name)
+                    elif isinstance(dest_node, Switch):
+                        conn = dest_node.connections()
+                        for c in conn:
+                            if c[0] == dest_plug_name:
+                                insert(pipeline, node_name, node, c[1],
+                                       dependencies, plug_name, links, output)
+                                break
                     else:
                         for switch_plug in dest_node.plugs.itervalues():
-                            insert(pipeline, node_name, switch_plug,
-                                   dependencies)
+                            insert(pipeline, node_name, node, switch_plug,
+                                   dependencies, plug_name, links, output)
 
         # Create a graph and a list of graph node edges
         graph = Graph()
         dependencies = set()
+        links = {}
 
         if remove_disabled_steps:
             steps = getattr(self, 'pipeline_steps', Controller())
@@ -1526,12 +1551,15 @@ class Pipeline(Process):
 
                     # Consider only active pipeline node plugs
                     if plug.activated:
-                        insert(self, node_name, plug, dependencies)
+                        insert(self, node_name, node, plug, dependencies,
+                               plug_name, links)
 
         # Add edges to the graph
         for d in dependencies:
             if graph.find_node(d[0]) and graph.find_node(d[1]):
                 graph.add_link(d[0], d[1])
+
+        graph.param_links = links
 
         return graph
 
@@ -1610,6 +1638,9 @@ class Pipeline(Process):
                 continue
             trait = node.get_trait(plug_name)
             if not trait.output:
+                continue
+            if hasattr(trait, 'input_filename') \
+                    and trait.input_filename is False:
                 continue
             if hasattr(trait, 'inner_traits') \
                     and len(trait.inner_traits) != 0 \
