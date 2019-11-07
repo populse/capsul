@@ -142,27 +142,24 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
     def setUp(self):
         self.pipeline = DummyPipeline()
 
-        tmpout = tempfile.mkstemp('.txt', prefix='capsul_test_')
-        os.close(tmpout[0])
-        os.unlink(tmpout[1])
+        tmpdir = tempfile.mkdtemp('capsul_output_test')
+        tmpout = os.path.join(tmpdir, 'capsul_test_node3_out.txt')
 
         # use a custom temporary soma-workflow dir to avoid concurrent
         # access problems
-        tmpdb = tempfile.mkstemp('', prefix='soma_workflow')
-        os.close(tmpdb[0])
-        os.unlink(tmpdb[1])
-        self.soma_workflow_temp_dir = tmpdb[1]
+        tmpdb = os.path.join(tmpdir, 'soma_workflow')
+        self.soma_workflow_temp_dir = os.path.join(tmpdir, tmpdb)
         os.mkdir(self.soma_workflow_temp_dir)
         swf_conf = '[%s]\nSOMA_WORKFLOW_DIR = %s\n' \
-            % (socket.gethostname(), tmpdb[1])
+            % (socket.gethostname(), tmpdb)
         swconfig.Configuration.search_config_path \
             = staticmethod(lambda : StringIO.StringIO(swf_conf))
 
-        self.output = tmpout[1]
-        self.pipeline.input = '/tmp/file_in.nii'
-        self.pipeline.output = self.output
+        self.tmpdir = tmpdir
+        self.pipeline.input = os.path.join(tmpdir, 'file_in.nii')
+        self.pipeline.output = tmpout
         study_config = StudyConfig(modules=['SomaWorkflowConfig'])
-        study_config.input_directory = '/tmp'
+        study_config.input_directory = tmpdir
         study_config.somaworkflow_computing_resource = 'localhost'
         study_config.somaworkflow_computing_resources_config.localhost = {
             'transfer_paths': [],
@@ -176,9 +173,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
             # stop workflow controler and wait for thread termination
             swc.stop_engine()
         if '--keep-tmp' not in sys.argv[1:]:
-            if os.path.exists(self.output):
-              os.unlink(self.output)
-            shutil.rmtree(self.soma_workflow_temp_dir)
+            if os.path.exists(self.tmpdir):
+                shutil.rmtree(self.tmpdir)
 
 
     def test_direct_run(self):
@@ -186,9 +182,10 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         self.pipeline.node2_switch = 'node2'
         self.pipeline()
         self.assertEqual(self.pipeline.nodes["node1"].process.output,
-                         '/tmp/file_in_output.nii')
+                         os.path.join(self.tmpdir, 'file_in_output.nii'))
         self.assertEqual(self.pipeline.nodes["node3"].process.input,
-                         ['/tmp/file_in_output.nii', '/tmp/file_in_output_bis.nii'])
+                         [os.path.join(self.tmpdir, 'file_in_output.nii'),
+                          os.path.join(self.tmpdir, 'file_in_output_bis.nii')])
         res_out = open(self.pipeline.output).readlines()
         self.assertEqual(res_out,
                          ['This is an output file\n',
@@ -201,9 +198,9 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         self.pipeline.node2_switch = 'node2alt'
         self.pipeline()
         self.assertEqual(self.pipeline.nodes["node1"].process.output,
-                         '/tmp/file_in_output.nii')
+                         os.path.join(self.tmpdir, 'file_in_output.nii'))
         self.assertEqual(self.pipeline.nodes["node3"].process.input,
-                         ['/tmp/file_in_output_ter.nii'])
+                         [os.path.join(self.tmpdir, 'file_in_output_ter.nii')])
         res_out = open(self.pipeline.output).readlines()
         self.assertEqual(res_out,
                          ['This is an output file\n',
@@ -219,9 +216,10 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
         result = self.study_config.run(self.pipeline, verbose=True)
         self.assertEqual(self.pipeline.nodes["node1"].process.output,
-                         '/tmp/file_in_output.nii')
+                         os.path.join(self.tmpdir, 'file_in_output.nii'))
         self.assertEqual(self.pipeline.nodes["node3"].process.input,
-                         ['/tmp/file_in_output.nii', '/tmp/file_in_output_bis.nii'])
+                         [os.path.join(self.tmpdir, 'file_in_output.nii'),
+                          os.path.join(self.tmpdir, 'file_in_output_bis.nii')])
         res_out = open(self.pipeline.output).readlines()
         self.assertEqual(res_out,
                          ['This is an output file\n',
@@ -232,15 +230,16 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         self.study_config.use_soma_workflow = True
         # change switch and re-run
         self.pipeline.node2_switch = 'node2alt'
-        workflow = pipeline_workflow.workflow_from_pipeline(self.pipeline)
-        import soma_workflow.client as swc
-        swc.Helper.serialize('/tmp/workflow.workflow', workflow)
+
+        #workflow = pipeline_workflow.workflow_from_pipeline(self.pipeline)
+        #import soma_workflow.client as swc
+        #swc.Helper.serialize('/tmp/workflow.workflow', workflow)
 
         result = self.study_config.run(self.pipeline, verbose=True)
         self.assertEqual(self.pipeline.nodes["node1"].process.output,
-                         '/tmp/file_in_output.nii')
+                         os.path.join(self.tmpdir, 'file_in_output.nii'))
         self.assertEqual(self.pipeline.nodes["node3"].process.input,
-                         ['/tmp/file_in_output_ter.nii'])
+                         [os.path.join(self.tmpdir, 'file_in_output_ter.nii')])
         res_out = open(self.pipeline.output).readlines()
         self.assertEqual(res_out,
                          ['This is an output file\n',
