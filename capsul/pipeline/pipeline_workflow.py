@@ -1153,11 +1153,12 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     for dnode, dlinks in six.iteritems(links):
         if dnode is pipeline.pipeline_node:
             continue  # skip pipeline node
-        if isinstance(dnode.process, Pipeline):
+        if isinstance(dnode.process, (Pipeline, ProcessIteration)):
             continue  # FIXME handle this
         djlinks = {}
         for param, link in six.iteritems(dlinks):
-            if not isinstance(link[0].process, Pipeline):  # FIXME handle this
+            if not isinstance(link[0].process, (Pipeline, ProcessIteration)):
+                # FIXME handle Pipeline and ProcessIteration cases
                 for job in jobs_map[link[0].process]:
                     djlinks[param] = (job, link[1])
         for job in jobs_map[dnode.process]:
