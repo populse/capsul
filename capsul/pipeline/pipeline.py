@@ -1817,8 +1817,8 @@ class Pipeline(Process):
                             # linked to the main node: keep it as is
                             valid = False
                             break
-                        if hasattr(links[2], 'process'):
-                            lproc = links[2].process
+                        if hasattr(link[2], 'process'):
+                            lproc = link[2].process
                             ltrait = lproc.trait(link[1])
                             if ltrait.output \
                                     and ltrait.input_filename is False:
