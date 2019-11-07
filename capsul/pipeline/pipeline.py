@@ -1498,7 +1498,8 @@ class Pipeline(Process):
                         conn = dest_node.connections()
                         for c in conn:
                             if c[0] == dest_plug_name:
-                                insert(pipeline, node_name, node, c[1],
+                                insert(pipeline, node_name, node,
+                                       dest_node.plugs[c[1]],
                                        dependencies, plug_name, links, output)
                                 break
                     else:
