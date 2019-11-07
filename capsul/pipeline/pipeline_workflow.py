@@ -1240,8 +1240,9 @@ def workflow_run(workflow_name, workflow, study_config):
             if job.has_outputs:
                 out_params = controller.get_job_output_params(
                     eng_wf.job_mapping[job].job_id)
-                process = proc_map[job.process_hash]
-                process.import_from_dict(out_params)
+                if out_params:
+                    process = proc_map[job.process_hash]
+                    process.import_from_dict(out_params)
 
     # TODO: should we transfer if the WF fails ?
     swclient.Helper.transfer_output_files(wf_id, controller)
