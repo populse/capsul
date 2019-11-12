@@ -252,6 +252,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         if '--keep-tmp' not in sys.argv[1:]:
             if os.path.exists(self.tmpdir):
                 shutil.rmtree(self.tmpdir)
+        elif os.path.exists(self.tmpdir):
+            print('leaving temp dir:', self.tmpdir, file=sys.stderr)
 
 
     def test_direct_run(self):
@@ -267,6 +269,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         self.assertEqual(res_out,
                          ['Initial file content.\n',
                           'This is an output file\n',
+                          'Initial file content.\n',
                           'This is an output file\n',
                           'And a second output file\n'])
 
@@ -288,6 +291,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         self.assertEqual(res_out,
                          ['Initial file content.\n',
                           'This is an output file\n',
+                          'Initial file content.\n',
                           'This is an output file\n',
                           'And a second output file\n'])
 
@@ -333,39 +337,104 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
             'PipelineWithSubpipeline')
         pipeline.input = os.path.join(self.tmpdir, 'file_in.nii')
         pipeline()
-        #self.assertEqual(pipeline.nodes["node1"].process.output,
-                         #os.path.join(self.tmpdir, 'file_in_output.nii'))
-        #self.assertEqual(pipeline.nodes["node3"].process.input,
-                         #[os.path.join(self.tmpdir, 'file_in_output_ter.nii')])
         res_out = open(pipeline.output).readlines()
         self.assertEqual(res_out,
                          ['Initial file content.\n',
                           'This is an output file\n',
                           'This is an output file\n',
-                          'And another output file\n'])
+                          'Initial file content.\n',
+                          'This is an output file\n',
+                          'This is an output file\n',
+                          'And a second output file\n',
+                          'This is an output file\n'])
 
-    def test_full_wf_switch(self):
+    @unittest.skip('not working yet')
+    def test_full_wf_subpipeline(self):
         self.study_config.use_soma_workflow = True
         pipeline = self.study_config.get_process_instance(
             'capsul.pipeline.test.test_proc_with_outputs.'
             'PipelineWithSubpipeline')
         pipeline.input = os.path.join(self.tmpdir, 'file_in.nii')
-        pipeline()
 
-        #workflow = pipeline_workflow.workflow_from_pipeline(self.pipeline)
+        #workflow = pipeline_workflow.workflow_from_pipeline(pipeline)
         #import soma_workflow.client as swc
         #swc.Helper.serialize('/tmp/workflow.workflow', workflow)
 
+        pipeline()
         result = self.study_config.run(self.pipeline, verbose=True)
-        #self.assertEqual(pipeline.nodes["node1"].process.output,
-                         #os.path.join(self.tmpdir, 'file_in_output.nii'))
-        #self.assertEqual(pipeline.nodes["node3"].process.input,
-                         #[os.path.join(self.tmpdir, 'file_in_output_ter.nii')])
         res_out = open(pipeline.output).readlines()
         self.assertEqual(res_out,
                          ['Initial file content.\n',
                           'This is an output file\n',
-                          'And another output file\n'])
+                          'This is an output file\n',
+                          'Initial file content.\n',
+                          'This is an output file\n',
+                          'This is an output file\n',
+                          'And a second output file\n',
+                          'This is an output file\n'])
+
+    def test_direct_run_sub_iter(self):
+        self.study_config.use_soma_workflow = False
+        pipeline = self.study_config.get_process_instance(
+            'capsul.pipeline.test.test_proc_with_outputs.'
+            'PipelineWithIteration')
+        pipeline.input = os.path.join(self.tmpdir, 'file_in.nii')
+        pipeline.output = os.path.join(self.tmpdir, 'file_out.nii')
+        pipeline()
+        res_out = open(pipeline.output).readlines()
+        self.assertEqual(res_out,
+                         [
+                          'Initial file content.\n',
+                          'This is an output file\n',
+
+                          'Initial file content.\n',
+                          'This is an output file\n',
+                          'And a second output file\n',
+
+                          'Initial file content.\n',
+                          'And a second output file\n',
+                          'This is an output file\n',
+
+                          'Initial file content.\n',
+                          'And a second output file\n',
+                          'This is an output file\n',
+                          'And a second output file\n',
+                         ])
+
+    @unittest.skip('not working yet')
+    def test_full_wf_sub_iter(self):
+        self.study_config.use_soma_workflow = True
+        pipeline = self.study_config.get_process_instance(
+            'capsul.pipeline.test.test_proc_with_outputs.'
+            'PipelineWithIteration')
+        pipeline.input = os.path.join(self.tmpdir, 'file_in.nii')
+        pipeline.output = os.path.join(self.tmpdir, 'file_out.nii')
+
+        #workflow = pipeline_workflow.workflow_from_pipeline(pipeline)
+        #import soma_workflow.client as swc
+        #swc.Helper.serialize('/tmp/workflow.workflow', workflow)
+
+        pipeline()
+        result = self.study_config.run(self.pipeline, verbose=True)
+        res_out = open(pipeline.output).readlines()
+        self.assertEqual(res_out,
+                         [
+                          'Initial file content.\n',
+                          'This is an output file\n',
+
+                          'Initial file content.\n',
+                          'This is an output file\n',
+                          'And a second output file\n',
+
+                          'Initial file content.\n',
+                          'And a second output file\n',
+                          'This is an output file\n',
+
+                          'Initial file content.\n',
+                          'And a second output file\n',
+                          'This is an output file\n',
+                          'And a second output file\n',
+                         ])
 
 
 def test():
