@@ -348,8 +348,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'And a second output file\n',
                           'This is an output file\n'])
 
-    @unittest.skip('not working yet')
-    def test_full_wf_subpipeline(self):
+    #@unittest.skip('not working yet')
+    def xtest_full_wf_subpipeline(self):
         self.study_config.use_soma_workflow = True
         pipeline = self.study_config.get_process_instance(
             'capsul.pipeline.test.test_proc_with_outputs.'
@@ -401,8 +401,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'And a second output file\n',
                          ])
 
-    @unittest.skip('not working yet')
-    def test_full_wf_sub_iter(self):
+    #@unittest.skip('not working yet')
+    def xtest_full_wf_sub_iter(self):
         self.study_config.use_soma_workflow = True
         pipeline = self.study_config.get_process_instance(
             'capsul.pipeline.test.test_proc_with_outputs.'
