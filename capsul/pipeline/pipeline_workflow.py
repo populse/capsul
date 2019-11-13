@@ -31,7 +31,7 @@ import weakref
 import soma_workflow.client as swclient
 import soma_workflow.info as swinfo
 
-from capsul.pipeline.pipeline import Pipeline, Switch
+from capsul.pipeline.pipeline import Pipeline, Switch, PipelineNode
 from capsul.pipeline import pipeline_tools
 from capsul.process.process import Process
 from capsul.pipeline.topological_sort import Graph
@@ -869,6 +869,191 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             completion_engine.complete_iteration_step(iteration)
 
 
+    def workflow_from_pipeline_structure(
+            pipeline, temp_map={}, shared_map={},
+            transfers=[{}, {}], shared_paths={},
+            disabled_nodes=set(), forbidden_temp=set(),
+            jobs_priority=0, steps={}, current_step='',
+            study_config={}, with_links=True):
+        """ Convert a CAPSUL graph to a soma-workflow workflow
+
+        Parameters
+        ----------
+        pipeline: Pipeline (mandatory)
+            a CAPSUL pipeline
+        temp_map: dict (optional)
+            temporary files to replace by soma_workflow TemporaryPath objects
+        shared_map: dict (optional)
+            shared translated paths maps (global to pipeline).
+            This dict is updated when needed during the process.
+        transfers: list of 2 dicts (optional)
+            File transfers dicts (input / ouput), indexed by process, then by
+            file path.
+        shared_paths: dict (optional)
+            holds information about shared resource paths from soma-worflow
+            section in study config.
+            If not specified, no translation will be used.
+        jobs_priority: int (optional, default: 0)
+            set this priority on soma-workflow jobs.
+        steps: dict (optional)
+            node name -> step name dict
+        current_step: str (optional)
+            the parent node step name
+        study_config: StydyConfig instance (optional)
+            used only for iterative nodes, to be passed to create sub-workflows
+
+        Returns
+        -------
+        workflow: tuple (jobs, dependencies, groups, root_jobs, links, nodes)
+            the corresponding soma-workflow workflow definition (to be passed
+            to Workflow constructor)
+        """
+        def _update_links(links1, links2):
+            for dest_node, slink in six.iteritems(links2):
+                nlink = links1.setdefault(dest_node, {})
+                nlink.update(slink)
+
+        jobs = {}
+        groups = {}
+        root_jobs = {}
+        dependencies = set()
+        group_nodes = {}
+        links = {}
+
+        nodes = [(pipeline, node_name, node)
+                 for node_name, node in six.iteritems(pipeline.nodes)
+                 if node.activated and node.enabled
+                    and node is not pipeline.pipeline_node
+                    and isinstance(node, ProcessNode)]
+        all_nodes = list(nodes)
+
+        # Go through all graph nodes
+        #while nodes:
+        for node_desc in nodes:
+
+            #n_pipeline, node_name, node = nodes.pop(0)
+            n_pipeline, node_name, node = node_desc
+
+            if node in disabled_nodes or not node.enabled \
+                    or not node.activated:
+                continue
+
+            if isinstance(node, PipelineNode):
+                # sub-pipeline
+                group_nodes[node_name] = node
+                #nodes += [(node.process, snode_name, snode)
+                          #for snode_name, snode
+                              #in six.iteritems(node.process.nodes)
+                          #if snode is not node.process.pipeline_node]
+
+                step_name = current_step or steps.get(node_name, '')
+                (sub_jobs, sub_deps, sub_groups, sub_root_jobs, sub_links,
+                 sub_nodes) \
+                    = workflow_from_pipeline_structure(
+                        node.process, temp_map, shared_map, transfers,
+                        shared_paths, disabled_nodes,
+                        jobs_priority=jobs_priority,
+                        steps=steps, current_step=step_name, with_links=False)
+                group = build_group(node_name, six_values(sub_root_jobs))
+                groups[node] = group
+                root_jobs[node] = [group]
+                jobs.update(sub_jobs)
+                groups.update(sub_groups)
+                dependencies.update(sub_deps)
+                all_nodes += sub_nodes
+                #_update_links(links, sub_links)
+            # Otherwise convert all the processes to jobs
+            else:
+                sub_jobs = {}
+                process = None
+                if isinstance(node, Process):
+                    process = node
+                elif hasattr(node, 'process'):
+                    # process node
+                    process = node.process
+                if process:
+                    step_name = current_step or steps.get(node.name)
+                    if isinstance(process, ProcessIteration):
+                        # iterative node
+                        group_nodes.setdefault(
+                            node_name, []).append(node)
+                        sub_workflows = build_iteration(
+                            process, step_name, temp_map,
+                            shared_map, transfers, shared_paths,
+                            disabled_nodes,
+                            {}, steps, study_config={})
+                        (sub_jobs, sub_deps, sub_groups, sub_root_jobs,
+                         sub_links, sub_nodes) = sub_workflows
+                        group = build_group(node_name,
+                                            six_values(sub_root_jobs))
+                        groups.setdefault(process, []).append(group)
+                        root_jobs.setdefault(process, []).append(group)
+                        groups.update(sub_groups)
+                        jobs.update(sub_jobs)
+                        dependencies.update(sub_deps)
+                        all_nodes += sub_nodes
+                        #_update_links(links, sub_links)
+                    else:
+                        job = build_job(process, temp_map, shared_map,
+                                        transfers, shared_paths,
+                                        forbidden_temp=forbidden_temp,
+                                        name=node.name,
+                                        priority=jobs_priority,
+                                        step_name=step_name)
+                        sub_jobs[process] = job
+                        root_jobs[process] = [job]
+                jobs.update(sub_jobs)
+
+        # links / dependencies
+        if with_links:
+            for node_desc in all_nodes:
+                # TODO iterations
+                pipeline, node_name, node = node_desc
+                for param, plug in six.iteritems(node.plugs):
+                    source = pipeline_tools.where_is_plug_value_from(plug,
+                                                                     True)
+                    if source != (None, None, None):
+                        snode, param_name, parent = source
+                        process = getattr(snode, 'process', snode)
+                        if not isinstance(snode, ProcessNode):
+                            # the node is a custom node. Add deps to all
+                            # upstream nodes
+                            new_nodes = [snode]
+                            while new_nodes:
+                                mnode = new_nodes.pop(0)
+                                moredep = [
+                                    pipeline_tools.where_is_plug_value_from(
+                                        mlink[3], True)
+                                    for mplug in mnode.plugs.values()
+                                    for mlink in mplug.links_from
+                                    if not mplug.output
+                                ]
+                                dependencies.update(
+                                    [(x[0].process, node.process)
+                                     for x in moredep
+                                     if isinstance(x[0], ProcessNode)])
+                                new_nodes += [x[0] for x in moredep
+                                              if x[0] is not None
+                                                  and not isinstance(
+                                                      x[0], ProcessNode)]
+                        else:  # ProcessNode
+                            dependencies.add((jobs[process],
+                                              jobs[node.process]))
+                            trait = process.trait(param_name)
+                            if trait.input_filename is False \
+                                    or (not isinstance(trait.trait_type,
+                                                      (File, Directory)) \
+                                        and (not isinstance(trait.trait_type,
+                                                            List)
+                                            or not isinstance(
+                                                trait.inner_traits[0],
+                                                (File, Directory)))):
+                                links.setdefault(node.process, {}).setdefault(
+                                    param, (process, param_name))
+
+        return jobs, dependencies, groups, root_jobs, links, all_nodes
+
+
     def workflow_from_graph(graph, temp_map={}, shared_map={},
                             transfers=[{}, {}], shared_paths={},
                             disabled_nodes=set(), forbidden_temp=set(),
@@ -1085,6 +1270,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     if study_config is None:
         study_config = pipeline.get_study_config()
 
+    USE_NEW_WORKFLOW = False
+
     if not isinstance(pipeline, Pipeline):
         # "pipeline" is actally a single process (or should, if it is not a
         # pipeline). Get it into a pipeine (with a single node) to make the
@@ -1134,11 +1321,20 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
     # Get a graph
     try:
-        graph = pipeline.workflow_graph()
-        (jobs, dependencies, groups, root_jobs, links) = workflow_from_graph(
-            graph, temp_subst_map, shared_map, transfers, swf_paths[1],
-            disabled_nodes=disabled_nodes, forbidden_temp=remove_temp,
-            steps=steps, study_config=study_config)
+        if USE_NEW_WORKFLOW:
+            (jobs, dependencies, groups, root_jobs, links, nodes) \
+                = workflow_from_pipeline_structure(
+                    pipeline, temp_subst_map, shared_map, transfers,
+                    swf_paths[1],
+                    disabled_nodes=disabled_nodes, forbidden_temp=remove_temp,
+                    steps=steps, study_config=study_config)
+        else:
+            graph = pipeline.workflow_graph()
+            (jobs, dependencies, groups, root_jobs, links) \
+                = workflow_from_graph(
+                    graph, temp_subst_map, shared_map, transfers, swf_paths[1],
+                    disabled_nodes=disabled_nodes, forbidden_temp=remove_temp,
+                    steps=steps, study_config=study_config)
     finally:
         restore_empty_filenames(temp_map)
 
@@ -1150,22 +1346,39 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         while isinstance(process, tuple):
             process = process[0]
         jobs_map.setdefault(process, []).append(job)
-    for dnode, dlinks in six.iteritems(links):
-        if dnode is pipeline.pipeline_node:
-            continue  # skip pipeline node
-        if isinstance(dnode.process, (Pipeline, ProcessIteration)):
-            continue  # FIXME handle this
-        djlinks = {}
-        for param, link in six.iteritems(dlinks):
-            if not isinstance(link[0].process, (Pipeline, ProcessIteration)):
-                # FIXME handle Pipeline and ProcessIteration cases
-                for job in jobs_map[link[0].process]:
-                    djlinks[param] = (job, link[1])
-        for job in jobs_map[dnode.process]:
-            param_links[job] = djlinks
+    if USE_NEW_WORKFLOW:
+        for dnode, dlinks in six.iteritems(links):
+            if isinstance(dnode, (Pipeline, ProcessIteration)):
+                continue  # FIXME handle this
+            djlinks = {}
+            for param, link in six.iteritems(dlinks):
+                if not isinstance(link[0], (Pipeline, ProcessIteration)):
+                    # FIXME handle ProcessIteration cases
+                    for job in jobs_map[link[0]]:
+                        djlinks[param] = (job, link[1])
+            for job in jobs_map[dnode]:
+                param_links[job] = djlinks
+    else:
+        for dnode, dlinks in six.iteritems(links):
+            if dnode is pipeline.pipeline_node:
+                continue  # skip pipeline node
+            if isinstance(dnode.process, (Pipeline, ProcessIteration)):
+                continue  # FIXME handle this
+            djlinks = {}
+            for param, link in six.iteritems(dlinks):
+                if not isinstance(link[0].process,
+                                  (Pipeline, ProcessIteration)):
+                    # FIXME handle Pipeline and ProcessIteration cases
+                    for job in jobs_map[link[0].process]:
+                        djlinks[param] = (job, link[1])
+            for job in jobs_map[dnode.process]:
+                param_links[job] = djlinks
 
     all_jobs = six_values(jobs)
-    root_jobs = six_values(root_jobs)
+    if USE_NEW_WORKFLOW:
+        root_jobs = sum(six_values(root_jobs), [])
+    else:
+        root_jobs = six_values(root_jobs)
 
     # if directories have to be created, all other primary jobs will depend
     # on this first one
