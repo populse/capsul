@@ -419,6 +419,35 @@ class Node(Controller):
         """
         return self.trait(trait_name)
 
+    def get_connections_through(self, plug_name, single=False):
+        """ If the node has internal links (inside a pipeline, or in a switch
+        or other custom connection node), return the "other side" of the
+        internal connection to the selected plug. The returned plug may be
+        in an internal node (in a pipeline), or in an external node connected to the node.
+        When the node is "opaque" (no internal connections), it returns the
+        input plug.
+        When the node is inactive / disabled, it returns [].
+
+        Parameters
+        ----------
+        plug_name: str
+            plug to get connections with
+        single: bool
+            if True, stop at the first connected plug. Otherwise return the
+            list of all connected plugs.
+
+        Returns
+        -------
+        connected_plug; list of tuples
+            [(node, plug_name, plug), ...]
+            Returns [(self, plug_name, plug)] when the plug has no internal
+            connection.
+        """
+        if not self.activated or not self.enabled:
+            return []
+        else:
+            return [(self, plug_name, self.plugs[plug_name])]
+
 
 class ProcessNode(Node):
     """ Process node.
@@ -550,7 +579,48 @@ class ProcessNode(Node):
 class PipelineNode(ProcessNode):
     """ A special node to store the pipeline user-parameters
     """
-    pass
+    def get_connections_through(self, plug_name, single=False):
+        if not self.activated or not self.enabled:
+            return []
+
+        plug = self.plugs[plug_name]
+        if plug.output:
+            links = plug.links_from
+        else:
+            links = plug.links_to
+        dest_plugs = []
+        for link in links:
+            done = False
+            if not link[2].activated or not link[2].enabled:
+                continue  # skip disabled nodes
+            if link[2] is self:
+                # other side of the pipeline
+                if link[3].output:
+                    more_links = link[3].links_to
+                else:
+                    more_links = link[3].links_from
+                if not more_links:
+                    # going outside the pipeline which seems to be top-level:
+                    # keep it
+                    deet_plugs.append((link[2], link[1], link[3]))
+                    if single:
+                        done = True
+                for other_link in more_links:
+                    other_end = other_link[2].get_connections_through(
+                        other_link[1], single)
+                    dest_plugs += other_end
+                    if other_end and single:
+                        done = True
+                        break
+            else:
+                other_end = link[2].get_connections_through(link[1], single)
+                dest_plugs += other_end
+                if other_end and single:
+                    done = True
+            if done:
+                break
+        return dest_plugs
+
 
 class Switch(Node):
     """ Switch node to select a specific Process.
@@ -818,6 +888,31 @@ class Switch(Node):
     def __setstate__(self, state):
         self.__block_output_propagation = True
         super(Switch, self).__setstate__(state)
+
+    def get_connections_through(self, plug_name, single=False):
+        if not self.activated or not self.enabled:
+            return []
+        plug = self.plugs[plug_name]
+        if plug.output:
+            connected_plug_name = '%s_switch_%s' % (self.switch, plug_name)
+        else:
+            spliter = plug_name.split("_switch_")
+            if len(splitter) != 2:
+                # not a switch input plug
+                return []
+            connected_plug_name = splitter[1]
+        connected_plug = self.plugs[connected_plug_name]
+        if plug.output:
+            links = connected_plug.links_from
+        else:
+            links = connected_plug.links_to
+        dest_plugs = []
+        for link in links:
+            other_end = link[2].get_connections_through(link[1], single)
+            dest_plugs += other_end
+            if other_end and single:
+                break
+        return dest_plugs
 
 
 class OptionalOutputSwitch(Switch):
