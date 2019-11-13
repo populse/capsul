@@ -203,7 +203,11 @@ class Node(Controller):
                              "enabled")
     @property
     def process(self):
-        return get_ref(self._process)
+        try:
+            return get_ref(self._process)
+        except AttributeError:
+            raise AttributeError('%s object has no attribute process'
+                                 % repr(self))
     
     @process.setter
     def process(self, value):
