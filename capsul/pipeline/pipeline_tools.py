@@ -839,27 +839,24 @@ def where_is_plug_value_from(plug, recursive=True):
         if not node.activated or not node.enabled:
             # disabled nodes are not influencing
             continue
-        if isinstance(node, Switch):
-            # recover through switch input
-            switch_value = node.switch
-            switch_input = '%s_switch_%s' % (switch_value, param_name)
-            in_plug = node.plugs[switch_input]
-            links += [link + (parent,) for link in in_plug.links_from]
-        elif recursive and isinstance(node, PipelineNode):
-            # either output from a sibling sub_pipeline
-            # or input from parent pipeline
-            # but it is handled the same way.
-            # check their inputs
-            # just if sibling, keep them as parent
-            if in_plug.output and parent is None:
-                new_parent = node
-            else:
-                new_parent = parent
-            links += [link + (new_parent,) for link in in_plug.links_from]
+        if isinstance(node, PipelineNode):
+            if not recursive:
+                return node, param_name, parent
+            else:  # recursive
+                # either output from a sibling sub_pipeline
+                # or input from parent pipeline
+                # but it is handled the same way.
+                # check their inputs
+                # just if sibling, keep them as parent
+                if in_plug.output and parent is None:
+                    new_parent = node
+                else:
+                    new_parent = parent
+                links += [link + (new_parent,) for link in in_plug.links_from]
         else:
-            # output of a process: found it
-            # in non-recursive mode, a pipeline is regarded as a process.
-            return node, param_name, parent
+            other_end = node.get_connections_through(param_name, single=True)
+            if other_end:
+                return other_end[0][0], other_end[0][1], parent
     # not found
     return None, None, None
 
