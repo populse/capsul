@@ -1360,6 +1360,11 @@ class NipypeProcess(FileCopyProcess):
         # manually the output nipype/capsul traits sync.
         super(Process, self).add_trait("synchronize", Int(0, optional=True))
 
+        # use the nipype doc for help
+        doc = getattr(nipype_instance, '__doc__')
+        if doc:
+            self.__doc__ = doc
+
 
     def set_output_directory(self, out_dir):
         """ Set the process output directory.
