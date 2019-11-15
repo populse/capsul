@@ -214,7 +214,18 @@ def nipype_factory(nipype_instance):
         return process_trait
 
     # beginning of nipype_factory function
-    import nipype.interfaces.base.traits_extension as npe
+    try:
+        import nipype.interfaces.base.traits_extension as npe
+    except (AttributeError, ImportError):
+        # In some situations an AttributeError is raised, with the message:
+        # module 'nipype.interfaces' has no attribute 'base'
+        # but the module is actually here. Maybe it has not finished loading
+        # (how can that happen?)
+        if 'nipype.interfaces.base.traits_extension' in sys.modules:
+            npe = sys.modules['nipype.interfaces.base.traits_extension']
+        else:
+            # no nipype, or problem loading it. Give up, use regular traits.
+            import traits.api as npe
 
     # Add nipype traits to the process instance
     # > input traits
