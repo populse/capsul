@@ -1355,7 +1355,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 if not isinstance(link[0], (Pipeline, ProcessIteration)):
                     # FIXME handle ProcessIteration cases
                     for job in jobs_map[link[0]]:
-                        djlinks[param] = (job, link[1])
+                        djlinks.setdefault(param, []).append((job, link[1]))
             for job in jobs_map[dnode]:
                 param_links[job] = djlinks
     else:
@@ -1370,7 +1370,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                   (Pipeline, ProcessIteration)):
                     # FIXME handle Pipeline and ProcessIteration cases
                     for job in jobs_map[link[0].process]:
-                        djlinks[param] = (job, link[1])
+                        djlinks.setdefault(param, []).append((job, link[1]))
             for job in jobs_map[dnode.process]:
                 param_links[job] = djlinks
 
