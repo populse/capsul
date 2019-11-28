@@ -61,7 +61,7 @@ from soma.controller.trait_utils import get_trait_desc
 # Capsul import
 from capsul.utils.version_utils import get_tool_version
 
-if sys.version_info[0] <= 3:
+if sys.version_info[0] >= 3:
     unicode = str
     basestring = str
 
@@ -386,7 +386,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         _run_process(). By default it does nothing but can be overriden
         in derived classes.
         """
-        
+        pass
+
     def _after_run_process(self, run_process_result):
         """This method is called by StudyConfig.run() after calling
         _run_process(). It is expected to return the final result of the
@@ -1001,7 +1002,8 @@ class FileCopyProcess(Process):
     _copy_input_files
     """
     def __init__(self, activate_copy=True, inputs_to_copy=None,
-                 inputs_to_clean=None, destination=None):
+                 inputs_to_clean=None, destination=None,
+                 inputs_to_symlink=None):
         """ Initialize the FileCopyProcess class.
 
         Parameters
@@ -1018,6 +1020,8 @@ class FileCopyProcess(Process):
             where the files are copied.
             If None, files are copied in a '_workspace' folder included in the
             image folder.
+        inputs_to_symlink: list of str (optional, default None)
+            as inputs_to_copy, but for files which should be symlinked
         """
         # Inheritance
         super(FileCopyProcess, self).__init__()
@@ -1027,10 +1031,17 @@ class FileCopyProcess(Process):
         self.destination = destination
         if self.activate_copy:
             self.inputs_to_clean = inputs_to_clean or []
+            if inputs_to_symlink is None:
+                self.inputs_to_symlink = self.user_traits().keys()
+            else:
+                self.inputs_to_symlink = inputs_to_symlink
             if inputs_to_copy is None:
-                self.inputs_to_copy = self.user_traits().keys()
+                self.inputs_to_copy = [k for k in self.user_traits().keys()
+                                       if k not in self.inputs_to_symlink]
             else:
                 self.inputs_to_copy = inputs_to_copy
+                self.inputs_to_symlink = [k for k in self.inputs_to_symlink
+                                          if k not in self.inputs_to_copy]
             self.copied_inputs = None
 
     def _before_run_process(self):
@@ -1062,6 +1073,7 @@ class FileCopyProcess(Process):
         """ Removed som copied inputs that can be deleted at the end of the
         processing.
         """
+        #print('FileCopyProcess._clean_workspace:', self.inputs_to_clean, self.copied_inputs)
         for to_rm_name in self.inputs_to_clean:
             if to_rm_name in self.copied_inputs:
                 self._rm_files(self.copied_inputs[to_rm_name])
@@ -1094,10 +1106,12 @@ class FileCopyProcess(Process):
         """ Update the process input traits: input files are copied.
         """
         # Get the new trait values
-        input_parameters = self._get_process_arguments()
-        self.copied_inputs = self._copy_input_files(input_parameters)
+        input_parameters, input_symlinks = self._get_process_arguments()
+        self.copied_inputs = self._copy_input_files(input_parameters, False)
+        self.copied_inputs.update(
+            self._copy_input_files(input_symlinks, True))
 
-    def _copy_input_files(self, python_object):
+    def _copy_input_files(self, python_object, use_symlink=True):
         """ Recursive method that copy the input process files.
 
         Parameters
@@ -1117,7 +1131,7 @@ class FileCopyProcess(Process):
             out = {}
             for key, val in python_object.items():
                 if val is not Undefined:
-                    out[key] = self._copy_input_files(val)
+                    out[key] = self._copy_input_files(val, use_symlink)
 
         # Deal with tuple and list
         # Create an output list or tuple that will contain the copied file
@@ -1126,7 +1140,7 @@ class FileCopyProcess(Process):
             out = []
             for val in python_object:
                 if val is not Undefined:
-                    out.append(self._copy_input_files(val))
+                    out.append(self._copy_input_files(val, use_symlink))
             if isinstance(python_object, tuple):
                 out = tuple(out)
 
@@ -1146,8 +1160,18 @@ class FileCopyProcess(Process):
                     os.makedirs(destdir)
                 fname = os.path.basename(python_object)
                 out = os.path.join(destdir, fname)
-                shutil.copy2(python_object, out)
-                
+                if out == python_object:
+                    return out  # input=output, nothing to do
+                if os.path.exists(out):
+                    if os.path.isdir(out):
+                        shutil.rmtree(out)
+                    else:
+                        os.unlink(out)
+                if use_symlink:
+                    os.symlink(python_object, out)
+                else:
+                    shutil.copy2(python_object, out)
+
                 # Copy associated .mat files
                 name = fname.split(".")[0]
                 matfnames = glob.glob(os.path.join(
@@ -1155,7 +1179,16 @@ class FileCopyProcess(Process):
                 for matfname in matfnames:
                     extrafname = os.path.basename(matfname)
                     extraout = os.path.join(destdir, extrafname)
-                    shutil.copy2(matfname, extraout)
+                    if extraout != out:
+                        if os.path.exists(extraout):
+                            if os.path.isdir(extraout):
+                                shutil.rmtree(extraout)
+                            else:
+                                os.unlink(extraout)
+                        if use_symlink:
+                            os.symlink(matfname, extraout)
+                        else:
+                            shutil.copy2(matfname, extraout)
 
         return out
 
@@ -1168,25 +1201,33 @@ class FileCopyProcess(Process):
         Returns
         -------
         input_parameters: dict
-            the process input parameters.
+            the process input parameters that should be copied.
+        input_symlinks: dict
+            the process input parameters that should be symlinked.
         """
         # Store for input parameters
         input_parameters = {}
+        input_symlinks = {}
 
         # Go through all the user traits
         for name, trait in six.iteritems(self.user_traits()):
             if trait.output:
                 continue
             # Check if the target parameter is in the check list
-            if name in self.inputs_to_copy:
+            c = name in self.inputs_to_copy
+            s = name in self.inputs_to_symlink
+            if c or s:
                 # Get the trait value
                 value = self.get_parameter(name)
                 # Skip undefined trait attributes and outputs
                 if value is not Undefined:
                     # Store the input parameter
-                    input_parameters[name] = value
+                    if c:
+                        input_parameters[name] = value
+                    else:
+                        input_symlinks[name] = value
 
-        return input_parameters
+        return input_parameters, input_symlinks
 
 
 class NipypeProcess(FileCopyProcess):
@@ -1231,8 +1272,11 @@ class NipypeProcess(FileCopyProcess):
             # Copy only 'copyfile' nipype traits
             inputs_to_copy = self._nipype_interface.inputs.traits(
                 copyfile=True).keys()
+            inputs_to_symlink = self._nipype_interface.inputs.traits(
+                copyfile=False).keys()
             super(NipypeProcess, self).__init__(
                 activate_copy=True, inputs_to_copy=inputs_to_copy,
+                inputs_to_symlink=inputs_to_symlink,
                 *args, **kwargs)
         else:
             super(NipypeProcess, self).__init__(
