@@ -1124,6 +1124,10 @@ class FileCopyProcess(Process):
         out: object
             the copied-file input object.
         """
+        if sys.platform.startswith('win'):
+            # on windows, no symlinks.
+            use_symlink = False
+
         # Deal with dictionary
         # Create an output dict that will contain the copied file locations
         # and the other values
