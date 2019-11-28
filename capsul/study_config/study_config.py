@@ -331,7 +331,6 @@ class StudyConfig(Controller):
         verbose: int
             if different from zero, print console messages.
         """
-        
         if self.create_output_directories:
             for name, trait in process_or_pipeline.user_traits().items():
                 if trait.output and isinstance(trait.handler, (File, Directory)):
@@ -394,7 +393,11 @@ class StudyConfig(Controller):
         # Use the local machine to execute the pipeline or process
         else:
             if output_directory is None or output_directory is Undefined:
-                output_directory = self.output_directory
+                if 'output_directory' in process_or_pipeline.traits():
+                    output_directory = getattr(process_or_pipeline,
+                                               'output_directory')
+                if output_directory is None or output_directory is Undefined:
+                    output_directory = self.output_directory
             # Not all processes need an output_directory defined on
             # StudyConfig
             if output_directory is not None and output_directory is not Undefined:
