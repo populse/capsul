@@ -1124,8 +1124,8 @@ class FileCopyProcess(Process):
         out: object
             the copied-file input object.
         """
-        if sys.platform.startswith('win'):
-            # on windows, no symlinks.
+        if sys.platform.startswith('win') and sys.version_info[0] < 3:
+            # on windows, no symlinks (in python2 at least).
             use_symlink = False
 
         # Deal with dictionary
