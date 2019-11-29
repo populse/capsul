@@ -1188,3 +1188,57 @@ def save_pipeline_parameters(filename, pipeline):
         else:
             with open(filename, 'w') as file:
                 json.dump(dic, file)
+
+
+def find_node(pipeline, node):
+    ''' Find the given node in the pipeline or a sub-pipeline
+
+    Returns
+    -------
+    node_chain: list
+        list of node names in the pipeline going through sub-pipelines to the
+        given node
+    '''
+    nodes = []
+    pipelines = [(pipeline.pipeline_node, [])]
+    while pipelines:
+        n, names = pipelines.pop(0)
+        for sk, sn in six.iteritems(n.process.nodes):
+            if node is sn:
+                return names + [sk]
+            if sn is not n and isinstance(sn, PipelineNode):
+                pipelines.append((sn, names + [sn]))
+
+    raise KeyError('Node not found in the pipeline')
+
+def is_node_enabled(pipeline, node_name=None, node=None):
+    ''' Checks if the given node is enabled in the pipeline.
+    It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a distabled step.
+    The node may be given as a Node instance, or its name in the pipeline.
+    '''
+    names = [node_name]
+    if node is None:
+        node = pipeline.nodes[node_name]
+
+        if not node.enabled or not node.activated:
+            return False
+
+    elif node_name is None:
+
+        if not node.enabled or not node.activated:
+            return False
+
+        # probably a node of a sub-pipeline
+        names = find_node(pipeline, node)
+
+    p = pipeline
+    for name in names:
+        steps = getattr(p, 'pipeline_steps', Controller())
+        disabled_nodes = set()
+        for step, trait in six.iteritems(steps.user_traits()):
+            if not getattr(steps, step) and name in trait.nodes:
+                return False
+
+    # not disabled ? OK then it's enabled
+    return True
+

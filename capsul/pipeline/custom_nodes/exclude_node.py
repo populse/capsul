@@ -85,3 +85,11 @@ class ExcludeNode(Node):
                            input_type=t)
         return node
 
+    def params_to_command(self):
+        return ['custom_job']
+
+    def build_job(self):
+        from soma_workflow.pipeline.custom_jobs import LeaveOneOutJob
+        job = LeaveOneOutJob()
+        return job
+
