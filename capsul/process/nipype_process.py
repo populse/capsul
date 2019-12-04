@@ -16,6 +16,7 @@ Functions
 '''
 
 # System import
+from __future__ import print_function
 import sys
 import os
 import types
@@ -80,7 +81,8 @@ def nipype_factory(nipype_instance):
         from nipype.interfaces.spm import Level1Design
         return super(Level1Design, self)._make_matlab_command(
             content, postscript=None)
-    if (nipype_instance.__class__.__module__.startswith('nipype.interfaces.spm.')
+    if (nipype_instance.__class__.__module__.startswith(
+            'nipype.interfaces.spm.')
         and nipype_instance.__class__.__name__ == "Level1Design"):
         nipype_instance._make_matlab_command = types.MethodType(
             _make_matlab_command, nipype_instance)
@@ -136,6 +138,19 @@ def nipype_factory(nipype_instance):
         setattr(process_instance._nipype_interface.inputs, name,
                 value)
 
+    def _replace_dir(value, directory):
+        """ Replace directory in filename(s) in value.
+
+        value may be a string, or a list
+        """
+        if value in (None, Undefined, ""):
+            return value
+        if isinstance(value, list):
+            value = [_replace_dir(x, directory) for x in value]
+        else:
+            value = os.path.join(directory, os.path.basename(value))
+        return value
+
     def sync_process_output_traits(process_instance, name, value):
         """ Event handler function to update the process instance outputs
 
@@ -152,6 +167,7 @@ def nipype_factory(nipype_instance):
         value: type (manndatory)
             the old trait value
         """
+        #print('sync_process_output_traits', name)
         # Get all the input traits
         input_traits = process_instance.traits(output=False)
 
@@ -162,26 +178,64 @@ def nipype_factory(nipype_instance):
 
             # Try to set all the process instance output traits values from
             # the nipype autocompleted traits values
-            try:
-                nipype_outputs = (process_instance.
-                                  _nipype_interface._list_outputs())
+            nipype_outputs = (process_instance.
+                              _nipype_interface._list_outputs())
 
-                # Synchronize traits: check file existance
-                for out_name, out_value in six.iteritems(nipype_outputs):
+            # Synchronize traits: check file existance
+            for out_name, out_value in six.iteritems(nipype_outputs):
 
+                try:
                     # Set the output process trait value
                     process_instance.set_parameter(
                         "_" + out_name, out_value)
 
-            # If we can't update the output process instance traits values,
-            # print a logging debug message.
-            except Exception:
-                ex_type, ex, tb = sys.exc_info()
-                logger.debug(
-                    "Something wrong in the nipype output trait "
-                    "synchronization:\n\n\tError: {0} - {1}\n"
-                    "\tTraceback:\n{2}".format(
-                        ex_type, ex, "".join(traceback.format_tb(tb))))
+                # If we can't update the output process instance traits values,
+                # print a logging debug message.
+                except Exception as e:
+                    print('EXCEPTION:', e)
+                    import traceback
+                    traceback.print_exc()
+                    ex_type, ex, tb = sys.exc_info()
+                    logger.debug(
+                        "Something wrong in the nipype output trait "
+                        "synchronization:\n\n\tError: {0} - {1}\n"
+                        "\tTraceback:\n{2}".format(
+                            ex_type, ex, "".join(traceback.format_tb(tb))))
+
+        if name in list(input_traits.keys()) + ['synchronize',
+                                                'output_directory']:
+            names = [name]
+            if name == 'output_directory':
+                names = input_traits.keys()
+            for name in names:
+                # check if the input trait is duplicated as an output
+                trait = process_instance.trait(name)
+                if trait.copyfile:
+                    out_trait = process_instance.trait('_modified_%s' % name)
+                    if out_trait:
+                        new_value = getattr(process_instance, name)
+                        output_directory \
+                            = getattr(process_instance, 'output_directory',
+                                      Undefined)
+                        if output_directory not in (Undefined, None):
+                            new_value = _replace_dir(new_value,
+                                                     output_directory)
+                        try:
+                            process_instance.set_parameter(
+                                "_modified_%s" % name, new_value)
+                        # If we can't update the output process instance
+                        # traits values, print a logging debug message.
+                        except Exception as e:
+                            print('EXCEPTION:', e)
+                            import traceback
+                            traceback.print_exc()
+                            ex_type, ex, tb = sys.exc_info()
+                            logger.debug(
+                                "Something wrong in the nipype output trait "
+                                "synchronization:\n\n\tError: {0} - {1}\n"
+                                "\tTraceback:\n{2}".format(
+                                    ex_type, ex, "".join(traceback.format_tb(tb))))
+
 
     ####################################################################
     # Clone nipype traits
@@ -263,12 +317,25 @@ def nipype_factory(nipype_instance):
         # trait is modified
         process_instance.on_trait_change(sync_nypipe_traits, name=trait_name)
 
+        ## if copyfile is True, we assume the input will be modified, thus it
+        ## also becomes an output
+        #if trait.copyfile:
+            #process_trait = clone_nipype_trait(process_instance, trait)
+            #process_trait.output = True
+            #process_trait.input_filename = False
+            #process_trait.optional = True
+            #private_name = "_" + trait_name + '_out'
+            #process_instance.add_trait(private_name, process_trait)
+
     # Add callback to synchronize output process instance traits with nipype
     # autocompleted output traits
     process_instance.on_trait_change(sync_process_output_traits)
 
     # > output traits
     for trait_name, trait in nipype_instance.output_spec().items():
+
+        # Relax nipye exists trait contrain
+        relax_exists_constrain(trait)
 
         # Clone the nipype trait
         process_trait = clone_nipype_trait(process_instance,trait)
@@ -299,5 +366,11 @@ def nipype_factory(nipype_instance):
                 process_trait.inner_traits[0].output = True
                 process_trait.inner_traits[0].input_filename = False
                 process_trait.input_filename = False
+
+    # allow to save the SPM .m script
+    if nipype_instance.__class__.__module__.startswith(
+            'nipype.interfaces.spm.'):
+        process_instance.add_trait('_spm_script_file',
+                                   File(output=True, optional=True))
 
     return process_instance
