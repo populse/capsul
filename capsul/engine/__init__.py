@@ -528,10 +528,11 @@ class CapsulEngine(Controller):
 
     def __enter__(self):
         code = self.environment_builder()
-        tmp = tempfile.NamedTemporaryFile(suffix='.py')
+        tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.py')
         tmp.write(code)
         tmp.flush()
-        json_environ = subprocess.check_output([sys.executable, tmp.name])
+        json_environ = subprocess.check_output(
+            [sys.executable, tmp.name]).decode('utf-8')
         environ = json.loads(json_environ)
         
         self._environ_backup = {}
