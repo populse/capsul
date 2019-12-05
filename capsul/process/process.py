@@ -1074,7 +1074,9 @@ class FileCopyProcess(Process):
         else:
             destdir = self.destination
         self._destination = destdir
-        output_directory = getattr(self, 'output_directory', None)
+        output_directory = self.destination
+        if output_directory is None:
+            output_directory = getattr(self, 'output_directory', None)
         if output_directory not in (None, Undefined, ''):
             self._former_output_directory = output_directory
             self.output_directory = destdir
@@ -1134,7 +1136,10 @@ class FileCopyProcess(Process):
             for name, value in six.iteritems(self._recorded_params):
                 self.set_parameter(name, value)
             # 1b. determine output locations
-            self._destination = self.output_directory
+            out_dir = self.destination
+            if out_dir in (None, Undefined):
+                out_dir = getattr(self, 'output_directory', None)
+            self._destination = out_dir
             self._update_input_traits(copy=False)
             # 1c. set input values to the final output location
             for name, value in six.iteritems(self.copied_inputs):
@@ -1181,7 +1186,9 @@ class FileCopyProcess(Process):
 
         shutil.rmtree(tmp_output)
         del self._destination
-        self.output_directory = self._former_output_directory
+        self.destinaton = self._former_output_directory
+        if hasattr(self, 'output_directory'):
+            self.output_directory = self._former_output_directory
         del self._former_output_directory
 
     def _move_files(self, src_directory, dst_directory, value):
