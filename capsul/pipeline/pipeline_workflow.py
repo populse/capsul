@@ -1165,7 +1165,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                     step_name=step_name)
                     sub_jobs[process] = job
                     root_jobs[process] = [job]
-              jobs.update(sub_jobs)
+                    jobs.update(sub_jobs)
 
         # links / dependencies
         if with_links:
