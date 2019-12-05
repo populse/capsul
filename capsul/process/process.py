@@ -1022,8 +1022,8 @@ class FileCopyProcess(Process):
             processing. If None, all copied files will be cleaned.
         destination: str (optional default None)
             where the files are copied.
-            If None, files are copied in a '_workspace' folder included in the
-            image folder.
+            If None, the output directory will be used, unless
+            use_temp_output_dir is set.
         inputs_to_symlink: list of str (optional, default None)
             as inputs_to_copy, but for files which should be symlinked
         use_temp_output_dir: bool
@@ -1070,16 +1070,14 @@ class FileCopyProcess(Process):
                                              prefix=self.name)
                 destdir = os.path.join(output_directory, workspace)
             else:
-                destdir = os.path.join(output_directory, "_workspace")
+                destdir = output_directory
         else:
             destdir = self.destination
         self._destination = destdir
-        print('_destination:', self._destination)
         output_directory = getattr(self, 'output_directory', None)
         if output_directory not in (None, Undefined, ''):
             self._former_output_directory = output_directory
             self.output_directory = destdir
-            print('output_directory:', self.output_directory)
 
         # The copy option is activated
         if self.activate_copy:
@@ -1106,27 +1104,53 @@ class FileCopyProcess(Process):
             # Clean the workspace
             self._clean_workspace()
 
-        # restore initial values
-        for name, value in six.iteritems(self._recorded_params):
-            self.set_parameter(name, value)
-        # but keep output values
-        print('output_directory:', self.output_directory)
-        self._destination = self.output_directory
-        self._update_input_traits(copy=False)
-        for name, value in six.iteritems(self.copied_inputs):
-            print('set:', name, value)
-            self.set_parameter(name, value)
-        self.copied_files = {}
-        self.copied_inputs = {}
-        del self._destination
+        # restore initial values, keeping outputs
+        # The problem here is that:
+        # * output_directory should drive "final" output valules
+        # * we may have been using a temporary output directory, thus output
+        #   values are already set to this temp dir, not the final one.
+        #   (at least when use_temp_output_dir is set).
+        # * when we reset inputs, outputs are reset to values pointing to
+        #   the input directory (via nipype callbacks).
+        # So we must:
+        # 1. set inputs to values using the final output_directory, so that
+        #    nipype will set outputs accordingly
+        #    But: _update_input_traits() only works if input filenames are
+        #    actually pointing to existing files, which are in the initial
+        #    input location, so we have to:
+        #    1a. set input values to their initial (input) values
+        #    1b. determine output locations
+        #    1c. set input values to the final output location
+        # 2. record output values
+        # 3. set again inputs to their initial values (pointing to the input
+        #    directories). Outputs will be reset accordingly to input dirs.
+        # 4. force output values using the recorded ones.
+        #
+        # step 1 can be skipped if the output directory is not a temporary one
+        # (use_temp_output_dir is not set)
+
+        if self.use_temp_output_dir:
+            # 1a. set input values to their initial (input) values
+            for name, value in six.iteritems(self._recorded_params):
+                self.set_parameter(name, value)
+            # 1b. determine output locations
+            self._destination = self.output_directory
+            self._update_input_traits(copy=False)
+            # 1c. set input values to the final output location
+            for name, value in six.iteritems(self.copied_inputs):
+                self.set_parameter(name, value)
+            self.copied_files = {}
+            self.copied_inputs = {}
+            del self._destination
+        # 2. record output values
         outputs = {}
         for name, trait in six.iteritems(self.user_traits()):
             if trait.output:
                 outputs[name] = getattr(self, name)
-        print('outputs:', outputs)
-        print('in_files:', self.in_files)
+        # 3. set again inputs to their initial values
         for name, value in six.iteritems(self._recorded_params):
             self.set_parameter(name, value)
+        # 4. force output values using the recorded ones
         for name, value in six.iteritems(outputs):
             self.set_parameter(name, value)
         del self._recorded_params
@@ -1185,7 +1209,7 @@ class FileCopyProcess(Process):
                         else:
                             os.unlink(dst)
                     try:
-                        print('moving:', value, 'to:', dst)
+                        # print('moving:', value, 'to:', dst)
                         shutil.move(value, dst)
                     except Exception as e:
                         print(e, file=sys.stderr)
