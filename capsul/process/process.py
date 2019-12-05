@@ -43,6 +43,7 @@ import six
 import sys
 import functools
 import glob
+import tempfile
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -1114,7 +1115,7 @@ class FileCopyProcess(Process):
     """
     def __init__(self, activate_copy=True, inputs_to_copy=None,
                  inputs_to_clean=None, destination=None,
-                 inputs_to_symlink=None):
+                 inputs_to_symlink=None, use_temp_output_dir=False):
         """ Initialize the FileCopyProcess class.
 
         Parameters
@@ -1129,10 +1130,16 @@ class FileCopyProcess(Process):
             processing. If None, all copied files will be cleaned.
         destination: str (optional default None)
             where the files are copied.
-            If None, files are copied in a '_workspace' folder included in the
-            image folder.
+            If None, the output directory will be used, unless
+            use_temp_output_dir is set.
         inputs_to_symlink: list of str (optional, default None)
             as inputs_to_copy, but for files which should be symlinked
+        use_temp_output_dir: bool
+            if True, the output_directory parameter is set to a temp one during
+            execution, then outputs are copied / moved / hardlinked to the
+            final location. This is useful when several parallel jobs are
+            working in the same directory and may write the same intermediate
+            files (SPM does this a lot).
         """
         # Inheritance
         super(FileCopyProcess, self).__init__()
@@ -1155,11 +1162,33 @@ class FileCopyProcess(Process):
                                           if k not in self.inputs_to_copy]
             self.copied_inputs = None
             self.copied_files = None
+        self.use_temp_output_dir = use_temp_output_dir
 
     def _before_run_process(self):
         """ Method to copy files before executing the process.
         """
         super(FileCopyProcess, self)._before_run_process()
+
+        if self.destination is None:
+            output_directory = getattr(self, 'output_directory', None)
+            if output_directory in (None, Undefined, ''):
+                output_directory = srcdir
+            if self.use_temp_output_dir:
+                workspace = tempfile.mkdtemp(dir=output_directory,
+                                             prefix=self.name)
+                destdir = os.path.join(output_directory, workspace)
+            else:
+                destdir = output_directory
+        else:
+            destdir = self.destination
+        self._destination = destdir
+        output_directory = self.destination
+        if output_directory is None:
+            output_directory = getattr(self, 'output_directory', None)
+        if output_directory not in (None, Undefined, ''):
+            self._former_output_directory = output_directory
+            self.output_directory = destdir
+
         # The copy option is activated
         if self.activate_copy:
 
@@ -1176,16 +1205,43 @@ class FileCopyProcess(Process):
         """ Method to clean-up temporary workspace after process
         execution.
         """
-        # restore initial values
-        for name, value in six.iteritems(self._recorded_params):
-            self.set_parameter(name, value)
-        del self._recorded_params
-
-        run_process_result = super(FileCopyProcess, self)._after_run_process(run_process_result)
+        run_process_result = super(FileCopyProcess, self)._after_run_process(
+            run_process_result)
+        if self.use_temp_output_dir:
+            self._move_outputs()
         # The copy option is activated
         if self.activate_copy:
             # Clean the workspace
             self._clean_workspace()
+
+        # restore initial values, keeping outputs
+        # The situation here is that:
+        # * output_directory should drive "final" output valules
+        # * we may have been using a temporary output directory, thus output
+        #   values are already set to this temp dir, not the final one.
+        #   (at least when use_temp_output_dir is set).
+        #   -> _move_outputs() already changes these output values
+        # * when we reset inputs, outputs are reset to values pointing to
+        #   the input directory (via nipype callbacks).
+        # So we must:
+        # 1. record output values
+        # 2. set again inputs to their initial values (pointing to the input
+        #    directories). Outputs will be reset accordingly to input dirs.
+        # 3. force output values using the recorded ones.
+
+        # 1. record output values
+        outputs = {}
+        for name, trait in six.iteritems(self.user_traits()):
+            if trait.output:
+                outputs[name] = getattr(self, name)
+        # 2. set again inputs to their initial values
+        for name, value in six.iteritems(self._recorded_params):
+            self.set_parameter(name, value)
+        # 3. force output values using the recorded ones
+        for name, value in six.iteritems(outputs):
+            self.set_parameter(name, value)
+        del self._recorded_params
+
         return run_process_result
 
     def _clean_workspace(self):
@@ -1202,6 +1258,69 @@ class FileCopyProcess(Process):
                 self._rm_files(rm_files)
                 del self.copied_files[to_rm_name]
                 del self.copied_inputs[to_rm_name]
+
+    def _move_outputs(self):
+        tmp_output = self._destination
+        dst_output = self._former_output_directory
+        output_values = {}
+        moved_dict = {}
+        for param, trait in six.iteritems(self.user_traits()):
+            if trait.output:
+                new_value = self._move_files(tmp_output, dst_output,
+                                             getattr(self, param),
+                                             moved_dict=moved_dict)
+                output_values[param] = new_value
+                self.set_parameter(param, new_value)
+
+        shutil.rmtree(tmp_output)
+        del self._destination
+        self.destinaton = self._former_output_directory
+        if hasattr(self, 'output_directory'):
+            self.output_directory = self._former_output_directory
+        del self._former_output_directory
+        return output_values
+
+    def _move_files(self, src_directory, dst_directory, value, moved_dict={}):
+        if isinstance(value, (list, tuple)):
+            new_value = [self._move_files(src_directory, dst_directory, item,
+                                          moved_dict)
+                         for item in value]
+            if isinstance(value, tuple):
+                return tuple(new_value)
+            return new_value
+        elif isinstance(value, dict):
+            new_value = {}
+            for name, item in six.iteritems(value):
+                new_value[name] = self._move_files(
+                    src_directory, dst_directory, item, moved_dict)
+            return new_value
+        elif isinstance(value, basestring):
+            if value in moved_dict:
+                return moved_dict[value]
+            if os.path.dirname(value) == src_directory \
+                    and os.path.exists(value):
+                name = os.path.basename(value).split('.')[0]
+                matfnames = glob.glob(os.path.join(
+                    os.path.dirname(value), name + ".*"))
+                todo = [x for x in matfnames if x != value]
+                dst = os.path.join(dst_directory, os.path.basename(value))
+                if os.path.exists(dst) or os.path.islink(dst):
+                    print('warning: file or directory %s exists' % dst)
+                    if os.path.isdir(dst):
+                        shutil.rmtree(dst)
+                    else:
+                        os.unlink(dst)
+                try:
+                    # print('moving:', value, 'to:', dst)
+                    shutil.move(value, dst)
+                except Exception as e:
+                    print(e, file=sys.stderr)
+                moved_dict[value] = dst
+                for item in todo:
+                    self._move_files(src_directory, dst_directory, item,
+                                     moved_dict)
+                return dst
+        return value
 
     def _rm_files(self, python_object):
         """ Remove a set of copied files from the filesystem.
@@ -1227,7 +1346,7 @@ class FileCopyProcess(Process):
                     os.path.isfile(python_object)):
                 os.remove(python_object)
 
-    def _update_input_traits(self):
+    def _update_input_traits(self, copy=True):
         """ Update the process input traits: input files are copied.
         """
         # Get the new trait values
@@ -1235,12 +1354,13 @@ class FileCopyProcess(Process):
         self.copied_files = {}
         self.copied_inputs \
             = self._copy_input_files(input_parameters, False,
-                                     self.copied_files)
+                                     self.copied_files, copy=copy)
         self.copied_inputs.update(
-            self._copy_input_files(input_symlinks, True, self.copied_files))
+            self._copy_input_files(input_symlinks, True, self.copied_files,
+                                   copy=copy))
 
     def _copy_input_files(self, python_object, use_symlink=True,
-                          files_list=None):
+                          files_list=None, copy=True):
         """ Recursive method that copy the input process files.
 
         Parameters
@@ -1255,6 +1375,9 @@ class FileCopyProcess(Process):
         files_list: list or dict
             if provided, this *output* parameter will be updated with the list
             of files actually created.
+        copy: bool
+            if False, files are not actually copied/symlinked but filenames are
+            generated
 
         Returns
         -------
@@ -1277,7 +1400,8 @@ class FileCopyProcess(Process):
                     else:
                         sub_files_list = files_list
                     out[key] = self._copy_input_files(val, use_symlink,
-                                                      sub_files_list)
+                                                      sub_files_list,
+                                                      copy=copy)
 
         # Deal with tuple and list
         # Create an output list or tuple that will contain the copied file
@@ -1287,7 +1411,7 @@ class FileCopyProcess(Process):
             for val in python_object:
                 if val is not Undefined:
                     out.append(self._copy_input_files(val, use_symlink,
-                                                      files_list))
+                                                      files_list, copy=copy))
             if isinstance(python_object, tuple):
                 out = tuple(out)
 
@@ -1299,47 +1423,45 @@ class FileCopyProcess(Process):
                     isinstance(python_object, basestring) and
                     os.path.isfile(python_object)):
                 srcdir = os.path.dirname(python_object)
-                if self.destination is None:
-                    destdir = os.path.join(srcdir, "_workspace")
-                else:
-                    destdir = self.destination
+                destdir = self._destination
                 if not os.path.exists(destdir):
                     os.makedirs(destdir)
                 fname = os.path.basename(python_object)
                 out = os.path.join(destdir, fname)
                 if out == python_object:
                     return out  # input=output, nothing to do
-                if os.path.exists(out):
-                    if os.path.isdir(out):
-                        shutil.rmtree(out)
-                    else:
-                        os.unlink(out)
-                if use_symlink:
-                    os.symlink(python_object, out)
-                else:
-                    shutil.copy2(python_object, out)
-                if files_list is not None:
-                    files_list.append(out)
-
-                # Copy associated .mat files
-                name = fname.split(".")[0]
-                matfnames = glob.glob(os.path.join(
-                    os.path.dirname(python_object), name + ".*"))
-                for matfname in matfnames:
-                    extrafname = os.path.basename(matfname)
-                    extraout = os.path.join(destdir, extrafname)
-                    if extraout != out:
-                        if os.path.exists(extraout):
-                            if os.path.isdir(extraout):
-                                shutil.rmtree(extraout)
-                            else:
-                                os.unlink(extraout)
-                        if use_symlink:
-                            os.symlink(matfname, extraout)
+                if copy:
+                    if os.path.exists(out):
+                        if os.path.isdir(out):
+                            shutil.rmtree(out)
                         else:
-                            shutil.copy2(matfname, extraout)
-                        if files_list is not None:
-                            files_list.append(extraout)
+                            os.unlink(out)
+                    if use_symlink:
+                        os.symlink(python_object, out)
+                    else:
+                        shutil.copy2(python_object, out)
+                    if files_list is not None:
+                        files_list.append(out)
+
+                    # Copy associated .mat files
+                    name = fname.split(".")[0]
+                    matfnames = glob.glob(os.path.join(
+                        os.path.dirname(python_object), name + ".*"))
+                    for matfname in matfnames:
+                        extrafname = os.path.basename(matfname)
+                        extraout = os.path.join(destdir, extrafname)
+                        if extraout != out:
+                            if os.path.exists(extraout):
+                                if os.path.isdir(extraout):
+                                    shutil.rmtree(extraout)
+                                else:
+                                    os.unlink(extraout)
+                            if use_symlink:
+                                os.symlink(matfname, extraout)
+                            else:
+                                shutil.copy2(matfname, extraout)
+                            if files_list is not None:
+                                files_list.append(extraout)
 
         return out
 
@@ -1384,7 +1506,8 @@ class FileCopyProcess(Process):
 class NipypeProcess(FileCopyProcess):
     """ Base class used to wrap nipype interfaces.
     """
-    def __init__(self, nipype_instance, *args, **kwargs):
+    def __init__(self, nipype_instance, use_temp_output_dir=None,
+                 *args, **kwargs):
         """ Initialize the NipypeProcess class.
 
         NipypeProcess instance get automatically an additional user trait
@@ -1425,13 +1548,23 @@ class NipypeProcess(FileCopyProcess):
                 copyfile=True).keys()
             inputs_to_symlink = self._nipype_interface.inputs.traits(
                 copyfile=False).keys()
+            out_traits = self._nipype_interface.output_spec().traits()
+            inputs_to_clean = [x for x in inputs_to_copy
+                               if 'modified_%s' % x not in out_traits]
+            if use_temp_output_dir is None:
+                use_temp_output_dir = True
             super(NipypeProcess, self).__init__(
                 activate_copy=True, inputs_to_copy=inputs_to_copy,
                 inputs_to_symlink=inputs_to_symlink,
+                inputs_to_clean=inputs_to_clean,
+                use_temp_output_dir=use_temp_output_dir,
                 *args, **kwargs)
         else:
+            if use_temp_output_dir is None:
+                use_temp_output_dir = False
             super(NipypeProcess, self).__init__(
-                  activate_copy=False, *args, **kwargs)
+                  activate_copy=False, use_temp_output_dir=use_temp_output_dir,
+                  *args, **kwargs)
 
         # Replace the process name and identification attributes
         self.id = ".".join([self._nipype_module, self._nipype_class])
@@ -1477,7 +1610,7 @@ class NipypeProcess(FileCopyProcess):
     def _before_run_process(self):
         if self._nipype_interface_name == "spm":
             # Set the spm working
-            self.destination = self.output_directory
+            self.destination = None
         super(NipypeProcess, self)._before_run_process()
     
     def _run_process(self):
@@ -1526,6 +1659,16 @@ class NipypeProcess(FileCopyProcess):
             os.chdir(cwd)
 
         return results
+
+    def _after_run_process(self, run_process_result):
+        if self._spm_script_file not in (None, Undefined, ''):
+            script_file = os.path.join(
+                self.output_directory,
+                self._nipype_interface.mlab.inputs.script_file)
+            if os.path.exists(script_file):
+                shutil.move(script_file, self._spm_script_file)
+        return super(NipypeProcess,
+                     self)._after_run_process(run_process_result)
 
     @classmethod
     def help(cls, nipype_interface, returnhelp=False):
