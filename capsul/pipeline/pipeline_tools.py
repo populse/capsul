@@ -860,6 +860,119 @@ def where_is_plug_value_from(plug, recursive=True):
     # not found
     return None, None, None
 
+def find_plug_connection_sources(plug, pipeline=None):
+    '''
+    A bit like :func:`where_is_plug_value_from` but looks for all incoming
+    connection sources
+
+    Returns
+    -------
+    sources:  list
+        [(node, param_name, parent_node), ...]
+    '''
+    sources = []
+    if isinstance(pipeline, Pipeline):
+        pipeline = pipeline.pipeline_node
+    links = [link + (pipeline,) for link in plug.links_from]
+    while links:
+        node_name, param_name, node, in_plug, weak, parent = links.pop(0)
+        if not node.activated or not node.enabled:
+            # disabled nodes are not influencing
+            continue
+        if isinstance(node, PipelineNode):
+            if not in_plug.links_from:
+                # get out of the pipeline: keep it
+                sources.append((node, param_name, parent))
+                continue
+            # either output from a sibling sub_pipeline
+            # or input from parent pipeline
+            # but it is handled the same way.
+            # check their inputs
+            # just if sibling, keep them as parent
+            if in_plug.output and parent in (None, pipeline):
+                new_parent = node
+            else:
+                new_parent = parent
+            links += [link + (new_parent,) for link in in_plug.links_from]
+        else:
+            other_end = node.get_connections_through(param_name, single=False)
+            for src in other_end:
+                if not src[2].output and node is pipeline \
+                        and not src[2].links_from:
+                    # main pipeline input, keep it
+                    sources.append((src[0], src[1], node))
+                elif src[2] is in_plug:
+                    # don't get through its node: keep the node as source
+                    sources.append((src[0], src[1], node))
+                elif src[2].output and not isinstance(src[0], PipelineNode):
+                    # sub-pipeline output: inspect it
+                    links.append((None, src[1], src[0], src[2], False, node))
+                elif not src[2].output or isinstance(src[0], PipelineNode):
+                    # input side of a non-opaque node: inspect its links
+                    links += [link + (node,)
+                              for link in src[2].links_from]
+                else:
+                    print('unhandle case in find_plug_connection_sources')
+                    print('node:', src[0], ', param:', src[1])
+
+    return sources
+
+def find_plug_connection_destinations(plug, pipeline=None):
+    '''
+    A bit like :func:`find_plug_connection_sources` but the other way
+
+    Returns
+    -------
+    dest:  list
+        [(node, param_name, parent_node), ...]
+    '''
+    dest = []
+    if isinstance(pipeline, Pipeline):
+        pipeline = pipeline.pipeline_node
+    links = [link + (pipeline,) for link in plug.links_to]
+    while links:
+        node_name, param_name, node, in_plug, weak, parent = links.pop(0)
+        if not node.activated or not node.enabled:
+            # disabled nodes are not influencing
+            continue
+        if isinstance(node, PipelineNode):
+            if not in_plug.links_to:
+                # get out of the pipeline: keep it
+                dest.append((node, param_name, parent))
+                continue
+            # either input from a sibling sub_pipeline
+            # or output from parent pipeline
+            # but it is handled the same way.
+            # check their inputs
+            # just if sibling, keep them as parent
+            if not in_plug.output and parent in (None, pipeline):
+                new_parent = node
+            else:
+                new_parent = parent
+            links += [link + (new_parent,) for link in in_plug.links_to]
+        else:
+            other_end = node.get_connections_through(param_name, single=False)
+            for dst in other_end:
+                if dst[2].output and node is pipeline \
+                        and not dst[2].links_to:
+                    # main pipeline output, keep it
+                    dest.append((dst[0], dst[1], node))
+                elif dst[2] is in_plug:
+                    # don't get through its node: keep the node as dest
+                    dest.append((dst[0], dst[1], node))
+                elif not dst[2].output \
+                        and not isinstance(dst[0], PipelineNode):
+                    # sub-pipeline input: inspect it
+                    links.append((None, dst[1], dst[0], dst[2], False, node))
+                elif dst[2].output or isinstance(src[0], PipelineNode):
+                    # output side of a non-opaque node: inspect its links
+                    links += [link + (node,)
+                              for link in src[2].links_to]
+                else:
+                    print('unhandle case in find_plug_connection_sources')
+                    print('node:', dst[0], ', param:', dst[1])
+
+    return dest
 
 def dump_pipeline_state_as_dict(pipeline):
     '''

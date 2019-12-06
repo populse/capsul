@@ -48,62 +48,66 @@ class Pipeline1(Pipeline):
         self.add_process('train2', TrainProcess2())
 
         self.add_custom_node('LOO',
-                             'capsul.pipeline.custom_nodes.exclude_node')
-        self.add_custom_node('output_file',
-                             'capsul.pipeline.custom_nodes.cat_node.CatNode',
-                             parameters={'parameters': ['base', 'subject'],
-                                         'concat_plug': 'out_file',
-                                         'param_types': ['Directory', 'Str',
-                                                         'File'],
-                                         'outputs': ['base'],
-                                         'separator': os.path.sep,
-                                         },
-                              make_optional='subject')
+                             'capsul.pipeline.custom_nodes.loo_node',
+                             parameters={'test_is_output': False})
+        self.add_custom_node(
+            'output_file',
+            'capsul.pipeline.custom_nodes.strcat_node.StrCatNode',
+            parameters={'parameters': ['base', 'separator', 'subject'],
+                        'concat_plug': 'out_file',
+                        'param_types': ['Directory', 'Str',
+                                        'File'],
+                        'outputs': ['base'],
+            },
+            make_optional=['subject', 'separator'])
         self.nodes['output_file'].subject = 'output_file'
+        self.nodes['output_file'].separator = os.path.sep
 
-        self.add_custom_node('intermediate_output',
-                             'capsul.pipeline.custom_nodes.cat_node.CatNode',
-                             parameters={'parameters': ['base', 'sep',
-                                                        'subject', 'suffix'],
-                                         'concat_plug': 'out_file',
-                                         'outputs': ['base'],
-                                         'param_types': ['Directory', 'Str',
-                                                         'Str', 'Str', 'File']
-                                         },
-                              make_optional=['subject', 'sep', 'suffix'])
+        self.add_custom_node(
+            'intermediate_output',
+            'capsul.pipeline.custom_nodes.strcat_node.StrCatNode',
+            parameters={'parameters': ['base', 'sep',
+                                      'subject', 'suffix'],
+                        'concat_plug': 'out_file',
+                        'outputs': ['base'],
+                        'param_types': ['Directory', 'Str',
+                                        'Str', 'Str', 'File']
+                        },
+            make_optional=['subject', 'sep', 'suffix'])
         self.nodes['intermediate_output'].sep = os.sep
         self.nodes['intermediate_output'].subject = 'output_file'
         self.nodes['intermediate_output'].suffix = '_interm'
 
         self.add_process('test', TestProcess())
 
-        self.add_custom_node('test_output',
-                             'capsul.pipeline.custom_nodes.cat_node.CatNode',
-                             parameters={'parameters': ['base', 'sep',
-                                                        'subject', 'suffix'],
-                                         'concat_plug': 'out_file',
-                                         'outputs': ['base'],
-                                         'param_types': ['Directory', 'Str',
-                                                         'Str', 'Str', 'File']
-                                         },
-                              make_optional=['subject', 'sep', 'suffix'])
+        self.add_custom_node(
+            'test_output',
+            'capsul.pipeline.custom_nodes.strcat_node.StrCatNode',
+            parameters={'parameters': ['base', 'sep',
+                                      'subject', 'suffix'],
+                        'concat_plug': 'out_file',
+                        'outputs': ['base'],
+                        'param_types': ['Directory', 'Str',
+                                        'Str', 'Str', 'File']
+                        },
+            make_optional=['subject', 'sep', 'suffix'])
         self.nodes['test_output'].sep = os.path.sep
         self.nodes['test_output'].subject = 'output_file'
         self.nodes['test_output'].suffix = '_test_output'
 
         self.export_parameter('LOO', 'inputs', 'main_inputs')
-        self.export_parameter('LOO', 'exclude', 'left_out')
+        self.export_parameter('LOO', 'test', 'test')
         self.export_parameter('output_file', 'base', 'output_directory')
         self.export_parameter('output_file', 'subject')
         #self.export_parameter('test', 'out1', 'test_output', is_optional=True)
-        self.add_link('LOO.filtered->train1.in1')
+        self.add_link('LOO.train->train1.in1')
         self.add_link('main_inputs->train2.in1')
         self.add_link('train1.out1->train2.in2')
         self.add_link('train1.out1->intermediate_output.out_file')
         self.add_link('intermediate_output.base->output_directory')
         self.add_link('subject->intermediate_output.subject')
         self.add_link('train2.out1->output_file.out_file')
-        self.add_link('left_out->test.in1')
+        self.add_link('test->test.in1')
         self.add_link('train2.out1->test.model')
         self.add_link('test.out1->test_output.out_file')
         self.add_link('test_output.base->output_directory')
@@ -128,7 +132,7 @@ class Pipeline1(Pipeline):
 class PipelineLOO(Pipeline):
     def pipeline_definition(self):
         self.add_iterative_process('train', Pipeline1,
-                                   iterative_plugs=['left_out',
+                                   iterative_plugs=['test',
                                                     'subject'])
                                    #,
                                                     #'test_output']),
@@ -136,7 +140,7 @@ class PipelineLOO(Pipeline):
         self.export_parameter('train', 'main_inputs')
         self.export_parameter('train', 'subject', 'subjects')
         #self.export_parameter('train', 'test_output', 'test_outputs')
-        self.add_link('main_inputs->train.left_out')
+        self.add_link('main_inputs->train.test')
         self.pipeline_node.plugs['subjects'].optional = False
 
         self.node_position = {
@@ -159,7 +163,7 @@ class TestCustomNodes(unittest.TestCase):
 
     def _test_custom_nodes(self, pipeline):
         pipeline.main_inputs = ['/dir/file%d' % i for i in range(4)]
-        pipeline.left_out = pipeline.main_inputs[2]
+        pipeline.test = pipeline.main_inputs[2]
         pipeline.subject = 'subject2'
         pipeline.output_directory = '/dir/out_dir'
         self.assertEqual(pipeline.nodes['train1'].process.out1,
@@ -199,6 +203,8 @@ class TestCustomNodes(unittest.TestCase):
         pipeline2.output_directory = '/dir/out_dir'
         wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
                                                       create_directories=False)
+        import soma_workflow.client as swc
+        swc.Helper.serialize('/tmp/custom_nodes.workflow', wf)
         import six
         #print('workflow:')
         #print('jobs:', wf.jobs)
@@ -296,7 +302,7 @@ if __name__ == '__main__':
             app = QtGui.QApplication(sys.argv)
         #pipeline = Pipeline1()
         #pipeline.main_inputs = ['/dir/file%d' % i for i in range(4)]
-        #pipeline.left_out = pipeline.main_inputs[2]
+        #pipeline.test = pipeline.main_inputs[2]
         #pipeline.subject = 'subject2'
         #pipeline.output_directory = '/dir/out_dir'
         #view1 = PipelineDevelopperView(pipeline, allow_open_controller=True,
@@ -306,11 +312,11 @@ if __name__ == '__main__':
 
         pipeline2 = PipelineLOO()
         pipeline2.main_inputs = ['/dir/file%d' % i for i in range(4)]
-        pipeline2.left_out = pipeline2.main_inputs[2]
+        pipeline2.test = pipeline2.main_inputs[2]
         pipeline2.subjects = ['subject%d' % i for i in range(4)]
         pipeline2.output_directory = '/dir/out_dir'
-        wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
-                                                      create_directories=False)
+        #wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
+                                                      #create_directories=False)
         view2 = PipelineDevelopperView(pipeline2, allow_open_controller=True,
                                        show_sub_pipelines=True,
                                        enable_edition=True)

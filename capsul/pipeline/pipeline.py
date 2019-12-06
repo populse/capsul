@@ -929,13 +929,16 @@ class Pipeline(Process):
             return
 
         # Assure that pipeline plugs are not linked
-        if (not source_plug.output and source_node is not self.pipeline_node) \
-                or (source_plug.output and source_node is self.pipeline_node):
-            raise ValueError("Cannot link from a pipeline input "
+        if (not source_plug.output and source_node is not self.pipeline_node):
+              raise ValueError(
+                  "Cannot link from an input plug: {0}".format(link))
+        if (source_plug.output and source_node is self.pipeline_node):
+            raise ValueError("Cannot link from a pipeline output "
                              "plug: {0}".format(link))
-        if (dest_plug.output and dest_node is not self.pipeline_node) \
-                or (not dest_plug.output and dest_node is self.pipeline_node):
-            raise ValueError("Cannot link to a pipeline output "
+        if (dest_plug.output and dest_node is not self.pipeline_node):
+            raise ValueError("Cannot link to an output plug: {0}".format(link))
+        if (not dest_plug.output and dest_node is self.pipeline_node):
+            raise ValueError("Cannot link to a pipeline input "
                              "plug: {0}".format(link))
 
         # Propagate the plug value from source to destination
