@@ -9,6 +9,8 @@ import traits.api as traits
 import os
 import tempfile
 import sys
+import shutil
+import json
 
 
 class TestProcess(Process):
@@ -21,10 +23,18 @@ class TestProcess(Process):
     def _run_process(self):
         print('in1:', self.in1)
         print('out1:', self.out1)
-        with open(self.out1, 'wb') as f:
-            for ifile in self.in1:
-                with open(ifile, 'rb') as ff:
-                    f.write(ff.read())
+        with open(self.out1, 'w') as f:
+            print('test: %s' % os.path.basename(self.out1), file=f)
+            print('##############', file=f)
+            with open(self.in1, 'r') as ff:
+                f.write(ff.read())
+            print('model: %s' % os.path.basename(self.model), file=f)
+            print('##############', file=f)
+            with open(self.model, 'r') as ff:
+                f.write(ff.read())
+        # TODO FIXME: this should be automatic
+        output_dict = {'out1': self.out1}
+        return output_dict
 
 
 class TrainProcess1(Process):
@@ -32,6 +42,14 @@ class TrainProcess1(Process):
         super(TrainProcess1, self).__init__()
         self.add_trait('in1', traits.List(traits.File(), output=False))
         self.add_trait('out1', traits.File(output=True))
+
+    def _run_process(self):
+        with open(self.out1, 'w') as of:
+            for fname in self.in1:
+                print('train1. File: %s' % os.path.basename(fname), file=of)
+                print('--------------------', file=of)
+                with open(fname) as f:
+                    of.write(f.read())
 
 
 class TrainProcess2(Process):
@@ -41,6 +59,30 @@ class TrainProcess2(Process):
         self.add_trait('in2', traits.File(output=False))
         self.add_trait('out1', traits.File(output=True))
 
+    def _run_process(self):
+        with open(self.out1, 'w') as of:
+            for fname in self.in1:
+                print('train2, in1. File: %s' % os.path.basename(fname),
+                      file=of)
+                print('===================', file=of)
+                with open(fname) as f:
+                    of.write(f.read())
+            print('train2, in2. File: %s' % os.path.basename(fname), file=of)
+            print('====================', file=of)
+            with open(self.in2) as f:
+                of.write(f.read())
+
+class CatFileProcess(Process):
+    def __init__(self):
+        super(CatFileProcess, self).__init__()
+        self.add_trait('files', traits.List(traits.File(), output=False))
+        self.add_trait('output', traits.File(output=True))
+
+    def _run_process(self):
+        with open(self.output, 'w') as of:
+            for fname in self.files:
+                with open(fname) as f:
+                    of.write(f.read())
 
 class Pipeline1(Pipeline):
     def pipeline_definition(self):
@@ -58,7 +100,7 @@ class Pipeline1(Pipeline):
             parameters={'parameters': ['base', 'separator', 'subject'],
                         'concat_plug': 'out_file',
                         'param_types': ['Directory', 'Str',
-                                        'File'],
+                                        'Str'],
                         'outputs': ['base'],
             },
             make_optional=['subject', 'separator'])
@@ -81,6 +123,7 @@ class Pipeline1(Pipeline):
         self.nodes['intermediate_output'].suffix = '_interm'
 
         self.add_process('test', TestProcess())
+        self.nodes['test'].process.trait('out1').input_filename = False
 
         self.add_custom_node(
             'test_output',
@@ -101,7 +144,7 @@ class Pipeline1(Pipeline):
         self.export_parameter('LOO', 'test', 'test')
         self.export_parameter('output_file', 'base', 'output_directory')
         self.export_parameter('output_file', 'subject')
-        #self.export_parameter('test', 'out1', 'test_output', is_optional=True)
+        self.export_parameter('test', 'out1', 'test_output', is_optional=True)
         self.add_link('LOO.train->train1.in1')
         self.add_link('main_inputs->train2.in1')
         self.add_link('train1.out1->train2.in2')
@@ -136,39 +179,68 @@ class PipelineLOO(Pipeline):
         self.add_iterative_process(
             'train', 'capsul.pipeline.test.test_custom_nodes.Pipeline1',
             iterative_plugs=['test',
-                            'subject'])
-            #,
-                            #'test_output']),
+                            'subject',
+                            'test_output'])
             #do_not_export=['test_output'])
+        self.add_process(
+            'global_output',
+            'capsul.pipeline.test.test_custom_nodes.CatFileProcess')
         self.export_parameter('train', 'main_inputs')
         self.export_parameter('train', 'subject', 'subjects')
-        #self.export_parameter('train', 'test_output', 'test_outputs')
+        self.export_parameter('train', 'output_directory')
+        #self.export_parameter('train', 'test_output')
+        self.export_parameter('global_output', 'output', 'test_output')
         self.add_link('main_inputs->train.test')
+        self.add_link('train.test_output->global_output.files')
         self.pipeline_node.plugs['subjects'].optional = False
 
         self.node_position = {
-            'inputs': (-65.0, 172.0),
-            'outputs': (374.0, 194.0),
-            'train': (150.0, 150.0)}
-
+            'global_output': (416.6660345018389, 82.62713792979389),
+            'inputs': (-56.46187758535915, 33.76663793099311),
+            'outputs': (567.2173021071882, 10.355615517551513),
+            'train': (139.93023967435616, 5.012399999999985)}
 
 class TestCustomNodes(unittest.TestCase):
     def setUp(self):
-        self.temp_files = []
+        self.temp_dir = tempfile.mkdtemp(prefix='swf_custom')
+        self.temp_files = [self.temp_dir]
+        os.mkdir(os.path.join(self.temp_dir, 'out_dir'))
+        lines = [
+            ['water', 'snow', 'vapor', 'ice'],
+            ['stone', 'mud', 'earth'],
+            ['wind', 'storm', 'air'],
+            ['fire', 'flame'],
+        ]
+        for i in range(4):
+            fline = lines.pop(0)
+            with open(os.path.join(self.temp_dir, 'file%d' % i), 'w') as f:
+                f.write('file%d:\n++++++\n' % i)
+                for l, line in enumerate(fline):
+                    f.write('line%d: %s\n' % (l, line))
 
     def tearDown(self):
-        for f in self.temp_files:
-            try:
-                os.unlink(f)
-            except:
-                pass
-        self.temp_files = []
+        if '--keep-temp' not in sys.argv[1:]:
+            for f in self.temp_files:
+                if os.path.isdir(f):
+                    try:
+                        shutil.rmtree(f)
+                    except:
+                        pass
+                else:
+                    try:
+                        os.unlink(f)
+                    except:
+                        pass
+            self.temp_files = []
+        else:
+            print('Files not removed in %s' % self.temp_dir)
 
     def _test_custom_nodes(self, pipeline):
-        pipeline.main_inputs = ['/dir/file%d' % i for i in range(4)]
+        pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i)
+                                for i in range(4)]
         pipeline.test = pipeline.main_inputs[2]
         pipeline.subject = 'subject2'
-        pipeline.output_directory = '/dir/out_dir'
+        pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
         self.assertEqual(pipeline.nodes['train1'].process.out1,
                          os.path.join(pipeline.output_directory,
                                       '%s_interm' % pipeline.subject))
@@ -190,32 +262,53 @@ class TestCustomNodes(unittest.TestCase):
     def test_custom_nodes_workflow(self):
         sc = StudyConfig()
         pipeline = sc.get_process_instance(Pipeline1)
-        pipeline.main_input = '/dir/file'
-        pipeline.output_directory = '/dir/out_dir'
+        pipeline.main_input = os.path.join(self.temp_dir, 'file')
+        pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
         wf = pipeline_workflow.workflow_from_pipeline(pipeline,
                                                       create_directories=False)
         self.assertEqual(len(wf.jobs), 7)
         self.assertEqual(len(wf.dependencies), 6)
         self.assertEqual(
             sorted([[x.name for x in d] for d in wf.dependencies]),
-            sorted([['LOO', 'train1'], ['train1', 'train2'], ['train1', 'intermediate_output'], ['train2', 'test'], ['train2', 'output_file'], ['test', 'test_output']]))
+            sorted([['LOO', 'train1'], ['train1', 'train2'],
+                    ['train1', 'intermediate_output'], ['train2', 'test'],
+                    ['train2', 'output_file'], ['test', 'test_output']]))
 
     def _test_loo_pipeline(self, pipeline2):
-        pipeline2.main_inputs = ['/dir/file%d' % i for i in range(4)]
+        pipeline2.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i)
+                                 for i in range(4)]
         pipeline2.subjects = ['subject%d' % i for i in range(4)]
-        pipeline2.output_directory = '/dir/out_dir'
+        pipeline2.output_directory = os.path.join(self.temp_dir, 'out_dir')
+        pipeline2.test_output = os.path.join(self.temp_dir, 'out_dir',
+                                             'outputs')
         wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
                                                       create_directories=False)
         import soma_workflow.client as swc
-        swc.Helper.serialize('/tmp/custom_nodes.workflow', wf)
+        swc.Helper.serialize(os.path.join(self.temp_dir,
+                                          'custom_nodes.workflow'), wf)
         import six
         #print('workflow:')
         #print('jobs:', wf.jobs)
+        print('dependencies:', sorted([(x[0].name, x[1].name) for x in wf.dependencies]))
         #print('dependencies:', wf.dependencies)
         #print('links:', {n.name: {p: (l[0].name, l[1]) for p, l in six.iteritems(links)} for n, links in six.iteritems(wf.param_links)})
-        self.assertEqual(len(wf.jobs), 12)
-        self.assertEqual(len(wf.dependencies), 8)
-        deps = sorted([['train1', 'train2'], ['train2', 'test']] * 4)
+        self.assertEqual(len(wf.jobs), 31)
+        self.assertEqual(len(wf.dependencies), 16*4 + 1)
+        deps = sorted([['Pipeline1_map', 'LOO'],
+                       ['Pipeline1_map', 'intermediate_output'],
+                       ['Pipeline1_map', 'train2'],
+                       ['Pipeline1_map', 'output_file'],
+                       ['Pipeline1_map', 'test'],
+                       ['Pipeline1_map', 'test_output'],
+                       ['LOO', 'train1'],
+                       ['train1', 'train2'], ['train1', 'intermediate_output'],
+                       ['train2', 'test'], ['train2', 'output_file'],
+                       ['test', 'test_output'],
+                       ['intermediate_output', 'Pipeline1_reduce'],
+                       ['output_file', 'Pipeline1_reduce'],
+                       ['test_output', 'Pipeline1_reduce'],
+                       ['test', 'Pipeline1_reduce']] * 4
+                      + [['Pipeline1_reduce', 'global_output']])
         self.assertEqual(
             sorted([[x.name for x in d] for d in wf.dependencies]),
             deps)
@@ -304,20 +397,21 @@ if __name__ == '__main__':
         if not app:
             app = QtGui.QApplication(sys.argv)
         #pipeline = Pipeline1()
-        #pipeline.main_inputs = ['/dir/file%d' % i for i in range(4)]
+        #pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i
+        #for i in range(4)])
         #pipeline.test = pipeline.main_inputs[2]
         #pipeline.subject = 'subject2'
-        #pipeline.output_directory = '/dir/out_dir'
+        #pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
         #view1 = PipelineDevelopperView(pipeline, allow_open_controller=True,
                                        #show_sub_pipelines=True,
                                        #enable_edition=True)
         #view1.show()
 
         pipeline2 = PipelineLOO()
-        pipeline2.main_inputs = ['/dir/file%d' % i for i in range(4)]
+        pipeline2.main_inputs = ['/tmp/file%d' % i for i in range(4)]
         pipeline2.test = pipeline2.main_inputs[2]
         pipeline2.subjects = ['subject%d' % i for i in range(4)]
-        pipeline2.output_directory = '/dir/out_dir'
+        pipeline2.output_directory = '/tmp/out_dir'
         #wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
                                                       #create_directories=False)
         view2 = PipelineDevelopperView(pipeline2, allow_open_controller=True,

@@ -1146,10 +1146,12 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                             .append((map_job, param))
                     # record source of links in iterated nodes
                     if isinstance(it_process.process, Pipeline):
+                        #print('reduce from pipeline', param)
                         sources = \
                             pipeline_tools.find_plug_connection_sources(
                                 it_process.process.pipeline_node.plugs[param],
                                 it_process.process.pipeline_node)
+                        #print('sources:', sources)
                         for pnode, pparam, pparent in sources:
                             pproc = pnode
                             if hasattr(pnode, 'process'):
@@ -1214,6 +1216,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                 .setdefault(dparam, []) \
                                 .append(((link[0], iteration), link[1]))
 
+        jobs[it_process] = (map_job, reduce_job)  # special job(s)
         return (jobs, dependencies, groups, root_jobs, links, nodes)
 
 
@@ -1404,7 +1407,13 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                                   and not isinstance(
                                                       x[0], ProcessNode)]
                         else:  # ProcessNode
-                            dependencies.add((jobs[process], jobs[dproc]))
+                            sjob = jobs[process]
+                            if isinstance(sjob, tuple):  # iteration
+                                sjob = sjob[1]  # source
+                            djob = jobs[dproc]
+                            if isinstance(djob, tuple):  # iteration
+                                djob = djob[0]  # destination
+                            dependencies.add((sjob, djob))
                             trait = process.trait(param_name)
                             if trait.input_filename is False \
                                     or (not isinstance(trait.trait_type,
@@ -1751,7 +1760,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             for job in jobs_map[dnode.process]:
                 param_links[job] = djlinks
 
-    all_jobs = six_values(jobs)
+    all_jobs = [job for job in six_values(jobs) if not isinstance(job, tuple)]
     if USE_NEW_WORKFLOW:
         root_jobs = sum(six_values(root_jobs), [])
     else:
@@ -1769,11 +1778,13 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         all_jobs.insert(0, dirs_job)
         root_jobs.insert(0, dirs_job)
 
+    print('pre-deps:', sorted([(x[0].name, x[1].name) for x in dependencies]))
     workflow = swclient.Workflow(jobs=all_jobs,
         dependencies=dependencies,
         root_group=root_jobs,
         name=pipeline.name,
         param_links=param_links)
+    print('post-deps:', sorted([(x[0].name, x[1].name) for x in workflow.dependencies]))
 
     # mark workflow with pipeline
     workflow.pipeline = weakref.ref(pipeline)
