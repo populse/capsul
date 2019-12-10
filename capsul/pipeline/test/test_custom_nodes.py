@@ -49,7 +49,9 @@ class Pipeline1(Pipeline):
 
         self.add_custom_node('LOO',
                              'capsul.pipeline.custom_nodes.loo_node',
-                             parameters={'test_is_output': False})
+                             parameters={'test_is_output': False,
+                                         'has_index': False})
+        self.nodes['LOO'].activation_mode = 'by test'
         self.add_custom_node(
             'output_file',
             'capsul.pipeline.custom_nodes.strcat_node.StrCatNode',
@@ -131,12 +133,13 @@ class Pipeline1(Pipeline):
 
 class PipelineLOO(Pipeline):
     def pipeline_definition(self):
-        self.add_iterative_process('train', Pipeline1,
-                                   iterative_plugs=['test',
-                                                    'subject'])
-                                   #,
-                                                    #'test_output']),
-                                   #do_not_export=['test_output'])
+        self.add_iterative_process(
+            'train', 'capsul.pipeline.test.test_custom_nodes.Pipeline1',
+            iterative_plugs=['test',
+                            'subject'])
+            #,
+                            #'test_output']),
+            #do_not_export=['test_output'])
         self.export_parameter('train', 'main_inputs')
         self.export_parameter('train', 'subject', 'subjects')
         #self.export_parameter('train', 'test_output', 'test_outputs')
@@ -191,11 +194,11 @@ class TestCustomNodes(unittest.TestCase):
         pipeline.output_directory = '/dir/out_dir'
         wf = pipeline_workflow.workflow_from_pipeline(pipeline,
                                                       create_directories=False)
-        self.assertEqual(len(wf.jobs), 3)
-        self.assertEqual(len(wf.dependencies), 2)
+        self.assertEqual(len(wf.jobs), 7)
+        self.assertEqual(len(wf.dependencies), 6)
         self.assertEqual(
             sorted([[x.name for x in d] for d in wf.dependencies]),
-            sorted([['train1', 'train2'], ['train2', 'test']]))
+            sorted([['LOO', 'train1'], ['train1', 'train2'], ['train1', 'intermediate_output'], ['train2', 'test'], ['train2', 'output_file'], ['test', 'test_output']]))
 
     def _test_loo_pipeline(self, pipeline2):
         pipeline2.main_inputs = ['/dir/file%d' % i for i in range(4)]

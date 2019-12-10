@@ -121,7 +121,10 @@ class StrCatNode(Node):
     def build_job(self, name=None, referenced_input_files=[],
                   referenced_output_files=[], param_dict=None):
         from soma_workflow.custom_jobs import StrCatJob
-        param_dict['input_names'] = list(self.user_traits().keys())
+        param_dict['input_names'] \
+            = [param for param in self.user_traits().keys()
+               if param not in ('enabled', 'activated', 'node_type',
+                                'selection_changed', 'name', )]
         job = StrCatJob(name=name,
                         referenced_input_files=referenced_input_files,
                         referenced_output_files=referenced_output_files,

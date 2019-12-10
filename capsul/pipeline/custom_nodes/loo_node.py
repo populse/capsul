@@ -23,8 +23,11 @@ class LeaveOneOutNode(Node):
     '''
 
     def __init__(self, pipeline, name, is_output=True, input_type=None,
-                 test_is_output=True):
-        in_traitsl = ['inputs', 'index']
+                 test_is_output=True, has_index=True):
+        self.has_index = has_index
+        in_traitsl = ['inputs']
+        if has_index:
+            in_traitsl.append('index')
         if is_output:
             out_traitsl = ['train']
         else:
@@ -48,7 +51,8 @@ class LeaveOneOutNode(Node):
             ptype = traits.Any(traits.Undefined)
 
         self.add_trait('inputs', traits.List(ptype, output=False))
-        self.add_trait('index', traits.Int(0))
+        if has_index:
+            self.add_trait('index', traits.Int(0))
         self.add_trait('train', traits.List(ptype, output=is_output))
         self.add_trait('test', ptype)
         self.trait('test').output = test_is_output
@@ -57,18 +61,26 @@ class LeaveOneOutNode(Node):
         self.set_callbacks()
 
     def set_callbacks(self, update_callback=None):
-        inputs = ['inputs', 'index']
+        inputs = ['inputs', 'test']
+        if self.has_index:
+            inputs.append('index')
         if update_callback is None:
             update_callback = self.exclude_callback
         self.on_trait_change(update_callback, inputs)
 
-    def exclude_callback(self, name):
-        if name == 'test':
-            self.index = self.inputs.index(self.test)
+    def exclude_callback(self, name, value):
+        if not self.has_index:
+            try:
+                index = self.inputs.index(self.test)
+            except:
+                return
         else:
-            result = [x for i, x in enumerate(self.inputs) if i != self.index]
-            self.train =  result
-            self.test = self.inputs[self.index]
+            index = self.index
+
+        result = [x for i, x in enumerate(self.inputs) if i != index]
+        self.train =  result
+        if self.has_index and index < len(self.inputs):
+            self.test = self.inputs[index]
 
     def configured_controller(self):
         c = self.configure_controller()
@@ -76,6 +88,7 @@ class LeaveOneOutNode(Node):
             self.trait('inputs').inner_traits[0].trait_type.__class__.__name__
         c.is_output = self.trait('train').output
         c.test_is_output = self.trait('test').output
+        c.has_index = self.has_index
         return c
 
     @classmethod
@@ -84,6 +97,7 @@ class LeaveOneOutNode(Node):
         c.add_trait('param_type', traits.Str('Str'))
         c.add_trait('is_output', traits.Bool(True))
         c.add_trait('test_is_output', traits.Bool(True))
+        c.add_trait('has_index', traits.Bool(True))
         return c
 
     @classmethod
@@ -96,7 +110,8 @@ class LeaveOneOutNode(Node):
         elif conf_controller.param_type not in (None, traits.Undefined):
             t = getattr(traits, conf_controller.param_type)()
         node = LeaveOneOutNode(pipeline, name, conf_controller.is_output,
-                               input_type=t, test_is_output=conf_controller.test_is_output)
+                               input_type=t, test_is_output=conf_controller.test_is_output,
+                               has_index=conf_controller.has_index)
         return node
 
     def params_to_command(self):
@@ -105,6 +120,16 @@ class LeaveOneOutNode(Node):
     def build_job(self, name=None, referenced_input_files=[],
                   referenced_output_files=[], param_dict=None):
         from soma_workflow.custom_jobs import LeaveOneOutJob
+        index = 0
+        if self.has_index:
+            index = self.index
+        else:
+            try:
+                index = self.inputs.index(self.test)
+            except:
+                pass
+        param_dict = dict(param_dict)
+        param_dict['index'] = index
         job = LeaveOneOutJob(name=name,
                              referenced_input_files=referenced_input_files,
                              referenced_output_files=referenced_output_files,
