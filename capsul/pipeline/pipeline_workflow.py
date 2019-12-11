@@ -1263,7 +1263,38 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
         return jobs, dependencies, groups, root_jobs, links, all_nodes
 
-    # ---
+    def _create_directories_job(pipeline, shared_map={}, shared_paths={},
+                                priority=0, transfer_paths=[]):
+        def _is_transfer(d, transfer_paths):
+            for path in transfer_paths:
+                if d.startswith(os.path.join(path, '')):
+                    return True
+            return False
+
+        directories = [d
+                       for d in pipeline_tools.get_output_directories(
+                          pipeline)[1]
+                       if not _is_transfer(d, transfer_paths)]
+        if len(directories) == 0:
+            return None # no dirs to create.
+        paths = []
+        # check for path translations
+        for path in directories:
+            new_path = _translated_path(path, shared_map, shared_paths)
+            paths.append(new_path or path)
+        # use a python command to avoid the shell command mkdir
+        cmdline = ['python', '-c',
+                   'import sys, os; [os.makedirs(p) if not os.path.exists(p) '
+                   'else None '
+                   'for p in sys.argv[1:]]'] \
+                  + paths
+
+        job = swclient.Job(
+            name='output directories creation',
+            command=cmdline,
+            priority=priority)
+        return job
+
 
     # TODO: handle formats in a separate, centralized place
     # formats: {name: ext_props}
