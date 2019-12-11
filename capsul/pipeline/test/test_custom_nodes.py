@@ -289,7 +289,7 @@ class TestCustomNodes(unittest.TestCase):
         import six
         #print('workflow:')
         #print('jobs:', wf.jobs)
-        print('dependencies:', sorted([(x[0].name, x[1].name) for x in wf.dependencies]))
+        #print('dependencies:', sorted([(x[0].name, x[1].name) for x in wf.dependencies]))
         #print('dependencies:', wf.dependencies)
         #print('links:', {n.name: {p: (l[0].name, l[1]) for p, l in six.iteritems(links)} for n, links in six.iteritems(wf.param_links)})
         self.assertEqual(len(wf.jobs), 31)
