@@ -299,6 +299,11 @@ class TestCompletion(unittest.TestCase):
                 study_config.input_directory,
                 'DummyProcess_truc_muppets_%s' % s), 'w').write('%s\n' %s)
 
+        #from capsul.pipeline import pipeline_workflow
+        #wf = pipeline_workflow.workflow_from_pipeline(pipeline)
+        #from soma_workflow import client as swc
+        #swc.Helper.serialize('/tmp/workflow.workflow', wf)
+
         # run
         study_config.use_soma_workflow = True
         study_config.run(pipeline)

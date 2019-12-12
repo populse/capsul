@@ -936,6 +936,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 referenced_output_files=None,  # FIXME TODO
                 name=it_process.process.name + '_reduce',
                 param_dict=reduce_param_dict)
+            map_job.process_hash = id(it_process)
+            reduce_job.process_hash = id(it_process)
 
             # connect inputs of the map node, outputs to reduce node,
             # and record connections to iterated jobs
@@ -1184,8 +1186,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         {}, steps, study_config={})
                     (sub_jobs, sub_deps, sub_groups, sub_root_jobs,
                       sub_links, sub_nodes) = sub_workflows
-                    group = build_group(node_name,
-                                        sum(six_values(sub_root_jobs), []))
+                    group = build_group(node_name, six_values(sub_root_jobs))
                     groups.setdefault(process, []).append(group)
                     root_jobs.setdefault(process, []).append(group)
                     groups.update(sub_groups)
@@ -1487,6 +1488,9 @@ def workflow_run(workflow_name, workflow, study_config):
                     eng_wf.job_mapping[job].job_id)
                 if out_params:
                     process = proc_map[job.process_hash]
+                    for param in list(out_params.keys()):
+                        if process.trait(param) is None:
+                            del out_params[param]
                     process.import_from_dict(out_params)
 
     # TODO: should we transfer if the WF fails ?
