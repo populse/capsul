@@ -1387,7 +1387,9 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             process = process[0]
         jobs_map.setdefault(process, []).append(job)
     for dnode, dlinks in six.iteritems(links):
-        if isinstance(dnode, (Pipeline, ProcessIteration)):
+        if isinstance(dnode, (Pipeline, ProcessIteration)) \
+                or (isinstance(dnode, tuple)
+                    and isinstance(dnode[0], (Pipeline, ProcessIteration))):
             continue  # FIXME handle this
         djlinks = {}
         for param, linkl in six.iteritems(dlinks):
@@ -1397,8 +1399,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                           (Pipeline, ProcessIteration)):
                     # FIXME handle ProcessIteration cases
                     if isinstance(link[0], tuple):
-                        djlinks.setdefault(param, []) \
-                            .append((jobs[link[0]], link[1]))
+                        if not isinstance(link[0][0],
+                                          (Pipeline, ProcessIteration)):
+                            djlinks.setdefault(param, []) \
+                                .append((jobs[link[0]], link[1]))
                     else:
                         for job in jobs_map[link[0]]:
                             djlinks.setdefault(param, []) \
