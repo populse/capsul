@@ -1320,9 +1320,10 @@ def find_node(pipeline, node):
             if node is sn:
                 return names + [sk]
             if sn is not n and isinstance(sn, PipelineNode):
-                pipelines.append((sn, names + [sn]))
+                pipelines.append((sn, names + [sk]))
 
-    raise KeyError('Node not found in the pipeline')
+    raise KeyError('Node %s not found in the pipeline %s'
+                   % (node.name, pipeline.name))
 
 def is_node_enabled(pipeline, node_name=None, node=None):
     ''' Checks if the given node is enabled in the pipeline.
@@ -1351,6 +1352,8 @@ def is_node_enabled(pipeline, node_name=None, node=None):
         for step, trait in six.iteritems(steps.user_traits()):
             if not getattr(steps, step) and name in trait.nodes:
                 return False
+        p = p.nodes[name]
+        p = getattr(p, 'process', p)
 
     # not disabled ? OK then it's enabled
     return True

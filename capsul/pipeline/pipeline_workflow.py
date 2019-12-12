@@ -1152,7 +1152,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         shared_paths, disabled_nodes,
                         jobs_priority=jobs_priority,
                         steps=steps, current_step=step_name, with_links=False)
-                group = build_group(node_name, six_values(sub_root_jobs))
+                group = build_group(node_name,
+                                    sum(six_values(sub_root_jobs), []))
                 groups[node] = group
                 root_jobs[node] = [group]
                 jobs.update(sub_jobs)
@@ -1184,7 +1185,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     (sub_jobs, sub_deps, sub_groups, sub_root_jobs,
                       sub_links, sub_nodes) = sub_workflows
                     group = build_group(node_name,
-                                        six_values(sub_root_jobs))
+                                        sum(six_values(sub_root_jobs), []))
                     groups.setdefault(process, []).append(group)
                     root_jobs.setdefault(process, []).append(group)
                     groups.update(sub_groups)
@@ -1207,8 +1208,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         # links / dependencies
         if with_links:
             for node_desc in all_nodes:
-                pipeline, node_name, node = node_desc
+                sub_pipeline, node_name, node = node_desc
                 dproc = getattr(node, 'process', node)
+                if isinstance(dproc, Pipeline):
+                    continue  # pipeline nodes are virtual
                 for param, plug in six.iteritems(node.plugs):
                     source = pipeline_tools.where_is_plug_value_from(plug,
                                                                      True)
