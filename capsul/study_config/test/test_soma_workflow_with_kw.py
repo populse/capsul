@@ -233,7 +233,6 @@ class TestSomaWorkflow(unittest.TestCase):
     def test_composite_dependencies(self):
         workflow = workflow_from_pipeline(self.composite_pipeline)
         dependencies = [(x.name, y.name) for x, y in workflow.dependencies]
-        print('deps:', dependencies)
         self.assertEqual(len(dependencies), 8)
         self.assertEqual(dependencies.count(("node1", "node2")), 1)
         self.assertEqual(dependencies.count(("node1", "node3")), 2)
