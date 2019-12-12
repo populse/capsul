@@ -237,11 +237,12 @@ class TestPipeline(unittest.TestCase):
              os.path.join(self.directory, 'tete_out')]]
         self.big_pipeline.other_output = [[1.1, 2.1], [3.1, 4.1, 5.1]]
         workflow = pipeline_workflow.workflow_from_pipeline(self.big_pipeline)
-        # expect 6 + 7 jobs
-        self.assertEqual(len(workflow.jobs), 13)
+        # expect 6 + 7 + 2 jobs
+        self.assertEqual(len(workflow.jobs), 15)
         subjects = set()
         for job in workflow.jobs:
-            if not job.name.startswith('DummyProcess'):
+            if not job.name.startswith('DummyProcess') or '_map' in job.name \
+                    or '_reduce' in job.name:
                 continue
             param_dict = job.param_dict
             self.assertEqual(param_dict["other_input"], 5)
@@ -340,7 +341,14 @@ if __name__ == "__main__":
                                        allow_open_controller=True)
         view1.add_embedded_subpipeline('iterative')
         view1.auto_dot_node_positions()
-
         view1.show()
+
+        pipeline2 = MyBigPipeline()
+        view2 = PipelineDevelopperView(pipeline2, show_sub_pipelines=True,
+                                       allow_open_controller=True)
+        view2.add_embedded_subpipeline('iterative')
+        view2.auto_dot_node_positions()
+        view2.show()
+
         app.exec_()
         del view1
