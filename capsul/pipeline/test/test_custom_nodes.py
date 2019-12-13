@@ -324,11 +324,6 @@ class TestCustomNodes(unittest.TestCase):
              for i in range(4)])
         test_jobs = [job for job in wf.jobs if job.name == 'test']
         out = sorted([job.param_dict['out1'] for job in test_jobs])
-        print('out1:\n', out, file=sys.stderr)
-        print('types:\n', [type(x) for x in out], file=sys.stderr)
-        print('should be:\n', [os.path.join(pipeline2.output_directory,
-                               'subject%d_test_output' % i)
-                               for i in range(4)], file=sys.stderr)
         self.assertEqual(
             sorted([job.param_dict['out1'] for job in test_jobs]),
             [os.path.join(pipeline2.output_directory,

@@ -121,10 +121,8 @@ class StrCatNode(Node):
     def build_job(self, name=None, referenced_input_files=[],
                   referenced_output_files=[], param_dict=None):
         from soma_workflow.custom_jobs import StrCatJob
-        param_dict['input_names'] \
-            = [param for param in self.user_traits().keys()
-               if param not in ('enabled', 'activated', 'node_type',
-                                'selection_changed', 'name', )]
+        param_dict['input_names'] = self._concat_sequence
+        param_dict['output_name'] = self._concat_plug
         job = StrCatJob(name=name,
                         referenced_input_files=referenced_input_files,
                         referenced_output_files=referenced_output_files,
