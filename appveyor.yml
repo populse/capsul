@@ -23,7 +23,8 @@ install:
 
 test_script:
   - "python --version"
-  - "python -m capsul.test.test_capsul"
+  #- "python -m capsul.test.test_capsul"
+  - "python -m capsul.pipeline.test.test_custom_nodes"
 
 notifications:
   - provider: Email
