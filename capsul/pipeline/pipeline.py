@@ -771,7 +771,8 @@ class Pipeline(Process):
         # modules. For instance, Pipeline class needs get_process_instance
         # which needs create_xml_pipeline which needs Pipeline class.
         from capsul.study_config.process_instance import get_node_instance
-        node = get_node_instance(node_type, self, parameters, **kwargs)
+        node = get_node_instance(node_type, self, parameters, name=name,
+                                 **kwargs)
         if node is None:
             raise ValueError(
                 "could not build a Node of type '%s' with the given parameters"

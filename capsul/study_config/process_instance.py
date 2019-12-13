@@ -374,10 +374,10 @@ def get_node_class(node_type):
     """
     if inspect.isclass(node_type):
         if issubclass(node_type, Node):
-            return node_type # already a Node class
+            return node_type.__name__, node_type  # already a Node class
         return Node
     if isinstance(node_type, Node):
-        return node_type.__class__
+        return node_type.__class__.__name__, node_type.__class__
     cls = None
     try:
         mod = importlib.import_module(node_type)
@@ -398,7 +398,8 @@ def get_node_class(node_type):
     return name, cls
 
 
-def get_node_instance(node_type, pipeline, conf_dict=None, **kwargs):
+def get_node_instance(node_type, pipeline, conf_dict=None, name=None,
+                      **kwargs):
     """
     Get a custom node instance from a module + class name (see
     :func:`get_node_class`) and a configuration dict or Controller.
@@ -426,7 +427,9 @@ def get_node_instance(node_type, pipeline, conf_dict=None, **kwargs):
     cls_and_name = get_node_class(node_type)
     if cls_and_name is None:
         raise ValueError("Could not find node class %s" % node_type)
-    name, cls = cls_and_name
+    nname, cls = cls_and_name
+    if not name:
+        name = nname
 
     if isinstance(conf_dict, Controller):
         conf_controller = conf_dict
