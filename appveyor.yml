@@ -2,7 +2,7 @@ environment:
 
   matrix:
 
-    - PYTHON: "C:\\Python27"
+    #- PYTHON: "C:\\Python27"
     - PYTHON: "C:\\Python35"
 
 build: off
@@ -23,8 +23,8 @@ install:
 
 test_script:
   - "python --version"
-  #- "python -m capsul.test.test_capsul"
-  - "python -m capsul.pipeline.test.test_custom_nodes"
+  - "python -m capsul.test.test_capsul"
+  #- "python -m capsul.pipeline.test.test_custom_nodes"
 
 notifications:
   - provider: Email
