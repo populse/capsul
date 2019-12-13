@@ -459,11 +459,17 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             else:
                 process = node
             trait = process.trait(plug_name)
+            if trait.input_filename is False:
+                # filename is explicitly an output: not a temporary.
+                continue
             is_list = isinstance(trait.trait_type, List)
             values = []
             if is_list:
                 todo = getattr(process, plug_name)
                 trait = trait.inner_traits[0]
+                if trait.input_filename is False:
+                    # filename is explicitly an output: not a temporary.
+                    continue
             else:
                 todo = [Undefined]
             for item in todo:
