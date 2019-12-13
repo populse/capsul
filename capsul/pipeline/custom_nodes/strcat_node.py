@@ -72,8 +72,7 @@ class StrCatNode(Node):
     def set_callbacks(self, update_callback=None):
         if update_callback is None:
             update_callback = self.cat_callback
-        for name in self._concat_sequence:
-            self.on_trait_change(update_callback, name)
+        self.on_trait_change(update_callback, self._concat_sequence)
 
     def cat_callback(self):
         result = ''.join([unicode(getattr(self, name))
@@ -105,10 +104,10 @@ class StrCatNode(Node):
         params = [(x, x in conf_controller.outputs) for x in conf_controller.parameters]
         t = {}
         if conf_controller.param_types:
-            for name, ptype in zip(conf_controller.parameters
-                                   + [conf_controller.concat_plug],
-                                   conf_controller.param_types):
-                t[name] = getattr(traits, ptype)()
+            for pname, ptype in zip(conf_controller.parameters
+                                    + [conf_controller.concat_plug],
+                                    conf_controller.param_types):
+                t[pname] = getattr(traits, ptype)()
         node = StrCatNode(pipeline, name, conf_controller.parameters,
                           conf_controller.concat_plug,
                           conf_controller.outputs,
