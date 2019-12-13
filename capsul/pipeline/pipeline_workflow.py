@@ -1016,6 +1016,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
             for iteration in xrange(size):
                 for parameter in it_process.iterative_parameters:
+                    if it_process.process.trait(parameter).input_filename \
+                            is False:
+                        # dynamic output has no forced value
+                        continue
                     setattr(it_process.process, parameter,
                             getattr(it_process, parameter)[iteration])
 
