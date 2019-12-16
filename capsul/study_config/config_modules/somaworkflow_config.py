@@ -245,13 +245,19 @@ class SomaWorkflowConfig(StudyConfigModule):
                 = swclient.configuration.Configuration.search_config_path()
         login = swclient.configuration.Configuration.get_logins(
             conf_file).get(resource_id)
+        config = getattr(r, 'config', None)
+        if config is None:
+            config = swclient.configuration.Configuration.load_from_file(
+                conf_file)
+            r.config = config
         password = getattr(r, 'password', None)
         rsa_key_pass = getattr(r, 'rsa_key_password', None)
         wc = swclient.WorkflowController(
             resource_id=resource_id,
             login=login,
             password=password,
-            rsa_key_pass=rsa_key_pass)
+            rsa_key_pass=rsa_key_pass,
+            config=config)
         r.workflow_controller = wc
         return wc
 
