@@ -21,7 +21,9 @@ from traits.api import String, Float, Undefined, List, File
 # Capsul import
 from capsul.api import Process
 from capsul.api import Pipeline
+from capsul.api import StudyConfig
 from capsul.pipeline import pipeline_workflow
+from soma.controller import Controller
 
 debug = False
 
@@ -157,18 +159,37 @@ class TestPipeline(unittest.TestCase):
     def setUp(self):
         """ In the setup construct the pipeline and set some input parameters.
         """
+        import soma_workflow.configuration as swconfig
+
+        self.directory = tempfile.mkdtemp(prefix="capsul_test")
+
+        # use a temporary sqlite database in soma-workflow to avoid concurrent
+        # access problems
+        config = swconfig.Configuration.load_from_file()
+        #tmpdb = tempfile.mkstemp('.db', prefix='swf_')
+        tmpdb = os.path.join(self.directory, 'soma-workflow.db')
+        config._database_file = tmpdb
+
+        # set soma-workflow config in Capsul StudyConfig
+        self.study_config = StudyConfig()
+        resource_id = self.study_config.modules['SomaWorkflowConfig'] \
+            .get_resource_id(None, True)
+        r = self.study_config.modules_data.somaworkflow.setdefault(
+            resource_id, Controller())
+        r.config = config
+
         # Construct the pipeline
-        self.pipeline = MyPipeline()
+        self.pipeline = self.study_config.get_process_instance(MyPipeline)
 
         # Set some input parameters
-        self.directory = tempfile.mkdtemp("capsul_test")
         self.pipeline.input_image = [os.path.join(self.directory, "toto"),
                                      os.path.join(self.directory, "tutu")]
         self.pipeline.dynamic_parameter = [3, 1]
         self.pipeline.other_input = 5
 
         # build a pipeline with dependencies
-        self.small_pipeline = MySmallPipeline()
+        self.small_pipeline \
+            = self.study_config.get_process_instance(MySmallPipeline)
         self.small_pipeline.files_to_create = [
             os.path.join(self.directory, "toto"),
             os.path.join(self.directory, "tutu")]
@@ -176,10 +197,14 @@ class TestPipeline(unittest.TestCase):
         self.small_pipeline.other_input = 5
 
         # build a bigger pipeline with several levels
-        self.big_pipeline = MyBigPipeline()
+        self.big_pipeline \
+            = self.study_config.get_process_instance(MyBigPipeline)
 
     def tearDown(self):
-        shutil.rmtree(self.directory)
+        if debug:
+            print('directory %s not removed.' % self.directory)
+        else:
+            shutil.rmtree(self.directory)
 
     def test_iterative_pipeline_connection(self):
         """ Test if an iterative process works correctly
@@ -258,7 +283,6 @@ class TestPipeline(unittest.TestCase):
                          set(["toto", "tutu", "tata", "titi", "tete"]))
 
     def test_iterative_pipeline_workflow_run(self):
-        import soma_workflow.configuration as swconfig
         import soma_workflow.constants as swconstants
         import soma_workflow.client as swclient
 
@@ -268,44 +292,40 @@ class TestPipeline(unittest.TestCase):
         self.small_pipeline.other_output = [1., 2.]
         workflow = pipeline_workflow.workflow_from_pipeline(
             self.small_pipeline)
+        swclient.Helper.serialize(
+            os.path.join(self.directory, 'smallpipeline.workflow'), workflow)
 
-        # use a temporary sqlite database in soma-workflow to avoid concurrent
-        # access problems
-        config = swconfig.Configuration.load_from_file()
-        tmpdb = tempfile.mkstemp('.db', prefix='swf_')
-        os.close(tmpdb[0])
-        os.unlink(tmpdb[1])
-        config._database_file = tmpdb[1]
-        controller = swclient.WorkflowController(config=config)
-        try:
-            wf_id = controller.submit_workflow(workflow)
-            print('* running pipeline...')
-            swclient.Helper.wait_workflow(wf_id, controller)
-            print('* finished.')
-            workflow_status = controller.workflow_status(wf_id)
-            elements_status = controller.workflow_elements_status(wf_id)
-            failed_jobs = [element for element in elements_status[0] \
-                if element[1] != swconstants.DONE \
-                    or element[3][0] != swconstants.FINISHED_REGULARLY]
-            if not debug:
-                controller.delete_workflow(wf_id)
-            self.assertTrue(workflow_status == swconstants.WORKFLOW_DONE,
-                'Workflow did not finish regularly: %s' % workflow_status)
-            self.assertTrue(len(failed_jobs) == 0, 'Jobs failed: %s'
-                            % failed_jobs)
-            # check output files contents
-            for ifname, fname in zip(self.small_pipeline.files_to_create,
-                                    self.small_pipeline.output_image):
-                content = open(fname).read()
-                self.assertEqual(content, "file: %s\n" % ifname)
-        finally:
+        self.study_config.use_soma_workflow = True
+
+        #controller = swclient.WorkflowController(config=config)
+        #try:
+
+        #wf_id = controller.submit_workflow(workflow)
+        print('* running pipeline...')
+        #swclient.Helper.wait_workflow(wf_id, controller)
+        self.study_config.run(self.small_pipeline)
+        print('* finished.')
+        #workflow_status = controller.workflow_status(wf_id)
+        #elements_status = controller.workflow_elements_status(wf_id)
+        #failed_jobs = [element for element in elements_status[0] \
+            #if element[1] != swconstants.DONE \
+                #or element[3][0] != swconstants.FINISHED_REGULARLY]
+        #if not debug:
+            #controller.delete_workflow(wf_id)
+        #self.assertTrue(workflow_status == swconstants.WORKFLOW_DONE,
+            #'Workflow did not finish regularly: %s' % workflow_status)
+        #self.assertTrue(len(failed_jobs) == 0, 'Jobs failed: %s'
+                        #% failed_jobs)
+        # check output files contents
+        for ifname, fname in zip(self.small_pipeline.files_to_create,
+                                  self.small_pipeline.output_image):
+            content = open(fname).read()
+            self.assertEqual(content, "file: %s\n" % ifname)
+
+        #finally:
             # remove the temporary database
-            del controller
-            del config
-            if not debug:
-                os.unlink(tmpdb[1])
-                if os.path.exists(tmpdb[1] + '-journal'):
-                    os.unlink(tmpdb[1] + '-journal')
+            #del controller
+            #del config
 
 def test():
     """ Function to execute unitest
