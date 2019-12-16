@@ -1501,7 +1501,10 @@ def workflow_run(workflow_name, workflow, study_config):
                 out_params = controller.get_job_output_params(
                     eng_wf.job_mapping[job].job_id)
                 if out_params:
-                    process = proc_map[job.process_hash]
+                    process = proc_map.get(job.process_hash)
+                    if process is None:
+                        # iteration or non-process job
+                        continue
                     for param in list(out_params.keys()):
                         if process.trait(param) is None:
                             del out_params[param]
