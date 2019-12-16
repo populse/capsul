@@ -351,10 +351,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 'from capsul.api import Process; '
                 'Process.run_from_commandline("%s")' % process_cmdline[1]]
             use_input_params_file = True
-            param_dict = process.export_to_dict()
+            param_dict = process.export_to_dict(exclude_undefined=True)
         elif process_cmdline[0] in ('json_job', 'custom_job'):
             use_input_params_file = True
-            param_dict = process.export_to_dict()
+            param_dict = process.export_to_dict(exclude_undefined=True)
         for name in forbidden_traits:
             if name in param_dict:
                 del param_dict[name]
