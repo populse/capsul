@@ -165,6 +165,9 @@ class SomaWorkflowConfig(StudyConfigModule):
             from soma_workflow import configuration as swcf
             resource_id = swcf.Configuration.get_local_resource_id()
         if set_it:
+            if resource_id is None:
+                import socket
+                resource_id = socket.gethostname()
             self.study_config.somaworkflow_computing_resource = resource_id
         return resource_id
 
