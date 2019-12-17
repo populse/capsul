@@ -162,8 +162,8 @@ class SomaWorkflowConfig(StudyConfigModule):
         else:
             self.study_config.somaworkflow_computing_resource = resource_id
         if resource_id in (None, Undefined, 'localhost'):
-            import socket
-            resource_id = socket.gethostname()
+            from soma_workflow import configuration as swcf
+            resource_id = swcf.Configuration.get_local_resource_id()
         if set_it:
             self.study_config.somaworkflow_computing_resource = resource_id
         return resource_id
@@ -248,7 +248,7 @@ class SomaWorkflowConfig(StudyConfigModule):
         config = getattr(r, 'config', None)
         if config is None:
             config = swclient.configuration.Configuration.load_from_file(
-                conf_file)
+                config_file_path=conf_file)
             r.config = config
         password = getattr(r, 'password', None)
         rsa_key_pass = getattr(r, 'rsa_key_password', None)
