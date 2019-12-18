@@ -214,19 +214,19 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         """
         def _replace_in_list(rlist, temp_map):
             for i, item in enumerate(rlist):
-                if item in temp_map:
+                if isinstance(item, (list, tuple)):
+                    deeperlist = list(item)
+                    _replace_in_list(deeperlist, temp_map)
+                    rlist[i] = deeperlist
+                elif item is Undefined:
+                    rlist[i] = ''
+                elif item in temp_map:
                     value = temp_map[item]
                     value = value.__class__(value)
                     if hasattr(item, 'pattern'):
                         # temp case (differs from shared case)
                         value.pattern = item.pattern
                     rlist[i] = value
-                elif isinstance(item, (list, tuple)):
-                    deeperlist = list(item)
-                    _replace_in_list(deeperlist, temp_map)
-                    rlist[i] = deeperlist
-                elif item is Undefined:
-                    rlist[i] = ''
 
         def _replace_in_dict(rdict, temp_map):
             for name, item in six.iteritems(rdict):
@@ -234,6 +234,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     deeperlist = list(item)
                     _replace_in_list(deeperlist, temp_map)
                     rdict[name] = deeperlist
+                elif item is Undefined:
+                    rdict[name] = ''
                 elif item in temp_map:
                     value = temp_map[item]
                     value = value.__class__(value)
@@ -241,8 +243,6 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         # temp case (differs from shared case)
                         value.pattern = item.pattern
                     rdict[name] = value
-                elif item is Undefined:
-                    rdict[name] = ''
 
         def _replace_transfers(rlist, process, itransfers, otransfers):
             param_name = None
