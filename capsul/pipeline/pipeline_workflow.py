@@ -217,9 +217,13 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 if isinstance(item, (list, tuple)):
                     deeperlist = list(item)
                     _replace_in_list(deeperlist, temp_map)
+                    if isinstance(item, tuple):
+                        deeperlist = tuple(deeperlist)
+                    elif isinstance(item, set):
+                        deeperlist = set(deeperlist)
                     rlist[i] = deeperlist
-                elif item is Undefined:
-                    rlist[i] = ''
+                #elif item is Undefined:
+                    #rlist[i] = ''
                 elif item in temp_map:
                     value = temp_map[item]
                     value = value.__class__(value)
@@ -230,12 +234,16 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
         def _replace_in_dict(rdict, temp_map):
             for name, item in six.iteritems(rdict):
-                if isinstance(item, (list, tuple)):
+                if isinstance(item, (list, tuple, set)):
                     deeperlist = list(item)
                     _replace_in_list(deeperlist, temp_map)
+                    if isinstance(item, tuple):
+                        deeperlist = tuple(deeperlist)
+                    elif isinstance(item, set):
+                        deeperlist = set(deeperlist)
                     rdict[name] = deeperlist
-                elif item is Undefined:
-                    rdict[name] = ''
+                #elif item is Undefined:
+                    #rdict[name] = ''
                 elif item in temp_map:
                     value = temp_map[item]
                     value = value.__class__(value)
@@ -256,7 +264,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         transfer = otransfers.get(param_name)
                     if transfer is not None:
                         value = transfer[0]
-                        if isinstance(item, list) or isinstance(item, tuple):
+                        if isinstance(item, (list, tuple)):
                             # TODO: handle lists of files [transfers]
                             #deeperlist = list(item)
                             #_replace_in_list(deeperlist, transfers)
@@ -274,7 +282,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     transfer = otransfers.get(param_name)
                 if transfer is not None:
                     value = transfer[0]
-                    if isinstance(item, list) or isinstance(item, tuple):
+                    if isinstance(item, (list, tuple)):
                         # TODO: handle lists of files [transfers]
                         #deeperlist = list(item)
                         #_replace_in_list(deeperlist, transfers)
@@ -351,10 +359,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 'from capsul.api import Process; '
                 'Process.run_from_commandline("%s")' % process_cmdline[1]]
             use_input_params_file = True
-            param_dict = process.export_to_dict(exclude_undefined=True)
+            param_dict = process.export_to_dict(exclude_undefined=False)
         elif process_cmdline[0] in ('json_job', 'custom_job'):
             use_input_params_file = True
-            param_dict = process.export_to_dict(exclude_undefined=True)
+            param_dict = process.export_to_dict(exclude_undefined=False)
         for name in forbidden_traits:
             if name in param_dict:
                 del param_dict[name]

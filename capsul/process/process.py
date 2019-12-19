@@ -59,6 +59,7 @@ from soma.controller import trait_ids
 from soma.controller.trait_utils import is_trait_value_defined
 from soma.controller.trait_utils import is_trait_pathname
 from soma.controller.trait_utils import get_trait_desc
+from soma.utils import json_utils
 
 # Capsul import
 from capsul.utils.version_utils import get_tool_version
@@ -719,7 +720,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             params_conf = {}
         else:
             with open(param_file) as f:
-                params_conf = json.load(f)
+                params_conf = json_utils.from_json(json.load(f))
         params = params_conf.get('parameters', {})
         process.import_from_dict(params)
         # actually run the process
@@ -747,7 +748,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 output_params[param] = getattr(process, param)
             output_params.update(result)
             with open(out_param_file, 'w') as f:
-                json.dump(output_params, f)
+                json.dump(json_utils.to_json(output_params), f)
 
     def get_log(self):
         """ Load the logging file.
