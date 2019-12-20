@@ -726,7 +726,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             process.import_from_dict(params)
         except Exception as e:
             print('error in setting parameters of process %s, with dict:'
-                  % self.name, params, file=sys.stderr)
+                  % process.name, params, file=sys.stderr)
             raise
         # actually run the process
         result = process._run_process()
