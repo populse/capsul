@@ -722,7 +722,12 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             with open(param_file) as f:
                 params_conf = json_utils.from_json(json.load(f))
         params = params_conf.get('parameters', {})
-        process.import_from_dict(params)
+        try:
+            process.import_from_dict(params)
+        except Exception as e:
+            print('error in setting parameters of process %s, with dict:'
+                  % self.name, params, file=sys.stderr)
+            raise
         # actually run the process
         result = process._run_process()
         # collect output parameers
@@ -1640,6 +1645,10 @@ class NipypeProcess(FileCopyProcess):
                 if old is Undefined and old != new:
                     setattr(self._nipype_interface.inputs, trait_name, new)
 
+        # activate config
+        #study_config = self.get_study_config()
+        #print('SC:', study_config.export_to_dict())
+
         results = self._nipype_interface.run()
         self.synchronize += 1
         
@@ -1659,7 +1668,8 @@ class NipypeProcess(FileCopyProcess):
         if cwd is not None:
             os.chdir(cwd)
 
-        return results
+        #return results.__dict__
+        return None
 
     def _after_run_process(self, run_process_result):
         if self._spm_script_file not in (None, Undefined, ''):

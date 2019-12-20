@@ -184,7 +184,9 @@ def nipype_factory(nipype_instance):
             except Exception as e:
                 # don't make it all crash because of a nipype trait assign
                 # error
-                print('EXCEPTION:', e)
+                print('EXCEPTION:', e, file=sys.stderr)
+                print('while syncing nipype parameter', name,
+                      'on', process_instance.name, file=sys.stderr)
                 import traceback
                 traceback.print_exc()
                 ex_type, ex, tb = sys.exc_info()
@@ -206,7 +208,10 @@ def nipype_factory(nipype_instance):
                 # If we can't update the output process instance traits values,
                 # print a logging debug message.
                 except Exception as e:
-                    print('EXCEPTION:', e)
+                    print('EXCEPTION:', e, file=sys.stderr)
+                    print('while setting nipype output parameter', out_name,
+                          'on', process_instance.name, 'with value:',
+                          out_value, file=sys.stderr)
                     import traceback
                     traceback.print_exc()
                     ex_type, ex, tb = sys.exc_info()
