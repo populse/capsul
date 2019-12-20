@@ -162,6 +162,27 @@ def _execfile(filename):
           glob_dict, glob_dict)
     return glob_dict
 
+
+def _load_module(filename, modname=None):
+    if not modname:
+        modname = os.path.basename(filename).rsplit('.', 2)[0]
+    if sys.version_info >= (3, 5):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(modname, filename)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[modname] = mod
+        spec.loader.exec_module(mod)
+        return mod
+    elif sys.version_info[0] >= 3:
+        from importlib.machinery import SourceFileLoader
+        mod = SourceFileLoader(modname, filename).load_module()
+    else:
+        import imp
+        mod = imp.load_source(modname, filename)
+    if mod is not None:
+        sys.modules[modname] = mod
+    return mod
+
 def _get_process_instance(process_or_id, study_config=None, **kwargs):
 
     def _find_single_process(module_dict, filename):
@@ -237,12 +258,17 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
             else:
                 filename = process_or_id
                 object_name = None
-            glob_dict = _execfile(filename)
-            module_name = '__main__'
-            if object_name is None:
-                object_name = _find_single_process(glob_dict, filename)
+            module = _load_module(filename)
+            module_name = module.__name__
+            module_dict = module.__dict__
+            print('module:', module_name, '.', object_name)
+            module_dict = module.__dict__
+            print('get proc', object_name, 'in', module_name)
+            object_name = _find_single_process(
+                module_dict, module_name)
+            print('object_name:', object_name)
             if object_name is not None:
-                module_dict = glob_dict
+                module_name = process_or_id
                 as_py = True
         if object_name is None:
             elements = process_or_id.rsplit('.', 1)
@@ -322,8 +348,8 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                     issubclass(module_object, Process)):
                     result = module_object()
                 elif isinstance(module_object, Interface):
-                    # If we have a Nipype interface, wrap this structure in a Process
-                    # class
+                    # If we have a Nipype interface, wrap this structure in a
+                    # Process class
                     result = nipype_factory(result)
                 elif (isinstance(module_object, type) and
                     issubclass(module_object, Interface)):
