@@ -178,8 +178,22 @@ def nipype_factory(nipype_instance):
 
             # Try to set all the process instance output traits values from
             # the nipype autocompleted traits values
-            nipype_outputs = (process_instance.
-                              _nipype_interface._list_outputs())
+            try:
+                nipype_outputs = (process_instance.
+                                  _nipype_interface._list_outputs())
+            except Exception as e:
+                # don't make it all crash because of a nipype trait assign
+                # error
+                print('EXCEPTION:', e)
+                import traceback
+                traceback.print_exc()
+                ex_type, ex, tb = sys.exc_info()
+                logger.debug(
+                    "Something wrong in the nipype output trait "
+                    "synchronization:\n\n\tError: {0} - {1}\n"
+                    "\tTraceback:\n{2}".format(
+                        ex_type, ex, "".join(traceback.format_tb(tb))))
+                nipype_outputs = {}
 
             # Synchronize traits: check file existance
             for out_name, out_value in six.iteritems(nipype_outputs):
