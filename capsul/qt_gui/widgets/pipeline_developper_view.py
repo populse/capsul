@@ -324,8 +324,12 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self._build()
         if colored_parameters:
             process.on_trait_change(self._repaint_parameter, dispatch='ui')
+        process.on_trait_change(self.update_parameters, 'user_traits_changed',
+                                dispatch='ui')
 
     def __del__(self):
+        self.process.on_trait_change(self.update_parameters,
+                                     'user_traits_changed', remove=True)
         if self.colored_parameters:
             try:
                 self.process.on_trait_change(self._repaint_parameter, remove=True)
@@ -338,6 +342,16 @@ class NodeGWidget(QtGui.QGraphicsItem):
             return self.name
         else:
             return "[{0}]".format(self.name)
+
+    def update_parameters(self):
+        forbidden = ['nodes_activation', 'activated', 'enabled', 'name',
+                     'node_type']
+        self.parameters = SortedDictionary(
+            [(pname, param)
+             for pname, param in six.iteritems(self.process.user_traits())
+             if pname not in forbidden
+                and not getattr(param, 'hidden', False)])
+        self.update_node()
 
     def update_labels(self, labels):
         ''' Update colored labels
