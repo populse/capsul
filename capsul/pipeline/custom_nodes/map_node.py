@@ -40,8 +40,6 @@ class MapNode(Node):
     :class:`~soma_workflow.client_types.BarrierJob` for parameters which are
     not "mapped".
 
-
-
     '''
 
     def __init__(self, pipeline, name, input_names=['inputs'],
@@ -78,23 +76,28 @@ class MapNode(Node):
         index = self.input_names.index(name)
         output = self.output_names[index]
         ptype = self.input_types[index]
-        print('use output:', output)
-        print('old:', old_value, ', new:', value)
         if old_value in (None, traits.Undefined):
             old_value = []
         if value in (None, traits.Undefined):
             value = []
         if len(old_value) > len(value):
-            print('was longer')
             for i in range(len(old_value) - 1, len(value) - 1, -1):
                 pname = output % i
                 self.remove_trait(pname)
-                # TODO: remove links to this plug
                 if pname in self.plugs:
+                    # remove links to this plug
+                    plug = self.plugs[pname]
+                    for link in plug.links_to:
+                        if link[3] is self.pipeline.pipeline_node:
+                            link_name = '%s.%s->%s' % (self.name, pname,
+                                                       link[1])
+                        else:
+                            link_name = '%s.%s->%s.%s' % (self.name, pname,
+                                                          link[0], link[1])
+                        self.pipeline.remove_link(link_name)
                     del self.plugs[pname]
         for i in range(len(old_value), len(value)):
             pname = output % i
-            print('add trait:', pname)
             ptype = self._clone_trait(ptype,
                                       {'output': True, 'optional': True})
             self.add_trait(pname, ptype)
