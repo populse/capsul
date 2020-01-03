@@ -200,6 +200,38 @@ class PipelineLOO(Pipeline):
             'outputs': (567.2173021071882, 10.355615517551513),
             'train': (139.93023967435616, 5.012399999999985)}
 
+class PipelineMapReduce(Pipeline):
+    def pipeline_definition(self):
+        self.add_process(
+            'proc1', 'capsul.pipeline.test.test_custom_nodes.Pipeline1')
+        self.add_process(
+            'proc2', 'capsul.pipeline.test.test_custom_nodes.Pipeline1')
+        self.add_custom_node(
+            'map', 'capsul.pipeline.custom_nodes.map_node',
+            parameters={'input_names': ['map_input', 'subjects'],
+                        'output_names': ['test_%d', 'subject_%d'],
+                        'input_types': ['File', 'Str']})
+        self.export_parameter('proc1', 'main_inputs', 'main_inputs')
+        self.export_parameter('map', 'subjects')
+        self.export_parameter('proc1', 'output_directory')
+        self.export_parameter('proc1', 'test_output', 'test_output1')
+        self.export_parameter('proc2', 'test_output', 'test_output2')
+        self.add_link('main_inputs->map.map_input')
+        self.add_link('main_inputs->proc2.main_inputs')
+        self.add_link('proc2.output_directory->output_directory')
+        self.main_inputs = ['file1', 'file2']
+        self.subjects = ['subject1', 'subject2']
+        self.add_link('map.test_0->proc1.test')
+        self.add_link('map.test_1->proc2.test')
+        self.add_link('map.subject_0->proc1.subject')
+        self.add_link('map.subject_1->proc2.subject')
+
+        self.node_position = {
+            'inputs': (-56.46187758535915, 33.76663793099311),
+            'outputs': (567.2173021071882, 10.355615517551513),
+            'proc1': (139.93023967435616, 5.012399999999985)}
+
+
 class TestCustomNodes(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp(prefix='swf_custom')
@@ -378,6 +410,25 @@ class TestCustomNodes(unittest.TestCase):
         xml.save_xml_pipeline(pipeline, xmlfname)
         pipeline2 = sc.get_process_instance(xmlfname)
         self._test_loo_pipeline(pipeline2)
+
+    def test_mapreduce(self):
+        sc = StudyConfig()
+        pipeline = sc.get_process_instance(PipelineMapReduce)
+        pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i)
+                                for i in range(4)]
+        pipeline.subjects = ['Robert', 'Gustave']
+        pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
+        self.assertEqual(pipeline.test_output1,
+                         os.path.join(pipeline.output_directory,
+                                      '%s_test_output' % pipeline.subjects[0]))
+        self.assertEqual(pipeline.test_output2,
+                         os.path.join(pipeline.output_directory,
+                                      '%s_test_output' % pipeline.subjects[1]))
+        wf = pipeline_workflow.workflow_from_pipeline(pipeline,
+                                                      create_directories=False)
+        self.assertEqual(len(wf.jobs), 15)
+        #print(sorted([(d[0].name, d[1].name) for d in wf.dependencies]))
+        self.assertEqual(len(wf.dependencies), 22)
 
 
 def test():
