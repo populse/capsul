@@ -16,13 +16,13 @@ if sys.version_info[0] >= 3:
 
 class MapNode(Node):
     '''
-    This "inert" node converts lists into series of single items. Typically an
-    input named ``inputs`` is a list of items. The job will separate items and
+    This node converts lists into series of single items. Typically an
+    input named ``inputs`` is a list of items. The node will separate items and
     output each of them as an output parameter. The i-th item will be output as
     ``output_<i>`` by default.
-    The inputs / outputs names can be customized using the parameters
-    ``input_names`` and ``output_names``. Several lists can be split in the
-    same node.
+    The inputs / outputs names can be customized using the constructor
+    parameters ``input_names`` and ``output_names``. Several lists can be split
+    in the same node.
     The node will also output a ``lengths`` parameter which will contain the
     input lists lengths. This lengths can typically be input in reduce nodes to
     perform the reverse operation (see :class:`ReduceNode`).
@@ -45,9 +45,7 @@ class MapNode(Node):
     def __init__(self, pipeline, name, input_names=['inputs'],
                  output_names=['output_%d'], input_types=None):
         in_traits = []
-        #{'name': 'input_names', 'optional': True},
-                     #{'name': 'output_names', 'optional': True}]
-        out_traits = []
+        out_traits = [{'name': 'lengths', 'optional': True}]
 
         if input_types:
             ptypes = input_types
@@ -60,12 +58,13 @@ class MapNode(Node):
             in_traits.append({'name': tr, 'optional': False})
         super(MapNode, self).__init__(pipeline, name, in_traits, out_traits)
 
-        #self.add_trait('input_names', traits.List(traits.Str, output=False))
-        #self.add_trait('output_names', traits.List(traits.Str, output=False))
         for tr, ptype in zip(input_names, ptypes):
             self.add_trait(tr, traits.List(ptype, output=False))
+        self.add_trait('lengths', traits.List(traits.Int(), output=True,
+                                              desc='lists lengths'))
         self.input_names = input_names
         self.output_names = output_names
+        self.lengths = [0] * len(input_names)
 
         self.set_callbacks()
 
@@ -107,7 +106,14 @@ class MapNode(Node):
                 self.pipeline.update_nodes_and_plugs_activation, "enabled")
         for i, val in enumerate(value):
             setattr(self, output % i, val)
-
+        # update lengths
+        lengths = self.lengths
+        if not isinstance(lengths, list):
+            lengths = []
+        while len(lengths) <= index:
+            lengths.append(0)
+        lengths[index] = len(value)
+        self.lengths = lengths
 
     def configured_controller(self):
         c = self.configure_controller()
@@ -137,7 +143,7 @@ class MapNode(Node):
             elif ptype == 'File':
                 t.append(traits.File(traits.Undefined))
             elif ptype not in (None, traits.Undefined):
-                t = getattr(traits, conf_controller.param_type)()
+                t.append(getattr(traits, ptype)())
         node = MapNode(pipeline, name, conf_controller.input_names,
                        conf_controller.output_names, input_types=t)
         return node
@@ -157,7 +163,7 @@ class MapNode(Node):
             output_name = self.output_names[index]
             if value not in (None, traits.Undefined):
                 for i in range(len(value)):
-                    opname = = output_name % i
+                    opname = output_name % i
                     param_dict[opname] = getattr(self, opname)
         job = MapJob(name=name,
                      referenced_input_files=referenced_input_files,
