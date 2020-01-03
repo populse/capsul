@@ -911,23 +911,34 @@ class Pipeline(Process):
 
         Parameters
         ----------
-        link: str
-            link descriptionof the form:
+        link: str or list/tuple
+            link description. Its shape should be:
             "node.output->other_node.input".
-            If no node is specified, the pipeline node itself is used:
-            "output->other_node.input".
+            If no node is specified, the pipeline itself is assumed.
+            Alternatively the link can be
+            (source_node, source_plug_name, dest_node, dest_plug_name)
         weak_link: bool
             this property is used when nodes are optional,
             the plug information may not be generated.
         """
-        # Parse the link
-        (source_node_name, source_plug_name, source_node,
-         source_plug, dest_node_name, dest_plug_name, dest_node,
-         dest_plug) = self.parse_link(link)
-        if source_node is None or dest_node is None or source_plug is None \
-                or dest_plug is None:
-            # link from/to an invalid node
-            return
+        if isinstance(link, six.string_types):
+            # Parse the link
+            (source_node_name, source_plug_name, source_node,
+            source_plug, dest_node_name, dest_plug_name, dest_node,
+            dest_plug) = self.parse_link(link)
+            if source_node is None \
+                    or dest_node is None or source_plug is None \
+                    or dest_plug is None:
+                # link from/to an invalid node
+                return
+        else:
+            (source_node, source_plug_name, dest_node, dest_plug_name) = link
+            source_plug = source_node.plugs[source_plug_name]
+            dest_plug = dest_node.plugs[dest_plug_name]
+            source_node_name = [k for k, n in six.iteritems(self.nodes)
+                                if n is source_node][0]
+            dest_node_name = [k for k, n in six.iteritems(self.nodes)
+                              if n is dest_node][0]
 
         # Assure that pipeline plugs are not linked
         if (not source_plug.output and source_node is not self.pipeline_node):
