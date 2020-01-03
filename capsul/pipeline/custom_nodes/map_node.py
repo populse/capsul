@@ -81,14 +81,12 @@ class MapNode(Node):
                 if pname in self.plugs:
                     # remove links to this plug
                     plug = self.plugs[pname]
+                    to_del = []
                     for link in plug.links_to:
-                        if link[3] is self.pipeline.pipeline_node:
-                            link_name = '%s.%s->%s' % (self.name, pname,
-                                                       link[1])
-                        else:
-                            link_name = '%s.%s->%s.%s' % (self.name, pname,
-                                                          link[0], link[1])
-                        self.pipeline.remove_link(link_name)
+                        linkd = (self, pname, link[2], link[1])
+                        to_del.append(linkd)
+                    for linkd in to_del:
+                        self.pipeline.remove_link(linkd)
                     del self.plugs[pname]
         for i in range(len(old_value), len(value)):
             pname = output % i
