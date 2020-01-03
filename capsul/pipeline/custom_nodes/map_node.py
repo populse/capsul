@@ -35,11 +35,6 @@ class MapNode(Node):
     Each pattern will be used to replace items from the corresponding input in
     the same order. Thus ``input_names``  and ``output_names`` should be the
     same length.
-    * all other parameters given in ``param_dict`` are passed to the output
-    dictionary of the job, so that the job acts as a
-    :class:`~soma_workflow.client_types.BarrierJob` for parameters which are
-    not "mapped".
-
     '''
 
     def __init__(self, pipeline, name, input_names=['inputs'],
