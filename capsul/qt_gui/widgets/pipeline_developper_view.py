@@ -1457,6 +1457,16 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         self.changed.connect(self.update_paths)
 
+    def __del__(self):
+        del self.pos
+        del self.dim
+        del self.labels
+        del self.glinks
+        del self.gnodes
+        # force delete gnodes: needs to use gc.collect()
+        import gc
+        gc.collect()
+
     def _add_node(self, name, gnode):
         self.addItem(gnode)
         
