@@ -3,6 +3,7 @@
 ------------------------
 '''
 
+from __future__ import print_function
 
 from capsul.pipeline.pipeline_nodes import Node, Plug
 from soma.controller import Controller
@@ -185,12 +186,12 @@ class ReduceNode(Node):
         param_dict['lengths'] = self.lengths
         for index, pname_p in enumerate(self.input_names):
             for i in range(self.lengths[index]):
-                pname = pame_p % i
+                pname = pname_p % i
                 param_dict[pname] = getattr(self, pname)
             output_name = self.output_names[index]
             value = getattr(self, output_name)
             if value not in (None, traits.Undefined):
-                param_dict[opname] = value
+                param_dict[output_name] = value
         job = MapJob(name=name,
                      referenced_input_files=referenced_input_files,
                      referenced_output_files=referenced_output_files,

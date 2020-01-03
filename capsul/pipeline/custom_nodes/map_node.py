@@ -55,8 +55,9 @@ class MapNode(Node):
 
         for tr, ptype in zip(input_names, ptypes):
             self.add_trait(tr, traits.List(ptype, output=False))
-        self.add_trait('lengths', traits.List(traits.Int(), output=True,
-                                              desc='lists lengths'))
+        self.add_trait('lengths',
+                       traits.List(traits.Int(), output=True, optional=True,
+                                   desc='lists lengths'))
         self.input_names = input_names
         self.output_names = output_names
         self.lengths = [0] * len(input_names)
