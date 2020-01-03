@@ -1432,23 +1432,28 @@ class Pipeline(Process):
             nodes_to_check = new_nodes_to_check
             iteration += 1
 
-        # Update processes to hide or show their traits according to the
-        # corresponding plug activation
-        for node in self.all_nodes():
-            if isinstance(node, ProcessNode):
-                traits_changed = False
-                for plug_name, plug in six.iteritems(node.plugs):
-                    trait = node.process.trait(plug_name)
-                    if plug.activated:
-                        if getattr(trait, "hidden", False):
-                            trait.hidden = False
-                            traits_changed = True
-                    else:
-                        if not getattr(trait, "hidden", False):
-                            trait.hidden = True
-                            traits_changed = True
-                if traits_changed:
-                    node.process.user_traits_changed = True
+        # Denis 2020/01/03: I don't understand the reason for hidding
+        # parameters of inactive plugs: they still get a value (default or
+        # forced). So I comment the following out until we make it clear why
+        # this was done this way.
+        #
+        ## Update processes to hide or show their traits according to the
+        ## corresponding plug activation
+        #for node in self.all_nodes():
+            #if isinstance(node, ProcessNode):
+                #traits_changed = False
+                #for plug_name, plug in six.iteritems(node.plugs):
+                    #trait = node.process.trait(plug_name)
+                    #if plug.activated:
+                        #if getattr(trait, "hidden", False):
+                            #trait.hidden = False
+                            #traits_changed = True
+                    #else:
+                        #if not getattr(trait, "hidden", False):
+                            #trait.hidden = True
+                            #traits_changed = True
+                #if traits_changed:
+                    #node.process.user_traits_changed = True
 
         # Execute a callback for all links that have become active.
         for node, source_plug_name, source_plug, n, pn, p in inactive_links:
