@@ -261,12 +261,9 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
             module = _load_module(filename)
             module_name = module.__name__
             module_dict = module.__dict__
-            print('module:', module_name, '.', object_name)
             module_dict = module.__dict__
-            print('get proc', object_name, 'in', module_name)
             object_name = _find_single_process(
                 module_dict, module_name)
-            print('object_name:', object_name)
             if object_name is not None:
                 module_name = process_or_id
                 as_py = True
