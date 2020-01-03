@@ -211,11 +211,29 @@ class PipelineMapReduce(Pipeline):
             parameters={'input_names': ['map_input', 'subjects'],
                         'output_names': ['test_%d', 'subject_%d'],
                         'input_types': ['File', 'Str']})
+        # extract inputs list len as a list of 1 item
+        # [2, 2] -> 2, 2
+        self.add_custom_node(
+            'input_len1', 'capsul.pipeline.custom_nodes.map_node',
+            parameters={'input_types': ['Int']})
+        # 2 -> [2]
+        self.add_custom_node(
+            'input_len2', 'capsul.pipeline.custom_nodes.reduce_node',
+            parameters={'input_types': ['Int']},
+            make_optional=['lengths'])
+        # real reduce
+        self.add_custom_node(
+            'reduce', 'capsul.pipeline.custom_nodes.reduce_node',
+            parameters={'input_names': ['in_output_%d'],
+                        'input_types': ['File']})
+        self.add_process(
+            'cat', 'capsul.pipeline.test.test_custom_nodes.CatFileProcess')
         self.export_parameter('proc1', 'main_inputs', 'main_inputs')
         self.export_parameter('map', 'subjects')
         self.export_parameter('proc1', 'output_directory')
-        self.export_parameter('proc1', 'test_output', 'test_output1')
-        self.export_parameter('proc2', 'test_output', 'test_output2')
+        #self.export_parameter('proc1', 'test_output', 'test_output1')
+        #self.export_parameter('proc2', 'test_output', 'test_output2')
+        self.export_parameter('cat', 'output', 'output_file')
         self.add_link('main_inputs->map.map_input')
         self.add_link('main_inputs->proc2.main_inputs')
         self.add_link('proc2.output_directory->output_directory')
@@ -225,6 +243,12 @@ class PipelineMapReduce(Pipeline):
         self.add_link('map.test_1->proc2.test')
         self.add_link('map.subject_0->proc1.subject')
         self.add_link('map.subject_1->proc2.subject')
+        self.add_link('map.lengths->input_len1.inputs')
+        self.add_link('input_len1.output_0->input_len2.input_0')
+        self.add_link('input_len2.outputs->reduce.lengths')
+        self.add_link('proc1.test_output->reduce.in_output_0')
+        self.add_link('proc2.test_output->reduce.in_output_1')
+        self.add_link('reduce.outputs->cat.files')
 
         self.node_position = {
             'inputs': (-56.46187758535915, 33.76663793099311),
@@ -418,17 +442,17 @@ class TestCustomNodes(unittest.TestCase):
                                 for i in range(4)]
         pipeline.subjects = ['Robert', 'Gustave']
         pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
-        self.assertEqual(pipeline.test_output1,
-                         os.path.join(pipeline.output_directory,
-                                      '%s_test_output' % pipeline.subjects[0]))
-        self.assertEqual(pipeline.test_output2,
-                         os.path.join(pipeline.output_directory,
-                                      '%s_test_output' % pipeline.subjects[1]))
+        self.assertEqual(
+            pipeline.nodes['cat'].process.files,
+            [os.path.join(pipeline.output_directory,
+                          '%s_test_output' % pipeline.subjects[0]),
+            os.path.join(pipeline.output_directory,
+                          '%s_test_output' % pipeline.subjects[1])])
         wf = pipeline_workflow.workflow_from_pipeline(pipeline,
                                                       create_directories=False)
-        self.assertEqual(len(wf.jobs), 15)
+        self.assertEqual(len(wf.jobs), 19)
         #print(sorted([(d[0].name, d[1].name) for d in wf.dependencies]))
-        self.assertEqual(len(wf.dependencies), 22)
+        self.assertEqual(len(wf.dependencies), 28)
 
 
 def test():
