@@ -1435,7 +1435,7 @@ class Pipeline(Process):
         # Denis 2020/01/03: I don't understand the reason for hidding
         # parameters of inactive plugs: they still get a value (default or
         # forced). So I comment the following out until we make it clear why
-        # this was done this way.
+        # this was done this way.
         #
         ## Update processes to hide or show their traits according to the
         ## corresponding plug activation
