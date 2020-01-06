@@ -25,16 +25,17 @@ class MapNode(Node):
     in the same node.
     The node will also output a ``lengths`` parameter which will contain the
     input lists lengths. This lengths can typically be input in reduce nodes to
-    perform the reverse operation (see :class:`ReduceNode`).
+    perform the reverse operation (see
+    :class:`~capsul.pipeline.custom_nodes.reduce_node.ReduceNode`).
 
     * ``input_names`` is a list of input parameters names, each being a list to
-    be split. The default is ``['inputs']``
+      be split. The default is ``['inputs']``
     * ``output_names`` is a list of patterns used to build output parameters
-    names. Each item is a string containing a substitution pattern ``"%d"``
-    which will be replaced with a number. The default is ``['output_%d']``.
-    Each pattern will be used to replace items from the corresponding input in
-    the same order. Thus ``input_names``  and ``output_names`` should be the
-    same length.
+      names. Each item is a string containing a substitution pattern ``"%d"``
+      which will be replaced with a number. The default is ``['output_%d']``.
+      Each pattern will be used to replace items from the corresponding input
+      in the same order. Thus ``input_names``  and ``output_names`` should be
+      the same length.
     '''
 
     def __init__(self, pipeline, name, input_names=['inputs'],

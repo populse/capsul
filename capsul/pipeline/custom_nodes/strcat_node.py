@@ -1,6 +1,6 @@
 '''
 :class:`StrCatNode`
-----------------
+-------------------
 '''
 
 from capsul.pipeline.pipeline_nodes import Node
