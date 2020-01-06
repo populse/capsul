@@ -18,9 +18,9 @@ matrix:
         - 2.7
     - os: linux
       language: python
-      name: python 3.5
+      name: python 3.8
       python:
-        - 3.5
+        - 3.8
 
 before_install:
     # osx deps
