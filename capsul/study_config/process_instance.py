@@ -162,6 +162,27 @@ def _execfile(filename):
           glob_dict, glob_dict)
     return glob_dict
 
+
+def _load_module(filename, modname=None):
+    if not modname:
+        modname = os.path.basename(filename).rsplit('.', 2)[0]
+    if sys.version_info >= (3, 5):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(modname, filename)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[modname] = mod
+        spec.loader.exec_module(mod)
+        return mod
+    elif sys.version_info[0] >= 3:
+        from importlib.machinery import SourceFileLoader
+        mod = SourceFileLoader(modname, filename).load_module()
+    else:
+        import imp
+        mod = imp.load_source(modname, filename)
+    if mod is not None:
+        sys.modules[modname] = mod
+    return mod
+
 def _get_process_instance(process_or_id, study_config=None, **kwargs):
 
     def _find_single_process(module_dict, filename):
@@ -237,12 +258,14 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
             else:
                 filename = process_or_id
                 object_name = None
-            glob_dict = _execfile(filename)
-            module_name = '__main__'
-            if object_name is None:
-                object_name = _find_single_process(glob_dict, filename)
+            module = _load_module(filename)
+            module_name = module.__name__
+            module_dict = module.__dict__
+            module_dict = module.__dict__
+            object_name = _find_single_process(
+                module_dict, module_name)
             if object_name is not None:
-                module_dict = glob_dict
+                module_name = process_or_id
                 as_py = True
         if object_name is None:
             elements = process_or_id.rsplit('.', 1)
@@ -322,8 +345,8 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                     issubclass(module_object, Process)):
                     result = module_object()
                 elif isinstance(module_object, Interface):
-                    # If we have a Nipype interface, wrap this structure in a Process
-                    # class
+                    # If we have a Nipype interface, wrap this structure in a
+                    # Process class
                     result = nipype_factory(result)
                 elif (isinstance(module_object, type) and
                     issubclass(module_object, Interface)):
@@ -374,10 +397,10 @@ def get_node_class(node_type):
     """
     if inspect.isclass(node_type):
         if issubclass(node_type, Node):
-            return node_type # already a Node class
+            return node_type.__name__, node_type  # already a Node class
         return Node
     if isinstance(node_type, Node):
-        return node_type.__class__
+        return node_type.__class__.__name__, node_type.__class__
     cls = None
     try:
         mod = importlib.import_module(node_type)
@@ -398,7 +421,8 @@ def get_node_class(node_type):
     return name, cls
 
 
-def get_node_instance(node_type, pipeline, conf_dict=None, **kwargs):
+def get_node_instance(node_type, pipeline, conf_dict=None, name=None,
+                      **kwargs):
     """
     Get a custom node instance from a module + class name (see
     :func:`get_node_class`) and a configuration dict or Controller.
@@ -426,7 +450,9 @@ def get_node_instance(node_type, pipeline, conf_dict=None, **kwargs):
     cls_and_name = get_node_class(node_type)
     if cls_and_name is None:
         raise ValueError("Could not find node class %s" % node_type)
-    name, cls = cls_and_name
+    nname, cls = cls_and_name
+    if not name:
+        name = nname
 
     if isinstance(conf_dict, Controller):
         conf_controller = conf_dict

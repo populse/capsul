@@ -401,7 +401,7 @@ if nbsphinx:
     print('dest:', out_dir)
     print('cwd:', os.getcwd())
     if not os.path.isabs(src_dir) and not os.path.exists(os.path.join(src_dir)):
-        # this strange config appears in MAkefile builds
+        # this strange config appears in Makefile builds
         src_dir = os.getcwd()
         if not os.path.isabs(out_dir):
             out_dir = os.path.join(os.path.dirname(os.getcwd()), out_dir)
@@ -432,5 +432,4 @@ if nbsphinx:
         os.makedirs(os.path.join(out_dir, '_static/tutorial'))
     shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb'),
                 os.path.join(out_dir, '_static/tutorial/capsul_tutorial.ipynb'))
-
 

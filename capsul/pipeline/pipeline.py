@@ -771,7 +771,8 @@ class Pipeline(Process):
         # modules. For instance, Pipeline class needs get_process_instance
         # which needs create_xml_pipeline which needs Pipeline class.
         from capsul.study_config.process_instance import get_node_instance
-        node = get_node_instance(node_type, self, parameters, **kwargs)
+        node = get_node_instance(node_type, self, parameters, name=name,
+                                 **kwargs)
         if node is None:
             raise ValueError(
                 "could not build a Node of type '%s' with the given parameters"
@@ -910,32 +911,46 @@ class Pipeline(Process):
 
         Parameters
         ----------
-        link: str
-            link descriptionof the form:
+        link: str or list/tuple
+            link description. Its shape should be:
             "node.output->other_node.input".
-            If no node is specified, the pipeline node itself is used:
-            "output->other_node.input".
+            If no node is specified, the pipeline itself is assumed.
+            Alternatively the link can be
+            (source_node, source_plug_name, dest_node, dest_plug_name)
         weak_link: bool
             this property is used when nodes are optional,
             the plug information may not be generated.
         """
-        # Parse the link
-        (source_node_name, source_plug_name, source_node,
-         source_plug, dest_node_name, dest_plug_name, dest_node,
-         dest_plug) = self.parse_link(link)
-        if source_node is None or dest_node is None or source_plug is None \
-                or dest_plug is None:
-            # link from/to an invalid node
-            return
+        if isinstance(link, six.string_types):
+            # Parse the link
+            (source_node_name, source_plug_name, source_node,
+            source_plug, dest_node_name, dest_plug_name, dest_node,
+            dest_plug) = self.parse_link(link)
+            if source_node is None \
+                    or dest_node is None or source_plug is None \
+                    or dest_plug is None:
+                # link from/to an invalid node
+                return
+        else:
+            (source_node, source_plug_name, dest_node, dest_plug_name) = link
+            source_plug = source_node.plugs[source_plug_name]
+            dest_plug = dest_node.plugs[dest_plug_name]
+            source_node_name = [k for k, n in six.iteritems(self.nodes)
+                                if n is source_node][0]
+            dest_node_name = [k for k, n in six.iteritems(self.nodes)
+                              if n is dest_node][0]
 
         # Assure that pipeline plugs are not linked
-        if (not source_plug.output and source_node is not self.pipeline_node) \
-                or (source_plug.output and source_node is self.pipeline_node):
-            raise ValueError("Cannot link from a pipeline input "
+        if (not source_plug.output and source_node is not self.pipeline_node):
+              raise ValueError(
+                  "Cannot link from an input plug: {0}".format(link))
+        if (source_plug.output and source_node is self.pipeline_node):
+            raise ValueError("Cannot link from a pipeline output "
                              "plug: {0}".format(link))
-        if (dest_plug.output and dest_node is not self.pipeline_node) \
-                or (not dest_plug.output and dest_node is self.pipeline_node):
-            raise ValueError("Cannot link to a pipeline output "
+        if (dest_plug.output and dest_node is not self.pipeline_node):
+            raise ValueError("Cannot link to an output plug: {0}".format(link))
+        if (not dest_plug.output and dest_node is self.pipeline_node):
+            raise ValueError("Cannot link to a pipeline input "
                              "plug: {0}".format(link))
 
         # Propagate the plug value from source to destination
@@ -977,15 +992,26 @@ class Pipeline(Process):
 
         Parameters
         ----------
-        link: str
+        link: str or list/tuple
             link description. Its shape should be:
             "node.output->other_node.input".
             If no node is specified, the pipeline itself is assumed.
+            Alternatively the link can be
+            (source_node, source_plug_name, dest_node, dest_plug_name)
         """
-        # Parse the link
-        (source_node_name, source_plug_name, source_node,
-         source_plug, dest_node_name, dest_plug_name, dest_node,
-         dest_plug) = self.parse_link(link)
+        if isinstance(link, six.string_types):
+            # Parse the link
+            (source_node_name, source_plug_name, source_node,
+            source_plug, dest_node_name, dest_plug_name, dest_node,
+            dest_plug) = self.parse_link(link)
+        else:
+            (source_node, source_plug_name, dest_node, dest_plug_name) = link
+            source_plug = source_node.plugs[source_plug_name]
+            dest_plug = dest_node.plugs[dest_plug_name]
+            source_node_name = [k for k, n in six.iteritems(self.nodes)
+                                if n is source_node][0]
+            dest_node_name = [k for k, n in six.iteritems(self.nodes)
+                              if n is dest_node][0]
 
         if source_node is None or dest_node is None or source_plug is None \
                 or dest_plug is None:
@@ -1406,23 +1432,28 @@ class Pipeline(Process):
             nodes_to_check = new_nodes_to_check
             iteration += 1
 
-        # Update processes to hide or show their traits according to the
-        # corresponding plug activation
-        for node in self.all_nodes():
-            if isinstance(node, ProcessNode):
-                traits_changed = False
-                for plug_name, plug in six.iteritems(node.plugs):
-                    trait = node.process.trait(plug_name)
-                    if plug.activated:
-                        if getattr(trait, "hidden", False):
-                            trait.hidden = False
-                            traits_changed = True
-                    else:
-                        if not getattr(trait, "hidden", False):
-                            trait.hidden = True
-                            traits_changed = True
-                if traits_changed:
-                    node.process.user_traits_changed = True
+        # Denis 2020/01/03: I don't understand the reason for hidding
+        # parameters of inactive plugs: they still get a value (default or
+        # forced). So I comment the following out until we make it clear why
+        # this was done this way.
+        #
+        ## Update processes to hide or show their traits according to the
+        ## corresponding plug activation
+        #for node in self.all_nodes():
+            #if isinstance(node, ProcessNode):
+                #traits_changed = False
+                #for plug_name, plug in six.iteritems(node.plugs):
+                    #trait = node.process.trait(plug_name)
+                    #if plug.activated:
+                        #if getattr(trait, "hidden", False):
+                            #trait.hidden = False
+                            #traits_changed = True
+                    #else:
+                        #if not getattr(trait, "hidden", False):
+                            #trait.hidden = True
+                            #traits_changed = True
+                #if traits_changed:
+                    #node.process.user_traits_changed = True
 
         # Execute a callback for all links that have become active.
         for node, source_plug_name, source_plug, n, pn, p in inactive_links:
@@ -1456,10 +1487,25 @@ class Pipeline(Process):
             Default: True
         """
 
-        def insert(pipeline, node_name, plug, dependencies):
+        def insert(pipeline, node_name, node, plug, dependencies, plug_name,
+                   links, output=None):
             """ Browse the plug links and add the correspondings edges
             to the node.
             """
+
+            if output is None:
+                process = getattr(node, 'process', node)
+                trait = process.trait(plug_name)
+                output = trait.output
+                if output:
+                    if isinstance(trait.trait_type, (File, Directory)) \
+                            and trait.input_filename is not False:
+                        output = False
+                    elif isinstance(trait.trait_type, List) \
+                            and isinstance(trait.inner_traits[0],
+                                          (File, Directory)) \
+                            and trait.input_filename is not False:
+                        output = False
 
             # Main loop
             for (dest_node_name, dest_plug_name, dest_node, dest_plug,
@@ -1477,14 +1523,26 @@ class Pipeline(Process):
                     # address the node plugs
                     if isinstance(dest_node, ProcessNode):
                         dependencies.add((node_name, dest_node_name))
+                        if output:
+                            links.setdefault(dest_node, {})[dest_plug_name] \
+                                = (node, plug_name)
+                    elif isinstance(dest_node, Switch):
+                        conn = dest_node.connections()
+                        for c in conn:
+                            if c[0] == dest_plug_name:
+                                insert(pipeline, node_name, node,
+                                       dest_node.plugs[c[1]],
+                                       dependencies, plug_name, links, output)
+                                break
                     else:
                         for switch_plug in dest_node.plugs.itervalues():
-                            insert(pipeline, node_name, switch_plug,
-                                   dependencies)
+                            insert(pipeline, node_name, node, switch_plug,
+                                   dependencies, plug_name, links, output)
 
         # Create a graph and a list of graph node edges
         graph = Graph()
         dependencies = set()
+        links = {}
 
         if remove_disabled_steps:
             steps = getattr(self, 'pipeline_steps', Controller())
@@ -1526,12 +1584,15 @@ class Pipeline(Process):
 
                     # Consider only active pipeline node plugs
                     if plug.activated:
-                        insert(self, node_name, plug, dependencies)
+                        insert(self, node_name, node, plug, dependencies,
+                               plug_name, links)
 
         # Add edges to the graph
         for d in dependencies:
             if graph.find_node(d[0]) and graph.find_node(d[1]):
                 graph.add_link(d[0], d[1])
+
+        graph.param_links = links
 
         return graph
 
@@ -1610,6 +1671,9 @@ class Pipeline(Process):
                 continue
             trait = node.get_trait(plug_name)
             if not trait.output:
+                continue
+            if hasattr(trait, 'input_filename') \
+                    and trait.input_filename is False:
                 continue
             if hasattr(trait, 'inner_traits') \
                     and len(trait.inner_traits) != 0 \
@@ -1754,7 +1818,10 @@ class Pipeline(Process):
                     t = parameter.inner_traits[0]
                     if not isinstance(t.trait_type, (File, Directory)):
                         continue
-                elif not isinstance(parameter.trait_type, (File, Directory)):
+                elif not isinstance(parameter.trait_type, (File, Directory)) \
+                        or (parameter.output
+                            and parameter.input_filename is False):
+                    # a file with its filename as an output is OK
                     continue
                 value = getattr(process, plug_name)
                 if isinstance(value, list):
@@ -1781,6 +1848,16 @@ class Pipeline(Process):
                             # linked to the main node: keep it as is
                             valid = False
                             break
+                        if hasattr(link[2], 'process'):
+                            lproc = link[2].process
+                            ltrait = lproc.trait(link[1])
+                            if ltrait.output \
+                                    and ltrait.input_filename is False:
+                                # connected to an output file which filename
+                                # is actually an output: it will be generated
+                                # by the process, thus is not a temporary
+                                valid = False
+                                break
                         # linked to an output plug of an intermediate pipeline:
                         # needed only if this pipeline plug is used later,
                         # or mandatory

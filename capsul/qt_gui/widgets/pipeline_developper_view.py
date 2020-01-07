@@ -2763,8 +2763,9 @@ class PipelineDevelopperView(QGraphicsView):
         Adds an embedded sub-pipeline inside its parent node.
         '''
         gnode = self.scene.gnodes.get(str(subpipeline_name))
-        sub_pipeline = self.scene.pipeline.nodes[str(subpipeline_name)].process
         if gnode is not None:
+            sub_pipeline \
+                = self.scene.pipeline.nodes[str(subpipeline_name)].process
             gnode.add_subpipeline_view(
                 sub_pipeline, self._allow_open_controller, scale=scale)
 

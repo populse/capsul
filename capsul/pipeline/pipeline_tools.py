@@ -839,30 +839,140 @@ def where_is_plug_value_from(plug, recursive=True):
         if not node.activated or not node.enabled:
             # disabled nodes are not influencing
             continue
-        if isinstance(node, Switch):
-            # recover through switch input
-            switch_value = node.switch
-            switch_input = '%s_switch_%s' % (switch_value, param_name)
-            in_plug = node.plugs[switch_input]
-            links += [link + (parent,) for link in in_plug.links_from]
-        elif recursive and isinstance(node, PipelineNode):
+        if isinstance(node, PipelineNode):
+            if not recursive:
+                return node, param_name, parent
+            else:  # recursive
+                # either output from a sibling sub_pipeline
+                # or input from parent pipeline
+                # but it is handled the same way.
+                # check their inputs
+                # just if sibling, keep them as parent
+                if in_plug.output and parent is None:
+                    new_parent = node
+                else:
+                    new_parent = parent
+                links += [link + (new_parent,) for link in in_plug.links_from]
+        else:
+            other_end = node.get_connections_through(param_name, single=True)
+            if other_end:
+                return other_end[0][0], other_end[0][1], parent
+    # not found
+    return None, None, None
+
+def find_plug_connection_sources(plug, pipeline=None):
+    '''
+    A bit like :func:`where_is_plug_value_from` but looks for all incoming
+    connection sources
+
+    Returns
+    -------
+    sources:  list
+        [(node, param_name, parent_node), ...]
+    '''
+    sources = []
+    if isinstance(pipeline, Pipeline):
+        pipeline = pipeline.pipeline_node
+    links = [link + (pipeline,) for link in plug.links_from]
+    while links:
+        node_name, param_name, node, in_plug, weak, parent = links.pop(0)
+        if not node.activated or not node.enabled:
+            # disabled nodes are not influencing
+            continue
+        if isinstance(node, PipelineNode):
+            if not in_plug.links_from:
+                # get out of the pipeline: keep it
+                sources.append((node, param_name, parent))
+                continue
             # either output from a sibling sub_pipeline
             # or input from parent pipeline
             # but it is handled the same way.
             # check their inputs
             # just if sibling, keep them as parent
-            if in_plug.output and parent is None:
+            if in_plug.output and parent in (None, pipeline):
                 new_parent = node
             else:
                 new_parent = parent
             links += [link + (new_parent,) for link in in_plug.links_from]
         else:
-            # output of a process: found it
-            # in non-recursive mode, a pipeline is regarded as a process.
-            return node, param_name, parent
-    # not found
-    return None, None, None
+            other_end = node.get_connections_through(param_name, single=False)
+            for src in other_end:
+                if not src[2].output and node is pipeline \
+                        and not src[2].links_from:
+                    # main pipeline input, keep it
+                    sources.append((src[0], src[1], node))
+                elif src[2] is in_plug:
+                    # don't get through its node: keep the node as source
+                    sources.append((src[0], src[1], node))
+                elif src[2].output and not isinstance(src[0], PipelineNode):
+                    # sub-pipeline output: inspect it
+                    links.append((None, src[1], src[0], src[2], False, node))
+                elif not src[2].output or isinstance(src[0], PipelineNode):
+                    # input side of a non-opaque node: inspect its links
+                    links += [link + (node,)
+                              for link in src[2].links_from]
+                else:
+                    print('unhandle case in find_plug_connection_sources')
+                    print('node:', src[0], ', param:', src[1])
 
+    return sources
+
+def find_plug_connection_destinations(plug, pipeline=None):
+    '''
+    A bit like :func:`find_plug_connection_sources` but the other way
+
+    Returns
+    -------
+    dest:  list
+        [(node, param_name, parent_node), ...]
+    '''
+    dest = []
+    if isinstance(pipeline, Pipeline):
+        pipeline = pipeline.pipeline_node
+    links = [link + (pipeline,) for link in plug.links_to]
+    while links:
+        node_name, param_name, node, in_plug, weak, parent = links.pop(0)
+        if not node.activated or not node.enabled:
+            # disabled nodes are not influencing
+            continue
+        if isinstance(node, PipelineNode):
+            if not in_plug.links_to:
+                # get out of the pipeline: keep it
+                dest.append((node, param_name, parent))
+                continue
+            # either input from a sibling sub_pipeline
+            # or output from parent pipeline
+            # but it is handled the same way.
+            # check their inputs
+            # just if sibling, keep them as parent
+            if not in_plug.output and parent in (None, pipeline):
+                new_parent = node
+            else:
+                new_parent = parent
+            links += [link + (new_parent,) for link in in_plug.links_to]
+        else:
+            other_end = node.get_connections_through(param_name, single=False)
+            for dst in other_end:
+                if dst[2].output and node is pipeline \
+                        and not dst[2].links_to:
+                    # main pipeline output, keep it
+                    dest.append((dst[0], dst[1], node))
+                elif dst[2] is in_plug:
+                    # don't get through its node: keep the node as dest
+                    dest.append((dst[0], dst[1], node))
+                elif not dst[2].output \
+                        and not isinstance(dst[0], PipelineNode):
+                    # sub-pipeline input: inspect it
+                    links.append((None, dst[1], dst[0], dst[2], False, node))
+                elif dst[2].output or isinstance(src[0], PipelineNode):
+                    # output side of a non-opaque node: inspect its links
+                    links += [link + (node,)
+                              for link in src[2].links_to]
+                else:
+                    print('unhandle case in find_plug_connection_sources')
+                    print('node:', dst[0], ', param:', dst[1])
+
+    return dest
 
 def dump_pipeline_state_as_dict(pipeline):
     '''
@@ -1191,3 +1301,60 @@ def save_pipeline_parameters(filename, pipeline):
         else:
             with open(filename, 'w') as file:
                 json.dump(dic, file)
+
+
+def find_node(pipeline, node):
+    ''' Find the given node in the pipeline or a sub-pipeline
+
+    Returns
+    -------
+    node_chain: list
+        list of node names in the pipeline going through sub-pipelines to the
+        given node
+    '''
+    nodes = []
+    pipelines = [(pipeline.pipeline_node, [])]
+    while pipelines:
+        n, names = pipelines.pop(0)
+        for sk, sn in six.iteritems(n.process.nodes):
+            if node is sn:
+                return names + [sk]
+            if sn is not n and isinstance(sn, PipelineNode):
+                pipelines.append((sn, names + [sk]))
+
+    raise KeyError('Node %s not found in the pipeline %s'
+                   % (node.name, pipeline.name))
+
+def is_node_enabled(pipeline, node_name=None, node=None):
+    ''' Checks if the given node is enabled in the pipeline.
+    It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a distabled step.
+    The node may be given as a Node instance, or its name in the pipeline.
+    '''
+    names = [node_name]
+    if node is None:
+        node = pipeline.nodes[node_name]
+
+        if not node.enabled or not node.activated:
+            return False
+
+    elif node_name is None:
+
+        if not node.enabled or not node.activated:
+            return False
+
+        # probably a node of a sub-pipeline
+        names = find_node(pipeline, node)
+
+    p = pipeline
+    for name in names:
+        steps = getattr(p, 'pipeline_steps', Controller())
+        disabled_nodes = set()
+        for step, trait in six.iteritems(steps.user_traits()):
+            if not getattr(steps, step) and name in trait.nodes:
+                return False
+        p = p.nodes[name]
+        p = getattr(p, 'process', p)
+
+    # not disabled ? OK then it's enabled
+    return True
+

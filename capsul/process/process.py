@@ -59,6 +59,7 @@ from soma.controller import trait_ids
 from soma.controller.trait_utils import is_trait_value_defined
 from soma.controller.trait_utils import is_trait_pathname
 from soma.controller.trait_utils import get_trait_desc
+from soma.utils import json_utils
 
 # Capsul import
 from capsul.utils.version_utils import get_tool_version
@@ -234,7 +235,6 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     help
     get_input_help
     get_output_help
-    get_commandline
     get_log
     get_input_spec
     get_output_spec
@@ -242,6 +242,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     get_outputs
     set_parameter
     get_parameter
+    params_to_command
 
     """
 
@@ -613,6 +614,61 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         return commandline
 
+    def params_to_command(self):
+        '''
+        Generates a comandline representation of the process.
+
+        If not implemented, it will generate a commandline running python,
+        instaitiating the current process, and calling its
+        :meth:`_run_process` method.
+
+        This methood is new in Capsul v3 and is a replacement for
+        :meth:`get_commandline`.
+
+        It can be overwritten by custom Process subclasses. Actually each
+        process should overwrite either :meth:`params_to_command` or
+        :meth:`_run_process`.
+
+        The returned commandline is a list, which first element is a "method",
+        and others are the actual commandline with arguments. There are several
+        methods, the process is free to use either of the supported ones,
+        depending on how the execution is implemented.
+
+        **Methods:**
+
+        `capsul_job`: Capsul process run in python
+            The command will run the :meth:`_run_process` execution method of
+            the process, after loading input parameters from a JSON dictionary
+            file. The only second element in the commandline list is the
+            process identifier (module/class as in
+            :meth:`~capsul.engine.CapsulEngine.get_process_instance`). The
+            location of the JSON file will be passed to the job execution
+            through an environment variable `SOMAWF_INPUT_PARAMS`::
+
+                return ['capsul_job', 'morphologist.capsul.morphologist']
+
+        `format_string`: free commandlins with replacements for parameters
+            Command arguments can be, or contain, format strings in the shape
+            `'%(param)s'`, where `param` is a parameter of the process. This
+            way we can map values correctly, and call a foreign command::
+
+                return ['format_string', 'ls', '%(input_dir)s']
+
+        `json_job`: free commandline with JSON file for input parameters
+            A bit like `capsul_job` but without the automatic wrapper::
+
+                return ['json_job', 'python', '-m', 'my_module']
+
+        Returns
+        -------
+        commandline: list of strings
+            Arguments are in separate elements of the list.
+        '''
+        if self.__class__.get_commandline != Process.get_commandline:
+            # get_commandline is overriden the old way: use it.
+            return ['format_string'] + self.get_commandline()
+        return ['capsul_job', self.id]
+
     def make_commandline_argument(self, *args):
         """This helper function may be used to build non-trivial commandline
         arguments in get_commandline implementations.
@@ -640,6 +696,64 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             else:
                 built_arg = built_arg + repr(arg)
         return built_arg
+
+    @staticmethod
+    def run_from_commandline(process_definition):
+        '''
+        Run a process from a commandline call. The process name (with module)
+        are given in argument, input parameters should be passed through a JSON
+        file which location is in the ``SOMAWF_INPUT_PARAMS`` environment
+        variable.
+
+        If the process has outputs, the ``SOMAWF_OUTUT_PARAMS`` environment
+        variable should contain the location of an output file which whill be
+        written with a dict containing output parameters values.
+        '''
+        from capsul.engine import capsul_engine
+
+        ce = capsul_engine()
+        process = ce.get_process_instance(process_definition)
+        param_file = os.environ.get('SOMAWF_INPUT_PARAMS')
+        if param_file is None:
+            print('Warning: no input parameters, the env variable '
+                  'SOMAWF_INPUT_PARAMS is not set.', file=sys.stderr)
+            params_conf = {}
+        else:
+            with open(param_file) as f:
+                params_conf = json_utils.from_json(json.load(f))
+        params = params_conf.get('parameters', {})
+        try:
+            process.import_from_dict(params)
+        except Exception as e:
+            print('error in setting parameters of process %s, with dict:'
+                  % process.name, params, file=sys.stderr)
+            raise
+        # actually run the process
+        result = process._run_process()
+        # collect output parameers
+        out_param_file = os.environ.get('SOMAWF_OUTPUT_PARAMS')
+        output_params = {}
+        if out_param_file is not None:
+            if result is None:
+                result = {}
+            reserved_params = ("nodes_activation", "selection_changed")
+            for param, trait in six.iteritems(process.user_traits()):
+                if param in reserved_params or not trait.output:
+                    continue
+                if isinstance(trait.trait_type, (File, Directory)) \
+                        and trait.input_filename is not False:
+                    continue
+                elif isinstance(trait.trait_type, List) \
+                        and isinstance(trait.inner_traits[0].trait_type,
+                                       (File, Directory)) \
+                        and trait.inner_traits[0].trait_type.input_filename \
+                            is not False \
+                        and trait.input_filename is not False:
+                    continue
+                output_params[param] = getattr(process, param)
+            output_params.update(result)
+            with open(out_param_file, 'w') as f:
+                json.dump(json_utils.to_json(output_params), f)
 
     def get_log(self):
         """ Load the logging file.
@@ -1531,6 +1645,10 @@ class NipypeProcess(FileCopyProcess):
                 if old is Undefined and old != new:
                     setattr(self._nipype_interface.inputs, trait_name, new)
 
+        # activate config
+        #study_config = self.get_study_config()
+        #print('SC:', study_config.export_to_dict())
+
         results = self._nipype_interface.run()
         self.synchronize += 1
         
@@ -1550,7 +1668,8 @@ class NipypeProcess(FileCopyProcess):
         if cwd is not None:
             os.chdir(cwd)
 
-        return results
+        #return results.__dict__
+        return None
 
     def _after_run_process(self, run_process_result):
         if self._spm_script_file not in (None, Undefined, ''):

@@ -400,7 +400,8 @@ class StudyConfig(Controller):
                     output_directory = self.output_directory
             # Not all processes need an output_directory defined on
             # StudyConfig
-            if output_directory is not None and output_directory is not Undefined:
+            if output_directory is not None \
+                    and output_directory is not Undefined:
                 # Check the output directory is valid
                 if not isinstance(output_directory, basestring):
                     raise ValueError(
