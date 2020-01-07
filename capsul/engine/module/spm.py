@@ -51,7 +51,7 @@ def set_environ(config, environ):
         error_message = check_environ(environ)
         if error_message:
             complete_environ(config, environ)
-        error_message = check_environ(environ)
+            error_message = check_environ(environ)
 
         if error_message:
             raise EnvironmentError(error_message)

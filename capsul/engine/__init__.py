@@ -291,8 +291,8 @@ class CapsulEngine(Controller):
         configuration in database when self.save() is used, and they are
         retrieved from database before initializing modules.
         
-        set__environ is called in the context of the processing (i.e. on 
-        he, possibly remote, machine that runs the pipelines). It receives
+        set_environ is called in the context of the processing (i.e. on
+        the, possibly remote, machine that runs the pipelines). It receives
         the configuration as a JSON compatible dictionary (for instance a
         CapsulEngine attibute `capsul_engine.spm.directory` would be
         config['spm']['directory']). The function must modify the environ

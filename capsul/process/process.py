@@ -729,7 +729,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                   % process.name, params, file=sys.stderr)
             raise
         # actually run the process
-        result = process._run_process()
+        ce.study_config.use_soma_workglow = False
+        result = ce.study_config.run(process)
         # collect output parameers
         out_param_file = os.environ.get('SOMAWF_OUTPUT_PARAMS')
         output_params = {}
@@ -1618,6 +1619,10 @@ class NipypeProcess(FileCopyProcess):
             # Set the spm working
             self.destination = None
         super(NipypeProcess, self)._before_run_process()
+        # configure nipype from config env variables (which should have been set
+        # before now)
+        from capsul.in_context import nipype as inp_npp
+        inp_npp.configure_all()
     
     def _run_process(self):
         """ Method that do the processings when the instance is called.
