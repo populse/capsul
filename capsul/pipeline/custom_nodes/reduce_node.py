@@ -45,7 +45,7 @@ class ReduceNode(Node):
         else:
             ptypes = [traits.File(traits.Undefined, output=False)] \
                 * len(input_names)
-        self.input_types  = ptypes
+        self.input_types = ptypes
 
         for tr in output_names:
             out_traits.append({'name': tr, 'optional': False})
@@ -147,7 +147,8 @@ class ReduceNode(Node):
         c = self.configure_controller()
         c.input_names = self.input_names
         c.output_names = self.output_names
-        c.input_types = [p.trait_type.__class__.__name__
+        c.input_types = [(p.trait_type.__class__.__name__ if p.trait_type
+                            else p.__class__.__name__)
                          for p in self.input_types]
         return c
 
@@ -170,7 +171,8 @@ class ReduceNode(Node):
                 t.append(traits.Str(traits.Undefined))
             elif ptype == 'File':
                 t.append(traits.File(traits.Undefined))
-            elif ptype not in (None, traits.Undefined):
+            elif ptype not in (None, traits.Undefined, 'None', 'NoneType',
+                               '<undefined>'):
                 t.append(getattr(traits, ptype)())
         node = ReduceNode(pipeline, name, conf_controller.input_names,
                           conf_controller.output_names, input_types=t)
