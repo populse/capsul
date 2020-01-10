@@ -452,6 +452,13 @@ class Node(Controller):
         else:
             return [(self, plug_name, self.plugs[plug_name])]
 
+    def is_job(self):
+      """ if True, the node will be represented as a Job in
+      :somaworkflow:`Soma-Workflow <index.html>`. Otherwise the node is static
+      and does not run.
+      """
+      return True
+
 
 class ProcessNode(Node):
     """ Process node.
@@ -917,6 +924,9 @@ class Switch(Node):
             if other_end and single:
                 break
         return dest_plugs
+
+  def is_job(self):
+      return False
 
 
 class OptionalOutputSwitch(Switch):

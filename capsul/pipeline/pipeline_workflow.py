@@ -1155,7 +1155,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                                           node_name=node_name):
                 continue
 
-            if isinstance(node, Switch):
+            if not node.is_job():
                 continue
 
             all_nodes.append(node_desc)
