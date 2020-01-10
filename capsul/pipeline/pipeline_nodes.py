@@ -457,7 +457,7 @@ class Node(Controller):
       :somaworkflow:`Soma-Workflow <index.html>`. Otherwise the node is static
       and does not run.
       """
-      return True
+      return hasattr(self, 'build_job')
 
 
 class ProcessNode(Node):
@@ -585,6 +585,9 @@ class ProcessNode(Node):
             the trait named trait_name
         """
         return self.process.trait(trait_name)
+
+    def is_job(self):
+        return True
 
 
 class PipelineNode(ProcessNode):
