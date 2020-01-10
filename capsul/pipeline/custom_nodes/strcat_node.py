@@ -122,6 +122,10 @@ class StrCatNode(Node):
         from soma_workflow.custom_jobs import StrCatJob
         param_dict['input_names'] = self._concat_sequence
         param_dict['output_name'] = self._concat_plug
+        # transmit values
+        for param in self._concat_sequence:
+            param_dict[param] = getattr(self, param)
+        param_dict[self._concat_plug] = getattr(self, self._concat_plug)
         job = StrCatJob(name=name,
                         referenced_input_files=referenced_input_files,
                         referenced_output_files=referenced_output_files,
