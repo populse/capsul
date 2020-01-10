@@ -928,8 +928,8 @@ class Switch(Node):
                 break
         return dest_plugs
 
-  def is_job(self):
-      return False
+    def is_job(self):
+        return False
 
 
 class OptionalOutputSwitch(Switch):
