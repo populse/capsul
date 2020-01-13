@@ -205,11 +205,11 @@ class CVtest(Pipeline):
     def pipeline_definition(self):
         # nodes
         self.add_process("test", "capsul.pipeline.test.test_custom_nodes.TestProcess")
-        self.nodes["test"].process.out1 = u'/_test_output'
+        self.nodes["test"].process.out1 = u'%s_test_output' % os.path.sep
         self.add_custom_node("test_output", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': u'out_file', 'outputs': [u'base'], 'param_types': ['Str', 'Str', 'Str', 'Str', 'Any'], 'parameters': [u'base', u'sep', u'subject', u'suffix']})
         self.nodes["test_output"].plugs["sep"].optional = True
         self.nodes["test_output"].plugs["suffix"].optional = True
-        self.nodes["test_output"].sep = u'/'
+        self.nodes["test_output"].sep = os.path.sep
         self.nodes["test_output"].suffix = u'_test_output'
 
         # links
@@ -221,7 +221,7 @@ class CVtest(Pipeline):
         self.export_parameter("test_output", "base")
 
         # default and initial values
-        self.out1 = u'/_test_output'
+        self.out1 = u'%s_test_output' % os.path.sep
 
         # nodes positions
         self.node_position = {
@@ -247,21 +247,21 @@ class PipelineCVFold(Pipeline):
     def pipeline_definition(self):
         # nodes
         self.add_process("train1", "capsul.pipeline.test.test_custom_nodes.TrainProcess1")
-        self.nodes["train1"].process.out1 = u'/_interm'
+        self.nodes["train1"].process.out1 = u'%s_interm' % os.path.sep
         self.add_process("train2", "capsul.pipeline.test.test_custom_nodes.TrainProcess2")
-        self.nodes["train2"].process.in2 = u'/_interm'
-        self.nodes["train2"].process.out1 = u'/'
+        self.nodes["train2"].process.in2 = u'%s_interm' % os.path.sep
+        self.nodes["train2"].process.out1 = os.path.sep
         self.add_iterative_process("test_it", "capsul.pipeline.test.test_custom_nodes.CVtest", iterative_plugs=set([u'out1', u'in1', u'subject']),
                                    make_optional=['out1'])
         self.add_custom_node("output_file", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': 'out_file', 'outputs': ['base'], 'param_types': ['Directory', 'Str', 'Str', 'Any'], 'parameters': ['base', 'separator', 'subject']})
         self.nodes["output_file"].plugs["separator"].optional = True
         self.nodes["output_file"].plugs["subject"].optional = True
-        self.nodes["output_file"].separator = '/'
+        self.nodes["output_file"].separator = os.path.sep
         self.add_custom_node("intermediate_output", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': 'out_file', 'outputs': ['base'], 'param_types': ['Directory', 'Str', 'Str', 'Str', 'File'], 'parameters': ['base', 'sep', 'subject', 'suffix']})
         self.nodes["intermediate_output"].plugs["sep"].optional = True
         self.nodes["intermediate_output"].plugs["subject"].optional = True
         self.nodes["intermediate_output"].plugs["suffix"].optional = True
-        self.nodes["intermediate_output"].sep = '/'
+        self.nodes["intermediate_output"].sep = os.path.sep
         self.nodes["intermediate_output"].suffix = '_interm'
         self.add_custom_node("CV", "capsul.pipeline.custom_nodes.cv_node.CrossValidationFoldNode", {'param_type': 'File'})
         self.nodes["CV"].plugs["inputs"].optional = True
