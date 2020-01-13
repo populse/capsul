@@ -41,6 +41,7 @@ class CrossValidationFoldNode(Node):
         self.add_trait('inputs', traits.List(ptype, output=False))
         self.add_trait('fold', traits.Int())
         self.add_trait('nfolds', traits.Int(10))
+        is_output = True  # not a choice for now.
         self.add_trait('train', traits.List(ptype, output=is_output))
         self.add_trait('test', traits.List(ptype, output=is_output))
 
@@ -90,7 +91,7 @@ class CrossValidationFoldNode(Node):
 
     def build_job(self, name=None, referenced_input_files=[],
                   referenced_output_files=[], param_dict=None):
-        from soma_workflow.pipeline.custom_jobs \
+        from soma_workflow.custom_jobs \
             import CrossValidationFoldJob
         if param_dict is None:
             param_dict = {}
