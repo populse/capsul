@@ -200,6 +200,164 @@ class PipelineLOO(Pipeline):
             'outputs': (567.2173021071882, 10.355615517551513),
             'train': (139.93023967435616, 5.012399999999985)}
 
+class CVtest(Pipeline):
+
+    def pipeline_definition(self):
+        # nodes
+        self.add_process("test", "capsul.pipeline.test.test_custom_nodes.TestProcess")
+        self.nodes["test"].process.out1 = u'/_test_output'
+        self.add_custom_node("test_output", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': u'out_file', 'outputs': [u'base'], 'param_types': ['Str', 'Str', 'Str', 'Str', 'Any'], 'parameters': [u'base', u'sep', u'subject', u'suffix']})
+        self.nodes["test_output"].plugs["sep"].optional = True
+        self.nodes["test_output"].plugs["suffix"].optional = True
+        self.nodes["test_output"].sep = u'/'
+        self.nodes["test_output"].suffix = u'_test_output'
+
+        # links
+        self.export_parameter("test", "in1")
+        self.export_parameter("test", "model")
+        self.export_parameter("test_output", "subject")
+        self.export_parameter("test", "out1")
+        self.add_link("test.out1->test_output.out_file")
+        self.export_parameter("test_output", "base")
+
+        # default and initial values
+        self.out1 = u'/_test_output'
+
+        # nodes positions
+        self.node_position = {
+            "test": (-65.0, -52.0),
+            "inputs": (-250.109375, -12.0),
+            "test_output": (108.0, -57.0),
+            "outputs": (296.453125, -57.0),
+        }
+
+        # nodes dimensions
+        self.node_dimension = {
+            "test": (104.390625, 110.0),
+            "inputs": (113.265625, 145.0),
+            "test_output": (113.265625, 180.0),
+            "outputs": (113.265625, 110.0),
+        }
+
+        self.do_autoexport_nodes_parameters = False
+
+
+class PipelineCVFold(Pipeline):
+
+    def pipeline_definition(self):
+        # nodes
+        self.add_process("train1", "capsul.pipeline.test.test_custom_nodes.TrainProcess1")
+        self.nodes["train1"].process.out1 = u'/_interm'
+        self.add_process("train2", "capsul.pipeline.test.test_custom_nodes.TrainProcess2")
+        self.nodes["train2"].process.in2 = u'/_interm'
+        self.nodes["train2"].process.out1 = u'/'
+        self.add_iterative_process("test_it", "capsul.pipeline.test.test_custom_nodes.CVtest", iterative_plugs=set([u'out1', u'in1', u'subject']),
+                                   make_optional=['out1'])
+        self.add_custom_node("output_file", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': 'out_file', 'outputs': ['base'], 'param_types': ['Directory', 'Str', 'Str', 'Any'], 'parameters': ['base', 'separator', 'subject']})
+        self.nodes["output_file"].plugs["separator"].optional = True
+        self.nodes["output_file"].plugs["subject"].optional = True
+        self.nodes["output_file"].separator = '/'
+        self.add_custom_node("intermediate_output", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': 'out_file', 'outputs': ['base'], 'param_types': ['Directory', 'Str', 'Str', 'Str', 'File'], 'parameters': ['base', 'sep', 'subject', 'suffix']})
+        self.nodes["intermediate_output"].plugs["sep"].optional = True
+        self.nodes["intermediate_output"].plugs["subject"].optional = True
+        self.nodes["intermediate_output"].plugs["suffix"].optional = True
+        self.nodes["intermediate_output"].sep = '/'
+        self.nodes["intermediate_output"].suffix = '_interm'
+        self.add_custom_node("CV", "capsul.pipeline.custom_nodes.cv_node.CrossValidationFoldNode", {'param_type': 'File'})
+        self.nodes["CV"].plugs["inputs"].optional = True
+        self.nodes["CV"].plugs["fold"].optional = True
+        self.nodes["CV"].plugs["nfolds"].optional = True
+        self.nodes["CV"].plugs["train"].optional = True
+        self.nodes["CV"].plugs["test"].optional = True
+        self.add_custom_node("CV_subject", "capsul.pipeline.custom_nodes.cv_node.CrossValidationFoldNode", {'param_type': 'Str'})
+        self.nodes["CV_subject"].plugs["inputs"].optional = True
+        self.nodes["CV_subject"].plugs["fold"].optional = True
+        self.nodes["CV_subject"].plugs["nfolds"].optional = True
+        self.nodes["CV_subject"].plugs["train"].optional = True
+        self.nodes["CV_subject"].plugs["test"].optional = True
+        self.add_custom_node("CV_str", "capsul.pipeline.custom_nodes.strconv.StrConvNode", {'param_type': 'Int'})
+        self.nodes["CV_str"].plugs["input"].optional = True
+        self.nodes["CV_str"].plugs["output"].optional = True
+
+        # links
+        self.export_parameter("train2", "in1", "main_inputs")
+        self.add_link("main_inputs->CV.inputs")
+        self.export_parameter("CV_subject", "fold")
+        self.add_link("fold->CV.fold")
+        self.add_link("fold->CV_str.input")
+        self.export_parameter("CV_subject", "nfolds")
+        self.add_link("nfolds->CV.nfolds")
+        self.export_parameter("CV_subject", "inputs", "subjects")
+        self.add_link("train1.out1->intermediate_output.out_file")
+        self.add_link("train1.out1->train2.in2")
+        self.add_link("train2.out1->test_it.model")
+        self.add_link("train2.out1->output_file.out_file")
+        #self.export_parameter("test_it", "out1")
+        self.export_parameter("intermediate_output", "base", "output_directory")
+        self.add_link("test_it.base->output_directory")
+        self.add_link("output_file.base->output_directory")
+        self.add_link("intermediate_output.base->output_directory")
+        self.add_link("CV.train->train1.in1")
+        self.add_link("CV.test->test_it.in1")
+        self.add_link("CV_subject.test->test_it.subject")
+        self.add_link("CV_str.output->intermediate_output.subject")
+        self.add_link("CV_str.output->output_file.subject")
+
+        # nodes positions
+        self.node_position = {
+            "inputs": (-193.81409672616152, 179.57571591106034),
+            "test_output": (773.8854751232217, 301.4076846200484),
+            "CV_subject": (124.49272432968576, 300.1841121088647),
+            "intermediate_output": (429.7825366016713, 10.297579047060516),
+            "outputs": (922.7516925, 160.97519999999992),
+            "test_it": (609.4159229330792, 348.80997764736793),
+            "LOO": (127.01453333816809, 136.6317811335267),
+            "output_file": (592.1421868108927, 89.46925514825949),
+            "train1": (277.82609249999996, 152.83779999999996),
+            "train2": (429.64479249999994, 241.14566793468708),
+            "test": (577.7010925, 333.28052580768554),
+            "CV": (87.47511701769065, 24.222253721445696),
+            "CV_str": (260.7152514566675, 58.92183893386279),
+        }
+
+        # nodes dimensions
+        self.node_dimension = {
+            "inputs": (226.71875, 215.0),
+            "test_output": (113.265625, 180.0),
+            "CV_subject": (106.0, 145.0),
+            "intermediate_output": (136.640625, 180.0),
+            "outputs": (226.71875, 110.0),
+            "test_it": (112.265625, 145.0),
+            "LOO": (106.0, 110.0),
+            "output_file": (128.75, 145.0),
+            "train1": (82.828125, 75.0),
+            "train2": (82.828125, 110.0),
+            "test": (104.390625, 110.0),
+            "CV": (106.0, 145.0),
+            "CV_str": (112.828125, 75.0),
+        }
+
+        self.do_autoexport_nodes_parameters = False
+
+
+class PipelineCV(Pipeline):
+    def pipeline_definition(self):
+        self.add_iterative_process(
+            'train', 'capsul.pipeline.test.test_custom_nodes.PipelineCVFold',
+            iterative_plugs=['fold'])
+            #do_not_export=['test_output'])
+        self.export_parameter('train', 'main_inputs')
+        self.export_parameter('train', 'subjects', 'subjects')
+        self.export_parameter('train', 'fold')
+        self.export_parameter('train', 'nfolds')
+        self.export_parameter('train', 'output_directory')
+
+        self.node_position = {
+            'inputs': (-56.46187758535915, 33.76663793099311),
+            'outputs': (567.2173021071882, 10.355615517551513),
+            'train': (139.93023967435616, 5.012399999999985)}
+
+
 class PipelineMapReduce(Pipeline):
     def pipeline_definition(self):
         self.add_process(
@@ -386,6 +544,69 @@ class TestCustomNodes(unittest.TestCase):
                           'subject%d_test_output' % i)
              for i in range(4)])
 
+    def _test_cv_pipeline(self, pipeline):
+        pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i)
+                                for i in range(4)]
+        pipeline.nfolds = 4
+        pipeline.subjects = ['subject%d' % i for i in range(4)]
+        pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
+        pipeline.fold = list(range(pipeline.nfolds))
+        wf = pipeline_workflow.workflow_from_pipeline(pipeline,
+                                                      create_directories=False)
+        import soma_workflow.client as swc
+        swc.Helper.serialize(os.path.join(self.temp_dir,
+                                          'custom_nodes.workflow'), wf)
+        import six
+        #print('workflow:')
+        #print('jobs:', wf.jobs)
+        #print('dependencies:', sorted([(x[0].name, x[1].name) for x in wf.dependencies]))
+        #print('links:', {n.name: {p: (l[0].name, l[1]) for p, l in six.iteritems(links)} for n, links in six.iteritems(wf.param_links)})
+        self.assertEqual(len(wf.jobs), 42)
+        self.assertEqual(len(wf.dependencies), 84)
+        deps = sorted([
+                       ['CV', 'CVtest_map'],
+                       ['CV', 'train1'],
+                       ['CV_subject', 'CVtest_map'],
+                       ['CV_subject', 'intermediate_output'],  # FIXME why this
+                       ['CV_subject', 'output_file'],  # FIXME why this
+                       ['CVtest_map', 'test'], ['CVtest_map', 'test_output'],
+                       #['CVtest_reduce', 'PipelineCVFold_reduce'],
+                       ['PipelineCVFold_map', 'CV'],
+                       ['PipelineCVFold_map', 'CV_subject'],
+                       ['PipelineCVFold_map', 'intermediate_output'],
+                       ['PipelineCVFold_map', 'output_file'],
+                       ['PipelineCVFold_map', 'train2'],
+                       ['intermediate_output', 'PipelineCVFold_reduce'],
+                       ['output_file', 'PipelineCVFold_reduce'],
+                       ['test', 'CVtest_reduce'],
+                       ['test', 'test_output'],
+                       ['test_output', 'CVtest_reduce'],
+                       ['train1', 'intermediate_output'],
+                       ['train1', 'train2'],
+                       ['train2', 'CVtest_map'],
+                       ['train2', 'output_file'],
+                       ] * 4)
+        self.assertEqual(
+            sorted([[x.name for x in d] for d in wf.dependencies]),
+            deps)
+        train1_jobs = [job for job in wf.jobs if job.name == 'train1']
+        self.assertEqual(
+            sorted([job.param_dict['out1'] for job in train1_jobs]),
+            [os.path.join(pipeline.output_directory, '%d_interm' % i)
+             for i in range(4)])
+        train2_jobs = [job for job in wf.jobs if job.name == 'train2']
+        self.assertEqual(
+            sorted([job.param_dict['out1'] for job in train2_jobs]),
+            [os.path.join(pipeline.output_directory, '%d' % i)
+             for i in range(4)])
+        test_jobs = [job for job in wf.jobs if job.name == 'test']
+        out = sorted([job.param_dict['out1'] for job in test_jobs])
+        self.assertEqual(
+            sorted([job.param_dict['out1'] for job in test_jobs]),
+            [os.path.join(pipeline.output_directory,
+                          'subject%d_test_output' % i)
+             for i in range(4)])
+
     def test_leave_one_out_pipeline(self):
         sc = StudyConfig()
         pipeline = sc.get_process_instance(PipelineLOO)
@@ -454,6 +675,28 @@ class TestCustomNodes(unittest.TestCase):
         #print(sorted([(d[0].name, d[1].name) for d in wf.dependencies]))
         self.assertEqual(len(wf.dependencies), 28)
 
+    def test_cv_py_io(self):
+        sc = StudyConfig()
+        pipeline = sc.get_process_instance(PipelineCV)
+        py_file = tempfile.mkstemp(suffix='_capsul.py')
+        pyfname = py_file[1]
+        os.close(py_file[0])
+        self.temp_files.append(pyfname)
+        python_export.save_py_pipeline(pipeline, pyfname)
+        pipeline2 = sc.get_process_instance(pyfname)
+        self._test_cv_pipeline(pipeline2)
+
+    def test_cv_xml_io(self):
+        sc = StudyConfig()
+        pipeline = sc.get_process_instance(PipelineCV)
+        xml_file = tempfile.mkstemp(suffix='_capsul.xml')
+        xmlfname = xml_file[1]
+        os.close(xml_file[0])
+        self.temp_files.append(xmlfname)
+        xml.save_xml_pipeline(pipeline, xmlfname)
+        pipeline2 = sc.get_process_instance(xmlfname)
+        self._test_cv_pipeline(pipeline2)
+
 
 def test():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestCustomNodes)
@@ -483,11 +726,13 @@ if __name__ == '__main__':
                                        #enable_edition=True)
         #view1.show()
 
-        pipeline2 = PipelineLOO()
+        pipeline2 = PipelineCV()
         pipeline2.main_inputs = ['/tmp/file%d' % i for i in range(4)]
         pipeline2.test = pipeline2.main_inputs[2]
         pipeline2.subjects = ['subject%d' % i for i in range(4)]
         pipeline2.output_directory = '/tmp/out_dir'
+        pipeline2.nfolds = 4
+        pipeline2.fold = list(range(pipeline2.nfolds))
         #wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
                                                       #create_directories=False)
         view2 = PipelineDevelopperView(pipeline2, allow_open_controller=True,
