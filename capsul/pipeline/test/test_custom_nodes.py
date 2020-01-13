@@ -559,17 +559,17 @@ class TestCustomNodes(unittest.TestCase):
         import six
         #print('workflow:')
         #print('jobs:', wf.jobs)
+        #print('n deps:', len(wf.dependencies))
         #print('dependencies:', sorted([(x[0].name, x[1].name) for x in wf.dependencies]))
         #print('links:', {n.name: {p: (l[0].name, l[1]) for p, l in six.iteritems(links)} for n, links in six.iteritems(wf.param_links)})
         self.assertEqual(len(wf.jobs), 42)
-        self.assertEqual(len(wf.dependencies), 84)
+        self.assertEqual(len(wf.dependencies), 76)
         deps = sorted([
                        ['CV', 'CVtest_map'],
                        ['CV', 'train1'],
                        ['CV_subject', 'CVtest_map'],
-                       ['CV_subject', 'intermediate_output'],  # FIXME why this
-                       ['CV_subject', 'output_file'],  # FIXME why this
-                       ['CVtest_map', 'test'], ['CVtest_map', 'test_output'],
+                       ['CVtest_map', 'test'],
+                       ['CVtest_map', 'test_output'],
                        #['CVtest_reduce', 'PipelineCVFold_reduce'],
                        ['PipelineCVFold_map', 'CV'],
                        ['PipelineCVFold_map', 'CV_subject'],

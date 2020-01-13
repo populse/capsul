@@ -3,7 +3,7 @@
 --------------------------------
 '''
 
-
+from __future__ import print_function
 from capsul.pipeline.pipeline_nodes import Node
 from soma.controller import Controller
 import traits.api as traits
@@ -98,7 +98,10 @@ class StrConvNode(Node):
             links = connected_plug.links_to
         dest_plugs = []
         for link in links:
-            other_end = link[2].get_connections_through(link[1], single)
+            if link[2] is self.pipeline.pipeline_node:
+                other_end = [(link[2], link[1], link[3])]
+            else:
+                other_end = link[2].get_connections_through(link[1], single)
             dest_plugs += other_end
             if other_end and single:
                 break

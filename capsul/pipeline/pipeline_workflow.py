@@ -1263,6 +1263,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                               if x[0] is not None
                                                   and not isinstance(
                                                       x[0], ProcessNode)]
+                        elif process is pipeline:
+                            continue  # from main input: no dependency link
                         else:  # ProcessNode
                             sjob = jobs[process]
                             if isinstance(sjob, tuple):  # iteration
