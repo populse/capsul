@@ -56,6 +56,7 @@ class StrCatNode(Node):
         self._concat_sequence = params
         self._concat_plug = concat_plug
         self.add_parameters(param_types)
+        self.cat_callback()
         self.set_callbacks()
 
     def add_parameters(self, param_types={}):
