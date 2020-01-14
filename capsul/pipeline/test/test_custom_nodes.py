@@ -217,6 +217,7 @@ class CVtest(Pipeline):
         self.export_parameter("test", "model")
         self.export_parameter("test_output", "subject")
         self.export_parameter("test", "out1")
+        self.trait('out1').input_filename = False  # don't force from outside
         self.add_link("test.out1->test_output.out_file")
         self.export_parameter("test_output", "base")
 
