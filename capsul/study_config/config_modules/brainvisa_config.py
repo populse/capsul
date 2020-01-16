@@ -15,6 +15,7 @@ Classes
 ------------------------
 '''
 
+from __future__ import print_function
 import os
 from traits.api import Directory, Undefined
 from soma import config as soma_config
@@ -49,7 +50,13 @@ class BrainVISAConfig(StudyConfigModule):
 
         if type(self.study_config.engine) is not CapsulEngine:
             # engine is a proxy, thus we are initialized from a real
-            # CapsulEngine, which holds the reference values
+            # CapsulEngine, which should hold the reference values,
+            # BUT values are actuallu defined from here...
+            old_shared = self.study_config.shared_directory
+            if self.study_config.engine.global_config.axon.shared_directory \
+                    is Undefined:
+                self.study_config.engine.global_config.axon.shared_directory \
+                    = old_shared
             self.sync_from_engine()
         else:
             # otherwise engine is "owned" by StudyConfig
