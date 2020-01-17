@@ -41,6 +41,9 @@ class BrainVISAConfig(StudyConfigModule):
             desc='Study shared directory'))
 
         study_config.shared_directory = soma_config.BRAINVISA_SHARE
+        if 'FomConfig' in self.study_config.modules \
+                and self.study_config.shared_fom in (None, ''):
+            self.study_config.shared_fom = 'shared-brainvisa-1.0'
 
 
     def initialize_module(self):

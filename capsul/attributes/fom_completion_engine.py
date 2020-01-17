@@ -269,7 +269,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
     def setup_fom(process):
         completion_engine \
             = ProcessCompletionEngine.get_completion_engine(process)
-        if not isinstance(completion_engine, FomPathCompletionEngine):
+        if not isinstance(completion_engine, FomProcessCompletionEngine):
             return
         if not hasattr(completion_engine, 'input_fom') \
                 or completion_engine.input_fom is None:
