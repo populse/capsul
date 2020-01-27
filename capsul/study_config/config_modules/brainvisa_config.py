@@ -41,9 +41,11 @@ class BrainVISAConfig(StudyConfigModule):
             desc='Study shared directory'))
 
         study_config.shared_directory = soma_config.BRAINVISA_SHARE
-        if 'FomConfig' in self.study_config.modules \
-                and self.study_config.shared_fom in (None, ''):
-            self.study_config.shared_fom = 'shared-brainvisa-1.0'
+        # the following would be good but if Axon is not present, it will
+        # use an unavailable FOM and cause an error.
+        #if 'FomConfig' in self.study_config.modules \
+                #and self.study_config.shared_fom in (None, ''):
+            #self.study_config.shared_fom = 'shared-brainvisa-1.0'
 
 
     def initialize_module(self):
