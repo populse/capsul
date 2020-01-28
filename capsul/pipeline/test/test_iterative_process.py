@@ -214,6 +214,11 @@ class TestPipeline(unittest.TestCase):
             = self.study_config.get_process_instance(MyBigPipeline)
 
     def tearDown(self):
+        swm = self.study_config.modules['SomaWorkflowConfig']
+        swc = swm.get_workflow_controller()
+        if swc is not None:
+            # stop workflow controller and wait for thread termination
+            swc.stop_engine()
         if debug:
             print('directory %s not removed.' % self.directory)
         else:
