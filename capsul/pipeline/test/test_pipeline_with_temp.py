@@ -120,10 +120,10 @@ class TestPipelineWithTemp(unittest.TestCase):
         finally:
             try:
                 os.unlink(input_name)
-            except: pass
+            except OSError: pass
             try:
                 os.unlink(output_name)
-            except: pass
+            except OSError: pass
 
     def test_iterative_pipeline_with_temp(self):
         input_f = tempfile.mkstemp(suffix='capsul_input.txt')
@@ -155,10 +155,10 @@ class TestPipelineWithTemp(unittest.TestCase):
         finally:
             try:
                 os.unlink(input_name)
-            except: pass
+            except OSError: pass
             try:
                 os.unlink(output_name)
-            except: pass
+            except OSError: pass
 
 
 def test():

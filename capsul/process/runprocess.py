@@ -226,7 +226,7 @@ def convert_commandline_parameter(i):
     if len(i) > 0 and ( i[0] in '[({' or i in ( 'None', 'True', 'False' ) ):
         try:
             res=eval(i)
-        except:
+        except Exception:
             res=i
     else:
         res = i

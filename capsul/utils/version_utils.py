@@ -45,7 +45,7 @@ def get_tool_version(tool):
     try:
         module = __import__(tool)
         version = module.__version__
-    except:
+    except Exception:
         pass
 
     # Debug message
@@ -87,9 +87,9 @@ def get_nipype_interfaces_versions():
                                "Info.version()".format(module))
                 if version:
                     versions[module] = version
-            except:
+            except Exception:
                 pass
-    except:
+    except Exception:
         versions = None
 
     # Debug message

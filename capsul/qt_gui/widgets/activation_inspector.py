@@ -147,7 +147,7 @@ class ActivationInspector(QtGui.QWidget):
                 def __del__(self):
                     try:
                         os.unlink(self.record_file)
-                    except:
+                    except OSError:
                         pass
             self._autodelete_record_file = AutoDeleteFile(record_file)
 
@@ -211,7 +211,7 @@ class ActivationInspector(QtGui.QWidget):
                         logger.error(error_message.format(
                             type(self.ui), control_name))
                     setattr(self.ui, control_name, value)
-                except:
+                except Exception:
                     logger.error(error_message.format(
                         type(self.ui), control_name))
 

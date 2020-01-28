@@ -67,7 +67,7 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
                 def __del__(self):
                     try:
                         os.unlink(self.record_file)
-                    except:
+                    except OSError:
                         pass
             self._autodelete_record_file = AutoDeleteFile(record_file)
 

@@ -63,7 +63,7 @@ from capsul.sphinxext.load_pilots import load_pilots
 # > first find the package location
 try:
     __import__(options.module)
-except:
+except ImportError:
     logging.error("Can't load module {0}".format(options.module))
     exit(2)
 module = sys.modules[options.module]

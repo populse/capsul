@@ -149,7 +149,7 @@ class CapsulMainWindow(MyQUiLoader):
                         logger.error(error_message.format(
                             type(self.ui), control_name))
                     setattr(self.ui, control_name, value)
-                except:
+                except Exception:
                     logger.error(error_message.format(
                         type(self.ui), control_name))
 

@@ -84,7 +84,7 @@ class TestPipeline(unittest.TestCase):
             for filename in self.temp_files:
                 try:
                     os.unlink(filename)
-                except:
+                except OSError:
                     pass
             self.temp_files = []
 

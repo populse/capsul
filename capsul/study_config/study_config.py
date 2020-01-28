@@ -411,7 +411,7 @@ class StudyConfig(Controller):
                 try:
                     if not os.path.isdir(output_directory):
                         os.makedirs(output_directory)
-                except:
+                except OSError:
                     raise ValueError(
                         "Can't create folder '{0}', please investigate.".format(
                             output_directory))
@@ -672,7 +672,7 @@ class StudyConfig(Controller):
             # Try to update the 'trait_name' configuration element
             try:
                 self.set_trait_value(trait_name, trait_value)
-            except:
+            except Exception:
                 logger.debug(
                     "Could not set value for config variable {0}: "
                     "{1}".format(trait_name, repr(trait_value)))

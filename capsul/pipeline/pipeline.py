@@ -486,7 +486,7 @@ class Pipeline(Process):
             process = get_process_instance(process,
                                            study_config=self.study_config,
                                            **kwargs)
-        except:
+        except Exception:
             if skip_invalid:
                 process = None
                 self._invalid_nodes.add(name)
@@ -1753,19 +1753,19 @@ class Pipeline(Process):
                 if os.path.isdir(tmpfile):
                     try:
                         shutil.rmtree(tmpfile)
-                    except:
+                    except OSError:
                         pass
                 else:
                     try:
                         os.unlink(tmpfile)
-                    except:
+                    except OSError:
                         pass
                 # handle additional files (.hdr, .minf...)
                 # TODO
                 if os.path.exists(tmpfile + '.minf'):
                     try:
                         os.unlink(tmpfile + '.minf')
-                    except:
+                    except OSError:
                         pass
 
     def _run_process(self):
@@ -2122,7 +2122,7 @@ class Pipeline(Process):
                         pass
                     try:
                         os.unlink(self.file_object.name)
-                    except:
+                    except Exception:
                         pass
             os.close(log_file_s[0])
             log_file = open(log_file_s[1], 'w')

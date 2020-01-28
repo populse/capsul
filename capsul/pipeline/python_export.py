@@ -406,7 +406,7 @@ def save_py_pipeline(pipeline, py_file):
                     value_repr = repr(value)
                 try:
                     eval(value_repr)
-                except:
+                except Exception:
                     print('warning, value of parameter %s cannot be saved'
                           % param_name)
                     continue

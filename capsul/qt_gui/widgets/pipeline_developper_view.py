@@ -333,7 +333,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         if self.colored_parameters:
             try:
                 self.process.on_trait_change(self._repaint_parameter, remove=True)
-            except:
+            except Exception:
                 return
         # super(NodeGWidget, self).__del__()
 
@@ -599,7 +599,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             try:
                 #                 color = self.colorLink(trait_type_str)
                 color = self.colType.colorLink(self.process.trait(in_param))
-            except:
+            except Exception:
                 color = ORANGE_2
 
             plug = Plug(color, plug_name,
@@ -635,7 +635,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 #                 color = self.colorLink(trait_type_str)
                 color = self.colType.colorLink(self.process.trait(out_param))
 
-            except:
+            except Exception:
                 color = ORANGE_2
 
             plug = Plug(color, plug_name,
@@ -1010,7 +1010,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
                     #                     color = self.colorLink(trait_type_str)
                     color = self.colType.colorLink(self.process.trait(param))
 
-                except:
+                except Exception:
                     color = ORANGE_2
 
                 gplug.update_plug(color)
@@ -1067,7 +1067,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
 #             self.scene().dim[self.box.name] = (dim[0],dim[1]) 
 #             print("update_node : self.scene().dim ",dim)
 
-        except:
+        except Exception:
             dim = (self.box.boundingRect().size().width(), self.box.boundingRect().size().height())
             self.updateSize(dim[0],dim[1])
 #             self.scene().dim[self.box.name] = (dim[0],dim[1]) 
@@ -1562,7 +1562,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             #             color = self.colorLink(typeq)
             color = self.colType.colorLink(typeq)
 
-        except:
+        except Exception:
             color = ORANGE_2
         #         verif=((str(dest_gnode_name), str(dest_param)))
         #         print(str(verif) in str(self.glinks.keys()))
@@ -2737,7 +2737,7 @@ class PipelineDevelopperView(QGraphicsView):
             event.accept()
             try:
                 self._release_grab_link(event)
-            except:
+            except Exception:
                 print("type source to destination no compatible")
 
         super(PipelineDevelopperView, self).mouseReleaseEvent(event)
@@ -3810,7 +3810,7 @@ class PipelineDevelopperView(QGraphicsView):
             self.plugs.clear()
             try:
                 process = get_process_instance(text)
-            except:
+            except Exception:
                 return
             traits = process.user_traits().keys()
             self.plugs.addItems(traits)
@@ -3948,7 +3948,7 @@ class PipelineDevelopperView(QGraphicsView):
             #             color = self.scene.colorLink(typeq)
             color = self.scene.colType.colorLink(typeq)
 
-        except:
+        except Exception:
             color = ORANGE_2
         if not plug:
             return  # probably an input plug

@@ -351,7 +351,7 @@ def save_xml_pipeline(pipeline, xml_file):
                         value_repr = repr(value)
                     try:
                         eval(value_repr)
-                    except:
+                    except Exception:
                         print('warning, value of parameter %s cannot be saved'
                               % param_name)
                         continue
@@ -379,7 +379,7 @@ def save_xml_pipeline(pipeline, xml_file):
                         value_repr = repr(value)
                     try:
                         eval(value_repr)
-                    except:
+                    except Exception:
                         print('warning, value of parameter %s cannot be saved'
                               % param_name)
                         continue
@@ -395,7 +395,7 @@ def save_xml_pipeline(pipeline, xml_file):
                     value_repr = repr(value)
                 try:
                     eval(value_repr)
-                except:
+                except Exception:
                     print('warning, value of parameter %s cannot be saved'
                           % param_name)
                     continue

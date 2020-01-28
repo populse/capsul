@@ -307,7 +307,7 @@ class MemorizedProcess(object):
                 with open(map_fname, "w") as open_file:
                     open_file.write(json.dumps(file_mapping))
 
-            except:
+            except:  # noqa: E722
                 shutil.rmtree(process_dir)
                 raise
 
