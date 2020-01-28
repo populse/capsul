@@ -1,6 +1,10 @@
 from __future__ import print_function
 
+import os
+import shutil
 import unittest
+import tempfile
+
 import six
 
 from traits.api import File
@@ -75,6 +79,34 @@ class ComplexPipeline(Pipeline):
                                 'pipeline_10': (331.0, 533.0),
                                 'pipeline_100': (334.0, 738.0),
                                 'select_threshold': (559.0, 453.0)}
+
+
+def setUpModule():
+    global old_home
+    global temp_home_dir
+    # Run tests with a temporary HOME directory so that they are isolated from
+    # the user's environment
+    temp_home_dir = None
+    old_home = os.environ.get('HOME')
+    try:
+        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
+        os.environ['HOME'] = temp_home_dir
+    except BaseException:  # clean up in case of interruption
+        if old_home is None:
+            del os.environ['HOME']
+        else:
+            os.environ['HOME'] = old_home
+        if temp_home_dir:
+            shutil.rmtree(temp_home_dir)
+        raise
+
+
+def tearDownModule():
+    if old_home is None:
+        del os.environ['HOME']
+    else:
+        os.environ['HOME'] = old_home
+    shutil.rmtree(temp_home_dir)
 
 
 class TestComplexPipeline(unittest.TestCase):

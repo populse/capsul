@@ -27,6 +27,34 @@ from soma.controller import Controller
 
 debug = False
 
+def setUpModule():
+    global old_home
+    global temp_home_dir
+    # Run tests with a temporary HOME directory so that they are isolated from
+    # the user's environment
+    temp_home_dir = None
+    old_home = os.environ.get('HOME')
+    try:
+        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
+        os.environ['HOME'] = temp_home_dir
+    except BaseException:  # clean up in case of interruption
+        if old_home is None:
+            del os.environ['HOME']
+        else:
+            os.environ['HOME'] = old_home
+        if temp_home_dir:
+            shutil.rmtree(temp_home_dir)
+        raise
+
+
+def tearDownModule():
+    if old_home is None:
+        del os.environ['HOME']
+    else:
+        os.environ['HOME'] = old_home
+    shutil.rmtree(temp_home_dir)
+
+
 class DummyProcess(Process):
     """ Dummy Test Process
     """
@@ -159,24 +187,9 @@ class TestPipeline(unittest.TestCase):
     def setUp(self):
         """ In the setup construct the pipeline and set some input parameters.
         """
-        import soma_workflow.configuration as swconfig
-
         self.directory = tempfile.mkdtemp(prefix="capsul_test")
 
-        # use a temporary sqlite database in soma-workflow to avoid concurrent
-        # access problems
-        config = swconfig.Configuration.load_from_file()
-        #tmpdb = tempfile.mkstemp('.db', prefix='swf_')
-        tmpdb = os.path.join(self.directory, 'soma-workflow.db')
-        config._database_file = tmpdb
-
-        # set soma-workflow config in Capsul StudyConfig
         self.study_config = StudyConfig()
-        resource_id = self.study_config.modules['SomaWorkflowConfig'] \
-            .get_resource_id(None, True)
-        r = self.study_config.modules_data.somaworkflow.setdefault(
-            resource_id, Controller())
-        r.config = config
 
         # Construct the pipeline
         self.pipeline = self.study_config.get_process_instance(MyPipeline)
