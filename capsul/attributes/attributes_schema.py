@@ -111,6 +111,8 @@ class ProcessAttributes(Controller):
             attributes are transformed into lists.
         '''
         if parameter in self.parameter_attributes:
+            if schema == 'link':
+                return  # this is just a lower priority
             raise KeyError('Attributes already set for parameter %s'
                            % parameter)
         if parameter not in self._process._instance_traits():
