@@ -328,14 +328,22 @@ class NodeGWidget(QtGui.QGraphicsItem):
                                 dispatch='ui')
 
     def __del__(self):
+        #print('NodeGWidget.__del__')
+        self._release()
+        # super(NodeGWidget, self).__del__()
+
+    def _release(self):
+        # release internal connections / callbacks / references in order to
+        # allow deletion of self
         self.process.on_trait_change(self.update_parameters,
                                      'user_traits_changed', remove=True)
         if self.colored_parameters:
             try:
                 self.process.on_trait_change(self._repaint_parameter, remove=True)
-            except:
-                return
-        # super(NodeGWidget, self).__del__()
+            except Exception:
+                pass
+            self.colored_parameters = None
+        self.sizer = None
 
     def get_title(self):
         if self.sub_pipeline is None:
@@ -1458,10 +1466,13 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.changed.connect(self.update_paths)
 
     def __del__(self):
+        #print('PipelineScene.__del__')
         del self.pos
         del self.dim
         del self.labels
         del self.glinks
+        for gnode in self.gnodes.values():
+            gnode._release()
         del self.gnodes
         # force delete gnodes: needs to use gc.collect()
         import gc
@@ -1639,42 +1650,43 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.labels = []
         pipeline_inputs = SortedDictionary()
         pipeline_outputs = SortedDictionary()
-        for name, plug in six.iteritems(pipeline.nodes[''].plugs):
-            if plug.output:
-                pipeline_outputs[name] = plug
-            else:
-                pipeline_inputs[name] = plug
-        if pipeline_inputs:
-            self._add_node(
-                'inputs', NodeGWidget(
-                    'inputs', pipeline_inputs, pipeline,
-                    process=pipeline,
-                    colored_parameters=self.colored_parameters,
-                    logical_view=self.logical_view))
-        for node_name, node in six.iteritems(pipeline.nodes):
-            if not node_name:
-                continue
-            self.add_node(node_name, node)
-        if pipeline_outputs:
-            self._add_node(
-                'outputs', NodeGWidget(
-                    'outputs', pipeline_outputs, pipeline,
-                    process=pipeline,
-                    colored_parameters=self.colored_parameters,
-                    logical_view=self.logical_view))
+        if pipeline is not None:
+            for name, plug in six.iteritems(pipeline.nodes[''].plugs):
+                if plug.output:
+                    pipeline_outputs[name] = plug
+                else:
+                    pipeline_inputs[name] = plug
+            if pipeline_inputs:
+                self._add_node(
+                    'inputs', NodeGWidget(
+                        'inputs', pipeline_inputs, pipeline,
+                        process=pipeline,
+                        colored_parameters=self.colored_parameters,
+                        logical_view=self.logical_view))
+            for node_name, node in six.iteritems(pipeline.nodes):
+                if not node_name:
+                    continue
+                self.add_node(node_name, node)
+            if pipeline_outputs:
+                self._add_node(
+                    'outputs', NodeGWidget(
+                        'outputs', pipeline_outputs, pipeline,
+                        process=pipeline,
+                        colored_parameters=self.colored_parameters,
+                        logical_view=self.logical_view))
 
-        for source_node_name, source_node in six.iteritems(pipeline.nodes):
-            for source_parameter, source_plug \
-                    in six.iteritems(source_node.plugs):
-                for (dest_node_name, dest_parameter, dest_node, dest_plug,
-                     weak_link) in source_plug.links_to:
-                    if dest_node is pipeline.nodes.get(dest_node_name):
-                        self.add_link(
-                            (source_node_name, source_parameter),
-                            (dest_node_name, dest_parameter),
-                            active=source_plug.activated \
-                                   and dest_plug.activated,
-                            weak=weak_link)
+            for source_node_name, source_node in six.iteritems(pipeline.nodes):
+                for source_parameter, source_plug \
+                        in six.iteritems(source_node.plugs):
+                    for (dest_node_name, dest_parameter, dest_node, dest_plug,
+                        weak_link) in source_plug.links_to:
+                        if dest_node is pipeline.nodes.get(dest_node_name):
+                            self.add_link(
+                                (source_node_name, source_parameter),
+                                (dest_node_name, dest_parameter),
+                                active=source_plug.activated \
+                                      and dest_plug.activated,
+                                weak=weak_link)
 
     def update_pipeline(self):
         if self.logical_view:
@@ -2540,15 +2552,8 @@ class PipelineDevelopperView(QGraphicsView):
         self.node_keydelete_clicked.connect(self._node_delete_clicked)
 
     def __del__(self):
-        if self.scene.pipeline:
-            pipeline = self.scene.pipeline
-            if hasattr(pipeline, 'pipeline_steps'):
-                pipeline.pipeline_steps.on_trait_change(
-                    self._reset_pipeline, remove=True)
-            pipeline.on_trait_change(self._reset_pipeline,
-                                     'selection_changed', remove=True)
-            pipeline.on_trait_change(self._reset_pipeline,
-                                     'user_traits_changed', remove=True)
+        #print('PipelineDevelopperView.__del__')
+        self.release_pipeline()
         # super(PipelineDevelopperView, self).__del__()
 
     def _set_pipeline(self, pipeline):
@@ -2575,35 +2580,18 @@ class PipelineDevelopperView(QGraphicsView):
                     
 #         print("_set_pipeline : ",pos," ; ",dim)
         #######################################################            
-        
-        self.scene = PipelineScene(self)
-        self.scene.set_enable_edition(self._enable_edition)
-        self.scene.logical_view = self._logical_view
-        self.scene.colored_parameters = self.colored_parameters
-        self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
-        self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
-        self.scene.process_clicked.connect(self.node_clicked)
-        self.scene.node_clicked.connect(self.node_clicked)
-        self.scene.node_clicked_ctrl.connect(self._node_clicked_ctrl)
-        self.scene.switch_clicked.connect(self.switch_clicked)
-        self.scene.node_right_clicked.connect(self.node_right_clicked)
-        self.scene.node_right_clicked.connect(self.onOpenProcessController)
-        self.scene.plug_clicked.connect(self.plug_clicked)
-        self.scene.plug_right_clicked.connect(self.plug_right_clicked)
-        self.scene.link_right_clicked.connect(self.link_right_clicked)
-        self.scene.link_keydelete_clicked.connect(self.link_keydelete_clicked)
-        self.scene.node_keydelete_clicked.connect(self.node_keydelete_clicked)
-        self.scene.pos = pos
-        self.scene.dim = dim #add by Irmage
+        self.release_pipeline()
         self.scene.set_pipeline(pipeline)
-        self.setWindowTitle(pipeline.name)
-        self.setScene(self.scene)
+        self.scene.pos = pos
+        self.scene.dim = dim
+        if pipeline is not None:
+            self.setWindowTitle(pipeline.name)
+            # Try to initialize the scene scale factor
+            if hasattr(pipeline, "scene_scale_factor"):
+                self.scale(
+                    pipeline.scene_scale_factor, pipeline.scene_scale_factor)
 
-        # Try to initialize the scene scale factor
-        if hasattr(pipeline, "scene_scale_factor"):
-            self.scale(
-                pipeline.scene_scale_factor, pipeline.scene_scale_factor)
-        self.reset_initial_nodes_positions()
+            self.reset_initial_nodes_positions()
         
         ################" add by Irmage #############################################
         self.fitInView(self.sceneRect(), QtCore.Qt.KeepAspectRatio)
@@ -2615,14 +2603,54 @@ class PipelineDevelopperView(QGraphicsView):
         Assigns a new pipeline to the view.
         '''
         self._set_pipeline(pipeline)
+        if pipeline is not None:
+            # Setup callback to update view when pipeline state is modified
+            pipeline.on_trait_change(self._reset_pipeline, 'selection_changed',
+                                    dispatch='ui')
+            pipeline.on_trait_change(self._reset_pipeline,
+                                     'user_traits_changed', dispatch='ui')
+            if hasattr(pipeline, 'pipeline_steps'):
+                pipeline.pipeline_steps.on_trait_change(
+                    self._reset_pipeline, dispatch='ui')
+
+    def release_pipeline(self):
+        '''
+        Releases the pipeline currently viewed (and remove the callbacks)
+        '''
         # Setup callback to update view when pipeline state is modified
-        pipeline.on_trait_change(self._reset_pipeline, 'selection_changed',
-                                 dispatch='ui')
-        pipeline.on_trait_change(self._reset_pipeline, 'user_traits_changed',
-                                 dispatch='ui')
-        if hasattr(pipeline, 'pipeline_steps'):
-            pipeline.pipeline_steps.on_trait_change(
-                self._reset_pipeline, dispatch='ui')
+        pipeline = None
+        if self.scene is not None:
+            pipeline = self.scene.pipeline
+        if pipeline is not None:
+            if hasattr(pipeline, 'pipeline_steps'):
+                pipeline.pipeline_steps.on_trait_change(
+                    self._reset_pipeline, remove=True)
+            pipeline.on_trait_change(self._reset_pipeline, 'selection_changed',
+                                    remove=True)
+            pipeline.on_trait_change(self._reset_pipeline,
+                                     'user_traits_changed', remove=True)
+        if pipeline is not None or self.scene is None:
+            self.scene = PipelineScene(self)
+            self.scene.set_enable_edition(self._enable_edition)
+            self.scene.logical_view = self._logical_view
+            self.scene.colored_parameters = self.colored_parameters
+            self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
+            self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
+            self.scene.process_clicked.connect(self.node_clicked)
+            self.scene.node_clicked.connect(self.node_clicked)
+            self.scene.node_clicked_ctrl.connect(self._node_clicked_ctrl)
+            self.scene.switch_clicked.connect(self.switch_clicked)
+            self.scene.node_right_clicked.connect(self.node_right_clicked)
+            self.scene.node_right_clicked.connect(self.onOpenProcessController)
+            self.scene.plug_clicked.connect(self.plug_clicked)
+            self.scene.plug_right_clicked.connect(self.plug_right_clicked)
+            self.scene.link_right_clicked.connect(self.link_right_clicked)
+            self.scene.link_keydelete_clicked.connect(self.link_keydelete_clicked)
+            self.scene.node_keydelete_clicked.connect(self.node_keydelete_clicked)
+            self.scene.pos = {}
+            self.scene.dim = {}
+            self.setWindowTitle('<no pipeline>')
+            self.setScene(self.scene)
 
     def is_logical_view(self):
         '''
@@ -3384,6 +3412,9 @@ class PipelineDevelopperView(QGraphicsView):
         be found in the "node_position" variable of the pipeline.
         '''
         scene = self.scene
+        if scene.pipeline is None:
+            return
+
 #         ############## add by Irmage OM ###################
 #         dim = getattr(scene.pipeline, 'node_dimension') 
 #         if dim is not None:
@@ -3398,7 +3429,7 @@ class PipelineDevelopperView(QGraphicsView):
 # #                         dimension = dim.width(),dim.height()
 #                     gnode.update(0,0,*dimension)
 #         #####################################################
-        
+
         pos = getattr(scene.pipeline, 'node_position')
         if pos is not None:
             scene.pos = pos
