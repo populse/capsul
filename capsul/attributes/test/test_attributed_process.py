@@ -7,7 +7,6 @@ from capsul.attributes.completion_engine import ProcessCompletionEngine, \
 from capsul.attributes.attributes_schema import ProcessAttributes, \
     AttributesSchema, EditableAttributes
 from traits.api import Str, Float, File, String, Undefined, List
-from soma_workflow import configuration as swconfig
 import unittest
 import os
 import sys
@@ -119,20 +118,37 @@ def init_study_config(init_config={}):
     return study_config
 
 
+def setUpModule():
+    global old_home
+    global temp_home_dir
+    # Run tests with a temporary HOME directory so that they are isolated from
+    # the user's environment
+    temp_home_dir = None
+    old_home = os.environ.get('HOME')
+    try:
+        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
+        os.environ['HOME'] = temp_home_dir
+    except BaseException:  # clean up in case of interruption
+        if old_home is None:
+            del os.environ['HOME']
+        else:
+            os.environ['HOME'] = old_home
+        if temp_home_dir:
+            shutil.rmtree(temp_home_dir)
+        raise
+
+
+def tearDownModule():
+    if old_home is None:
+        del os.environ['HOME']
+    else:
+        os.environ['HOME'] = old_home
+    shutil.rmtree(temp_home_dir)
+
+
 class TestCompletion(unittest.TestCase):
 
     def setUp(self):
-        # use a custom temporary soma-workflow dir to avoid concurrent
-        # access problems
-        tmpdb = tempfile.mkstemp('', prefix='soma_workflow')
-        os.close(tmpdb[0])
-        os.unlink(tmpdb[1])
-        self.soma_workflow_temp_dir = tmpdb[1]
-        os.mkdir(self.soma_workflow_temp_dir)
-        swf_conf = '[%s]\nSOMA_WORKFLOW_DIR = %s\n' \
-            % (socket.gethostname(), tmpdb[1])
-        swconfig.Configuration.search_config_path \
-            = staticmethod(lambda : StringIO.StringIO(swf_conf))
         self.study_config = init_study_config()
         if not hasattr(self, 'temps'):
             self.temps = []
@@ -144,7 +160,6 @@ class TestCompletion(unittest.TestCase):
         if swc is not None:
             # stop workflow controler and wait for thread termination
             swc.stop_engine()
-        shutil.rmtree(self.soma_workflow_temp_dir)
 
 
     def __del__(self):

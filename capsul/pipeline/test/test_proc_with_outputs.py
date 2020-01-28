@@ -17,7 +17,6 @@ from capsul.api import Process
 from capsul.api import Pipeline, PipelineNode
 from capsul.pipeline import pipeline_workflow
 from capsul.study_config.study_config import StudyConfig
-from soma_workflow import configuration as swconfig
 import socket
 import shutil
 if sys.version_info[0] >= 3:
@@ -212,6 +211,34 @@ class PipelineWithIteration(Pipeline):
         self.add_link("pipeline1.output->node2.input")
 
 
+def setUpModule():
+    global old_home
+    global temp_home_dir
+    # Run tests with a temporary HOME directory so that they are isolated from
+    # the user's environment
+    temp_home_dir = None
+    old_home = os.environ.get('HOME')
+    try:
+        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
+        os.environ['HOME'] = temp_home_dir
+    except BaseException:  # clean up in case of interruption
+        if old_home is None:
+            del os.environ['HOME']
+        else:
+            os.environ['HOME'] = old_home
+        if temp_home_dir:
+            shutil.rmtree(temp_home_dir)
+        raise
+
+
+def tearDownModule():
+    if old_home is None:
+        del os.environ['HOME']
+    else:
+        os.environ['HOME'] = old_home
+    shutil.rmtree(temp_home_dir)
+
+
 class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
     def setUp(self):
@@ -219,16 +246,6 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
         tmpdir = tempfile.mkdtemp('capsul_output_test')
         tmpout = os.path.join(tmpdir, 'capsul_test_node3_out.txt')
-
-        # use a custom temporary soma-workflow dir to avoid concurrent
-        # access problems
-        tmpdb = os.path.join(tmpdir, 'soma_workflow')
-        self.soma_workflow_temp_dir = os.path.join(tmpdir, tmpdb)
-        os.mkdir(self.soma_workflow_temp_dir)
-        swf_conf = '[%s]\nSOMA_WORKFLOW_DIR = %s\n' \
-            % (socket.gethostname(), tmpdb)
-        swconfig.Configuration.search_config_path \
-            = staticmethod(lambda : StringIO.StringIO(swf_conf))
 
         self.tmpdir = tmpdir
         self.pipeline.input = os.path.join(tmpdir, 'file_in.nii')

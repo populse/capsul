@@ -1,6 +1,10 @@
 from __future__ import print_function
 
+import os
+import shutil
 import unittest
+import tempfile
+
 import six
 
 from traits.api import File

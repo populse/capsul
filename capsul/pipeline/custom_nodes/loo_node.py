@@ -72,7 +72,7 @@ class LeaveOneOutNode(Node):
         if not self.has_index:
             try:
                 index = self.inputs.index(self.test)
-            except:
+            except Exception:
                 return
         else:
             index = self.index
@@ -126,7 +126,7 @@ class LeaveOneOutNode(Node):
         else:
             try:
                 index = self.inputs.index(self.test)
-            except:
+            except Exception:
                 pass
         param_dict = dict(param_dict)
         param_dict['index'] = index

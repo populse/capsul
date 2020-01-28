@@ -16,7 +16,7 @@ class TestStudyConfigFOM(unittest.TestCase):
           "output_fom" : "",
           "shared_fom" : "",
           "spm_directory" : "/i2bm/local/spm8-standalone",
-          "use_soma_workflow" : True,
+          "use_soma_workflow" : False,
           "use_fom" : True,
         }
 

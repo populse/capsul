@@ -243,12 +243,12 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                     try:
                         sub_attributes \
                             = subprocess_compl.get_attribute_values()
-                    except:
+                    except Exception:
                         try:
                             subprocess_compl = self.__class__(subprocess)
                             sub_attributes \
                                 = subprocess_compl.get_attribute_values()
-                        except:
+                        except Exception:
                             continue
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):

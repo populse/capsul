@@ -27,6 +27,34 @@ from soma.controller import Controller
 
 debug = False
 
+def setUpModule():
+    global old_home
+    global temp_home_dir
+    # Run tests with a temporary HOME directory so that they are isolated from
+    # the user's environment
+    temp_home_dir = None
+    old_home = os.environ.get('HOME')
+    try:
+        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
+        os.environ['HOME'] = temp_home_dir
+    except BaseException:  # clean up in case of interruption
+        if old_home is None:
+            del os.environ['HOME']
+        else:
+            os.environ['HOME'] = old_home
+        if temp_home_dir:
+            shutil.rmtree(temp_home_dir)
+        raise
+
+
+def tearDownModule():
+    if old_home is None:
+        del os.environ['HOME']
+    else:
+        os.environ['HOME'] = old_home
+    shutil.rmtree(temp_home_dir)
+
+
 class DummyProcess(Process):
     """ Dummy Test Process
     """
@@ -61,7 +89,9 @@ class DummyProcess(Process):
             self.output_image = value
             print('    define output_image: %s' % value)
 
-        open(self.output_image, 'w').write(open(self.input_image).read())
+        with open(self.output_image, 'w') as f_out:
+            with open(self.input_image) as f_in:
+                f_out.write(f_in.read())
         self.other_output = self.other_input
 
 
@@ -159,24 +189,9 @@ class TestPipeline(unittest.TestCase):
     def setUp(self):
         """ In the setup construct the pipeline and set some input parameters.
         """
-        import soma_workflow.configuration as swconfig
-
         self.directory = tempfile.mkdtemp(prefix="capsul_test")
 
-        # use a temporary sqlite database in soma-workflow to avoid concurrent
-        # access problems
-        config = swconfig.Configuration.load_from_file()
-        #tmpdb = tempfile.mkstemp('.db', prefix='swf_')
-        tmpdb = os.path.join(self.directory, 'soma-workflow.db')
-        config._database_file = tmpdb
-
-        # set soma-workflow config in Capsul StudyConfig
         self.study_config = StudyConfig()
-        resource_id = self.study_config.modules['SomaWorkflowConfig'] \
-            .get_resource_id(None, True)
-        r = self.study_config.modules_data.somaworkflow.setdefault(
-            resource_id, Controller())
-        r.config = config
 
         # Construct the pipeline
         self.pipeline = self.study_config.get_process_instance(MyPipeline)
@@ -201,6 +216,11 @@ class TestPipeline(unittest.TestCase):
             = self.study_config.get_process_instance(MyBigPipeline)
 
     def tearDown(self):
+        swm = self.study_config.modules['SomaWorkflowConfig']
+        swc = swm.get_workflow_controller()
+        if swc is not None:
+            # stop workflow controller and wait for thread termination
+            swc.stop_engine()
         if debug:
             print('directory %s not removed.' % self.directory)
         else:
@@ -212,7 +232,8 @@ class TestPipeline(unittest.TestCase):
 
         # create inputs
         for f in self.pipeline.input_image:
-            open(f, "w").write("input: %s\n" % f)
+            with open(f, "w") as fobj:
+                fobj.write("input: %s\n" % f)
 
         # Test the output connection
         self.pipeline()
@@ -319,7 +340,8 @@ class TestPipeline(unittest.TestCase):
         # check output files contents
         for ifname, fname in zip(self.small_pipeline.files_to_create,
                                   self.small_pipeline.output_image):
-            content = open(fname).read()
+            with open(fname) as f:
+                content = f.read()
             self.assertEqual(content, "file: %s\n" % ifname)
 
         #finally:

@@ -56,7 +56,7 @@ def find_pipelines_from_description(module_name, url=None):
     # Try to import the module
     try:
         __import__(module_name)
-    except:
+    except ImportError:
         logger.error("Can't load module {0}".format(module_name))
         return {}, []
 
@@ -106,7 +106,7 @@ def find_pipeline_and_process(module_name):
     # Try to import the module
     try:
         __import__(module_name)
-    except:
+    except ImportError:
         logger.error("Can't load module {0}".format(module_name))
         return {}, []
 
@@ -142,7 +142,7 @@ def find_pipeline_and_process(module_name):
         for sub_sub_module_name in sub_sub_module_names:
             try:
                 __import__(sub_sub_module_name)
-            except:
+            except ImportError:
                 exc_info = sys.exc_info()
                 logger.error("".join(traceback.format_exception(*exc_info)))
                 logger.error("Can't load module "

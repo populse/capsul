@@ -54,7 +54,7 @@ class LayoutHelperWriter(object):
         full_module_name = "{0}.{1}".format(self.root_module_name, module_name)
         try:
             __import__(full_module_name)
-        except:
+        except ImportError:
             exc_info = sys.exc_info()
             logging.error("".join(traceback.format_exception(*exc_info)))
             logging.error(
@@ -133,7 +133,7 @@ class LayoutHelperWriter(object):
         # Project description
         try:
             __import__(self.root_module_name)
-        except:
+        except ImportError:
             exc_info = sys.exc_info()
             logging.error("".join(traceback.format_exception(*exc_info)))
             logging.error(

@@ -439,12 +439,12 @@ class TestCustomNodes(unittest.TestCase):
                 if os.path.isdir(f):
                     try:
                         shutil.rmtree(f)
-                    except:
+                    except OSError:
                         pass
                 else:
                     try:
                         os.unlink(f)
-                    except:
+                    except OSError:
                         pass
             self.temp_files = []
         else:

@@ -17,7 +17,6 @@ from capsul.api import Process
 from capsul.api import Pipeline, PipelineNode
 from capsul.pipeline import pipeline_workflow
 from capsul.study_config.study_config import StudyConfig
-from soma_workflow import configuration as swconfig
 import socket
 import shutil
 if sys.version_info[0] >= 3:
@@ -132,6 +131,33 @@ class DummyPipeline(Pipeline):
             'outputs': (518.0, 278.0)}
 
 
+def setUpModule():
+    global old_home
+    global temp_home_dir
+    # Run tests with a temporary HOME directory so that they are isolated from
+    # the user's environment
+    old_home = os.environ.get('HOME')
+    try:
+        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
+        os.environ['HOME'] = temp_home_dir
+    except BaseException:  # clean up in case of interruption
+        if old_home is None:
+            del os.environ['HOME']
+        else:
+            os.environ['HOME'] = old_home
+        if temp_home_dir:
+            shutil.rmtree(temp_home_dir)
+        raise
+
+
+def tearDownModule():
+    if old_home is None:
+        del os.environ['HOME']
+    else:
+        os.environ['HOME'] = old_home
+    shutil.rmtree(temp_home_dir)
+
+
 class TestTemporary(unittest.TestCase):
 
     def setUp(self):
@@ -140,18 +166,6 @@ class TestTemporary(unittest.TestCase):
         tmpout = tempfile.mkstemp('.txt', prefix='capsul_test_')
         os.close(tmpout[0])
         os.unlink(tmpout[1])
-
-        # use a custom temporary soma-workflow dir to avoid concurrent
-        # access problems
-        tmpdb = tempfile.mkstemp('', prefix='soma_workflow')
-        os.close(tmpdb[0])
-        os.unlink(tmpdb[1])
-        self.soma_workflow_temp_dir = tmpdb[1]
-        os.mkdir(self.soma_workflow_temp_dir)
-        swf_conf = '[%s]\nSOMA_WORKFLOW_DIR = %s\n' \
-            % (socket.gethostname(), tmpdb[1])
-        swconfig.Configuration.search_config_path \
-            = staticmethod(lambda : StringIO.StringIO(swf_conf))
 
         self.output = tmpout[1]
         self.pipeline.input = '/tmp/file_in.nii'
@@ -173,7 +187,6 @@ class TestTemporary(unittest.TestCase):
         if '--keep-tmp' not in sys.argv[1:]:
             if os.path.exists(self.output):
               os.unlink(self.output)
-            shutil.rmtree(self.soma_workflow_temp_dir)
 
 
     def test_structure(self):

@@ -184,12 +184,12 @@ class ProcessCompletionEngine(traits.HasTraits):
                     try:
                         sub_attributes \
                             = subprocess_compl.get_attribute_values()
-                    except:
+                    except Exception:
                         try:
                             subprocess_compl = self.__class__(subprocess)
                             sub_attributes \
                                 = subprocess_compl.get_attribute_values()
-                        except:
+                        except Exception:
                             continue
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):
@@ -320,11 +320,11 @@ class ProcessCompletionEngine(traits.HasTraits):
                         try:
                             subprocess_compl.complete_parameters(
                                 {'capsul_attributes': attrib_values})
-                        except:
+                        except Exception:
                             try:
                                 self.__class__(subprocess).complete_parameters(
                                     {'capsul_attributes': attrib_values})
-                            except:
+                            except Exception:
                                 pass
                         self._remove_subprogress_moniotoring(subprocess_compl)
                 index += 1
@@ -345,11 +345,11 @@ class ProcessCompletionEngine(traits.HasTraits):
                         try:
                             subprocess_compl.complete_parameters(
                                 {'capsul_attributes': attrib_values})
-                        except:
+                        except Exception:
                             try:
                                 self.__class__(subprocess).complete_parameters(
                                     {'capsul_attributes': attrib_values})
-                            except:
+                            except Exception:
                                 pass
                         self._remove_subprogress_moniotoring(subprocess_compl)
                 index += 1
@@ -765,7 +765,7 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                     try:
                         param_attributes \
                             = attributes.get_parameters_attributes()[link[1]]
-                    except:
+                    except Exception:
                         continue
 
                     if len(param_attributes) != 0 \
