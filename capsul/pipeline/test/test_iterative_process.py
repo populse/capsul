@@ -89,7 +89,9 @@ class DummyProcess(Process):
             self.output_image = value
             print('    define output_image: %s' % value)
 
-        open(self.output_image, 'w').write(open(self.input_image).read())
+        with open(self.output_image, 'w') as f_out:
+            with open(self.input_image) as f_in:
+                f_out.write(f_in.read())
         self.other_output = self.other_input
 
 
@@ -230,7 +232,8 @@ class TestPipeline(unittest.TestCase):
 
         # create inputs
         for f in self.pipeline.input_image:
-            open(f, "w").write("input: %s\n" % f)
+            with open(f, "w") as fobj:
+                fobj.write("input: %s\n" % f)
 
         # Test the output connection
         self.pipeline()
@@ -337,7 +340,8 @@ class TestPipeline(unittest.TestCase):
         # check output files contents
         for ifname, fname in zip(self.small_pipeline.files_to_create,
                                   self.small_pipeline.output_image):
-            content = open(fname).read()
+            with open(fname) as f:
+                content = f.read()
             self.assertEqual(content, "file: %s\n" % ifname)
 
         #finally:
