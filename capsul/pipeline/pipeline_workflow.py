@@ -1232,9 +1232,9 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 if isinstance(dproc, Pipeline):
                     continue  # pipeline nodes are virtual
                 for param, plug in six.iteritems(node.plugs):
-                    source = pipeline_tools.where_is_plug_value_from(plug,
-                                                                     True)
-                    if source != (None, None, None):
+                    sources = pipeline_tools.find_plug_connection_sources(
+                        plug, True)
+                    for source in sources:
                         snode, param_name, parent = source
                         if node in disabled_nodes \
                                 or not pipeline_tools.is_node_enabled(
@@ -1249,8 +1249,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                             while new_nodes:
                                 mnode = new_nodes.pop(0)
                                 moredep = [
-                                    pipeline_tools.where_is_plug_value_from(
-                                        mlink[3], True)
+                                    pipeline_tools.find_plug_connection_sources
+                                    (mlink[3])
                                     for mplug in mnode.plugs.values()
                                     for mlink in mplug.links_from
                                     if not mplug.output
