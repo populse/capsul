@@ -79,14 +79,24 @@ class SPMConfig(StudyConfigModule):
             self.study_config.spm_standalone = engine.standalone
             self.study_config.spm_version = engine.version
             if self.study_config.spm_directory not in (None, Undefined):
-                spm_exec = glob.glob(osp.join(self.study_config.spm_directory,
-                                              'mcr', 'v*'))
+                #spm_exec = glob.glob(osp.join(self.study_config.spm_directory,
+                                              #'mcr', 'v*'))
+                if engine.version:
+                    spm_exec = osp.join(self.study_config.spm_directory,
+                                        'run_spm%s.sh' % engine.version)
+                    if os.path.exists(spm_exec):
+                        spm_exec = [spm_exec]
+                    else:
+                        spm_exec = []
+                else:
+                    spm_exec = glob.glob(osp.join(
+                        self.study_config.spm_directory, 'run_spm*.sh'))
                 if len(spm_exec) != 0:
                     self.study_config.spm_exec = spm_exec[0]
                 else:
                     self.study_config.spm_exec = Undefined
-            else:
-                self.study_config.spm_exec = Undefined
+            #else:
+                #self.study_config.spm_exec = Undefined
             self.study_config.use_spm = engine.use
 
     def sync_to_engine(self):
