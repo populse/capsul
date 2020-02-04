@@ -7,6 +7,8 @@ Classes
 ---------------------
 '''
 
+from __future__ import print_function
+
 import os
 from traits.api import File, Undefined, Bool
 from capsul.study_config.study_config import StudyConfigModule
@@ -33,6 +35,9 @@ class MatlabConfig(StudyConfigModule):
         """ Set up Matlab environment according to current
         configuration.
         """
+        if not self.study_config.matlab_exec and self.study_config.use_matlab:
+            # fix pathological config (appearing sometimes for an unknown reason)
+            self.study_config.use_matlab = Undefined
         if 'capsul.engine.module.matlab' \
                 not in self.study_config.engine._loaded_modules:
             self.study_config.engine.load_module('capsul.engine.module.matlab')
