@@ -49,9 +49,8 @@ import tempfile
 logger = logging.getLogger(__name__)
 
 # Trait import
-from traits.trait_base import _Undefined
 from traits.api import Directory, Undefined, Int, List, Bool, File
-from traits.trait_handlers import BaseTraitHandler
+from traits.api import BaseTraitHandler
 
 # Soma import
 from soma.controller import Controller
@@ -1021,7 +1020,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         """ Method to set a process instance trait value.
 
         For File and Directory traits the None value is replaced by the
-        special _Undefined trait value.
+        special Undefined trait value.
 
         Parameters
         ----------
@@ -1030,9 +1029,9 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         value: object (mandatory)
             the trait value we want to set
         """
-        # The None trait value is _Undefined, do the replacement
+        # The None trait value is Undefined, do the replacement
         if value is None:
-            value = _Undefined()
+            value = Undefined
 
         # Set the new trait value
         setattr(self, name, value)
