@@ -14,6 +14,7 @@ from capsul.subprocess.spm import check_spm_configuration
 from soma.functiontools import SomaPartial
 from capsul.engine import CapsulEngine
 import glob
+import os
 import os.path as osp
 
 
