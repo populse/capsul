@@ -100,6 +100,7 @@ class MatlabConfig(StudyConfigModule):
                 = self.study_config.matlab_exec
 
     def sync_from_engine(self, param=None, value=None):
+        self.use_matlab = None  # avoid transcient inconsistencies
         if param is not None:
             tparam = {'executable': 'matlab_exec'}
             scparam = tparam.get(param)
@@ -110,5 +111,3 @@ class MatlabConfig(StudyConfigModule):
                 = self.study_config.engine.global_config.matlab.executable
         if self.study_config.matlab_exec not in (None, Undefined):
             self.study_config.use_matlab = True
-        elif self.study_config.use_matlab:
-            self.use_matlab = None
