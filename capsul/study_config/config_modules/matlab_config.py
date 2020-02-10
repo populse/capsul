@@ -32,8 +32,7 @@ class MatlabConfig(StudyConfigModule):
             desc="If True, Matlab configuration is set up on startup"))
 
     def initialize_module(self):
-        """ Set up Matlab environment according to current
-        configuration.
+        """ Set up Matlab environment according to current configuration.
         """
         if not self.study_config.matlab_exec and self.study_config.use_matlab:
             # fix pathological config (appearing sometimes for an unknown reason)
@@ -51,7 +50,7 @@ class MatlabConfig(StudyConfigModule):
 
         # the following should be moved to CapsulEngine module
         if self.study_config.use_matlab is False:
-            # Configuration is explicitely asking not to use SPM
+            # Configuration is explicitely asking not to use Matlab
             return
 
         if self.study_config.use_matlab is Undefined:
@@ -107,6 +106,9 @@ class MatlabConfig(StudyConfigModule):
             if scparam is not None:
                 setattr(self.study_config, scparam, value)
         else:
+            if self.study_config.use_matlab:
+                # in case we reset matlab_exec to Undefined
+                self.study_config.use_matlab = Undefined
             self.study_config.matlab_exec \
                 = self.study_config.engine.global_config.matlab.executable
         if self.study_config.matlab_exec not in (None, Undefined):
