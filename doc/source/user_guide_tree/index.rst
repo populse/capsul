@@ -144,6 +144,12 @@ Pipelines can be saved and loaded as XML files.
 
 :doc:`The specs of XML definitions can be found on this page. <xml_spec>`
 
+
+Documenting CAPSUL processes and pipelines with Sphinx
+######################################################
+
+Sphinx documentation can be built automatically for all Capsul processes. See :mod:`capsul.sphinxext`.
+
 Advanced usage
 ##############
 
