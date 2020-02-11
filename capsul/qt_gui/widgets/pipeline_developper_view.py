@@ -1467,10 +1467,14 @@ class PipelineScene(QtGui.QGraphicsScene):
 
     def __del__(self):
         #print('PipelineScene.__del__')
-        del self.pos
-        del self.dim
-        del self.labels
-        del self.glinks
+        if hasattr(self, 'pos'):
+            del self.pos
+        if hasattr(self, 'dim'):
+            del self.dim
+        if hasattr(self, 'labels'):
+            del self.labels
+        if hasattr(self, 'glinks'):
+            del self.glinks
         for gnode in self.gnodes.values():
             gnode._release()
         del self.gnodes
