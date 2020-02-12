@@ -3466,26 +3466,7 @@ class PipelineDevelopperView(QGraphicsView):
         if not node_name:
             node_name = self.current_node_name
         node = pipeline.nodes[node_name]
-        # FIXME: should rather be in a method Pipeline.remove_node()
-        for plug_name, plug in six.iteritems(node.plugs):
-            if not plug.output:
-                for link_def in list(plug.links_from):
-                    src_node, src_plug = link_def[:2]
-                    link_descr = '%s.%s->%s.%s' \
-                                 % (src_node, src_plug, node_name, plug_name)
-                    pipeline.remove_link(link_descr)
-            else:
-                for link_def in list(plug.links_to):
-                    dst_node, dst_plug = link_def[:2]
-                    link_descr = '%s.%s->%s.%s' \
-                                 % (node_name, plug_name, dst_node, dst_plug)
-                    pipeline.remove_link(link_descr)
-        # pipeline.remove_node(node) # unfortunately this method doesn't exist
-        del pipeline.nodes[node_name]
-        if hasattr(node, 'process'):
-            pipeline.nodes_activation.on_trait_change(
-                pipeline._set_node_enabled, node_name, remove=True)
-            pipeline.nodes_activation.remove_trait(node_name)
+        pipeline.remove_node(node_name)
         self.scene.remove_node(node_name)
         self.scene.pipeline.update_nodes_and_plugs_activation()
 

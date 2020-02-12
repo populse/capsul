@@ -226,6 +226,8 @@ class Pipeline(Process):
             ControllerTrait(Controller(), hidden=self.hide_nodes_activation))
 
         # Class attributes
+        # this one is only useful to maintain subprocesses/subpipelines life
+        self.list_process_in_pipeline = []
         self.nodes_activation = Controller()
         self.nodes = SortedDictionary()
         self._invalid_nodes = set()
@@ -543,6 +545,33 @@ class Pipeline(Process):
 
         # Observer
         self.nodes_activation.on_trait_change(self._set_node_enabled, name)
+
+        # Add new node in pipeline process list to keep its life
+        self.list_process_in_pipeline.append(process)
+
+    def remove_node(self, node_name):
+        """ Remove a node from the pipeline
+        """
+        node = self.nodes[node_name]
+        for plug_name, plug in six.iteritems(node.plugs):
+            if not plug.output:
+                for link_def in list(plug.links_from):
+                    src_node, src_plug = link_def[:2]
+                    link_descr = '%s.%s->%s.%s' \
+                                 % (src_node, src_plug, node_name, plug_name)
+                    self.remove_link(link_descr)
+            else:
+                for link_def in list(plug.links_to):
+                    dst_node, dst_plug = link_def[:2]
+                    link_descr = '%s.%s->%s.%s' \
+                                 % (node_name, plug_name, dst_node, dst_plug)
+                    self.remove_link(link_descr)
+        del self.nodes[node_name]
+        if hasattr(node, 'process'):
+            self.list_process_in_pipeline.remove(node.process)
+            self.nodes_activation.on_trait_change(
+                self._set_node_enabled, node_name, remove=True)
+            self.nodes_activation.remove_trait(node_name)
 
     def add_iterative_process(self, name, process, iterative_plugs=None,
                               do_not_export=None, make_optional=None,
