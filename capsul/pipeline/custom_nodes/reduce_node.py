@@ -100,10 +100,10 @@ class ReduceNode(Node):
                     del self.plugs[pname]
             for i in range(oval, val):
                 pname =  pname_p % i
-                ptype2 = self._clone_trait(ptype,
-                                           {'output': False, 'optional': True})
+                ptype2 = self._clone_trait(
+                    ptype, {'output': False, 'optional': False})
                 self.add_trait(pname, ptype2)
-                plug = Plug(name=pname, optional=True, output=False)
+                plug = Plug(name=pname, optional=False, output=False)
                 self.plugs[pname] = plug
                 plug.on_trait_change(
                     self.pipeline.update_nodes_and_plugs_activation, "enabled")
