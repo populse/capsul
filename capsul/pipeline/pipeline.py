@@ -226,8 +226,6 @@ class Pipeline(Process):
             ControllerTrait(Controller(), hidden=self.hide_nodes_activation))
 
         # Class attributes
-        self.list_process_in_pipeline = []
-        self.attributes = {}
         self.nodes_activation = Controller()
         self.nodes = SortedDictionary()
         self._invalid_nodes = set()
@@ -545,9 +543,6 @@ class Pipeline(Process):
 
         # Observer
         self.nodes_activation.on_trait_change(self._set_node_enabled, name)
-
-        # Add new node in pipeline process list
-        self.list_process_in_pipeline.append(process)
 
     def add_iterative_process(self, name, process, iterative_plugs=None,
                               do_not_export=None, make_optional=None,

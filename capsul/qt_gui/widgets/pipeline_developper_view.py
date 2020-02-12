@@ -3483,7 +3483,6 @@ class PipelineDevelopperView(QGraphicsView):
         # pipeline.remove_node(node) # unfortunately this method doesn't exist
         del pipeline.nodes[node_name]
         if hasattr(node, 'process'):
-            pipeline.list_process_in_pipeline.remove(node.process)
             pipeline.nodes_activation.on_trait_change(
                 pipeline._set_node_enabled, node_name, remove=True)
             pipeline.nodes_activation.remove_trait(node_name)
