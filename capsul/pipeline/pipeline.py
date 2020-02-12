@@ -23,6 +23,7 @@ from copy import deepcopy
 import tempfile
 import os
 import shutil
+import sys
 import six
 from soma.utils.weak_proxy import weak_proxy, get_ref
 
@@ -820,12 +821,12 @@ class Pipeline(Process):
         source, dest = link.split("->")
 
         # Parse the source and destination parameters
-        err = False
+        err = None
         try:
             source_node_name, source_plug_name, source_node, source_plug = \
                 self.parse_parameter(source)
         except ValueError:
-            err = True
+            err = sys.exc_info()
             source_node_name, source_plug_name, source_node, source_plug \
                 = (None, None, None, None)
         try:
@@ -836,9 +837,9 @@ class Pipeline(Process):
                 raise
             dest_node_name, dest_plug_name, dest_node, dest_plug \
                 = (None, None, None, None)
-            err = False
+            err = None
         if err and dest_node is not None and dest_plug is not None:
-            raise
+            six.reraise(*err)
 
         return (source_node_name, source_plug_name, source_node, source_plug,
                 dest_node_name, dest_plug_name, dest_node, dest_plug)
