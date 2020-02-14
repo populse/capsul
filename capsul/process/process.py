@@ -449,32 +449,41 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         # Output rst table
         rsttable = []
 
-        # Get the size of the largest row in order to
-        # format properly the rst table (do not forget the '+' and '*')
-        row_widths = [len(item)
-                      for item in functools.reduce(operator.add, data)]
-        width = max(row_widths) + 11
-
-        # Generate the rst table
-
-        # > table synthax
-        rsttable.append("+" + "-" * width + "+")
-        # > go through the table lines
         for table_row in data:
-            # > go through the cell lines
             for index, cell_row in enumerate(table_row):
                 # > set the parameter name in bold
                 if index == 0 and ":" in cell_row:
                     delimiter_index = cell_row.index(":")
                     cell_row = ("**" + cell_row[:delimiter_index] + "**" +
                                 cell_row[delimiter_index:])
-                # >  add table rst content
-                rsttable.append(
-                    "| | {0}".format(cell_row) +
-                    " " * (width - len(cell_row) - 3) +
-                    "|")
-            # > close cell
-            rsttable.append("+" + "-" * width + "+")
+                rsttable.append(cell_row)
+
+        ## Get the size of the largest row in order to
+        ## format properly the rst table (do not forget the '+' and '*')
+        #row_widths = [len(item)
+                      #for item in functools.reduce(operator.add, data)]
+        #width = max(row_widths) + 11
+
+        ## Generate the rst table
+
+        ## > table synthax
+        #rsttable.append("+" + "-" * width + "+")
+        ## > go through the table lines
+        #for table_row in data:
+            ## > go through the cell lines
+            #for index, cell_row in enumerate(table_row):
+                ## > set the parameter name in bold
+                #if index == 0 and ":" in cell_row:
+                    #delimiter_index = cell_row.index(":")
+                    #cell_row = ("**" + cell_row[:delimiter_index] + "**" +
+                                #cell_row[delimiter_index:])
+                ## >  add table rst content
+                #rsttable.append(
+                    #"| | {0}".format(cell_row) +
+                    #" " * (width - len(cell_row) - 3) +
+                    #"|")
+            ## > close cell
+            #rsttable.append("+" + "-" * width + "+")
 
         return rsttable
 
@@ -930,7 +939,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         data = []
         if mandatory_items:
             for trait_name, trait in mandatory_items:
-                trait_desc = get_trait_desc(trait_name, trait)
+                trait_desc = get_trait_desc(trait_name, trait,
+                                            use_wrap=not rst_formating)
                 data.append(trait_desc)
 
         # If we want to format the output nicely (rst)
@@ -956,7 +966,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         if optional_items:
             for trait_name, trait in optional_items:
                 data.append(
-                    get_trait_desc(trait_name, trait))
+                    get_trait_desc(trait_name, trait,
+                                   use_wrap=not rst_formating))
 
         # If we want to format the output nicely (rst)
         if data != []:
@@ -1004,7 +1015,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         data = []
         for trait_name, trait in items:
             data.append(
-                get_trait_desc(trait_name, trait))
+                get_trait_desc(trait_name, trait, use_wrap=not rst_formating))
 
         # If we want to format the output nicely (rst)
         if data != []:
