@@ -11,6 +11,7 @@
 from __future__ import print_function
 
 # System import
+from __future__ import absolute_import
 import os
 import sys
 from optparse import OptionParser

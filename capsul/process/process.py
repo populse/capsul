@@ -1,11 +1,3 @@
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 ''' Process main class and infrastructure
 
 Classes
@@ -30,6 +22,7 @@ Classes
 
 # System import
 from __future__ import print_function
+from __future__ import absolute_import
 import os
 import operator
 from socket import getfqdn
@@ -62,10 +55,6 @@ from soma.utils import json_utils
 
 # Capsul import
 from capsul.utils.version_utils import get_tool_version
-
-if sys.version_info[0] >= 3:
-    unicode = str
-    basestring = str
 
 
 class ProcessMeta(Controller.__class__):
@@ -515,7 +504,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         # Save the json structure
         with open(self.log_file, "w") as f:
-            f.write(unicode(json_struct))
+            f.write(six.text_type(json_struct))
 
     @classmethod
     def help(cls, returnhelp=False):
@@ -699,7 +688,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         for arg in args:
             if hasattr(arg, 'pattern'): # tempfile
                 built_arg = built_arg + arg
-            elif isinstance(arg, basestring):
+            elif isinstance(arg, six.string_types):
                 built_arg += arg
             else:
                 built_arg = built_arg + repr(arg)
@@ -1167,7 +1156,7 @@ class FileCopyProcess(Process):
         if self.activate_copy:
             self.inputs_to_clean = inputs_to_clean
             if inputs_to_symlink is None:
-                self.inputs_to_symlink = self.user_traits().keys()
+                self.inputs_to_symlink = list(self.user_traits().keys())
             else:
                 self.inputs_to_symlink = inputs_to_symlink
             if inputs_to_copy is None:
@@ -1311,7 +1300,7 @@ class FileCopyProcess(Process):
                 new_value[name] = self._move_files(
                     src_directory, dst_directory, item, moved_dict)
             return new_value
-        elif isinstance(value, basestring):
+        elif isinstance(value, six.string_types):
             if value in moved_dict:
                 return moved_dict[value]
             if os.path.dirname(value) == src_directory \
@@ -1359,7 +1348,7 @@ class FileCopyProcess(Process):
 
         # Otherwise start the deletion if the object is a file
         else:
-            if (isinstance(python_object, basestring) and
+            if (isinstance(python_object, six.string_types) and
                     os.path.isfile(python_object)):
                 os.remove(python_object)
 
@@ -1437,7 +1426,7 @@ class FileCopyProcess(Process):
         else:
             out = python_object
             if (python_object is not Undefined and
-                    isinstance(python_object, basestring) and
+                    isinstance(python_object, six.string_types) and
                     os.path.isfile(python_object)):
                 srcdir = os.path.dirname(python_object)
                 destdir = self._destination
@@ -1561,10 +1550,10 @@ class NipypeProcess(FileCopyProcess):
         # Inheritance: activate input files copy for spm interfaces.
         if self._nipype_interface_name == "spm":
             # Copy only 'copyfile' nipype traits
-            inputs_to_copy = self._nipype_interface.inputs.traits(
-                copyfile=True).keys()
-            inputs_to_symlink = self._nipype_interface.inputs.traits(
-                copyfile=False).keys()
+            inputs_to_copy = list(self._nipype_interface.inputs.traits(
+                copyfile=True).keys())
+            inputs_to_symlink = list(self._nipype_interface.inputs.traits(
+                copyfile=False).keys())
             out_traits = self._nipype_interface.output_spec().traits()
             inputs_to_clean = [x for x in inputs_to_copy
                                if 'modified_%s' % x not in out_traits]

@@ -7,6 +7,7 @@
 ##########################################################################
 
 # System import
+from __future__ import absolute_import
 import logging
 
 # Docutils import
@@ -14,6 +15,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.statemachine import ViewList
+import six
 
 # Global counter
 HTB_COUNTER = 0
@@ -83,7 +85,7 @@ class HiddenTechnicalBlock(BaseAdmonition):
                     item_content = [x.replace("\n", "")
                                     for x in fo.readlines()]
                     for string_content in item_content:
-                        new_content.append(unicode(string_content),
+                        new_content.append(six.text_type(string_content),
                                            source=self.content)
                     fo.close()
                 except MyError as e:

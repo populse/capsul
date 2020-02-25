@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 # System import
+from __future__ import absolute_import
 import sys
 import os
 import os.path as osp
@@ -22,13 +23,8 @@ from traits.api import String, Int, List, File
 from capsul.api import Process
 from capsul.api import Pipeline
 from capsul.pipeline.process_iteration import ProcessIteration
-
-if sys.version_info[0] >= 3:
-    basestring = str
-    def range_list(n):
-        return list(range(n))
-else:
-    range_list = range
+import six
+from six.moves import range
 
 
 class WriteOutput(Process):
@@ -70,9 +66,9 @@ class MyPipeline(Pipeline):
         self.on_trait_change(self.input_image_changed, 'input_image')
         
     def input_image_changed(self):
-        if isinstance(self.input_image, basestring) and \
+        if isinstance(self.input_image, six.string_types) and \
                 osp.exists(self.input_image):
-            self.slices = range_list(int(os.stat(self.input_image).st_size/2))
+            self.slices = list(range(int(os.stat(self.input_image).st_size/2)))
         else:
             self.slices = []
         

@@ -16,6 +16,7 @@ Classes
 '''
 
 # System import
+from __future__ import absolute_import
 import six
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
 try:

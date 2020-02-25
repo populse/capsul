@@ -7,10 +7,13 @@
 ##########################################################################
 
 # System import
+from __future__ import absolute_import
 import inspect
 import ast
 import os
 import logging
+import six
+from six.moves import range
 
 # Define logger
 logger = logging.getLogger(__file__)
@@ -143,7 +146,7 @@ class UseCasesHelperWriter(object):
         """
         # Check output directory
         if returnrst is False:
-            if not isinstance(outdir, basestring):
+            if not isinstance(outdir, six.string_types):
                 raise Exception("If 'returnrst' is False, need a valid output "
                                 "directory.")
             if not os.path.exists(outdir):

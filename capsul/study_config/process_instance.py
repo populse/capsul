@@ -1,11 +1,3 @@
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 '''
 Process instance factory
 
@@ -24,6 +16,7 @@ Functions
 '''
 
 # System import
+from __future__ import absolute_import
 import sys
 import os.path as osp
 import importlib
@@ -48,10 +41,6 @@ try:
 # If nipype is not found create a dummy Interface class
 except ImportError:
     Interface = type("Interface", (object, ), {})
-
-if sys.version_info[0] >= 3:
-    basestring = str
-    unicode = str
 
 
 process_xml_re = re.compile(r'<process.*</process>', re.DOTALL)
@@ -241,7 +230,7 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
         
     # If the function 'process_or_id' parameter is a class string
     # description
-    elif isinstance(process_or_id, basestring):
+    elif isinstance(process_or_id, six.string_types):
         py_url = os.path.basename(process_or_id).split('#')
         object_name = None
         as_xml = False

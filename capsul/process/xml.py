@@ -41,6 +41,7 @@ from soma.utils.functiontools import getArgumentsSpecification
 
 from traits.api import (Int, Float, String, Unicode, File, Directory, Enum,
                         Bool, List, Any, Undefined)
+from six.moves import range
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -86,7 +87,7 @@ class XMLProcess(Process):
                                      'returned by process %s' % 
                                      (len(result), len(self._function_outputs),
                                       self.id))
-                for i in xrange(len(self._function_outputs)):
+                for i in range(len(self._function_outputs)):
                     setattr(self, self._function_outputs[i], result[i])
             elif isinstance(result, dict):
                 # Return value is a dict, set the output parameter values.

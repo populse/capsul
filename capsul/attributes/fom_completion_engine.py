@@ -15,6 +15,7 @@ Classes
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import os
 import six
 try:
@@ -302,8 +303,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                     #path, st, self.attributes = pta.parse_directory(
                     #    DirectoryAsDict.paths_to_dict( new_value),
                     #        log=logging ).next()
-                    path, st, attributes = pta.parse_directory(
-                        DirectoryAsDict.paths_to_dict( new_value) ).next()
+                    path, st, attributes = next(pta.parse_directory(
+                        DirectoryAsDict.paths_to_dict( new_value) ))
                     break
                 except StopIteration:
                     if element == liste[-1]:
@@ -313,7 +314,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
         attrib_values = self.get_attribute_values().export_to_dict()
         for att in attributes:
-            if att in attrib_values.keys():
+            if att in list(attrib_values.keys()):
                 setattr(attrib_values, att, attributes[att])
         return attributes
 
@@ -511,7 +512,7 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
         iter_attrib = set()
         if not self.process.iterative_parameters:
-            params = subprocess.user_traits().keys()
+            params = list(subprocess.user_traits().keys())
         else:
             params = self.process.iterative_parameters
         for parameter in params:

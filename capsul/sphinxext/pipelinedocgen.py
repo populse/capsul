@@ -9,9 +9,11 @@
 from __future__ import print_function
 
 # System import
+from __future__ import absolute_import
 import os
 import logging
 import six
+from six.moves import range
 
 # Define logger
 logger = logging.getLogger(__file__)

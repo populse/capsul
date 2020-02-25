@@ -4,14 +4,12 @@
 '''
 
 from __future__ import print_function
+from __future__ import absolute_import
 from capsul.pipeline.pipeline_nodes import Node
 from soma.controller import Controller
 import traits.api as traits
 import six
 import sys
-
-if sys.version_info[0] >= 3:
-    unicode = str
 
 
 class StrConvNode(Node):
@@ -53,7 +51,7 @@ class StrConvNode(Node):
             self.on_trait_change(update_callback, name)
 
     def filter_callback(self, name, value):
-        self.output = unicode(self.input)
+        self.output = six.text_type(self.input)
 
     def configured_controller(self):
         c = self.configure_controller()

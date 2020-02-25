@@ -17,6 +17,7 @@ Functions
 ----------------------
 '''
 
+from __future__ import absolute_import
 import six
 # Soma import
 from soma.qt_gui.qt_backend import QtGui

@@ -15,6 +15,7 @@ Classes
 ------------------
 '''
 
+from __future__ import absolute_import
 import os
 import six
 from traits.api import Bool, Str, Undefined, Instance, Directory, List

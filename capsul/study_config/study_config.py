@@ -1,11 +1,3 @@
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 '''
 Main :class:`StudyConfig` class for configuration of Capsul software, directories etc.
 
@@ -27,6 +19,7 @@ Functions
 from __future__ import print_function
 
 # System import
+from __future__ import absolute_import
 import os
 import logging
 import json
@@ -53,14 +46,6 @@ from capsul.process.process import Process
 from capsul.study_config.run import run_process
 from capsul.pipeline.pipeline_nodes import Node
 from capsul.study_config.process_instance import get_process_instance
-
-if sys.version_info[0] >= 3:
-    basestring = str
-    def dict_keys(d):
-        return list(d.keys())
-else:
-    def dict_keys(d):
-        return d.keys()
 
 
 class WorkflowExecutionError(Exception):
@@ -248,7 +233,7 @@ class StudyConfig(Controller):
         """
         already_initialized = set()
         # Use a stack to allow to manage module dependencies
-        stack = dict_keys(self.modules)
+        stack = list(self.modules.keys())
         while stack:
             module_name = stack.pop(0)
             if module_name in already_initialized:
@@ -403,7 +388,7 @@ class StudyConfig(Controller):
             if output_directory is not None \
                     and output_directory is not Undefined:
                 # Check the output directory is valid
-                if not isinstance(output_directory, basestring):
+                if not isinstance(output_directory, six.string_types):
                     raise ValueError(
                         "'{0}' is not a valid directory. A valid output "
                         "directory is expected to run the process or "
@@ -540,7 +525,7 @@ class StudyConfig(Controller):
 
         # First read global options
         global_config_file = os.environ.get("CAPSUL_CONFIG")
-        if (isinstance(global_config_file, basestring) and
+        if (isinstance(global_config_file, six.string_types) and
             os.path.isfile(global_config_file)):
 
             config = json.load(open(global_config_file))
@@ -559,7 +544,7 @@ class StudyConfig(Controller):
         # Look for study specific configuration file
         study_config = \
             config.pop('studies_config', {}).get(self.study_name)
-        if isinstance(study_config, basestring):
+        if isinstance(study_config, six.string_types):
             if self.global_config_file:
                 study_config = \
                     os.path.join(os.path.dirname(self.global_config_file),
@@ -604,7 +589,7 @@ class StudyConfig(Controller):
         """
         # Dump the study configuration elements
         config = self.get_configuration_dict()
-        if isinstance(file, basestring):
+        if isinstance(file, six.string_types):
             file = open(file, "w")
         json.dump(config, file,
                   indent=4, separators=(",", ": "))
