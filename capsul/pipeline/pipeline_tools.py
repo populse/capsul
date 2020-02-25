@@ -1229,7 +1229,7 @@ def load_pipeline_parameters(filename, pipeline):
         with io.open(filename, 'r', encoding='utf8') as file:
             dic = json.load(file)
 
-        if "pipeline_parameters" dic:
+        if "pipeline_parameters" in dic:
             raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
 
         for trait_name, trait_value in dic["pipeline_parameters"].items():
