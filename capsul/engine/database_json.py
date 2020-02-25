@@ -54,7 +54,7 @@ class JSONDBEngine(DatabaseEngine):
         return self.json_dict.get('named_directory', {}).get(name, {}).get('path')
     
     def named_directories(self):
-        return list(self.json_dict.get('named_directory', {}).values())
+        return self.json_dict.get('named_directory', {}).values()
     
         
     def set_json_value(self, name, json_value):

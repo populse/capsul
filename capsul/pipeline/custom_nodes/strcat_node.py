@@ -7,12 +7,8 @@ from __future__ import absolute_import
 from capsul.pipeline.pipeline_nodes import Node
 from soma.controller import Controller
 import traits.api as traits
-import six
 import sys
 from six.moves import zip
-
-if sys.version_info[0] >= 3:
-    six.text_type = str
 
 
 class StrCatNode(Node):

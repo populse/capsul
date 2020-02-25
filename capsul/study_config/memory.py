@@ -108,9 +108,9 @@ class UnMemorizedProcess(object):
 
         # Information message
         if self.verbose != 0:
-            print(("{0}\n[Process] Calling {1}...\n{2}".format(
+            print("{0}\n[Process] Calling {1}...\n{2}".format(
                 80 * "_", self.process.id,
-                get_process_signature(self.process, input_parameters))))
+                get_process_signature(self.process, input_parameters)))
 
         # Start a timer
         start_time = time.time()
@@ -122,7 +122,7 @@ class UnMemorizedProcess(object):
         # Information message
         if self.verbose != 0:
             msg = "{0:.1f}s, {1:.1f}min".format(duration, duration / 60.)
-            print((max(0, (80 - len(msg))) * '_' + msg))
+            print(max(0, (80 - len(msg))) * '_' + msg)
 
         return result
 
@@ -387,9 +387,9 @@ class MemorizedProcess(object):
         """
         # Information message
         if self.verbose != 0:
-            print(("{0}\n[Memory] Calling {1}...\n{2}".format(
+            print("{0}\n[Memory] Calling {1}...\n{2}".format(
                 80 * "_", self.process.id,
-                get_process_signature(self.process, input_parameters))))
+                get_process_signature(self.process, input_parameters)))
 
         # Start a timer
         start_time = time.time()
@@ -412,7 +412,7 @@ class MemorizedProcess(object):
         # Information message
         if self.verbose != 0:
             msg = "{0:.1f}s, {1:.1f}min".format(duration, duration / 60.)
-            print((max(0, (80 - len(msg))) * '_' + msg))
+            print(max(0, (80 - len(msg))) * '_' + msg)
 
         return result
 
@@ -433,8 +433,8 @@ class MemorizedProcess(object):
         """
         # Display an information message
         if self.verbose != 0:
-            print(("[Memory]: Loading {0}...".format(
-                get_process_signature(self.process, input_parameters))))
+            print("[Memory]: Loading {0}...".format(
+                get_process_signature(self.process, input_parameters)))
 
         # Load the process result
         result_fname = os.path.join(process_dir, "result.json")

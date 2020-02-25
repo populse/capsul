@@ -15,9 +15,6 @@ from capsul.pipeline.pipeline_tools import save_pipeline_parameters, load_pipeli
 from traits.api import Float, File, String, Int, List, TraitListObject, Time, Date, Undefined, TraitError
 import six
 
-if sys.version_info[0] >= 3:
-    six.text_type = str
-
 
 def load_pipeline_dictionary(filename):
     """

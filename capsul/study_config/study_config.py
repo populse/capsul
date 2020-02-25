@@ -1,11 +1,3 @@
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 '''
 Main :class:`StudyConfig` class for configuration of Capsul software, directories etc.
 
@@ -54,14 +46,6 @@ from capsul.process.process import Process
 from capsul.study_config.run import run_process
 from capsul.pipeline.pipeline_nodes import Node
 from capsul.study_config.process_instance import get_process_instance
-
-if sys.version_info[0] >= 3:
-    six.string_types = str
-    def dict_keys(d):
-        return list(d.keys())
-else:
-    def dict_keys(d):
-        return list(d.keys())
 
 
 class WorkflowExecutionError(Exception):
@@ -249,7 +233,7 @@ class StudyConfig(Controller):
         """
         already_initialized = set()
         # Use a stack to allow to manage module dependencies
-        stack = dict_keys(self.modules)
+        stack = list(self.modules.keys())
         while stack:
             module_name = stack.pop(0)
             if module_name in already_initialized:

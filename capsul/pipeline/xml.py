@@ -1,11 +1,3 @@
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 '''
 XML IO for pipelines
 
@@ -32,9 +24,6 @@ from capsul.pipeline.pipeline_construction import PipelineConstructor
 from soma.controller import Controller
 
 from traits.api import Undefined
-
-if sys.version_info[0] >= 3:
-    six.text_type = str
 
 
 def create_xml_pipeline(module, name, xml_file):
@@ -353,8 +342,8 @@ def save_xml_pipeline(pipeline, xml_file):
                     try:
                         eval(value_repr)
                     except Exception:
-                        print(('warning, value of parameter %s cannot be saved'
-                              % param_name))
+                        print('warning, value of parameter %s cannot be saved'
+                              % param_name)
                         continue
                     elem = ET.SubElement(procnode, 'set')
                     elem.set('name', param_name)
@@ -381,8 +370,8 @@ def save_xml_pipeline(pipeline, xml_file):
                     try:
                         eval(value_repr)
                     except Exception:
-                        print(('warning, value of parameter %s cannot be saved'
-                              % param_name))
+                        print('warning, value of parameter %s cannot be saved'
+                              % param_name)
                         continue
                     et.set(param_name, value_repr)
         # set initial values
@@ -397,8 +386,8 @@ def save_xml_pipeline(pipeline, xml_file):
                 try:
                     eval(value_repr)
                 except Exception:
-                    print(('warning, value of parameter %s cannot be saved'
-                          % param_name))
+                    print('warning, value of parameter %s cannot be saved'
+                          % param_name)
                     continue
                 elem = ET.SubElement(etnode, 'set')
                 elem.set('name', param_name)

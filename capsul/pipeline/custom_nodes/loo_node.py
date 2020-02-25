@@ -8,11 +8,7 @@ from __future__ import absolute_import
 from capsul.pipeline.pipeline_nodes import Node
 from soma.controller import Controller
 import traits.api as traits
-import six
 import sys
-
-if sys.version_info[0] >= 3:
-    six.text_type = str
 
 
 class LeaveOneOutNode(Node):

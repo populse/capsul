@@ -275,4 +275,4 @@ if __name__ == '__main__':
 
     r = g.topological_sort()
     r = [x[0] for x in r]
-    print((" -> ".join(r)))
+    print(" -> ".join(r))

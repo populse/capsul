@@ -1,11 +1,3 @@
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 '''
 Process and pipeline execution management
 
@@ -92,9 +84,9 @@ def run_process(output_dir, process_instance, cachedir=None,
         input_parameters = ["{0}={1}".format(name, value)
               for name, value in six.iteritems(input_parameters)]
         call_with_inputs = "{0}({1})".format(process_instance.id, ", ".join(input_parameters))
-        print(("{0}\n[Process] Calling {1}...\n{2}".format(
+        print("{0}\n[Process] Calling {1}...\n{2}".format(
             80 * "_", process_instance.id,
-            call_with_inputs)))
+            call_with_inputs))
     if cachedir:
         # Create a memory object
         mem = Memory(cachedir)

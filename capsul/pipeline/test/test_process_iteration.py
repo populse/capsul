@@ -26,13 +26,6 @@ from capsul.pipeline.process_iteration import ProcessIteration
 import six
 from six.moves import range
 
-if sys.version_info[0] >= 3:
-    six.string_types = str
-    def range_list(n):
-        return list(range(n))
-else:
-    range_list = range
-
 
 class WriteOutput(Process):
     input_image = File()
@@ -75,7 +68,7 @@ class MyPipeline(Pipeline):
     def input_image_changed(self):
         if isinstance(self.input_image, six.string_types) and \
                 osp.exists(self.input_image):
-            self.slices = range_list(int(os.stat(self.input_image).st_size/2))
+            self.slices = list(range(int(os.stat(self.input_image).st_size/2)))
         else:
             self.slices = []
         

@@ -1,11 +1,3 @@
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 '''
 Miscelaneous pipeline handling utility functions
 
@@ -75,9 +67,6 @@ from capsul.pipeline.pipeline import Pipeline, PipelineNode, Switch, \
     ProcessNode, OptionalOutputSwitch
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller
-
-if sys.version_info[0] >= 3:
-    six.string_types = str
 
 
 def pipeline_node_colors(pipeline, node):
@@ -1240,11 +1229,11 @@ def load_pipeline_parameters(filename, pipeline):
         with io.open(filename, 'r', encoding='utf8') as file:
             dic = json.load(file)
 
-        if "pipeline_parameters" not in list(dic.keys()):
+        if "pipeline_parameters" dic:
             raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
 
         for trait_name, trait_value in dic["pipeline_parameters"].items():
-            if trait_name not in list(pipeline.user_traits().keys()):
+            if trait_name not in pipeline.user_traits():
                 # Should we raise an error or just "continue"?
                 raise KeyError('No "{0}" parameter in pipeline.'.format(trait_name))
 

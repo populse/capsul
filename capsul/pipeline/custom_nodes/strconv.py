@@ -11,9 +11,6 @@ import traits.api as traits
 import six
 import sys
 
-if sys.version_info[0] >= 3:
-    six.text_type = str
-
 
 class StrConvNode(Node):
     '''

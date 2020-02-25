@@ -1,11 +1,3 @@
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 """Capsul Pipeline conversion into soma-workflow workflow.
 
 Standard use case::
@@ -44,15 +36,6 @@ from capsul.attributes.completion_engine import ProcessCompletionEngine
 from capsul.pipeline.pipeline_nodes import ProcessNode
 from soma_workflow.custom_jobs import MapJob, ReduceJob
 from six.moves import range
-
-
-if sys.version_info[0] >= 3:
-    xrange = range
-    def six_values(container):
-        return list(container.values())
-else:
-    def six_values(container):
-        return list(container.values())
 
 
 def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
@@ -762,7 +745,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 for proc, job in six.iteritems(jobs1):
                     jobs[(proc, iteration)] = job
                 groot = []
-                for j in six_values(sub_root_jobs):
+                for j in list(sub_root_jobs.values()):
                     if isinstance(j, list):
                         groot += j
                     else:
@@ -1175,7 +1158,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         jobs_priority=jobs_priority,
                         steps=steps, current_step=step_name, with_links=False)
                 group = build_group(node_name,
-                                    sum(six_values(sub_root_jobs), []))
+                                    sum(list(sub_root_jobs.values()), []))
                 groups[node] = group
                 root_jobs[node] = [group]
                 jobs.update(sub_jobs)
@@ -1206,7 +1189,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         {}, steps, study_config={})
                     (sub_jobs, sub_deps, sub_groups, sub_root_jobs,
                       sub_links, sub_nodes) = sub_workflows
-                    group = build_group(node_name, six_values(sub_root_jobs))
+                    group = build_group(node_name, list(sub_root_jobs.values()))
                     groups.setdefault(process, []).append(group)
                     root_jobs.setdefault(process, []).append(group)
                     groups.update(sub_groups)
@@ -1435,8 +1418,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             for job in jobs_map[dnode]:
                 param_links[job] = djlinks
 
-    all_jobs = [job for job in six_values(jobs) if not isinstance(job, tuple)]
-    root_jobs = sum(six_values(root_jobs), [])
+    all_jobs = [job for job in list(jobs.values()) if not isinstance(job, tuple)]
+    root_jobs = sum(list(root_jobs.values()), [])
 
     # if directories have to be created, all other primary jobs will depend
     # on this first one

@@ -211,11 +211,11 @@ class CapsulEngine(Controller):
             obj = self.computing_config[computing_resource]
         var = names[-1]
         names = names[:-1]
-        print(('obj:', obj, ', names:', names, ', var:', var))
+        print('obj:', obj, ', names:', names, ', var:', var)
         for n in names:
             obj = getattr(obj, n)
-        print(('result obj:', obj))
-        print((obj.export_to_dict()))
+        print('result obj:', obj)
+        print(obj.export_to_dict())
         setattr(obj, var, value)
     
     def add_computing_resource(self, computing_resource):

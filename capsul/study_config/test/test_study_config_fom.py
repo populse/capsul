@@ -45,5 +45,4 @@ def test():
 
 
 if __name__ == "__main__":
-    print(("RETURNCODE: ", test()))
-
+    print("RETURNCODE: ", test())
