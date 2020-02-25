@@ -8,6 +8,7 @@ from capsul.pipeline.pipeline_nodes import Node
 from soma.controller import Controller
 import traits.api as traits
 import sys
+import six
 from six.moves import zip
 
 
