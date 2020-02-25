@@ -3,14 +3,16 @@
 -------------------
 '''
 
+from __future__ import absolute_import
 from capsul.pipeline.pipeline_nodes import Node
 from soma.controller import Controller
 import traits.api as traits
 import six
 import sys
+from six.moves import zip
 
 if sys.version_info[0] >= 3:
-    unicode = str
+    six.text_type = str
 
 
 class StrCatNode(Node):
@@ -76,7 +78,7 @@ class StrCatNode(Node):
         self.on_trait_change(update_callback, self._concat_sequence)
 
     def cat_callback(self):
-        result = ''.join([unicode(getattr(self, name))
+        result = ''.join([six.text_type(getattr(self, name))
                           for name in self._concat_sequence])
         setattr(self, self._concat_plug, result)
 

@@ -50,6 +50,7 @@ Functions
 from __future__ import print_function
 
 # System import
+from __future__ import absolute_import
 import os
 import logging
 import tempfile
@@ -76,7 +77,7 @@ from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller
 
 if sys.version_info[0] >= 3:
-    basestring = str
+    six.string_types = str
 
 
 def pipeline_node_colors(pipeline, node):
@@ -488,7 +489,7 @@ def save_dot_graph(dot_graph, filename, **kwargs):
     '''
 
     def _str_repr(item):
-        if isinstance(item, basestring):
+        if isinstance(item, six.string_types):
             return '"%s"' % item
         return repr(item)
 
@@ -705,7 +706,7 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
                     or isinstance(trait.trait_type, traits.Directory) \
                     or isinstance(trait.trait_type, traits.Any):
                 value = getattr(process, plug_name)
-                if isinstance(value, basestring) \
+                if isinstance(value, six.string_types) \
                         and os.path.exists(value) \
                         and value not in input_files_list:
                     if plug.output:
@@ -1239,11 +1240,11 @@ def load_pipeline_parameters(filename, pipeline):
         with io.open(filename, 'r', encoding='utf8') as file:
             dic = json.load(file)
 
-        if "pipeline_parameters" not in dic.keys():
+        if "pipeline_parameters" not in list(dic.keys()):
             raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
 
         for trait_name, trait_value in dic["pipeline_parameters"].items():
-            if trait_name not in pipeline.user_traits().keys():
+            if trait_name not in list(pipeline.user_traits().keys()):
                 # Should we raise an error or just "continue"?
                 raise KeyError('No "{0}" parameter in pipeline.'.format(trait_name))
 

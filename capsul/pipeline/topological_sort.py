@@ -16,6 +16,8 @@ Classes
 '''
 
 # System import
+from __future__ import absolute_import
+from __future__ import print_function
 import logging
 import six
 
@@ -273,4 +275,4 @@ if __name__ == '__main__':
 
     r = g.topological_sort()
     r = [x[0] for x in r]
-    print(" -> ".join(r))
+    print((" -> ".join(r)))

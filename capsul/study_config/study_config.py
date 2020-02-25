@@ -27,6 +27,7 @@ Functions
 from __future__ import print_function
 
 # System import
+from __future__ import absolute_import
 import os
 import logging
 import json
@@ -55,12 +56,12 @@ from capsul.pipeline.pipeline_nodes import Node
 from capsul.study_config.process_instance import get_process_instance
 
 if sys.version_info[0] >= 3:
-    basestring = str
+    six.string_types = str
     def dict_keys(d):
         return list(d.keys())
 else:
     def dict_keys(d):
-        return d.keys()
+        return list(d.keys())
 
 
 class WorkflowExecutionError(Exception):
@@ -403,7 +404,7 @@ class StudyConfig(Controller):
             if output_directory is not None \
                     and output_directory is not Undefined:
                 # Check the output directory is valid
-                if not isinstance(output_directory, basestring):
+                if not isinstance(output_directory, six.string_types):
                     raise ValueError(
                         "'{0}' is not a valid directory. A valid output "
                         "directory is expected to run the process or "
@@ -540,7 +541,7 @@ class StudyConfig(Controller):
 
         # First read global options
         global_config_file = os.environ.get("CAPSUL_CONFIG")
-        if (isinstance(global_config_file, basestring) and
+        if (isinstance(global_config_file, six.string_types) and
             os.path.isfile(global_config_file)):
 
             config = json.load(open(global_config_file))
@@ -559,7 +560,7 @@ class StudyConfig(Controller):
         # Look for study specific configuration file
         study_config = \
             config.pop('studies_config', {}).get(self.study_name)
-        if isinstance(study_config, basestring):
+        if isinstance(study_config, six.string_types):
             if self.global_config_file:
                 study_config = \
                     os.path.join(os.path.dirname(self.global_config_file),
@@ -604,7 +605,7 @@ class StudyConfig(Controller):
         """
         # Dump the study configuration elements
         config = self.get_configuration_dict()
-        if isinstance(file, basestring):
+        if isinstance(file, six.string_types):
             file = open(file, "w")
         json.dump(config, file,
                   indent=4, separators=(",", ": "))

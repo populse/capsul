@@ -5,14 +5,17 @@
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 from capsul.pipeline.pipeline_nodes import Node, Plug
 from soma.controller import Controller
 import traits.api as traits
 import six
 import sys
+from six.moves import range
+from six.moves import zip
 
 if sys.version_info[0] >= 3:
-    unicode = str
+    six.text_type = str
 
 
 class ReduceNode(Node):

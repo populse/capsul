@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 import os.path as osp
 import six
@@ -53,7 +54,7 @@ class JSONDBEngine(DatabaseEngine):
         return self.json_dict.get('named_directory', {}).get(name, {}).get('path')
     
     def named_directories(self):
-        return self.json_dict.get('named_directory', {}).values()
+        return list(self.json_dict.get('named_directory', {}).values())
     
         
     def set_json_value(self, name, json_value):

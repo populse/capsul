@@ -18,6 +18,7 @@ Classes
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import sys
 import six
 from traits.api import List, Undefined
@@ -27,6 +28,7 @@ from capsul.study_config.process_instance import get_process_instance
 import capsul.study_config as study_cmod
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 from traits.api import File, Directory
+from six.moves import range
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -228,7 +230,7 @@ class ProcessIteration(Process):
                 if trait.output:
                     setattr(self, parameter, [])
             outputs = {}
-            for iteration in xrange(size):
+            for iteration in range(size):
                 for parameter in self.iterative_parameters:
                     #if not no_output_value or not self.trait(parameter).output:
                     value = getattr(self, parameter)
@@ -248,7 +250,7 @@ class ProcessIteration(Process):
             for parameter, value in six.iteritems(outputs):
                 setattr(self, parameter, value)
         else:
-            for iteration in xrange(size):
+            for iteration in range(size):
                 for parameter in self.iterative_parameters:
                     setattr(self.process, parameter,
                             getattr(self, parameter)[iteration])

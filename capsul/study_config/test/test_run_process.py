@@ -7,6 +7,8 @@
 ##########################################################################
 
 # System import
+from __future__ import absolute_import
+from __future__ import print_function
 import unittest
 import tempfile
 import shutil
@@ -114,4 +116,4 @@ def test():
 
 
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
+    print(("RETURNCODE: ", test()))

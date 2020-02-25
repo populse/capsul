@@ -22,6 +22,7 @@ Functions
 """
 
 from __future__ import print_function
+from __future__ import absolute_import
 import os
 import socket
 import sys
@@ -42,6 +43,7 @@ from capsul.attributes import completion_engine_iteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 from capsul.pipeline.pipeline_nodes import ProcessNode
 from soma_workflow.custom_jobs import MapJob, ReduceJob
+from six.moves import range
 
 
 if sys.version_info[0] >= 3:
@@ -50,7 +52,7 @@ if sys.version_info[0] >= 3:
         return list(container.values())
 else:
     def six_values(container):
-        return container.values()
+        return list(container.values())
 
 
 def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
@@ -881,7 +883,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 if trait.output:
                     setattr(it_process, parameter, [])
             outputs = {}
-            for iteration in xrange(size):
+            for iteration in range(size):
                 for parameter in it_process.iterative_parameters:
                     if not no_output_value \
                             or not it_process.trait(parameter).output:
@@ -1022,7 +1024,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
             # iterate the iterates process / pipeline
 
-            for iteration in xrange(size):
+            for iteration in range(size):
                 for parameter in it_process.iterative_parameters:
                     if it_process.process.trait(parameter).input_filename \
                             is False:

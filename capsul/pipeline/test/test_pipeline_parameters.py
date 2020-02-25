@@ -1,6 +1,7 @@
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import os
 import json
 import shutil
@@ -12,9 +13,10 @@ import sys
 from capsul.api import Process, Pipeline
 from capsul.pipeline.pipeline_tools import save_pipeline_parameters, load_pipeline_parameters
 from traits.api import Float, File, String, Int, List, TraitListObject, Time, Date, Undefined, TraitError
+import six
 
 if sys.version_info[0] >= 3:
-    unicode = str
+    six.text_type = str
 
 
 def load_pipeline_dictionary(filename):
@@ -334,9 +336,9 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(dic["pipeline_parameters"]["in_2"], in_2)
         self.assertEqual(dic["pipeline_parameters"]["out"], out)
 
-        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), unicode)
-        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), unicode)
-        self.assertEqual(type(dic["pipeline_parameters"]["out"]), unicode)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), six.text_type)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), six.text_type)
+        self.assertEqual(type(dic["pipeline_parameters"]["out"]), six.text_type)
 
     def test_file(self):
         class Pipeline1(Pipeline):
@@ -367,13 +369,13 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(pipeline1.in_2, in_2)
         self.assertEqual(pipeline1.out, out)
 
-        self.assertEqual(type(pipeline1.in_1), unicode)
-        self.assertEqual(type(pipeline1.in_2), unicode)
+        self.assertEqual(type(pipeline1.in_1), six.text_type)
+        self.assertEqual(type(pipeline1.in_2), six.text_type)
         self.assertEqual(type(pipeline1.out), TraitListObject)
 
         for idx, element in enumerate(pipeline1.out):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
         # Verifying the dictionary
         dic = load_pipeline_dictionary(self.path)
@@ -381,8 +383,8 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(dic["pipeline_parameters"]["in_2"], in_2)
         self.assertEqual(dic["pipeline_parameters"]["out"], out)
 
-        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), unicode)
-        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), unicode)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), six.text_type)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), six.text_type)
         self.assertEqual(type(dic["pipeline_parameters"]["out"]), list)
 
     def test_list_int(self):
@@ -576,15 +578,15 @@ class TestPipelineMethods(unittest.TestCase):
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_1"]):
             self.assertEqual(element, in_1[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_2"]):
             self.assertEqual(element, in_2[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["out"]):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
     def test_list_file(self):
         class Pipeline1(Pipeline):
@@ -621,15 +623,15 @@ class TestPipelineMethods(unittest.TestCase):
 
         for idx, element in enumerate(pipeline1.in_1):
             self.assertEqual(element, in_1[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
         for idx, element in enumerate(pipeline1.in_2):
             self.assertEqual(element, in_2[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
         for idx, element in enumerate(pipeline1.out):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
         # Verifying the dictionary
         dic = load_pipeline_dictionary(self.path)
@@ -643,15 +645,15 @@ class TestPipelineMethods(unittest.TestCase):
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_1"]):
             self.assertEqual(element, in_1[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_2"]):
             self.assertEqual(element, in_2[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["out"]):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
     def test_list_list(self):
         class Pipeline1(Pipeline):
@@ -753,21 +755,21 @@ class TestPipelineMethods(unittest.TestCase):
 
         for idx, element in enumerate(pipeline1.out):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(type(element), six.text_type)
 
         # Verifying the dictionary
         dic = load_pipeline_dictionary(self.path)
-        self.assertEqual(dic["pipeline_parameters"]["in_1"], unicode(in_1))
-        self.assertEqual(dic["pipeline_parameters"]["in_2"], unicode(in_2))
+        self.assertEqual(dic["pipeline_parameters"]["in_1"], six.text_type(in_1))
+        self.assertEqual(dic["pipeline_parameters"]["in_2"], six.text_type(in_2))
         self.assertEqual(dic["pipeline_parameters"]["out"], out)
 
-        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), unicode)
-        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), unicode)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), six.text_type)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), six.text_type)
         self.assertEqual(type(dic["pipeline_parameters"]["out"]), list)
 
         for idx, element in enumerate(pipeline1.out):
-            self.assertEqual(element, unicode(out[idx]))
-            self.assertEqual(type(element), unicode)
+            self.assertEqual(element, six.text_type(out[idx]))
+            self.assertEqual(type(element), six.text_type)
 
 
 # a function test*() has to be defined in a test module in order to be

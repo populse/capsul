@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 # System import
+from __future__ import absolute_import
 import sys
 import unittest
 import re
@@ -24,6 +25,7 @@ from capsul.api import Pipeline
 from capsul.api import StudyConfig
 from capsul.pipeline import pipeline_workflow
 from soma.controller import Controller
+from six.moves import zip
 
 debug = False
 

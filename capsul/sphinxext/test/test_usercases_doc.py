@@ -9,6 +9,8 @@
 from __future__ import with_statement
 
 # System import
+from __future__ import absolute_import
+from __future__ import print_function
 import unittest
 
 # Capsul import
@@ -40,7 +42,7 @@ def pilot_dummy_test():
 
     Now print host name.
     """
-    print(socket.gethostname())
+    print((socket.gethostname()))
 
 
 class TestUseCases(unittest.TestCase):

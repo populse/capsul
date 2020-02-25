@@ -9,6 +9,7 @@ Classes
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import json
 import six
 from soma.qt_gui import qt_backend
@@ -161,7 +162,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         if completion_engine is not None:
             print('set attributes from path:', text)
             try:
-                completion_engine.path_attributes(unicode(text))
+                completion_engine.path_attributes(six.text_type(text))
             except ValueError as e:
                 print(e)
                 import traceback

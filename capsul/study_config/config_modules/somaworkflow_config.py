@@ -17,6 +17,7 @@ Classes
 ---------------------------
 '''
 
+from __future__ import absolute_import
 from traits.api import Bool, Str, Undefined, List, Dict, File
 from capsul.study_config.study_config import StudyConfigModule
 from soma.controller import Controller, ControllerTrait, OpenKeyController

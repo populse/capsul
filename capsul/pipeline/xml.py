@@ -19,6 +19,7 @@ Functions
 
 from __future__ import absolute_import
 
+from __future__ import print_function
 import os
 import six
 import sys
@@ -33,7 +34,7 @@ from soma.controller import Controller
 from traits.api import Undefined
 
 if sys.version_info[0] >= 3:
-    unicode = str
+    six.text_type = str
 
 
 def create_xml_pipeline(module, name, xml_file):
@@ -352,8 +353,8 @@ def save_xml_pipeline(pipeline, xml_file):
                     try:
                         eval(value_repr)
                     except Exception:
-                        print('warning, value of parameter %s cannot be saved'
-                              % param_name)
+                        print(('warning, value of parameter %s cannot be saved'
+                              % param_name))
                         continue
                     elem = ET.SubElement(procnode, 'set')
                     elem.set('name', param_name)
@@ -380,8 +381,8 @@ def save_xml_pipeline(pipeline, xml_file):
                     try:
                         eval(value_repr)
                     except Exception:
-                        print('warning, value of parameter %s cannot be saved'
-                              % param_name)
+                        print(('warning, value of parameter %s cannot be saved'
+                              % param_name))
                         continue
                     et.set(param_name, value_repr)
         # set initial values
@@ -396,8 +397,8 @@ def save_xml_pipeline(pipeline, xml_file):
                 try:
                     eval(value_repr)
                 except Exception:
-                    print('warning, value of parameter %s cannot be saved'
-                          % param_name)
+                    print(('warning, value of parameter %s cannot be saved'
+                          % param_name))
                     continue
                 elem = ET.SubElement(etnode, 'set')
                 elem.set('name', param_name)
@@ -431,7 +432,7 @@ def save_xml_pipeline(pipeline, xml_file):
                     elem.set('name', name_parts[0])
                     if plug.optional:
                         elem.set('optional', 'true')
-        swnode.set('switch_value', unicode(switch.switch))
+        swnode.set('switch_value', six.text_type(switch.switch))
         return swnode
 
     def _write_optional_output_switch(switch, parent, name):
@@ -532,8 +533,8 @@ def save_xml_pipeline(pipeline, xml_file):
             for node_name, pos in six.iteritems(pipeline.node_position):
                 node_pos = ET.SubElement(gui, 'position')
                 node_pos.set('name', node_name)
-                node_pos.set('x', unicode(pos[0]))
-                node_pos.set('y', unicode(pos[1]))
+                node_pos.set('x', six.text_type(pos[0]))
+                node_pos.set('y', six.text_type(pos[1]))
         return gui
 
     def _write_doc(pipeline, root):
@@ -586,7 +587,7 @@ def save_xml_pipeline(pipeline, xml_file):
         if gui_node is None:
             gui_node = ET.SubElement(root, 'gui')
         scale_node = ET.SubElement(gui_node, 'zoom')
-        scale_node.set('level', unicode(pipeline.scene_scale_factor))
+        scale_node.set('level', six.text_type(pipeline.scene_scale_factor))
 
     tree = ET.ElementTree(root)
     tree.write(xml_file)

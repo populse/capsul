@@ -7,6 +7,7 @@
 ##########################################################################
 
 # System import
+from __future__ import absolute_import
 import os
 import sys
 import six
@@ -140,7 +141,7 @@ class LayoutHelperWriter(object):
                 "Can't load module {0}".format(self.root_module_name))
         module = sys.modules[self.root_module_name]
         release_info = {}
-        execfile(os.path.join(module.__path__[0], "info.py"), release_info)
+        exec(compile(open(os.path.join(module.__path__[0], "info.py"), "rb").read(), os.path.join(module.__path__[0], "info.py"), 'exec'), release_info)
 
         # Carousel items
         carousel_items_path = os.path.join(

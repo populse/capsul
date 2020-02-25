@@ -24,6 +24,7 @@ Functions
 '''
 
 # System import
+from __future__ import absolute_import
 import sys
 import os.path as osp
 import importlib
@@ -50,8 +51,8 @@ except ImportError:
     Interface = type("Interface", (object, ), {})
 
 if sys.version_info[0] >= 3:
-    basestring = str
-    unicode = str
+    six.string_types = str
+    six.text_type = str
 
 
 process_xml_re = re.compile(r'<process.*</process>', re.DOTALL)
@@ -241,7 +242,7 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
         
     # If the function 'process_or_id' parameter is a class string
     # description
-    elif isinstance(process_or_id, basestring):
+    elif isinstance(process_or_id, six.string_types):
         py_url = os.path.basename(process_or_id).split('#')
         object_name = None
         as_xml = False

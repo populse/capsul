@@ -26,6 +26,8 @@ import shutil
 import sys
 import six
 from soma.utils.weak_proxy import weak_proxy, get_ref
+from six.moves import range
+from six.moves import zip
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -1170,7 +1172,7 @@ class Pipeline(Process):
         nodes: Generator of Node
             Iterates over all nodes
         """
-        for node in self.nodes.itervalues():
+        for node in six.itervalues(self.nodes):
             yield node
             if (isinstance(node, PipelineNode) and
                node is not self.pipeline_node):
@@ -1560,7 +1562,7 @@ class Pipeline(Process):
                                        dependencies, plug_name, links, output)
                                 break
                     else:
-                        for switch_plug in dest_node.plugs.itervalues():
+                        for switch_plug in six.itervalues(dest_node.plugs):
                             insert(pipeline, node_name, node, switch_plug,
                                    dependencies, plug_name, links, output)
 
@@ -1903,7 +1905,7 @@ class Pipeline(Process):
             links_count, enabled_nodes_count, enabled_procs_count,
             enabled_links_count)
         """
-        nodes = self.nodes.values()
+        nodes = list(self.nodes.values())
         plugs_count = 0
         params_count = len([param
             for param_name, param in six.iteritems(self.user_traits())
@@ -1923,13 +1925,13 @@ class Pipeline(Process):
                 enabled_nodes_count += 1
             plugs_count += len(node.plugs)
             links_count += sum([len(plug.links_to) + len(plug.links_from)
-                for plug in node.plugs.itervalues()])
+                for plug in six.itervalues(node.plugs)])
             enabled_links_count += sum(
                 [len([pend for pend in plug.links_to
                         if pend[3].enabled and pend[3].activated])
                     + len([pend for pend in plug.links_from
                         if pend[3].enabled and pend[3].activated])
-                    for plug in node.plugs.itervalues()
+                    for plug in six.itervalues(node.plugs)
                     if plug.enabled and plug.activated])
             if hasattr(node, 'nodes'):
                 sub_nodes = [sub_node
@@ -2386,7 +2388,7 @@ class Pipeline(Process):
         '''
         if not hasattr(self, 'processes_selection'):
             return []
-        return self.processes_selection.keys()
+        return list(self.processes_selection.keys())
 
     def get_processes_selection_groups(self, selection_parameter):
         '''Get groups names involved in a processes selection switch

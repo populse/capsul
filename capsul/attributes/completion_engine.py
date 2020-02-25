@@ -16,6 +16,7 @@ Classes
 '''
 
 from __future__ import print_function
+from __future__ import absolute_import
 from soma.singleton import Singleton
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
@@ -29,9 +30,10 @@ from soma.functiontools import SomaPartial
 import six
 import sys
 import copy
+from six.moves import range
 
 if sys.version_info[0] >= 3:
-    unicode = str
+    six.text_type = str
 
 # DEBUG
 #ce_calls = 0
@@ -216,7 +218,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             [p for p, al in six.iteritems(param_attributes)
               if len([a for a in al if a not in forbidden_attributes])
               != 0])
-        traits_types = {str: traits.Str, unicode: traits.Str, int: traits.Int,
+        traits_types = {str: traits.Str, six.text_type: traits.Str, int: traits.Int,
                         float: traits.Float, list: traits.List}
         name = self.process.name
         for pname, trait in six.iteritems(self.process.user_traits()):
@@ -729,7 +731,7 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
             pipeline_name = [pipeline_name]
         forbidden_attributes = set(['generated_by_parameter',
                                     'generated_by_process'])
-        traits_types = {str: traits.Str, unicode: traits.Str, int: traits.Int,
+        traits_types = {str: traits.Str, six.text_type: traits.Str, int: traits.Int,
                         float: traits.Float, list: traits.List}
         for out_name in outputs:
             in_name = '_switch_'.join((self.process.switch, out_name))

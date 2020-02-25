@@ -7,6 +7,7 @@ Classes
 -------------------------
 '''
 
+from __future__ import absolute_import
 import os
 import six
 from soma.controller import Controller

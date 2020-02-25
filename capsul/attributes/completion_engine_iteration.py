@@ -18,6 +18,7 @@ Classes
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory
@@ -26,6 +27,7 @@ from soma.controller import Controller,ControllerTrait
 import traits.api as traits
 import six
 import sys
+from six.moves import range
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -61,7 +63,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         param_attributes = pattributes.get_parameters_attributes()
         attribs = set()
         for parameter in self.process.iterative_parameters:
-            attribs.update(param_attributes.get(parameter, {}).keys())
+            attribs.update(list(param_attributes.get(parameter, {}).keys()))
         # if no iterative parameter has been declared, use all attributes
         if not self.process.iterative_parameters:
             return set(pattributes.user_traits().keys())
@@ -169,7 +171,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             [(key, []) for key in self.process.iterative_parameters])
 
         self.completion_progress_total = size
-        for it_step in xrange(size):
+        for it_step in range(size):
             self.capsul_iteration_step = it_step
             for attribute in iterated_attributes:
                 iterated_values = getattr(attributes_set, attribute)

@@ -7,6 +7,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+from __future__ import absolute_import
 from soma.qt_gui.qt_backend import QtCore
 import sys
 

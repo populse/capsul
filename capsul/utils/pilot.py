@@ -14,6 +14,7 @@ Functions
 '''
 
 # System import
+from __future__ import absolute_import
 import types
 import sys
 
@@ -37,7 +38,7 @@ def pilotfunction(pilot_func):
     if sys.version_info[0] >= 3:
         func_code = pilot_func.__code__
     else:
-        func_code = pilot_func.func_code
+        func_code = pilot_func.__code__
     func = types.FunctionType(func_code, {"__builtins__": __builtins__})
     func.__module__ = pilot_func.__module__
     return func

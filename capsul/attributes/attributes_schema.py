@@ -17,6 +17,7 @@ Functions
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import six
 from importlib import import_module
 from pkgutil import iter_modules

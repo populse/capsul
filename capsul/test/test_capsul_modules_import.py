@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import unittest
 import sys
 import os
@@ -37,5 +39,5 @@ def test():
 
 
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
+    print(("RETURNCODE: ", test()))
 

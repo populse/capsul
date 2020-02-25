@@ -1,6 +1,7 @@
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 from capsul.api import StudyConfig, Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 from capsul.attributes.fom_completion_engine \
@@ -13,6 +14,7 @@ import tempfile
 import shutil
 import socket
 import json
+from six.moves import zip
 if sys.version_info[0] >= 3:
     import io as StringIO
 else:

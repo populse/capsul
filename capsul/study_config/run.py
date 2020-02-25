@@ -16,6 +16,8 @@ Functions
 '''
 
 # System import
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import logging
 import six
@@ -90,9 +92,9 @@ def run_process(output_dir, process_instance, cachedir=None,
         input_parameters = ["{0}={1}".format(name, value)
               for name, value in six.iteritems(input_parameters)]
         call_with_inputs = "{0}({1})".format(process_instance.id, ", ".join(input_parameters))
-        print("{0}\n[Process] Calling {1}...\n{2}".format(
+        print(("{0}\n[Process] Calling {1}...\n{2}".format(
             80 * "_", process_instance.id,
-            call_with_inputs))
+            call_with_inputs)))
     if cachedir:
         # Create a memory object
         mem = Memory(cachedir)

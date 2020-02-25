@@ -14,6 +14,7 @@ Classes
 '''
 
 # Soma import
+from __future__ import absolute_import
 from soma.qt_gui import qt_backend
 
 # Capsul import

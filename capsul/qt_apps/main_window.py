@@ -14,9 +14,11 @@ Classes
 '''
 
 # System import
+from __future__ import absolute_import
 import os
 import logging
 import six
+from six.moves import range
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -467,7 +469,7 @@ class CapsulMainWindow(MyQUiLoader):
         # If no match found, add a new tab with the widget
         if not already_created:
             self.ui.display.addTab(
-                widget, unicode(self.pipeline.name))
+                widget, six.text_type(self.pipeline.name))
             self.ui.display.setCurrentIndex(
                 self.ui.display.count() - 1)
 
@@ -478,7 +480,7 @@ class CapsulMainWindow(MyQUiLoader):
 
             # Insert the new tab
             self.ui.display.insertTab(
-                index, widget, unicode(self.pipeline.name))
+                index, widget, six.text_type(self.pipeline.name))
 
             # Set the corresponding index
             self.ui.display.setCurrentIndex(index)
