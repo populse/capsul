@@ -4,14 +4,13 @@
 '''
 
 
+from __future__ import absolute_import
 from capsul.pipeline.pipeline_nodes import Node, Plug
 from soma.controller import Controller
 import traits.api as traits
-import six
 import sys
-
-if sys.version_info[0] >= 3:
-    unicode = str
+from six.moves import range
+from six.moves import zip
 
 
 class MapNode(Node):

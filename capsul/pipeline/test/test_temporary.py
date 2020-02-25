@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import unittest
 import os
 import sys
@@ -19,6 +20,7 @@ from capsul.pipeline import pipeline_workflow
 from capsul.study_config.study_config import StudyConfig
 import socket
 import shutil
+from six.moves import zip
 if sys.version_info[0] >= 3:
     import io as StringIO
 else:

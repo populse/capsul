@@ -7,6 +7,7 @@ Classes
 ----------------------------------------------
 '''
 
+from __future__ import absolute_import
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     PathCompletionEngine, ProcessCompletionEngineFactory
 from capsul.attributes.completion_engine_iteration \

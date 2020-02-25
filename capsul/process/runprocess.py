@@ -61,6 +61,7 @@ Functions
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 from capsul.api import get_process_instance
 from capsul.api import StudyConfig
 from capsul.api import Pipeline

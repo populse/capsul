@@ -17,6 +17,7 @@ Functions
 
 # System import
 from __future__ import print_function
+from __future__ import absolute_import
 import sys
 import os
 import types
@@ -225,7 +226,7 @@ def nipype_factory(nipype_instance):
                                                 'output_directory']:
             names = [name]
             if name == 'output_directory':
-                names = input_traits.keys()
+                names = list(input_traits.keys())
             for name in names:
                 # check if the input trait is duplicated as an output
                 trait = process_instance.trait(name)

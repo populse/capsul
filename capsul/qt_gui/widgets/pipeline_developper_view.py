@@ -1,11 +1,3 @@
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 '''
 A Pipeline structure viewer widget, which displays pipeline nodes as boxes and links as lines, and provides pipelin editor features.
 
@@ -75,6 +67,8 @@ from capsul.study_config import process_instance
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
+from six.moves import range
+from six.moves import zip
 
 try:
     from traits import api as traits
@@ -89,15 +83,6 @@ from soma.qt_gui.controller_widget import ScrollControllerWidget
 from capsul.qt_gui.widgets.attributed_process_widget \
     import AttributedProcessWidget
 
-if sys.version_info[0] >= 3:
-    unicode = str
-
-
-    def values(d):
-        return list(d.values())
-else:
-    def values(d):
-        return d.values()
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -895,9 +880,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
             if not self.out_params:
                 param_item = None
             else:
-                param_item = values(self.out_params)[0]
+                param_item = list(self.out_params.values())[0]
         else:
-            param_item = values(self.in_params)[0]
+            param_item = list(self.in_params.values())[0]
         ni = 0
         no = 0
         bottom_pos = 0
@@ -2037,7 +2022,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     @staticmethod
     def is_existing_path(value):
         if value not in (None, traits.Undefined) \
-                and type(value) in (str, unicode) and os.path.exists(value):
+                and type(value) in (str, six.text_type) and os.path.exists(value):
             return True
         return False
 
@@ -2813,7 +2798,7 @@ class PipelineDevelopperView(QGraphicsView):
                     return
                 except KeyError:
                     print('node not found in:')
-                    print(self.scene.gnodes.keys())
+                    print(list(self.scene.gnodes.keys()))
             sub_view = PipelineDevelopperView(sub_pipeline,
                                               show_sub_pipelines=self._show_sub_pipelines,
                                               allow_open_controller=self._allow_open_controller,
@@ -2870,7 +2855,7 @@ class PipelineDevelopperView(QGraphicsView):
     def open_node_menu(self, node_name, process):
         """ right-click popup menu for nodes
         """
-        node_name = unicode(node_name)  # in case it is a QString
+        node_name = six.text_type(node_name)  # in case it is a QString
         node_type = 'process'
         if isinstance(process, OptionalOutputSwitch):
             node_type = 'opt. output switch'
@@ -3370,7 +3355,7 @@ class PipelineDevelopperView(QGraphicsView):
         if sys.version_info[0] >= 3:
             file_iter = fileobj.readlines()
         else:
-            file_iter = fileobj.xreadlines()
+            file_iter = fileobj
         for line in file_iter:
             if line.startswith('node'):
                 line_els0 = line.split()
@@ -3706,12 +3691,12 @@ class PipelineDevelopperView(QGraphicsView):
 
         res = proc_name_gui.exec_()
         if res:
-            proc_module = unicode(proc_name_gui.proc_line.text())
+            proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
             pipeline = self.scene.pipeline
             try:
                 process = get_process_instance(
-                    unicode(proc_name_gui.proc_line.text()))
+                    six.text_type(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
                 return
@@ -3781,12 +3766,12 @@ class PipelineDevelopperView(QGraphicsView):
 
         res = node_name_gui.exec_()
         if res:
-            node_module = unicode(node_name_gui.proc_line.text())
+            node_module = six.text_type(node_name_gui.proc_line.text())
             node_name = str(node_name_gui.name_line.text())
             pipeline = self.scene.pipeline
             try:
                 node = get_node_instance(
-                  unicode(node_name_gui.proc_line.text()), pipeline)
+                  six.text_type(node_name_gui.proc_line.text()), pipeline)
                 print('Node:', node)
             except Exception as e:
                 print(e)
@@ -3827,7 +3812,7 @@ class PipelineDevelopperView(QGraphicsView):
                 process = get_process_instance(text)
             except Exception:
                 return
-            traits = process.user_traits().keys()
+            traits = list(process.user_traits().keys())
             self.plugs.addItems(traits)
 
         def iterative_plugs(self):
@@ -3843,17 +3828,17 @@ class PipelineDevelopperView(QGraphicsView):
 
         res = proc_name_gui.exec_()
         if res:
-            proc_module = unicode(proc_name_gui.proc_line.text())
+            proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
             pipeline = self.scene.pipeline
             try:
                 process = get_process_instance(
-                    unicode(proc_name_gui.proc_line.text()))
+                    six.text_type(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
                 return
             iterative_plugs = proc_name_gui.iterative_plugs()
-            do_not_export = process.user_traits().keys()
+            do_not_export = list(process.user_traits().keys())
             pipeline.add_iterative_process(node_name, process, iterative_plugs,
                                            do_not_export=do_not_export)
 
@@ -4456,7 +4441,7 @@ class PipelineDevelopperView(QGraphicsView):
             old_dim = pipeline.node_dimension
             pipeline.node_position = posdict
             pipeline_tools.save_pipeline(pipeline, filename)
-            self._pipeline_filename = unicode(filename)
+            self._pipeline_filename = six.text_type(filename)
             pipeline.node_position = old_pos
             pipeline.node_dimension = old_dim
 
@@ -4506,12 +4491,12 @@ class PipelineDevelopperView(QGraphicsView):
 
             dic = json.loads(dic, object_hook=hinted_tuple_hook)
 
-            if "pipeline_parameters" not in dic.keys():
+            if "pipeline_parameters" not in list(dic.keys()):
                 raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
 
             for trait_name, trait_value in dic["pipeline_parameters"].items():
                 
-                if trait_name not in self.scene.pipeline.user_traits().keys():
+                if trait_name not in list(self.scene.pipeline.user_traits().keys()):
                     print('No "{0}" parameter in pipeline.'.format(trait_name))
                     
                 try:

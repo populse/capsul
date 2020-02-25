@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import unittest
 from capsul.study_config.study_config import StudyConfig
 from capsul.study_config.config_modules.fom_config import FomConfig
@@ -44,4 +46,3 @@ def test():
 
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
-

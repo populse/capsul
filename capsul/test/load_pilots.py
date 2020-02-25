@@ -7,6 +7,7 @@
 ##########################################################################
 
 from __future__ import print_function
+from __future__ import absolute_import
 import os, sys
 import logging
 
@@ -70,7 +71,7 @@ def load_pilots(root, path):
 
             for function in dir(module):
                 if function in ["test", ]:
-                    if module_name in  pilots.keys():
+                    if module_name in  list(pilots.keys()):
                         pilots[module_name].append(getattr(module, function))
                     else:
                         pilots[module_name] = [getattr(module, function), ]

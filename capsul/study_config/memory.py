@@ -34,6 +34,8 @@ Functions
 
 # System import
 from __future__ import with_statement
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import hashlib
 import time
@@ -59,7 +61,7 @@ except ImportError:
 from traits.api import Undefined
 
 if sys.version_info[0] >= 3:
-    basestring = str
+    six.string_types = str
 
 
 # Define the logger
@@ -361,7 +363,7 @@ class MemorizedProcess(object):
         # Otherwise start the copy if the object is a file
         else:
             if (python_object is not Undefined and
-                    isinstance(python_object, basestring) and
+                    isinstance(python_object, six.string_types) and
                     os.path.isfile(python_object)):
                 fname = os.path.basename(python_object)
                 out = os.path.join(process_dir, fname)
@@ -560,7 +562,7 @@ class MemorizedProcess(object):
         else:
             out = python_object
             if (python_object is not Undefined and
-                    isinstance(python_object, basestring) and
+                    isinstance(python_object, six.string_types) and
                     os.path.isfile(python_object)):
                 out = file_fingerprint(python_object)
 

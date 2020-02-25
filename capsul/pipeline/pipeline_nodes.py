@@ -28,8 +28,10 @@ Classes
 from __future__ import print_function
 
 # System import
+from __future__ import absolute_import
 import logging
 import six
+from six.moves import zip
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -340,7 +342,7 @@ class Node(Controller):
         they prevent Node instance from being used with pickle.
         """
         state = super(Node, self).__getstate__()
-        state['_callbacks'] = state['_callbacks'].keys()
+        state['_callbacks'] = list(state['_callbacks'].keys())
         state['pipeline'] = get_ref(state['pipeline'])
         return state
 

@@ -9,6 +9,7 @@ Classes
 
 from __future__ import print_function
 
+from __future__ import absolute_import
 import os
 from traits.api import File, Undefined, Bool
 from capsul.study_config.study_config import StudyConfigModule

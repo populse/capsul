@@ -35,6 +35,7 @@ Functions
 
 '''
 
+from __future__ import absolute_import
 from capsul.process.process import (Process, NipypeProcess, ProcessResult,
                                     FileCopyProcess, InteractiveProcess)
 from capsul.pipeline.pipeline import Pipeline

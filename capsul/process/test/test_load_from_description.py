@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 # System import
+from __future__ import absolute_import
 import unittest
 import tempfile
 import os
@@ -21,6 +22,8 @@ from capsul.api import get_process_instance
 from capsul.api import Pipeline
 from capsul.process.xml import xml_process
 from capsul.pipeline.xml import save_xml_pipeline
+from six.moves import range
+from six.moves import zip
 
 
 def a_function_to_wrap(fname, directory, value, enum, list_of_str):
@@ -286,8 +289,8 @@ class TestLoadFromDescription(unittest.TestCase):
         
         a = list(range(40, 50))
         b = list(range(10, 21))
-        quotients = [int(i / j) for i, j in zip(range(40, 50), range(10, 21))]
-        remainders = [i % j for i, j in zip(range(40, 50), range(10, 21))]
+        quotients = [int(i / j) for i, j in zip(list(range(40, 50)), list(range(10, 21)))]
+        remainders = [i % j for i, j in zip(list(range(40, 50)), list(range(10, 21)))]
         
         process = get_process_instance(
             "capsul.process.test.test_load_from_description.divides_dict")

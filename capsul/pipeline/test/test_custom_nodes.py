@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from __future__ import absolute_import
 import unittest
 from capsul.api import Process, Pipeline, StudyConfig
 from capsul.pipeline import pipeline_workflow
@@ -11,6 +12,7 @@ import tempfile
 import sys
 import shutil
 import json
+from six.moves import range
 
 
 class TestProcess(Process):

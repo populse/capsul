@@ -7,6 +7,7 @@ Classes
 ------------------
 '''
 
+from __future__ import absolute_import
 from traits.api import Directory, File, Bool, Enum, Undefined, Str
 
 from capsul.study_config.study_config import StudyConfigModule
