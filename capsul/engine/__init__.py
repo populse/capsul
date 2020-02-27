@@ -28,7 +28,7 @@ import re
 import tempfile
 import subprocess
 
-from traits.api import Undefined, Dict, String, Undefined
+from traits.api import Dict, String, Undefined
 
 from soma.controller import Controller, controller_to_dict
 from soma.serialization import to_json, from_json

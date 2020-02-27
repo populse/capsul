@@ -913,7 +913,7 @@ class Switch(Node):
         if plug.output:
             connected_plug_name = '%s_switch_%s' % (self.switch, plug_name)
         else:
-            spliter = plug_name.split("_switch_")
+            splitter = plug_name.split("_switch_")
             if len(splitter) != 2:
                 # not a switch input plug
                 return []

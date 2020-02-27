@@ -35,4 +35,4 @@ def configure_spm():
                     matlab_cmd=osp.join(spm_directory, 'run_spm%s.sh' % os.environ.get('SPM_VERSION','')) + ' ' + spm_exec + ' script',
                     use_mcr=True)
         else:
-            raise NotImplemented('Nipype configuration is not yet implement for SPM non standalone')
+            raise NotImplementedError('Nipype configuration is not yet implement for SPM non standalone')

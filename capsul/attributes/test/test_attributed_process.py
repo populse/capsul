@@ -41,7 +41,7 @@ class DummyListProcess(Process):
 
     def _run_process(self):
         open(self.result, 'w').write(
-            '{\n    truc=%s,\n    bidule=%s\n}' % truc, bidule)
+            '{\n    truc=%s,\n    bidule=%s\n}' % 'truc', 'bidule')
 
 
 class CustomAttributesSchema(AttributesSchema):

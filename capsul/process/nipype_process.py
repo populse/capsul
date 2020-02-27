@@ -189,7 +189,6 @@ def nipype_factory(nipype_instance):
                 print('EXCEPTION:', e, file=sys.stderr)
                 print('while syncing nipype parameter', name,
                       'on', process_instance.name, file=sys.stderr)
-                import traceback
                 traceback.print_exc()
                 ex_type, ex, tb = sys.exc_info()
                 logger.debug(

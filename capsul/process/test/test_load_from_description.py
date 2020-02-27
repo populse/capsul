@@ -354,7 +354,6 @@ if __name__ == "__main__":
     print("RETURNCODE: ", test())
 
     if True:
-        import sys
         from PyQt4 import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 

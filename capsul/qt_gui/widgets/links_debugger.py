@@ -28,9 +28,6 @@ import re
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui, QtCore
 
-# capsul import
-from capsul.pipeline import pipeline
-
 
 class CapsulLinkDebuggerView(QtGui.QWidget):
     """ A Widget to display the links propagation when values are set in a

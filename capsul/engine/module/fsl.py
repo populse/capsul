@@ -9,7 +9,7 @@ from soma.controller import Controller
 from soma.functiontools import SomaPartial
 from soma.path import find_in_path
 from traits.api import File, Bool, Undefined, String, Directory, Instance
-from soma.path import find_in_path
+
 
 class FSLConfig(Controller):
     '''
