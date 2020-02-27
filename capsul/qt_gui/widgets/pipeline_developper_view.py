@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 A Pipeline structure viewer widget, which displays pipeline nodes as boxes and links as lines, and provides pipelin editor features.
 

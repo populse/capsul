@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Main :class:`StudyConfig` class for configuration of Capsul software, directories etc.
 

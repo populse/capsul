@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ''' A schema defines attrinbutes used within a completion framework
 
 Classes

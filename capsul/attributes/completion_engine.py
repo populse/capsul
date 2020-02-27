@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Completion system for Capsul
 

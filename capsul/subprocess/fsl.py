@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Specific subprocess-like functions to call FSL taking into account a 
 potential configuration done in StudyConfig. If a StudyConfig is not

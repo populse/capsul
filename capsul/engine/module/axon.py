@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 '''
 Configuration module which links with `Axon <http://brainvisa.info/axon/user_doc>`_

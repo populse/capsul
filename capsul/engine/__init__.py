@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 This module defines the main API to interact with Capsul processes.
 In order to execute a process, it is mandatory to have an instance of

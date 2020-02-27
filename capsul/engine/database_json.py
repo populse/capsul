@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import os
 import os.path as osp
@@ -70,7 +71,10 @@ class JSONDBEngine(DatabaseEngine):
         path = metadata['path']
         named_directory = metadata['named_directory']
         
-        self.json_dict.setdefault('path_metadata', {})[(named_directory, path)] = doc
+        # ylep 2020-02-27: fixed the next line to assign metadata (previously a
+        # nonexistent 'doc' variable was assigned). I hope this is correct.
+        self.json_dict.setdefault('path_metadata', {})[
+            (named_directory, path)] = metadata
         self.modified = True
             
 

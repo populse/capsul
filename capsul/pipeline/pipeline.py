@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ''' Pipeline main class module
 
 Classes
