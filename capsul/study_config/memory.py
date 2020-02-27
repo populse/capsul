@@ -60,9 +60,6 @@ except ImportError:
 # TRAITS import
 from traits.api import Undefined
 
-if sys.version_info[0] >= 3:
-    six.string_types = str
-
 
 # Define the logger
 logger = logging.getLogger(__name__)
