@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##########################################################################
 # CAPSUL - Copyright (C) CEA, 2013
 # Distributed under the terms of the CeCILL-B license, as published by
@@ -153,7 +154,7 @@ class BoardWidget(QtGui.QWidget):
         for node_name, node in six.iteritems(self.controller.nodes):
 
             # If the current node is a processing node
-            if node_name is not "" and node.node_type != "view_node":
+            if node_name != "" and node.node_type != "view_node":
 
                 # First browse the current node to get processings and viewers
                 process_nodes = []

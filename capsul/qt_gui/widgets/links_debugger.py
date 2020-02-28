@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##########################################################################
 # CAPSUL - Copyright (C) CEA, 2015
 # Distributed under the terms of the CeCILL-B license, as published by
@@ -26,9 +27,6 @@ import re
 # Soma import
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui, QtCore
-
-# capsul import
-from capsul.pipeline import pipeline
 
 
 class CapsulLinkDebuggerView(QtGui.QWidget):

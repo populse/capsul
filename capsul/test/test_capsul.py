@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##########################################################################
 # CAPSUL - Copyright (C) CEA, 2013
 # Distributed under the terms of the CeCILL-B license, as published by
@@ -13,7 +14,7 @@ from .load_pilots import load_pilots
 import capsul
 import sys
 
-error_message = """
+error_message = r"""
 
 ##################################
 #           GAME OVER            #
@@ -28,7 +29,7 @@ error_message = """
             =========
 """
 
-valid_message = """
+valid_message = r"""
 
 ##################################
 #         ALL TESTS PASSED       #
@@ -39,7 +40,7 @@ valid_message = """
                   |
                   | \O/
                   |  |
-                  | / \\
+                  | / \
            ==============
 """
 

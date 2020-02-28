@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Instantiate a default :class:`~capsul.attributes.completion_engine.ProcessCompletionEngine`
 

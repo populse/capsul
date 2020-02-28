@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Capsul Pipeline conversion into soma-workflow workflow.
 
 Standard use case::

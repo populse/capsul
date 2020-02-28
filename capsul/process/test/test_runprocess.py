@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##########################################################################
 # Capsul - Copyright (C) CEA, 2019
 # Distributed under the terms of the CeCILL-B license, as published by

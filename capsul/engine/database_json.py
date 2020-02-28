@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import os
 import os.path as osp
@@ -66,11 +67,11 @@ class JSONDBEngine(DatabaseEngine):
     
     
     def set_path_metadata(self, path, metadata, named_directory=None):
-        metadata = self.check_metadata(path, metadata, named_directory)
+        metadata = self.check_path_metadata(path, metadata, named_directory)
         path = metadata['path']
         named_directory = metadata['named_directory']
-        
-        self.json_dict.setdefault('path_metadata', {})[(named_directory, path)] = doc
+        self.json_dict.setdefault('path_metadata', {})[
+            (named_directory, path)] = metadata
         self.modified = True
             
 

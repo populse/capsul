@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##########################################################################
 # Capsul - Copyright (C) CEA, 2014
 # Distributed under the terms of the CeCILL-B license, as published by
@@ -353,7 +354,6 @@ if __name__ == "__main__":
     print("RETURNCODE: ", test())
 
     if True:
-        import sys
         from PyQt4 import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 

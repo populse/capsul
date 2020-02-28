@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ''' A schema defines attrinbutes used within a completion framework
 
 Classes
@@ -26,7 +27,6 @@ from soma.sorted_dictionary import OrderedDict
 from soma.controller import Controller
 from soma.functiontools import partial, SomaPartial
 import traits.api as traits
-import copy
 
 
 class AttributesSchema(object):
