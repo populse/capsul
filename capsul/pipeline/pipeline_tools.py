@@ -430,6 +430,7 @@ def dot_graph_from_workflow(pipeline, nodes_sizes={}, use_nodes_pos=False,
     graph = pipeline.workflow_graph()
     nodes = []
     edges = {}
+    scale = 1. / 67.
 
     for n in graph._nodes:
         node = pipeline.nodes[n]
@@ -442,11 +443,11 @@ def dot_graph_from_workflow(pipeline, nodes_sizes={}, use_nodes_pos=False,
         else:
             node_props.update({'shape': 'box'})
         if use_nodes_pos:
-            pos = nodes_pos.get(id)
+            pos = pipeline.node_position.get(n)
             if pos is not None:
                 node_props.update({'pos': '%f,%f' % (pos[0] * scale,
                                                      -pos[1] * scale)})
-        size = nodes_sizes.get(id)
+        size = nodes_sizes.get(n)
         if size is not None:
             node_props.update({'width': (size[0] + enlarge_boxes) * scale,
                                'height': (size[1] + enlarge_boxes) * scale,
@@ -954,10 +955,10 @@ def find_plug_connection_destinations(plug, pipeline=None):
                         and not isinstance(dst[0], PipelineNode):
                     # sub-pipeline input: inspect it
                     links.append((None, dst[1], dst[0], dst[2], False, node))
-                elif dst[2].output or isinstance(src[0], PipelineNode):
+                elif dst[2].output or isinstance(dst[0], PipelineNode):
                     # output side of a non-opaque node: inspect its links
                     links += [link + (node,)
-                              for link in src[2].links_to]
+                              for link in dst[2].links_to]
                 else:
                     print('unhandle case in find_plug_connection_sources')
                     print('node:', dst[0], ', param:', dst[1])

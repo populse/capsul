@@ -67,7 +67,7 @@ def find_spm(spm_version='', matlab_exec='matlab', matlab_path=None):
 
     # Try to execute the command
     try:
-        stdout = soma.subprocess.check_output(command)
+        last_line = soma.subprocess.check_output(command).decode('utf-8')
     except OSError:
         raise Exception("Could not find SPM.")
 
@@ -223,7 +223,7 @@ def check_call(study_config, batch_file, **kwargs):
     return soma.subprocess.check_call(cmd, **kwargs)
 
 
-def check_output(study_config, command, **kwargs):
+def check_output(study_config, batch_file, **kwargs):
     '''
     Equivalent to Python soma.subprocess.check_output for SPM batch
     '''
