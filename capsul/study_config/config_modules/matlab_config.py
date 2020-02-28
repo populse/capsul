@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Matlab configuration module
 

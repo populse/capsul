@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Miscelaneous pipeline handling utility functions
 

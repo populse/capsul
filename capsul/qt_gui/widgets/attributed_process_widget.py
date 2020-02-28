@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Process or pipeline parameters view with attributes handling.
 

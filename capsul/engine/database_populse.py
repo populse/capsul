@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import os.path as osp
 import six
@@ -80,39 +81,6 @@ class PopulseDBEngine(DatabaseEngine):
             return doc['json_dict']['value']
         return None
     
-    
-    def set_path_metadata(self, path, metadata, named_directory=None):
-        metadata = self.check_metadata(path, metadata, named_directory)
-        path = metadata['path']
-        named_directory = metadata['named_directory']
-        
-        self.json_dict.setdefault('path_metadata', {})[(named_directory, path)] = doc
-        self.modified = True
-            
-
-    def path_metadata(self, path, named_directory=None):
-        named_directory, path = self.check_path(path, named_directory)
-        return self.json_dict.get('path_metadata', {}).get((named_directory, path))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-        
     def set_path_metadata(self, path, metadata):
         named_directory = metadata.get('named_directory')
         if named_directory:

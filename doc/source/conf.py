@@ -303,19 +303,19 @@ autoclass_content = "both"
 #try:
     #from soma_workflow import info as swinfo
     #swf_version = '-%d.%d' % (swinfo.version_major, swinfo.version_minor)
-#except:
+#except ImportError:
     #swf_version = ''
 
 try:
     from soma_workflow import version as swver
     somaworkflow_version = swver.shortVersion
-except:
+except ImportError:
     somaworkflow_version = '2.9'
 try:
     import soma.info
     somabase_version = '%d.%d' % (soma.info.version_major,
                                   soma.info.version_minor)
-except:
+except ImportError:
     somabase_version = '4.6'
 
 pyversion = '%d.%d' % sys.version_info[:2]
@@ -354,7 +354,7 @@ try:
     from soma.qt_gui import qt_backend
     qt_backend.set_qt_backend(compatible_qt5=True)
     print('Using Qt backend:', qt_backend.get_qt_backend())
-except:
+except Exception:
     print('Warning: Qt could not be loaded. GUI will not be documented.')
 
 if nbsphinx:

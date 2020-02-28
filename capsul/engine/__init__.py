@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 This module defines the main API to interact with Capsul processes.
 In order to execute a process, it is mandatory to have an instance of
@@ -27,7 +28,7 @@ import re
 import tempfile
 import subprocess
 
-from traits.api import Undefined, Dict, String, Undefined
+from traits.api import Dict, String, Undefined
 
 from soma.controller import Controller, controller_to_dict
 from soma.serialization import to_json, from_json
@@ -369,10 +370,10 @@ class CapsulEngine(Controller):
         
     
     def set_path_metadata(self, path, metadata, named_directory=None):
-        return self.database.set_path_metadata(name, path, metadata, named_directory)
+        return self.database.set_path_metadata(path, metadata, named_directory)
     
     def path_metadata(self, path, named_directory=None):
-        return self.database.set_path_metadata(name, path, named_directory)
+        return self.database.set_path_metadata(path, named_directory)
 
 
     #

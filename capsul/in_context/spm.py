@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Specific subprocess-like functions to call SPM taking into account 
 configuration stored in ExecutionContext. To functions and class in
@@ -80,7 +81,6 @@ def spm_check_output(spm_batch_filename, **kwargs):
 
 if __name__ == '__main__':
     from capsul.api import capsul_engine
-    from capsul.in_context.spm import spm_call
     import tempfile
     
     ce = capsul_engine()

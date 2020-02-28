@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Specific subprocess-like functions to call FSL taking into account 
 configuration stored in ExecutionContext. To functions and class in

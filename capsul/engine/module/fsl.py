@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import os
 import os.path as osp
@@ -8,7 +9,7 @@ from soma.controller import Controller
 from soma.functiontools import SomaPartial
 from soma.path import find_in_path
 from traits.api import File, Bool, Undefined, String, Directory, Instance
-from soma.path import find_in_path
+
 
 class FSLConfig(Controller):
     '''

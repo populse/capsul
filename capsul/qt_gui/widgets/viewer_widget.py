@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##########################################################################
 # CAPSUL - Copyright (C) CEA, 2013
 # Distributed under the terms of the CeCILL-B license, as published by
@@ -18,9 +19,13 @@ Classes
 # System import
 from __future__ import absolute_import
 import logging
+import os
+
 import six
 
 # Soma import
+from soma.controller.trait_utils import trait_ids
+import soma.subprocess
 from soma.qt_gui.qt_backend import QtGui, QtCore
 
 # Qt import
