@@ -86,8 +86,7 @@ class PopulseDBEngine(DatabaseEngine):
         metadata = self.check_metadata(path, metadata, named_directory)
         path = metadata['path']
         named_directory = metadata['named_directory']
-        
-        self.json_dict.setdefault('path_metadata', {})[(named_directory, path)] = doc
+        self.json_dict.setdefault('path_metadata', {})[(named_directory, path)] = metadata
         self.modified = True
             
 
