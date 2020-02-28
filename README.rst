@@ -24,7 +24,7 @@ CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean
     :target: https://codecov.io/github/populse/capsul
     :alt: Coverage
 
-.. image:: https://img.shields.io/badge/python-2.6%2C%202.7%2C%203.7-yellow.svg
+.. image:: https://img.shields.io/badge/python-2.7%2C%203.7-yellow.svg
     :target: http://github.com/populse/capsul
 
 .. image:: https://img.shields.io/badge/platform-Linux%2C%20OSX%2C%20Windows-orange.svg

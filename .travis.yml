@@ -30,15 +30,13 @@ install:
     - pip install numpy "six>=1.12"
     - echo "TRAVIS_OS_NAME:" "$TRAVIS_OS_NAME"
     # - pip install nose
-    - if [ ${TRAVIS_PYTHON_VERSION} == "2.6" ]; then pip install "traits==4.6.0"; else pip install traits ;fi
-    - if [ ${TRAVIS_PYTHON_VERSION} == "2.6" ]; then pip install "lark-parser==0.6.5" "python-dateutil<2.7" "SQLAlchemy<1.2"; fi
     - git clone https://github.com/populse/soma-base.git /tmp/soma-base
     - python /tmp/soma-base/setup.py install
     #- pip install -U setuptools pip
-    - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then git clone https://github.com/populse/populse_db.git /tmp/populse_db; fi
-    - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then pushd /tmp/populse_db; fi
-    - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then PYTHONPATH="/tmp/populse_db/lib/python${TRAVIS_PYTHON_VERSION}/site-packages:$PYTHONPATH" python /tmp/populse_db/setup.py install; fi
-    - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then popd; fi
+    - git clone https://github.com/populse/populse_db.git /tmp/populse_db
+    - pushd /tmp/populse_db
+    - PYTHONPATH="/tmp/populse_db/lib/python${TRAVIS_PYTHON_VERSION}/site-packages:$PYTHONPATH" python /tmp/populse_db/setup.py install
+    - popd
     # until we release soma-workflow 3.1
     - git clone https://github.com/neurospin/soma-workflow.git /tmp/soma-workflow
     - pushd /tmp/soma-workflow
@@ -53,7 +51,7 @@ install:
     - if [[ $TRAVIS_OS_NAME == linux ]]; then pip install pre-commit; fi
     - if [[ $TRAVIS_OS_NAME == linux ]]; then pre-commit run --all-files; fi
     # to test notebooks
-    - if [ ${TRAVIS_PYTHON_VERSION} != "2.6" ]; then pip install jupyter nbconvert; fi
+    - pip install jupyter nbconvert
     - if [[ "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then sudo apt-get install -y pandoc graphviz; pip install sphinx sphinx-gallery pandoc nbsphinx "PyQt5<5.13"; fi
     - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || echo "testing without nipype."
     #- pip install soma-workflow
