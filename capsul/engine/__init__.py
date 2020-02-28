@@ -370,10 +370,10 @@ class CapsulEngine(Controller):
         
     
     def set_path_metadata(self, path, metadata, named_directory=None):
-        return self.database.set_path_metadata(name, path, metadata, named_directory)
+        return self.database.set_path_metadata(path, metadata, named_directory)
     
     def path_metadata(self, path, named_directory=None):
-        return self.database.set_path_metadata(name, path, named_directory)
+        return self.database.set_path_metadata(path, named_directory)
 
 
     #
