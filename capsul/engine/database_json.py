@@ -67,12 +67,9 @@ class JSONDBEngine(DatabaseEngine):
     
     
     def set_path_metadata(self, path, metadata, named_directory=None):
-        metadata = self.check_metadata(path, metadata, named_directory)
+        metadata = self.check_path_metadata(path, metadata, named_directory)
         path = metadata['path']
         named_directory = metadata['named_directory']
-        
-        # ylep 2020-02-27: fixed the next line to assign metadata (previously a
-        # nonexistent 'doc' variable was assigned). I hope this is correct.
         self.json_dict.setdefault('path_metadata', {})[
             (named_directory, path)] = metadata
         self.modified = True
