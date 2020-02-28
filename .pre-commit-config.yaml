@@ -16,14 +16,14 @@ repos:
     -   id: fix-encoding-pragma
     # -   id: trailing-whitespace
 
-# -   repo: https://gitlab.com/pycqa/flake8
-#     rev: 3.7.9
-#     hooks:
-#     -   id: flake8
-#         name: flake8 under python2
-#         language_version: python2
-#         exclude: ^doc/source/sphinxext/
-#     -   id: flake8
-#         name: flake8 under python3
-#         language_version: python3
-#         exclude: ^doc/source/sphinxext/
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.7.9
+    hooks:
+    -   id: flake8
+        name: flake8 under python2
+        language_version: python2
+        exclude: ^doc/source/sphinxext/
+    -   id: flake8
+        name: flake8 under python3
+        language_version: python3
+        exclude: ^doc/source/sphinxext/

@@ -16,11 +16,12 @@ Classes
 ---------------------
 '''
 
+from __future__ import absolute_import
+
 import glob
 import os
 
 # TRAITS import
-from __future__ import absolute_import
 from traits.api import Bool, Undefined, List, Directory
 
 # NIPYPE import
