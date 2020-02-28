@@ -320,11 +320,12 @@ def save_py_pipeline(pipeline, py_file):
             for step_name, step \
                     in six.iteritems(pipeline.pipeline_steps.user_traits()):
                 enabled = getattr(pipeline.pipeline_steps, step_name)
+                enabled_str = ''
                 if not enabled:
-                    step_node.set('enabled', 'false')
+                    enabled_str = ', enabled=false'
                 nodes = step.nodes
-                print('        self.add_pipeline_step("%s", %s)'
-                      % (step_name, repr(nodes)), file=pyf)
+                print('        self.add_pipeline_step("%s", %s%s)'
+                      % (step_name, repr(nodes), enabled_str), file=pyf)
 
     def _write_nodes_positions(pipeline, pyf):
         node_position = getattr(pipeline, "node_position", None)

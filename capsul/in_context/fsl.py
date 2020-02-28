@@ -68,8 +68,8 @@ class FslPopen(soma.subprocess.Popen):
     '''
     def __init__(self, command, **kwargs):
         cmd = fsl_command_with_environment(command)
-        super(Popen, self).__init__(cmd, **kwargs)
-        
+        super(FslPopen, self).__init__(cmd, **kwargs)
+
 def fsl_call(command, **kwargs):
     '''
     Equivalent to Python subprocess.call for FSL commands
