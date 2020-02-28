@@ -7,6 +7,7 @@ import collections
 from .docscrape import NumpyDocString, FunctionDoc, ClassDoc
 
 import six
+sixu = six.u
 
 
 class SphinxDocString(NumpyDocString):
