@@ -91,7 +91,7 @@ REQUIRES = [
     # activate the following line after soma-base > 4.6.1 is released
     #"soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
-    "six",
+    "six>=1.12",
     "PyYAML"
 ]
 EXTRA_REQUIRES = {

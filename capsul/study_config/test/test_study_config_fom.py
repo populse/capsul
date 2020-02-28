@@ -13,14 +13,14 @@ class TestStudyConfigFOM(unittest.TestCase):
 
     def test_study_config_fom(self):
         initial_config = {
-          "input_directory" : "/blop/basetests",
-          "output_directory" : "/blop/basetests",
-          "input_fom" : "",
-          "output_fom" : "",
-          "shared_fom" : "",
-          "spm_directory" : "/i2bm/local/spm8-standalone",
-          "use_soma_workflow" : False,
-          "use_fom" : True,
+          "input_directory": "/blop/basetests",
+          "output_directory": "/blop/basetests",
+          "input_fom": "",
+          "output_fom": "",
+          "shared_fom": "",
+          "spm_directory": "/i2bm/local/spm8-standalone",
+          "use_soma_workflow": False,
+          "use_fom": True,
         }
 
         #soma_app = Application('soma.fom', '1.0')

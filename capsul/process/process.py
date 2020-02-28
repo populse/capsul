@@ -1179,7 +1179,7 @@ class FileCopyProcess(Process):
         if self.destination is None:
             output_directory = getattr(self, 'output_directory', None)
             if output_directory in (None, Undefined, ''):
-                output_directory = srcdir
+                output_directory = None
             if self.use_temp_output_dir:
                 workspace = tempfile.mkdtemp(dir=output_directory,
                                              prefix=self.name)
@@ -1188,6 +1188,9 @@ class FileCopyProcess(Process):
                 destdir = output_directory
         else:
             destdir = self.destination
+        if not destdir:
+            raise ValueError('FileCopyProcess cannot be used without a '
+                             'destination directory')
         self._destination = destdir
         output_directory = self.destination
         if output_directory is None:

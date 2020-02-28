@@ -619,7 +619,7 @@ class PipelineNode(ProcessNode):
                 if not more_links:
                     # going outside the pipeline which seems to be top-level:
                     # keep it
-                    deet_plugs.append((link[2], link[1], link[3]))
+                    dest_plugs.append((link[2], link[1], link[3]))
                     if single:
                         done = True
                 for other_link in more_links:

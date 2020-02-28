@@ -7,12 +7,6 @@ matrix:
       name: python 2.7
     - os: linux
       language: python
-      name: python 2.6
-      dist: trusty
-      python:
-        - 2.6
-    - os: linux
-      language: python
       name: python 2.7
       python:
         - 2.7
@@ -33,7 +27,7 @@ before_install:
 
 install:
     - python --version
-    - pip install numpy six
+    - pip install numpy "six>=1.12"
     - echo "TRAVIS_OS_NAME:" "$TRAVIS_OS_NAME"
     # - pip install nose
     - if [ ${TRAVIS_PYTHON_VERSION} == "2.6" ]; then pip install "traits==4.6.0"; else pip install traits ;fi

@@ -54,7 +54,7 @@ class SPMPopen(soma.subprocess.Popen):
     '''
     def __init__(self, spm_batch_filename, **kwargs):
         cmd = spm_command(spm_batch_filename)
-        super(Popen, self).__init__(cmd, **kwargs)
+        super(SPMPopen, self).__init__(cmd, **kwargs)
         
 def spm_call(spm_batch_filename, **kwargs):
     '''
