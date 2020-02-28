@@ -41,7 +41,7 @@ class DummyListProcess(Process):
 
     def _run_process(self):
         open(self.result, 'w').write(
-            '{\n    truc=%s,\n    bidule=%s\n}' % 'truc', 'bidule')
+            '{\n    truc=%s,\n    bidule=%s\n}' % (self.truc, self.bidule))
 
 
 class CustomAttributesSchema(AttributesSchema):
@@ -375,5 +375,4 @@ if __name__ == '__main__':
         pc.show()
         if qapp:
             qapp.exec_()
-
 
