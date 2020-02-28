@@ -380,7 +380,7 @@ def main():
     study_config.somaworkflow_keep_failed_workflows \
         = not options.delete_failed_workflow
 
-    kwre = re.compile('([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
+    kwre = re.compile(r'([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
 
     attributes = {}
     for att in options.attributes:

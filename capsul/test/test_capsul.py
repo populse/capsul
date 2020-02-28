@@ -14,7 +14,7 @@ from .load_pilots import load_pilots
 import capsul
 import sys
 
-error_message = """
+error_message = r"""
 
 ##################################
 #           GAME OVER            #
@@ -29,7 +29,7 @@ error_message = """
             =========
 """
 
-valid_message = """
+valid_message = r"""
 
 ##################################
 #         ALL TESTS PASSED       #
@@ -40,7 +40,7 @@ valid_message = """
                   |
                   | \O/
                   |  |
-                  | / \\
+                  | / \
            ==============
 """
 
