@@ -2358,7 +2358,6 @@ class PipelineDevelopperView(QGraphicsView):
 
         @staticmethod
         def _execfile(filename):
-            # This chunk of code cannot be put inline in python 2.6
             glob_dict = {}
             exec(compile(open(filename, "rb").read(), filename, 'exec'),
                  glob_dict, glob_dict)
@@ -2367,9 +2366,7 @@ class PipelineDevelopperView(QGraphicsView):
         def load_py(self, filename):
             if filename not in self.py_cache:
                 try:
-                    self.py_cache[filename] \
-                        = PipelineDevelopperView.ProcessNameEdit._execfile(
-                        filename)
+                    self.py_cache[filename] = self._execfile(filename)
                 except Exception as e:
                     print('exception while executing file %s:' % filename, e)
                     return {}

@@ -8,7 +8,6 @@ import weakref
 #import subprocess # Only in case of matlab call (auto_configuration func)
 
 from soma.controller import Controller
-from soma.functiontools import SomaPartial
 from traits.api import Directory, Undefined, Instance, String, Bool
 
 from . import matlab
