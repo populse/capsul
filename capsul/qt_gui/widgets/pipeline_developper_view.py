@@ -113,7 +113,7 @@ LIGHT_ANTHRACITE_1 = QtGui.QColor.fromRgbF(0.25, 0.25, 0.25)
 # Classes and functions
 # -----------------------------------------------------------------------------
 
-class ColorType:
+class ColorType(object):
 
     def __init__(self):
         pass
