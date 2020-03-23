@@ -33,9 +33,6 @@ import sys
 import copy
 from six.moves import range
 
-if sys.version_info[0] >= 3:
-    six.text_type = str
-
 # DEBUG
 #ce_calls = 0
 
