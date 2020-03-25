@@ -4,7 +4,6 @@ import os
 import weakref
 
 from soma.controller import Controller
-from soma.functiontools import SomaPartial
 from traits.api import File, Undefined, Instance
 
 class MatlabConfig(Controller):

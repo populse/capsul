@@ -34,7 +34,7 @@ Main features
 Technical features
 ------------------
 
-* Capsul is compatible with Python 2 (>= 2.6) and Python 3 (>= 3.4).
+* Capsul is compatible with Python 2 (>= 2.7) and Python 3 (>= 3.4).
 
 * The Gui is based on `Qt <https://www.qt.io/developers/>`_ and can use `PyQt4 <https://riverbankcomputing.com>`_, `PyQt5 <https://riverbankcomputing.com>`_, or `PySide <https://wiki.qt.io/PySide>`_.
 
