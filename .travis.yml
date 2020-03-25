@@ -27,7 +27,7 @@ before_install:
 
 install:
     - python --version
-    - pip install numpy "six>=1.12"
+    - pip install numpy "six>=1.13"
     - echo "TRAVIS_OS_NAME:" "$TRAVIS_OS_NAME"
     # - pip install nose
     - git clone https://github.com/populse/soma-base.git /tmp/soma-base
