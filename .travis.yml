@@ -14,22 +14,22 @@ matrix:
       language: python
       name: python 3.7
       python:
-        - 3.5
-    - os: linux
-      language: python
-      name: python 3.8
-      python:
-        - 3.8
+        - 3.7
 
 before_install:
     # osx deps
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew uninstall --ignore-dependencies python; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+    #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python3; fi
+    #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install freetype; fi
+    #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link --overwrite freetype; fi
+    #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libpng; fi
 
 install:
     - python --version
-    - pip install numpy six
+    - pip install numpy "six>=1.13"
     - echo "TRAVIS_OS_NAME:" "$TRAVIS_OS_NAME"
+    # - pip install nose
     - git clone https://github.com/populse/soma-base.git /tmp/soma-base
     - python /tmp/soma-base/setup.py install
     #- pip install -U setuptools pip
@@ -37,18 +37,22 @@ install:
     - pushd /tmp/populse_db
     - PYTHONPATH="/tmp/populse_db/lib/python${TRAVIS_PYTHON_VERSION}/site-packages:$PYTHONPATH" python /tmp/populse_db/setup.py install
     - popd
-    # until we release soma-workflow 2.9
-    #- git clone https://github.com/neurospin/soma-workflow.git /tmp/soma-workflow
-    #- pushd /tmp/soma-workflow
-    #- python /tmp/soma-workflow/setup.py install
-    #- popd
+    # until we release soma-workflow 3.1
+    - git clone https://github.com/neurospin/soma-workflow.git /tmp/soma-workflow
+    - pushd /tmp/soma-workflow
+    - python /tmp/soma-workflow/setup.py install
+    - popd
     - pip install argparse
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install importlib; fi
     #- pip install nose-cov
     - pip install codecov;
+    # run code quality checks (skip them on Mac OS because Python 3 is not
+    # available there)
+    - if [[ $TRAVIS_OS_NAME == linux ]]; then pip install pre-commit; fi
+    - if [[ $TRAVIS_OS_NAME == linux ]]; then pre-commit run --all-files; fi
     # to test notebooks
     - pip install jupyter nbconvert
-    - if [[ "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then sudo apt-get install -y pandoc graphviz; pip install sphinx sphinx-gallery pandoc nbsphinx PyQt5; fi
+    - if [[ "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then sudo apt-get install -y pandoc graphviz; pip install sphinx sphinx-gallery pandoc nbsphinx "PyQt5<5.13"; fi
     - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || echo "testing without nipype."
     #- pip install soma-workflow
     - python setup.py install
@@ -65,7 +69,7 @@ install:
 
 
 script:
-    - coverage run -m capsul.test
+    - coverage run -m capsul.test.test_capsul
 
 after_success:
     - codecov
