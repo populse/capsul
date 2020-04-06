@@ -1,42 +1,42 @@
 <pipeline capsul_xml="2.0">
     <process name="threshold_gt_1" 
-     module="capsul.process.test.test_load_from_description.threshold">
+     module="capsul.process.test.fix_test_load_from_description.threshold">
         <set name="threshold" value="1"/>
         <set name="method" value="'gt'"/>
     </process>
     <process name="threshold_gt_10" 
-     module="capsul.process.test.test_load_from_description.threshold">
+     module="capsul.process.test.fix_test_load_from_description.threshold">
         <set name="threshold" value="10"/>
         <set name="method" value="'gt'"/>
     </process>
     <process name="threshold_gt_100" 
-     module="capsul.process.test.test_load_from_description.threshold">
+     module="capsul.process.test.fix_test_load_from_description.threshold">
         <set name="threshold" value="100"/>
         <set name="method" value="'gt'"/>
     </process>
     <process name="threshold_lt_1" 
-     module="capsul.process.test.test_load_from_description.threshold">
+     module="capsul.process.test.fix_test_load_from_description.threshold">
         <set name="threshold" value="1"/>
         <set name="method" value="'lt'"/>
     </process>
     <process name="threshold_lt_10" 
-     module="capsul.process.test.test_load_from_description.threshold">
+     module="capsul.process.test.fix_test_load_from_description.threshold">
         <set name="threshold" value="10"/>
         <set name="method" value="'lt'"/>
     </process>
     <process name="threshold_lt_100" 
-     module="capsul.process.test.test_load_from_description.threshold">
+     module="capsul.process.test.fix_test_load_from_description.threshold">
         <set name="threshold" value="100"/>
         <set name="method" value="'lt'"/>
     </process>
     <process name="mask_1" 
-     module="capsul.process.test.test_load_from_description.mask">
+     module="capsul.process.test.fix_test_load_from_description.mask">
     </process>
     <process name="mask_10" 
-     module="capsul.process.test.test_load_from_description.mask">
+     module="capsul.process.test.fix_test_load_from_description.mask">
     </process>
     <process name="mask_100" 
-     module="capsul.process.test.test_load_from_description.mask">
+     module="capsul.process.test.fix_test_load_from_description.mask">
     </process>
 
     <link source="input_image" dest="threshold_gt_1.input_image"/>

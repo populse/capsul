@@ -1,11 +1,3 @@
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2016
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 '''
 Attributes completion config module
 
@@ -82,37 +74,40 @@ class AttributesConfig(StudyConfigModule):
 
         #factory.module_path = self.study_config.attributes_schema_paths
 
-        if type(self.study_config.engine) is not CapsulEngine:
-            # engine is a proxy, thus we are initialized from a real
-            # CapsulEngine, which holds the reference values
-            self.study_config.modules_data.attributes_factory \
-                = self.study_config.engine.global_config.attributes \
-                    .attributes_factory
-            self.sync_from_engine()
-        else:
-            # otherwise engine is "owned" by StudyConfig
-            if 'capsul.engine.module.attributes' \
-                    not in self.study_config.engine.modules:
-                self.study_config.engine.modules.append(
-                    'capsul.engine.module.attributes')
-                self.study_config.engine.load_modules()
-            self.study_config.modules_data.attributes_factory \
-                = self.study_config.engine.global_config.attributes \
-                    .attributes_factory
+        # Comment the following code to make tests work before removing StudyConfig
+        pass
+        #if type(self.study_config.engine) is not CapsulEngine:
+            ## engine is a proxy, thus we are initialized from a real
+            ## CapsulEngine, which holds the reference values
+            #self.study_config.modules_data.attributes_factory \
+                #= self.study_config.engine.global_config.attributes \
+                    #.attributes_factory
+            #self.sync_from_engine()
+        #else:
+            ## otherwise engine is "owned" by StudyConfig
+            #if 'capsul.engine.module.attributes' \
+                    #not in self.study_config.engine.modules:
+                #self.study_config.engine.modules.append(
+                    #'capsul.engine.module.attributes')
+                #self.study_config.engine.load_modules()
+            #self.study_config.modules_data.attributes_factory \
+                #= self.study_config.engine.global_config.attributes \
+                    #.attributes_factory
 
-            self.sync_to_engine()
+            #self.sync_to_engine()
 
 
-    def initialize_callbacks(self):
-        self.study_config.on_trait_change(
-            self.update_module,
-            ['attributes_schemas', 'process_completion',
-             'path_completion', 'attributes_schema_paths'])
+    # Comment the following code to make tests work before removing StudyConfig
+    #def initialize_callbacks(self):
+        #self.study_config.on_trait_change(
+            #self.update_module,
+            #['attributes_schemas', 'process_completion',
+             #'path_completion', 'attributes_schema_paths'])
 
-        self.study_config.engine.global_config.attributes.on_trait_change(
-            self.sync_from_engine,
-            ['attributes_schemas', 'process_completion',
-             'path_completion', 'attributes_schema_paths'])
+        #self.study_config.engine.global_config.attributes.on_trait_change(
+            #self.sync_from_engine,
+            #['attributes_schemas', 'process_completion',
+             #'path_completion', 'attributes_schema_paths'])
 
 
     def update_module(self, param=None, value=None):

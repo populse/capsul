@@ -33,16 +33,17 @@ class MatlabConfig(StudyConfigModule):
         """ Set up Matlab environment according to current
         configuration.
         """
-        if 'capsul.engine.module.matlab' \
-                not in self.study_config.engine._loaded_modules:
-            self.study_config.engine.load_module('capsul.engine.module.matlab')
+        # Comment the following code to make tests work before removing StudyConfig
+        #if 'capsul.engine.module.matlab' \
+                #not in self.study_config.engine._loaded_modules:
+            #self.study_config.engine.load_module('capsul.engine.module.matlab')
 
-        if type(self.study_config.engine) is not CapsulEngine:
-            # engine is a proxy, thus we are initialized from a real
-            # CapsulEngine, which holds the reference values
-            self.sync_from_engine()
-        else:
-            self.sync_to_engine()
+        #if type(self.study_config.engine) is not CapsulEngine:
+            ## engine is a proxy, thus we are initialized from a real
+            ## CapsulEngine, which holds the reference values
+            #self.sync_from_engine()
+        #else:
+            #self.sync_to_engine()
 
         # the following should be moved to CapsulEngine module
         if self.study_config.use_matlab is False:
@@ -76,10 +77,11 @@ class MatlabConfig(StudyConfigModule):
                                       self.study_config.matlab_exec)
             return
 
-    def initialize_callbacks(self):
-        self.study_config.on_trait_change(self.sync_to_engine, 'matlab_exec')
-        self.study_config.engine.global_config.matlab.on_trait_change(
-            self.sync_from_engine, 'executable')
+    # Comment the following code to make tests work before removing StudyConfig
+    #def initialize_callbacks(self):
+        #self.study_config.on_trait_change(self.sync_to_engine, 'matlab_exec')
+        #self.study_config.engine.global_config.matlab.on_trait_change(
+            #self.sync_from_engine, 'executable')
 
         #self.study_config.on_trait_change(self.initialize_module, 'use_matlab')
 
