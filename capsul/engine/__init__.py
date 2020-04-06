@@ -52,7 +52,7 @@ class CapsulEngine(Controller):
         from capsul.api import capsul_engine
         ce = capsul_engine()
 
-    By default, CapsulEngine only store necessary configuration. But it may be necessary to modify Python environment globally to apply this configuration. For instance, Nipype must be configured globally. If SPM is configured in CapsulEngine, it is necessary to explicitely activate the configuration in order to modify the global configuration of Nipype for SPM. This activation is done by explicitely activating the execution context of the capsul engine with the following code::
+    By default, CapsulEngine only stores necessary configuration. But it may be necessary to modify the Python environment globally to apply this configuration. For instance, Nipype must be configured globally. If SPM is configured in CapsulEngine, it is necessary to explicitely activate the configuration in order to modify the global configuration of Nipype for SPM. This activation is done by explicitely activating the execution context of the capsul engine with the following code::
     
         from capsul.engine import capsul_engine
         ce = capsul_engine()
@@ -63,7 +63,7 @@ class CapsulEngine(Controller):
 
     .. note::
 
-        CapsulEngine is the replacement of the older :class:`~capsul.study_config.study_config.StudyConfig`, which is still present in Capsul 2.2 for backward compatibility, but will disapear in later versions. In Capsul 2.2 both objects exist, and are syn chronized internally, which means that a StudyConfig object wille also ceate a CapsulEngine, and the other way, and modifications in the StudyConfig object will change the corresponding item in CapsulEngine and vice versa. Functionalities of StudyConfig are moving internally to CapsulEngine, StudyConfig being merely a wrapper.
+        CapsulEngine is the replacement of the older :class:`~capsul.study_config.study_config.StudyConfig`, which is still present in Capsul 2.2 for backward compatibility, but will disapear in later versions. In Capsul 2.2 both objects exist, and are synchronized internally, which means that a StudyConfig object will also ceate a CapsulEngine, and the other way, and modifications in the StudyConfig object will change the corresponding item in CapsulEngine and vice versa. Functionalities of StudyConfig are moving internally to CapsulEngine, StudyConfig being merely a wrapper.
 
     **Using CapsulEngine**
 
@@ -73,7 +73,7 @@ class CapsulEngine(Controller):
 
     Capsul is using :somaworkflow:`Soma-Workflow <index.html>` to run processes, and is thus able to connect and execute on a remote computing server. The remote computing resource may have a different configuration from the client one (paths for software or data, available external software etc). So configurations specific to different computing resources should be handled in CapsulEngine. For this, the configuration section is split into several configuration instances, one for each computing resource.
 
-    As this is a little bit complex to handle at first, a "global" configuraiton is used to maintain all common configuration options. It is typically used to work on the local machine, especially for users who only work locally. This configuration object is found under the ``global_config`` object in a CapsulEngine instance. It is a :class:`~soma.controller.controller.Controller` object::
+    As this is a little bit complex to handle at first, a "global" configuration is used to maintain all common configuration options. It is typically used to work on the local machine, especially for users who only work locally. This configuration object is found under the ``global_config`` object in a CapsulEngine instance. It is a :class:`~soma.controller.controller.Controller` object::
 
         >>> from capsul.api import capsul_engine
         >>> ce = capsul_engine()
@@ -95,7 +95,7 @@ class CapsulEngine(Controller):
 
     *configuration modules*
 
-    The configuration is handled through a set of configuration modules. Each is dedicated for a topic (for instance handling a specific external software paths, or managing process parameters completion,; etc). A module adds a configuration Controller, with its own variables, and is able to manage runtime configuration of programs, if needed, through environment variables. Capsul comes with a set of prefedined modules:
+    The configuration is handled through a set of configuration modules. Each is dedicated for a topic (for instance handling a specific external software paths, or managing process parameters completion,; etc). A module adds a configuration Controller, with its own variables, and is able to manage runtime configuration of programs, if needed, through environment variables. Capsul comes with a set of predefined modules:
     :class:`~capsul.engine.module.attributes.AttributesConfig`,
     :class:`~capsul.engine.module.axon.AxonConfig`,
     :class:`~capsul.engine.module.fom.FomConfig`,
@@ -630,4 +630,4 @@ def capsul_engine(database_location=None, config=None):
     database = database_factory(database_location)
     capsul_engine = CapsulEngine(database_location, database, config=config)
     return capsul_engine
-    
+
