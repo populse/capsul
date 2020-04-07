@@ -4147,6 +4147,7 @@ class PipelineDevelopperView(QGraphicsView):
         if doc_path and os.path.isabs(doc_path):
             return doc_path
         modname = node.__module__
+        init_modname = modname
         while True:
             mod = sys.modules[modname]
             mod_doc_path = getattr(mod, '_doc_path', None)
@@ -4163,6 +4164,16 @@ class PipelineDevelopperView(QGraphicsView):
                 if os.path.exists(path) or path.startswith('http://') \
                         or path.startswith('https://'):
                     return path
+                # try using the 1st sub-module
+                modsplit = init_modname.split('.')
+                if len(modsplit) >= 3:
+                    path = os.path.join(
+                        mod_doc_path, modsplit[1], node_type,
+                        '%s.html' % '.'.join((node.__module__,
+                                              node.__class__.__name__)))
+                    if os.path.exists(path) or path.startswith('http://') \
+                            or path.startswith('https://'):
+                        return path
                 return None
             s = modname.rsplit('.', 1)
             if len(s) == 1:
