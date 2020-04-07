@@ -4135,20 +4135,7 @@ class PipelineDevelopperView(QGraphicsView):
         return self.doc_browser
 
     def _node_clicked(self, name, node):
-        doc_browser = self.get_doc_browser()
-        if doc_browser:
-            doc_path = self.get_node_html_doc(node)
-            if doc_path:
-                if not doc_path.startswith('http://') \
-                        and not doc_path.startswith('https://') \
-                        and not doc_path.startswith('file://'):
-                    doc_path = 'file://%s' % os.path.abspath(doc_path)
-                doc_browser.setUrl(Qt.QUrl(doc_path))
-            else:
-                msg = getattr(node, '__doc__', None)
-                if msg:
-                    doc_browser.setContent(Qt.QByteArray(msg.encode('utf-8')),
-                                           'text/plain')
+        self.show_node_doc(node)
         if isinstance(node, Process):
             self.process_clicked.emit(name, node)
         else:
@@ -4186,10 +4173,17 @@ class PipelineDevelopperView(QGraphicsView):
         pipeline = self.scene.pipeline
         if not node_name:
             node_name = self.current_node_name
-        node = pipeline.nodes[node_name]
+        if node_name in ('inputs', 'outputs'):
+            node = pipeline.pipeline_node
+        else:
+            node = pipeline.nodes[node_name]
         if isinstance(node, ProcessNode):
             node = node.process
         doc_browser = self.get_doc_browser(create=True)
+        self.show_node_doc(node)
+
+    def show_node_doc(self, node):
+        doc_browser = self.get_doc_browser()
         if doc_browser:
             doc_path = self.get_node_html_doc(node)
             if doc_path:
@@ -4199,7 +4193,12 @@ class PipelineDevelopperView(QGraphicsView):
                     doc_path = 'file://%s' % os.path.abspath(doc_path)
                 doc_browser.setUrl(Qt.QUrl(doc_path))
             else:
-                msg = getattr(node, '__doc__', None)
+                gethelp = getattr(node, 'get_help')
+                msg = None
+                if gethelp:
+                    msg = node.get_help(returnhelp=True)
+                if not msg:
+                    msg = node.getattr(node, '__doc__', None)
                 if msg:
                     doc_browser.setContent(Qt.QByteArray(msg.encode('utf-8')),
                                            'text/plain')
