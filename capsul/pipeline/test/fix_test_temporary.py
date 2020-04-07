@@ -217,7 +217,7 @@ if __name__ == "__main__":
     if verbose:
         import sys
         from soma.qt_gui import qt_backend
-        qt_backend.set_qt_backend('PyQt4')
+        qt_backend.set_qt_backend(compatible_qt5=True)
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 

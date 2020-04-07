@@ -54,6 +54,9 @@ def load_pilots(root, path, root_module_name):
     for fname in items:
         # Check if the file is a python file
         if fname.endswith(".py"):
+            if fname == '__main__.py':
+                # skip main
+                continue
             # Construct the module name
             module_name = (
                 [root_module_name] +

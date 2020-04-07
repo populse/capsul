@@ -1,6 +1,6 @@
 '''
-:class:`CatNode`
-----------------
+:class:`StrCatNode`
+-------------------
 '''
 
 from capsul.pipeline.pipeline_nodes import Node
@@ -13,14 +13,14 @@ if sys.version_info[0] >= 3:
     unicode = str
 
 
-class CatNode(Node):
+class StrCatNode(Node):
     '''
     This "inert" node concatenates its inputs (as strings) and generates the
     concatenation on one of its plugs. All plugs may be inputs or outputs.
     '''
 
     def __init__(self, pipeline, name, params, concat_plug, outputs,
-                 separator=None, make_optional=(), param_types={}):
+                 make_optional=(), param_types={}):
         '''
         Parameters
         ----------
@@ -35,10 +35,6 @@ class CatNode(Node):
         outputs: list
             list of parameters names which are outputs. May include elements
             from params, and/or concat_plug
-        separator: str or None
-            if not specified (None), then the node will have no separator
-            parameter (meaning that it will not possible to set a different
-            separator afterwards)
         make_optional: list
             list of plug names which should be optional.
         param_types: dict
@@ -55,13 +51,7 @@ class CatNode(Node):
         else:
             node_inputs.append({'name': concat_plug,
                                 'optional': concat_plug in make_optional})
-        self._has_separator = False
-        if separator is not None:
-            self._has_separator = True
-            node_inputs.insert(-1, {'name': 'separator', 'optional': True})
-            param_types = dict(param_types)
-            param_types['separator'] = traits.Str(separator)
-        super(CatNode, self).__init__(pipeline, name, node_inputs,
+        super(StrCatNode, self).__init__(pipeline, name, node_inputs,
                                       node_outputs)
         self._concat_sequence = params
         self._concat_plug = concat_plug
@@ -70,8 +60,6 @@ class CatNode(Node):
 
     def add_parameters(self, param_types={}):
         added_traits = [self._concat_plug]
-        if self._has_separator:
-            added_traits.insert(0, 'separator')
         for name in self._concat_sequence + added_traits:
             plug = self.plugs[name]
             ptype = param_types.get(name)
@@ -82,24 +70,13 @@ class CatNode(Node):
             self.trait(name).optional = plug.optional
 
     def set_callbacks(self, update_callback=None):
-        if self._has_separator:
-            added_traits = ['separator']
-        else:
-            added_traits = []
         if update_callback is None:
             update_callback = self.cat_callback
-        for name in self._concat_sequence + added_traits:
-            self.on_trait_change(update_callback, name)
+        self.on_trait_change(update_callback, self._concat_sequence)
 
     def cat_callback(self):
-        if self._has_separator:
-            sep = getattr(self, 'separator', '')
-            if sep in (None, traits.Undefined):
-                sep = ''
-        else:
-            sep = ''
-        result = sep.join([unicode(getattr(self, name))
-                           for name in self._concat_sequence])
+        result = ''.join([unicode(getattr(self, name))
+                          for name in self._concat_sequence])
         setattr(self, self._concat_plug, result)
 
     def configured_controller(self):
@@ -110,10 +87,6 @@ class CatNode(Node):
                        for x in c.parameters + [c.concat_plug]]
         c.outputs = [x for x in c.parameters + [c.concat_plug]
                      if self.trait(x).output]
-        if self._has_separator:
-            param_types.append(
-                self.trait('separator').trait_type.__class__.__name__)
-            c.separator = self.separator
         c.param_types = param_types
         return c
 
@@ -121,7 +94,6 @@ class CatNode(Node):
     def configure_controller(cls):
         c = Controller()
         c.add_trait('parameters', traits.List(traits.Str()))
-        c.add_trait('separator', traits.Str(None))
         c.add_trait('concat_plug', traits.Str())
         c.add_trait('outputs', traits.List(traits.Str()))
         c.add_trait('param_types', traits.List(traits.Str('Str')))
@@ -132,13 +104,27 @@ class CatNode(Node):
         params = [(x, x in conf_controller.outputs) for x in conf_controller.parameters]
         t = {}
         if conf_controller.param_types:
-            for name, ptype in zip(conf_controller.parameters
-                                   + [conf_controller.concat_plug],
-                                   conf_controller.param_types):
-                t[name] = getattr(traits, ptype)()
-        node = CatNode(pipeline, name, conf_controller.parameters,
-                       conf_controller.concat_plug,
-                       conf_controller.outputs,
-                       separator=conf_controller.separator, param_types=t)
+            for pname, ptype in zip(conf_controller.parameters
+                                    + [conf_controller.concat_plug],
+                                    conf_controller.param_types):
+                t[pname] = getattr(traits, ptype)()
+        node = StrCatNode(pipeline, name, conf_controller.parameters,
+                          conf_controller.concat_plug,
+                          conf_controller.outputs,
+                          param_types=t)
         return node
+
+    def params_to_command(self):
+        return ['custom_job']
+
+    def build_job(self, name=None, referenced_input_files=[],
+                  referenced_output_files=[], param_dict=None):
+        from soma_workflow.custom_jobs import StrCatJob
+        param_dict['input_names'] = self._concat_sequence
+        param_dict['output_name'] = self._concat_plug
+        job = StrCatJob(name=name,
+                        referenced_input_files=referenced_input_files,
+                        referenced_output_files=referenced_output_files,
+                        param_dict=param_dict)
+        return job
 

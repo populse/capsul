@@ -75,7 +75,10 @@ class NipypeConfig(StudyConfigModule):
             # Standalone spm version
             if self.study_config.spm_standalone is True:
                 spm.SPMCommand.set_mlab_paths(
-                    matlab_cmd=self.study_config.spm_exec + " script",
+                    matlab_cmd=self.study_config.spm_exec + " " \
+                        + glob.glob(os.path.join(
+                            self.study_config.spm_directory, 'mcr', 'v*'))[0] \
+                        + " script",
                     use_mcr=True)
             # Matlab spm version
             else:

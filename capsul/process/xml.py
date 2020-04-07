@@ -136,6 +136,8 @@ def trait_from_xml(element, order=None):
         input_filename = element.get('input_filename')
         if input_filename is not None:
             trait_kwargs['input_filename'] = input_filename
+        else:
+            trait_kwargs['input_filename'] = False
     if order is not None:
         trait_kwargs['order'] = order
     return trait_class(*trait_args, **trait_kwargs)
@@ -194,7 +196,7 @@ def create_xml_process(module, name, function, xml):
             trait = trait_from_xml(child, trait_count)
             trait_count += 1
             class_kwargs[n] = trait
-            if trait.output and trait.input_filename is None:
+            if trait.output and trait.input_filename is False:
                 function_outputs.append(n)
             else:
                 function_inputs.append(n)

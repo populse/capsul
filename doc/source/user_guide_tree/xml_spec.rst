@@ -31,14 +31,14 @@ function and to associate it with an XML string that enables the
 creation of a ``Process`` instance. This XML string will define the type
 and behaviour of function parameters and return value(s).
 
-In order to create ``Process`` instance for a function it is necessary
+In order to create a ``Process`` instance for a function it is necessary
 to get some information about each parameter of the function and about
-the return value. This information about parameters is defined in XML
+the return value. This information about parameters is defined in an XML
 string with the exception of the **default values** of the parameters
 that are extracted from the function definition.
 
 The process XML string contains one single ``<process>`` element.
-This element that may contains some global properties for the process.
+This element that may contain some global properties for the process.
 ``<process>`` may contain the following attributes :
 
 -  *capsul\_xml* (optional): version of the Capsul XML specification
@@ -72,7 +72,7 @@ function returning a value:
     def add(a, b):
          return a + b
 
-If the process need to return several values, they must be declared with
+If the process needs to return several values, they must be declared with
 ``<output>`` elements located between ``<return>`` and
 ``</return>``. The function must return the output values either in a
 list or in a dictionary. If it is a list the order of the ``<output>``

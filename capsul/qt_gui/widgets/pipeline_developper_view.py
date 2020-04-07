@@ -126,12 +126,19 @@ class ColorType:
         pass
 
     def colorLink(self, x):
+        if not isinstance(x, str):
+            # x is a trait
+            trait_type_str = x.trait_type.__class__.__name__
+            if x.output and x.input_filename is False:
+                trait_type_str = 'File_out'
+            x = trait_type_str
         return {
             'Str': PURPLE_2,
             'Float': ORANGE_1,
             'Int': BLUE_2,
             'List': RED_2,
-            'File': ORANGE_2
+            'File': ORANGE_2,
+            'File_out': GREEN_2,
         }[x]
 
 
@@ -148,7 +155,8 @@ class Plug(QtGui.QGraphicsPolygonItem):
             brush.setColor(self.color)
             polygon = QtGui.QPolygonF([QtCore.QPointF(0, 0),
                                        QtCore.QPointF(width / 1.5, 0),
-                                       QtCore.QPointF(width / 1.5, (height - 5)),
+                                       QtCore.QPointF(width / 1.5,
+                                                      (height - 5)),
                                        QtCore.QPointF(0, (height - 5))
                                        ])
         #             self.setPen(QtGui.QPen(QtCore.Qt.NoPen))
@@ -308,8 +316,12 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self._build()
         if colored_parameters:
             process.on_trait_change(self._repaint_parameter, dispatch='ui')
+        process.on_trait_change(self.update_parameters, 'user_traits_changed',
+                                dispatch='ui')
 
     def __del__(self):
+        self.process.on_trait_change(self.update_parameters,
+                                     'user_traits_changed', remove=True)
         if self.colored_parameters:
             try:
                 self.process.on_trait_change(self._repaint_parameter, remove=True)
@@ -322,6 +334,16 @@ class NodeGWidget(QtGui.QGraphicsItem):
             return self.name
         else:
             return "[{0}]".format(self.name)
+
+    def update_parameters(self):
+        forbidden = ['nodes_activation', 'activated', 'enabled', 'name',
+                     'node_type']
+        self.parameters = SortedDictionary(
+            [(pname, param)
+             for pname, param in six.iteritems(self.process.user_traits())
+             if pname not in forbidden
+                and not getattr(param, 'hidden', False)])
+        self.update_node()
 
     def update_labels(self, labels):
         ''' Update colored labels
@@ -566,12 +588,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
             plug_name = '%s:%s' % (self.name, in_param)
 
-            trait_type_str = str(self.process.user_traits()[in_param].trait_type)
-            trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
-            trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
             try:
                 #                 color = self.colorLink(trait_type_str)
-                color = self.colType.colorLink(trait_type_str)
+                color = self.colType.colorLink(self.process.trait(in_param))
             except:
                 color = ORANGE_2
 
@@ -604,12 +623,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
             plug_name = '%s:%s' % (self.name, out_param)
 
-            trait_type_str = str(self.process.user_traits()[in_param].trait_type)
-            trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
-            trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
             try:
                 #                 color = self.colorLink(trait_type_str)
-                color = self.colType.colorLink(trait_type_str)
+                color = self.colType.colorLink(self.process.trait(out_param))
 
             except:
                 color = ORANGE_2
@@ -982,12 +998,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 #                 gplug.update_plug(pipeline_plug.activated,
                 #                                   pipeline_plug.optional)
 
-                trait_type_str = str(self.process.user_traits()[param].trait_type)
-                trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
-                trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
                 try:
                     #                     color = self.colorLink(trait_type_str)
-                    color = self.colType.colorLink(trait_type_str)
+                    color = self.colType.colorLink(self.process.trait(param))
 
                 except:
                     color = ORANGE_2
@@ -1435,6 +1448,16 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.colType = ColorType()
 
         self.changed.connect(self.update_paths)
+
+    def __del__(self):
+        del self.pos
+        del self.dim
+        del self.labels
+        del self.glinks
+        del self.gnodes
+        # force delete gnodes: needs to use gc.collect()
+        import gc
+        gc.collect()
 
     def _add_node(self, name, gnode):
         self.addItem(gnode)
@@ -2032,9 +2055,9 @@ class PipelineScene(QtGui.QGraphicsScene):
         value = getattr(proc, name)
         trait = proc.user_traits()[name]
         trait_type = trait.trait_type
-        trait_type_str = str(trait_type)
-        trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
-        trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
+        trait_type_str = trait_type.__class__.__name__
+        if trait.output and trait.input_filename is False:
+            trait_type_str += ', output filename'
         typestr = ('%s (%s)' % (str(type(value)), trait_type_str)).replace(
             '<', '').replace('>', '')
         msg = '''<h3>%s</h3>
@@ -2732,8 +2755,9 @@ class PipelineDevelopperView(QGraphicsView):
         Adds an embedded sub-pipeline inside its parent node.
         '''
         gnode = self.scene.gnodes.get(str(subpipeline_name))
-        sub_pipeline = self.scene.pipeline.nodes[str(subpipeline_name)].process
         if gnode is not None:
+            sub_pipeline \
+                = self.scene.pipeline.nodes[str(subpipeline_name)].process
             gnode.add_subpipeline_view(
                 sub_pipeline, self._allow_open_controller, scale=scale)
 

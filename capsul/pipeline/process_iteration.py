@@ -70,8 +70,11 @@ class ProcessIteration(Process):
         # and changing iterative parameters to list
         for name, trait in six.iteritems(user_traits):
             if name in iterative_parameters:
+                kw = {}
+                if trait.input_filename is False:
+                    kw['input_filename'] = False
                 self.add_trait(name, List(trait, output=trait.output,
-                                          optional=trait.optional))
+                                          optional=trait.optional, **kw))
                 if trait.groups:
                     self.trait(name).groups = trait.groups
             else:
