@@ -35,6 +35,9 @@ if sys.version_info[0] >= 3:
     xrange = range
 
 class ProcessIteration(Process):
+
+    _doc_path = 'api/pipeline.html#processiteration'
+
     def __init__(self, process, iterative_parameters, study_config=None,
                  context_name=None):
         super(ProcessIteration, self).__init__()

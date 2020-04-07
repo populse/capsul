@@ -19,6 +19,8 @@ class StrCatNode(Node):
     concatenation on one of its plugs. All plugs may be inputs or outputs.
     '''
 
+    _doc_path = 'api/pipeline.html#strcatnode'
+
     def __init__(self, pipeline, name, params, concat_plug, outputs,
                  make_optional=(), param_types={}):
         '''

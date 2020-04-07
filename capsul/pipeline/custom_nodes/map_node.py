@@ -38,6 +38,8 @@ class MapNode(Node):
       the same length.
     '''
 
+    _doc_path = 'api/pipeline.html#mapnode'
+
     def __init__(self, pipeline, name, input_names=['inputs'],
                  output_names=['output_%d'], input_types=None):
         in_traits = []

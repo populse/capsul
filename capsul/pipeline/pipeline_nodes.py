@@ -56,6 +56,8 @@ from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import weak_proxy, get_ref
 
+import os
+
 
 class Plug(Controller):
     """ Overload of the traits in oder to keep the pipeline memory.
@@ -706,6 +708,8 @@ class Switch(Node):
     capsul.pipeline.pipeline.Pipeline.pipeline_definition
     """
 
+    _doc_path = 'api/pipeline.html#capsul.pipeline.pipeline_nodes.Switch'
+
     def __init__(self, pipeline, name, inputs, outputs, make_optional=(),
                  output_types=None):
         """ Generate a Switch Node
@@ -971,6 +975,10 @@ class OptionalOutputSwitch(Switch):
     automatically according to the output value.
     The implementation details may change in future versions.
     '''
+
+    _doc_path = 'api/pipeline.html' \
+        '#capsul.pipeline.pipeline_nodes.OptionalOutputSwitch'
+
     def __init__(self, pipeline, name, input, output):
         """ Generate an OptionalOutputSwitch Node
 

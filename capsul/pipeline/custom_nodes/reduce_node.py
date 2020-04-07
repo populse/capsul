@@ -35,6 +35,8 @@ class ReduceNode(Node):
 
     '''
 
+    _doc_path = 'api/pipeline.html#reducenode'
+
     def __init__(self, pipeline, name, input_names=['input_%d'],
                  output_names=['outputs'], input_types=None):
         in_traits = [{'name': 'lengths', 'optional': True}]

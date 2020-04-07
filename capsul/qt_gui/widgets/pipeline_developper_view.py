@@ -1076,6 +1076,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
             if hasattr(self, name):
                 excluded.append(getattr(self, name))
         for child in self.childItems():
+            if not hasattr(child, 'isVisible'):
+                # we sometimes get some QObject here, I don't know who they are
+                continue
             if not child.isVisible() or child in excluded:
                 continue
             item_rect = self.mapRectFromItem(child, child.boundingRect())
@@ -2622,8 +2625,8 @@ class PipelineDevelopperView(QGraphicsView):
             self.scene.colored_parameters = self.colored_parameters
             self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
             self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
-            self.scene.process_clicked.connect(self.node_clicked)
-            self.scene.node_clicked.connect(self.node_clicked)
+            self.scene.process_clicked.connect(self._node_clicked)
+            self.scene.node_clicked.connect(self._node_clicked)
             self.scene.node_clicked_ctrl.connect(self._node_clicked_ctrl)
             self.scene.switch_clicked.connect(self.switch_clicked)
             self.scene.node_right_clicked.connect(self.node_right_clicked)
@@ -2806,6 +2809,8 @@ class PipelineDevelopperView(QGraphicsView):
             QtCore.QObject.setParent(sub_view, self.window())
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.setWindowTitle(node_name)
+            if hasattr(self, 'doc_browser'):
+                sub_view.doc_browser = self.doc_browser
             self.scene.update()
             sub_view.show()
 
@@ -2941,6 +2946,11 @@ class PipelineDevelopperView(QGraphicsView):
                     self.set_switch_value, node, item))
                 if item == value:
                     action.setChecked(True)
+
+        if not hasattr(self, 'doc_browser') or not self.doc_browser:
+            menu.addSeparator()
+            doc_action = menu.addAction('Show doc')
+            doc_action.triggered.connect(self.show_doc)
 
         if self.edition_enabled() \
                 and node is not self.scene.pipeline.pipeline_node:
@@ -4102,6 +4112,97 @@ class PipelineDevelopperView(QGraphicsView):
         menu.exec_(QtGui.QCursor.pos())
         del self._current_link
         del self._current_link_def
+
+    def get_doc_browser(self, create=False):
+        doc_browser = getattr(self, 'doc_browser', None)
+        if doc_browser or not create:
+            return doc_browser
+        try:
+            # use the newer Qt5 QtWebEngine
+            from soma.qt_gui.qt_backend import QtWebEngine
+            from soma.qt_gui.qt_backend.QtWebEngineWidgets \
+                import QWebEngineView, QWebEnginePage
+            use_webengine = True
+        except ImportError:
+            from soma.qt_gui.qt_backend import QtWebKit
+            QWebEngineView = QtWebKit.QWebView
+            QWebPage = QtWebKit.QWebPage
+            QWebEnginePage = QWebPage
+            use_webengine = False
+        self._use_webengine = use_webengine
+        self.doc_browser = QWebEngineView()
+        self.doc_browser.show()
+        return self.doc_browser
+
+    def _node_clicked(self, name, node):
+        doc_browser = self.get_doc_browser()
+        if doc_browser:
+            doc_path = self.get_node_html_doc(node)
+            if doc_path:
+                if not doc_path.startswith('http://') \
+                        and not doc_path.startswith('https://') \
+                        and not doc_path.startswith('file://'):
+                    doc_path = 'file://%s' % os.path.abspath(doc_path)
+                doc_browser.setUrl(Qt.QUrl(doc_path))
+            else:
+                msg = getattr(node, '__doc__', None)
+                if msg:
+                    doc_browser.setContent(Qt.QByteArray(msg.encode('utf-8')),
+                                           'text/plain')
+        if isinstance(node, Process):
+            self.process_clicked.emit(name, node)
+        else:
+            self.node_clicked.emit(name, node)
+
+    @staticmethod
+    def get_node_html_doc(node):
+        doc_path = getattr(node, '_doc_path', None)
+        if doc_path and os.path.isabs(doc_path):
+            return doc_path
+        modname = node.__module__
+        while True:
+            mod = sys.modules[modname]
+            mod_doc_path = getattr(mod, '_doc_path', None)
+            if mod_doc_path:
+                if doc_path:
+                    return os.path.join(mod_doc_path, doc_path)
+                node_type = 'process'
+                if isinstance(node, Pipeline):
+                    node_type = 'pipeline'
+                path = os.path.join(
+                    mod_doc_path, node_type,
+                    '%s.html' % '.'.join((node.__module__,
+                                          node.__class__.__name__)))
+                if os.path.exists(path) or path.startswith('http://') \
+                        or path.startswith('https://'):
+                    return path
+                return None
+            s = modname.rsplit('.', 1)
+            if len(s) == 1:
+                break
+            modname = s[0]
+
+    def show_doc(self, node_name=None):
+        pipeline = self.scene.pipeline
+        if not node_name:
+            node_name = self.current_node_name
+        node = pipeline.nodes[node_name]
+        if isinstance(node, ProcessNode):
+            node = node.process
+        doc_browser = self.get_doc_browser(create=True)
+        if doc_browser:
+            doc_path = self.get_node_html_doc(node)
+            if doc_path:
+                if not doc_path.startswith('http://') \
+                        and not doc_path.startswith('https://') \
+                        and not doc_path.startswith('file://'):
+                    doc_path = 'file://%s' % os.path.abspath(doc_path)
+                doc_browser.setUrl(Qt.QUrl(doc_path))
+            else:
+                msg = getattr(node, '__doc__', None)
+                if msg:
+                    doc_browser.setContent(Qt.QByteArray(msg.encode('utf-8')),
+                                           'text/plain')
 
     def _node_clicked_ctrl(self, name, process):
 
