@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-:class:`CrossValidationFoldNode`
+:class:`StrConvNode`
 --------------------------------
 '''
 
@@ -18,6 +18,8 @@ class StrConvNode(Node):
     This "inert" node converts the input into a string.
 
     '''
+
+    _doc_path = 'api/pipeline.html#strconvnode'
 
     def __init__(self, pipeline, name, input_type=None):
         in_traitsl = ['input']

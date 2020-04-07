@@ -78,6 +78,13 @@ capsul.pipeline.custom_nodes.strcat_node
     :members:
 
 
+capsul.pipeline.custom_nodes.strconv
+++++++++++++++++++++++++++++++++++++
+
+.. automodule:: capsul.pipeline.custom_nodes.strconv
+    :members:
+
+
 capsul.pipeline.custom_nodes.cv_node
 ++++++++++++++++++++++++++++++++++++
 

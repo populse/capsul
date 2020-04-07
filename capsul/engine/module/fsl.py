@@ -54,7 +54,7 @@ def set_environ(config, environ):
     
 def check_environ(environ):
     '''
-    Check if the configuration is valid to run FLS and returns an error
+    Checks if the configuration is valid to run FSL and returns an error
     message if there is an error or None if everything is good.
     '''
     fsl_prefix = environ.get('FSL_PREFIX', '')

@@ -19,6 +19,8 @@ class CrossValidationFoldNode(Node):
     The "outputs" are "train" and "test" output traits.
     '''
 
+    _doc_path = 'api/pipeline.html#crossvalidationfoldnode'
+
     def __init__(self, pipeline, name, input_type=None):
         in_traitsl = ['inputs', 'fold', 'nfolds']
         out_traitsl = ['train', 'test']

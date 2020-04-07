@@ -20,6 +20,8 @@ class LeaveOneOutNode(Node):
     other nodes), or an input trait (to assign output values to other nodes).
     '''
 
+    _doc_path = 'api/pipeline.html#leaveoneoutnode'
+
     def __init__(self, pipeline, name, is_output=True, input_type=None,
                  test_is_output=True, has_index=True):
         self.has_index = has_index
