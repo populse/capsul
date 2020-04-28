@@ -1,73 +1,91 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 from __future__ import absolute_import
+
+import gc
 import unittest
 import tempfile
 import os
 import sys
 
-try:
-    import populse_db
-except ImportError:
-    populse_db = None
 
-from capsul.api import Pipeline, capsul_engine
+from capsul.api import capsul_engine
 
 class TestCapsulEngine(unittest.TestCase):
-    def test_default_engine(self):
-        tmp = tempfile.mktemp(suffix='.json')
-        ce = capsul_engine(tmp)
-        ce.save()
-        try:
-            ce2 = capsul_engine(tmp)
-            self.assertEqual(ce.database.named_directory('capsul_engine'),
-                             ce2.database.named_directory('capsul_engine'))
-            if sys.version_info[:2] >= (2, 7):
-                self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
-                                      Pipeline)
-            else:
-                self.assertTrue(isinstance(
-                    ce.get_process_instance(
-                        'capsul.pipeline.test.test_pipeline.MyPipeline'),
-                    Pipeline))
-        finally:
-            del ce
-            del ce2
-            if os.path.exists(tmp):
-                os.remove(tmp)
+    def setUp(self):
+        self.sqlite_file = str(tempfile.mktemp(suffix='.sqlite'))
+        self.ce = capsul_engine(self.sqlite_file)
+    
+    def tearDown(self):
+        self.ce = None
+        # garbage collect to ensure the database is closed
+        # (otherwise it can cause problems on Windows when removing the
+        # sqlite file)
+        gc.collect()
+        if os.path.exists(self.sqlite_file):
+            os.remove(self.sqlite_file)
+
+
+    def test_engine(self):
+        # In the following, we use explicit values for config_id_field
+        # (which is a single strin value that must be unique for each
+        # config). This is not mandatory but it avoid to have randomly
+        # generated values making testing result more difficult.
+        self.maxDiff = 2000
         
-    def test_populse_db_engine(self):
-        if populse_db is None:
-            self.skipTest('populse_db is not installed')
-        tmp = tempfile.mktemp(suffix='.sqlite')
-        ce = capsul_engine(tmp)
-        ce.save()
-        ce2 = None
-        try:
-            ce2 = capsul_engine(tmp)
-            if sys.version_info[:2] >= (2, 7):
-                self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
-                                      Pipeline)
-            else:
-                self.assertTrue(isinstance(
-                    ce.get_process_instance(
-                        'capsul.pipeline.test.test_pipeline.MyPipeline'),
-                    Pipeline))
-        finally:
-            del ce
-            del ce2
-            # garbage collect to ensure the database is closed
-            # (otherwise it can cause problems on Windows when removing the
-            # sqlite file)
-            import gc
-            gc.collect()
-            if os.path.exists(tmp):
-                os.remove(tmp)
+        cif = self.ce.settings.config_id_field
+        with self.ce.settings as settings:
+            # Create a new section object for 'fsl' in 'global' environment
+            fsl = settings.new_config('fsl', 'global', {cif:'5'})
+            fsl.directory = '/there'
+            
+            # Create two global SPM configurations
+            settings.new_config('spm', 'global', {'version': '8',
+                                                  'standalone': True,
+                                                  cif:'8'})
+            settings.new_config('spm', 'global', {'version': '12',
+                                                  'standalone': False,
+                                                  cif:'12'})
+            # Create one SPM configuration for 'my_machine'
+            settings.new_config('spm', 'my_machine', {'version': '20',
+                                                      'standalone': True,
+                                                      cif:'20'})
+    
+        self.assertEqual(
+            self.ce.settings.select_configurations('my_machine'),
+            {'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'ALL',
+                               'capsul.engine.module.matlab': 'ALL',
+                               'capsul.engine.module.spm': 'ALL'}},
+             'capsul.engine.module.fsl': {'config_environment': 'global',
+                                          'directory': '/there',
+                                          cif: '5'},
+             'capsul.engine.module.spm': {'config_environment': 'my_machine',
+                                           'version': '20',
+                                           'standalone': True,
+                                           cif: '20'}})
+        self.assertRaises(EnvironmentError, lambda: self.ce.settings.select_configurations('global'))
+        self.assertEqual(
+            self.ce.settings.select_configurations('global', uses={'fsl': 'any'}),
+            {'capsul.engine.module.fsl': {'config_environment': 'global', 'directory': '/there', cif:'5'},
+             'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'any'}}})
+            
+        self.assertEqual(
+            self.ce.settings.select_configurations('global', uses={'spm': 'any'}),
+            {'capsul.engine.module.spm': {'config_environment': 'global', 
+                                          'version': '8',
+                                          'standalone': True,
+                                          cif: '8'},
+             'capsul_engine': {'uses': {'capsul.engine.module.spm': 'any'}}})
+        self.assertEqual(
+            self.ce.settings.select_configurations('global', uses={'spm': 'version=="12"'}),
+            {'capsul.engine.module.spm': {'config_environment': 'global',
+                                          'version': '12',
+                                          'standalone': False,
+                                          cif: '12'},
+             'capsul_engine': {'uses': {'capsul.engine.module.spm': 'version=="12"',
+                                        'capsul.engine.module.matlab': 'any'}}})
 
 def test():
-    """ Function to execute unitest.
-    """
     suite = unittest.TestLoader().loadTestsFromTestCase(TestCapsulEngine)
     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
     return runtime.wasSuccessful()
@@ -75,3 +93,4 @@ def test():
 
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
+

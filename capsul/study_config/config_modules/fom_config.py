@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 '''
 Config module for :mod:`File Organization models (FOMs) <capsul.attributes.fom_completion_engine>`
 
@@ -109,45 +101,49 @@ class FomConfig(StudyConfigModule):
 
 
     def initialize_module(self):
-        if 'capsul.engine.module.fom' \
-                not in self.study_config.engine._loaded_modules:
-            self.study_config.engine.load_module('capsul.engine.module.fom')
+        # Comment the following code to make tests work before removing StudyConfig
+        pass
+        #if 'capsul.engine.module.fom' \
+                #not in self.study_config.engine._loaded_modules:
+            #self.study_config.engine.load_module('capsul.engine.module.fom')
 
         # allow the methods to access StudyConfig (transciently)
-        if isinstance(self.study_config, weakref.ProxyType):
-            self.study_config.engine.global_config.fom.study_config \
-                = self.study_config
-        else:
-            self.study_config.engine.global_config.fom.study_config \
-                = weakref.proxy(self.study_config)
+        #if isinstance(self.study_config, weakref.ProxyType):
+            #self.study_config.engine.global_config.fom.study_config \
+                #= self.study_config
+        #else:
+            #self.study_config.engine.global_config.fom.study_config \
+                #= weakref.proxy(self.study_config)
 
-        if type(self.study_config.engine) is not CapsulEngine:
-            # engine is a proxy, thus we are initialized from a real
-            # CapsulEngine, which holds the reference values
-            self.sync_from_engine()
-        else:
-            self.sync_to_engine()
-            # 1st sync may have changed things
-            self.sync_from_engine()
+        # Comment the following code to make tests work before removing StudyConfig
+        #if type(self.study_config.engine) is not CapsulEngine:
+            ## engine is a proxy, thus we are initialized from a real
+            ## CapsulEngine, which holds the reference values
+            #self.sync_from_engine()
+        #else:
+            #self.sync_to_engine()
+            ## 1st sync may have changed things
+            #self.sync_from_engine()
 
 
 
-    def initialize_callbacks(self):
-        self.study_config.on_trait_change(
-            self.sync_to_engine,
-            ['use_fom', 'input_directory', 'input_fom', 'meshes_format',
-             'output_directory', 'output_fom', 'shared_directory',
-             'shared_fom', 'spm_directory', 'volumes_format', 'auto_fom',
-             'fom_path'])
-        self.study_config.engine.global_config.fom.on_trait_change(
-            self.sync_from_engine,
-            ['use','input_directory', 'output_directory', 'input_fom',
-             'output_fom', 'meshes_format', 'shared_fom', 'volumes_format',
-             'auto_fom', 'fom_path'])
-        self.study_config.engine.global_config.spm.on_trait_change(
-            self.sync_from_engine, 'directory')
-        self.study_config.engine.global_config.axon.on_trait_change(
-            self.sync_from_engine, 'shared_directory')
+    # Comment the following code to make tests work before removing StudyConfig
+    #def initialize_callbacks(self):
+        #self.study_config.on_trait_change(
+            #self.sync_to_engine,
+            #['use_fom', 'input_directory', 'input_fom', 'meshes_format',
+             #'output_directory', 'output_fom', 'shared_directory',
+             #'shared_fom', 'spm_directory', 'volumes_format', 'auto_fom',
+             #'fom_path'])
+        #self.study_config.engine.global_config.fom.on_trait_change(
+            #self.sync_from_engine,
+            #['use','input_directory', 'output_directory', 'input_fom',
+             #'output_fom', 'meshes_format', 'shared_fom', 'volumes_format',
+             #'auto_fom', 'fom_path'])
+        #self.study_config.engine.global_config.spm.on_trait_change(
+            #self.sync_from_engine, 'directory')
+        #self.study_config.engine.global_config.axon.on_trait_change(
+            #self.sync_from_engine, 'shared_directory')
 
 
     def sync_to_engine(self, param=None, value=None):

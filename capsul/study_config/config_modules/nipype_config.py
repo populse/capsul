@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 '''
 NiPype configuration module
 

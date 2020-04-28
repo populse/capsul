@@ -3,10 +3,11 @@
 from __future__ import print_function
 
 from __future__ import absolute_import
-from capsul.api import StudyConfig, Pipeline
-from capsul.attributes.completion_engine import ProcessCompletionEngine
-from capsul.attributes.fom_completion_engine \
-    import FomProcessCompletionEngine, FomPathCompletionEngine
+from capsul.api import StudyConfig, Process, Pipeline
+from capsul.attributes.completion_engine import ProcessCompletionEngine, \
+    PathCompletionEngine, PathCompletionEngineFactory
+from capsul.attributes.attributes_schema import ProcessAttributes, \
+    AttributesSchema, EditableAttributes
 from traits.api import Str, Float, File, String, Undefined, List
 import unittest
 import os
@@ -14,7 +15,6 @@ import sys
 import tempfile
 import shutil
 import socket
-import json
 from six.moves import zip
 if sys.version_info[0] >= 3:
     import io as StringIO
@@ -22,15 +22,101 @@ else:
     import StringIO
 
 
+class DummyProcess(Process):
+    f = Float(output=False)
+
+    def __init__(self):
+        super(DummyProcess, self).__init__()
+        self.add_trait("truc", File(output=False))
+        self.add_trait("bidule", File(output=True))
+
+    def _run_process(self):
+        open(self.bidule, 'w').write(open(self.truc).read())
+
+
+class DummyListProcess(Process):
+    truc = List(File(output=False))
+    bidule = List(File(output=False))
+    result = File(output=True)
+
+    def _run_process(self):
+        open(self.result, 'w').write(
+            '{\n    truc=%s,\n    bidule=%s\n}' % (self.truc, self.bidule))
+
+
+class CustomAttributesSchema(AttributesSchema):
+    factory_id = 'custom_ex'
+
+    class Acquisition(EditableAttributes):
+        center = String()
+        subject = String()
+
+    class Group(EditableAttributes):
+        group = String()
+
+    class Processing(EditableAttributes):
+        analysis = String()
+
+
+class DummyProcessAttributes(ProcessAttributes):
+    factory_id = 'DummyProcess'
+
+    def __init__(self, process, schema_dict):
+        super(DummyProcessAttributes, self).__init__(process, schema_dict)
+        self.set_parameter_attributes('truc', 'input', 'Acquisition', {})
+        self.set_parameter_attributes('bidule', 'output', 'Acquisition', {})
+
+
+class DummyListProcessAttributes(ProcessAttributes):
+    factory_id = 'DummyListProcess'
+
+    def __init__(self, process, schema_dict):
+        super(DummyListProcessAttributes, self).__init__(process, schema_dict)
+        self.set_parameter_attributes('truc', 'input', 'Acquisition', {})
+        self.set_parameter_attributes('bidule', 'input', 'Acquisition', {})
+        self.set_parameter_attributes('result', 'output', 'Group', {})
+
+
+class MyPathCompletion(PathCompletionEngineFactory, PathCompletionEngine):
+    factory_id = 'custom_ex'
+
+    def __init__(self):
+        super(MyPathCompletion, self).__init__()
+
+    def get_path_completion_engine(self, process):
+        return self
+
+    def attributes_to_path(self, process, parameter, attributes):
+        study_config = process.get_study_config()
+        att_dict = attributes.get_parameters_attributes()[parameter]
+        elements = [process.name, parameter]
+        # get attributes sorted by user_traits
+        for key in attributes.user_traits().keys():
+            val = att_dict.get(key)
+            if val and val is not Undefined:
+                elements.append(str(val))
+        if 'generated_by_parameter' in att_dict:
+            directory = study_config.output_directory
+        else:
+            directory = study_config.input_directory
+        return os.path.join(directory, '_'.join(elements))
+
+
 def init_study_config(init_config={}):
     study_config = StudyConfig('test_study',
-                               modules=['FomConfig',
+                               modules=['AttributesConfig',
                                         'SomaWorkflowConfig'],
                                init_config=init_config)
     study_config.input_directory = '/tmp/in'
     study_config.output_directory = '/tmp/out'
-    study_config.attributes_schema_paths.append(
-        'capsul.attributes.test.test_attributed_process')
+    study_config.attributes_schema_paths \
+        = study_config.attributes_schema_paths \
+            + ['capsul.attributes.test.test_attributed_process']
+    study_config.attributes_schemas['input'] = 'custom_ex'
+    study_config.attributes_schemas['output'] = 'custom_ex'
+    #print('attributes_schema_paths:', study_config.attributes_schema_paths)
+    study_config.path_completion = 'custom_ex'
+    #print('attributes_schema_paths 2:', study_config.attributes_schema_paths)
 
     return study_config
 
@@ -66,53 +152,9 @@ def tearDownModule():
 class TestCompletion(unittest.TestCase):
 
     def setUp(self):
+        self.study_config = init_study_config()
         if not hasattr(self, 'temps'):
             self.temps = []
-        tmp_fom = tempfile.mkdtemp(prefix='capsul_fom')
-        self.temps.append(tmp_fom)
-
-        # write FOM file
-        fom = {
-            "fom_name": "custom_fom_test-1.0",
-
-            "formats": {
-                "text file": "txt"
-            },
-
-            "attribute_definitions" : {
-              "group" : {"default_value" : "default_group"},
-              "processing" : {"default_value" : "default_processing"},
-            },
-
-            "shared_patterns": {
-              "acquisition": "<center>_<subject>",
-            },
-
-            "processes" : {
-                "DummyProcess" : {
-                    "truc": [["input:DummyProcess_truc_{acquisition}",
-                              "text file",]],
-                    "bidule": [["output:DummyProcess_bidule_{acquisition}",
-                                "text file",]],
-                },
-                "DummyListProcess" : {
-                    "truc": [["input:DummyListProcess_truc_{acquisition}",
-                              "text file",]],
-                    "bidule": [["input:DummyListProcess_bidule_{acquisition}",
-                                "text file",]],
-                    "result": [["output:DummyListProcess_result_<group>",
-                                "text file"]],
-                },
-            }
-        }
-
-        json.dump(fom, open(os.path.join(tmp_fom, 'custom_fom.json'), 'w'))
-
-
-        self.study_config = init_study_config()
-        self.study_config.fom_path = [tmp_fom]
-        self.study_config.input_fom = 'custom_fom_test-1.0'
-        self.study_config.output_fom = 'custom_fom_test-1.0'
 
 
     def tearDown(self):
@@ -121,33 +163,34 @@ class TestCompletion(unittest.TestCase):
         if swc is not None:
             # stop workflow controler and wait for thread termination
             swc.stop_engine()
+
+
+    def __del__(self):
         if hasattr(self, 'temps'):
             for tdir in self.temps:
-                try:
-                    shutil.rmtree(tdir)
-                except Exception as e:
-                    print(e)
-                    raise
-            self.temps = []
+                shutil.rmtree(tdir)
 
 
     def test_completion(self):
         study_config = self.study_config
         process = study_config.get_process_instance(
             'capsul.attributes.test.test_attributed_process.DummyProcess')
+        from capsul.attributes.test.test_attributed_process \
+            import DummyProcessAttributes, MyPathCompletion
         patt = ProcessCompletionEngine.get_completion_engine(process)
         atts = patt.get_attribute_values()
-        self.assertTrue(isinstance(patt, FomProcessCompletionEngine))
+        self.assertTrue(isinstance(patt, ProcessCompletionEngine))
+        self.assertTrue(isinstance(atts, DummyProcessAttributes))
         self.assertTrue(isinstance(
             patt.get_path_completion_engine(),
-            FomPathCompletionEngine))
+            MyPathCompletion))
         atts.center = 'jojo'
         atts.subject = 'barbapapa'
         patt.complete_parameters()
         self.assertEqual(os.path.normpath(process.truc),
-                         os.path.normpath('/tmp/in/DummyProcess_truc_jojo_barbapapa.txt'))
+                         os.path.normpath('/tmp/in/DummyProcess_truc_jojo_barbapapa'))
         self.assertEqual(os.path.normpath(process.bidule),
-                         os.path.normpath('/tmp/out/DummyProcess_bidule_jojo_barbapapa.txt'))
+                         os.path.normpath('/tmp/out/DummyProcess_bidule_jojo_barbapapa'))
 
 
     def test_iteration(self):
@@ -163,43 +206,47 @@ class TestCompletion(unittest.TestCase):
         atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
         cm.complete_parameters()
         self.assertEqual([os.path.normpath(p) for p in pipeline.truc],
-                         [os.path.normpath(p) for p in
-                            ['/tmp/in/DummyProcess_truc_muppets_kermit.txt',
-                             '/tmp/in/DummyProcess_truc_muppets_piggy.txt',
-                             '/tmp/in/DummyProcess_truc_muppets_stalter.txt',
-                             '/tmp/in/DummyProcess_truc_muppets_waldorf.txt']])
-        self.assertEqual(
-            [os.path.normpath(p) for p in pipeline.bidule],
-            [os.path.normpath(p) for p in
-              ['/tmp/out/DummyProcess_bidule_muppets_kermit.txt',
-                '/tmp/out/DummyProcess_bidule_muppets_piggy.txt',
-                '/tmp/out/DummyProcess_bidule_muppets_stalter.txt',
-                '/tmp/out/DummyProcess_bidule_muppets_waldorf.txt']])
+                         [os.path.normpath(p) for p in 
+                            ['/tmp/in/DummyProcess_truc_muppets_kermit',
+                             '/tmp/in/DummyProcess_truc_muppets_piggy',
+                             '/tmp/in/DummyProcess_truc_muppets_stalter',
+                             '/tmp/in/DummyProcess_truc_muppets_waldorf']])
+        self.assertEqual([os.path.normpath(p) for p in pipeline.bidule],
+                         [os.path.normpath(p) for p in 
+                            ['/tmp/out/DummyProcess_bidule_muppets_kermit',
+                             '/tmp/out/DummyProcess_bidule_muppets_piggy',
+                             '/tmp/out/DummyProcess_bidule_muppets_stalter',
+                             '/tmp/out/DummyProcess_bidule_muppets_waldorf']])
 
     def test_list_completion(self):
         study_config = self.study_config
         process = study_config.get_process_instance(
             'capsul.attributes.test.test_attributed_process.DummyListProcess')
+        from capsul.attributes.test.test_attributed_process \
+            import DummyListProcessAttributes, MyPathCompletion
         patt = ProcessCompletionEngine.get_completion_engine(process)
         atts = patt.get_attribute_values()
+        self.assertTrue(isinstance(patt, ProcessCompletionEngine))
+        self.assertTrue(isinstance(atts, DummyListProcessAttributes))
+        self.assertTrue(isinstance(
+            patt.get_path_completion_engine(),
+            MyPathCompletion))
         atts.center = ['jojo', 'koko']
         atts.subject = ['barbapapa', 'barbatruc']
         atts.group = 'cartoon'
         patt.complete_parameters()
-        self.assertEqual(
-            [os.path.normpath(p) for p in process.truc],
-            [os.path.normpath(p) for p in
-              ['/tmp/in/DummyListProcess_truc_jojo_barbapapa.txt',
-                '/tmp/in/DummyListProcess_truc_koko_barbatruc.txt',]])
-        self.assertEqual(
-            [os.path.normpath(p) for p in process.bidule],
-            [os.path.normpath(p) for p in
-              ['/tmp/in/DummyListProcess_bidule_jojo_barbapapa.txt',
-                '/tmp/in/DummyListProcess_bidule_koko_barbatruc.txt']]
+        self.assertEqual([os.path.normpath(p) for p in process.truc],
+                         [os.path.normpath(p) for p in
+                            ['/tmp/in/DummyListProcess_truc_jojo_barbapapa',
+                             '/tmp/in/DummyListProcess_truc_koko_barbatruc',]])
+        self.assertEqual([os.path.normpath(p) for p in process.bidule],
+                         [os.path.normpath(p) for p in
+                            ['/tmp/in/DummyListProcess_bidule_jojo_barbapapa',
+                             '/tmp/in/DummyListProcess_bidule_koko_barbatruc']]
         )
         self.assertEqual(os.path.normpath(process.result),
                          os.path.normpath(
-                            '/tmp/out/DummyListProcess_result_cartoon.txt'))
+                            '/tmp/out/DummyListProcess_result_cartoon'))
 
 
     def test_run_iteraton_sequential(self):
@@ -227,7 +274,7 @@ class TestCompletion(unittest.TestCase):
         for s in atts.subject:
             open(os.path.join(
                 study_config.input_directory,
-                'DummyProcess_truc_muppets_%s.txt' % s), 'w').write('%s\n' %s)
+                'DummyProcess_truc_muppets_%s' % s), 'w').write('%s\n' %s)
 
         # run
         study_config.use_soma_workflow = False
@@ -237,8 +284,7 @@ class TestCompletion(unittest.TestCase):
         out_files = [
             os.path.join(
                 study_config.output_directory,
-                'DummyProcess_bidule_muppets_%s.txt' % s)
-            for s in atts.subject]
+                'DummyProcess_bidule_muppets_%s' % s) for s in atts.subject]
         for s, out_file in zip(atts.subject, out_files):
             self.assertTrue(os.path.isfile(out_file))
             self.assertTrue(open(out_file).read() == '%s\n' % s)
@@ -269,7 +315,12 @@ class TestCompletion(unittest.TestCase):
         for s in atts.subject:
             open(os.path.join(
                 study_config.input_directory,
-                'DummyProcess_truc_muppets_%s.txt' % s), 'w').write('%s\n' %s)
+                'DummyProcess_truc_muppets_%s' % s), 'w').write('%s\n' %s)
+
+        #from capsul.pipeline import pipeline_workflow
+        #wf = pipeline_workflow.workflow_from_pipeline(pipeline)
+        #from soma_workflow import client as swc
+        #swc.Helper.serialize('/tmp/workflow.workflow', wf)
 
         # run
         study_config.use_soma_workflow = True
@@ -279,8 +330,7 @@ class TestCompletion(unittest.TestCase):
         out_files = [
             os.path.join(
                 study_config.output_directory,
-                'DummyProcess_bidule_muppets_%s.txt' % s)
-            for s in atts.subject]
+                'DummyProcess_bidule_muppets_%s' % s) for s in atts.subject]
         for s, out_file in zip(atts.subject, out_files):
             self.assertTrue(os.path.isfile(out_file))
             self.assertTrue(open(out_file).read() == '%s\n' % s)
@@ -325,5 +375,4 @@ if __name__ == '__main__':
         pc.show()
         if qapp:
             qapp.exec_()
-
 
