@@ -9,7 +9,7 @@ import sys
 
 from capsul.api import capsul_engine
 
-class TestCapsulEngine(unittest.TestCase):        
+class TestCapsulEngine(unittest.TestCase):
     def setUp(self):
         self.sqlite_file = str(tempfile.mktemp(suffix='.sqlite'))
         self.ce = capsul_engine(self.sqlite_file)
@@ -82,3 +82,13 @@ class TestCapsulEngine(unittest.TestCase):
                                           cif: '12'},
              'capsul_engine': {'uses': {'capsul.engine.module.spm': 'version=="12"',
                                         'capsul.engine.module.matlab': 'any'}}})
+
+def test():
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestCapsulEngine)
+    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
+    return runtime.wasSuccessful()
+
+
+if __name__ == "__main__":
+    print("RETURNCODE: ", test())
+
