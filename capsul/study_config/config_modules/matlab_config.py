@@ -14,7 +14,8 @@ from __future__ import absolute_import
 import os
 from traits.api import File, Undefined, Bool
 from capsul.study_config.study_config import StudyConfigModule
-from capsul.engine import CapsulEngine, settings
+from capsul.engine import CapsulEngine
+from capsul.engine import settings
 
 
 class MatlabConfig(StudyConfigModule):

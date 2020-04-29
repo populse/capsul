@@ -13,7 +13,8 @@ from traits.api import Directory, File, Bool, Enum, Undefined, Str
 
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.subprocess.spm import check_spm_configuration
-from capsul.engine import CapsulEngine, settings
+from capsul.engine import CapsulEngine
+from capsul.engine import settings
 import glob
 import os
 import os.path as osp
