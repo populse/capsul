@@ -242,6 +242,14 @@ class SettingsSession:
         config.notify()
         return config
 
+    def remove_config(self, module, enviroment, config_id):
+        '''
+        Removes a configuration (document in the database) for a given module /
+        environment, idenfified by its `Settings.config_id_field` value.
+        '''
+        collection = self.collection_name(module)
+        self._dbs.remove_document(collection, config_id)
+
     def configs(self, module, environment, selection=None):
         '''
         Returns a generator that iterates over all configuration
