@@ -99,9 +99,12 @@ class MatlabConfig(StudyConfigModule):
                 config = session.config('matlab', 'global', any=True)
                 if config is None:
                     cif = self.study_config.engine.settings.config_id_field
+                    matlab_exec = self.study_config.matlab_exec
+                    if matlab_exec is Undefined:
+                        matlab_exec = None
                     session.new_config(
                         'matlab', 'global',
-                        {'executable': self.study_config.matlab_exec,
+                        {'executable': matlab_exec,
                          cif: 'matlab'})
                 else:
                     setattr(config, ceparam, value)
@@ -120,6 +123,9 @@ class MatlabConfig(StudyConfigModule):
             with self.study_config.engine.settings as session:
                 config = session.config('matlab', 'global', any=True)
                 if config:
-                    self.study_config.matlab_exec = config.executable
+                    matlab_exec = config.executable
+                    if matlab_exec is None:
+                        matlab_exec = Undefined
+                    self.study_config.matlab_exec = matlab_exec
         if self.study_config.matlab_exec not in (None, Undefined):
             self.study_config.use_matlab = True
