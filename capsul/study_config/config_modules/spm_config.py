@@ -170,7 +170,6 @@ class SPMConfig(StudyConfigModule):
                             ceparam = tparam[p]
                             if val is Undefined:
                                 val = defaults.get(ceparam, None)
-                            print('set spm:', id, ceparam, val)
                             setattr(config, ceparam, val)
         finally:
             del self._syncing

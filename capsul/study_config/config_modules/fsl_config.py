@@ -13,7 +13,9 @@ from traits.api import File, Bool, Undefined, String
 
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.engine import CapsulEngine
+from capsul.engine import settings
 from capsul.subprocess.fsl import check_fsl_configuration
+import os.path as osp
 
 class FSLConfig(StudyConfigModule):
     '''
@@ -37,37 +39,103 @@ class FSLConfig(StudyConfigModule):
         """ Set up FSL environment variables according to current
         configuration.
         """
-        # Comment the following code to make tests work before removing StudyConfig
-        #if 'capsul.engine.module.fsl' \
-                #not in self.study_config.engine._loaded_modules:
-            #self.study_config.engine.load_module('capsul.engine.module.fsl')
-        #if type(self.study_config.engine) is not CapsulEngine:
-            ## engine is a proxy, thus we are initialized from a real
-            ## CapsulEngine, which holds the reference values
-            #self.sync_from_engine()
-        #else:
-            #self.sync_to_engine()
+        if 'capsul.engine.module.fsl' \
+                not in self.study_config.engine._loaded_modules:
+            self.study_config.engine.load_module('capsul.engine.module.fsl')
+        if type(self.study_config.engine) is not CapsulEngine:
+            # engine is a proxy, thus we are initialized from a real
+            # CapsulEngine, which holds the reference values
+            self.sync_from_engine()
+        else:
+            self.sync_to_engine()
         # this test aims to raise an exception in case of incorrect setting,
         # complying to capsul 2.x behavior.
         if self.study_config.use_fsl is True:
             check_fsl_configuration(self.study_config)
 
-    # Comment the following code to make tests work before removing StudyConfig
-    #def initialize_callbacks(self):
-        #self.study_config.on_trait_change(
-            #self.sync_to_engine, '[fsl_config, fsl_prefix, use_fsl]')
-        #self.study_config.engine.global_config.on_trait_change(
-            #self.sync_from_engine, '[config, prefix, use]')
-        ##if self.study_config.use_fsl is True:
-            ##check_fsl_configuration(self.study_config)
+    def initialize_callbacks(self):
+        self.study_config.on_trait_change(
+            self.sync_to_engine, '[fsl_config, fsl_prefix, use_fsl]')
+        settings.SettingsSession.module_notifiers['matlab'] \
+            = [self.sync_from_engine]
 
-    def sync_to_engine(self):
-        self.study_config.engine.global_config.fsl.config = self.study_config.fsl_config
-        self.study_config.engine.global_config.fsl.prefix= self.study_config.fsl_prefix
-        self.study_config.engine.global_config.fsl.use = self.study_config.use_fsl
+    def sync_to_engine(self, param=None, value=None):
+        if getattr(self, '_syncing', False):
+            # manage recursive calls
+            return
+        self._syncing = True
+        try:
+            if 'FSLConfig' in self.study_config.modules \
+                    and 'capsul.engine.module.fsl' \
+                        in self.study_config.engine._loaded_modules:
+                with self.study_config.engine.settings as session:
+                    cif = self.study_config.engine.settings.config_id_field
+                    config = session.config('fsl', 'global')
+                    fsl_conf = self.study_config.fsl_config
+                    if fsl_conf is Undefined:
+                        fsl_conf = None
+                        fsl_dir = None
+                    else:
+                        fsl_dir = osp.dirname(fsl_conf)
+                    if config is None:
+                        session.new_config(
+                            'fsl', 'global',
+                            {'directory': fsl_dir,
+                             'config': fsl_conf,
+                             'prefix': self.study_config.fsl_prefix
+                                if self.study_config.fsl_prefix
+                                    is not Undefined
+                                else None,
+                             cif: 'fsl'})
+                    else:
+                        tparam = {'fsf_config': 'config',
+                                  'fsl_prefix': 'prefix'}
+                        if param is not None:
+                            if param not in ('use_fsl', ):
+                                params = [param]
+                            else:
+                                params = []
+                        else:
+                            params = ['fsl_config', 'fsl_prefix']
+                        defaults = {'prefix': None, 'config': False}
+                        for p in params:
+                            val = getattr(self.study_config, p)
+                            ceparam = tparam[p]
+                            if val is Undefined:
+                                val = defaults.get(ceparam, None)
+                            setattr(config, ceparam, val)
+                        if 'fsl_config' in params:
+                            config.directory = fsl_dir
+        finally:
+            del self._syncing
 
-    def sync_from_engine(self):
-        self.study_config.fsl_config = self.study_config.engine.global_config.fsl.config
-        self.study_config.fsl_prefix = self.study_config.engine.global_config.fsl.prefix
-        self.study_config.use_fsl = self.study_config.engine.global_config.fsl.use
+    def sync_from_engine(self, param=None, value=None):
+        if getattr(self, '_syncing', False):
+            # manage recursive calls
+            return
+        self._syncing = True
+        try:
+            if 'FSLConfig' in self.study_config.modules \
+                    and 'capsul.engine.module.fsl' \
+                        in self.study_config.engine._loaded_modules:
+                with self.study_config.engine.settings as session:
+                    config = session.config('fsl', 'global')
+                    if config:
+                        directory = config.directory \
+                            if config.directory not in (None, '') \
+                            else Undefined
+
+                        self.study_config.fsl_config = config.config \
+                            if config.config is not None else Undefined
+                        self.study_config.fsl_prefix = config.prefix \
+                            if config.prefix is not None else Undefined
+                        if self.study_config.fsl_config \
+                                or self.study_config.fsl_prefix:
+                            self.study_config.use_fsl = True
+                        else:
+                            self.study_config.use_fsl = False
+        finally:
+            del self._syncing
+
+
 
