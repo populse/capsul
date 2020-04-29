@@ -28,9 +28,9 @@ class TestCapsulEngine(unittest.TestCase):
 
     def test_engine(self):
         # In the following, we use explicit values for config_id_field
-        # (which is a single strin value that must be unique for each
-        # config). This is not mandatory but it avoid to have randomly
-        # generated values making testing result more difficult.
+        # (which is a single string value that must be unique for each
+        # config). This is not mandatory but it avoids to have randomly
+        # generated values making testing results more difficult to tackle.
         self.maxDiff = 2000
         
         cif = self.ce.settings.config_id_field
