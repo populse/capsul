@@ -42,7 +42,8 @@ class DummyProcess1(Process):
         iname = os.path.splitext(self.input)
         self.output = '%s_output%s' % iname
         with open(self.output, 'w') as f:
-            f.write(open(self.input).read())
+            with open(self.input) as g:
+                f.write(g.read())
             f.write('This is an output file\n')
 
 class DummyProcess2(Process):
@@ -62,7 +63,8 @@ class DummyProcess2(Process):
         new_output = '%s_bis%s' % os.path.splitext(self.input)
         self.outputs = [self.input, new_output]
         with open(new_output, 'w') as f:
-            f.write(open(self.input).read() + 'And a second output file\n')
+            with open(self.input) as g:
+                f.write(g.read() + 'And a second output file\n')
 
 class DummyProcess2alt(Process):
     """ Dummy Test Process
@@ -81,7 +83,8 @@ class DummyProcess2alt(Process):
         new_output = '%s_ter%s' % os.path.splitext(self.input)
         self.outputs = [new_output]
         with open(new_output, 'w') as f:
-            f.write(open(self.input).read() + 'And another output file\n')
+            with open(self.input) as g:
+                f.write(g.read() + 'And another output file\n')
 
 class DummyProcess3(Process):
     """ Dummy Test Process
@@ -98,7 +101,8 @@ class DummyProcess3(Process):
     def _run_process(self):
         with open(self.output, 'w') as f:
             for in_filename in self.input:
-                f.write(open(in_filename).read())
+                with open(in_filename) as g:
+                    f.write(g.read())
 
 class DummyProcess3alt(Process):
     """ Dummy Test Process
@@ -117,7 +121,8 @@ class DummyProcess3alt(Process):
             self.output = '%s_alt%s' % os.path.splitext(self.input[0])
             with open(self.output, 'w') as f:
                 for in_filename in self.input:
-                    f.write(open(in_filename).read())
+                    with open(in_filename) as g:
+                        f.write(g.read())
 
 class DummyPipeline(Pipeline):
 
@@ -284,7 +289,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         self.assertEqual(self.pipeline.nodes["node3"].process.input,
                          [os.path.join(self.tmpdir, 'file_in_output.nii'),
                           os.path.join(self.tmpdir, 'file_in_output_bis.nii')])
-        res_out = open(self.pipeline.output).readlines()
+        with open(self.pipeline.output) as f:
+            res_out = f.readlines()
         self.assertEqual(res_out,
                          ['Initial file content.\n',
                           'This is an output file\n',
@@ -306,7 +312,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         self.assertEqual(self.pipeline.nodes["node3"].process.input,
                          [os.path.join(self.tmpdir, 'file_in_output.nii'),
                           os.path.join(self.tmpdir, 'file_in_output_bis.nii')])
-        res_out = open(self.pipeline.output).readlines()
+        with open(self.pipeline.output) as f:
+            res_out = f.readlines()
         self.assertEqual(res_out,
                          ['Initial file content.\n',
                           'This is an output file\n',
@@ -323,7 +330,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                          os.path.join(self.tmpdir, 'file_in_output.nii'))
         self.assertEqual(self.pipeline.nodes["node3"].process.input,
                          [os.path.join(self.tmpdir, 'file_in_output_ter.nii')])
-        res_out = open(self.pipeline.output).readlines()
+        with open(self.pipeline.output) as f:
+            res_out = f.readlines()
         self.assertEqual(res_out,
                          ['Initial file content.\n',
                           'This is an output file\n',
@@ -343,7 +351,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                          os.path.join(self.tmpdir, 'file_in_output.nii'))
         self.assertEqual(self.pipeline.nodes["node3"].process.input,
                          [os.path.join(self.tmpdir, 'file_in_output_ter.nii')])
-        res_out = open(self.pipeline.output).readlines()
+        with open(self.pipeline.output) as f:
+            res_out = f.readlines()
         self.assertEqual(res_out,
                          ['Initial file content.\n',
                           'This is an output file\n',
@@ -356,7 +365,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
             'PipelineWithSubpipeline')
         pipeline.input = os.path.join(self.tmpdir, 'file_in.nii')
         pipeline()
-        res_out = open(pipeline.output).readlines()
+        with open(pipeline.output) as f:
+            res_out = f.readlines()
         self.assertEqual(res_out,
                          ['Initial file content.\n',
                           'This is an output file\n',
@@ -381,7 +391,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
         pipeline()
         result = self.study_config.run(self.pipeline, verbose=True)
-        res_out = open(pipeline.output).readlines()
+        with open(pipeline.output) as f:
+            res_out = f.readlines()
         self.assertEqual(res_out,
                          ['Initial file content.\n',
                           'This is an output file\n',
@@ -400,7 +411,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         pipeline.input = os.path.join(self.tmpdir, 'file_in.nii')
         pipeline.output = os.path.join(self.tmpdir, 'file_out.nii')
         pipeline()
-        res_out = open(pipeline.output).readlines()
+        with open(pipeline.output) as f:
+            res_out = f.readlines()
         self.assertEqual(res_out,
                          [
                           'Initial file content.\n',
@@ -435,7 +447,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
         pipeline()
         result = self.study_config.run(self.pipeline, verbose=True)
-        res_out = open(pipeline.output).readlines()
+        with open(pipeline.output) as f:
+            res_out = f.readlines()
         self.assertEqual(res_out,
                          [
                           'Initial file content.\n',
