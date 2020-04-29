@@ -14,6 +14,7 @@ import os
 from traits.api import Directory, Undefined
 from soma import config as soma_config
 from capsul.study_config.study_config import StudyConfigModule
+from capsul.engine import settings
 
 
 class BrainVISAConfig(StudyConfigModule):
@@ -52,47 +53,51 @@ class BrainVISAConfig(StudyConfigModule):
             # CapsulEngine, which should hold the reference values,
             # BUT values are actuallu defined from here...
             old_shared = self.study_config.shared_directory
-            if self.study_config.engine.global_config.axon.shared_directory \
-                    is Undefined:
-                self.study_config.engine.global_config.axon.shared_directory \
-                    = old_shared
+            with self.study_config.engine.settings as session:
+                config = session.config('axon', 'global')
+                if config and config.shared_directory is Undefined:
+                    config.shared_directory = old_shared
             self.sync_from_engine()
+            self.sync_to_engine()
         else:
-            # Comment the following code to make tests work before removing StudyConfig
-            ## otherwise engine is "owned" by StudyConfig
-            #if 'capsul.engine.module.axon' \
-                    #not in self.study_config.engine.modules:
-                #self.study_config.engine.modules.append(
-                    #'capsul.engine.module.axon')
-                #self.study_config.engine.load_modules()
+            # otherwise engine is "owned" by StudyConfig
+            if 'capsul.engine.module.axon' \
+                    not in self.study_config.engine._loaded_modules:
+                self.study_config.engine.load_module(
+                    'capsul.engine.module.axon')
             self.sync_to_engine()
 
 
     def initialize_callbacks(self):
-        # Comment the following code to make tests work before removing StudyConfig
-        pass
-        #self.study_config.on_trait_change(self.sync_to_engine,
-                                          #'shared_directory')
-
-        #self.study_config.engine.global_config.axon.on_trait_change(
-            #self.sync_from_engine, 'shared_directory')
+        self.study_config.on_trait_change(self.sync_to_engine,
+                                          'shared_directory')
+        settings.SettingsSession.module_notifiers['axon'] \
+            = [self.sync_from_engine]
 
 
     def sync_to_engine(self, param=None, value=None):
-        # Comment the following code to make tests work before removing StudyConfig
-        pass
-        #if param is not None:
-            #setattr(self.study_config.engine.global_config.axon, param,
-                    #value)
-        #else:
-            #self.study_config.engine.global_config.axon.shared_directory \
-                #= self.study_config.shared_directory
+        with self.study_config.engine.settings as session:
+            cif = self.study_config.engine.settings.config_id_field
+            config = session.config('axon', 'global')
+            shared_dir = self.study_config.shared_directory
+            if shared_dir is Undefined:
+                shared_dir = None
+            if config is None:
+                session.new_config(
+                    'axon', 'global',
+                    {'shared_directory': shared_dir,
+                      cif: 'axon'})
+            else:
+                config.shared_directory = shared_dir
 
 
     def sync_from_engine(self, param=None, value=None):
-        if param is not None:
-            setattr(self.study_config, param, value)
-        else:
-            self.study_config.shared_directory \
-                = self.study_config.engine.global_config.axon.shared_directory
+        with self.study_config.engine.settings as session:
+            config = session.config('axon', 'global', any=True)
+            if config:
+                shared_dir = config.shared_directory
+                if shared_dir is None:
+                    shared_dir = Undefined
+                self.study_config.shared_directory = shared_dir
+
 
