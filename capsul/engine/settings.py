@@ -42,8 +42,7 @@ class Settings:
         Create a settins instance using the given populse_db instance
         '''
         self.populse_db = populse_db
-        self._dbs = None
-        
+
     def __enter__(self):
         '''
         Starts a session to read or write settings
@@ -53,8 +52,7 @@ class Settings:
 
     def __exit__(self, *args):
         self.populse_db.__exit__(*args)
-        self._dbs = None
-    
+
     @staticmethod
     def module_name(module_name):
         '''
@@ -175,6 +173,12 @@ class Settings:
     
     
 class SettingsSession:
+    '''
+    Settings use/modifiction session, returned by "with settings as session:"
+    '''
+
+    module_notifiers = {}
+
     def __init__(self, populse_session):
         '''
         SettingsSession are created with Settings.__enter__ using a `with`
@@ -232,32 +236,81 @@ class SettingsSession:
             document[Settings.config_id_field] = id
         collection = self.collection_name(module)
         self._dbs.add_document(collection, document)
-        return SettingsConfig(self._dbs, collection, id)
+        config = SettingsConfig(
+            self._dbs, collection, id,
+            notifiers=self.module_notifiers.get(module, []))
+        config.notify()
+        return config
 
-    def configs(self, module, environment):
+    def configs(self, module, environment, selection=None):
         '''
         Returns a generator that iterates over all configuration
         documents created for the given module and environment.
         '''
         collection = self.collection_name(module)
         if self._dbs.get_collection(collection) is not None:
-            for d in self._dbs.find_documents(collection, 
-                                              '%s=="%s"' % (
-                                                  Settings.environment_field,
-                                                  environment)):
+            if selection:
+                full_query = '%s == "%s" AND (%s)' % (
+                    Settings.environment_field, environment, selection)
+                docs = self._dbs.filter_documents(collection, full_query)
+            else:
+                docs = self._dbs.filter_documents(
+                    collection,
+                    '%s=="%s"' % (Settings.environment_field, environment))
+            for d in docs:
                 id = d[Settings.config_id_field]
-                yield SettingsConfig(self._dbs, collection, id)
+                yield SettingsConfig(
+                    self._dbs, collection, id,
+                    notifiers=self.module_notifiers.get(module, []))
+
+    def config(self, module, environment, selection=None, any=True):
+        '''
+        Selects configurations (like in :meth:`congigs`) and ensures at most
+        one one is selected
+
+        Parameters
+        ----------
+        module: str
+            module name
+        environment: str
+            environment id ('global' etc)
+        selection: str (optional)
+            to select the configuration
+        any: bool (optional)
+            When more than one config is found, if ``any`` is True (default),
+            return any of them (the first one). If ``any`` is False, return
+            None.
+
+        Returns
+        -------
+        config: SettingsConfig instance or None
+            None if no matching config is found or more than one if any is
+            False
+        '''
+        configs = list(self.configs(module, environment, selection))
+        if len(configs) == 0:
+            return None
+        if len(configs) == 1 or any:
+            return configs[0]
+        return None
 
 
 class SettingsConfig(object):
-    def __init__(self, populse_session, collection, id):
+    def __init__(self, populse_session, collection, id, notifiers=[]):
         super(SettingsConfig, self).__setattr__('_dbs', populse_session)
         super(SettingsConfig, self).__setattr__('_collection', collection)
         super(SettingsConfig, self).__setattr__('_id', id)
+        super(SettingsConfig, self).__setattr__('_notifiers', notifiers)
 
     def __setattr__(self, name, value):
         self._dbs.set_value(self._collection, self._id, name, value)
-    
+        # notify change for listeners
+        self.notify(name, value)
+
     def __getattr__(self, name):
         return self._dbs.get_value(self._collection, self._id, name)
+
+    def notify(self, name=None, value=None):
+        for notifier in self._notifiers:
+            notifier(name, value)
     
