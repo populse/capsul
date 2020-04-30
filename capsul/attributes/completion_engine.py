@@ -636,8 +636,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         except ReferenceError:
             # process is deleted
             return schemas
-        factory = engine._modules_data['attributes'].get(
-            'attributes_factory', None)
+        factory = getattr(engine, '_modules_data', {}).get(
+            'attributes', {}).get('attributes_factory', None)
         if factory is not None:
             for dir_name, schema_name \
                     in six.iteritems(study_config.attributes_schemas):
