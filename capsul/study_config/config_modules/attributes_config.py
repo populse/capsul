@@ -16,8 +16,7 @@ from capsul.study_config.study_config import StudyConfigModule
 from capsul.attributes.attributes_factory import AttributesFactory
 from capsul.attributes.attributes_schema import AttributesSchema, \
     ProcessAttributes
-from capsul.attributes.completion_engine \
-    import ProcessCompletionEngineFactory, PathCompletionEngineFactory
+from capsul.engine import settings
 
 
 class AttributesConfig(StudyConfigModule):
@@ -57,7 +56,6 @@ class AttributesConfig(StudyConfigModule):
             'path_completion',
             Str(Undefined, output=False,
                 desc='path completion model name'))
-        #self.study_config.modules_data.attributes_factory = AttributesFactory()
 
 
     def initialize_module(self):
@@ -65,92 +63,67 @@ class AttributesConfig(StudyConfigModule):
         '''
         from capsul.engine import CapsulEngine
 
-        #factory = self.study_config.modules_data.attributes_factory
-        #factory.class_types['schema'] = AttributesSchema
-        #factory.class_types['process_completion'] \
-          #= ProcessCompletionEngineFactory
-        #factory.class_types['path_completion'] \
-          #= PathCompletionEngineFactory
-        #factory.class_types['process_attributes'] \
-          #= ProcessAttributes
-
-        #factory.module_path = self.study_config.attributes_schema_paths
-
-        # Comment the following code to make tests work before removing StudyConfig
-        pass
-        #if type(self.study_config.engine) is not CapsulEngine:
-            ## engine is a proxy, thus we are initialized from a real
-            ## CapsulEngine, which holds the reference values
-            #self.study_config.modules_data.attributes_factory \
-                #= self.study_config.engine.global_config.attributes \
-                    #.attributes_factory
-            #self.sync_from_engine()
-        #else:
-            ## otherwise engine is "owned" by StudyConfig
-            #if 'capsul.engine.module.attributes' \
-                    #not in self.study_config.engine.modules:
-                #self.study_config.engine.modules.append(
-                    #'capsul.engine.module.attributes')
-                #self.study_config.engine.load_modules()
-            #self.study_config.modules_data.attributes_factory \
-                #= self.study_config.engine.global_config.attributes \
-                    #.attributes_factory
-
-            #self.sync_to_engine()
+        if type(self.study_config.engine) is not CapsulEngine:
+            # engine is a proxy, thus we are initialized from a real
+            # CapsulEngine, which holds the reference values
+            self.sync_from_engine()
+        else:
+            # otherwise engine is "owned" by StudyConfig
+            if 'capsul.engine.module.attributes' \
+                    not in self.study_config.engine._loaded_modules:
+                self.study_config.engine.load_module(
+                    'capsul.engine.module.attributes')
+            self.sync_to_engine()
 
 
-    # Comment the following code to make tests work before removing StudyConfig
-    #def initialize_callbacks(self):
-        #self.study_config.on_trait_change(
-            #self.update_module,
-            #['attributes_schemas', 'process_completion',
-             #'path_completion', 'attributes_schema_paths'])
-
-        #self.study_config.engine.global_config.attributes.on_trait_change(
-            #self.sync_from_engine,
-            #['attributes_schemas', 'process_completion',
-             #'path_completion', 'attributes_schema_paths'])
+    def initialize_callbacks(self):
+        self.study_config.on_trait_change(
+            self.update_module,
+            ['attributes_schemas', 'process_completion',
+             'path_completion', 'attributes_schema_paths'])
+        settings.SettingsSession.module_notifiers['axon'] \
+            = [self.sync_from_engine]
 
 
     def update_module(self, param=None, value=None):
-        if param == 'attributes_schema_paths':
-            factory = self.study_config.modules_data.attributes_factory
-            factory.module_path = self.study_config.attributes_schema_paths
+        #if param == 'attributes_schema_paths':
+            #factory = self.study_config.modules_data.attributes_factory
+            #factory.module_path = self.study_config.attributes_schema_paths
         self.sync_to_engine(param, value)
 
 
     def sync_to_engine(self, param=None, value=None):
-        if param is not None:
-            setattr(self.study_config.engine.global_config.attributes, param,
-                    value)
-        else:
-            self.study_config.engine.global_config.attributes \
-                .attributes_schemas \
-                    = self.study_config.attributes_schemas
-            self.study_config.engine.global_config.attributes \
-                  .attributes_schema_paths \
-                      = self.study_config.attributes_schema_paths
-            self.study_config.engine.global_config.attributes \
-                .process_completion \
-                    = self.study_config.process_completion
-            self.study_config.engine.global_config.attributes.path_completion \
-                = self.study_config.path_completion
+        with self.study_config.engine.settings as session:
+            config = session.config('attributes', 'global')
+            if config:
+                if param is not None:
+                    if value is Undefined:
+                        value = None
+                    setattr(config, param, value)
+                else:
+                    params = ['attributes_schemas', #'attributes_schema_paths',
+                              'process_completion', 'path_completion']
+                    for param in params:
+                        value = getattr(self.study_config, param)
+                        if value is Undefined:
+                            value = None
+                    setattr(config, param, value)
 
 
     def sync_from_engine(self, param=None, value=None):
         if param is not None:
+            if value is None:
+                value = Undefined
             setattr(self.study_config, param, value)
         else:
-            self.study_config.attributes_schemas \
-                = self.study_config.engine.global_config.attributes \
-                    .attributes_schemas
-            self.study_config.attributes_schema_paths \
-                = self.study_config.engine.global_config.attributes \
-                    .attributes_schema_paths
-            self.study_config.process_completion \
-                = self.study_config.engine.global_config.attributes \
-                    .process_completion
-            self.study_config.path_completion \
-                = self.study_config.engine.global_config.attributes \
-                    .path_completion
+            with self.study_config.engine.settings as session:
+                config = session.config('attributes', 'global')
+                if config:
+                    params = ['attributes_schemas', #'attributes_schema_paths',
+                              'process_completion', 'path_completion']
+                    for param in params:
+                        value = getattr(config, param)
+                        if value is None:
+                            value = Undefined
+                        setattr(self.study_config, param, value)
 
