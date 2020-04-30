@@ -19,7 +19,7 @@ def init_settings(capsul_engine):
 
 def check_configurations():
     '''
-    Check if the activated configuration is valid for Matlaband return
+    Check if the activated configuration is valid for Matlab and return
     an error message if there is an error or None if everything is good.
     '''
     matlab_executable = capsul.engine.configurations.get('matalb',{}).get('executable')
@@ -28,8 +28,5 @@ def check_configurations():
     if not os.path.exists(matlab_executable):
         return 'Matlab executable is defined as "%s" but this path does not exist' % matlab_executable
     return None
-
-    
-
 
 
