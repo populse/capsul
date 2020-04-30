@@ -223,7 +223,8 @@ class TestLoadFromDescription(unittest.TestCase):
         os.mkdir(pdir)
         save_xml_pipeline(pipeline1, os.path.join(pdir, "test_pipeline.xml"))
         # make this dir become a python module
-        open(os.path.join(pdir, "__init__.py"), "w")
+        with open(os.path.join(pdir, "__init__.py"), "w"):
+            pass
         # point the path to it
         sys.path.append(tmpdir)
         # reload the saved pipeline

@@ -26,7 +26,8 @@ class DummyProcess(Process):
         self.add_trait("other_output", Float(optional=True, output=True))
 
     def _run_process(self):
-        open(self.output_image, 'w').write('dummy output.\n')
+        with open(self.output_image, 'w') as f:
+            f.write('dummy output.\n')
         self.other_output = 24.6
 
 
