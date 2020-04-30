@@ -26,7 +26,7 @@ def init_settings(capsul_engine):
 
     init_att = {
         'attributes_schema_paths': default_paths,
-        #'attributes_schemas': {},
+        'attributes_schemas': {},
         'process_completion': 'builtin',
         settings.Settings.config_id_field: 'attributes',
     }
@@ -36,9 +36,9 @@ def init_settings(capsul_engine):
             [dict(name='attributes_schema_paths',
                   type='list_string',
                   description='attributes shchemas modules names'),
-             #dict(name='attributes_schemas',
-                  #type='dict',
-                  #description='attributes shchemas names'),
+             dict(name='attributes_schemas',
+                  type='json',
+                  description='attributes shchemas names'),
              dict(name='process_completion',
                   type='string',
                   description='process completion model name'),

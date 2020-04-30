@@ -101,7 +101,7 @@ class AttributesConfig(StudyConfigModule):
                         value = None
                     setattr(config, param, value)
                 else:
-                    params = ['attributes_schemas', #'attributes_schema_paths',
+                    params = ['attributes_schemas', 'attributes_schema_paths',
                               'process_completion', 'path_completion']
                     for param in params:
                         value = getattr(self.study_config, param)
@@ -119,7 +119,7 @@ class AttributesConfig(StudyConfigModule):
             with self.study_config.engine.settings as session:
                 config = session.config('attributes', 'global')
                 if config:
-                    params = ['attributes_schemas', #'attributes_schema_paths',
+                    params = ['attributes_schemas', 'attributes_schema_paths',
                               'process_completion', 'path_completion']
                     for param in params:
                         value = getattr(config, param)
