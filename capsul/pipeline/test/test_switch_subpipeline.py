@@ -209,8 +209,9 @@ class TestSwitchPipeline(unittest.TestCase):
 
     def load_state(self, file_name):
         file_name = os.path.join(os.path.dirname(__file__), file_name + '.json')
-        return json.load(open(file_name))
-    
+        with open(file_name) as f:
+            return json.load(f)
+
     def test_self_state(self):
         # verify that the state of a pipeline does not generate differences
         # when compared to itself
@@ -241,7 +242,8 @@ if __name__ == "__main__":
     if 0:
         def write_state():
             state_file_name = '/tmp/state.json'
-            json.dump(pipeline.pipeline_state(), open(state_file_name,'w'))
+            with open(state_file_name,'w') as f:
+                json.dump(pipeline.pipeline_state(), f)
             print('Wrote', state_file_name)
 
         import sys

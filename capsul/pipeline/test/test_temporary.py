@@ -78,7 +78,8 @@ class DummyProcess2(Process):
 
     def _run_process(self):
         for in_filename, out_filename in zip(self.input, self.output):
-            open(out_filename, 'w').write(in_filename + '\n')
+            with open(out_filename, 'w') as f:
+                f.write(in_filename + '\n')
 
 class DummyProcess3(Process):
     """ Dummy Test Process
@@ -95,7 +96,8 @@ class DummyProcess3(Process):
     def _run_process(self):
         with open(self.output, 'w') as f:
             for in_filename in self.input:
-                f.write(open(in_filename).read())
+                with open(in_filename) as g:
+                    f.write(g.read())
 
 class DummyPipeline(Pipeline):
 
@@ -207,7 +209,8 @@ class TestTemporary(unittest.TestCase):
                          ["", "", ""])
         self.assertEqual(self.pipeline.nodes["node2"].process.output,
                          ["", "", ""])
-        res_out = open(self.pipeline.output).readlines()
+        with open(self.pipeline.output) as f:
+            res_out = f.readlines()
         self.assertEqual(len(res_out), 3)
 
     def test_full_wf(self):
@@ -219,7 +222,8 @@ class TestTemporary(unittest.TestCase):
                          ["", "", ""])
         self.assertEqual(self.pipeline.nodes["node2"].process.output,
                          ["", "", ""])
-        res_out = open(self.pipeline.output).readlines()
+        with open(self.pipeline.output) as f:
+            res_out = f.readlines()
         self.assertEqual(len(res_out), 3)
 
 

@@ -8,8 +8,8 @@
 ##########################################################################
 
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import unittest
 import tempfile
 import os
@@ -33,7 +33,9 @@ class DummyProcess(Process):
     def _run_process(self):
         # copy input contents to output
         print(self.name, ':', self.input_image, '->', self.output_image)
-        open(self.output_image, 'w').write(open(self.input_image).read())
+        with open(self.output_image, 'w') as f:
+            with open(self.input_image) as g:
+                f.write(g.read())
 
 
 class MyPipeline(Pipeline):
@@ -69,7 +71,8 @@ class CatFiles(Process):
         print('cat', self.inputs, 'to:', self.output)
         with open(self.output, 'w') as f:
             for in_file in self.inputs:
-                f.write(open(in_file).read())
+                with open(in_file) as g:
+                    f.write(g.read())
 
 
 class MyIterativePipeline(Pipeline):
@@ -102,7 +105,8 @@ class TestPipelineWithTemp(unittest.TestCase):
         input_f = tempfile.mkstemp(suffix='capsul_input.txt')
         os.close(input_f[0])
         input_name = input_f[1]
-        open(input_name, 'w').write('this is my input data\n')
+        with open(input_name, 'w') as f:
+            f.write('this is my input data\n')
         output_f = tempfile.mkstemp(suffix='capsul_output.txt')
         os.close(output_f[0])
         output_name = output_f[1]
@@ -117,7 +121,9 @@ class TestPipelineWithTemp(unittest.TestCase):
 
             # test
             self.assertTrue(os.path.exists(output_name))
-            self.assertEqual(open(input_name).read(), open(output_name).read())
+            with open(input_name) as f:
+                with open(output_name) as g:
+                    self.assertEqual(f.read(), g.read())
 
         finally:
             try:
@@ -131,7 +137,8 @@ class TestPipelineWithTemp(unittest.TestCase):
         input_f = tempfile.mkstemp(suffix='capsul_input.txt')
         os.close(input_f[0])
         input_name = input_f[1]
-        open(input_name, 'w').write('this is my input data\n')
+        with open(input_name, 'w') as f:
+            f.write('this is my input data\n')
         output_f = tempfile.mkstemp(suffix='capsul_output.txt')
         os.close(output_f[0])
         output_name = output_f[1]
@@ -147,8 +154,9 @@ class TestPipelineWithTemp(unittest.TestCase):
 
             # test
             self.assertTrue(os.path.exists(output_name))
-            self.assertEqual(open(input_name).read() * 3,
-                             open(output_name).read())
+            with open(input_name) as f:
+                with open(output_name) as g:
+                    self.assertEqual(f.read() * 3, g.read())
             # check intermediate filenames are empty
             self.assertEqual(
                 self.iter_pipeline.nodes['node1'].process.output_image,

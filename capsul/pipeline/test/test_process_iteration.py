@@ -34,11 +34,9 @@ class WriteOutput(Process):
     
     def _run_process(self):
         # Copy input_image in output_image
-        i = open(self.input_image,'rb')
-        o = open(self.output_image,'wb')
-        o.write(i.read())
-        o.close()
-        i.close()
+        with open(self.input_image,'rb') as i:
+            with open(self.output_image,'wb') as o:
+                o.write(i.read())
 
 
 class ProcessSlice(Process):
@@ -53,10 +51,9 @@ class ProcessSlice(Process):
             raise ValueError('Due to output file size, slice_number cannot '
                 'be more than %d but %d was given' % (int(file_size/2), 
                 self.slice_number))
-        f = open(self.output_image, 'r+b')
-        f.seek(self.slice_number*2, 0)
-        f.write(struct.pack('H', self.slice_number))
-        f.close()
+        with open(self.output_image, 'r+b') as f:
+            f.seek(self.slice_number*2, 0)
+            f.write(struct.pack('H', self.slice_number))
 
 class MyPipeline(Pipeline):
     """ Simple Pipeline to test the iterative Node
@@ -122,7 +119,8 @@ class TestPipeline(unittest.TestCase):
 
         # Test the output connection
         self.pipeline()
-        result = open(self.pipeline.output_image,'rb').read()
+        with open(self.pipeline.output_image,'rb') as f:
+            result = f.read()
         numbers = struct.unpack_from('H' * self.parallel_processes, result)
         self.assertEqual(numbers, tuple(range(self.parallel_processes)))
 
