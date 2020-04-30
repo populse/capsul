@@ -3,11 +3,11 @@
         Auto Generated Pipeline Test
     </doc>
     <process name="p1"
-             module="capsul.process.test.fix_test_load_from_description.a_function_to_wrap">
+             module="capsul.process.test.test_load_from_description.a_function_to_wrap">
         <set name="list_of_str" value="['test']"/>
     </process>
     <process name="p2"
-             module="capsul.process.test.fix_test_load_from_description.a_function_to_wrap"/>
+             module="capsul.process.test.test_load_from_description.a_function_to_wrap"/>
     <link source="p1.string" dest="p2.fname"/>
     <link source="pdirectory" dest="p2.directory"/>
     <link source="value" dest="p2.value"/>
