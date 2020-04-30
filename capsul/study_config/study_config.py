@@ -629,7 +629,7 @@ class StudyConfig(Controller):
         # trait attributes
         trait_instance = self.trait(name)
         if self.is_user_trait(trait_instance):
-            self.get(name)
+            self.trait_get(name)
 
     ####################################################################
     # Accessors
