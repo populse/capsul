@@ -23,7 +23,6 @@ import sys
 import os
 import types
 import logging
-import traceback
 import six
 
 # Define the logger
@@ -166,7 +165,7 @@ def nipype_factory(nipype_instance):
             to update.
         name: str (mandatory)
             the name of the trait we want to update.
-        value: type (manndatory)
+        value: type (mandatory)
             the old trait value
         """
         #print('sync_process_output_traits', name)
@@ -189,6 +188,9 @@ def nipype_factory(nipype_instance):
                 print('EXCEPTION:', e, file=sys.stderr)
                 print('while syncing nipype parameter', name,
                       'on', process_instance.name, file=sys.stderr)
+                # when called during exit, the traceback module might have
+                # already disapeared
+                import traceback
                 traceback.print_exc()
                 ex_type, ex, tb = sys.exc_info()
                 logger.debug(

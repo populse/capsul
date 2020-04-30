@@ -1520,7 +1520,7 @@ class NipypeProcess(FileCopyProcess):
                  *args, **kwargs):
         """ Initialize the NipypeProcess class.
 
-        NipypeProcess instance get automatically an additional user trait
+        NipypeProcess instance gets automatically an additional user trait
         'output_directory'.
 
         This class also fix also some lake of the nipye version '0.10.0'.

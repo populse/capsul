@@ -426,28 +426,29 @@ def save_py_pipeline(pipeline, py_file):
             class_name = class_name[:class_name.index('.')]
         class_name = class_name[0].upper() + class_name[1:]
 
-    pyf = open(py_file, 'w')
+    with open(py_file, 'w') as pyf:
 
-    print('from capsul.api import Pipeline', file=pyf)
-    print('import traits.api as traits', file=pyf)
-    print(file=pyf)
-    print(file=pyf)
-    print('class %s(Pipeline):' % class_name, file=pyf)
+        print('from capsul.api import Pipeline', file=pyf)
+        print('import traits.api as traits', file=pyf)
+        print(file=pyf)
+        print(file=pyf)
+        print('class %s(Pipeline):' % class_name, file=pyf)
 
-    _write_doc(pipeline, pyf)
+        _write_doc(pipeline, pyf)
 
-    print(file=pyf)
-    print('    def pipeline_definition(self):', file=pyf)
+        print(file=pyf)
+        print('    def pipeline_definition(self):', file=pyf)
 
-    _write_processes(pipeline, pyf)
-    _write_links(pipeline, pyf)
-    _write_processes_selections(pipeline, pyf)
-    _write_steps(pipeline, pyf)
-    _write_values(pipeline, pyf)
-    _write_nodes_positions(pipeline, pyf)
-    _write_nodes_dimensions(pipeline, pyf) #add by Irmage OM
+        _write_processes(pipeline, pyf)
+        _write_links(pipeline, pyf)
+        _write_processes_selections(pipeline, pyf)
+        _write_steps(pipeline, pyf)
+        _write_values(pipeline, pyf)
+        _write_nodes_positions(pipeline, pyf)
+        _write_nodes_dimensions(pipeline, pyf) #add by Irmage OM
 
-    print('\n        self.do_autoexport_nodes_parameters = False', file=pyf)
+        print('\n        self.do_autoexport_nodes_parameters = False',
+              file=pyf)
 
 
 
