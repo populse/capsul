@@ -18,6 +18,26 @@ CapsulEngine settings are organized in modules. Each module defines and document
 Settings cannot be used directly to configure the execution of a software. It is necessary to first select a single configuration document for each module. This configurations selection step is done by the `select_configurations()` method.
 
 '''
+
+#
+# Questions about settings
+# How to automatically build a GUI to input settings values ?
+# * default values
+# * mandatory / optional settings
+# * dependencies between settings
+# * complex types (dicts...)
+#
+# all these were "simple" using Controllers but are in a way "too free" now,
+# and "too constrained" in another way (table columns: not dicts or structures)
+#
+# config modules might provide validation functions (check consistency,
+# completeness of config values), and maybe a Controller to build a GUI ?
+#
+# How to store additional data indirectly linked with settings values ?
+# Some modules were using objects shared through StudyConfig.modules_data
+# (or CapsulEngine).
+#
+
 class Settings:
     '''
     Main class for the management of CapsulEngine settings. Since these settings are always stored in a populse_db database, it is necessary to activate a settings session in order to read or modify settings. This is done by using a with clause:
@@ -72,7 +92,7 @@ class Settings:
         Select a configuration for a given environment. A configuration is
         a dictionary whose keys are module names and values are
         configuration documents. The returned set of configuration per module
-        can be activaded with `capsul.api.activate_configurations()`.
+        can be activaded with `capsul.api.activate_configuration()`.
         
         The `uses` parameter determine which modules
         must be included in the configuration. If not given, this method 

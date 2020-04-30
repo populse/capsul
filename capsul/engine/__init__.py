@@ -486,6 +486,9 @@ configurations = None
 activated_modules = set()
 
 def activate_configuration(selected_configurations):
+    '''
+    Activate a selected configuration (set of modules) for runtime.
+    '''
     global configurations
     
     configurations = selected_configurations
@@ -494,6 +497,11 @@ def activate_configuration(selected_configurations):
         activate_module(m)
 
 def activate_module(module_name):
+    '''
+    Activate a module configuration for runtime. This function is called by
+    activate_configuration() and assumes the global variable
+    ``capsul.engine.configurations`` is properly setup.
+    '''
     global activated_modules
     
     if module_name not in activated_modules:
