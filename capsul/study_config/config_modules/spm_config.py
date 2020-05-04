@@ -164,7 +164,7 @@ class SPMConfig(StudyConfigModule):
                         params = ['spm_directory', 'spm_standalone',
                                   'spm_version']
                         defaults = {'directory': None, 'standalone': False,
-                                    'version': 12}
+                                    'version': '12'}
                         for p in params:
                             val = getattr(self.study_config, p)
                             ceparam = tparam[p]

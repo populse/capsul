@@ -56,7 +56,7 @@ class FSLConfig(StudyConfigModule):
     def initialize_callbacks(self):
         self.study_config.on_trait_change(
             self.sync_to_engine, '[fsl_config, fsl_prefix, use_fsl]')
-        settings.SettingsSession.module_notifiers['matlab'] \
+        settings.SettingsSession.module_notifiers['fsl'] \
             = [self.sync_from_engine]
 
     def sync_to_engine(self, param=None, value=None):
