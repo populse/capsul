@@ -1,3 +1,5 @@
-default_modules = ['fsl', 
+# -*- coding: utf-8 -*-
+
+default_modules = ['fsl',
                    'matlab',
                    'spm']
