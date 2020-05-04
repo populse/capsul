@@ -69,7 +69,7 @@ install:
 
 
 script:
-    - coverage run -m capsul.test.test_capsul
+    - coverage run -m capsul.test
 
 after_success:
     - codecov
