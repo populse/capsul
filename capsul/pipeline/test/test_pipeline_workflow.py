@@ -28,6 +28,14 @@ class DummyProcess(Process):
         self.output = self.input
         self.output = self.output
 
+
+class DummyProcessSPM(DummyProcess):
+    """ Dummy Test Process with config requirement
+    """
+    def requirements(self):
+        return {'spm': 'standalone == True'}
+
+
 class DummyPipeline(Pipeline):
 
     def pipeline_definition(self):
@@ -37,7 +45,7 @@ class DummyPipeline(Pipeline):
             'capsul.pipeline.test.test_pipeline_workflow.DummyProcess')
         self.add_process(
             "node2",
-            'capsul.pipeline.test.test_pipeline_workflow.DummyProcess')
+            'capsul.pipeline.test.test_pipeline_workflow.DummyProcessSPM')
         self.add_process(
             "node3",
             'capsul.pipeline.test.test_pipeline_workflow.DummyProcess')
@@ -74,21 +82,43 @@ class DummyPipeline(Pipeline):
 class TestPipelineWorkflow(unittest.TestCase):
 
     def setUp(self):
+        study_config = StudyConfig() #modules=StudyConfig.default_modules \
+                                   #+ ['FomConfig'])
         self.pipeline = DummyPipeline()
+        self.pipeline.set_study_config(study_config)
         self.pipeline.input = '/tmp/file_in.nii'
         self.pipeline.output1 = '/tmp/file_out1.nii'
         self.pipeline.output2 = '/tmp/file_out2.nii'
         self.pipeline.output3 = '/tmp/file_out3.nii'
-        study_config = StudyConfig() #modules=StudyConfig.default_modules \
-                                   #+ ['FomConfig'])
         study_config.input_directory = '/tmp'
         study_config.somaworkflow_computing_resource = 'localhost'
         study_config.somaworkflow_computing_resources_config.localhost = {
             'transfer_paths': [study_config.input_directory],
         }
         self.study_config = study_config
+        engine = self.study_config.engine
+        engine.load_module('spm')
+        #with engine.settings as session:
+            #ids = [c.config_id for c in session.configs('spm', 'global')]
+            #for id in ids:
+                #session.remove_config('spm', 'global', {'config_id': id})
+            #session.new_config('spm', 'global',
+                               #{'version': '12', 'standalone': True})
+        study_config.spm_standalone = True
+        study_config.spm_version = '12'
+
+    def test_requirements(self):
+        engine = self.study_config.engine
+        with engine.settings as session:
+            session.remove_config('spm', 'global', 'spm12-standalone')
+        self.pipeline.enable_all_pipeline_steps()
+        with self.assertRaises(ValueError):
+            wf = pipeline_workflow.workflow_from_pipeline(
+                self.pipeline, study_config=self.study_config)
+
 
     def test_full_wf(self):
+        engine = self.study_config.engine
         self.pipeline.enable_all_pipeline_steps()
         wf = pipeline_workflow.workflow_from_pipeline(
             self.pipeline, study_config=self.study_config)

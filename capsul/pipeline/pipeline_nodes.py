@@ -457,6 +457,47 @@ class Node(Controller):
       return hasattr(self, 'build_job')
 
 
+    def requirements(self):
+        '''
+        Requirements needed to run the node. It is a dictionary which keys are
+        config/settings modules and values are requests for them.
+
+        The default implementation returns an empty dict (no requirements), and
+        should be overloaded by processes which actually have requirements.
+
+        Ex::
+
+            {'spm': 'version >= "12" and standalone == "True"')
+        '''
+        return {}
+
+    def check_requirements(self, capsul_engine, environment='global'):
+        '''
+        Checks the process requirements against configuration settings values
+        in the attached CapsulEngine. This makes use of the
+        :meth:`requirements` method and checks that there is one matching
+        config value for each required module.
+
+        Returns
+        -------
+        config: dict, list, or None
+            if None is returned, requirements are not met: the process cannot
+            run. If a dict is returned, it corresponds to the matching config
+            values. When no requirements are needed, an empty dict is returned.
+            A pipeline, if its requirements are met will return a list of
+            configuration values, because different nodes may require different
+            config values.
+        '''
+        settings = capsul_engine.settings
+        req = self.requirements()
+        config = settings.select_configuration(environment, uses=req)
+        for module in req:
+            module_name = settings.module_name(module)
+            if module_name not in config:
+                return None
+        return config
+
+
 class ProcessNode(Node):
     """ Process node.
 
@@ -585,6 +626,26 @@ class ProcessNode(Node):
 
     def is_job(self):
         return True
+
+
+    def requirements(self):
+        '''
+        Requirements reimplementation for a process node. This node delegates
+        to its underlying process. see
+        :meth:`capsul.process.process.requirements`
+        '''
+        return self.process.requirements()
+
+    def check_requirements(self, capsul_engine, environment='global'):
+        '''
+        Reimplementation of
+        :meth:`capsul.pipeline.pipeline_nodes.Node.requirements` for a
+        ProcessNode. This one delegates to its underlying process (or
+        pipeline).
+
+        .. see:: :meth:`capsul.process.process.check_requirements`
+        '''
+        return self.process.check_requirements(environment)
 
 
 class PipelineNode(ProcessNode):

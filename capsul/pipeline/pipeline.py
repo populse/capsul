@@ -2452,3 +2452,31 @@ class Pipeline(Process):
                     groups = [groups[0]]
                 trait.groups = groups
 
+    def check_requirements(self, environment='global'):
+        '''
+        Reimplementation for pipelines of
+        :meth:`capsul.process.process.Process.check_requirements <Process.check_requirements>`
+
+        A pipeline will return a list of unique configuration values.
+        '''
+        # start with pipeline-level requirements
+        conf = super(Pipeline, self).check_requirements(environment)
+        if conf is None:
+            return None
+        confs = []
+        from capsul.pipeline import pipeline_tools
+        for key, node in six.iteritems(self.nodes):
+            if node is self.pipeline_node:
+                continue
+            if pipeline_tools.is_node_enabled(self, key, node):
+                conf = node.check_requirements(self.study_config.engine,
+                                               environment)
+                if conf is None:
+                    # requirement failed
+                    return None
+                if conf != {} and conf not in confs:
+                    confs.append(conf)
+
+        return confs
+
+

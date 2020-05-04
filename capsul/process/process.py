@@ -1102,6 +1102,47 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                     missing.append(name)
         return missing
 
+    def requirements(self):
+        '''
+        Requirements needed to run the process. It is a dictionary which keys are config/settings modules and values are requests for them.
+
+        The default implementation returns an empty dict (no requirements), and
+        should be overloaded by processes which actually have requirements.
+
+        Ex::
+
+            {'spm': 'version >= "12" and standalone == "True"')
+        '''
+        return {}
+
+    def check_requirements(self, environment='global'):
+        '''
+        Checks the process requirements against configuration settings values
+        in the attached CapsulEngine. This makes use of the
+        :meth:`requirements` method and checks that there is one matching
+        config value for each required module.
+
+        Returns
+        -------
+        config: dict, list, or None
+            if None is returned, requirements are not met: the process cannot
+            run. If a dict is returned, it corresponds to the matching config
+            values. When no requirements are needed, an empty dict is returned.
+            A pipeline, if its requirements are met will return a list of
+            configuration values, because different nodes may require different
+            config values.
+        '''
+        settings = self.get_study_config().engine.settings
+        req = self.requirements()
+        config = settings.select_configurations(environment, uses=req)
+        for module in req:
+            module_name = settings.module_name(module)
+            if module_name not in config:
+                print('requirement:', req, 'not met in', self.name)
+                print('config:', settings.select_configurations(environment, uses={'spm': 'ALL'}))
+                return None
+        return config
+
 
 class FileCopyProcess(Process):
     """ A specific process that copies all the input files.
