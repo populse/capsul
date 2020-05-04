@@ -490,7 +490,7 @@ class Node(Controller):
         '''
         settings = capsul_engine.settings
         req = self.requirements()
-        config = settings.select_configuration(environment, uses=req)
+        config = settings.select_configurations(environment, uses=req)
         for module in req:
             module_name = settings.module_name(module)
             if module_name not in config:
