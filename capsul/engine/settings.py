@@ -37,6 +37,8 @@ Settings cannot be used directly to configure the execution of a software. It is
 # Some modules were using objects shared through StudyConfig.modules_data
 # (or CapsulEngine).
 #
+# doc on modules activation / use ?
+#
 
 class Settings:
     '''
