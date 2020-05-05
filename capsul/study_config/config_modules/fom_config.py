@@ -169,7 +169,7 @@ class FomConfig(StudyConfigModule):
                 if value is None:
                     value = Undefined
                 setattr(self.study_config, p, value)
-            self.study_config.use_fom = False
+            self.study_config.use_fom = True
 
 
     def load_fom(self, schema):
