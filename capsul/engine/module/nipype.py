@@ -28,7 +28,11 @@ def activate_configurations():
         module_name = Settings.module_name(module)
         mod_conf = engine.configurations.get(module_name)
         if mod_conf:
-            activate_module(module_name)
+            try:
+                activate_module(module_name)
+            except Exception as e:
+                # the module couldn't be activated, just don't use it
+                pass
 
     nipype.configure_all()
 
