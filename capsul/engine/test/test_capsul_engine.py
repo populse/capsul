@@ -108,7 +108,7 @@ class TestCapsulEngine(unittest.TestCase):
             fsl = settings.new_config('fsl', 'global', {cif:'5'})
             fsl.directory = '/usr/share/fsl/5.0'
             fsl.prefix = 'fsl5.0-'
-            fsl.config = '/etc/fsl/fsl.sh'
+            #fsl.config = '/etc/fsl/fsl.sh'
         conf = self.ce.settings.select_configurations('global',
                                                       uses={'fsl': 'any'})
         self.assertTrue(conf is not None)
