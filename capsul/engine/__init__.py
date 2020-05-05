@@ -43,6 +43,8 @@ from .module import default_modules
 
 class CapsulEngine(Controller):
     '''
+    # FIXME TODO: OBSOLETE
+
     A CapsulEngine is the mandatory entry point of all software using Capsul. It contains objects to store configuration and metadata, define execution environment(s) (possibly remote) and perform pipelines execution.
     
     A CapsulEngine must be created using capsul.engine.capsul_engine function. For instance::
@@ -294,6 +296,8 @@ class CapsulEngine(Controller):
 
     def environment_builder(self):
         '''
+        # FIXME TODO: OBSOLETE
+
         Return a string that contains a Python script that must be run in
         the computing environment in order to define the environment variables
         that must be given to all processes. The code of this script must be
@@ -303,6 +307,7 @@ class CapsulEngine(Controller):
         This dictionary contain environment variables that must be given to any
         process using the environment of this capsul engine.
         '''
+        # FIXME TODO: OBSOLETE
         environ = {}
         import_lines = []
         code_lines = []
@@ -396,6 +401,7 @@ class CapsulEngine(Controller):
         
 
     def __enter__(self):
+        # FIXME TODO: OBSOLETE
         code = self.environment_builder()
         tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.py')
         tmp.write(code)
@@ -403,14 +409,15 @@ class CapsulEngine(Controller):
         json_environ = subprocess.check_output(
             [sys.executable, tmp.name]).decode('utf-8')
         environ = json.loads(json_environ)
-        
+
         self._environ_backup = {}
         for n in environ.keys():
             v = os.environ.get(n)
             self._environ_backup[n] = v
             os.environ[n] = environ[n]
-            
-    def __exit__(self, exc_type, exc_value, traceback):        
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        # FIXME TODO: OBSOLETE
         for n, v in self._environ_backup.items():
             if v is None:
                 os.environ.pop(n, None)
