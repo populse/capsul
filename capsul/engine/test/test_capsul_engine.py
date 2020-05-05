@@ -26,7 +26,7 @@ class TestCapsulEngine(unittest.TestCase):
             os.remove(self.sqlite_file)
 
 
-    def test_engine(self):
+    def test_engine_settings(self):
         # In the following, we use explicit values for config_id_field
         # (which is a single string value that must be unique for each
         # config). This is not mandatory but it avoids to have randomly
@@ -63,27 +63,40 @@ class TestCapsulEngine(unittest.TestCase):
                                            'version': '20',
                                            'standalone': True,
                                            cif: '20'}})
-        self.assertRaises(EnvironmentError, lambda: self.ce.settings.select_configurations('global'))
+        self.assertRaises(EnvironmentError,
+                          lambda:
+                              self.ce.settings.select_configurations('global'))
         self.assertEqual(
-            self.ce.settings.select_configurations('global', uses={'fsl': 'any'}),
-            {'capsul.engine.module.fsl': {'config_environment': 'global', 'directory': '/there', cif:'5'},
-             'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'any'}}})
-            
+            self.ce.settings.select_configurations('global',
+                                                   uses={'fsl': 'any'}),
+            {'capsul.engine.module.fsl':
+                {'config_environment': 'global', 'directory': '/there',
+                 cif:'5'},
+             'capsul_engine':
+                {'uses': {'capsul.engine.module.fsl': 'any'}}})
+
         self.assertEqual(
-            self.ce.settings.select_configurations('global', uses={'spm': 'any'}),
-            {'capsul.engine.module.spm': {'config_environment': 'global', 
-                                          'version': '8',
-                                          'standalone': True,
-                                          cif: '8'},
-             'capsul_engine': {'uses': {'capsul.engine.module.spm': 'any'}}})
+            self.ce.settings.select_configurations('global',
+                                                   uses={'spm': 'any'}),
+            {'capsul.engine.module.spm':
+                {'config_environment': 'global',
+                 'version': '8',
+                 'standalone': True,
+                 cif: '8'},
+             'capsul_engine':
+                {'uses': {'capsul.engine.module.spm': 'any'}}})
         self.assertEqual(
-            self.ce.settings.select_configurations('global', uses={'spm': 'version=="12"'}),
-            {'capsul.engine.module.spm': {'config_environment': 'global',
-                                          'version': '12',
-                                          'standalone': False,
-                                          cif: '12'},
-             'capsul_engine': {'uses': {'capsul.engine.module.spm': 'version=="12"',
-                                        'capsul.engine.module.matlab': 'any'}}})
+            self.ce.settings.select_configurations(
+                'global',  uses={'spm': 'version=="12"'}),
+            {'capsul.engine.module.spm':
+                {'config_environment': 'global',
+                 'version': '12',
+                 'standalone': False,
+                 cif: '12'},
+             'capsul_engine':
+                {'uses':
+                    {'capsul.engine.module.spm': 'version=="12"',
+                     'capsul.engine.module.matlab': 'any'}}})
 
 def test():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestCapsulEngine)
