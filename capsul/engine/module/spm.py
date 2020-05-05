@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+from capsul import engine
+import os
+
 #import glob
-#import os
 #import os.path as osp
 #import weakref
 ##import subprocess # Only in case of matlab call (auto_configuration func)
@@ -129,3 +131,28 @@ def config_dependencies(config):
 #            if rc == 0:
 #                 capsul_engine.spm.version = err.decode("utf-8")
 #
+
+
+def activate_configurations():
+    '''
+    Activate the SPM module (set env variables) from the global configurations,
+    in order to use them via :mod:`capsul.in_context.spm` functions
+    '''
+    conf = engine.configurations.get('capsul.engine.module.spm', {})
+    spm_dir = conf.get('directory')
+    if spm_dir:
+        os.environ['SPM_DIRECTORY'] = spm_dir
+    elif 'SPM_DIRECTORY' in os.environ:
+        del os.environ['SPM_DIRECTORY']
+    spm_version = conf.get('version')
+    if spm_version:
+        os.environ['SPM_VERSION'] = spm_version
+    elif 'SPM_VERSION' in os.environ:
+        del os.environ['SPM_VERSION']
+    spm_standalone = conf.get('standalone')
+    if spm_standalone:
+        os.environ['SPM_STANDALONE'] = spm_standalone
+    elif 'SPM_STANDALONE' in os.environ:
+        del os.environ['SPM_STANDALONE']
+
+
