@@ -103,54 +103,43 @@ class TestCapsulEngine(unittest.TestCase):
                      'capsul.engine.module.matlab': 'any'}}})
 
     def test_fsl_config(self):
-        cif = self.ce.settings.config_id_field
-        with self.ce.settings as settings:
-            fsl = settings.new_config('fsl', 'global', {cif:'5'})
-            fsl.directory = '/usr/share/fsl/5.0'
-            fsl.prefix = 'fsl5.0-'
-            #fsl.config = '/etc/fsl/fsl.sh'
-        conf = self.ce.settings.select_configurations('global',
-                                                      uses={'fsl': 'any'})
-        self.assertTrue(conf is not None)
-        self.assertEqual(len(conf), 2)
+        # fake the FSL "bet" command to have test working without FSL installed
+        path = os.environ.get('PATH')
+        tdir = tempfile.mkdtemp(prefix='capsul_fsl')
 
-        activate_configuration(conf)
-        self.assertEqual(os.environ.get('FSLDIR'), '/usr/share/fsl/5.0')
-        self.assertEqual(os.environ.get('FSL_PREFIX'), 'fsl5.0-')
-
-        if not sys.platform.startswith('win'):
-            # skip this test under windows because we're using a sh script
-            # shebang, and FSL doent't work there anyway
-
-            path = os.environ.get('PATH')
-            tdir = tempfile.mkdtemp(prefix='capsul_fsl')
-            try:
-                # fake the FSL "bet" command
-                os.mkdir(osp.join(tdir, 'bin'))
-                script = osp.join(tdir, 'bin', 'fsl5.0-bet')
-                with open(script, 'w') as f:
-                    print('''#!/usr/bin/env python
+        try:
+            os.mkdir(osp.join(tdir, 'bin'))
+            script = osp.join(tdir, 'bin', 'fsl5.0-bet')
+            with open(script, 'w') as f:
+                print('''#!/usr/bin/env python
 
 from __future__ import print_function
 import sys
 
 print(sys.argv)
 ''', file=f)
-                os.chmod(script, 0o775)
+            os.chmod(script, 0o775)
 
-                # change config
-                os.environ['PATH'] = '%s:%s' % (path, osp.join(tdir, 'bin'))
-                with self.ce.settings as settings:
-                    fsl = settings.config('fsl', 'global',
-                                          selection='%s == "5"' % cif)
-                    fsl.directory = tdir
-                    fsl.prefix = 'fsl5.0-'
-                    fsl.config = None
+            # change config
+            os.environ['PATH'] = '%s:%s' % (path, osp.join(tdir, 'bin'))
+            cif = self.ce.settings.config_id_field
+            with self.ce.settings as settings:
+                fsl = settings.new_config('fsl', 'global', {cif:'5'})
+                fsl.directory = tdir
+                fsl.prefix = 'fsl5.0-'
 
-                engine.activated_modules = set()
-                conf = self.ce.settings.select_configurations(
-                    'global', uses={'fsl': 'any'})
-                activate_configuration(conf)
+            conf = self.ce.settings.select_configurations('global',
+                                                          uses={'fsl': 'any'})
+            self.assertTrue(conf is not None)
+            self.assertEqual(len(conf), 2)
+
+            activate_configuration(conf)
+            self.assertEqual(os.environ.get('FSLDIR'), tdir)
+            self.assertEqual(os.environ.get('FSL_PREFIX'), 'fsl5.0-')
+
+            if not sys.platform.startswith('win'):
+                # skip this test under windows because we're using a sh script
+                # shebang, and FSL doent't work there anyway
 
                 # run it using in_context.fsl
                 from capsul.in_context.fsl import fsl_check_call, \
@@ -160,8 +149,8 @@ print(sys.argv)
                 output = output.decode('utf-8').strip()
                 self.assertEqual(output,
                                  "['%s', 'nothing', 'nothing_else']" % script)
-            finally:
-                shutil.rmtree(tdir)
+        finally:
+            shutil.rmtree(tdir)
 
 
 def test():
