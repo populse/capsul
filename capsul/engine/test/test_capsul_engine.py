@@ -137,9 +137,9 @@ class TestCapsulEngine(unittest.TestCase):
                     'global', uses={'fsl': 'any'})
                 activate_configuration(conf)
 
-                # fake a FSL command
+                # fake the FSL "bet" command
                 os.mkdir(osp.join(tdir, 'bin'))
-                script = osp.join(tdir, 'bin', 'fsl5.0-dummy')
+                script = osp.join(tdir, 'bin', 'fsl5.0-bet')
                 with open(script, 'w') as f:
                     print('''#!/usr/bin/env python
 
@@ -152,8 +152,8 @@ print(sys.argv)
                 # run it using in_context.fsl
                 from capsul.in_context.fsl import fsl_check_call, \
                     fsl_check_output
-                fsl_check_call(['dummy', 'nothing', 'nothing_else'])
-                output = fsl_check_output(['dummy', 'nothing', 'nothing_else'])
+                fsl_check_call(['bet', 'nothing', 'nothing_else'])
+                output = fsl_check_output(['bet', 'nothing', 'nothing_else'])
                 output = output.decode('utf-8').strip()
                 self.assertEqual(output,
                                  "['%s', 'nothing', 'nothing_else']" % script)
