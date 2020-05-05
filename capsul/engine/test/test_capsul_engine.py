@@ -151,6 +151,9 @@ print(sys.argv)
                                  "['%s', 'nothing', 'nothing_else']" % script)
         finally:
             shutil.rmtree(tdir)
+            # cleanup env for later tests
+            if 'FSLDIR' in os.environ:
+                del os.environ['FSLDIR']
 
 
 def test():
