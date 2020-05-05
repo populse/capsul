@@ -11,7 +11,7 @@ install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "python -m pip install --upgrade pip"
   - "pip install numpy"
-  - "pip install 'six>=1.13'"
+  - "pip install six>=1.13"
   - "pip install traits"
   - "pip install python-dateutil"
   #- "pip install soma-workflow"
