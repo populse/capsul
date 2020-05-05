@@ -29,7 +29,6 @@ def init_settings(capsul_engine):
                 description='If this parameter is set to True, use the '
                             'standalone SPM version, otherwise use Matlab.')
             ])
-        settings
 
 
 def config_dependencies(config):
@@ -151,7 +150,7 @@ def activate_configurations():
         del os.environ['SPM_VERSION']
     spm_standalone = conf.get('standalone')
     if spm_standalone:
-        os.environ['SPM_STANDALONE'] = spm_standalone
+        os.environ['SPM_STANDALONE'] = 'yes' if spm_standalone else 'no'
     elif 'SPM_STANDALONE' in os.environ:
         del os.environ['SPM_STANDALONE']
 
