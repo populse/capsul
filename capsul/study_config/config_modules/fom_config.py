@@ -151,7 +151,7 @@ class FomConfig(StudyConfigModule):
                 session.new_config('fom', 'global', values)
 
 
-    def sync_from_engine(self, controller=None, param=None, value=None):
+    def sync_from_engine(self, param=None, value=None):
         params = ['input_fom', 'meshes_format', 'output_fom', 'shared_fom',
                   'volumes_format', 'input_directory', 'output_directory',
                   'auto_fom', 'fom_path']
@@ -164,7 +164,7 @@ class FomConfig(StudyConfigModule):
                 self.study_config.use_fom = False
                 return
             for p in params:
-                #print('sync_from_engine:', p)
+                # print('sync_from_engine:', p, type(p))
                 value = getattr(config, p)
                 if value is None:
                     value = Undefined
