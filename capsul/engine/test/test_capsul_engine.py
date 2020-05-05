@@ -122,21 +122,9 @@ class TestCapsulEngine(unittest.TestCase):
             # skip this test under windows because we're using a sh script
             # shebang, and FSL doent't work there anyway
 
+            path = os.environ.get('PATH')
             tdir = tempfile.mkdtemp(prefix='capsul_fsl')
             try:
-                # change config
-                with self.ce.settings as settings:
-                    fsl = settings.config('fsl', 'global',
-                                          selection='%s == "5"' % cif)
-                    fsl.directory = tdir
-                    fsl.prefix = 'fsl5.0-'
-                    fsl.config = None
-
-                engine.activated_modules = set()
-                conf = self.ce.settings.select_configurations(
-                    'global', uses={'fsl': 'any'})
-                activate_configuration(conf)
-
                 # fake the FSL "bet" command
                 os.mkdir(osp.join(tdir, 'bin'))
                 script = osp.join(tdir, 'bin', 'fsl5.0-bet')
@@ -149,6 +137,21 @@ import sys
 print(sys.argv)
 ''', file=f)
                 os.chmod(script, 0o775)
+
+                # change config
+                os.environ['PATH'] = '%s:%s' % (path, osp.join(tdir, 'bin'))
+                with self.ce.settings as settings:
+                    fsl = settings.config('fsl', 'global',
+                                          selection='%s == "5"' % cif)
+                    fsl.directory = tdir
+                    fsl.prefix = 'fsl5.0-'
+                    fsl.config = None
+
+                engine.activated_modules = set()
+                conf = self.ce.settings.select_configurations(
+                    'global', uses={'fsl': 'any'})
+                activate_configuration(conf)
+
                 # run it using in_context.fsl
                 from capsul.in_context.fsl import fsl_check_call, \
                     fsl_check_output
