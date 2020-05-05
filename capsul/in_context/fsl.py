@@ -45,7 +45,9 @@ def fsl_command_with_environment(command):
         dir_prefix = ''
     fsl_prefix = os.environ.get('FSL_PREFIX', '')
     fsl_config = os.environ.get('FSL_CONFIG')
-    
+    if fsl_prefix and not os.path.isdir(dir_prefix):
+        dir_prefix = ''
+
     if fsl_config:
         fsldir = osp.dirname(osp.dirname(osp.dirname(fsl_config)))
         shell = os.environ.get('SHELL', '/bin/sh')

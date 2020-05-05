@@ -7,9 +7,13 @@ import unittest
 import tempfile
 import os
 import sys
-
+import os.path as osp
+import shutil
 
 from capsul.api import capsul_engine
+from capsul.engine import activate_configuration
+from capsul import engine
+
 
 class TestCapsulEngine(unittest.TestCase):
     def setUp(self):
@@ -97,6 +101,65 @@ class TestCapsulEngine(unittest.TestCase):
                 {'uses':
                     {'capsul.engine.module.spm': 'version=="12"',
                      'capsul.engine.module.matlab': 'any'}}})
+
+    def test_fsl_config(self):
+        cif = self.ce.settings.config_id_field
+        with self.ce.settings as settings:
+            fsl = settings.new_config('fsl', 'global', {cif:'5'})
+            fsl.directory = '/usr/share/fsl/5.0'
+            fsl.prefix = 'fsl5.0-'
+            fsl.config = '/etc/fsl/fsl.sh'
+        conf = self.ce.settings.select_configurations('global',
+                                                      uses={'fsl': 'any'})
+        self.assertTrue(conf is not None)
+        self.assertEqual(len(conf), 2)
+
+        activate_configuration(conf)
+        self.assertEqual(os.environ.get('FSLDIR'), '/usr/share/fsl/5.0')
+        self.assertEqual(os.environ.get('FSL_PREFIX'), 'fsl5.0-')
+
+        if not sys.platform.startswith('win'):
+            # skip this test under windows because we're using a sh script
+            # shebang, and FSL doent't work there anyway
+
+            tdir = tempfile.mkdtemp(prefix='capsul_fsl')
+            try:
+                # change config
+                with self.ce.settings as settings:
+                    fsl = settings.config('fsl', 'global',
+                                          selection='%s == "5"' % cif)
+                    fsl.directory = tdir
+                    fsl.prefix = 'fsl5.0-'
+                    fsl.config = None
+
+                engine.activated_modules = set()
+                conf = self.ce.settings.select_configurations(
+                    'global', uses={'fsl': 'any'})
+                activate_configuration(conf)
+
+                # fake a FSL command
+                os.mkdir(osp.join(tdir, 'bin'))
+                script = osp.join(tdir, 'bin', 'fsl5.0-dummy')
+                with open(script, 'w') as f:
+                    print('''#!/usr/bin/env python
+
+from __future__ import print_function
+import sys
+
+print(sys.argv)
+''', file=f)
+                os.chmod(script, 0o775)
+                # run it using in_context.fsl
+                from capsul.in_context.fsl import fsl_check_call, \
+                    fsl_check_output
+                fsl_check_call(['dummy', 'nothing', 'nothing_else'])
+                output = fsl_check_output(['dummy', 'nothing', 'nothing_else'])
+                output = output.decode('utf-8').strip()
+                self.assertEqual(output,
+                                 "['%s', 'nothing', 'nothing_else']" % script)
+            finally:
+                shutil.rmtree(tdir)
+
 
 def test():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestCapsulEngine)
