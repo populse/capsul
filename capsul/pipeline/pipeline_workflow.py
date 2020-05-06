@@ -1379,7 +1379,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         new_pipeline = Pipeline()
         new_pipeline.set_study_config(study_config)
         new_pipeline.add_process('main', pipeline)
-        new_pipeline.autoexport_nodes_parameters()
+        new_pipeline.autoexport_nodes_parameters(include_optional=True)
         pipeline = new_pipeline
     temp_map = assign_temporary_filenames(pipeline)
     temp_subst_list = [(x1, x2[0]) for x1, x2 in six.iteritems(temp_map)]
