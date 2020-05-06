@@ -13,6 +13,37 @@ import shutil
 from capsul.api import capsul_engine
 from capsul.engine import activate_configuration
 from capsul import engine
+from soma_workflow import configuration as swconfig
+
+
+def setUpModule():
+    global old_home
+    global temp_home_dir
+    # Run tests with a temporary HOME directory so that they are isolated from
+    # the user's environment
+    temp_home_dir = None
+    old_home = os.environ.get('HOME')
+    try:
+        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
+        os.environ['HOME'] = temp_home_dir
+        swconfig.change_soma_workflow_directory(temp_home_dir)
+    except BaseException:  # clean up in case of interruption
+        if old_home is None:
+            del os.environ['HOME']
+        else:
+            os.environ['HOME'] = old_home
+        if temp_home_dir:
+            shutil.rmtree(temp_home_dir)
+        raise
+
+
+def tearDownModule():
+    if old_home is None:
+        del os.environ['HOME']
+    else:
+        os.environ['HOME'] = old_home
+    #print('temp_home_dir:', temp_home_dir)
+    shutil.rmtree(temp_home_dir)
 
 
 def check_nipype_spm():
@@ -191,6 +222,10 @@ print(sys.argv)
                                     'version': '12'})
                 session.new_config('nipype', 'global', {})
 
+            self.ce.study_config.use_soma_workflow = True
+            self.ce.study_config.somaworkflow_keep_failed_workflows = True
+            #self.ce.study_config.somaworkflow_keep_succeeded_workflows = True
+
             conf = self.ce.settings.select_configurations(
                 'global', uses={'nipype': 'any', 'spm': 'any'})
             activate_configuration(conf)
@@ -199,9 +234,11 @@ print(sys.argv)
                 'nipype.interfaces.spm.Smooth')
             process.in_files = t1
             process.output_directory = tdir
-            self.ce.study_config.run(process)
+            self.ce.study_config.run(process, configuration_dict=conf)
+            self.assertTrue(osp.exists(osp.join(tdir, 'sT1.nii')))
 
         finally:
+            #print('tdir:', tdir)
             shutil.rmtree(tdir)
 
 

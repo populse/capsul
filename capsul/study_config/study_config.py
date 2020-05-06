@@ -290,7 +290,8 @@ class StudyConfig(Controller):
             return module
 
     def run(self, process_or_pipeline, output_directory= None,
-            execute_qc_nodes=True, verbose=0, **kwargs):
+            execute_qc_nodes=True, verbose=0, configuration_dict=None,
+            **kwargs):
         """Method to execute a process or a pipline in a study configuration
          environment.
 
@@ -316,6 +317,8 @@ class StudyConfig(Controller):
             process nodes.
         verbose: int
             if different from zero, print console messages.
+        configuration_dict: dict (optional)
+            configuration dictionary
         """
         if self.create_output_directories:
             for name, trait in process_or_pipeline.user_traits().items():
@@ -337,6 +340,12 @@ class StudyConfig(Controller):
                              % (ptype, process_or_pipeline.name,
                                 ', '.join(missing)))
 
+        print('SC run config:', configuration_dict)
+        if configuration_dict:
+            # clear activations for now.
+            from capsul import engine
+            engine.activated_modules = set()
+            engine.activate_configuration(configuration_dict)
         # Use soma worflow to execute the pipeline or porcess in parallel
         # on the local machine
         if self.get_trait_value("use_soma_workflow"):

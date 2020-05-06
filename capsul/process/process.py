@@ -645,7 +645,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
                 return ['capsul_job', 'morphologist.capsul.morphologist']
 
-        `format_string`: free commandlins with replacements for parameters
+        `format_string`: free commandline with replacements for parameters
             Command arguments can be, or contain, format strings in the shape
             `'%(param)s'`, where `param` is a parameter of the process. This
             way we can map values correctly, and call a foreign command::
@@ -720,6 +720,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             with open(param_file) as f:
                 params_conf = json_utils.from_json(json.load(f))
         params = params_conf.get('parameters', {})
+        configuration = params_conf.get('configuration_dict')
         try:
             process.import_from_dict(params)
         except Exception as e:
@@ -728,7 +729,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             raise
         # actually run the process
         ce.study_config.use_soma_workglow = False
-        result = ce.study_config.run(process)
+        result = ce.study_config.run(process, configuration_dict=configuration)
         # collect output parameers
         out_param_file = os.environ.get('SOMAWF_OUTPUT_PARAMS')
         output_params = {}
@@ -1139,7 +1140,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             module_name = settings.module_name(module)
             if module_name not in config:
                 print('requirement:', req, 'not met in', self.name)
-                print('config:', settings.select_configurations(environment, uses={'spm': 'ALL'}))
+                print('config:', settings.select_configurations(environment))
                 return None
         return config
 
@@ -1634,6 +1635,13 @@ class NipypeProcess(FileCopyProcess):
         doc = getattr(nipype_instance, '__doc__')
         if doc:
             self.__doc__ = doc
+
+
+    def requirements(self):
+        req = {'nipype': 'any'}
+        if self._nipype_interface_name == "spm":
+            req['spm'] = 'any'
+        return req
 
 
     def set_output_directory(self, out_dir):
