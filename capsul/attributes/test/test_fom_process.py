@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 from capsul.api import StudyConfig, Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 from capsul.attributes.fom_completion_engine \
     import FomProcessCompletionEngine, FomPathCompletionEngine
 from traits.api import Str, Float, File, String, Undefined, List
+from soma_workflow import configuration as swconfig
 import unittest
 import os
 import sys
@@ -16,10 +17,6 @@ import shutil
 import socket
 import json
 from six.moves import zip
-if sys.version_info[0] >= 3:
-    import io as StringIO
-else:
-    import StringIO
 
 
 def init_study_config(init_config={}):
@@ -45,6 +42,7 @@ def setUpModule():
     try:
         temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
         os.environ['HOME'] = temp_home_dir
+        swconfig.change_soma_workflow_directory(temp_home_dir)
     except BaseException:  # clean up in case of interruption
         if old_home is None:
             del os.environ['HOME']

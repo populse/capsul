@@ -9,22 +9,20 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
+
 import os
 import sys
 import unittest
 import socket
 import shutil
 import tempfile
-if sys.version_info[0] >= 3:
-    import io as StringIO
-else:
-    import StringIO
 from traits.api import File
 from capsul.api import StudyConfig
 from capsul.api import Process
 from capsul.api import Pipeline
 from soma.sorted_dictionary import SortedDictionary
 from capsul.pipeline.pipeline_workflow import workflow_from_pipeline
+from soma_workflow import configuration as swconfig
 
 
 class EchoProcess(Process):
@@ -153,6 +151,7 @@ def setUpModule():
     try:
         temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
         os.environ['HOME'] = temp_home_dir
+        swconfig.change_soma_workflow_directory(temp_home_dir)
     except BaseException:  # clean up in case of interruption
         if old_home is None:
             del os.environ['HOME']
