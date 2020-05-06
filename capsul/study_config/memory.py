@@ -271,9 +271,11 @@ class MemorizedProcess(object):
         # process
         process_dir, process_hash, input_parameters = self._get_process_id()
 
+        print('** process_dir:', process_dir)
         # Execute the process
         if not os.path.isdir(process_dir):
 
+            print('make it')
             # Create the destination memory folder
             os.makedirs(process_dir)
 
@@ -296,15 +298,19 @@ class MemorizedProcess(object):
                 map_fname = os.path.join(process_dir, "file_mapping.json")
                 with open(map_fname, "w") as open_file:
                     open_file.write(json.dumps(file_mapping))
+                print('written:', map_fname)
 
-            except:  # noqa: E722
+            except Exception as e:  # noqa: E722
+                print('error:', e)
                 shutil.rmtree(process_dir)
                 raise
 
         # Restore the process results from the cache folder
         else:
+            print('restore it')
             # Restore the memorized files
             map_fname = os.path.join(process_dir, "file_mapping.json")
+            print('read:', map_fname)
             with open(map_fname, "r") as json_data:
                 file_mapping = json.load(json_data)
 
@@ -383,7 +389,13 @@ class MemorizedProcess(object):
         start_time = time.time()
 
         # Execute the process
+        study_config = self.process.get_study_config()
+        caching = getattr(study_config, 'use_smart_caching', None)
+        # avoid recusrion
+        study_config.use_smart_caching = False
+
         result = self.process()
+        study_config.use_smart_caching = caching
         duration = time.time() - start_time
 
         # Save the result in json format

@@ -320,15 +320,7 @@ class StudyConfig(Controller):
         configuration_dict: dict (optional)
             configuration dictionary
         """
-        if self.create_output_directories:
-            for name, trait in process_or_pipeline.user_traits().items():
-                if trait.output and isinstance(trait.handler, (File, Directory)):
-                    value = getattr(process_or_pipeline, name)
-                    if value is not Undefined and value:
-                        base = os.path.dirname(value)
-                        if base and not os.path.exists(base):
-                            os.makedirs(base)
-                            
+
         for k, v in six.iteritems(kwargs):
             setattr(process_or_pipeline, k, v)
         missing = process_or_pipeline.get_missing_mandatory_parameters()
@@ -340,11 +332,6 @@ class StudyConfig(Controller):
                              % (ptype, process_or_pipeline.name,
                                 ', '.join(missing)))
 
-        if configuration_dict:
-            # clear activations for now.
-            from capsul import engine
-            engine.activated_modules = set()
-            engine.activate_configuration(configuration_dict)
         # Use soma worflow to execute the pipeline or porcess in parallel
         # on the local machine
         if self.get_trait_value("use_soma_workflow"):
@@ -440,14 +427,21 @@ class StudyConfig(Controller):
                 for process_node in execution_list:
                     # Execute the process instance contained in the node
                     if isinstance(process_node, Node):
-                        result = self._run(process_node.process, 
-                                           output_directory, 
-                                           verbose)
+                        result, log_file = run_process(
+                            output_directory,
+                            process_node.process,
+                            generate_logging=self.generate_logging,
+                            verbose=verbose,
+                            configuration_dict=configuration_dict)
 
                     # Execute the process instance
                     else:
-                        result = self._run(process_node, output_directory,
-                                           verbose)
+                        result, log_file = run_process(
+                            output_directory,
+                            process_node,
+                            generate_logging=self.generate_logging,
+                            verbose=verbose,
+                            configuration_dict=configuration_dict)
             finally:
                 # Destroy temporary files
                 if temporary_files:
@@ -456,55 +450,6 @@ class StudyConfig(Controller):
                     # _free_temporary_files.
                     process_or_pipeline._free_temporary_files(temporary_files)
             return result
-
-    def _run(self, process_instance, output_directory, verbose, **kwargs):
-        """ Method to execute a process in a study configuration environment.
-
-        Parameters
-        ----------
-        process_instance: Process instance (mandatory)
-            the process we want to execute
-        output_directory: Directory name (optional)
-            the output directory to use for process execution. This replaces
-            self.output_directory but left it unchanged.
-        verbose: int
-            if different from zero, print console messages.
-        """
-        # Message
-        logger.info("Study Config: executing process '{0}'...".format(
-            process_instance.id))
-
-        # Run
-        if self.get_trait_value("use_smart_caching") in [None, False]:
-            cachedir = None
-        else:
-            cachedir = output_directory
-
-        # Update the output directory folder if necessary
-        if output_directory is not None and output_directory is not Undefined and output_directory:
-            if self.process_output_directory:
-                output_directory = os.path.join(output_directory, '%s-%s' % (self.process_counter, process_instance.name))
-            # Guarantee that the output directory exists
-            if not os.path.isdir(output_directory):
-                os.makedirs(output_directory)
-            if self.process_output_directory:
-                if 'output_directory' in process_instance.user_traits():
-                    if (process_instance.output_directory is Undefined or
-                            not(process_instance.output_directory)):
-                        process_instance.output_directory = output_directory
-        
-        returncode, log_file = run_process(
-            output_directory,
-            process_instance,
-            cachedir=cachedir,
-            generate_logging=self.generate_logging,
-            verbose=verbose,
-            **kwargs)
-
-        # Increment the number of executed process count
-        self.process_counter += 1
-        return returncode
-    
 
     def reset_process_counter(self):
         """ Method to reset the process counter to one.
@@ -537,14 +482,16 @@ class StudyConfig(Controller):
         if (isinstance(global_config_file, six.string_types) and
             os.path.isfile(global_config_file)):
 
-            config = json.load(open(global_config_file))
+            with open(global_config_file) as f:
+                config = json.load(f)
             self.global_config_file = global_config_file
         else:
             global_config_file = \
                 os.path.expanduser(os.path.join(self._user_config_directory,
                                                 "config.json"))
             if os.path.isfile(global_config_file):
-                config = json.load(open(global_config_file))
+                with open(global_config_file) as f:
+                    config = json.load(f)
                 self.global_config_file = global_config_file
             else:
                 config = {}
@@ -559,14 +506,16 @@ class StudyConfig(Controller):
                     os.path.join(os.path.dirname(self.global_config_file),
                                  study_config)
             self.study_config_file = study_config
-            study_config = json.load(open(study_config))
+            with open(study_config) as f:
+                study_config = json.load(f)
         elif study_config is None:
             study_config_file = \
                 os.path.expanduser(
                     os.path.join(self._user_config_directory,
                                  "%s", "config.json") % str(self.study_name))
             if os.path.exists(study_config_file):
-                study_config = json.load(open(study_config_file))
+                with open(study_config_file) as f:
+                    study_config = json.load(f)
                 self.study_config_file = study_config_file
             else:
                 study_config = {}
@@ -599,9 +548,10 @@ class StudyConfig(Controller):
         # Dump the study configuration elements
         config = self.get_configuration_dict()
         if isinstance(file, six.string_types):
-            file = open(file, "w")
-        json.dump(config, file,
-                  indent=4, separators=(",", ": "))
+            with open(file, "w") as f:
+                json.dump(config, f, indent=4, separators=(",", ": "))
+        else:
+            json.dump(config, file, indent=4, separators=(",", ": "))
 
     def update_study_configuration(self, json_fname):
         """ Update the study configuration from a json file.

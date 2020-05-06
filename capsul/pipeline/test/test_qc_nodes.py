@@ -99,6 +99,7 @@ class TestQCNodes(unittest.TestCase):
         self.pipeline.output = 'dummy_output'
         self.output_directory = tempfile.mkdtemp()
         self.study_config = StudyConfig(output_directory=self.output_directory)
+        self.pipeline.set_study_config(self.study_config)
 
     def tearDown(self):
         """ Remove temporary items.

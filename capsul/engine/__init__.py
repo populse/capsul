@@ -40,6 +40,7 @@ from .database_populse import PopulseDBEngine
 
 from .settings import Settings
 from .module import default_modules
+from . import run
 
 class CapsulEngine(Controller):
     '''
@@ -135,6 +136,8 @@ class CapsulEngine(Controller):
         self.study_config = StudyConfig(engine=self)
 
         self._metadata_engine = from_json(database.json_value('metadata_engine'))
+
+        self._connected_resource = ''
         
 
     @property
@@ -259,7 +262,7 @@ class CapsulEngine(Controller):
 
     def start(self, process, history=True):
         '''
-        Asynchronously start the exection of a process in the connected 
+        Asynchronously start the exectution of a process in the connected
         computing environment. Returns a string that is an identifier of the
         process execution and can be used to get the status of the 
         execution or wait for its termination.
@@ -270,13 +273,13 @@ class CapsulEngine(Controller):
         updated on process termination (for instance to store execution time
         if possible).
         '''
-        raise NotImplementedError()
+        return run.start(self, process, history)
 
     def connect(self, computing_resource):
         '''
         Connect the capsul engine to a computing resource
         '''
-        raise NotImplementedError()
+        self._connected_resource = computing_resource
 
     
     def connected_to(self):
@@ -284,14 +287,14 @@ class CapsulEngine(Controller):
         Return the name of the computing resource this capsul engine is
         connected to or None if it is not connected.
         '''
-        return None
+        return self._connected_resource
 
     
     def disconnect(self):
         '''
         Disconnect from a computing ressource.
         '''
-        raise NotImplementedError()
+        self._connected_resource = None
 
 
     def environment_builder(self):
@@ -358,21 +361,21 @@ class CapsulEngine(Controller):
         Try to stop the execution of a process. Does not wait for the process
         to be terminated.
         '''
-        raise NotImplementedError()
+        return run.interrupt(self, execution_id)
     
-    def wait(self, execution_id):
+    def wait(self, execution_id, timeout=-1):
         '''
         Wait for the end of a process execution (either normal termination,
         interruption or error).
         '''
-        raise NotImplementedError()
+        return run.wait(self, execution_id, timeout=timeout)
     
     def status(self, execution_id):
         '''
         Return a simple value with the status of an execution (queued, 
         running, terminated, error, etc.)
         '''
-        raise NotImplementedError()
+        return run.status(self, execution_id)
 
 
     def detailed_information(self, execution_id):
@@ -380,7 +383,7 @@ class CapsulEngine(Controller):
         Return complete (and possibly big) information about a process
         execution.
         '''
-        raise NotImplementedError()
+        return run.detailed_information(self, execution_id)
 
     
     def call(self, process, history=True):

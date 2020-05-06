@@ -224,9 +224,10 @@ class TestCompletion(unittest.TestCase):
 
         # create input files
         for s in atts.subject:
-            open(os.path.join(
-                study_config.input_directory,
-                'DummyProcess_truc_muppets_%s.txt' % s), 'w').write('%s\n' %s)
+            with open(os.path.join(
+                    study_config.input_directory,
+                    'DummyProcess_truc_muppets_%s.txt' % s), 'w') as f:
+                f.write('%s\n' %s)
 
         # run
         study_config.use_soma_workflow = False
@@ -240,7 +241,8 @@ class TestCompletion(unittest.TestCase):
             for s in atts.subject]
         for s, out_file in zip(atts.subject, out_files):
             self.assertTrue(os.path.isfile(out_file))
-            self.assertTrue(open(out_file).read() == '%s\n' % s)
+            with open(out_file) as f:
+                self.assertTrue(f.read() == '%s\n' % s)
 
 
     def test_run_iteraton_swf(self):
@@ -266,9 +268,10 @@ class TestCompletion(unittest.TestCase):
 
         # create input files
         for s in atts.subject:
-            open(os.path.join(
-                study_config.input_directory,
-                'DummyProcess_truc_muppets_%s.txt' % s), 'w').write('%s\n' %s)
+            with open(os.path.join(
+                    study_config.input_directory,
+                    'DummyProcess_truc_muppets_%s.txt' % s), 'w') as f:
+                f.write('%s\n' %s)
 
         # run
         study_config.use_soma_workflow = True
@@ -282,7 +285,8 @@ class TestCompletion(unittest.TestCase):
             for s in atts.subject]
         for s, out_file in zip(atts.subject, out_files):
             self.assertTrue(os.path.isfile(out_file))
-            self.assertTrue(open(out_file).read() == '%s\n' % s)
+            with open(out_file) as f:
+                self.assertTrue(f.read() == '%s\n' % s)
 
 
 def test():
