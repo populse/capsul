@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 # System import
+from __future__ import print_function
 from __future__ import absolute_import
+
 import sys
 import unittest
 import re
@@ -18,6 +19,7 @@ from capsul.api import Pipeline
 from capsul.api import StudyConfig
 from capsul.pipeline import pipeline_workflow
 from soma.controller import Controller
+from soma_workflow import configuration as swconfig
 from six.moves import zip
 
 debug = False
@@ -32,6 +34,7 @@ def setUpModule():
     try:
         temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
         os.environ['HOME'] = temp_home_dir
+        swconfig.change_soma_workflow_directory(temp_home_dir)
     except BaseException:  # clean up in case of interruption
         if old_home is None:
             del os.environ['HOME']
