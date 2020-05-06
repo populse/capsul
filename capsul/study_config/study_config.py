@@ -340,7 +340,6 @@ class StudyConfig(Controller):
                              % (ptype, process_or_pipeline.name,
                                 ', '.join(missing)))
 
-        print('SC run config:', configuration_dict)
         if configuration_dict:
             # clear activations for now.
             from capsul import engine
