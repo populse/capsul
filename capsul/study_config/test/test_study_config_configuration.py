@@ -397,19 +397,23 @@ class TestStudyConfigConfiguration(unittest.TestCase):
             
             # Check configuration files usage
             user_config_file = os.path.join(user_config_directory, 'config.json')
-            json.dump(user_config, open(user_config_file,'w'))
+            with open(user_config_file,'w') as f:
+                json.dump(user_config, f)
             
             my_study_config_file = os.path.join(user_config_directory, 'my_study', 'config.json')
             os.mkdir(os.path.join(user_config_directory, 'my_study'))
-            json.dump(my_study_config, open(my_study_config_file,'w'))
+            with open(my_study_config_file,'w') as f:
+                json.dump(my_study_config, f)
 
             other_config_dir = os.path.join(user_config_directory, 'somewhere')
             os.mkdir(other_config_dir)
             other_config_file = os.path.join(other_config_dir, 'config.json')
-            json.dump(other_config, open(other_config_file,'w'))
+            with open(other_config_file,'w') as f:
+                json.dump(other_config, f)
             
             other_study_config_file = os.path.join(other_config_dir, 'other_study.json')
-            json.dump(other_study_config, open(other_study_config_file,'w'))
+            with open(other_study_config_file,'w') as f:
+                json.dump(other_study_config, f)
 
             self.run_study_config_instanciation(tests_standard_files, 
                 'with standard configuration files',
