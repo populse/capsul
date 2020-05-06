@@ -121,7 +121,8 @@ print(sys.argv)
             os.chmod(script, 0o775)
 
             # change config
-            os.environ['PATH'] = '%s:%s' % (path, osp.join(tdir, 'bin'))
+            os.environ['PATH'] = os.pathsep.join((path,
+                                                  osp.join(tdir, 'bin')))
             cif = self.ce.settings.config_id_field
             with self.ce.settings as settings:
                 fsl = settings.new_config('fsl', 'global', {cif:'5'})
