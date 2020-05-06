@@ -15,6 +15,21 @@ from capsul.engine import activate_configuration
 from capsul import engine
 
 
+def check_nipype_spm():
+    # look for hardcoded paths, I have no other way at hand...
+    spm_standalone_paths = ['/usr/local/spm12-standalone',
+                            '/i2bm/local/spm12-standalone']
+    spm_standalone_path = [p for p in spm_standalone_paths if os.path.isdir(p)]
+    if not spm_standalone_path:
+        return None
+    spm_standalone_path = spm_standalone_path[0]
+    try:
+        import nipype
+    except ImportError:
+        return None
+    return spm_standalone_path
+
+
 class TestCapsulEngine(unittest.TestCase):
     def setUp(self):
         self.sqlite_file = str(tempfile.mktemp(suffix='.sqlite'))
@@ -155,6 +170,39 @@ print(sys.argv)
             # cleanup env for later tests
             if 'FSLDIR' in os.environ:
                 del os.environ['FSLDIR']
+
+    @unittest.skipIf(check_nipype_spm() is None,
+                     'SPM12 standalone or nipype are not found')
+    def test_nipype_spm_config(self):
+        tdir = tempfile.mkdtemp(prefix='capsul_spm')
+        try:
+            cif = self.ce.settings.config_id_field
+            spm_path = check_nipype_spm()
+            t1_src = osp.join(spm_path,
+                              'spm12_mcr/spm12/toolbox/OldNorm/T1.nii')
+            t1 = osp.join(tdir, 'T1.nii')
+            shutil.copyfile(t1_src, t1)
+
+            self.ce.load_module('nipype')
+
+            with self.ce.settings as session:
+                session.new_config('spm', 'global',
+                                   {'directory': spm_path, 'standalone': True,
+                                    'version': '12'})
+                session.new_config('nipype', 'global', {})
+
+            conf = self.ce.settings.select_configurations(
+                'global', uses={'nipype': 'any', 'spm': 'any'})
+            activate_configuration(conf)
+
+            process = self.ce.get_process_instance(
+                'nipype.interfaces.spm.Smooth')
+            process.in_files = t1
+            process.output_directory = tdir
+            self.ce.study_config.run(process)
+
+        finally:
+            shutil.rmtree(tdir)
 
 
 def test():
