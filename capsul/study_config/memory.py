@@ -271,11 +271,9 @@ class MemorizedProcess(object):
         # process
         process_dir, process_hash, input_parameters = self._get_process_id()
 
-        print('** process_dir:', process_dir)
         # Execute the process
         if not os.path.isdir(process_dir):
 
-            print('make it')
             # Create the destination memory folder
             os.makedirs(process_dir)
 
@@ -298,19 +296,16 @@ class MemorizedProcess(object):
                 map_fname = os.path.join(process_dir, "file_mapping.json")
                 with open(map_fname, "w") as open_file:
                     open_file.write(json.dumps(file_mapping))
-                print('written:', map_fname)
 
             except Exception as e:  # noqa: E722
-                print('error:', e)
+                print('error in MemorizedProcess.__call__:', e)
                 shutil.rmtree(process_dir)
                 raise
 
         # Restore the process results from the cache folder
         else:
-            print('restore it')
             # Restore the memorized files
             map_fname = os.path.join(process_dir, "file_mapping.json")
-            print('read:', map_fname)
             with open(map_fname, "r") as json_data:
                 file_mapping = json.load(json_data)
 
