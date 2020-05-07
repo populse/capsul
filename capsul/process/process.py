@@ -1082,6 +1082,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         def check_trait(trait, value):
             if trait.optional:
                 return True
+            if value is Undefined:
+                return False
             if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
                 for i, item in enumerate(value):
                     j = min(i, len(trait.inner_traits) - 1)

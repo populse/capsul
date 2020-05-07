@@ -13,6 +13,8 @@ from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline_nodes import ProcessNode
 from traits.api import Undefined
 import six
+import tempfile
+import os
 
 
 class WorkflowExecutionError(Exception):
@@ -22,18 +24,57 @@ class WorkflowExecutionError(Exception):
     :class:`~soma_workflow.client.WorkflowController` and the workflow id
     '''
     def __init__(self, controller, workflow_id, status=None,
-                 workflow_kept=True):
+                 workflow_kept=True, verbose=True):
         wk = ''
         wc = ''
+        precisions = ''
         if workflow_kept:
             wk = 'not '
             wc = ' from soma_workflow and must be deleted manually'
-        super(WorkflowExecutionError, self).__init__('Error during '
-            'workflow execution. Status=%s.\nThe workflow has %sbeen removed%s.'
-            % (status, wk, wc))
         if workflow_kept:
             self.controller = controller
             self.workflow_id = workflow_id
+        if verbose:
+            import soma_workflow.client as swclient
+
+            failed_jobs = swclient.Helper.list_failed_jobs(
+                workflow_id, controller)
+            precisions_list = ['\nFailed jobs: %s' % repr(failed_jobs)]
+            tmp1 = tempfile.mkstemp(prefix='capsul_swf_job_stdout')
+            tmp2 = tempfile.mkstemp(prefix='capsul_swf_job_stderr')
+            os.close(tmp1[0])
+            os.close(tmp2[0])
+            try:
+                for job_id in failed_jobs:
+                    status = controller.job_termination_status(job_id)
+                    controller.retrieve_job_stdouterr(job_id, tmp1[1], tmp2[1])
+                    with open(tmp1[1]) as f:
+                        stdout = f.read()
+                    with open(tmp2[1]) as f:
+                        stderr = f.read()
+                    precisions_list += [
+                        '============================================'
+                        '---- job info ---',
+                        '* job: %d' % job_id,
+                        '* exit status: %s' % status[0],
+                        '* exit value: %d' % status[1],
+                        '* term signal: %s' % str(status[2]),
+                        '---- stdout ----',
+                        stdout,
+                        '---- stderr ----',
+                        stderr
+                    ]
+            finally:
+                if os.path.exists(tmp1[1]):
+                    os.unlink(tmp1[1])
+                if os.path.exists(tmp2[1]):
+                    os.unlink(tmp2[1])
+            precisions = '\n'.join(precisions_list)
+
+        super(WorkflowExecutionError, self).__init__('Error during '
+            'workflow execution. Status=%s.\n'
+            'The workflow has %sbeen removed%s. %s'
+            % (status, wk, wc, precisions))
 
 
 def start(engine, process, history=True, get_pipeline=False, **kwargs):
