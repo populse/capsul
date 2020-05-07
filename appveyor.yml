@@ -13,7 +13,7 @@ install:
   - "pip install numpy"
   - "pip install six>=1.13"
   - "pip install traits"
-  - IF "%PYTHON%"=="C:\Python27" "pip install subprocess32"
+  - IF "%PYTHON%"=="C:\Python27" pip install subprocess32
   - "pip install python-dateutil"
   - "pip install nipype"
   #- "pip install soma-workflow"
