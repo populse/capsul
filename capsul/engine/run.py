@@ -74,16 +74,13 @@ class WorkflowExecutionError(Exception):
                         '* exit status: %s' % status[0],
                         '* commandline:',
                         jinfo[1],
+                        '* exit value: %s' % str(status[1]),
+                        '* term signal: %s' % str(status[2]),
+                        '---- stdout ----',
+                        stdout,
+                        '---- stderr ----',
+                        stderr
                     ]
-                    if has_run:
-                        precisions_list += [
-                            '* exit value: %s' % str(status[1]),
-                            '* term signal: %s' % str(status[2]),
-                            '---- stdout ----',
-                            stdout,
-                            '---- stderr ----',
-                            stderr
-                        ]
             finally:
                 if os.path.exists(tmp1[1]):
                     os.unlink(tmp1[1])
