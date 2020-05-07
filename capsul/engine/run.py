@@ -4,7 +4,7 @@
 Implementation of :class:`~capsul.engine.CapsulEngine` processing methods.
 They have been moved to this file for clarity.
 
-Running is always using `Soma-Workflow <https://github.com/populse/soma-workflow/>.
+Running is always using `Soma-Workflow <https://github.com/populse/soma-workflow/>`_.
 '''
 from __future__ import absolute_import
 from __future__ import print_function
@@ -54,6 +54,10 @@ class WorkflowExecutionError(Exception):
             os.close(tmp2[0])
             try:
                 for job_id in failed_jobs + aborted_jobs:
+                    if job_id in failed_jobs:
+                        has_run = True
+                    else:
+                        has_run = False
                     status = controller.job_termination_status(job_id)
                     controller.retrieve_job_stdouterr(job_id, tmp1[1], tmp2[1])
                     with open(tmp1[1]) as f:
@@ -65,11 +69,11 @@ class WorkflowExecutionError(Exception):
                         '---- failed job info ---',
                         '* job: %d' % job_id,
                         '* exit status: %s' % status[0],
-                        '* exit value: %d' % status[1],
-                        '* term signal: %s' % str(status[2]),
                     ]
-                    if job_id in failed_jobs:
+                    if has_run:
                         precisions_list += [
+                            '* exit value: %s' % str(status[1]),
+                            '* term signal: %s' % str(status[2]),
                             '---- stdout ----',
                             stdout,
                             '---- stderr ----',
