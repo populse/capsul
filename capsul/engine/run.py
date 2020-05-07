@@ -65,7 +65,7 @@ class WorkflowExecutionError(Exception):
                     with open(tmp2[1]) as f:
                         stderr = f.read()
                     precisions_list += [
-                        '============================================'
+                        '============================================',
                         '---- failed job info ---',
                         '* job: %d' % job_id,
                         '* exit status: %s' % status[0],
