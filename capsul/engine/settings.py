@@ -2,18 +2,19 @@
 
 '''
 This module provides classes to store CapsulEngine settings for several execution environment and choose a configuration for a given execution environment. Setting management in Capsul has several features that makes it different from classical ways to deal with configuration:
-- CapsulEngine must be able to deal with several configurations for the same software. For instance, one can configure both SPM 8 and SPM 12 and choose later the one to use.
-- A single pipeline may use various configurations of a software. For instance a pipeline could compare the results of SPM 8 and SPM 12.
-- Settings definition must be modular. It must be possible to define possible settings values either in Capsul (for well known for instance) or in external modules that can be installed separately.
-- Capsul must deal with module dependencies. For instance the settings of SPM may depends on the settings of Matlab. But this dependency exists only if a non standalone SPM version is used. Therefore, dependencies between modules may depends on settings values.
-- CapsulEngine settings must provide the possibility to express a requirement on settings. For instance a process may require to have version of SPM greater or equal to 12.
-- The configuration of a module can be defined for a specific execution environment. Settings must allow to deal with several executions environments (e.g. a local machine and a computing cluster). Each environment may have a different configuration (for instance the SPM installation directory is not the same on the local computer and on a computing cluster).
 
-To implement all these features, it was necessary to have a settings storage system providing a query language to express requirements such as `spm.version >= 12`. Populse_db was thus chosen as the storage and query system for settings. Some of the settings API choices have been influenced by populse_db API.
+* CapsulEngine must be able to deal with several configurations for the same software. For instance, one can configure both SPM 8 and SPM 12 and choose later the one to use.
+* A single pipeline may use various configurations of a software. For instance a pipeline could compare the results of SPM 8 and SPM 12.
+* Settings definition must be modular. It must be possible to define possible settings values either in Capsul (for well known for instance) or in external modules that can be installed separately.
+* Capsul must deal with module dependencies. For instance the settings of SPM may depends on the settings of Matlab. But this dependency exists only if a non standalone SPM version is used. Therefore, dependencies between modules may depends on settings values.
+* CapsulEngine settings must provide the possibility to express a requirement on settings. For instance a process may require to have version of SPM greater or equal to 12.
+* The configuration of a module can be defined for a specific execution environment. Settings must allow to deal with several executions environments (e.g. a local machine and a computing cluster). Each environment may have a different configuration (for instance the SPM installation directory is not the same on the local computer and on a computing cluster).
+
+To implement all these features, it was necessary to have a settings storage system providing a query language to express requirements such as ``spm.version >= 12``. Populse_db was thus chosen as the storage and query system for settings. Some of the settings API choices have been influenced by populse_db API.
 
 CapsulEngine settings are organized in modules. Each module defines and documents the schema of values that can be set for its configuration. Typically, a module is dedicated to a software. For instance the module for SPM accepts confiurations containing a version (a string), an install directory (a string), a standalone/matlab flag (a boolean), etc. This schema is used to record configuration documents for the module. There can be several configuration documents per module. Each document corresponds to a full configuration of the module (for instance a document for SPM 8 configuration and another for SPM 12, or one for SPM 12 standalone and another for SPM 12 with matlab).
 
-Settings cannot be used directly to configure the execution of a software. It is necessary to first select a single configuration document for each module. This configurations selection step is done by the `select_configurations()` method.
+Settings cannot be used directly to configure the execution of a software. It is necessary to first select a single configuration document for each module. This configurations selection step is done by the :meth:`Settings.select_configurations` method.
 
 '''
 
