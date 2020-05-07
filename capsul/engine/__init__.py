@@ -263,19 +263,36 @@ class CapsulEngine(Controller):
     def start(self, process, history=True, **kwargs):
         '''
         Asynchronously start the exectution of a process or pipeline in the
-        connected computing environment. Returns a string that is an identifier
-        of the process execution and can be used to get the status of the
+        connected computing environment. Returns an identifier of
+        the process execution and can be used to get the status of the
         execution or wait for its termination.
-        
+
         TODO:
         if history is True, an entry of the process execution is stored in
         the database. The content of this entry is to be defined but it will
-        contain the process parameters (to restart the process) and will be 
+        contain the process parameters (to restart the process) and will be
         updated on process termination (for instance to store execution time
         if possible).
 
-        additional arguments to this method are considered parameters values to
-        be set on the process before running it.
+        Parameters
+        ----------
+        process: Process or Pipeline instance
+        history: bool (optional)
+            TODO: not implemented yet.
+        get_pipeline: bool (optional)
+            if True, start() will return a tuple (execution_id, pipeline). The
+            pipeline is normally the input pipeline (process) if it is actually
+            a pipeline. But if the input process is a "single process", it will
+            be inserted into a small pipeline for execution. This pipeline will
+            be the one actually run, and may be passed to :meth:`wait` to set
+            output parameters.
+
+        Returns
+        -------
+        execution_id: int
+            execution identifier (acutally a soma-workflow id)
+        pipeline: Pipeline instance (optional)
+            only returned if get_pipeline is True.
         '''
         return run.start(self, process, history, **kwargs)
 
@@ -370,12 +387,12 @@ class CapsulEngine(Controller):
         '''
         return run.interrupt(self, execution_id)
     
-    def wait(self, execution_id, timeout=-1):
+    def wait(self, execution_id, timeout=-1, pipeline=None):
         '''
         Wait for the end of a process execution (either normal termination,
         interruption or error).
         '''
-        return run.wait(self, execution_id, timeout=timeout)
+        return run.wait(self, execution_id, timeout=timeout, pipeline=pipeline)
     
     def status(self, execution_id):
         '''

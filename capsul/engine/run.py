@@ -36,10 +36,10 @@ class WorkflowExecutionError(Exception):
             self.workflow_id = workflow_id
 
 
-def start(engine, process, history=True, **kwargs):
+def start(engine, process, history=True, get_pipeline=False, **kwargs):
     '''
     Asynchronously start the exectution of a process or pipeline in the
-    connected computing environment. Returns a string that is an identifier of
+    connected computing environment. Returns an identifier of
     the process execution and can be used to get the status of the
     execution or wait for its termination.
 
@@ -49,6 +49,27 @@ def start(engine, process, history=True, **kwargs):
     contain the process parameters (to restart the process) and will be
     updated on process termination (for instance to store execution time
     if possible).
+
+    Parameters
+    ----------
+    engine: CapsulEngine
+    process: Process or Pipeline instance
+    history: bool (optional)
+        TODO: not implemented yet.
+    get_pipeline: bool (optional)
+        if True, start() will return a tuple (execution_id, pipeline). The
+        pipeline is normally the input pipeline (process) if it is actually
+        a pipeline. But if the input process is a "single process", it will
+        be inserted into a small pipeline for execution. This pipeline will
+        be the one actually run, and may be passed to :meth:`wait` to set
+        output parameters.
+
+    Returns
+    -------
+    execution_id: int
+        execution identifier (acutally a soma-workflow id)
+    pipeline: Pipeline instance (optional)
+        only returned if get_pipeline is True.
     '''
 
     # set parameters values
@@ -91,7 +112,10 @@ def start(engine, process, history=True, **kwargs):
                                        queue=queue)
     swclient.Helper.transfer_input_files(wf_id, controller)
 
-    return wf_id  #, workflow.pipeline()
+    if get_pipeline:
+        return wf_id, workflow.pipeline()
+    # else forget the pipeline
+    return wf_id
 
 
 def wait(engine, execution_id, timeout=-1, pipeline=None):
@@ -225,15 +249,17 @@ def dispose(engine, execution_id, conditional=False):
 
 
 def call(engine, process, history=True, **kwargs):
-    eid = engine.start(process, history=history, **kwargs)
-    status = engine.wait(eid)
+    eid, pipeline = engine.start(process, history=history, get_pipeline=True,
+                                 **kwargs)
+    status = engine.wait(eid, pipeline=pipeline)
     engine.dispose(eid, conditional=True)
     return status
 
 
 def check_call(engine, process, history=True, **kwargs):
-    eid = engine.start(process, history=history, **kwargs)
-    status = engine.wait(eid)
+    eid, pipeline = engine.start(process, history=history, get_pipeline=True,
+                                 **kwargs)
+    status = engine.wait(eid, pipeline=pipeline)
     try:
         engine.raise_for_status(status, eid)
     finally:
