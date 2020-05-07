@@ -46,6 +46,24 @@ class CapsulEngine(Controller):
     '''
     # FIXME TODO: OBSOLETE
 
+    Questions about API/implementation:
+
+    * execution:
+      * workflows are not exposed, they are running a possibly different pipeline (single process case), thus we need to keep track on it
+      * logging / history / provenance, databasing
+      * retreiving output files with transfers: when ? currently in wait(), should it be a separate method ? should it be asynchronous ?
+      * setting output parameters: currently in wait(), should it be a separate method ?
+      * disconnections / reconections client / server
+      * actually connect computing resource[s]
+    * settings / config:
+      * see comments in settings.py
+      * GUI and constraints on parameters ?
+      * how to handle optional dependencies: ie nipype depends on spm if spm is installed / configured, otherwise we can run other nipype interfaces, but no spm ones
+      * integrate soma-workflow config + CE.computing_resource
+    * API / cleanup
+      * remove environment_builder() ?
+      * __enter__ / __exit__: what should they do ? activate config(s) ? which ones ?
+
     A CapsulEngine is the mandatory entry point of all software using Capsul. It contains objects to store configuration and metadata, define execution environment(s) (possibly remote) and perform pipelines execution.
     
     A CapsulEngine must be created using capsul.engine.capsul_engine function. For instance::
