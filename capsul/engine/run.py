@@ -12,13 +12,35 @@ from __future__ import print_function
 from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline_nodes import ProcessNode
 from traits.api import Undefined
+import six
 
 
-def start(engine, process, history=False):
+class WorkflowExecutionError(Exception):
     '''
-    Asynchronously start the exectution of a process in the connected
-    computing environment. Returns a string that is an identifier of the
-    process execution and can be used to get the status of the
+    Exception class raised when a workflow execution fails.
+    It holds references to the
+    :class:`~soma_workflow.client.WorkflowController` and the workflow id
+    '''
+    def __init__(self, controller, workflow_id, status=None,
+                 workflow_kept=True):
+        wk = ''
+        wc = ''
+        if workflow_kept:
+            wk = 'not '
+            wc = ' from soma_workflow and must be deleted manually'
+        super(WorkflowExecutionError, self).__init__('Error during '
+            'workflow execution. Status=%s.\nThe workflow has %sbeen removed%s.'
+            % (status, wk, wc))
+        if workflow_kept:
+            self.controller = controller
+            self.workflow_id = workflow_id
+
+
+def start(engine, process, history=True, **kwargs):
+    '''
+    Asynchronously start the exectution of a process or pipeline in the
+    connected computing environment. Returns a string that is an identifier of
+    the process execution and can be used to get the status of the
     execution or wait for its termination.
 
     TODO:
@@ -28,6 +50,11 @@ def start(engine, process, history=False):
     updated on process termination (for instance to store execution time
     if possible).
     '''
+
+    # set parameters values
+    for k, v in six.iteritems(kwargs):
+        setattr(process, k, v)
+
     missing = process.get_missing_mandatory_parameters()
     if len(missing) != 0:
         ptype = 'process'
@@ -64,7 +91,7 @@ def start(engine, process, history=False):
                                        queue=queue)
     swclient.Helper.transfer_input_files(wf_id, controller)
 
-    return wf_id, workflow.pipeline()
+    return wf_id  #, workflow.pipeline()
 
 
 def wait(engine, execution_id, timeout=-1, pipeline=None):
@@ -84,7 +111,7 @@ def wait(engine, execution_id, timeout=-1, pipeline=None):
     workflow_status = controller.workflow_status(wf_id)
     if workflow_status != constants.WORKFLOW_DONE:
         # not finished
-        return False
+        return workflow_status
 
     # get output values
     if pipeline:
@@ -116,7 +143,7 @@ def wait(engine, execution_id, timeout=-1, pipeline=None):
 
     # TODO: should we transfer if the WF fails ?
     swclient.Helper.transfer_output_files(wf_id, controller)
-    return True
+    return status(engine, execution_id)
 
 
 def interrupt(engine, execution_id):
@@ -169,3 +196,60 @@ def detailed_information(engine, execution_id):
     return elements_status
 
 
+def dispose(engine, execution_id, conditional=False):
+    '''
+    Update the database with the current state of a process execution and
+    free the resources used in the computing resource (i.e. remove the
+    workflow from SomaWorkflow).
+
+    If ``conditional`` is set to True, then dispose is only done if the
+    configuration does not specify to keep succeeded / failed workflows.
+    '''
+    keep = False
+    if conditional:
+        if not engine.study_config.somaworkflow_keep_succeeded_workflows:
+            keep = False
+            if engine.study_config.somaworkflow_keep_failed_workflows:
+                # must see it it failed or not
+                from soma_workflow import constants
+
+                status = engine.status(execution_id)
+                if status != constants.WORKFLOW_DONE:
+                    keep = True
+    if not keep:
+        swm = engine.study_config.modules['SomaWorkflowConfig']
+        swm.connect_resource(engine.connected_to())
+        controller = swm.get_workflow_controller()
+        controller.delete_workflow(execution_id)
+        # TODO: update engine DB
+
+
+def call(engine, process, history=True, **kwargs):
+    eid = engine.start(process, history=history, **kwargs)
+    status = engine.wait(eid)
+    engine.dispose(eid, conditional=True)
+    return status
+
+
+def check_call(engine, process, history=True, **kwargs):
+    eid = engine.start(process, history=history, **kwargs)
+    status = engine.wait(eid)
+    try:
+        engine.raise_for_status(status, eid)
+    finally:
+        engine.dispose(eid, conditional=True)
+
+
+def raise_for_status(engine, status, execution_id=None):
+    '''
+    Raise an exception if a process execution failed
+    '''
+    from soma_workflow import constants
+
+    if status != constants.WORKFLOW_DONE:
+        swm = engine.study_config.modules['SomaWorkflowConfig']
+        swm.connect_resource(engine.connected_to())
+        controller = swm.get_workflow_controller()
+        raise WorkflowExecutionError(
+            controller, execution_id, status,
+            engine.study_config.somaworkflow_keep_failed_workflows)

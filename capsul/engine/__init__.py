@@ -260,20 +260,24 @@ class CapsulEngine(Controller):
                                                           **kwargs)
         return instance
 
-    def start(self, process, history=True):
+    def start(self, process, history=True, **kwargs):
         '''
-        Asynchronously start the exectution of a process in the connected
-        computing environment. Returns a string that is an identifier of the
-        process execution and can be used to get the status of the 
+        Asynchronously start the exectution of a process or pipeline in the
+        connected computing environment. Returns a string that is an identifier
+        of the process execution and can be used to get the status of the
         execution or wait for its termination.
         
+        TODO:
         if history is True, an entry of the process execution is stored in
         the database. The content of this entry is to be defined but it will
         contain the process parameters (to restart the process) and will be 
         updated on process termination (for instance to store execution time
         if possible).
+
+        additional arguments to this method are considered parameters values to
+        be set on the process before running it.
         '''
-        return run.start(self, process, history)
+        return run.start(self, process, history, **kwargs)
 
     def connect(self, computing_resource):
         '''
@@ -347,15 +351,18 @@ class CapsulEngine(Controller):
         raise NotImplementedError()
         
 
-    def dispose(self, execution_id):
+    def dispose(self, execution_id, conditional=False):
         '''
         Update the database with the current state of a process execution and
         free the resources used in the computing resource (i.e. remove the 
         workflow from SomaWorkflow).
+
+        If ``conditional`` is set to True, then dispose is only done if the
+        configuration does not specify to keep succeeded / failed workflows.
         '''
-        raise NotImplementedError()
-    
-    
+        run.dispose(self, execution_id, conditional=conditional)
+
+
     def interrupt(self, execution_id):
         '''
         Try to stop the execution of a process. Does not wait for the process
@@ -385,23 +392,21 @@ class CapsulEngine(Controller):
         '''
         return run.detailed_information(self, execution_id)
 
-    
-    def call(self, process, history=True):
-        eid = self.start(process, history)
-        return self.wait(eid)
-    
-    
-    def check_call(self, process, history=True):
-        eid = self.start(process, history)
-        status = self.wait(eid)
-        self.raise_for_status(status, eid)
+
+    def call(self, process, history=True, *kwargs):
+        return run.call(self, process, history=history, **kwargs)
+
+
+    def check_call(self, process, history=True, **kwargs):
+        return run.check_call(self, process, history=history, **kwargs)
+
 
     def raise_for_status(self, status, execution_id=None):
         '''
         Raise an exception if a process execution failed
         '''
-        raise NotImplementedError()
-        
+        run.raise_for_status(self, status, execution_id)
+
 
     def __enter__(self):
         # FIXME TODO: OBSOLETE
