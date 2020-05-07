@@ -54,3 +54,16 @@ capsul.engine.module submodule
 .. automodule:: capsul.engine.module.spm
     :members:
 
+capsul.engine.run submodule
+---------------------------
+
+.. automodule:: capsul.engine.run
+    :members:
+
+capsul.engine.settings submodule
+--------------------------------
+
+.. automodule:: capsul.engine.settings
+    :members:
+
+
