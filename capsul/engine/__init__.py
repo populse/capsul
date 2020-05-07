@@ -16,6 +16,8 @@ Functions
 ------------------------
 :func:`capsul_engine`
 ---------------------
+:func:`activate_configuration`
+------------------------------
 '''
 
 from __future__ import absolute_import
@@ -42,32 +44,33 @@ from .settings import Settings
 from .module import default_modules
 from . import run
 
+# FIXME TODO: OBSOLETE
+
+#Questions about API/implementation:
+
+#* execution:
+  #* workflows are not exposed, they are running a possibly different pipeline (single process case), thus we need to keep track on it
+  #* logging / history / provenance, databasing
+  #* retreiving output files with transfers: when ? currently in wait(), should it be a separate method ? should it be asynchronous ?
+  #* setting output parameters: currently in wait(), should it be a separate method ?
+  #* disconnections / reconections client / server
+  #* actually connect computing resource[s]
+#* settings / config:
+  #* see comments in settings.py
+  #* GUI and constraints on parameters ?
+  #* how to handle optional dependencies: ie nipype depends on spm if spm is installed / configured, otherwise we can run other nipype interfaces, but no spm ones
+  #* integrate soma-workflow config + CE.computing_resource
+
+
 class CapsulEngine(Controller):
     '''
-    # FIXME TODO: OBSOLETE
+    A CapsulEngine is the mandatory entry point of all software using Capsul.
+    It contains objects to store configuration and metadata, defines execution
+    environment(s) (possibly remote) and performs pipelines execution.
 
-    Questions about API/implementation:
+    A CapsulEngine must be created using capsul.engine.capsul_engine function.
+    For instance::
 
-    * execution:
-      * workflows are not exposed, they are running a possibly different pipeline (single process case), thus we need to keep track on it
-      * logging / history / provenance, databasing
-      * retreiving output files with transfers: when ? currently in wait(), should it be a separate method ? should it be asynchronous ?
-      * setting output parameters: currently in wait(), should it be a separate method ?
-      * disconnections / reconections client / server
-      * actually connect computing resource[s]
-    * settings / config:
-      * see comments in settings.py
-      * GUI and constraints on parameters ?
-      * how to handle optional dependencies: ie nipype depends on spm if spm is installed / configured, otherwise we can run other nipype interfaces, but no spm ones
-      * integrate soma-workflow config + CE.computing_resource
-    * API / cleanup
-      * remove environment_builder() ?
-      * __enter__ / __exit__: what should they do ? activate config(s) ? which ones ?
-
-    A CapsulEngine is the mandatory entry point of all software using Capsul. It contains objects to store configuration and metadata, define execution environment(s) (possibly remote) and perform pipelines execution.
-    
-    A CapsulEngine must be created using capsul.engine.capsul_engine function. For instance::
-    
         from capsul.engine import capsul_engine
         ce = capsul_engine()
 
@@ -76,60 +79,110 @@ class CapsulEngine(Controller):
         from capsul.api import capsul_engine
         ce = capsul_engine()
 
-    By default, CapsulEngine only stores necessary configuration. But it may be necessary to modify the Python environment globally to apply this configuration. For instance, Nipype must be configured globally. If SPM is configured in CapsulEngine, it is necessary to explicitely activate the configuration in order to modify the global configuration of Nipype for SPM. This activation is done by explicitely activating the execution context of the capsul engine with the following code::
-    
-        from capsul.engine import capsul_engine
+    By default, CapsulEngine only stores necessary configuration. But it may be
+    necessary to modify the Python environment globally to apply this
+    configuration. For instance, Nipype must be configured globally. If SPM is
+    configured in CapsulEngine, it is necessary to explicitely activate the
+    configuration in order to modify the global configuration of Nipype for
+    SPM. This activation is done by explicitely activating the execution
+    context of the capsul engine with the following code, inside a running
+    process::
+
+        from capsul.engine import capsul_engine, activate_configuration
         ce = capsul_engine()
         # Nipype is not configured here
-        with ce:
-            # Nipype is configured here
-        # Nipype may not be configured here
+        config = capsul_engine.select_configurations('global',
+                                                     {'nipype': 'any'})
+        activate_configuration(config)
+        # Nipype is configured here
 
     .. note::
 
-        CapsulEngine is the replacement of the older :class:`~capsul.study_config.study_config.StudyConfig`, which is still present in Capsul 2.2 for backward compatibility, but will disapear in later versions. In Capsul 2.2 both objects exist, and are synchronized internally, which means that a StudyConfig object will also ceate a CapsulEngine, and the other way, and modifications in the StudyConfig object will change the corresponding item in CapsulEngine and vice versa. Functionalities of StudyConfig are moving internally to CapsulEngine, StudyConfig being merely a wrapper.
+        CapsulEngine is the replacement of the older
+        :class:`~capsul.study_config.study_config.StudyConfig`, which is still
+        present in Capsul 2.2 for backward compatibility, but will disapear in
+        later versions. In Capsul 2.2 both objects exist, and are synchronized
+        internally, which means that a StudyConfig object will also ceate a
+        CapsulEngine, and the other way, and modifications in the StudyConfig
+        object will change the corresponding item in CapsulEngine and vice
+        versa. Functionalities of StudyConfig are moving internally to
+        CapsulEngine, StudyConfig being merely a wrapper.
 
     **Using CapsulEngine**
 
-    It is used to store configuration variables, and to handle execution within the configured context. The configuration has 2 independent axes: configuration modules, which provide additional configutation variables, and computing resources.
+    It is used to store configuration variables, and to handle execution within
+    the configured context. The configuration has 2 independent axes:
+    configuration modules, which provide additional configutation variables,
+    and "environments" which typically represent computing resources.
 
     *Computing resources*
 
-    Capsul is using :somaworkflow:`Soma-Workflow <index.html>` to run processes, and is thus able to connect and execute on a remote computing server. The remote computing resource may have a different configuration from the client one (paths for software or data, available external software etc). So configurations specific to different computing resources should be handled in CapsulEngine. For this, the configuration section is split into several configuration instances, one for each computing resource.
+    Capsul is using :somaworkflow:`Soma-Workflow <index.html>` to run
+    processes, and is thus able to connect and execute on a remote computing
+    server. The remote computing resource may have a different configuration
+    from the client one (paths for software or data, available external
+    software etc). So configurations specific to different computing resources
+    should be handled in CapsulEngine. For this, the configuration section is
+    split into several configuration entries, one for each computing resource.
 
-    As this is a little bit complex to handle at first, a "global" configuration is used to maintain all common configuration options. It is typically used to work on the local machine, especially for users who only work locally. This configuration object is found under the ``global_config`` object in a CapsulEngine instance. It is a :class:`~soma.controller.controller.Controller` object::
+    As this is a little bit complex to handle at first, a "global"
+    configuration (what we call "environment") is used to maintain all common
+    configuration options. It is typically used to work on the local machine,
+    especially for users who only work locally.
+
+    Configuration is stored in a database (either internal or persistant),
+    through the :class:`~capsul.engine.settings.Settings` object found in
+    ``CapsulEngine.settings``.
+    Access and modification of settings should occur within a session block
+    using ``with capsul_engine.settings as session``. See the
+    :class:`~capsul.engine.settings.Settings` class for details.
+
+    ::
 
         >>> from capsul.api import capsul_engine
         >>> ce = capsul_engine()
+        >>> config = ce.settings.select_configurations('global')
         >>> config = ce.global_config
-        >>> print(config.export_to_dict())
-        OrderedDict([('fsl', OrderedDict([('config', <undefined>), ('directory', <undefined>), ('prefix', <undefined>), ('use', <undefined>)])), ('matlab', OrderedDict([('executable', <undefined>)])), ('spm', OrderedDict([('directory', <undefined>), ('standalone', <undefined>), ('use', <undefined>), ('version', <undefined>)])), ('axon', OrderedDict([('shared_directory', <undefined>)])), ('attributes', OrderedDict([('attributes_schema_paths', [u'capsul.attributes.completion_engine_factory']), ('attributes_schemas', OrderedDict()), ('path_completion', <undefined>), ('process_completion', 'builtin')]))])
+        >>> print(config)
+        {'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'ALL',
+          'capsul.engine.module.matlab': 'ALL',
+          'capsul.engine.module.spm': 'ALL'}}}
 
-    Whenever a new computing resource is used, it can be added as a new configuration using :meth:`add_computing_resource`. Configuration options for this resource are a merge of the global one, and the specific ones::
+    Whenever a new computing resource is used, it can be added as a new
+    environment key to all configuration operations.
 
-        >>> ce.add_computing_resource('computing_server')
-        >>> ce.global_config.spm.directory = '/tmp'
-        >>> print(ce.config('spm.directory', 'computing_server')
-        '/tmp'
-        >>> ce.set_config('spm.directory', '/home/myself', 'computing_server')
-        >>> print(ce.config('spm.directory', 'computing_server')
-        '/home/myself'
-        >>> print(ce.config('spm.directory')
-        '/tmp'
+    Note that the settings store all possible configurations for all
+    environments (or computing resources), but are not "activated": this is
+    only done at runtime in specific process execution functions: each process
+    may need to select and use a different configuration from other ones, and
+    activate it individually.
+
+    :class:`~capsul.process.process.Process` subclasses or instances may
+    provide their configuration requirements via their
+    :meth:`~capsul.process.process.Process.requirements` method. This method
+    returns a dictionary of request strings (one element per needed module)
+    that will be used to select one configuration amongst the available
+    settings entries of each required module.
 
     *configuration modules*
 
-    The configuration is handled through a set of configuration modules. Each is dedicated for a topic (for instance handling a specific external software paths, or managing process parameters completion,; etc). A module adds a configuration Controller, with its own variables, and is able to manage runtime configuration of programs, if needed, through environment variables. Capsul comes with a set of predefined modules:
-    :class:`~capsul.engine.module.attributes.AttributesConfig`,
-    :class:`~capsul.engine.module.axon.AxonConfig`,
-    :class:`~capsul.engine.module.fom.FomConfig`,
-    :class:`~capsul.engine.module.fsl.FSLConfig`,
-    :class:`~capsul.engine.module.matlab.MatlabConfig`,
-    :class:`~capsul.engine.module.spm.SPMConfig`
+    The configuration is handled through a set of configuration modules. Each
+    is dedicated for a topic (for instance handling a specific external
+    software paths, or managing process parameters completion, etc). A module
+    adds a settings table in the database, with its own variables, and is able
+    to manage runtime configuration of programs, if needed, through its
+    ``activate_configurations`` function. Capsul comes with a
+    set of predefined modules:
+    :class:`~capsul.engine.module.attributes`,
+    :class:`~capsul.engine.module.axon`,
+    :class:`~capsul.engine.module.fom`,
+    :class:`~capsul.engine.module.fsl`,
+    :class:`~capsul.engine.module.matlab`,
+    :class:`~capsul.engine.module.spm`
 
     **Methods**
     '''
-            
+
     def __init__(self, 
                  database_location,
                  database,
@@ -233,37 +286,33 @@ class CapsulEngine(Controller):
                 init_settings(self)
             return True
         return False
-    
-        
+
     #
     # Method imported from self.database
     #
-    
+
     # TODO: take computing resource in account in the following methods
-    
+
     def set_named_directory(self, name, path):
         return self.database.set_named_directory(name, path)
-    
+
     def named_directory(self, name):
         return self.database.named_directory(name)
-    
+
     def named_directories(self):
         return self.database.set_named_directories()
-    
-    
+
     def set_json_value(self, name, json_value):
         return self.database.set_json_value(name, json_value)
 
     def json_value(self, name):
         return self.database.json_value(name)
-        
-    
+
     def set_path_metadata(self, path, metadata, named_directory=None):
         return self.database.set_path_metadata(path, metadata, named_directory)
-    
+
     def path_metadata(self, path, named_directory=None):
         return self.database.set_path_metadata(path, named_directory)
-
 
     #
     # Processes and pipelines related methods
@@ -320,7 +369,7 @@ class CapsulEngine(Controller):
         '''
         self._connected_resource = computing_resource
 
-    
+
     def connected_to(self):
         '''
         Return the name of the computing resource this capsul engine is
@@ -328,55 +377,12 @@ class CapsulEngine(Controller):
         '''
         return self._connected_resource
 
-    
     def disconnect(self):
         '''
         Disconnect from a computing ressource.
         '''
         self._connected_resource = None
 
-
-    def environment_builder(self):
-        '''
-        # FIXME TODO: OBSOLETE
-
-        Return a string that contains a Python script that must be run in
-        the computing environment in order to define the environment variables
-        that must be given to all processes. The code of this script must be
-        executed in the processing context (i.e. on the, eventualy remote,
-        machine that will run the process). This code is supposed to be executed
-        in a new Python command and prints a JSON dictionary on standard output.
-        This dictionary contain environment variables that must be given to any
-        process using the environment of this capsul engine.
-        '''
-        # FIXME TODO: OBSOLETE
-        environ = {}
-        import_lines = []
-        code_lines = []
-
-        config = self.global_config.export_to_dict(exclude_undefined=True,
-                                                   exclude_empty=True)
-        connected_computing_resource = self.connected_to()
-        if connected_computing_resource:
-            computing_config = self.computing_config[connected_computing_resource]
-            config.update(computing_config.export_to_dict(exclude_undefined=True,
-                                                          exclude_empty=True))
-        import_lines.append('from collections import OrderedDict')
-        import_lines.append('import json')
-        import_lines.append('import sys')
-        code_lines.append('config = %s' % repr(config))
-        code_lines.append('environ = {}')
-        for module in self._loaded_modules:
-            python_module = sys.modules[module]
-            if getattr(python_module, 'set_environ', None):
-                import_lines.append('import %s' % module)            
-                code_lines.append('%s.set_environ(config, environ)' % module)
-        code_lines.append('json.dump(environ, sys.stdout)')
-        
-        code = '\n'.join(import_lines) + '\n\n' + '\n'.join(code_lines)
-        return code
-    
-    
     def executions(self):
         '''
         List the execution identifiers of all processes that have been started
@@ -384,7 +390,6 @@ class CapsulEngine(Controller):
         exception if the computing resource is not connected.
         '''
         raise NotImplementedError()
-        
 
     def dispose(self, execution_id, conditional=False):
         '''
@@ -397,28 +402,26 @@ class CapsulEngine(Controller):
         '''
         run.dispose(self, execution_id, conditional=conditional)
 
-
     def interrupt(self, execution_id):
         '''
         Try to stop the execution of a process. Does not wait for the process
         to be terminated.
         '''
         return run.interrupt(self, execution_id)
-    
+
     def wait(self, execution_id, timeout=-1, pipeline=None):
         '''
         Wait for the end of a process execution (either normal termination,
         interruption or error).
         '''
         return run.wait(self, execution_id, timeout=timeout, pipeline=pipeline)
-    
+
     def status(self, execution_id):
         '''
         Return a simple value with the status of an execution (queued, 
         running, terminated, error, etc.)
         '''
         return run.status(self, execution_id)
-
 
     def detailed_information(self, execution_id):
         '''
@@ -427,14 +430,11 @@ class CapsulEngine(Controller):
         '''
         return run.detailed_information(self, execution_id)
 
-
     def call(self, process, history=True, *kwargs):
         return run.call(self, process, history=history, **kwargs)
 
-
     def check_call(self, process, history=True, **kwargs):
         return run.check_call(self, process, history=history, **kwargs)
-
 
     def raise_for_status(self, status, execution_id=None):
         '''
@@ -443,32 +443,6 @@ class CapsulEngine(Controller):
         run.raise_for_status(self, status, execution_id)
 
 
-    def __enter__(self):
-        # FIXME TODO: OBSOLETE
-        code = self.environment_builder()
-        tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.py')
-        tmp.write(code)
-        tmp.flush()
-        json_environ = subprocess.check_output(
-            [sys.executable, tmp.name]).decode('utf-8')
-        environ = json.loads(json_environ)
-
-        self._environ_backup = {}
-        for n in environ.keys():
-            v = os.environ.get(n)
-            self._environ_backup[n] = v
-            os.environ[n] = environ[n]
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        # FIXME TODO: OBSOLETE
-        for n, v in self._environ_backup.items():
-            if v is None:
-                os.environ.pop(n, None)
-            else:
-                os.environ[n] = v
-        del self._environ_backup
-        
-    
 _populsedb_url_re = re.compile(r'^\w+(\+\w+)?://(.*)')
 
 
@@ -479,7 +453,7 @@ def database_factory(database_location):
     in memory database for testing) or a populse_db URL, or None.
     '''
     global _populsedb_url_re 
-    
+
     engine_directory = None
 
     if database_location is None:
@@ -498,7 +472,7 @@ def database_factory(database_location):
         populse_db = 'sqlite:///:memory:'
     else:
         raise ValueError('Invalid database location: %s' % database_location)
-    
+
     engine = PopulseDBEngine(populse_db)
     if engine_directory:
         engine.set_named_directory('capsul_engine', engine_directory)
@@ -507,11 +481,10 @@ def database_factory(database_location):
 def capsul_engine(database_location=None, require=None):
     '''
     User facrory for creating capsul engines.
-    
-    If no database_location is given, the default value is
-    '~/.config/capsul/capsul_engine.sqlite' where ~ is replaced by the
-    current use home directory (with os.path.expanduser).
-    
+
+    If no database_location is given, it will default to an internal (in-
+    memory) database with no persistant settings or history values.
+
     Configuration is read from a dictionary stored in two database entries.
     The first entry has the key 'global_config' (i.e.
     database.json_value('global_config')), it contains the configuration
@@ -519,7 +492,7 @@ def capsul_engine(database_location=None, require=None):
     computing_config`. It contains a dictionary with one item per computing
     resource where the key is the resource name and the value is configuration 
     values that are specific to this computing resource.
-    
+
     Before initialization of the CapsulEngine, modules are loaded. The
     list of loaded modules is searched in the 'modules' value in the
     database (i.e. in database.json_value('modules')) ; if no list is
@@ -540,7 +513,7 @@ def activate_configuration(selected_configurations):
     Activate a selected configuration (set of modules) for runtime.
     '''
     global configurations
-    
+
     configurations = selected_configurations
     modules = configurations.get('capsul_engine', {}).get('uses', {}).keys()
     for m in modules:
@@ -553,7 +526,7 @@ def activate_module(module_name):
     ``capsul.engine.configurations`` is properly setup.
     '''
     global activated_modules
-    
+
     if module_name not in activated_modules:
         activated_modules.add(module_name)
         module = importlib.import_module(module_name)

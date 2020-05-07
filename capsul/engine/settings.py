@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import importlib
-from uuid import uuid4
 
 '''
 This module provides classes to store CapsulEngine settings for several execution environment and choose a configuration for a given execution environment. Setting management in Capsul has several features that makes it different from classical ways to deal with configuration:
@@ -25,7 +23,6 @@ Settings cannot be used directly to configure the execution of a software. It is
 # * default values
 # * mandatory / optional settings
 # * dependencies between settings
-# * complex types (dicts...)
 #
 # all these were "simple" using Controllers but are in a way "too free" now,
 # and "too constrained" in another way (table columns: not dicts or structures)
@@ -40,25 +37,34 @@ Settings cannot be used directly to configure the execution of a software. It is
 # doc on modules activation / use ?
 #
 
+import importlib
+from uuid import uuid4
+
+
 class Settings:
     '''
-    Main class for the management of CapsulEngine settings. Since these settings are always stored in a populse_db database, it is necessary to activate a settings session in order to read or modify settings. This is done by using a with clause:
-    
-    ```
-    from capsul.api import capsul_engine
-    
-    # Create a CapsulEngine
-    ce = capsul_engine() 
-    with ce.settings as settings:
-        # Read or modify settings here
-    ```
+    Main class for the management of CapsulEngine settings. Since these
+    settings are always stored in a populse_db database, it is necessary to
+    activate a settings session in order to read or modify settings. This is
+    done by using a with clause::
+
+        from capsul.api import capsul_engine
+
+        # Create a CapsulEngine
+        ce = capsul_engine()
+        with ce.settings as settings:
+            # Read or modify settings here
+            conf = settings.new_config('spm', 'global',
+                                       {'version': '12', 'standalone': True})
+            # modify value
+            conf.directory = '/usr/local/spm12-standalone'
     '''
-    
+
     global_environment = 'global'
     collection_prefix = 'settings/'
     environment_field = 'config_environment'
     config_id_field = 'config_id'
-    
+
     def __init__(self, populse_db):
         '''
         Create a settins instance using the given populse_db instance
