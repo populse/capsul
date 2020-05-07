@@ -53,7 +53,10 @@ class WorkflowExecutionError(Exception):
             os.close(tmp1[0])
             os.close(tmp2[0])
             try:
-                for job_id in failed_jobs + aborted_jobs:
+                jobs = failed_jobs + aborted_jobs
+                cmds = controller.jobs(jobs)
+                for job_id in jobs:
+                    jinfo = cmds[job_id]
                     if job_id in failed_jobs:
                         has_run = True
                     else:
@@ -67,8 +70,10 @@ class WorkflowExecutionError(Exception):
                     precisions_list += [
                         '============================================',
                         '---- failed job info ---',
-                        '* job: %d' % job_id,
+                        '* job: %d: %s' % (job_id, jinfo[0]),
                         '* exit status: %s' % status[0],
+                        '* commandline:',
+                        jinfo[1],
                     ]
                     if has_run:
                         precisions_list += [
