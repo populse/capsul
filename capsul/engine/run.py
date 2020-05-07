@@ -40,12 +40,20 @@ class WorkflowExecutionError(Exception):
             failed_jobs = swclient.Helper.list_failed_jobs(
                 workflow_id, controller)
             precisions_list = ['\nFailed jobs: %s' % repr(failed_jobs)]
+            if len(failed_jobs) == 0:
+                aborted_jobs = swclient.Helper.list_failed_jobs(
+                    workflow_id, controller,
+                    include_aborted_jobs=True, include_user_killed_jobs=True)
+                aborted_jobs = [job for job in aborted_jobs
+                                if job not in failed_jobs]
+            precisions_list.append('Aborted/killed jobs: %s'
+                                   % repr(aborted_jobs))
             tmp1 = tempfile.mkstemp(prefix='capsul_swf_job_stdout')
             tmp2 = tempfile.mkstemp(prefix='capsul_swf_job_stderr')
             os.close(tmp1[0])
             os.close(tmp2[0])
             try:
-                for job_id in failed_jobs:
+                for job_id in failed_jobs + aborted_jobs:
                     status = controller.job_termination_status(job_id)
                     controller.retrieve_job_stdouterr(job_id, tmp1[1], tmp2[1])
                     with open(tmp1[1]) as f:
@@ -54,16 +62,19 @@ class WorkflowExecutionError(Exception):
                         stderr = f.read()
                     precisions_list += [
                         '============================================'
-                        '---- job info ---',
+                        '---- failed job info ---',
                         '* job: %d' % job_id,
                         '* exit status: %s' % status[0],
                         '* exit value: %d' % status[1],
                         '* term signal: %s' % str(status[2]),
-                        '---- stdout ----',
-                        stdout,
-                        '---- stderr ----',
-                        stderr
                     ]
+                    if job_id in failed_jobs:
+                        precisions_list += [
+                            '---- stdout ----',
+                            stdout,
+                            '---- stderr ----',
+                            stderr
+                        ]
             finally:
                 if os.path.exists(tmp1[1]):
                     os.unlink(tmp1[1])
