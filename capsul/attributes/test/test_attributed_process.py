@@ -28,7 +28,9 @@ class DummyProcess(Process):
         self.add_trait("bidule", File(output=True))
 
     def _run_process(self):
-        open(self.bidule, 'w').write(open(self.truc).read())
+        with open(self.bidule, 'w') as f:
+            with open(self.truc) as g:
+                f.write(g.read())
 
 
 class DummyListProcess(Process):
@@ -37,8 +39,9 @@ class DummyListProcess(Process):
     result = File(output=True)
 
     def _run_process(self):
-        open(self.result, 'w').write(
-            '{\n    truc=%s,\n    bidule=%s\n}' % (self.truc, self.bidule))
+        with open(self.result, 'w') as f:
+            f.write(
+                '{\n    truc=%s,\n    bidule=%s\n}' % (self.truc, self.bidule))
 
 
 class CustomAttributesSchema(AttributesSchema):
@@ -111,9 +114,9 @@ def init_study_config(init_config={}):
             + ['capsul.attributes.test.test_attributed_process']
     study_config.attributes_schemas['input'] = 'custom_ex'
     study_config.attributes_schemas['output'] = 'custom_ex'
-    print('attributes_schema_paths:', study_config.attributes_schema_paths)
+    #print('attributes_schema_paths:', study_config.attributes_schema_paths)
     study_config.path_completion = 'custom_ex'
-    print('attributes_schema_paths 2:', study_config.attributes_schema_paths)
+    #print('attributes_schema_paths 2:', study_config.attributes_schema_paths)
 
     return study_config
 
@@ -270,9 +273,10 @@ class TestCompletion(unittest.TestCase):
 
         # create input files
         for s in atts.subject:
-            open(os.path.join(
-                study_config.input_directory,
-                'DummyProcess_truc_muppets_%s' % s), 'w').write('%s\n' %s)
+            with open(os.path.join(
+                    study_config.input_directory,
+                    'DummyProcess_truc_muppets_%s' % s), 'w') as f:
+                f.write('%s\n' %s)
 
         # run
         study_config.use_soma_workflow = False
@@ -285,7 +289,8 @@ class TestCompletion(unittest.TestCase):
                 'DummyProcess_bidule_muppets_%s' % s) for s in atts.subject]
         for s, out_file in zip(atts.subject, out_files):
             self.assertTrue(os.path.isfile(out_file))
-            self.assertTrue(open(out_file).read() == '%s\n' % s)
+            with open(out_file) as f:
+                self.assertTrue(f.read() == '%s\n' % s)
 
 
     def test_run_iteraton_swf(self):
@@ -311,9 +316,10 @@ class TestCompletion(unittest.TestCase):
 
         # create input files
         for s in atts.subject:
-            open(os.path.join(
-                study_config.input_directory,
-                'DummyProcess_truc_muppets_%s' % s), 'w').write('%s\n' %s)
+            with open(os.path.join(
+                    study_config.input_directory,
+                    'DummyProcess_truc_muppets_%s' % s), 'w') as f:
+                f.write('%s\n' %s)
 
         #from capsul.pipeline import pipeline_workflow
         #wf = pipeline_workflow.workflow_from_pipeline(pipeline)
@@ -331,7 +337,8 @@ class TestCompletion(unittest.TestCase):
                 'DummyProcess_bidule_muppets_%s' % s) for s in atts.subject]
         for s, out_file in zip(atts.subject, out_files):
             self.assertTrue(os.path.isfile(out_file))
-            self.assertTrue(open(out_file).read() == '%s\n' % s)
+            with open(out_file) as f:
+                self.assertTrue(f.read() == '%s\n' % s)
 
 
 def test():

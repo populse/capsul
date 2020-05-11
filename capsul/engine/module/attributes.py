@@ -2,13 +2,10 @@
 '''
 Attributes completion config module
 
-Classes
-=======
-:class:`AttributesConfig`
--------------------------
 '''
 
 from __future__ import absolute_import
+
 import os
 import six
 from soma.controller import Controller
@@ -18,66 +15,56 @@ from capsul.attributes.attributes_schema import AttributesSchema, \
     ProcessAttributes
 from capsul.attributes.completion_engine \
     import ProcessCompletionEngineFactory, PathCompletionEngineFactory
+from capsul.engine import settings
+import capsul.engine
+import os.path as osp
+from functools import partial
 
 
-class AttributesConfig(Controller):
-    '''Attributes-based completion configuration module for
-    :class:`~capsul.engine.CapsulEngine`.
-
-    See :ref:`completion` for a more complete documentation about
-    parameters completion.
-
-    This module adds the following options (traits):
-
-    attributes_schema_paths: list(str)
-        attributes shchemas modules names
-    attributes_schemas: dict(str, str)
-        attributes shchemas names
-    process_completion: str
-        process completion model name
-    path_completion: str
-        path completion model name
-    '''
-
+def init_settings(capsul_engine):
     default_paths = ['capsul.attributes.completion_engine_factory']
-    attributes_schema_paths = \
-        List(default_paths, Str(Undefined, output=False),
-             output=False,
-             desc='attributes shchemas modules names')
-    attributes_schemas = \
-        DictStrStr(output=False,
-                   desc='attributes shchemas names')
-    process_completion = \
-        Str('builtin', output=False,
-            desc='process completion model name')
-    path_completion = \
-        Str(Undefined, output=False,
-            desc='path completion model name')
 
+    init_att = {
+        'attributes_schema_paths': default_paths,
+        'attributes_schemas': {},
+        'process_completion': 'builtin',
+        settings.Settings.config_id_field: 'attributes',
+    }
 
-    def __init__(self):
-        super(AttributesConfig, self).__init__()
-        self.attributes_factory = AttributesFactory()
+    with capsul_engine.settings as session:
+        session.ensure_module_fields('attributes',
+            [dict(name='attributes_schema_paths',
+                  type='list_string',
+                  description='attributes shchemas modules names'),
+             dict(name='attributes_schemas',
+                  type='json',
+                  description='attributes shchemas names'),
+             dict(name='process_completion',
+                  type='string',
+                  description='process completion model name'),
+             dict(name='path_completion',
+                  type='string',
+                  description='path completion model name'),
+            ])
+        session.new_config('attributes', 'global', init_att)
 
-        factory = self.attributes_factory
-        factory.class_types['schema'] = AttributesSchema
-        factory.class_types['process_completion'] \
-            = ProcessCompletionEngineFactory
-        factory.class_types['path_completion'] \
-            = PathCompletionEngineFactory
-        factory.class_types['process_attributes'] \
-            = ProcessAttributes
+    if not hasattr(capsul_engine, '_modules_data'):
+        capsul_engine._modules_data = {}
+    data = capsul_engine._modules_data.setdefault('attributes', {})
+    factory = AttributesFactory()
+    data['attributes_factory'] = factory
 
-        factory.module_path = self.attributes_schema_paths
-        self.on_trait_change(self.update_factory, 'attributes_schema_paths')
+    factory.class_types['schema'] = AttributesSchema
+    factory.class_types['process_completion'] \
+        = ProcessCompletionEngineFactory
+    factory.class_types['path_completion'] \
+        = PathCompletionEngineFactory
+    factory.class_types['process_attributes'] \
+        = ProcessAttributes
 
-    def update_factory(self):
-        self.attributes_factory.module_path = self.attributes_schema_paths
-
-def load_module(capsul_engine, module_name):
-    capsul_engine.global_config.add_trait('attributes',
-                                          Instance(AttributesConfig))
-    capsul_engine.global_config.attributes = AttributesConfig()
+    factory.module_path = default_paths
+    settings.SettingsSession.module_notifiers['attributes'] \
+            = [partial(_sync_attributes_factory, capsul_engine)]
 
     # link with StudyConfig
     if hasattr(capsul_engine, 'study_config') \
@@ -85,4 +72,35 @@ def load_module(capsul_engine, module_name):
         scmod = capsul_engine.study_config.load_module('AttributesConfig', {})
         scmod.initialize_module()
         scmod.initialize_callbacks()
+
+#def check_configurations():
+    #'''
+    #Checks if the activated configuration is valid to use BrainVisa and returns
+    #an error message if there is an error or None if everything is good.
+    #'''
+    #return None
+
+#def complete_configurations():
+    #'''
+    #Try to automatically set or complete the capsul.engine.configurations for
+    #the attributes module.
+    #'''
+    #config = capsul.engine.configurations
+    #config = config.setdefault('attributes', {})
+    #attributes_schema_paths = config.get('attributes_schema_paths', None)
+    #if attributes_schema_paths is None:
+        #config['attributes_schema_paths'] \
+            #= ['capsul.attributes.completion_engine_factory']
+    #attributes_schemas = config.get('attributes_schemas', None)
+    #if attributes_schemas is None:
+        #config['attributes_schemas'] = {}
+
+
+def _sync_attributes_factory(capsul_engine, param=None, value=None):
+    factory = capsul_engine._modules_data['attributes']['attributes_factory']
+    with capsul_engine.settings as session:
+        config = session.config('attributes', 'global')
+        if config:
+            factory.module_path = config.attributes_schema_paths
+
 

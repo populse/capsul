@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-
 from __future__ import print_function
+
 import os
 import os.path as osp
 
@@ -11,7 +11,8 @@ def configure_all():
     is present in os.environ. This environment must have been set by the
     CapsulEngine mecanism.
     '''
-    print('!!!')
+    #print('!!!')
+    configure_matlab()
     configure_spm()
 
 
@@ -34,5 +35,30 @@ def configure_spm():
                 spm.SPMCommand.set_mlab_paths(
                     matlab_cmd=osp.join(spm_directory, 'run_spm%s.sh' % os.environ.get('SPM_VERSION','')) + ' ' + spm_exec + ' script',
                     use_mcr=True)
+
         else:
-            raise NotImplementedError('Nipype configuration is not yet implement for SPM non standalone')
+            # Matlab spm version
+
+            from nipype.interfaces import matlab
+
+            matlab.MatlabCommand.set_default_paths(
+                [spm_directory])  # + add_to_default_matlab_path)
+            spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)
+
+
+def configure_matlab():
+    '''
+    Configure matlab for nipype
+    '''
+
+    from capsul import engine
+
+    conf = engine.configurations.get('matlab')
+    if conf and conf.get('executable'):
+        matlab_exe = conf['executable']
+
+        from nipype.interfaces import matlab
+
+        matlab.MatlabCommand.set_default_matlab_cmd(
+            matlab_exe + " -nodesktop -nosplash")
+

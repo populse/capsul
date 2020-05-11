@@ -5,7 +5,6 @@ from __future__ import absolute_import
 import os
 import sys
 import glob
-from soma.test_utils import test_notebook as tnb
 import capsul
 
 # jupyter nbconvert import
@@ -13,8 +12,10 @@ try:
     import nbformat
     from jupyter_core.command import main as main_jupyter
 except ImportError:
-    raise Warning('cannot import nbformat and/or jupyter_core.command: '
-                  'cannot test notebooks')
+    raise ImportError('cannot import nbformat and/or jupyter_core.command: '
+                      'cannot test notebooks')
+
+from soma.test_utils import test_notebook as tnb
 
 
 def test():

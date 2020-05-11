@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 from __future__ import print_function
 # System import
 from __future__ import absolute_import
@@ -107,8 +99,9 @@ class TestQCNodes(unittest.TestCase):
         self.pipeline.output = 'dummy_output'
         self.output_directory = tempfile.mkdtemp()
         self.study_config = StudyConfig(output_directory=self.output_directory)
+        self.pipeline.set_study_config(self.study_config)
 
-    def __del__(self):
+    def tearDown(self):
         """ Remove temporary items.
         """
         shutil.rmtree(self.output_directory)

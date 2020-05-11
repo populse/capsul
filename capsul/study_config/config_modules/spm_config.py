@@ -13,8 +13,8 @@ from traits.api import Directory, File, Bool, Enum, Undefined, Str
 
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.subprocess.spm import check_spm_configuration
-from soma.functiontools import SomaPartial
 from capsul.engine import CapsulEngine
+from capsul.engine import settings
 import glob
 import os
 import os.path as osp
@@ -64,51 +64,113 @@ class SPMConfig(StudyConfigModule):
         else:
             self.sync_to_engine()
         # this test aims to raise an exception in case of incorrect setting,
-        # complygin to capsul 2.x behavior.
+        # complying to capsul 2.x behavior.
         if self.study_config.use_spm is True:
             check_spm_configuration(self.study_config)
 
     def initialize_callbacks(self):
-        self.study_config.engine.global_config.spm.on_trait_change(self.sync_from_engine)
         self.study_config.on_trait_change(self.sync_to_engine,
                                           "[use_spm, spm_+]")
+        settings.SettingsSession.module_notifiers['spm'] \
+            = [self.sync_from_engine]
 
-    def sync_from_engine(self):
-        if 'SPMConfig' in self.study_config.modules \
-                and 'capsul.engine.module.spm' \
-                    in self.study_config.engine.modules:
-            engine = self.study_config.engine.global_config.spm
-            self.study_config.spm_directory = engine.directory
-            self.study_config.spm_standalone = engine.standalone
-            self.study_config.spm_version = engine.version
-            if self.study_config.spm_directory not in (None, Undefined):
-                #spm_exec = glob.glob(osp.join(self.study_config.spm_directory,
-                                              #'mcr', 'v*'))
-                if engine.version:
-                    spm_exec = osp.join(self.study_config.spm_directory,
-                                        'run_spm%s.sh' % engine.version)
-                    if os.path.exists(spm_exec):
-                        spm_exec = [spm_exec]
-                    else:
-                        spm_exec = []
-                else:
-                    spm_exec = glob.glob(osp.join(
-                        self.study_config.spm_directory, 'run_spm*.sh'))
-                if len(spm_exec) != 0:
-                    self.study_config.spm_exec = spm_exec[0]
-                else:
-                    self.study_config.spm_exec = Undefined
-            #else:
-                #self.study_config.spm_exec = Undefined
-            self.study_config.use_spm = engine.use
+    def sync_from_engine(self, param=None, value=None):
+        if getattr(self, '_syncing', False):
+            # manage recursive calls
+            return
+        self._syncing = True
+        try:
+            if 'SPMConfig' in self.study_config.modules \
+                    and 'capsul.engine.module.spm' \
+                        in self.study_config.engine._loaded_modules:
+                with self.study_config.engine.settings as session:
+                    configs = list(session.configs('spm', 'global'))
+                    configs = sorted(configs,
+                                    key=lambda x: -int(x.version) * 1000
+                                        - int(x.standalone))
+                    if len(configs) != 0:
+                        config = configs[0]
+                        directory = config.directory \
+                            if config.directory not in (None, '') \
+                            else Undefined
+                        self.study_config.spm_directory = directory
+                        self.study_config.spm_standalone = config.standalone
+                        self.study_config.spm_version = config.version
+                        if self.study_config.spm_directory not in (None,
+                                                                  Undefined):
+                            if config.version:
+                                spm_exec = \
+                                    osp.join(self.study_config.spm_directory,
+                                            'run_spm%s.sh' % config.version)
+                                if os.path.exists(spm_exec):
+                                    spm_exec = [spm_exec]
+                                else:
+                                    spm_exec = []
+                            else:
+                                spm_exec = glob.glob(osp.join(
+                                    self.study_config.spm_directory,
+                                    'run_spm*.sh'))
+                            if len(spm_exec) != 0:
+                                self.study_config.spm_exec = spm_exec[0]
+                            else:
+                                self.study_config.spm_exec = Undefined
+                            self.study_config.use_spm = True
+                        else:
+                            self.study_config.use_spm = False
+        finally:
+            del self._syncing
 
     def sync_to_engine(self):
-        if 'SPMConfig' in self.study_config.modules \
-                and 'capsul.engine.module.spm' \
-                    in self.study_config.engine.modules:
-            engine = self.study_config.engine.global_config.spm
-            engine.directory = self.study_config.spm_directory
-            engine.standalone = self.study_config.spm_standalone
-            engine.version = self.study_config.spm_version
-            engine.use = self.study_config.use_spm
+        if getattr(self, '_syncing', False):
+            # manage recursive calls
+            return
+        self._syncing = True
+        try:
+            if 'SPMConfig' in self.study_config.modules \
+                    and 'capsul.engine.module.spm' \
+                        in self.study_config.engine._loaded_modules:
+                with self.study_config.engine.settings as session:
+                    cif = self.study_config.engine.settings.config_id_field
+                    version = self.study_config.spm_version
+                    if version in (None, Undefined):
+                        version = '12'
+                    standalone = (self.study_config.spm_standalone is True)
+                    id = 'spm%s%s' % (version,
+                                      '-standalone' if standalone else '')
+                    query = '%s == "%s"' % (cif, id)
+                    config = session.config('spm', 'global', selection=query)
+                    if config is None:
+                        # FIXME: do we keep only one config ? yes for now.
+                        config_ids = [getattr(conf, cif)
+                                      for conf in session.configs('spm',
+                                                                  'global')
+                                      if getattr(conf, cif) != id]
+                        for config_id in config_ids:
+                            session.remove_config('spm', 'global', config_id)
+                        session.new_config(
+                            'spm', 'global',
+                            {'directory':
+                                self.study_config.spm_directory
+                                    if self.study_config.spm_directory
+                                        is not Undefined
+                                    else None,
+                            'version': version,
+                            'standalone': standalone,
+                            cif: id})
+                    else:
+                        tparam = {'spm_directory': 'directory',
+                                  'spm_standalone': 'standalone',
+                                  'spm_version': 'version'}
+                        params = ['spm_directory', 'spm_standalone',
+                                  'spm_version']
+                        defaults = {'directory': None, 'standalone': False,
+                                    'version': '12'}
+                        for p in params:
+                            val = getattr(self.study_config, p)
+                            ceparam = tparam[p]
+                            if val is Undefined:
+                                val = defaults.get(ceparam, None)
+                            setattr(config, ceparam, val)
+        finally:
+            del self._syncing
 

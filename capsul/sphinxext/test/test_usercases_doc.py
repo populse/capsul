@@ -8,12 +8,12 @@ import unittest
 
 # Capsul import
 import capsul.sphinxext.test as my_module
-from capsul.utils.pilot import pilotfunction
+#from capsul.utils.pilot import pilotfunction
 from capsul.sphinxext.usecasesdocgen import UseCasesHelperWriter
 from capsul.sphinxext.load_pilots import load_pilots
 
 
-@pilotfunction
+#@pilotfunction
 def pilot_dummy_test():
     """
     Test pilot doc generation.

@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 from __future__ import absolute_import
 import sys
 
@@ -62,6 +54,7 @@ SOMA_MIN_VERSION = "4.6.1"
 
 # dependencies
 SOMA_WORKFLOW_MIN_VERSION = "2.9.0"
+POPULSE_DB_MIN_VERSION = "1.1.1"
 NIBABEL_MIN_VERSION = "1.0"
 NETWORKX_MIN_VERSION = "1.0"
 NUMPY_MIN_VERSION = "1.3"
@@ -91,8 +84,10 @@ REQUIRES = [
     # activate the following line after soma-base > 4.6.1 is released
     #"soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
+    "soma-workflow>={0}".format(SOMA_WORKFLOW_MIN_VERSION),
+    "populse-db>={0}".format(POPULSE_DB_MIN_VERSION),
     "six>=1.13",
-    "PyYAML"
+    "PyYAML",
 ]
 EXTRA_REQUIRES = {
     "doc": [
@@ -100,7 +95,6 @@ EXTRA_REQUIRES = {
         "numpy>={0}".format(NUMPY_MIN_VERSION),
     ],
     "database": ["populse_db"],
-    "distributed": ["soma-workflow>={0}".format(SOMA_WORKFLOW_MIN_VERSION)],
     "nipype": [
         "numpy>={0}".format(NUMPY_MIN_VERSION),
         "scipy>={0}".format(SCIPY_MIN_VERSION),

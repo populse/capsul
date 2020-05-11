@@ -40,7 +40,9 @@ from six.moves import range
 
 
 def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
-                           jobs_priority=0, create_directories=True):
+                           jobs_priority=0, create_directories=True,
+                           environment='global',
+                           check_requirements=True):
     """ Create a soma-workflow workflow from a Capsul Pipeline
 
     Parameters
@@ -64,6 +66,14 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     create_directories: bool (optional, default: True)
         if set, needed output directories (which will contain output files)
         will be created in a first job, which all other ones depend on.
+    environment: str (default: "global")
+        configuration environment name (default: "global"). See
+        :class:`capsul.engine.CapsulEngine` and
+        :class:`capsul.engine.settings.Settings`.
+    check_requirements: bool (default: True)
+        if True, check the pipeline nodes requirements in the capsul engine
+        settings, and issue an exception if they are not met instead of
+        proceeding with the workflow.
 
     Returns
     -------
@@ -168,7 +178,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
     def build_job(process, temp_map={}, shared_map={}, transfers=[{}, {}],
                   shared_paths={}, forbidden_temp=set(), name='', priority=0,
-                  step_name=''):
+                  step_name='', engine=None, environment='global'):
         """ Create a soma-workflow Job from a Capsul Process
 
         Parameters
@@ -192,6 +202,12 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             priority assigned to the job
         step_name: str (optional)
             the step name will be stored in the job user_storage variable
+        engine: CapsulEngine (optional)
+            used to check configuration requirements for non-process nodes
+        environment: str (default: "global")
+            configuration environment name (default: "global"). See
+            :class:`capsul.engine.CapsulEngine` and
+            :class:`capsul.engine.settings.Settings`.
 
         Returns
         -------
@@ -361,6 +377,15 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         # handle native specification (cluster-specific specs as in
         # soma-workflow)
         native_spec = getattr(process, 'native_specification', None)
+        config = {}
+        if isinstance(process, Process):
+            config = process.check_requirements(environment)
+        elif engine is not None:
+            config = process.check_requirements(engine, environment)
+        if config is None:
+            # here we bypass unmet requirements, it's not our job here.
+            config = {}
+
         # Return the soma-workflow job
         if process_cmdline[0] == 'custom_job':
             job = build_custom_job(
@@ -394,6 +419,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 job.parallel_job_info = parallel_job_info
         if step_name:
             job.user_storage = step_name
+        job.configuration = config
         # associate job with process
         job.process = weakref.ref(process)
         job._do_not_pickle = ['process']
@@ -716,7 +742,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                          shared_map, transfers, shared_paths,
                          disabled_nodes, remove_temp,
                          steps, study_config, iteration, map_job=None,
-                         reduce_job=None):
+                         reduce_job=None, environment='global'):
         '''
         Build a workflow for a single iteration step of a process/sub-pipeline
 
@@ -741,7 +767,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         process, temp_subst_map, shared_map, transfers,
                         shared_paths, disabled_nodes=disabled_nodes,
                         forbidden_temp=remove_temp, steps=steps,
-                        study_config=study_config)
+                        study_config=study_config, environment=environment)
                 jobs = {}
                 for proc, job in six.iteritems(jobs1):
                     jobs[(proc, iteration)] = job
@@ -768,7 +794,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             pipeline = Pipeline()
             pipeline.set_study_config(study_config)
             pipeline.add_process('iter', process.process)
-            return build_iteration(pipeline, step_name, study_config)
+            return build_iteration(pipeline, step_name, study_config,
+                                   environment=environment)
         else:
             # single process
             job = build_job(process, temp_map, shared_map,
@@ -776,7 +803,9 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                             forbidden_temp=remove_temp,
                             name=node_name,
                             priority=jobs_priority,
-                            step_name=step_name)
+                            step_name=step_name,
+                            engine=getattr(study_config, 'engine', None),
+                            environment=environment)
             jobs = {(process, iteration): job}
             groups = {}
             dependencies = {}
@@ -788,7 +817,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
     def build_iteration(it_node, step_name, temp_map,
                         shared_map, transfers, shared_paths, disabled_nodes,
-                        remove_temp, steps, study_config={}):
+                        remove_temp, steps, study_config={},
+                        environment='global'):
         '''
         Build workflow for an iterative process: the process / sub-pipeline is
         filled with appropriate parameters for each iteration, and its
@@ -1029,7 +1059,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         temp_map, shared_map, transfers,
                         shared_paths, disabled_nodes, remove_temp, steps,
                         study_config, iteration, map_job=map_job,
-                        reduce_job=reduce_job)
+                        reduce_job=reduce_job, environment=environment)
                 nodes += sub_nodes
                 jobs.update(sub_jobs)
                 dependencies.update(sub_dependencies)
@@ -1079,7 +1109,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             transfers=[{}, {}], shared_paths={},
             disabled_nodes=set(), forbidden_temp=set(),
             jobs_priority=0, steps={}, current_step='',
-            study_config={}, with_links=True):
+            study_config={}, with_links=True, environment='global'):
         """ Convert a CAPSUL pipeline into a soma-workflow workflow
 
         Parameters
@@ -1106,6 +1136,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             the parent node step name
         study_config: StydyConfig instance (optional)
             used only for iterative nodes, to be passed to create sub-workflows
+        environment: str (default: "global")
+            configuration environment name (default: "global"). See
+            :class:`capsul.engine.CapsulEngine` and
+            :class:`capsul.engine.settings.Settings`.
 
         Returns
         -------
@@ -1130,6 +1164,9 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                  if node.activated and node.enabled
                     and node is not pipeline.pipeline_node]
         all_nodes = []
+        engine = None
+        if study_config:
+            engine = getattr(study_config, 'engine', None)
 
         # Go through all graph nodes
         for node_desc in nodes:
@@ -1157,7 +1194,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         node.process, temp_map, shared_map, transfers,
                         shared_paths, disabled_nodes,
                         jobs_priority=jobs_priority,
-                        steps=steps, current_step=step_name, with_links=False)
+                        steps=steps, current_step=step_name, with_links=False,
+                        environment=environment)
                 group = build_group(node_name,
                                     sum(list(sub_root_jobs.values()), []))
                 groups[node] = group
@@ -1204,7 +1242,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                     forbidden_temp=forbidden_temp,
                                     name=node_name,
                                     priority=jobs_priority,
-                                    step_name=step_name)
+                                    step_name=step_name,
+                                    engine=engine, environment=environment)
                     if job:
                         sub_jobs[process] = job
                         root_jobs[process] = [job]
@@ -1327,6 +1366,12 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     if study_config is None:
         study_config = pipeline.get_study_config()
 
+    if check_requirements:
+        if pipeline.check_requirements(environment) is None:
+            raise ValueError(
+                'The pipeline requirements are not met in the current '
+                'configuration settings.')
+
     if not isinstance(pipeline, Pipeline):
         # "pipeline" is actally a single process (or should, if it is not a
         # pipeline). Get it into a pipeine (with a single node) to make the
@@ -1334,7 +1379,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         new_pipeline = Pipeline()
         new_pipeline.set_study_config(study_config)
         new_pipeline.add_process('main', pipeline)
-        new_pipeline.autoexport_nodes_parameters()
+        new_pipeline.autoexport_nodes_parameters(include_optional=True)
         pipeline = new_pipeline
     temp_map = assign_temporary_filenames(pipeline)
     temp_subst_list = [(x1, x2[0]) for x1, x2 in six.iteritems(temp_map)]
@@ -1380,7 +1425,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 pipeline, temp_subst_map, shared_map, transfers,
                 swf_paths[1],
                 disabled_nodes=disabled_nodes, forbidden_temp=remove_temp,
-                steps=steps, study_config=study_config)
+                steps=steps, study_config=study_config,
+                environment=environment)
     finally:
         restore_empty_filenames(temp_map)
 
