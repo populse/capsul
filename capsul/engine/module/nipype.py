@@ -24,7 +24,7 @@ def activate_configurations():
     from capsul.in_context import nipype
 
     # activate optional dependencies first
-    for module in ('matlab', 'spm', 'fsl'):  # , 'freesurfer'):
+    for module in ('matlab', 'spm', 'fsl', 'freesurfer'):
         module_name = Settings.module_name(module)
         mod_conf = engine.configurations.get(module_name)
         if mod_conf:

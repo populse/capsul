@@ -14,7 +14,7 @@ import os
 import six
 
 # Trait import
-from traits.api import File, Bool, Undefined
+from traits.api import File, Bool, Undefined, Directory
 
 # Capsul import
 from capsul.study_config.study_config import StudyConfigModule
@@ -41,6 +41,9 @@ class FreeSurferConfig(StudyConfigModule):
         self.study_config.add_trait("freesurfer_config", File(
             Undefined,
             desc="Path to 'FreeSurferEnv.sh'"))
+        self.study_config.add_trait('freesurfer_subjectsdir', Directory(
+            Undefined,
+            desc='FreeSurfer subjects data directory'))
         self.study_config.add_trait("use_freesurfer", Bool(
             Undefined,
             desc="If True, FreeSurfer configuration is set up on startup"))
@@ -62,7 +65,8 @@ class FreeSurferConfig(StudyConfigModule):
 
     def initialize_callbacks(self):
         self.study_config.on_trait_change(
-            self.sync_to_engine, 'freesurfer_config')
+            self.sync_to_engine,
+            ['freesurfer_config', 'freesurfer_subjectsdir'])
         settings.SettingsSession.module_notifiers['freesurfer'] \
             = [self.sync_from_engine]
 
@@ -77,20 +81,25 @@ class FreeSurferConfig(StudyConfigModule):
                         in self.study_config.engine._loaded_modules:
                 with self.study_config.engine.settings as session:
                     cif = self.study_config.engine.settings.config_id_field
+                    params = {
+                        'freesurfer_config': 'setup',
+                        'freesurfer_subjectsdir': 'subjects_dir',
+                    }
                     config = session.config('freesurfer', 'global')
-                    fs_setup = self.study_config.freesurfer_config
-                    if fs_setup is Undefined:
-                        fs_setup = None
                     if config is None:
-                        session.new_config(
-                            'freesurfer', 'global',
-                            {'setup': fs_setup,
-                             cif: 'freesurfer'})
+                        values = {cif: 'freesurfer'}
+                        for param, ceparam in six.iteritems(params):
+                            val = getattr(self.study_config, param)
+                            if val is Undefined:
+                                val = None
+                            values[ceparam] = val
+                        session.new_config('freesurfer', 'global', values)
                     else:
-                        val = self.study_config.fs_setup
-                        if val is Undefined:
-                            val = None
-                        setattr(config, 'setup', val)
+                        for param, ceparam in six.iteritems(params):
+                            val = getattr(self.study_config, param)
+                            if val is Undefined:
+                                val = None
+                            setattr(config, ceparam, val)
         finally:
             del self._syncing
 
@@ -106,12 +115,17 @@ class FreeSurferConfig(StudyConfigModule):
                 with self.study_config.engine.settings as session:
                     config = session.config('freesurfer', 'global')
                     if config:
-                        fs_setup = config.setup \
-                            if config.setup not in (None, '') \
-                            else Undefined
+                        params = {
+                            'freesurfer_config': 'setup',
+                            'freesurfer_subjectsdir': 'subjects_dir',
+                        }
+                        for param, ceparam in six.iteritems(params):
+                            val = getattr(config, ceparam)
+                            if val in (None, ''):
+                                val = Undefined
+                            setattr(self.study_config, param, val)
 
-                        self.study_config.freesurfer_config = fs_setup
-                        if fs_setup:
+                        if self.study_config.freesurfer_config:
                             self.study_config.use_freesurfer = True
                         else:
                             self.study_config.use_freesurfer = False

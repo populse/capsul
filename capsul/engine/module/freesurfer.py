@@ -15,6 +15,9 @@ def init_settings(capsul_engine):
             [dict(name='setup',
                   type='string',
                   description='path of FreeSurferEnv.sh file'),
+             dict(name='subjects_dir',
+                  type='string',
+                  description='Freesurfer subjects data directory'),
             ])
 
     # link with StudyConfig

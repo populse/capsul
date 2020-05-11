@@ -14,6 +14,7 @@ def configure_all():
     #print('!!!')
     configure_matlab()
     configure_spm()
+    configure_freesurfer()
 
 
 def configure_spm():
@@ -61,4 +62,21 @@ def configure_matlab():
 
         matlab.MatlabCommand.set_default_matlab_cmd(
             matlab_exe + " -nodesktop -nosplash")
+
+
+def configure_freesurfer():
+    '''
+    Configure Freesurfer for nipype
+    '''
+    from capsul import engine
+    conf = engine.configurations.get('freesurfer')
+    if conf:
+        subjects_dir = conf.get('subjects_dir')
+        if subjects_dir:
+            from nipype.interfaces import freesurfer
+            freesurfer.FSCommand.set_default_subjects_dir(subjects_dir)
+        from capsul.engine.in_context import freesurfer as fsrun
+        env = fsrun.freesurfer_env()
+        for var, value in env.items():
+            os.environ[var] = value
 
