@@ -14,6 +14,7 @@ def configure_all():
     #print('!!!')
     configure_matlab()
     configure_spm()
+    configure_fsl()
     configure_freesurfer()
 
 
@@ -62,6 +63,19 @@ def configure_matlab():
 
         matlab.MatlabCommand.set_default_matlab_cmd(
             matlab_exe + " -nodesktop -nosplash")
+
+
+def configure_fsl():
+    '''
+    Configure FSL for nipype
+    '''
+    from capsul import engine
+    conf = engine.configurations.get('fsl')
+    if conf:
+        from capsul.engine.in_context import fsl as fslrun
+        env = fslrun.fsl_env()
+        for var, value in env.items():
+            os.environ[var] = value
 
 
 def configure_freesurfer():

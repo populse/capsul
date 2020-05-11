@@ -31,12 +31,20 @@ from traits.api import Undefined
 from soma.path import find_in_path
 
 
+'''
+If this variable is set, it contains FS runtime env variables, allowing to run directly freesurfer commands from this process.
+'''
+fsl_runtime_env = None
+
+
 def fsl_command_with_environment(command):
     '''
     Given an FSL command where first element is a command name without
     any path or prefix (e.g. "bet"). Returns the appropriate command to
     call taking into account the FSL configuration stored in the
     activated ExecutionContext.
+
+    Usinfg :func`fsl_env` is an alternative to this.
     '''
     fsl_dir = os.environ.get('FSLDIR')
     if fsl_dir:
@@ -65,32 +73,86 @@ def fsl_command_with_environment(command):
                            command[0])] + command[1:]
     return cmd
 
+
+def fsl_env():
+    '''
+    get FSL env variables by running the setup script in a separate bash
+    process
+    '''
+    global fsl_runtime_env
+
+    if fsl_runtime_env is not None:
+        return fsl_runtime_env
+
+    cmd = fsl_command_with_environment(['env'])
+    new_env = soma.subprocess.check_output(cmd).decode(
+        'utf-8').strip().split('\n')
+    env = {}
+    for l in new_env:
+        name, val = l.strip().split('=', 1)
+        if name not in ('_', 'SHLVL') and (name not in os.environ
+                                           or os.environ[name] != val):
+            env[name] = val
+    # add PATH
+    fsl_dir = os.environ.get('FSLDIR')
+    if fsl_dir:
+        fsl_bin = osp.join(fsl_dir, 'bin')
+        env['PATH'] = os.pathsep.join([fsl_bin, os.environ.get('PATH', '')])
+    # cache dict
+    fsl_runtime_env = env
+    return env
+
+
 class FslPopen(soma.subprocess.Popen):
     '''
     Equivalent to Python subprocess.Popen for FSL commands
     '''
     def __init__(self, command, **kwargs):
-        cmd = fsl_command_with_environment(command)
-        super(FslPopen, self).__init__(cmd, **kwargs)
+        # cmd = fsl_command_with_environment(command)
+        env = fsl_env()
+        if 'env' in kwargs:
+            env = dict(env)
+            env.update(kwargs['env'])
+            kwargs = dict(kwargs)
+            del kwargs['env']
+        super(FslPopen, self).__init__(command, env=env, **kwargs)
 
 def fsl_call(command, **kwargs):
     '''
     Equivalent to Python subprocess.call for FSL commands
     '''
-    cmd = fsl_command_with_environment(command)
-    return soma.subprocess.call(cmd, **kwargs)
+    #cmd = fsl_command_with_environment(command)
+    env = fsl_env()
+    if 'env' in kwargs:
+        env = dict(env)
+        env.update(kwargs['env'])
+        kwargs = dict(kwargs)
+        del kwargs['env']
+    return soma.subprocess.call(command, env=env, **kwargs)
 
 def fsl_check_call(command, **kwargs):
     '''
     Equivalent to Python subprocess.check_call for FSL commands
     '''
-    cmd = fsl_command_with_environment(command)
-    return soma.subprocess.check_call(cmd, **kwargs)
+    #cmd = fsl_command_with_environment(command)
+    env = fsl_env()
+    if 'env' in kwargs:
+        env = dict(env)
+        env.update(kwargs['env'])
+        kwargs = dict(kwargs)
+        del kwargs['env']
+    return soma.subprocess.check_call(command, env=env, **kwargs)
 
 
 def fsl_check_output(command, **kwargs):
     '''
     Equivalent to Python subprocess.check_output for FSL commands
     '''
-    cmd = fsl_command_with_environment(command)
-    return soma.subprocess.check_output(cmd, **kwargs)
+    #cmd = fsl_command_with_environment(command)
+    env = fsl_env()
+    if 'env' in kwargs:
+        env = dict(env)
+        env.update(kwargs['env'])
+        kwargs = dict(kwargs)
+        del kwargs['env']
+    return soma.subprocess.check_output(command, env=env, **kwargs)
