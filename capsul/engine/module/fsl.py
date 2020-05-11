@@ -30,8 +30,10 @@ def check_configurations():
     Checks if the activated configuration is valid to run FSL and returns an
     error message if there is an error or None if everything is good.
     '''
-    fsl_prefix = capsul.engine.configurations.get('fsl',{}).get('prefix', '')
-    fsl_config = capsul.engine.configurations.get('fsl',{}).get('config')
+    fsl_prefix = capsul.engine.configurations.get(
+        'capsul.engine.module.fsl',{}).get('prefix', '')
+    fsl_config = capsul.engine.configurations.get(
+        'capsul.engine.module.fsl',{}).get('config')
     if not fsl_config:
         if not find_in_path('%sbet' % fsl_prefix):
             return 'FSL command "%sbet" cannot be found in PATH' % fsl_prefix
@@ -50,7 +52,7 @@ def complete_configurations():
     Try to automatically set or complete the capsul.engine.configurations for FSL.
     '''
     config = capsul.engine.configurations
-    config = config.setdefault('fsl', {})
+    config = config.setdefault('capsul.engine.module.fsl', {})
     fsl_dir = config.get('directory', os.environ.get('FSLDIR'))
     fsl_prefix = config.get('prefix', '')
     if fsl_dir and not fsl_prefix:
