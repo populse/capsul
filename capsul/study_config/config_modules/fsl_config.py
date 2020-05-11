@@ -77,6 +77,10 @@ class FSLConfig(StudyConfigModule):
                         fsl_dir = None
                     else:
                         fsl_dir = osp.dirname(fsl_conf)
+                        if fsl_dir.endswith('/etc/fslconf'):
+                            fsl_dir = osp.dirname(osp.dirname(fsl_dir))
+                        elif fsl_dir.endswith('/etc'):
+                            fsl_dir = osp.dirname(fsl_dir)
                     if config is None:
                         session.new_config(
                             'fsl', 'global',
