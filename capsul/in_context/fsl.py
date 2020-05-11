@@ -25,9 +25,9 @@ from __future__ import absolute_import
 import os
 import os.path as osp
 import soma.subprocess
+import six
 
 from traits.api import Undefined
-
 from soma.path import find_in_path
 
 
@@ -92,6 +92,8 @@ def fsl_env():
     env = {}
     for l in new_env:
         name, val = l.strip().split('=', 1)
+        name = six.ensure_str(name)
+        val = six.ensure_str(val)
         if name not in ('_', 'SHLVL') and (name not in os.environ
                                            or os.environ[name] != val):
             env[name] = val

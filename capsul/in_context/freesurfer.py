@@ -11,6 +11,7 @@ import soma.subprocess
 
 from capsul import engine
 import pipes
+import six
 
 '''
 If this variable is set, it contains FS runtime env variables, allowing to run directly freesurfer commands from this process.
@@ -61,6 +62,8 @@ def freesurfer_env():
     env = {}
     for l in new_env:
         name, val = l.strip().split('=', 1)
+        name = six.ensure_str(name)
+        val = six.ensure_str(val)
         if name not in ('_', 'SHLVL') and (name not in os.environ
                                            or os.environ[name] != val):
             env[name] = val
