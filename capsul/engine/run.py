@@ -69,7 +69,7 @@ class WorkflowExecutionError(Exception):
                     with open(tmp2[1]) as f:
                         stderr = f.read()
                     full_job = [j for j in workflow.jobs
-                                if j.job_id == job_id][0]
+                                if workflow.job_mapping[j].job_id == job_id][0]
                     precisions_list += [
                         '============================================',
                         '---- failed job info ---',
