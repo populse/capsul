@@ -55,6 +55,7 @@ class WorkflowExecutionError(Exception):
             try:
                 jobs = failed_jobs + aborted_jobs
                 cmds = controller.jobs(jobs)
+                workflow = controller.workflow(workflow_id)
                 for job_id in jobs:
                     jinfo = cmds[job_id]
                     if job_id in failed_jobs:
@@ -67,6 +68,8 @@ class WorkflowExecutionError(Exception):
                         stdout = f.read()
                     with open(tmp2[1]) as f:
                         stderr = f.read()
+                    full_job = [j for j in workflow.jobs
+                                if j.job_id == job_id][0]
                     precisions_list += [
                         '============================================',
                         '---- failed job info ---',
@@ -76,6 +79,10 @@ class WorkflowExecutionError(Exception):
                         jinfo[1],
                         '* exit value: %s' % str(status[1]),
                         '* term signal: %s' % str(status[2]),
+                        '---- env ----',
+                        full_job.env,
+                        '---- configuration ----',
+                        full_job.configuration,
                         '---- stdout ----',
                         stdout,
                         '---- stderr ----',
