@@ -87,8 +87,8 @@ class WorkflowExecutionError(Exception):
                         stdout,
                         '---- stderr ----',
                         stderr,
-                        '---- full host env ----',
-                        repr(os.environ)
+                        #'---- full host env ----',
+                        #repr(os.environ)
                     ]
             finally:
                 if os.path.exists(tmp1[1]):
