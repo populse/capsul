@@ -61,11 +61,13 @@ def fsl_command_with_environment(command):
         shell = os.environ.get('SHELL', '/bin/sh')
         if shell.endswith('csh'):
             cmd = [shell, '-c', 
-                'setenv FSLDIR "{0}";source {0}/etc/fslconf/fsl.csh;exec {0}/bin/{1}{2} '.format(fsldir, fsl_prefix, command[0]) + \
+                'setenv FSLDIR "{0}"; setenv PATH "{0}/bin:$PATH"; source {0}/etc/fslconf/fsl.csh;exec {0}/bin/{1}{2} '.format(
+                    fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % i.replace("'", "\\'") for i in command[1:])]
         else:
             cmd = [shell, '-c', 
-                'export FSLDIR="{0}";. {0}/etc/fslconf/fsl.sh;exec {0}/bin/{1}{2} '.format(fsldir, fsl_prefix, command[0]) + \
+                'export FSLDIR="{0}"; export PATH="{0}/bin:$PATH"; . {0}/etc/fslconf/fsl.sh;exec {1}{2} '.format(
+                    fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % i.replace("'", "\\'") for i in command[1:])]
     else:
         cmd = ['%s%s%s' % (dir_prefix, 
