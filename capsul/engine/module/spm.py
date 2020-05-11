@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 from capsul import engine
 import os
+import six
 
 #import glob
 #import os.path as osp
@@ -140,12 +141,12 @@ def activate_configurations():
     conf = engine.configurations.get('capsul.engine.module.spm', {})
     spm_dir = conf.get('directory')
     if spm_dir:
-        os.environ['SPM_DIRECTORY'] = spm_dir
+        os.environ['SPM_DIRECTORY'] = six.ensure_str(spm_dir)
     elif 'SPM_DIRECTORY' in os.environ:
         del os.environ['SPM_DIRECTORY']
     spm_version = conf.get('version')
     if spm_version:
-        os.environ['SPM_VERSION'] = spm_version
+        os.environ['SPM_VERSION'] = six.ensure_str(spm_version)
     elif 'SPM_VERSION' in os.environ:
         del os.environ['SPM_VERSION']
     spm_standalone = conf.get('standalone')

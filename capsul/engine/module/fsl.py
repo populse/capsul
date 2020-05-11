@@ -6,6 +6,7 @@ import os
 from soma.path import find_in_path
 import os.path as osp
 from capsul import engine
+import six
 
 
 def init_settings(capsul_engine):
@@ -72,17 +73,17 @@ def activate_configurations():
     conf = engine.configurations.get('capsul.engine.module.fsl', {})
     fsl_dir = conf.get('directory')
     if fsl_dir:
-        os.environ['FSLDIR'] = fsl_dir
+        os.environ['FSLDIR'] = six.ensure_str(fsl_dir)
     elif 'FSLDIR' in os.environ:
         del os.environ['FSLDIR']
     fsl_prefix = conf.get('prefix')
     if fsl_prefix:
-        os.environ['FSL_PREFIX'] = fsl_prefix
+        os.environ['FSL_PREFIX'] = six.ensure_str(fsl_prefix)
     elif 'FSL_PREFIX' in os.environ:
         del os.environ['FSL_PREFIX']
     fsl_conf = conf.get('config')
     if fsl_conf:
-        os.environ['FSL_CONFIG'] = fsl_conf
+        os.environ['FSL_CONFIG'] = six.ensure_str(fsl_conf)
     elif 'FSL_CONFIG' in os.environ:
         del os.environ['FSL_CONFIG']
 
