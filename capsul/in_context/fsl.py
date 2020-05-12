@@ -37,7 +37,8 @@ If this variable is set, it contains FS runtime env variables, allowing to run d
 fsl_runtime_env = None
 
 
-def fsl_command_with_environment(command):
+def fsl_command_with_environment(command, use_prefix=True,
+                                 use_runtime_env=True):
     '''
     Given an FSL command where first element is a command name without
     any path or prefix (e.g. "bet"). Returns the appropriate command to
@@ -46,12 +47,22 @@ def fsl_command_with_environment(command):
 
     Usinfg :func`fsl_env` is an alternative to this.
     '''
+    if use_prefix:
+        fsl_prefix = os.environ.get('FSL_PREFIX', '')
+    else:
+        fsl_prefix = ''
+    if use_runtime_env and fsl_runtime_env:
+        c0 = list(osp.split(command[0]))
+        c0[-1] = '%s%s' % (fsl_prefix, c0[-1])
+        c0 = osp.join(*c0)
+        cmd = [c0] + command[1:]
+        return cmd
+
     fsl_dir = os.environ.get('FSLDIR')
     if fsl_dir:
         dir_prefix = '%s/bin/' % fsl_dir
     else:
         dir_prefix = ''
-    fsl_prefix = os.environ.get('FSL_PREFIX', '')
     fsl_config = os.environ.get('FSL_CONFIG')
     if fsl_prefix and not os.path.isdir(dir_prefix):
         dir_prefix = ''
@@ -61,7 +72,7 @@ def fsl_command_with_environment(command):
         shell = os.environ.get('SHELL', '/bin/sh')
         if shell.endswith('csh'):
             cmd = [shell, '-c', 
-                'setenv FSLDIR "{0}"; setenv PATH "{0}/bin:$PATH"; source {0}/etc/fslconf/fsl.csh;exec {0}/bin/{1}{2} '.format(
+                'setenv FSLDIR "{0}"; setenv PATH "{0}/bin:$PATH"; source {0}/etc/fslconf/fsl.csh;exec {1}{2} '.format(
                     fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % i.replace("'", "\\'") for i in command[1:])]
         else:
@@ -70,7 +81,7 @@ def fsl_command_with_environment(command):
                     fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % i.replace("'", "\\'") for i in command[1:])]
     else:
-        cmd = ['%s%s%s' % (dir_prefix, 
+        cmd = ['%s%s%s' % (dir_prefix,
                            fsl_prefix, 
                            command[0])] + command[1:]
     return cmd
@@ -86,8 +97,18 @@ def fsl_env():
     if fsl_runtime_env is not None:
         return fsl_runtime_env
 
-    cmd = fsl_command_with_environment(['env'])
-    new_env = soma.subprocess.check_output(cmd).decode(
+    fsl_config = os.environ.get('FSL_CONFIG')
+    fsl_dir = os.environ.get('FSLDIR')
+    kwargs = {}
+    if not fsl_config:
+        cmd = ['env']
+        if fsl_dir:
+            kwargs = {'env': {'PATH': os.pathsep.join(
+                ['%s/bin' % fsl_dir, os.environ.get('PATH', '')])}}
+    else:
+        cmd = fsl_command_with_environment(['env'], use_prefix=False,
+                                           use_runtime_env=False)
+    new_env = soma.subprocess.check_output(cmd, **kwargs).decode(
         'utf-8').strip().split('\n')
     env = {}
     for l in new_env:
@@ -98,7 +119,6 @@ def fsl_env():
                                            or os.environ[name] != val):
             env[name] = val
     # add PATH
-    fsl_dir = os.environ.get('FSLDIR')
     if fsl_dir:
         fsl_bin = osp.join(fsl_dir, 'bin')
         env['PATH'] = os.pathsep.join([fsl_bin, os.environ.get('PATH', '')])
@@ -112,51 +132,51 @@ class FslPopen(soma.subprocess.Popen):
     Equivalent to Python subprocess.Popen for FSL commands
     '''
     def __init__(self, command, **kwargs):
-        # cmd = fsl_command_with_environment(command)
+        cmd = fsl_command_with_environment(command)
         env = fsl_env()
         if 'env' in kwargs:
             env = dict(env)
             env.update(kwargs['env'])
             kwargs = dict(kwargs)
             del kwargs['env']
-        super(FslPopen, self).__init__(command, env=env, **kwargs)
+        super(FslPopen, self).__init__(cmd, env=env, **kwargs)
 
 def fsl_call(command, **kwargs):
     '''
     Equivalent to Python subprocess.call for FSL commands
     '''
-    #cmd = fsl_command_with_environment(command)
+    cmd = fsl_command_with_environment(command)
     env = fsl_env()
     if 'env' in kwargs:
         env = dict(env)
         env.update(kwargs['env'])
         kwargs = dict(kwargs)
         del kwargs['env']
-    return soma.subprocess.call(command, env=env, **kwargs)
+    return soma.subprocess.call(cmd, env=env, **kwargs)
 
 def fsl_check_call(command, **kwargs):
     '''
     Equivalent to Python subprocess.check_call for FSL commands
     '''
-    #cmd = fsl_command_with_environment(command)
+    cmd = fsl_command_with_environment(command)
     env = fsl_env()
     if 'env' in kwargs:
         env = dict(env)
         env.update(kwargs['env'])
         kwargs = dict(kwargs)
         del kwargs['env']
-    return soma.subprocess.check_call(command, env=env, **kwargs)
+    return soma.subprocess.check_call(cmd, env=env, **kwargs)
 
 
 def fsl_check_output(command, **kwargs):
     '''
     Equivalent to Python subprocess.check_output for FSL commands
     '''
-    #cmd = fsl_command_with_environment(command)
+    cmd = fsl_command_with_environment(command)
     env = fsl_env()
     if 'env' in kwargs:
         env = dict(env)
         env.update(kwargs['env'])
         kwargs = dict(kwargs)
         del kwargs['env']
-    return soma.subprocess.check_output(command, env=env, **kwargs)
+    return soma.subprocess.check_output(cmd, env=env, **kwargs)
