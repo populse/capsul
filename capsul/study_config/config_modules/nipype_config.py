@@ -54,6 +54,10 @@ class NipypeConfig(StudyConfigModule):
         """ Set up Nipype environment variables according to current
         configuration.
         """
+        if 'capsul.engine.module.nipype' \
+                not in self.study_config.engine._loaded_modules:
+            self.study_config.engine.load_module(
+                'capsul.engine.module.nipype')
         if not self.has_nipype:
             self.study_config.use_nipype = False
             return
