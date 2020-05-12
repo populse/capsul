@@ -92,7 +92,7 @@ class FSLConfig(StudyConfigModule):
                                 else None,
                              cif: 'fsl'})
                     else:
-                        tparam = {'fsf_config': 'config',
+                        tparam = {'fsl_config': 'config',
                                   'fsl_prefix': 'prefix'}
                         if param is not None:
                             if param not in ('use_fsl', ):

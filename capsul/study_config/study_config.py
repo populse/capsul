@@ -316,6 +316,10 @@ class StudyConfig(Controller):
         # set parameters values
         for k, v in six.iteritems(kwargs):
             setattr(process_or_pipeline, k, v)
+        # output_directory cannot be in kwargs
+        if output_directory not in (None, Undefined) \
+                and 'output_directory' in process_or_pipeline.traits():
+            process_or_pipeline.output_directory = output_directory
 
         missing = process_or_pipeline.get_missing_mandatory_parameters()
         if len(missing) != 0:
@@ -334,7 +338,7 @@ class StudyConfig(Controller):
                                             'output_directory')
             if output_directory is None or output_directory is Undefined:
                 output_directory = self.output_directory
-        # Not all processes need an output_directory defined on
+         # Not all processes need an output_directory defined on
         # StudyConfig
         if output_directory is not None \
                 and output_directory is not Undefined:

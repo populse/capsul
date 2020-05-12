@@ -1289,12 +1289,14 @@ class FileCopyProcess(Process):
             if trait.output:
                 outputs[name] = getattr(self, name)
         # 2. set again inputs to their initial values
-        for name, value in six.iteritems(self._recorded_params):
-            self.set_parameter(name, value)
+        if hasattr(self, '_recorded_params'):
+            for name, value in six.iteritems(self._recorded_params):
+                self.set_parameter(name, value)
         # 3. force output values using the recorded ones
         for name, value in six.iteritems(outputs):
             self.set_parameter(name, value)
-        del self._recorded_params
+        if hasattr(self, '_recorded_params'):
+            del self._recorded_params
 
         return run_process_result
 
@@ -1643,6 +1645,10 @@ class NipypeProcess(FileCopyProcess):
         req = {'nipype': 'any'}
         if self._nipype_interface_name == "spm":
             req['spm'] = 'any'
+        elif self._nipype_interface_name == "fsl":
+            req['fsl'] = 'any'
+        elif self._nipype_interface_name == "freesurfer":
+            req['freesurfer'] = 'any'
         return req
 
 
@@ -1731,7 +1737,8 @@ class NipypeProcess(FileCopyProcess):
         return None
 
     def _after_run_process(self, run_process_result):
-        if self._spm_script_file not in (None, Undefined, ''):
+        if getattr(self, '_spm_script_file', None) not in (None,
+                                                           Undefined, ''):
             script_file = os.path.join(
                 self.output_directory,
                 self._nipype_interface.mlab.inputs.script_file)
