@@ -45,7 +45,7 @@ class FreeSurferConfig(StudyConfigModule):
             Undefined,
             desc='FreeSurfer subjects data directory'))
         self.study_config.add_trait("use_freesurfer", Bool(
-            Undefined,
+            False,
             desc="If True, FreeSurfer configuration is set up on startup"))
 
     def initialize_module(self):
