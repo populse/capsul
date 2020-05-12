@@ -58,6 +58,10 @@ class NipypeConfig(StudyConfigModule):
                 not in self.study_config.engine._loaded_modules:
             self.study_config.engine.load_module(
                 'capsul.engine.module.nipype')
+        with self.study_config.engine.settings as session:
+            config = session.config('nipype', 'global')
+            if config is None:
+                session.new_config('nipype', 'global', {})
         if not self.has_nipype:
             self.study_config.use_nipype = False
             return

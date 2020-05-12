@@ -19,6 +19,10 @@ def init_settings(capsul_engine):
                   type='string',
                   description='Freesurfer subjects data directory'),
             ])
+        # init a single config
+        settings.new_config('freesurfer', 'global',
+                            {capsul_engine.settings.config_id_field:
+                                'freesurfer'})
 
     # link with StudyConfig
     if hasattr(capsul_engine, 'study_config') \
