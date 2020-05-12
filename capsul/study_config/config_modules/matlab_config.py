@@ -95,6 +95,8 @@ class MatlabConfig(StudyConfigModule):
         else:
             ceparam = 'executable'
             value = self.study_config.matlab_exec
+            if value is Undefined:
+                value = None
         if ceparam is not None:
             with self.study_config.engine.settings as session:
                 config = session.config('matlab', 'global', any=True)
@@ -116,6 +118,8 @@ class MatlabConfig(StudyConfigModule):
             tparam = {'executable': 'matlab_exec'}
             scparam = tparam.get(param)
             if scparam is not None:
+                if value is None:
+                    value = Undefined
                 setattr(self.study_config, scparam, value)
         else:
             if self.study_config.use_matlab:
