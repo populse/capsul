@@ -17,6 +17,7 @@ import six
 
 # CAPSUL import
 from capsul.study_config.memory import Memory
+from capsul.process.process import Process
 
 # TRAIT import
 from traits.api import Undefined, File, Directory
@@ -60,6 +61,15 @@ def run_process(output_dir, process_instance,
 
     study_config = process_instance.get_study_config()
 
+    if configuration_dict is None:
+        if isinstance(process_instance, Process):
+            configuration_dict \
+                = process_instance.check_requirements('global')
+        else:
+            configuration_dict \
+                = process_instance.check_requirements(study_config.engine,
+                                                      'global')
+
     # create directories for outputs
     if study_config.create_output_directories:
         for name, trait in process_instance.user_traits().items():
@@ -70,11 +80,13 @@ def run_process(output_dir, process_instance,
                     if base and not os.path.exists(base):
                         os.makedirs(base)
 
-    if configuration_dict:
-        # clear activations for now.
-        from capsul import engine
-        engine.activated_modules = set()
-        engine.activate_configuration(configuration_dict)
+    if configuration_dict is None:
+        configuration_dict = {}
+    # clear activations for now.
+    from capsul import engine
+    engine.activated_modules = set()
+    #print('activate config:', configuration_dict)
+    engine.activate_configuration(configuration_dict)
 
     # Run
     if study_config.get_trait_value("use_smart_caching") in [None, False]:
