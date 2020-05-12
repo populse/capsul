@@ -86,6 +86,10 @@ class TestCapsulEngine(unittest.TestCase):
         cif = self.ce.settings.config_id_field
         with self.ce.settings as settings:
             # Create a new section object for 'fsl' in 'global' environment
+            config = settings.config('fsl', 'global')
+            if config:
+                settings.remove_config('fsl', 'global',
+                                        getattr(config, cif))
             fsl = settings.new_config('fsl', 'global', {cif:'5'})
             fsl.directory = '/there'
             
@@ -171,6 +175,10 @@ print(sys.argv)
                                                   osp.join(tdir, 'bin')))
             cif = self.ce.settings.config_id_field
             with self.ce.settings as settings:
+                config = settings.config('fsl', 'global')
+                if config:
+                    settings.remove_config('fsl', 'global',
+                                           getattr(config, cif))
                 fsl = settings.new_config('fsl', 'global', {cif:'5'})
                 fsl.directory = tdir
                 fsl.prefix = 'fsl5.0-'

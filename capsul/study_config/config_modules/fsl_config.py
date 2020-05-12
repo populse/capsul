@@ -138,6 +138,8 @@ class FSLConfig(StudyConfigModule):
                             self.study_config.use_fsl = True
                         else:
                             self.study_config.use_fsl = False
+        except ReferenceError:
+            pass
         finally:
             del self._syncing
 
