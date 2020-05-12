@@ -40,12 +40,17 @@ class WorkflowExecutionError(Exception):
             failed_jobs = swclient.Helper.list_failed_jobs(
                 workflow_id, controller)
             precisions_list = ['\nFailed jobs: %s' % repr(failed_jobs)]
-            if len(failed_jobs) == 0:
-                aborted_jobs = swclient.Helper.list_failed_jobs(
-                    workflow_id, controller,
-                    include_aborted_jobs=True, include_user_killed_jobs=True)
-                aborted_jobs = [job for job in aborted_jobs
-                                if job not in failed_jobs]
+            from soma_workflow import constants as swc
+            aborted_statuses = set(
+                [swc.EXIT_UNDETERMINED,
+                 swc.EXIT_ABORTED,
+                 swc.FINISHED_TERM_SIG,
+                 swc.FINISHED_UNCLEAR_CONDITIONS,
+                 swc.USER_KILLED])
+            aborted_jobs = swclient.Helper.list_failed_jobs(
+                workflow_id, controller, include_statuses=aborted_statuses)
+            aborted_jobs = [job for job in aborted_jobs
+                            if job not in failed_jobs]
             precisions_list.append('Aborted/killed jobs: %s'
                                    % repr(aborted_jobs))
             tmp1 = tempfile.mkstemp(prefix='capsul_swf_job_stdout')
