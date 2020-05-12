@@ -101,7 +101,7 @@ class FSLConfig(StudyConfigModule):
                                 params = []
                         else:
                             params = ['fsl_config', 'fsl_prefix']
-                        defaults = {'prefix': None, 'config': False}
+                        defaults = {'prefix': None, 'config': None}
                         for p in params:
                             val = getattr(self.study_config, p)
                             ceparam = tparam[p]
