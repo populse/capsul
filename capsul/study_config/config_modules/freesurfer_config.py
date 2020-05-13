@@ -19,7 +19,6 @@ from traits.api import File, Bool, Undefined, Directory
 # Capsul import
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.engine import CapsulEngine
-from capsul.engine import settings
 
 
 class FreeSurferConfig(StudyConfigModule):
@@ -67,7 +66,8 @@ class FreeSurferConfig(StudyConfigModule):
         self.study_config.on_trait_change(
             self.sync_to_engine,
             ['freesurfer_config', 'freesurfer_subjectsdir'])
-        settings.SettingsSession.module_notifiers['freesurfer'] \
+        #  WARNING ref to self in callback
+        self.study_config.engine.settings.module_notifiers['freesurfer'] \
             = [self.sync_from_engine]
 
     def sync_to_engine(self, param=None, value=None):

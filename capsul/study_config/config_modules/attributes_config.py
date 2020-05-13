@@ -16,7 +16,6 @@ from capsul.study_config.study_config import StudyConfigModule
 from capsul.attributes.attributes_factory import AttributesFactory
 from capsul.attributes.attributes_schema import AttributesSchema, \
     ProcessAttributes
-from capsul.engine import settings
 
 
 class AttributesConfig(StudyConfigModule):
@@ -81,7 +80,8 @@ class AttributesConfig(StudyConfigModule):
             self.update_module,
             ['attributes_schemas', 'process_completion',
              'path_completion', 'attributes_schema_paths'])
-        settings.SettingsSession.module_notifiers['axon'] \
+        #  WARNING ref to self in callback
+        self.study_config.engine.settings.module_notifiers['axon'] \
             = [self.sync_from_engine]
 
 

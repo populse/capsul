@@ -16,8 +16,6 @@ from soma.fom import AttributesToPaths, PathToAttributes
 from soma.application import Application
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.engine import CapsulEngine
-from capsul.engine import settings
-import weakref
 
 
 class FomConfig(StudyConfigModule):
@@ -121,7 +119,8 @@ class FomConfig(StudyConfigModule):
             ['input_directory', 'input_fom', 'meshes_format',
              'output_directory', 'output_fom', 'shared_fom', 'volumes_format',
              'auto_fom', 'fom_path'])
-        settings.SettingsSession.module_notifiers['fom'].append(
+        #  WARNING ref to self in callback
+        self.study_config.engine.settings.module_notifiers['fom'].append(
               self.sync_from_engine)
 
 
@@ -147,7 +146,8 @@ class FomConfig(StudyConfigModule):
                     if value is Undefined:
                         value = None
                     values[p] = value
-                values[settings.Settings.config_id_field] = 'fom'
+                values[self.study_config.engine.settings.config_id_field] \
+                    = 'fom'
                 session.new_config('fom', 'global', values)
 
 

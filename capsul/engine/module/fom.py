@@ -18,7 +18,6 @@ from soma.application import Application
 from soma.sorted_dictionary import SortedDictionary
 import weakref
 import capsul.engine
-from capsul.engine import settings
 from functools import partial
 
 
@@ -63,12 +62,12 @@ def init_settings(capsul_engine):
     store['fom_atp'] = {'all': {}}
     store['fom_pta'] = {'all': {}}
 
-    settings.SettingsSession.module_notifiers['fom'] \
-        = [partial(fom_config_updated, capsul_engine, 'global')]
-    settings.SettingsSession.module_notifiers.setdefault('axon', []).append(
-          partial(config_updated, capsul_engine, 'global'))
-    settings.SettingsSession.module_notifiers.setdefault('spm', []).append(
-          partial(config_updated, capsul_engine, 'global'))
+    capsul_engine.settings.module_notifiers['fom'] \
+        = [partial(fom_config_updated, weakref.proxy(capsul_engine), 'global')]
+    capsul_engine.settings.module_notifiers.setdefault('axon', []).append(
+          partial(config_updated, weakref.proxy(capsul_engine), 'global'))
+    capsul_engine.settings.module_notifiers.setdefault('spm', []).append(
+          partial(config_updated, weakref.proxy(capsul_engine), 'global'))
 
     # link with StudyConfig
     if hasattr(capsul_engine, 'study_config') \

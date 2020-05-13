@@ -13,7 +13,6 @@ from traits.api import File, Bool, Undefined, String
 
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.engine import CapsulEngine
-from capsul.engine import settings
 from capsul.subprocess.fsl import check_fsl_configuration
 import os.path as osp
 
@@ -34,6 +33,13 @@ class FSLConfig(StudyConfigModule):
             Undefined,
             output=False,
             desc='Parameter to tell that we need to configure FSL'))
+
+    def __del__(self):
+        try:
+            self.study_config.engine.settings.module_notifiers.get(
+                'fsl', []).remove(self.sync_from_engine)
+        except (KeyError, ReferenceError):
+            pass
 
     def initialize_module(self):
         """ Set up FSL environment variables according to current
@@ -56,7 +62,8 @@ class FSLConfig(StudyConfigModule):
     def initialize_callbacks(self):
         self.study_config.on_trait_change(
             self.sync_to_engine, '[fsl_config, fsl_prefix, use_fsl]')
-        settings.SettingsSession.module_notifiers['fsl'] \
+        #  WARNING ref to self in callback
+        self.study_config.engine.settings.module_notifiers['fsl'] \
             = [self.sync_from_engine]
 
     def sync_to_engine(self, param=None, value=None):

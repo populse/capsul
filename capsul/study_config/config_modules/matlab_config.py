@@ -15,7 +15,6 @@ import os
 from traits.api import File, Undefined, Bool
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.engine import CapsulEngine
-from capsul.engine import settings
 
 
 class MatlabConfig(StudyConfigModule):
@@ -85,7 +84,8 @@ class MatlabConfig(StudyConfigModule):
 
     def initialize_callbacks(self):
         self.study_config.on_trait_change(self.sync_to_engine, 'matlab_exec')
-        settings.SettingsSession.module_notifiers['matlab'] \
+        #  WARNING ref to self in callback
+        self.study_config.engine.settings.module_notifiers['matlab'] \
             = [self.sync_from_engine]
 
     def sync_to_engine(self, param=None, value=None):

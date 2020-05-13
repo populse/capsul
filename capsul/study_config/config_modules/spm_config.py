@@ -14,7 +14,6 @@ from traits.api import Directory, File, Bool, Enum, Undefined, Str
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.subprocess.spm import check_spm_configuration
 from capsul.engine import CapsulEngine
-from capsul.engine import settings
 import glob
 import os
 import os.path as osp
@@ -71,7 +70,8 @@ class SPMConfig(StudyConfigModule):
     def initialize_callbacks(self):
         self.study_config.on_trait_change(self.sync_to_engine,
                                           "[use_spm, spm_+]")
-        settings.SettingsSession.module_notifiers['spm'] \
+        #  WARNING ref to self in callback
+        self.study_config.engine.settings.module_notifiers['spm'] \
             = [self.sync_from_engine]
 
     def sync_from_engine(self, param=None, value=None):

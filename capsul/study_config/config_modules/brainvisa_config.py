@@ -14,7 +14,6 @@ import os
 from traits.api import Directory, Undefined
 from soma import config as soma_config
 from capsul.study_config.study_config import StudyConfigModule
-from capsul.engine import settings
 
 
 class BrainVISAConfig(StudyConfigModule):
@@ -71,7 +70,8 @@ class BrainVISAConfig(StudyConfigModule):
     def initialize_callbacks(self):
         self.study_config.on_trait_change(self.sync_to_engine,
                                           'shared_directory')
-        settings.SettingsSession.module_notifiers['axon'] \
+        #  WARNING ref to self in callback
+        self.study_config.engine.settings.module_notifiers['axon'] \
             = [self.sync_from_engine]
 
 

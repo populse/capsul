@@ -19,6 +19,7 @@ from capsul.engine import settings
 import capsul.engine
 import os.path as osp
 from functools import partial
+import weakref
 
 
 def init_settings(capsul_engine):
@@ -28,7 +29,7 @@ def init_settings(capsul_engine):
         'attributes_schema_paths': default_paths,
         'attributes_schemas': {},
         'process_completion': 'builtin',
-        settings.Settings.config_id_field: 'attributes',
+        capsul_engine.settings.config_id_field: 'attributes',
     }
 
     with capsul_engine.settings as session:
@@ -63,8 +64,8 @@ def init_settings(capsul_engine):
         = ProcessAttributes
 
     factory.module_path = default_paths
-    settings.SettingsSession.module_notifiers['attributes'] \
-            = [partial(_sync_attributes_factory, capsul_engine)]
+    capsul_engine.settings.module_notifiers['attributes'] \
+            = [partial(_sync_attributes_factory, weakref.proxy(capsul_engine))]
 
     # link with StudyConfig
     if hasattr(capsul_engine, 'study_config') \

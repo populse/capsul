@@ -71,13 +71,14 @@ class Settings:
         Create a settins instance using the given populse_db instance
         '''
         self.populse_db = populse_db
+        self.module_notifiers = {}
 
     def __enter__(self):
         '''
         Starts a session to read or write settings
         '''
         dbs = self.populse_db.__enter__()
-        return SettingsSession(dbs)
+        return SettingsSession(dbs, module_notifiers=self.module_notifiers)
 
     def __exit__(self, *args):
         self.populse_db.__exit__(*args)
@@ -206,14 +207,16 @@ class SettingsSession:
     Settings use/modifiction session, returned by "with settings as session:"
     '''
 
-    module_notifiers = {}
-
-    def __init__(self, populse_session):
+    def __init__(self, populse_session, module_notifiers=None):
         '''
         SettingsSession are created with Settings.__enter__ using a `with`
         statement.
         '''
         self._dbs = populse_session
+        if module_notifiers is None:
+            self.module_notifiers = {}
+        else:
+            self.module_notifiers = module_notifiers
 
     @staticmethod
     def collection_name(module):
