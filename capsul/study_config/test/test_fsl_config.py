@@ -39,20 +39,22 @@ class TestFSL(unittest.TestCase):
             test_image = '/usr/share/data/fsl-mni152-templates/MNI152_T1_1mm_brain.nii.gz'
             if not osp.exists(test_image):
                 fsl_dir = os.environ.get('FSLDIR')
+                test_image = None
                 if not fsl_dir and study_config.fsl_config is not Undefined:
                     fsl_dir = osp.dirname(osp.dirname(osp.dirname(study_config.fsl_config)))
                 if fsl_dir:
                     test_image = glob(osp.join(fsl_dir, 'fslpython/envs/fslpython/lib/python*/site-packages/nibabel/tests/data/anatomical.nii'))
                     if test_image:
                         test_image = test_image[0]
-                    else:
-                        print('WARNING: Skip FSL test because test data cannot be found', file=sys.stderr)
-                        return
+                if not test_image:
+                    print('WARNING: Skip FSL test because test data cannot be found', file=sys.stderr)
+                    return
             bet = study_config.get_process_instance(Bet)
             with tempfile.NamedTemporaryFile(suffix='.nii.gz') as tmp:
                 bet.run(
                     input_image=test_image,
                     output_image=tmp.name)
+                self.assertTrue(os.stat(tmp.name).st_size != 0)
 
 
 def test():
