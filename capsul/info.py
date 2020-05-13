@@ -105,5 +105,5 @@ EXTRA_REQUIRES = {
 }
 
 # tests to run
-test_commands = ['%s -m capsul.test.test_capsul' % sys.executable]
+test_commands = ['%s -m capsul.test' % sys.executable]
 
