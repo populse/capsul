@@ -38,7 +38,7 @@ class FSLConfig(StudyConfigModule):
         try:
             self.study_config.engine.settings.module_notifiers.get(
                 'fsl', []).remove(self.sync_from_engine)
-        except (KeyError, ReferenceError):
+        except (ValueError, ReferenceError):
             pass
 
     def initialize_module(self):
