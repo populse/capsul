@@ -117,6 +117,8 @@ class FSLConfig(StudyConfigModule):
                             setattr(config, ceparam, val)
                         if 'fsl_config' in params:
                             config.directory = fsl_dir
+                    del config
+                del session
         finally:
             del self._syncing
 

@@ -199,6 +199,7 @@ class Settings:
                         d = config_dependencies(selected_config)
                         if d:
                             uses_stack.extend(list(d.items()))
+
         return configurations
     
     
