@@ -43,6 +43,7 @@ from .database_populse import PopulseDBEngine
 from .settings import Settings
 from .module import default_modules
 from . import run
+from .run import WorkflowExecutionError
 
 # FIXME TODO: OBSOLETE
 
