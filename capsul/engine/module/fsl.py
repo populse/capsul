@@ -24,9 +24,11 @@ def init_settings(capsul_engine):
             ])
 
         # init a single config
-        settings.new_config('fsl', 'global',
-                            {capsul_engine.settings.config_id_field:
-                                'fsl'})
+        config = settings.config('fsl', 'global')
+        if not config:
+            settings.new_config('fsl', 'global',
+                                {capsul_engine.settings.config_id_field:
+                                    'fsl'})
 
     
 def check_configurations():

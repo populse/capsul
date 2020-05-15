@@ -47,7 +47,9 @@ def init_settings(capsul_engine):
                   type='string',
                   description='path completion model name'),
             ])
-        session.new_config('attributes', 'global', init_att)
+        config = session.config('attributes', 'global')
+        if not config:
+            session.new_config('attributes', 'global', init_att)
 
     if not hasattr(capsul_engine, '_modules_data'):
         capsul_engine._modules_data = {}

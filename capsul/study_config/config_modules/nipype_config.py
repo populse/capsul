@@ -26,6 +26,7 @@ except ImportError:
 
 # CAPSUL import
 from capsul.study_config.study_config import StudyConfigModule
+import capsul.engine.module.nipype as ce_nipype
 
 
 class NipypeConfig(StudyConfigModule):
@@ -58,10 +59,7 @@ class NipypeConfig(StudyConfigModule):
                 not in self.study_config.engine._loaded_modules:
             self.study_config.engine.load_module(
                 'capsul.engine.module.nipype')
-        with self.study_config.engine.settings as session:
-            config = session.config('nipype', 'global')
-            if config is None:
-                session.new_config('nipype', 'global', {})
+        ce_nipype.ensure_config_exists(self.study_config.engine)
         if not self.has_nipype:
             self.study_config.use_nipype = False
             return

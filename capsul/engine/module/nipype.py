@@ -9,10 +9,18 @@ import os
 import sys
 
 
+def ensure_config_exists(engine):
+    with engine.settings as session:
+        config = session.config('nipype', 'global')
+        if config is None:
+            session.new_config('nipype', 'global', {})
+
 def init_settings(capsul_engine):
     with capsul_engine.settings as settings:
         settings.ensure_module_fields('nipype',[])
     pass
+
+    ensure_config_exists(capsul_engine)
 
     # link with StudyConfig
     if hasattr(capsul_engine, 'study_config') \
@@ -23,7 +31,6 @@ def init_settings(capsul_engine):
 
 #def config_dependencies(config):
     #return {'spm': 'version == "12"'}
-
 
 def activate_configurations():
     '''
