@@ -30,7 +30,7 @@ from capsul.pipeline import pipeline_tools
 from capsul.process.process import Process
 from capsul.pipeline.topological_sort import Graph
 from traits.api import Directory, Undefined, File, Str, Any, List
-from soma.sorted_dictionary import OrderedDict
+from soma.sorted_dictionary import OrderedDict, SortedDictionary
 from .process_iteration import ProcessIteration
 from capsul.attributes import completion_engine_iteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine
@@ -226,6 +226,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     rlist[i] = deeperlist
                 #elif item is Undefined:
                     #rlist[i] = ''
+                elif isinstance(item, (dict, OrderedDict, SortedDictionary)):
+                    _replace_in_dict(item, temp_map)
                 elif item in temp_map:
                     value = temp_map[item]
                     value = value.__class__(value)
@@ -246,6 +248,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     rdict[name] = deeperlist
                 #elif item is Undefined:
                     #rdict[name] = ''
+                elif isinstance(item, (dict, OrderedDict, SortedDictionary)):
+                    _replace_in_dict(item, temp_map)
                 elif item in temp_map:
                     value = temp_map[item]
                     value = value.__class__(value)
