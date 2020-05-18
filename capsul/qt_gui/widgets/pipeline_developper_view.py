@@ -4516,7 +4516,11 @@ class PipelineDevelopperView(QGraphicsView):
             if not load_pipeline:
                 return filename
             else:
-                pipeline = get_process_instance(filename)
+                try:
+                    pipeline = get_process_instance(filename)
+                except Exception as e:
+                    print(e)
+                    pipeline = None
                 if pipeline is not None:
                     self.set_pipeline(pipeline)
                     self._pipeline_filename = filename
