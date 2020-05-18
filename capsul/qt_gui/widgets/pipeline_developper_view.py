@@ -2542,7 +2542,7 @@ class PipelineDevelopperView(QGraphicsView):
 
     def __del__(self):
         #print('PipelineDevelopperView.__del__')
-        self.release_pipeline()
+        self.release_pipeline(delete=True)
         # super(PipelineDevelopperView, self).__del__()
 
     def _set_pipeline(self, pipeline):
@@ -2602,9 +2602,12 @@ class PipelineDevelopperView(QGraphicsView):
                 pipeline.pipeline_steps.on_trait_change(
                     self._reset_pipeline, dispatch='ui')
 
-    def release_pipeline(self):
+    def release_pipeline(self, delete=False):
         '''
         Releases the pipeline currently viewed (and remove the callbacks)
+
+        If ``delete`` is set, this means the view is within deletion process
+        and a new scene should not be built
         '''
         # Setup callback to update view when pipeline state is modified
         pipeline = None
@@ -2618,7 +2621,7 @@ class PipelineDevelopperView(QGraphicsView):
                                     remove=True)
             pipeline.on_trait_change(self._reset_pipeline,
                                      'user_traits_changed', remove=True)
-        if pipeline is not None or self.scene is None:
+        if not delete and (pipeline is not None or self.scene is None):
             self.scene = PipelineScene(self)
             self.scene.set_enable_edition(self._enable_edition)
             self.scene.logical_view = self._logical_view
