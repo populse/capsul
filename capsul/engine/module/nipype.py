@@ -13,7 +13,8 @@ def ensure_config_exists(engine):
     with engine.settings as session:
         config = session.config('nipype', 'global')
         if config is None:
-            session.new_config('nipype', 'global', {})
+            session.new_config('nipype', 'global',
+                               {engine.settings.config_id_field: 'nipype'})
 
 def init_settings(capsul_engine):
     with capsul_engine.settings as settings:
