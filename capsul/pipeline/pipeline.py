@@ -2464,6 +2464,8 @@ class Pipeline(Process):
         if conf is None:
             return None
         confs = []
+        if conf:
+            confs.append(conf)
         from capsul.pipeline import pipeline_tools
         for key, node in six.iteritems(self.nodes):
             if node is self.pipeline_node:
@@ -2475,7 +2477,10 @@ class Pipeline(Process):
                     # requirement failed
                     return None
                 if conf != {} and conf not in confs:
-                    confs.append(conf)
+                    if isinstance(conf, list):
+                        confs += [c for c in conf if c not in confs]
+                    else:
+                        confs.append(conf)
 
         return confs
 
