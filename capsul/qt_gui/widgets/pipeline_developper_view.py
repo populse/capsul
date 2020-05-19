@@ -2845,6 +2845,7 @@ class PipelineDevelopperView(QGraphicsView):
         process = self.scene.pipeline.nodes[node_name]
         if hasattr(process, 'process'):
             process = process.process
+
         cwidget = AttributedProcessWidget(
             process, enable_attr_from_filename=True, enable_load_buttons=True)
         cwidget.setParent(sub_view)
@@ -3704,8 +3705,9 @@ class PipelineDevelopperView(QGraphicsView):
             proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
             pipeline = self.scene.pipeline
+            engine = pipeline.get_study_config().engine
             try:
-                process = get_process_instance(
+                process = engine.get_process_instance(
                     six.text_type(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
@@ -3794,7 +3796,7 @@ class PipelineDevelopperView(QGraphicsView):
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
     class IterativeProcessInput(ProcessModuleInput):
-        def __init__(self):
+        def __init__(self, engine):
             super(PipelineDevelopperView.IterativeProcessInput,
                   self).__init__()
             # hlay = Qt.QHBoxLayout()
@@ -3815,11 +3817,12 @@ class PipelineDevelopperView(QGraphicsView):
             lay.addWidget(self.plugs, 2, 1)
             self.proc_line.textChanged.connect(self.set_plugs)
             # self.proc_line.editingFinished.connect(self.set_plugs)
+            self.engine = engine
 
         def set_plugs(self, text):
             self.plugs.clear()
             try:
-                process = get_process_instance(text)
+                process = self.engine.get_process_instance(text)
             except Exception:
                 return
             traits = list(process.user_traits().keys())
@@ -3833,16 +3836,17 @@ class PipelineDevelopperView(QGraphicsView):
         Insert an iterative process node in the pipeline. Asks for the process
         module/name, the node name, and iterative plugs before inserting.
         '''
-        proc_name_gui = PipelineDevelopperView.IterativeProcessInput()
+        pipeline = self.scene.pipeline
+        engine = pipeline.get_study_config().engine
+        proc_name_gui = PipelineDevelopperView.IterativeProcessInput(engine)
         proc_name_gui.resize(800, proc_name_gui.sizeHint().height())
 
         res = proc_name_gui.exec_()
         if res:
             proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
-            pipeline = self.scene.pipeline
             try:
-                process = get_process_instance(
+                process = engine.get_process_instance(
                     six.text_type(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
@@ -4517,7 +4521,12 @@ class PipelineDevelopperView(QGraphicsView):
                 return filename
             else:
                 try:
-                    pipeline = get_process_instance(filename)
+                    if self.scene.pipeline:
+                        # keep the same engine
+                        engine = self.scene.pipeline.get_study_config().engine
+                        pipeline = engine.get_process_instance(filename)
+                    else:
+                        pipeline = get_process_instance(filename)
                 except Exception as e:
                     print(e)
                     pipeline = None
