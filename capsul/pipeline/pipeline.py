@@ -467,7 +467,7 @@ class Pipeline(Process):
 
         # Check the unicity of the name we want to insert
         if name in self.nodes:
-            raise ValueError("Pipeline cannot have two nodes with the"
+            raise ValueError("Pipeline cannot have two nodes with the "
                              "same name : {0}".format(name))
 
         # It is necessary not to import study_config.process_instance at 
