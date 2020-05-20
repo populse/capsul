@@ -142,8 +142,10 @@ class FSLConfig(StudyConfigModule):
                             if config.config is not None else Undefined
                         self.study_config.fsl_prefix = config.prefix \
                             if config.prefix is not None else Undefined
-                        if self.study_config.fsl_config \
-                                or self.study_config.fsl_prefix:
+                        if self.study_config.fsl_config not in (
+                                    '', None, Undefined)\
+                                or self.study_config.fsl_prefix not in (
+                                    '', None, Undefined):
                             self.study_config.use_fsl = True
                         else:
                             self.study_config.use_fsl = False
