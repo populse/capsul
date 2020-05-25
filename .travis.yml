@@ -23,9 +23,9 @@ before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew unlink python@2; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python3; fi
     - echo "I am here"
-    #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install freetype; fi
-    #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link --overwrite freetype; fi
-    #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libpng; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install freetype; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link --overwrite freetype; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libpng; fi
 
 install:
     - python --version
