@@ -38,6 +38,8 @@ Functions
 --------------------------------
 :func:`save_pipeline_parameters`
 --------------------------------
+:func:`is_node_enabled`
+-----------------------
 '''
 
 from __future__ import print_function
