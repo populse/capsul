@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-##########################################################################
-# Capsul - Copyright (C) CEA, 2014
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 from __future__ import print_function
 # System import
 from __future__ import absolute_import
@@ -355,7 +347,7 @@ if __name__ == "__main__":
     print("RETURNCODE: ", test())
 
     if True:
-        from PyQt4 import QtGui
+        from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 
         app = QtGui.QApplication(sys.argv)

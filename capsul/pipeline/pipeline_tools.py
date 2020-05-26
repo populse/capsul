@@ -38,6 +38,8 @@ Functions
 --------------------------------
 :func:`save_pipeline_parameters`
 --------------------------------
+:func:`is_node_enabled`
+-----------------------
 '''
 
 from __future__ import print_function
@@ -1319,15 +1321,15 @@ def find_node(pipeline, node):
 
 def is_node_enabled(pipeline, node_name=None, node=None):
     ''' Checks if the given node is enabled in the pipeline.
-    It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a distabled step.
+    It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a disabled step.
     The node may be given as a Node instance, or its name in the pipeline.
     '''
     names = [node_name]
     if node is None:
         node = pipeline.nodes[node_name]
 
-        if not node.enabled or not node.activated:
-            return False
+    if not node.enabled or not node.activated:
+        return False
 
     elif node_name is None:
 

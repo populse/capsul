@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 '''
 NiPype configuration module
 
@@ -27,6 +26,7 @@ except ImportError:
 
 # CAPSUL import
 from capsul.study_config.study_config import StudyConfigModule
+import capsul.engine.module.nipype as ce_nipype
 
 
 class NipypeConfig(StudyConfigModule):
@@ -55,6 +55,11 @@ class NipypeConfig(StudyConfigModule):
         """ Set up Nipype environment variables according to current
         configuration.
         """
+        if 'capsul.engine.module.nipype' \
+                not in self.study_config.engine._loaded_modules:
+            self.study_config.engine.load_module(
+                'capsul.engine.module.nipype')
+        ce_nipype.ensure_config_exists(self.study_config.engine)
         if not self.has_nipype:
             self.study_config.use_nipype = False
             return

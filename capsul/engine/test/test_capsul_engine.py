@@ -1,73 +1,256 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 from __future__ import absolute_import
+
+import gc
 import unittest
 import tempfile
 import os
 import sys
+import os.path as osp
+import shutil
 
-try:
-    import populse_db
-except ImportError:
-    populse_db = None
+from capsul.api import capsul_engine
+from capsul.engine import activate_configuration
+from capsul import engine
+from soma_workflow import configuration as swconfig
 
-from capsul.api import Pipeline, capsul_engine
+
+def setUpModule():
+    global old_home
+    global temp_home_dir
+    # Run tests with a temporary HOME directory so that they are isolated from
+    # the user's environment
+    temp_home_dir = None
+    old_home = os.environ.get('HOME')
+    try:
+        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
+        os.environ['HOME'] = temp_home_dir
+        swconfig.change_soma_workflow_directory(temp_home_dir)
+    except BaseException:  # clean up in case of interruption
+        if old_home is None:
+            del os.environ['HOME']
+        else:
+            os.environ['HOME'] = old_home
+        if temp_home_dir:
+            shutil.rmtree(temp_home_dir)
+        raise
+
+
+def tearDownModule():
+    if old_home is None:
+        del os.environ['HOME']
+    else:
+        os.environ['HOME'] = old_home
+    #print('temp_home_dir:', temp_home_dir)
+    shutil.rmtree(temp_home_dir)
+
+
+def check_nipype_spm():
+    # look for hardcoded paths, I have no other way at hand...
+    spm_standalone_paths = ['/usr/local/spm12-standalone',
+                            '/i2bm/local/spm12-standalone']
+    spm_standalone_path = [p for p in spm_standalone_paths if os.path.isdir(p)]
+    if not spm_standalone_path:
+        return None
+    spm_standalone_path = spm_standalone_path[0]
+    try:
+        import nipype
+    except ImportError:
+        return None
+    return spm_standalone_path
+
 
 class TestCapsulEngine(unittest.TestCase):
-    def test_default_engine(self):
-        tmp = tempfile.mktemp(suffix='.json')
-        ce = capsul_engine(tmp)
-        ce.save()
-        try:
-            ce2 = capsul_engine(tmp)
-            self.assertEqual(ce.database.named_directory('capsul_engine'),
-                             ce2.database.named_directory('capsul_engine'))
-            if sys.version_info[:2] >= (2, 7):
-                self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
-                                      Pipeline)
-            else:
-                self.assertTrue(isinstance(
-                    ce.get_process_instance(
-                        'capsul.pipeline.test.test_pipeline.MyPipeline'),
-                    Pipeline))
-        finally:
-            del ce
-            del ce2
-            if os.path.exists(tmp):
-                os.remove(tmp)
+    def setUp(self):
+        self.sqlite_file = str(tempfile.mktemp(suffix='.sqlite'))
+        self.ce = capsul_engine(self.sqlite_file)
+    
+    def tearDown(self):
+        self.ce = None
+        # garbage collect to ensure the database is closed
+        # (otherwise it can cause problems on Windows when removing the
+        # sqlite file)
+        gc.collect()
+        if os.path.exists(self.sqlite_file):
+            os.remove(self.sqlite_file)
+
+
+    def test_engine_settings(self):
+        # In the following, we use explicit values for config_id_field
+        # (which is a single string value that must be unique for each
+        # config). This is not mandatory but it avoids to have randomly
+        # generated values making testing results more difficult to tackle.
+        self.maxDiff = 2000
         
-    def test_populse_db_engine(self):
-        if populse_db is None:
-            self.skipTest('populse_db is not installed')
-        tmp = tempfile.mktemp(suffix='.sqlite')
-        ce = capsul_engine(tmp)
-        ce.save()
-        ce2 = None
+        cif = self.ce.settings.config_id_field
+        with self.ce.settings as settings:
+            # Create a new section object for 'fsl' in 'global' environment
+            config = settings.config('fsl', 'global')
+            if config:
+                settings.remove_config('fsl', 'global',
+                                        getattr(config, cif))
+            fsl = settings.new_config('fsl', 'global', {cif:'5'})
+            fsl.directory = '/there'
+            
+            # Create two global SPM configurations
+            settings.new_config('spm', 'global', {'version': '8',
+                                                  'standalone': True,
+                                                  cif:'8'})
+            settings.new_config('spm', 'global', {'version': '12',
+                                                  'standalone': False,
+                                                  cif:'12'})
+            # Create one SPM configuration for 'my_machine'
+            settings.new_config('spm', 'my_machine', {'version': '20',
+                                                      'standalone': True,
+                                                      cif:'20'})
+    
+        self.assertEqual(
+            self.ce.settings.select_configurations('my_machine'),
+            {'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'ALL',
+                               'capsul.engine.module.matlab': 'ALL',
+                               'capsul.engine.module.spm': 'ALL'}},
+             'capsul.engine.module.fsl': {'config_environment': 'global',
+                                          'directory': '/there',
+                                          cif: '5'},
+             'capsul.engine.module.spm': {'config_environment': 'my_machine',
+                                           'version': '20',
+                                           'standalone': True,
+                                           cif: '20'}})
+        self.assertRaises(EnvironmentError,
+                          lambda:
+                              self.ce.settings.select_configurations('global'))
+        self.assertEqual(
+            self.ce.settings.select_configurations('global',
+                                                   uses={'fsl': 'any'}),
+            {'capsul.engine.module.fsl':
+                {'config_environment': 'global', 'directory': '/there',
+                 cif:'5'},
+             'capsul_engine':
+                {'uses': {'capsul.engine.module.fsl': 'any'}}})
+
+        self.assertEqual(
+            self.ce.settings.select_configurations('global',
+                                                   uses={'spm': 'any'}),
+            {'capsul.engine.module.spm':
+                {'config_environment': 'global',
+                 'version': '8',
+                 'standalone': True,
+                 cif: '8'},
+             'capsul_engine':
+                {'uses': {'capsul.engine.module.spm': 'any'}}})
+        self.assertEqual(
+            self.ce.settings.select_configurations(
+                'global',  uses={'spm': 'version=="12"'}),
+            {'capsul.engine.module.spm':
+                {'config_environment': 'global',
+                 'version': '12',
+                 'standalone': False,
+                 cif: '12'},
+             'capsul_engine':
+                {'uses':
+                    {'capsul.engine.module.spm': 'version=="12"',
+                     'capsul.engine.module.matlab': 'any'}}})
+
+    def test_fsl_config(self):
+        # fake the FSL "bet" command to have test working without FSL installed
+        path = os.environ.get('PATH')
+        tdir = tempfile.mkdtemp(prefix='capsul_fsl')
+
         try:
-            ce2 = capsul_engine(tmp)
-            if sys.version_info[:2] >= (2, 7):
-                self.assertIsInstance(ce.get_process_instance('capsul.pipeline.test.test_pipeline.MyPipeline'),
-                                      Pipeline)
-            else:
-                self.assertTrue(isinstance(
-                    ce.get_process_instance(
-                        'capsul.pipeline.test.test_pipeline.MyPipeline'),
-                    Pipeline))
+            os.mkdir(osp.join(tdir, 'bin'))
+            script = osp.join(tdir, 'bin', 'fsl5.0-bet')
+            with open(script, 'w') as f:
+                print('''#!/usr/bin/env python
+
+from __future__ import print_function
+import sys
+
+print(sys.argv)
+''', file=f)
+            os.chmod(script, 0o775)
+
+            # change config
+            os.environ['PATH'] = os.pathsep.join((path,
+                                                  osp.join(tdir, 'bin')))
+            cif = self.ce.settings.config_id_field
+            with self.ce.settings as settings:
+                config = settings.config('fsl', 'global')
+                if config:
+                    settings.remove_config('fsl', 'global',
+                                           getattr(config, cif))
+                fsl = settings.new_config('fsl', 'global', {cif:'5'})
+                fsl.directory = tdir
+                fsl.prefix = 'fsl5.0-'
+
+            conf = self.ce.settings.select_configurations('global',
+                                                          uses={'fsl': 'any'})
+            self.assertTrue(conf is not None)
+            self.assertEqual(len(conf), 2)
+
+            activate_configuration(conf)
+            self.assertEqual(os.environ.get('FSLDIR'), tdir)
+            self.assertEqual(os.environ.get('FSL_PREFIX'), 'fsl5.0-')
+
+            if not sys.platform.startswith('win'):
+                # skip this test under windows because we're using a sh script
+                # shebang, and FSL doent't work there anyway
+
+                # run it using in_context.fsl
+                from capsul.in_context.fsl import fsl_check_call, \
+                    fsl_check_output
+                fsl_check_call(['bet', 'nothing', 'nothing_else'])
+                output = fsl_check_output(['bet', 'nothing', 'nothing_else'])
+                output = output.decode('utf-8').strip()
+                self.assertEqual(output,
+                                 "['%s', 'nothing', 'nothing_else']" % script)
         finally:
-            del ce
-            del ce2
-            # garbage collect to ensure the database is closed
-            # (otherwise it can cause problems on Windows when removing the
-            # sqlite file)
-            import gc
-            gc.collect()
-            if os.path.exists(tmp):
-                os.remove(tmp)
+            shutil.rmtree(tdir)
+            # cleanup env for later tests
+            if 'FSLDIR' in os.environ:
+                del os.environ['FSLDIR']
+
+    @unittest.skipIf(check_nipype_spm() is None,
+                     'SPM12 standalone or nipype are not found')
+    def test_nipype_spm_config(self):
+        tdir = tempfile.mkdtemp(prefix='capsul_spm')
+        try:
+            cif = self.ce.settings.config_id_field
+            spm_path = check_nipype_spm()
+            t1_src = osp.join(spm_path,
+                              'spm12_mcr/spm12/toolbox/OldNorm/T1.nii')
+            t1 = osp.join(tdir, 'T1.nii')
+            shutil.copyfile(t1_src, t1)
+
+            self.ce.load_module('nipype')
+
+            with self.ce.settings as session:
+                session.new_config('spm', 'global',
+                                   {'directory': spm_path, 'standalone': True,
+                                    'version': '12'})
+                session.new_config('nipype', 'global', {})
+
+            self.ce.study_config.use_soma_workflow = True
+            self.ce.study_config.somaworkflow_keep_failed_workflows = True
+            #self.ce.study_config.somaworkflow_keep_succeeded_workflows = True
+
+            conf = self.ce.settings.select_configurations(
+                'global', uses={'nipype': 'any', 'spm': 'any'})
+            activate_configuration(conf)
+
+            process = self.ce.get_process_instance(
+                'nipype.interfaces.spm.Smooth')
+            process.in_files = t1
+            process.output_directory = tdir
+            self.ce.study_config.run(process, configuration_dict=conf)
+            self.assertTrue(osp.exists(osp.join(tdir, 'sT1.nii')))
+
+        finally:
+            #print('tdir:', tdir)
+            shutil.rmtree(tdir)
+
 
 def test():
-    """ Function to execute unitest.
-    """
     suite = unittest.TestLoader().loadTestsFromTestCase(TestCapsulEngine)
     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
     return runtime.wasSuccessful()
@@ -75,3 +258,4 @@ def test():
 
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
+

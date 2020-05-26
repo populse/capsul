@@ -1,15 +1,7 @@
 # -*- coding: utf-8 -*-
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import unittest
 import os
 import sys
@@ -19,13 +11,10 @@ from capsul.api import Process
 from capsul.api import Pipeline, PipelineNode
 from capsul.pipeline import pipeline_workflow
 from capsul.study_config.study_config import StudyConfig
+from soma_workflow import configuration as swconfig
 import socket
 import shutil
 from six.moves import zip
-if sys.version_info[0] >= 3:
-    import io as StringIO
-else:
-    import StringIO
 
 class DummyProcess1(Process):
     """ Dummy Test Process
@@ -145,6 +134,7 @@ def setUpModule():
     try:
         temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
         os.environ['HOME'] = temp_home_dir
+        swconfig.change_soma_workflow_directory(temp_home_dir)
     except BaseException:  # clean up in case of interruption
         if old_home is None:
             del os.environ['HOME']

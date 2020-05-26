@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-##########################################################################
-# CAPSUL - Copyright (C) CEA, 2013
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
 '''
 FreeSurfer configuration module
 
@@ -22,11 +14,11 @@ import os
 import six
 
 # Trait import
-from traits.api import File, Bool, Undefined
+from traits.api import File, Bool, Undefined, Directory
 
 # Capsul import
 from capsul.study_config.study_config import StudyConfigModule
-from capsul.study_config.config_utils import environment
+from capsul.engine import CapsulEngine
 
 
 class FreeSurferConfig(StudyConfigModule):
@@ -47,73 +39,97 @@ class FreeSurferConfig(StudyConfigModule):
         super(FreeSurferConfig, self).__init__(study_config, configuration)
         self.study_config.add_trait("freesurfer_config", File(
             Undefined,
-            desc="Path to 'SetUpFreeSurfer.sh'"))
-        self.study_config.add_trait("use_freesurfer", Bool(
+            desc="Path to 'FreeSurferEnv.sh'"))
+        self.study_config.add_trait('freesurfer_subjectsdir', Directory(
             Undefined,
+            desc='FreeSurfer subjects data directory'))
+        self.study_config.add_trait("use_freesurfer", Bool(
+            False,
             desc="If True, FreeSurfer configuration is set up on startup"))
 
     def initialize_module(self):
-        """ Set up Freesurfer environment variables according to current
+        """ Set up FSL environment variables according to current
         configuration.
         """
-        if self.study_config.use_freesurfer is False:
-            # Configuration is explicitely asking not to use FreeSurfer
-            return
-        if self.study_config.use_freesurfer is Undefined:
-            # If use_freesurfer is not defined, FreeSurfer configuration will
-            # be done if possible but there will be no error if it cannot be
-            # done.
-            force_configuration = False
+        if 'capsul.engine.module.freesurfer' \
+                not in self.study_config.engine._loaded_modules:
+            self.study_config.engine.load_module(
+                'capsul.engine.module.freesurfer')
+        if type(self.study_config.engine) is not CapsulEngine:
+            # engine is a proxy, thus we are initialized from a real
+            # CapsulEngine, which holds the reference values
+            self.sync_from_engine()
         else:
-            # If use_freesurfer is True configuration must be valid otherwise
-            # an EnvironmentError is raised
-            force_configuration = True
-
-        # Get the 'SetUpFreeSurfer.sh' path from the study configuration
-        # elements
-        fs_config_file = self.study_config.freesurfer_config
-
-        # If the 'SetUpFreeSurfer.sh' path has been defined
-        if fs_config_file is not Undefined:
-            if os.path.exists(fs_config_file):
-                # Parse the fs environment: check if the 'FREESURFER_HOME'
-                # environment varibale is already set and use it to configure
-                # freesurfer
-                fs_home = os.environ.get("FREESURFER_HOME", None)
-                env = {}
-                if fs_home is not None:
-                    env["FREESURFER_HOME"] = fs_home
-                envfs = environment(fs_config_file, env)
-
-                # Set the fs environment
-                for envname, envval in six.iteritems(envfs):
-                    if envname in os.environ:
-                        if envname.startswith(("FS", "FREESURFER")):
-                            os.environ[envname] = envval
-                        else:
-                            os.environ[envname] += ":" + envval
-                    else:
-                        os.environ[envname] = envval
-
-                # No error detected in configuration, set use_freesurfer to
-                # True
-                self.study_config.use_freesurfer = True
-            else:
-                #Error in configuration, do not let use_freesurfer = Undefined
-                self.study_config.use_freesurfer = False
-                if force_configuration:
-                    raise EnvironmentError(
-                        "FreeSurfer configuration file (%s) does not exist. "
-                        "It is impossible to configure FreeSurfer." % \
-                        fs_config_file)
-        else:
-            # Error in configuration, do not let use_freesurfer = Undefined
-            self.study_config.use_freesurfer = False
-            if force_configuration:
-                raise EnvironmentError(
-                  "No FreeSurfer configuration file specified. "
-                  "It is impossible to configure FreeSurfer.")
+            self.sync_to_engine()
 
     def initialize_callbacks(self):
-        self.study_config.on_trait_change(self.initialize_module,
-                                          'use_freesurfer')
+        self.study_config.on_trait_change(
+            self.sync_to_engine,
+            ['freesurfer_config', 'freesurfer_subjectsdir'])
+        #  WARNING ref to self in callback
+        self.study_config.engine.settings.module_notifiers['freesurfer'] \
+            = [self.sync_from_engine]
+
+    def sync_to_engine(self, param=None, value=None):
+        if getattr(self, '_syncing', False):
+            # manage recursive calls
+            return
+        self._syncing = True
+        try:
+            if 'FreeSurferConfig' in self.study_config.modules \
+                    and 'capsul.engine.module.freesurfer' \
+                        in self.study_config.engine._loaded_modules:
+                with self.study_config.engine.settings as session:
+                    cif = self.study_config.engine.settings.config_id_field
+                    params = {
+                        'freesurfer_config': 'setup',
+                        'freesurfer_subjectsdir': 'subjects_dir',
+                    }
+                    config = session.config('freesurfer', 'global')
+                    if config is None:
+                        values = {cif: 'freesurfer'}
+                        for param, ceparam in six.iteritems(params):
+                            val = getattr(self.study_config, param)
+                            if val is Undefined:
+                                val = None
+                            values[ceparam] = val
+                        session.new_config('freesurfer', 'global', values)
+                    else:
+                        for param, ceparam in six.iteritems(params):
+                            val = getattr(self.study_config, param)
+                            if val is Undefined:
+                                val = None
+                            setattr(config, ceparam, val)
+        finally:
+            del self._syncing
+
+    def sync_from_engine(self, param=None, value=None):
+        if getattr(self, '_syncing', False):
+            # manage recursive calls
+            return
+        self._syncing = True
+        try:
+            if 'FreeSurferConfig' in self.study_config.modules \
+                    and 'capsul.engine.module.freesurfer' \
+                        in self.study_config.engine._loaded_modules:
+                with self.study_config.engine.settings as session:
+                    config = session.config('freesurfer', 'global')
+                    if config:
+                        params = {
+                            'freesurfer_config': 'setup',
+                            'freesurfer_subjectsdir': 'subjects_dir',
+                        }
+                        for param, ceparam in six.iteritems(params):
+                            val = getattr(config, ceparam)
+                            if val in (None, ''):
+                                val = Undefined
+                            setattr(self.study_config, param, val)
+
+                        if self.study_config.freesurfer_config:
+                            self.study_config.use_freesurfer = True
+                        else:
+                            self.study_config.use_freesurfer = False
+        finally:
+            del self._syncing
+
+

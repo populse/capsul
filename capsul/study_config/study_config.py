@@ -4,8 +4,6 @@ Main :class:`StudyConfig` class for configuration of Capsul software, directorie
 
 Classes
 ========
-:class:`WorkflowExecutionError`
--------------------------------
 :class:`StudyConfig`
 --------------------
 :class:`StudyConfigModule`
@@ -48,20 +46,6 @@ from capsul.study_config.run import run_process
 from capsul.pipeline.pipeline_nodes import Node
 from capsul.study_config.process_instance import get_process_instance
 
-
-class WorkflowExecutionError(Exception):
-    def __init__(self, controller, workflow_id, workflow_kept=True):
-        wk = ''
-        wc = ''
-        if workflow_kept:
-            wk = 'not '
-            wc = ' from soma_workflow and must be deleted manually'
-        super(WorkflowExecutionError, self).__init__('Error during '
-            'workflow execution. The workflow has %sbeen removed%s.'
-            % (wk, wc))
-        if workflow_kept:
-            self.controller = controller
-            self.workflow_id = workflow_id
 
 class StudyConfig(Controller):
     """ Class to store the study parameters and processing options.
@@ -290,7 +274,8 @@ class StudyConfig(Controller):
             return module
 
     def run(self, process_or_pipeline, output_directory= None,
-            execute_qc_nodes=True, verbose=0, **kwargs):
+            execute_qc_nodes=True, verbose=0, configuration_dict=None,
+            **kwargs):
         """Method to execute a process or a pipline in a study configuration
          environment.
 
@@ -316,18 +301,26 @@ class StudyConfig(Controller):
             process nodes.
         verbose: int
             if different from zero, print console messages.
+        configuration_dict: dict (optional)
+            configuration dictionary
         """
-        if self.create_output_directories:
-            for name, trait in process_or_pipeline.user_traits().items():
-                if trait.output and isinstance(trait.handler, (File, Directory)):
-                    value = getattr(process_or_pipeline, name)
-                    if value is not Undefined and value:
-                        base = os.path.dirname(value)
-                        if base and not os.path.exists(base):
-                            os.makedirs(base)
-                            
+
+
+        # Use soma worflow to execute the pipeline or porcess in parallel
+        # on the local machine. This has now moved to CapsulEngine.
+        if self.get_trait_value("use_soma_workflow"):
+            return self.engine.check_call(process_or_pipeline, **kwargs)
+
+        # here we only deal with the (obsolete) local execution mode.
+
+        # set parameters values
         for k, v in six.iteritems(kwargs):
             setattr(process_or_pipeline, k, v)
+        # output_directory cannot be in kwargs
+        if output_directory not in (None, Undefined) \
+                and 'output_directory' in process_or_pipeline.traits():
+            process_or_pipeline.output_directory = output_directory
+
         missing = process_or_pipeline.get_missing_mandatory_parameters()
         if len(missing) != 0:
             ptype = 'process'
@@ -337,166 +330,85 @@ class StudyConfig(Controller):
                              % (ptype, process_or_pipeline.name,
                                 ', '.join(missing)))
 
-        # Use soma worflow to execute the pipeline or porcess in parallel
-        # on the local machine
-        if self.get_trait_value("use_soma_workflow"):
-
-            # Create soma workflow pipeline
-            from capsul.pipeline.pipeline_workflow import (
-                workflow_from_pipeline, workflow_run)
-            workflow = workflow_from_pipeline(process_or_pipeline)
-            controller, wf_id = workflow_run(process_or_pipeline.id,
-                                             workflow, self)
-            workflow_status = controller.workflow_status(wf_id)
-            elements_status = controller.workflow_elements_status(wf_id)
-            # FIXME: it would be better if study_config does not require
-            # soma_workflow modules.
-            from soma_workflow import constants as swconstants
-            from soma_workflow.utils import Helper
-            self.failed_jobs = Helper.list_failed_jobs(
-                wf_id, controller, include_aborted_jobs=True,
-                include_user_killed_jobs=True)
-            #self.failed_jobs = [
-                #element for element in elements_status[0]
-                #if element[1] != swconstants.DONE
-                #or element[3][0] != swconstants.FINISHED_REGULARLY]
-            # if execution was OK, delete the workflow
-            if workflow_status == swconstants.WORKFLOW_DONE \
-                    and len(self.failed_jobs) == 0:
-                # success
-                if self.somaworkflow_keep_succeeded_workflows:
-                    print('Success. Workflow was kept in database.')
-                else:
-                    controller.delete_workflow(wf_id)
-            else:
-                # something went wrong: raise an exception containing
-                # controller object and workflow id.
-                if not self.somaworkflow_keep_failed_workflows:
-                    controller.delete_workflow(wf_id)
-                raise WorkflowExecutionError(
-                    controller, wf_id, self.somaworkflow_keep_failed_workflows)
 
         # Use the local machine to execute the pipeline or process
-        else:
+        if output_directory is None or output_directory is Undefined:
+            if 'output_directory' in process_or_pipeline.traits():
+                output_directory = getattr(process_or_pipeline,
+                                            'output_directory')
             if output_directory is None or output_directory is Undefined:
-                if 'output_directory' in process_or_pipeline.traits():
-                    output_directory = getattr(process_or_pipeline,
-                                               'output_directory')
-                if output_directory is None or output_directory is Undefined:
-                    output_directory = self.output_directory
-            # Not all processes need an output_directory defined on
-            # StudyConfig
-            if output_directory is not None \
-                    and output_directory is not Undefined:
-                # Check the output directory is valid
-                if not isinstance(output_directory, six.string_types):
-                    raise ValueError(
-                        "'{0}' is not a valid directory. A valid output "
-                        "directory is expected to run the process or "
-                        "pipeline.".format(output_directory))
-                try:
-                    if not os.path.isdir(output_directory):
-                        os.makedirs(output_directory)
-                except OSError:
-                    raise ValueError(
-                        "Can't create folder '{0}', please investigate.".format(
-                            output_directory))
-
-            # Temporary files can be generated for pipelines
-            temporary_files = []
-            result = None
+                output_directory = self.output_directory
+         # Not all processes need an output_directory defined on
+        # StudyConfig
+        if output_directory is not None \
+                and output_directory is not Undefined:
+            # Check the output directory is valid
+            if not isinstance(output_directory, six.string_types):
+                raise ValueError(
+                    "'{0}' is not a valid directory. A valid output "
+                    "directory is expected to run the process or "
+                    "pipeline.".format(output_directory))
             try:
-                # Generate ordered execution list
-                execution_list = []
-                if isinstance(process_or_pipeline, Pipeline):
-                    execution_list = \
-                        process_or_pipeline.workflow_ordered_nodes()
-                    # Filter process nodes if necessary
-                    if not execute_qc_nodes:
-                        execution_list = [node for node in execution_list
-                                          if node.node_type
-                                              == "processing_node"]
-                    for node in execution_list:
-                        # check temporary outputs and allocate files
-                        process_or_pipeline._check_temporary_files_for_node(
-                            node, temporary_files)
-                elif isinstance(process_or_pipeline, Process):
-                    execution_list.append(process_or_pipeline)
+                if not os.path.isdir(output_directory):
+                    os.makedirs(output_directory)
+            except OSError:
+                raise ValueError(
+                    "Can't create folder '{0}', please investigate.".format(
+                        output_directory))
+
+        # Temporary files can be generated for pipelines
+        temporary_files = []
+        result = None
+        try:
+            # Generate ordered execution list
+            execution_list = []
+            if isinstance(process_or_pipeline, Pipeline):
+                execution_list = \
+                    process_or_pipeline.workflow_ordered_nodes()
+                # Filter process nodes if necessary
+                if not execute_qc_nodes:
+                    execution_list = [node for node in execution_list
+                                      if node.node_type
+                                          == "processing_node"]
+                for node in execution_list:
+                    # check temporary outputs and allocate files
+                    process_or_pipeline._check_temporary_files_for_node(
+                        node, temporary_files)
+            elif isinstance(process_or_pipeline, Process):
+                execution_list.append(process_or_pipeline)
+            else:
+                raise Exception(
+                    "Unknown instance type. Got {0}and expect Process or "
+                    "Pipeline instances".format(
+                        process_or_pipeline.__module__.name__))
+
+            # Execute each process node element
+            for process_node in execution_list:
+                # Execute the process instance contained in the node
+                if isinstance(process_node, Node):
+                    result, log_file = run_process(
+                        output_directory,
+                        process_node.process,
+                        generate_logging=self.generate_logging,
+                        verbose=verbose,
+                        configuration_dict=configuration_dict)
+
+                # Execute the process instance
                 else:
-                    raise Exception(
-                        "Unknown instance type. Got {0}and expect Process or "
-                        "Pipeline instances".format(
-                            process_or_pipeline.__module__.name__))
-
-                # Execute each process node element
-                for process_node in execution_list:
-                    # Execute the process instance contained in the node
-                    if isinstance(process_node, Node):
-                        result = self._run(process_node.process, 
-                                           output_directory, 
-                                           verbose)
-
-                    # Execute the process instance
-                    else:
-                        result = self._run(process_node, output_directory,
-                                           verbose)
-            finally:
-                # Destroy temporary files
-                if temporary_files:
-                    # If temporary files have been created, we are sure that
-                    # process_or_pipeline is a pipeline with a method
-                    # _free_temporary_files.
-                    process_or_pipeline._free_temporary_files(temporary_files)
-            return result
-
-    def _run(self, process_instance, output_directory, verbose, **kwargs):
-        """ Method to execute a process in a study configuration environment.
-
-        Parameters
-        ----------
-        process_instance: Process instance (mandatory)
-            the process we want to execute
-        output_directory: Directory name (optional)
-            the output directory to use for process execution. This replaces
-            self.output_directory but left it unchanged.
-        verbose: int
-            if different from zero, print console messages.
-        """
-        # Message
-        logger.info("Study Config: executing process '{0}'...".format(
-            process_instance.id))
-
-        # Run
-        if self.get_trait_value("use_smart_caching") in [None, False]:
-            cachedir = None
-        else:
-            cachedir = output_directory
-
-        # Update the output directory folder if necessary
-        if output_directory is not None and output_directory is not Undefined and output_directory:
-            if self.process_output_directory:
-                output_directory = os.path.join(output_directory, '%s-%s' % (self.process_counter, process_instance.name))
-            # Guarantee that the output directory exists
-            if not os.path.isdir(output_directory):
-                os.makedirs(output_directory)
-            if self.process_output_directory:
-                if 'output_directory' in process_instance.user_traits():
-                    if (process_instance.output_directory is Undefined or
-                            not(process_instance.output_directory)):
-                        process_instance.output_directory = output_directory
-        
-        returncode, log_file = run_process(
-            output_directory,
-            process_instance,
-            cachedir=cachedir,
-            generate_logging=self.generate_logging,
-            verbose=verbose,
-            **kwargs)
-
-        # Increment the number of executed process count
-        self.process_counter += 1
-        return returncode
-    
+                    result, log_file = run_process(
+                        output_directory,
+                        process_node,
+                        generate_logging=self.generate_logging,
+                        verbose=verbose,
+                        configuration_dict=configuration_dict)
+        finally:
+            # Destroy temporary files
+            if temporary_files:
+                # If temporary files have been created, we are sure that
+                # process_or_pipeline is a pipeline with a method
+                # _free_temporary_files.
+                process_or_pipeline._free_temporary_files(temporary_files)
+        return result
 
     def reset_process_counter(self):
         """ Method to reset the process counter to one.
@@ -529,14 +441,16 @@ class StudyConfig(Controller):
         if (isinstance(global_config_file, six.string_types) and
             os.path.isfile(global_config_file)):
 
-            config = json.load(open(global_config_file))
+            with open(global_config_file) as f:
+                config = json.load(f)
             self.global_config_file = global_config_file
         else:
             global_config_file = \
                 os.path.expanduser(os.path.join(self._user_config_directory,
                                                 "config.json"))
             if os.path.isfile(global_config_file):
-                config = json.load(open(global_config_file))
+                with open(global_config_file) as f:
+                    config = json.load(f)
                 self.global_config_file = global_config_file
             else:
                 config = {}
@@ -551,14 +465,16 @@ class StudyConfig(Controller):
                     os.path.join(os.path.dirname(self.global_config_file),
                                  study_config)
             self.study_config_file = study_config
-            study_config = json.load(open(study_config))
+            with open(study_config) as f:
+                study_config = json.load(f)
         elif study_config is None:
             study_config_file = \
                 os.path.expanduser(
                     os.path.join(self._user_config_directory,
                                  "%s", "config.json") % str(self.study_name))
             if os.path.exists(study_config_file):
-                study_config = json.load(open(study_config_file))
+                with open(study_config_file) as f:
+                    study_config = json.load(f)
                 self.study_config_file = study_config_file
             else:
                 study_config = {}
@@ -591,9 +507,10 @@ class StudyConfig(Controller):
         # Dump the study configuration elements
         config = self.get_configuration_dict()
         if isinstance(file, six.string_types):
-            file = open(file, "w")
-        json.dump(config, file,
-                  indent=4, separators=(",", ": "))
+            with open(file, "w") as f:
+                json.dump(config, f, indent=4, separators=(",", ": "))
+        else:
+            json.dump(config, file, indent=4, separators=(",", ": "))
 
     def update_study_configuration(self, json_fname):
         """ Update the study configuration from a json file.

@@ -84,21 +84,33 @@ class MatlabConfig(StudyConfigModule):
 
     def initialize_callbacks(self):
         self.study_config.on_trait_change(self.sync_to_engine, 'matlab_exec')
-        self.study_config.engine.global_config.matlab.on_trait_change(
-            self.sync_from_engine, 'executable')
-
-        #self.study_config.on_trait_change(self.initialize_module, 'use_matlab')
-
+        #  WARNING ref to self in callback
+        self.study_config.engine.settings.module_notifiers['matlab'] \
+            = [self.sync_from_engine]
 
     def sync_to_engine(self, param=None, value=None):
         if param is not None:
             tparam = {'matlab_exec': 'executable'}
             ceparam = tparam.get(param)
-            if ceparam is not None:
-                setattr(self.study_config.engine.global_config.matlab, ceparam, value)
         else:
-            self.study_config.engine.global_config.matlab.executable \
-                = self.study_config.matlab_exec
+            ceparam = 'executable'
+            value = self.study_config.matlab_exec
+            if value is Undefined:
+                value = None
+        if ceparam is not None:
+            with self.study_config.engine.settings as session:
+                config = session.config('matlab', 'global', any=True)
+                if config is None:
+                    cif = self.study_config.engine.settings.config_id_field
+                    matlab_exec = self.study_config.matlab_exec
+                    if matlab_exec is Undefined:
+                        matlab_exec = None
+                    session.new_config(
+                        'matlab', 'global',
+                        {'executable': matlab_exec,
+                         cif: 'matlab'})
+                else:
+                    setattr(config, ceparam, value)
 
     def sync_from_engine(self, param=None, value=None):
         self.use_matlab = None  # avoid transcient inconsistencies
@@ -106,12 +118,19 @@ class MatlabConfig(StudyConfigModule):
             tparam = {'executable': 'matlab_exec'}
             scparam = tparam.get(param)
             if scparam is not None:
+                if value is None:
+                    value = Undefined
                 setattr(self.study_config, scparam, value)
         else:
             if self.study_config.use_matlab:
                 # in case we reset matlab_exec to Undefined
                 self.study_config.use_matlab = Undefined
-            self.study_config.matlab_exec \
-                = self.study_config.engine.global_config.matlab.executable
+            with self.study_config.engine.settings as session:
+                config = session.config('matlab', 'global', any=True)
+                if config:
+                    matlab_exec = config.executable
+                    if matlab_exec is None:
+                        matlab_exec = Undefined
+                    self.study_config.matlab_exec = matlab_exec
         if self.study_config.matlab_exec not in (None, Undefined):
             self.study_config.use_matlab = True

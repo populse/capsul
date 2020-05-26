@@ -22,7 +22,6 @@ from soma.singleton import Singleton
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline import Graph, ProcessNode, Switch
-from capsul.attributes.attributes_factory import AttributesFactory
 from capsul.attributes.attributes_schema import ProcessAttributes, \
     EditableAttributes
 import traits.api as traits
@@ -140,11 +139,12 @@ class ProcessCompletionEngine(traits.HasTraits):
         schemas = self._get_schemas()
 
         study_config = self.process.get_study_config()
+        engine = study_config.engine
 
         proc_attr_cls = ProcessAttributes
 
-        if 'AttributesConfig' in study_config.modules:
-            factory = study_config.modules_data.attributes_factory
+        if 'capsul.engine.module.attributes' in engine._loaded_modules:
+            factory = engine._modules_data['attributes']['attributes_factory']
             names = [self.process.name]
             if hasattr(self.process, 'context_name'):
                 names.insert(0, self.process.context_name)
@@ -548,12 +548,14 @@ class ProcessCompletionEngine(traits.HasTraits):
         it for path completion at the process level (FOMs for instance).
         '''
         study_config = self.process.get_study_config()
+        engine = study_config.engine
         engine_factory = None
-        if 'AttributesConfig' in study_config.modules:
+        if 'capsul.engine.module.attributes' in engine._loaded_modules:
             try:
                 engine_factory \
-                    = study_config.modules_data.attributes_factory.get(
-                        'path_completion', study_config.path_completion)
+                    = engine._modules_data['attributes'] \
+                        ['attributes_factory'].get(
+                            'path_completion', study_config.path_completion)
             except ValueError:
                 pass # not found
         if engine_factory is None:
@@ -573,12 +575,14 @@ class ProcessCompletionEngine(traits.HasTraits):
         if hasattr(process, 'get_study_config'):
             # switches don't have a study_config at the moment.
             study_config = process.get_study_config()
-            if 'AttributesConfig' in study_config.modules:
+            engine = study_config.engine
+            if 'capsul.engine.module.attributes' in engine._loaded_modules:
                 try:
                     engine_factory \
-                        = study_config.modules_data.attributes_factory.get(
-                            'process_completion',
-                            study_config.process_completion)
+                        = engine._modules_data['attributes'] \
+                            ['attributes_factory'].get(
+                                'process_completion',
+                                study_config.process_completion)
                 except ValueError:
                     pass # not found
         if engine_factory is None:
@@ -628,11 +632,12 @@ class ProcessCompletionEngine(traits.HasTraits):
         schemas = {}
         try:
             study_config = self.process.get_study_config()
+            engine = study_config.engine
         except ReferenceError:
             # process is deleted
             return schemas
-        factory = getattr(study_config.modules_data, 'attributes_factory',
-                          None)
+        factory = getattr(engine, '_modules_data', {}).get(
+            'attributes', {}).get('attributes_factory', None)
         if factory is not None:
             for dir_name, schema_name \
                     in six.iteritems(study_config.attributes_schemas):

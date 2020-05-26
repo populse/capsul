@@ -645,7 +645,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
                 return ['capsul_job', 'morphologist.capsul.morphologist']
 
-        `format_string`: free commandlins with replacements for parameters
+        `format_string`: free commandline with replacements for parameters
             Command arguments can be, or contain, format strings in the shape
             `'%(param)s'`, where `param` is a parameter of the process. This
             way we can map values correctly, and call a foreign command::
@@ -720,6 +720,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             with open(param_file) as f:
                 params_conf = json_utils.from_json(json.load(f))
         params = params_conf.get('parameters', {})
+        configuration = params_conf.get('configuration_dict')
         try:
             process.import_from_dict(params)
         except Exception as e:
@@ -728,7 +729,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             raise
         # actually run the process
         ce.study_config.use_soma_workglow = False
-        result = ce.study_config.run(process)
+        result = ce.study_config.run(process, configuration_dict=configuration)
         # collect output parameers
         out_param_file = os.environ.get('SOMAWF_OUTPUT_PARAMS')
         output_params = {}
@@ -1082,6 +1083,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             if trait.optional:
                 return True
             if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
+                if value is Undefined and not trait.output:
+                    return False
                 for i, item in enumerate(value):
                     j = min(i, len(trait.inner_traits) - 1)
                     if not check_trait(trait.inner_traits[j], item):
@@ -1101,6 +1104,47 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 if not check_trait(trait, value):
                     missing.append(name)
         return missing
+
+    def requirements(self):
+        '''
+        Requirements needed to run the process. It is a dictionary which keys are config/settings modules and values are requests for them.
+
+        The default implementation returns an empty dict (no requirements), and
+        should be overloaded by processes which actually have requirements.
+
+        Ex::
+
+            {'spm': 'version >= "12" and standalone == "True"')
+        '''
+        return {}
+
+    def check_requirements(self, environment='global'):
+        '''
+        Checks the process requirements against configuration settings values
+        in the attached CapsulEngine. This makes use of the
+        :meth:`requirements` method and checks that there is one matching
+        config value for each required module.
+
+        Returns
+        -------
+        config: dict, list, or None
+            if None is returned, requirements are not met: the process cannot
+            run. If a dict is returned, it corresponds to the matching config
+            values. When no requirements are needed, an empty dict is returned.
+            A pipeline, if its requirements are met will return a list of
+            configuration values, because different nodes may require different
+            config values.
+        '''
+        settings = self.get_study_config().engine.settings
+        req = self.requirements()
+        config = settings.select_configurations(environment, uses=req)
+        for module in req:
+            module_name = settings.module_name(module)
+            if module_name not in config:
+                print('requirement:', req, 'not met in', self.name)
+                print('config:', settings.select_configurations(environment))
+                return None
+        return config
 
 
 class FileCopyProcess(Process):
@@ -1245,12 +1289,14 @@ class FileCopyProcess(Process):
             if trait.output:
                 outputs[name] = getattr(self, name)
         # 2. set again inputs to their initial values
-        for name, value in six.iteritems(self._recorded_params):
-            self.set_parameter(name, value)
+        if hasattr(self, '_recorded_params'):
+            for name, value in six.iteritems(self._recorded_params):
+                self.set_parameter(name, value)
         # 3. force output values using the recorded ones
         for name, value in six.iteritems(outputs):
             self.set_parameter(name, value)
-        del self._recorded_params
+        if hasattr(self, '_recorded_params'):
+            del self._recorded_params
 
         return run_process_result
 
@@ -1595,6 +1641,17 @@ class NipypeProcess(FileCopyProcess):
             self.__doc__ = doc
 
 
+    def requirements(self):
+        req = {'nipype': 'any'}
+        if self._nipype_interface_name == "spm":
+            req['spm'] = 'any'
+        elif self._nipype_interface_name == "fsl":
+            req['fsl'] = 'any'
+        elif self._nipype_interface_name == "freesurfer":
+            req['freesurfer'] = 'any'
+        return req
+
+
     def set_output_directory(self, out_dir):
         """ Set the process output directory.
 
@@ -1680,7 +1737,8 @@ class NipypeProcess(FileCopyProcess):
         return None
 
     def _after_run_process(self, run_process_result):
-        if self._spm_script_file not in (None, Undefined, ''):
+        if getattr(self, '_spm_script_file', None) not in (None,
+                                                           Undefined, ''):
             script_file = os.path.join(
                 self.output_directory,
                 self._nipype_interface.mlab.inputs.script_file)

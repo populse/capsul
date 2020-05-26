@@ -17,16 +17,19 @@ import six
 
 # CAPSUL import
 from capsul.study_config.memory import Memory
+from capsul.process.process import Process
 
 # TRAIT import
-from traits.api import Undefined
+from traits.api import Undefined, File, Directory
 
 # Define the logger
 logger = logging.getLogger(__name__)
 
 
-def run_process(output_dir, process_instance, cachedir=None,
-                generate_logging=False, verbose=0, **kwargs):
+def run_process(output_dir, process_instance,
+                generate_logging=False, verbose=0, configuration_dict=None,
+                cachedir=None,
+                **kwargs):
     """ Execute a capsul process in a specific directory.
 
     Parameters
@@ -42,6 +45,8 @@ def run_process(output_dir, process_instance, cachedir=None,
         if True save the log stored in the process after its execution.
     verbose: int
         if different from zero, print console messages.
+    configuration_dict: dict (optional)
+        configuration dictionary
 
     Returns
     -------
@@ -50,6 +55,58 @@ def run_process(output_dir, process_instance, cachedir=None,
     output_log_file: str
         the path to the process execution log file.
     """
+    # Message
+    logger.info("Study Config: executing process '{0}'...".format(
+        process_instance.id))
+
+    study_config = process_instance.get_study_config()
+
+    if configuration_dict is None:
+        if isinstance(process_instance, Process):
+            configuration_dict \
+                = process_instance.check_requirements('global')
+        else:
+            configuration_dict \
+                = process_instance.check_requirements(study_config.engine,
+                                                      'global')
+
+    # create directories for outputs
+    if study_config.create_output_directories:
+        for name, trait in process_instance.user_traits().items():
+            if trait.output and isinstance(trait.handler, (File, Directory)):
+                value = getattr(process_instance, name)
+                if value is not Undefined and value:
+                    base = os.path.dirname(value)
+                    if base and not os.path.exists(base):
+                        os.makedirs(base)
+
+    if configuration_dict is None:
+        configuration_dict = {}
+    # clear activations for now.
+    from capsul import engine
+    engine.activated_modules = set()
+    #print('activate config:', configuration_dict)
+    engine.activate_configuration(configuration_dict)
+
+    # Run
+    if study_config.get_trait_value("use_smart_caching") in [None, False]:
+        cachedir = None
+    elif cachedir is None:
+        cachedir = output_dir
+
+    # Update the output directory folder if necessary
+    if output_dir not in (None, Undefined) and output_dir:
+        if study_config.process_output_directory:
+            output_dir = os.path.join(output_dir, '%s-%s' % (study_config.process_counter, process_instance.name))
+        # Guarantee that the output directory exists
+        if not os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+        if study_config.process_output_directory:
+            if 'output_directory' in process_instance.user_traits():
+                if (process_instance.output_directory is Undefined or
+                        not(process_instance.output_directory)):
+                    process_instance.output_directory = output_dir
+
     # Set the current directory directory if necessary
     if hasattr(process_instance, "_nipype_interface"):
         if "spm" in process_instance._nipype_interface_name:
@@ -58,7 +115,7 @@ def run_process(output_dir, process_instance, cachedir=None,
 
     # Setup the process log file
     output_log_file = None
-    if generate_logging and output_dir is not None and output_dir is not Undefined:
+    if generate_logging and output_dir not in (None, Undefined):
         output_log_file = os.path.join(
             os.path.basename(output_dir),
             os.path.dirname(output_dir) + ".json")
@@ -109,5 +166,8 @@ def run_process(output_dir, process_instance, cachedir=None,
     # Save the process log
     if generate_logging:
         process_instance.save_log(returncode)
+
+    # Increment the number of executed process count
+    study_config.process_counter += 1
 
     return returncode, output_log_file

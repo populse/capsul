@@ -8,6 +8,7 @@ from capsul.engine.database import DatabaseEngine
 
 from populse_db.database import Database
 
+
 class PopulseDBEngine(DatabaseEngine):
     def __init__(self, database_engine):
         self.db = Database(database_engine)
