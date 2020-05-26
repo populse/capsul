@@ -118,7 +118,7 @@ class FomConfig(StudyConfigModule):
             self.sync_to_engine,
             ['input_directory', 'input_fom', 'meshes_format',
              'output_directory', 'output_fom', 'shared_fom', 'volumes_format',
-             'auto_fom', 'fom_path'])
+             'auto_fom', 'fom_path', 'shared_directory'])
         #  WARNING ref to self in callback
         self.study_config.engine.settings.module_notifiers['fom'].append(
               self.sync_from_engine)

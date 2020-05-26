@@ -22,12 +22,23 @@ def init_settings(capsul_engine):
                   'Directory where BrainVisa shared data is installed'),
             ])
 
+    with capsul_engine.settings as session:
+        config = session.config('axon', 'global')
+        if not config:
+            values = {capsul_engine.settings.config_id_field: 'axon',
+                      'shared_directory': None}
+            session.new_config('axon', 'global', values)
+
     # link with StudyConfig
-    if hasattr(capsul_engine, 'study_config') \
-            and 'BrainVISAConfig' not in capsul_engine.study_config.modules:
-        scmod = capsul_engine.study_config.load_module('BrainVISAConfig', {})
-        scmod.initialize_module()
-        scmod.initialize_callbacks()
+    if hasattr(capsul_engine, 'study_config'):
+        if 'BrainVISAConfig' not in capsul_engine.study_config.modules:
+            scmod = capsul_engine.study_config.load_module(
+                'BrainVISAConfig', {})
+            scmod.initialize_module()
+            scmod.initialize_callbacks()
+        else:
+            scmod = capsul_engine.study_config.modules['BrainVISAConfig']
+            scmod.sync_to_engine()
 
 def check_configurations():
     '''
