@@ -2542,7 +2542,7 @@ class PipelineDevelopperView(QGraphicsView):
 
     def __del__(self):
         #print('PipelineDevelopperView.__del__')
-        self.release_pipeline()
+        self.release_pipeline(delete=True)
         # super(PipelineDevelopperView, self).__del__()
 
     def _set_pipeline(self, pipeline):
@@ -2602,9 +2602,12 @@ class PipelineDevelopperView(QGraphicsView):
                 pipeline.pipeline_steps.on_trait_change(
                     self._reset_pipeline, dispatch='ui')
 
-    def release_pipeline(self):
+    def release_pipeline(self, delete=False):
         '''
         Releases the pipeline currently viewed (and remove the callbacks)
+
+        If ``delete`` is set, this means the view is within deletion process
+        and a new scene should not be built
         '''
         # Setup callback to update view when pipeline state is modified
         pipeline = None
@@ -2618,7 +2621,7 @@ class PipelineDevelopperView(QGraphicsView):
                                     remove=True)
             pipeline.on_trait_change(self._reset_pipeline,
                                      'user_traits_changed', remove=True)
-        if pipeline is not None or self.scene is None:
+        if not delete and (pipeline is not None or self.scene is None):
             self.scene = PipelineScene(self)
             self.scene.set_enable_edition(self._enable_edition)
             self.scene.logical_view = self._logical_view
@@ -2842,6 +2845,12 @@ class PipelineDevelopperView(QGraphicsView):
         process = self.scene.pipeline.nodes[node_name]
         if hasattr(process, 'process'):
             process = process.process
+        # force instantiating a completion engine (since
+        # AttributedProcessWidget does not force it)
+        engine = process.get_study_config().engine
+        from capsul.attributes.completion_engine import ProcessCompletionEngine
+        ce = ProcessCompletionEngine.get_completion_engine(process)
+
         cwidget = AttributedProcessWidget(
             process, enable_attr_from_filename=True, enable_load_buttons=True)
         cwidget.setParent(sub_view)
@@ -3701,8 +3710,9 @@ class PipelineDevelopperView(QGraphicsView):
             proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
             pipeline = self.scene.pipeline
+            engine = pipeline.get_study_config().engine
             try:
-                process = get_process_instance(
+                process = engine.get_process_instance(
                     six.text_type(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
@@ -3791,7 +3801,7 @@ class PipelineDevelopperView(QGraphicsView):
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
     class IterativeProcessInput(ProcessModuleInput):
-        def __init__(self):
+        def __init__(self, engine):
             super(PipelineDevelopperView.IterativeProcessInput,
                   self).__init__()
             # hlay = Qt.QHBoxLayout()
@@ -3812,11 +3822,12 @@ class PipelineDevelopperView(QGraphicsView):
             lay.addWidget(self.plugs, 2, 1)
             self.proc_line.textChanged.connect(self.set_plugs)
             # self.proc_line.editingFinished.connect(self.set_plugs)
+            self.engine = engine
 
         def set_plugs(self, text):
             self.plugs.clear()
             try:
-                process = get_process_instance(text)
+                process = self.engine.get_process_instance(text)
             except Exception:
                 return
             traits = list(process.user_traits().keys())
@@ -3830,16 +3841,17 @@ class PipelineDevelopperView(QGraphicsView):
         Insert an iterative process node in the pipeline. Asks for the process
         module/name, the node name, and iterative plugs before inserting.
         '''
-        proc_name_gui = PipelineDevelopperView.IterativeProcessInput()
+        pipeline = self.scene.pipeline
+        engine = pipeline.get_study_config().engine
+        proc_name_gui = PipelineDevelopperView.IterativeProcessInput(engine)
         proc_name_gui.resize(800, proc_name_gui.sizeHint().height())
 
         res = proc_name_gui.exec_()
         if res:
             proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
-            pipeline = self.scene.pipeline
             try:
-                process = get_process_instance(
+                process = engine.get_process_instance(
                     six.text_type(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
@@ -4513,7 +4525,16 @@ class PipelineDevelopperView(QGraphicsView):
             if not load_pipeline:
                 return filename
             else:
-                pipeline = get_process_instance(filename)
+                try:
+                    if self.scene.pipeline:
+                        # keep the same engine
+                        engine = self.scene.pipeline.get_study_config().engine
+                        pipeline = engine.get_process_instance(filename)
+                    else:
+                        pipeline = get_process_instance(filename)
+                except Exception as e:
+                    print(e)
+                    pipeline = None
                 if pipeline is not None:
                     self.set_pipeline(pipeline)
                     self._pipeline_filename = filename
