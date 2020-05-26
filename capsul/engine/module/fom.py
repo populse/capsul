@@ -54,6 +54,13 @@ def init_settings(capsul_engine):
     capsul_engine.load_module('capsul.engine.module.spm')
     capsul_engine.load_module('capsul.engine.module.attributes')
 
+    with capsul_engine.settings as session:
+        config = session.config('fom', 'global')
+        if not config:
+            values = {capsul_engine.settings.config_id_field: 'fom',
+                      'auto_fom': True}
+            session.new_config('fom', 'global', values)
+
     if not hasattr(capsul_engine, '_modules_data'):
         capsul_engine._modules_data = {}
     store = capsul_engine._modules_data.setdefault('fom', {})
@@ -110,7 +117,7 @@ def fom_config_updated(capsul_engine, environment='global',
 def update_fom(capsul_engine, environment='global', param=None, value=None):
     '''Load configured FOMs and create FOM completion data
     '''
-    # print('***update_fom ***')
+    #print('***update_fom ***')
     with capsul_engine.settings as session:
         config = session.config('fom', environment)
         if config is None:
@@ -122,8 +129,12 @@ def update_fom(capsul_engine, environment='global', param=None, value=None):
             # probably not thread-safe.
             soma_app.initialize()
 
-        fom_path = [p for p in config.fom_path if p not in soma_app.fom_path] \
-            + soma_app.fom_path
+        if config.fom_path:
+            fom_path = [p for p in config.fom_path
+                        if p not in soma_app.fom_path] \
+                + soma_app.fom_path
+        else:
+            fom_path = list(soma_app.fom_path)
 
         soma_app.fom_manager.paths = fom_path
         soma_app.fom_manager.fom_files()
@@ -139,7 +150,7 @@ def update_fom(capsul_engine, environment='global', param=None, value=None):
                 ('output', config.output_fom),
                 ('shared', config.shared_fom))
         for fom_type, fom_filename in foms:
-            if fom_filename != "":
+            if fom_filename not in ("", None, Undefined):
                 fom = store['all_foms'].get(fom_filename)
                 if fom is None:
                     fom, atp, pta = load_fom(capsul_engine, fom_filename,
@@ -223,9 +234,12 @@ def load_fom(capsul_engine, schema, config, session, environment='global'):
         # probably not thread-safe.
         soma_app.initialize()
     old_fom_path = soma_app.fom_path
-    soma_app.fom_path = [p for p in config.fom_path
-                          if p not in soma_app.fom_path] \
-        + soma_app.fom_path
+    if config.fom_path:
+        soma_app.fom_path = [p for p in config.fom_path
+                              if p not in soma_app.fom_path] \
+            + soma_app.fom_path
+    else:
+        soma_app.fom_path = list(soma_app.fom_path)
     fom = soma_app.fom_manager.load_foms(schema)
     soma_app.fom_path = old_fom_path
     store = capsul_engine._modules_data['fom']
