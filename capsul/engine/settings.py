@@ -187,7 +187,11 @@ class Settings:
                                                module))
                 if selected_config:
                     # Remove values that are None
-                    for k, v in list(selected_config.items()):
+                    items = getattr(selected_config, '_items', None)
+                    if items is None:
+                        # older populse_db 1.x
+                        items = selected_config.items
+                    for k, v in list(items()):
                         if v is None:
                             del selected_config[k]
                     configurations[module] = selected_config
