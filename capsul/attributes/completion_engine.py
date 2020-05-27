@@ -606,6 +606,14 @@ class ProcessCompletionEngine(traits.HasTraits):
                         = ProcessCompletionEngine._remove_completion_engine
                     Process.__del__ \
                         = ProcessCompletionEngine._del_process_callback
+                else:
+                    try:
+                        # remove former callback, if any
+                        study_config.on_trait_change(
+                        process._remove_completion_engine,
+                        'use_fom,input_fom,output_fom,shared_fom', remove=True)
+                    except Exception:
+                        pass
                 study_config.on_trait_change(
                     process._remove_completion_engine,
                     'use_fom,input_fom,output_fom,shared_fom')
