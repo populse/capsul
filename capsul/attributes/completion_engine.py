@@ -195,6 +195,8 @@ class ProcessCompletionEngine(traits.HasTraits):
                             in six.iteritems(sub_attributes.user_traits()):
                         if attribute not in attributes._instance_traits():
                             attributes.add_trait(attribute, trait)
+                            # all attributes are optional by default
+                            attributes.trait(attribute).optional = True
                             setattr(attributes, attribute,
                                     getattr(sub_attributes, attribute))
 
@@ -255,6 +257,8 @@ class ProcessCompletionEngine(traits.HasTraits):
                                 else:
                                     trait = value
                                 ea.add_trait(attribute, ttype)
+                                # all attributes are optional by default
+                                ea.trait(attribute).optional = True
                                 setattr(ea, attribute, value)
 
                         attributes.set_parameter_attributes(
@@ -794,6 +798,8 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                                 else:
                                     trait = value
                                 ea.add_trait(attribute, ttype)
+                                # all attributes are optional by default
+                                ea.trait(attribute).optional = True
                                 setattr(ea, attribute, value)
 
                         capsul_attributes.set_parameter_attributes(
@@ -813,6 +819,8 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                     else:
                         trait = value
                     ea.add_trait(attribute, ttype)
+                    # all attributes are optional by default
+                    ea.trait(attribute).optional = True
                     setattr(ea, attribute, value)
                 if output:
                     capsul_attributes.set_parameter_attributes(
@@ -847,8 +855,11 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
         '''
         if observer is None:
             observer = self
-        self.process.on_trait_change(observer.remove_attributes, 'switch',
-                                     remove=True)
+        try:
+            self.process.on_trait_change(observer.remove_attributes, 'switch',
+                                         remove=True)
+        except Exception:
+            pass  # probably already deleted object
 
 
 

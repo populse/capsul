@@ -144,7 +144,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                     continue # skip FOM internals
                 default_value = fom.attribute_definitions[attribute].get(
                     'default_value', '')
-                ea.add_trait(attribute, Str(default_value))
+                ea.add_trait(attribute, Str(default_value, optional=True))
             return ea
 
         for schema, fom in six.iteritems(foms):
