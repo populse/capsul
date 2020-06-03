@@ -2847,9 +2847,11 @@ class PipelineDevelopperView(QGraphicsView):
             process = process.process
         # force instantiating a completion engine (since
         # AttributedProcessWidget does not force it)
-        engine = process.get_study_config().engine
-        from capsul.attributes.completion_engine import ProcessCompletionEngine
-        ce = ProcessCompletionEngine.get_completion_engine(process)
+        if hasattr(process, 'get_study_config'):  # exclude custom nodes
+            engine = process.get_study_config().engine
+            from capsul.attributes.completion_engine \
+                import ProcessCompletionEngine
+            ce = ProcessCompletionEngine.get_completion_engine(process)
 
         cwidget = AttributedProcessWidget(
             process, enable_attr_from_filename=True, enable_load_buttons=True)
