@@ -24,7 +24,8 @@ from traits.api import File, HasTraits, Any, Directory, Undefined, List
 class AttributedProcessWidget(QtGui.QWidget):
     """Process interface with attributes completion handling"""
     def __init__(self, attributed_process, enable_attr_from_filename=False,
-                 enable_load_buttons=False, override_control_types=None):
+                 enable_load_buttons=False, override_control_types=None,
+                 user_data=None):
         """
         Parameters
         ----------
@@ -36,11 +37,15 @@ class AttributedProcessWidget(QtGui.QWidget):
         override_control_types: dict (optional)
             if given, this is a "factory" dict assigning new controller editor
             types to some traits types in the parameters controller.
+        user_data: any type (optional)
+            optional user data that can be accessed by individual control
+            editors
         """
         super(AttributedProcessWidget, self).__init__()
         self.setLayout(QtGui.QVBoxLayout())
         self.attributed_process = attributed_process
         self._show_completion = False
+        self.user_data = user_data
 
         process = attributed_process
         completion_engine = getattr(process, 'completion_engine', None)
@@ -61,7 +66,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         if enable_attr_from_filename and completion_engine is not None:
             c = Controller()
             c.add_trait('attributes_from_input_filename', File(optional=True))
-            cw = ControllerWidget(c, live=True)
+            cw = ControllerWidget(c, live=True, user_data=user_data)
             spl_up.layout().addWidget(cw)
             self.input_filename_controller = c
             c.on_trait_change(self.on_input_filename_changed,
@@ -111,18 +116,20 @@ class AttributedProcessWidget(QtGui.QWidget):
 
         # Create controller widget for process and object_attribute
         self.controller_widget = ScrollControllerWidget(process, live=True,
-            parent=param_widget, override_control_types=control_types_p)
+            parent=param_widget, override_control_types=control_types_p,
+            user_data=user_data)
 
         if completion_engine is not None:
             self.controller_widget2 = ScrollControllerWidget(
                 completion_engine.get_attribute_values(),
                 live=True, parent=attrib_widget,
-                override_control_types=control_types_a)
+                override_control_types=control_types_a, user_data=user_data)
             completion_engine.get_attribute_values().on_trait_change(
                 completion_engine.attributes_changed, 'anytrait')
         else:
             self.controller_widget2 = ScrollControllerWidget(
-                Controller(), override_control_types=control_types_a)
+                Controller(), override_control_types=control_types_a,
+                user_data=user_data)
 
         # Set controller of attributs and controller of process for each
         # corresponding area
