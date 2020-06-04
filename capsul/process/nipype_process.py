@@ -360,7 +360,7 @@ def nipype_factory(nipype_instance):
         relax_exists_constrain(trait)
 
         # Clone the nipype trait
-        process_trait = clone_nipype_trait(process_instance,trait)
+        process_trait = clone_nipype_trait(process_instance, trait)
 
         # Create the output process trait name: nipype trait name prefixed
         # by '_'
