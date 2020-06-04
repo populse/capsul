@@ -85,9 +85,11 @@ class SPMConfig(StudyConfigModule):
                         in self.study_config.engine._loaded_modules:
                 with self.study_config.engine.settings as session:
                     configs = list(session.configs('spm', 'global'))
+                    print([x.version for x in configs])
                     configs = sorted(
                         configs,
-                        key=lambda x: (-int(x.version) if x.version != ''
+                        key=lambda x: (-int(x.version)
+                                       if x.version not in ('', None)
                                        else 0) * 1000 - int(x.standalone))
                     if len(configs) != 0:
                         config = configs[0]
@@ -96,7 +98,10 @@ class SPMConfig(StudyConfigModule):
                             else Undefined
                         self.study_config.spm_directory = directory
                         self.study_config.spm_standalone = config.standalone
-                        self.study_config.spm_version = config.version
+                        if config.version is not None:
+                            self.study_config.spm_version = config.version
+                        else:
+                            self.study_config.spm_version = '0'
                         if self.study_config.spm_directory not in (None,
                                                                   Undefined):
                             if config.version:
