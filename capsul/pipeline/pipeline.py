@@ -2484,4 +2484,67 @@ class Pipeline(Process):
 
         return confs
 
+    def rename_node(self, old_node_name, new_node_name):
+        '''
+        Change the name of the selected node and updates the pipeline.
+
+        Parameters
+        ----------
+        old_node_name: str
+            old node name
+        new_node_name: str
+            new node name
+        '''
+        if new_node_name in list(self.nodes.keys()):
+            raise ValueError("Node name already in pipeline")
+
+        else:
+
+            node = self.nodes[old_node_name]
+
+            # Removing links of the selected node and copy
+            # the origin/destination
+            links_to_copy = []
+            for parameter, plug in six.iteritems(node.plugs):
+                if plug.output:
+                    for (dest_node_name, dest_parameter, dest_node, dest_plug,
+                        weak_link) in plug.links_to:
+                        slinks = dest_plug.links_from
+                        slinks.remove((old_node_name, parameter, node, plug,
+                                      weak_link))
+                        slinks.add((new_node_name, parameter, node, plug,
+                                    weak_link))
+
+                else:
+                    for (dest_node_name, dest_parameter, dest_node, dest_plug,
+                        weak_link) in plug.links_from:
+                        slinks = dest_plug.links_to
+                        slinks.remove((old_node_name, parameter, node, plug,
+                                      weak_link))
+                        slinks.add((new_node_name, parameter, node, plug,
+                                    weak_link))
+
+            # change the node entry with the new name and delete the former
+            self.nodes[new_node_name] = node
+            del self.nodes[old_node_name]
+
+            # look for the node in the pipeline_steps, if any
+            steps = getattr(self, 'pipeline_steps', None)
+            if steps:
+                for step, trait in six.iteritems(steps.user_traits()):
+                    if old_node_name in trait.nodes:
+                        trait.nodes = [n if n != old_node_name
+                                          else new_node_name
+                                       for n in trait.nodes]
+
+            # nodes positions and dimensions
+            if old_node_name in getattr(self, 'node_position', {}):
+                self.node_position[new_node_name] \
+                    = self.node_position[old_node_name]
+                del self.node_position[old_node_name]
+            if old_node_name in getattr(self, 'node_dimension', {}):
+                self.node_dimension[new_node_name] \
+                    = self.node_dimension[old_node_name]
+                del self.node_dimension[old_node_name]
+
 
