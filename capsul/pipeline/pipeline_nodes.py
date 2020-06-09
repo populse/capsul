@@ -36,6 +36,8 @@ from traits.api import Str
 from traits.api import Bool
 from traits.api import Any
 from traits.api import Undefined
+from traits.api import File
+from traits.api import Directory
 from traits.api import TraitError
 
 # Capsul import
@@ -226,7 +228,14 @@ class Node(Controller):
         try:
             dest_node.set_plug_value(dest_plug_name, value)
         except traits.TraitError:
-            pass
+            if isinstance(value, list) and len(value) == 1:
+                # Nipype MultiObject, when a single object is involved, looks
+                # like a single object but is actually a list. We want to
+                # allow it to be linked to a "single object" plug.
+                try:
+                    dest_node.set_plug_value(dest_plug_name, value[0])
+                except traits.TraitError:
+                    pass
 
     def _value_callback_with_logging(
             self, log_stream, prefix, source_plug_name, dest_node,
@@ -496,6 +505,38 @@ class Node(Controller):
             if module_name not in config:
                 return None
         return config
+
+    def get_missing_mandatory_parameters(self):
+        ''' Returns a list of parameters which are not optional, and which
+        value is Undefined or None, or an empty string for a File or
+        Directory parameter.
+        '''
+        def check_trait(trait, value):
+            if trait.optional:
+                return True
+            if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
+                if value is Undefined:
+                    return bool(trait.output)
+                for i, item in enumerate(value):
+                    j = min(i, len(trait.inner_traits) - 1)
+                    if not check_trait(trait.inner_traits[j], item):
+                        return False
+                return True
+            if isinstance(trait.trait_type, (File, Directory)):
+                if trait.output and trait.input_filename is False:
+                    # filename is an output
+                    return True
+                return value not in (Undefined, None, '')
+            return trait.output or value not in (Undefined, None)
+
+        missing = []
+        for name, plug in six.iteritems(self.plugs):
+            trait = self.get_trait(name)
+            if not trait.optional:
+                value = self.get_plug_value(name)
+                if not check_trait(trait, value):
+                    missing.append(name)
+        return missing
 
 
 class ProcessNode(Node):
