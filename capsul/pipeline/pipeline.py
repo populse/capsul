@@ -764,7 +764,7 @@ class Pipeline(Process):
         self._set_subprocess_context_name(node, name)
 
     def add_custom_node(self, name, node_type, parameters=None,
-                        make_optional=(), **kwargs):
+                        make_optional=(), do_not_export=None, **kwargs):
         """
         Inserts a custom node (Node subclass instance which is not a Process)
         in the pipeline.
@@ -784,6 +784,8 @@ class Pipeline(Process):
             which will not work for every node type.
         make_optional: list or tuple
             paramters names to be made optional
+        do_not_export: list of str (optional)
+            a list of plug names that we do not want to export.
         kwargs: default values of node parameters
         """
         # It is necessary not to import study_config.process_instance at
@@ -799,6 +801,9 @@ class Pipeline(Process):
                 % node_type)
         self.nodes[name] = node
 
+        do_not_export = set(do_not_export or [])
+        do_not_export.update(kwargs)
+
         # Change plug default properties
         for parameter_name in node.plugs:
             # Optional plug
@@ -807,6 +812,11 @@ class Pipeline(Process):
                 trait = node.trait(parameter_name)
                 if trait is not None:
                     trait.optional = True
+
+            # Do not export plug
+            if (parameter_name in do_not_export or
+                    parameter_name in make_optional):
+                self.do_not_export.add((name, parameter_name))
 
         return node
 
