@@ -1083,8 +1083,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             if trait.optional:
                 return True
             if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
-                if value is Undefined and not trait.output:
-                    return False
+                if value is Undefined:
+                    return bool(trait.output)
                 for i, item in enumerate(value):
                     j = min(i, len(trait.inner_traits) - 1)
                     if not check_trait(trait.inner_traits[j], item):

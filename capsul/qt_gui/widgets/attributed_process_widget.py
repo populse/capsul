@@ -119,6 +119,11 @@ class AttributedProcessWidget(QtGui.QWidget):
             parent=param_widget, override_control_types=control_types_p,
             user_data=user_data)
 
+        show_ce = (completion_engine is not None
+                   and len(
+                      completion_engine.get_attribute_values().user_traits())
+                          != 0)
+
         if completion_engine is not None:
             self.controller_widget2 = ScrollControllerWidget(
                 completion_engine.get_attribute_values(),
@@ -146,7 +151,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             io_lay.addWidget(self.btn_save_json)
             self.btn_save_json.clicked.connect(self.on_btn_save_json)
 
-        if completion_engine is None:
+        if not show_ce:
             attrib_widget.hide()
             self.checkbox_fom.hide()
             self.btn_show_completion.hide()

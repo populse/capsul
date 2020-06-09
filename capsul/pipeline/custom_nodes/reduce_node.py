@@ -39,7 +39,8 @@ class ReduceNode(Node):
 
     def __init__(self, pipeline, name, input_names=['input_%d'],
                  output_names=['outputs'], input_types=None):
-        in_traits = [{'name': 'lengths', 'optional': True}]
+        in_traits = [{'name': 'lengths', 'optional': True},
+                     {'name': 'skip_empty', 'optional': True}]
         out_traits = []
 
         if input_types:
@@ -57,6 +58,11 @@ class ReduceNode(Node):
             self.add_trait(tr, traits.List(ptype, output=True))
         self.add_trait('lengths', traits.List(traits.Int(), output=False,
                                               desc='lists lengths'))
+        self.add_trait('skip_empty',
+                       traits.Bool(
+                          False, output=False,
+                          desc='remove empty (Undefined, None, empty strings) '
+                          'from the output lists'))
         self.input_names = input_names
         self.output_names = output_names
         self.lengths = [0] * len(input_names)
@@ -67,6 +73,7 @@ class ReduceNode(Node):
 
     def set_callbacks(self):
         self.on_trait_change(self.resize_callback, 'lengths')
+        self.on_trait_change(self.reduce_callback, 'skip_empty')
 
     def resize_callback(self, obj, name, old_value, value):
         if old_value in (None, traits.Undefined):
@@ -135,15 +142,23 @@ class ReduceNode(Node):
                     break
             if in_index is not None:
                 break
-        output = self.output_names[in_index]
-        value = [getattr(self, pname_p % i)
-                 for i in range(self.lengths[in_index])]
-        if isinstance(self.input_types[in_index],
-                      (traits.Str, traits.File, traits.Directory)):
-            # List trait doesn't accept Undefined as items
-            value = [v if v not in (None, traits.Undefined) else ''
-                     for v in value]
-        setattr(self, output, value)
+        if in_index is None:
+            in_indices = range(len(self.input_names))
+        else:
+            in_indices = [in_index]
+        for in_index in in_indices:
+            output = self.output_names[in_index]
+            value = [getattr(self, pname_p % i)
+                    for i in range(self.lengths[in_index])]
+            if self.skip_empty:
+                value = [v for v in value
+                         if v not in (None, traits.Undefined, '')]
+            elif isinstance(self.input_types[in_index],
+                          (traits.Str, traits.File, traits.Directory)):
+                # List trait doesn't accept Undefined as items
+                value = [v if v not in (None, traits.Undefined) else ''
+                         for v in value]
+            setattr(self, output, value)
 
     def configured_controller(self):
         c = self.configure_controller()
