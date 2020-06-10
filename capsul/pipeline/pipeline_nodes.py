@@ -506,12 +506,20 @@ class Node(Controller):
                 return None
         return config
 
-    def get_missing_mandatory_parameters(self):
+    def get_missing_mandatory_parameters(self, exclude_links=False):
         ''' Returns a list of parameters which are not optional, and which
         value is Undefined or None, or an empty string for a File or
         Directory parameter.
+
+        Parameters
+        ----------
+        exclude_links: bool
+            if True, an empty parameter which has a link to another node
+            will not be reported missing, since the execution
+            will assign it a temporary value which will not prevent the
+            pipeline from running.
         '''
-        def check_trait(trait, value):
+        def check_trait(node, plug, trait, value, exclude_links):
             if trait.optional:
                 return True
             if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
@@ -519,14 +527,38 @@ class Node(Controller):
                     return bool(trait.output)
                 for i, item in enumerate(value):
                     j = min(i, len(trait.inner_traits) - 1)
-                    if not check_trait(trait.inner_traits[j], item):
+                    if not check_trait(node, plug, trait.inner_traits[j],
+                                       item, exclude_links):
                         return False
                 return True
             if isinstance(trait.trait_type, (File, Directory)):
-                if trait.output and trait.input_filename is False:
-                    # filename is an output
+                if value not in (Undefined, None, '') \
+                        or (trait.output
+                            and trait.input_filename is not False):
                     return True
-                return value not in (Undefined, None, '')
+                if not exclude_links:
+                    return False
+                if trait.output:
+                    links = plug.links_to
+                else:
+                    links = plug.links_from
+                # check if there is a connection not going outside the
+                # current pipeline
+                end = [l for l in links if l[0] != '']
+                if len(end) != 0:
+                    return True  # it's connected.
+                # otherwise check if there is a connection outside the
+                # current pipeline
+                end = [l for l in links if l[0] == '']
+                for link in end:
+                    p = link[2].plugs[link[1]]
+                    if trait.output:
+                        relinks = p.links_to
+                    else:
+                        relinks = p.links_from
+                    if relinks:
+                        return True  # it's connected.
+                return False  # no other connection.
             return trait.output or value not in (Undefined, None)
 
         missing = []
@@ -534,7 +566,7 @@ class Node(Controller):
             trait = self.get_trait(name)
             if not trait.optional:
                 value = self.get_plug_value(name)
-                if not check_trait(trait, value):
+                if not check_trait(self, plug, trait, value, exclude_links):
                     missing.append(name)
         return missing
 
