@@ -19,7 +19,6 @@ from traits.api import List, Undefined
 from capsul.process.process import Process
 from capsul.study_config.process_instance import get_process_instance
 import capsul.study_config as study_cmod
-from capsul.attributes.completion_engine import ProcessCompletionEngine
 from traits.api import File, Directory
 from six.moves import range
 
@@ -50,6 +49,10 @@ class ProcessIteration(Process):
         # use the completion system (if any) to get induced (additional)
         # iterated parameters
         if study_config is not None:
+            # don't import this at module level to avoid cyclic imports
+            from capsul.attributes.completion_engine \
+                import ProcessCompletionEngine
+
             completion_engine \
                 = ProcessCompletionEngine.get_completion_engine(self)
             if hasattr(completion_engine, 'get_induced_iterative_parameters'):
@@ -259,6 +262,9 @@ class ProcessIteration(Process):
         self.process.set_study_config(study_config)
 
     def complete_iteration(self, iteration):
+        # don't import this at module level to avoid cyclic imports
+        from capsul.attributes.completion_engine import ProcessCompletionEngine
+
         completion_engine = ProcessCompletionEngine.get_completion_engine(
             self)
         # check if it is an iterative completion engine
