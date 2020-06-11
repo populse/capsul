@@ -19,6 +19,7 @@ Functions
 # System import
 from __future__ import print_function
 from __future__ import absolute_import
+from soma.controller.trait_utils import relax_exists_constrain
 import sys
 import os
 import types
@@ -34,31 +35,6 @@ from traits.api import Directory, File, List, CTrait, Undefined, TraitError
 # Capsul import
 from .process import NipypeProcess
 
-
-def relax_exists_constrain(trait):
-    """ Relax the exist constrain of a trait
-
-    Parameters
-    ----------
-    trait: trait
-        a trait that will be relaxed from the exist constrain
-    """
-    # If we have a single trait, just modify the 'exists' contrain
-    # if specified
-    if hasattr(trait.handler, "exists"):
-        trait.handler.exists = False
-
-    # If we have a selector, call the 'relax_exists_constrain' on each
-    # selector inner components.
-    main_id = trait.handler.__class__.__name__
-    if main_id == "TraitCompound":
-        for sub_trait in trait.handler.handlers:
-            sub_c_trait = CTrait(0)
-            sub_c_trait.handler = sub_trait
-            relax_exists_constrain(sub_c_trait)
-    elif len(trait.inner_traits) > 0:
-        for sub_c_trait in trait.inner_traits:
-            relax_exists_constrain(sub_c_trait)
 
 def nipype_factory(nipype_instance):
     """ From a nipype class instance generate dynamically a process
@@ -92,7 +68,6 @@ def nipype_factory(nipype_instance):
     _list_outputs
     _gen_filename
     _parse_inputs
-    relax_exists_constrain
     sync_nypipe_traits
     sync_process_output_traits
     clone_nipype_trait
