@@ -24,9 +24,11 @@ from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline import Graph, ProcessNode, Switch
 from capsul.attributes.attributes_schema import ProcessAttributes, \
     EditableAttributes
+from capsul.pipeline import pipeline_tools
 import traits.api as traits
 from soma.utils.weak_proxy import weak_proxy, get_ref
 from soma.functiontools import SomaPartial
+from soma.controller.trait_utils import relax_exists_constrain
 import six
 import sys
 import copy
@@ -294,70 +296,102 @@ class ProcessCompletionEngine(traits.HasTraits):
         # now, but it is sub-optimal since many parameters will be set many
         # times.
 
+        def satisfied_deps(node, all_nodes, done):
+            for param, plug in node.plugs.items():
+                if not plug.output:
+                    for link in plug.links_from:
+                        snode = link[2]
+                        if snode not in done \
+                                and (link[0], snode) in all_nodes:
+                            return False
+            return True
+
         verbose = False
-        use_topological_order = True
         if isinstance(self.process, Pipeline):
             attrib_values = self.get_attribute_values().export_to_dict()
             name = getattr(self.process, 'context_name', self.process.name)
 
-            if use_topological_order:
-                # proceed in topological order
-                graph = self.process.workflow_graph(
-                    remove_disabled_steps=False, remove_disabled_nodes=False)
-                self.completion_progress_total = len(graph._nodes) + 0.05
-                index = 0
-                for node_name, node_meta in graph.topological_sort():
-                    pname = '.'.join([name, node_name])
-                    if isinstance(node_meta, Graph):
-                        nodes = [node_meta.pipeline]
-                    else:
-                        nodes = node_meta
-                    for pipeline_node in nodes:
-                        if isinstance(pipeline_node, ProcessNode):
-                            subprocess = pipeline_node.process
-                        else:
-                            subprocess = pipeline_node
-                        subprocess_compl = \
-                            ProcessCompletionEngine.get_completion_engine(
-                                subprocess, pname)
-                        self._install_subprogress_moniotoring(subprocess_compl)
-                        try:
-                            subprocess_compl.complete_parameters(
-                                {'capsul_attributes': attrib_values})
-                        except Exception:
-                            try:
-                                self.__class__(subprocess).complete_parameters(
-                                    {'capsul_attributes': attrib_values})
-                            except Exception:
-                                pass
-                        self._remove_subprogress_moniotoring(subprocess_compl)
+            # build nodes list
+            nodes_list = set([n for n in self.process.nodes.items()
+                              if n[0] != ''
+                                  and pipeline_tools.is_node_enabled(
+                                      self.process, n[0], n[1])])
+            init_result = True
+            done = set()
+            todo = [(node_name, node) for node_name, node in nodes_list
+                    if satisfied_deps(node, nodes_list, done)]
+
+            self.completion_progress_total = len(nodes_list) + 0.05
+            index = 0
+
+            # process topologically through nodes dependencies
+            while todo:
+                node_name, node = todo.pop(0)
+                done.add(node)
+
+                pname = '.'.join([name, node_name])
+
+                if isinstance(node, ProcessNode):
+                    subprocess = node.process
+                else:
+                    subprocess = node
+
+                subprocess_compl = \
+                    ProcessCompletionEngine.get_completion_engine(
+                        subprocess, pname)
+                self._install_subprogress_moniotoring(subprocess_compl)
+                try:
+                    subprocess_compl.complete_parameters(
+                        {'capsul_attributes': attrib_values})
+                except Exception:
+                    try:
+                        self.__class__(subprocess).complete_parameters(
+                            {'capsul_attributes': attrib_values})
+                    except Exception:
+                        pass
+                self._remove_subprogress_moniotoring(subprocess_compl)
+
+                # increase progress notification
                 index += 1
                 self.completion_progress = index
-            else:
-                self.completion_progress_total = len(self.process.nodes) + 0.05
-                index = 0
-                for node_name, node in six.iteritems(self.process.nodes):
-                    if node_name == '':
+
+                # insert downstream nodes in todo list
+                for param, plug in node.plugs.items():
+                    if not plug.output:
                         continue
-                    if hasattr(node, 'process'):
-                        subprocess = node.process
-                        pname = '.'.join([name, node_name])
-                        subprocess_compl = \
-                            ProcessCompletionEngine.get_completion_engine(
-                                subprocess, pname)
-                        self._install_subprogress_moniotoring(subprocess_compl)
-                        try:
-                            subprocess_compl.complete_parameters(
-                                {'capsul_attributes': attrib_values})
-                        except Exception:
-                            try:
-                                self.__class__(subprocess).complete_parameters(
-                                    {'capsul_attributes': attrib_values})
-                            except Exception:
-                                pass
-                        self._remove_subprogress_moniotoring(subprocess_compl)
-                index += 1
-                self.completion_progress = index
+                    links = plug.links_to
+                    for l in links:
+                        dnode = l[2]
+                        #print(l[0], dnode in done, dnode in )
+                        if dnode not in done \
+                                and (l[0], dnode) in nodes_list \
+                                and (l[0], dnode) not in todo \
+                                and satisfied_deps(dnode, nodes_list,
+                                                    done):
+                            todo.append((l[0], dnode))
+                        # release "exists" property on connected traits
+                        if hasattr(dnode, 'process'):
+                            p = l[2].process
+                        else:
+                            p = l[2]
+                        trait = p.trait(l[1])
+                        if trait:
+                            relax_exists_constrain(trait)
+                            # FIXME this very specific stuff should be
+                            # handled another way at another place...
+                            if hasattr(p, 'process') \
+                                    and hasattr(p.process, 'inputs'):
+                                # MIA custom wrappings of nipype interfaces
+                                # are this way, and do not release the
+                                # exists constrain internally.
+                                relax_exists_constrain(
+                                    p.process.inputs.trait(l[1]))
+
+            if len(done) != len(nodes_list):
+                print('Some nodes of the pipeline could not be reached '
+                      'through dependencies. The pipeline structure is '
+                      'probably wrong:')
+                print([nname for nname, n in nodes_list if n not in done])
 
         attributes = self.get_attribute_values()
 
