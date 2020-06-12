@@ -74,7 +74,7 @@ class Process_4(Process):
 
     def get_commandline(self):
         cmdline = ['python', '-c',
-                   'import os; import sys; with f = open(sys.argv[3], "w"); '
+                   'import os; import sys; f = open(sys.argv[3], "w"); '
                    'f.write(open(sys.argv[1]).read()); '
                    'f.write(open(sys.argv[2]).read()); f.close()',
                    self.input_image, self.other_image, self.output_image]
