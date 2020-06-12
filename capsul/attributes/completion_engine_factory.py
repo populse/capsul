@@ -17,6 +17,7 @@ from capsul.attributes.fom_completion_engine \
     import FomProcessCompletionEngine, FomPathCompletionEngine, \
     FomProcessCompletionEngineIteration
 from capsul.pipeline.process_iteration import ProcessIteration
+from capsul.pipeline.pipeline_nodes import ProcessNode
 
 
 class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
@@ -27,7 +28,7 @@ class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
     def get_completion_engine(self, process, name=None):
         '''
         Factory for ProcessCompletionEngine: get an ProcessCompletionEngine
-        instance for a process in the context of a given StudyConfig.
+        instance for a node or process in the context of a given StudyConfig.
 
         The study_config should specify which completion system(s) is (are)
         used (FOM, ...)
@@ -52,15 +53,19 @@ class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
                 pass
 
         # iteration
-        if isinstance(process, ProcessIteration):
+        in_process = process
+        if isinstance(process, ProcessNode):
+            in_process = process.process
+        if isinstance(in_process, ProcessIteration):
             if isinstance(
                     ProcessCompletionEngine.get_completion_engine(
-                        process.process),
+                        in_process.process),
                     FomProcessCompletionEngine):
                 return FomProcessCompletionEngineIteration(process, name)
             else:
                 return ProcessCompletionEngineIteration(process, name)
 
         # standard ProcessCompletionEngine
-        return ProcessCompletionEngine(process, name)
+        return super(BuiltinProcessCompletionEngineFactory,
+                     self).get_completion_engine(process, name)
 

@@ -570,6 +570,16 @@ class Node(Controller):
                     missing.append(name)
         return missing
 
+    def get_study_config(self):
+        ''' Get (or create) the StudyConfig this process belongs to
+        '''
+        study_config = getattr(self, 'study_config', None)
+        if study_config is None:
+            # Import cannot be done on module due to circular dependencies
+            from capsul.study_config.study_config import default_study_config
+            self.study_config = default_study_config()
+        return self.study_config
+
 
 class ProcessNode(Node):
     """ Process node.
@@ -719,6 +729,39 @@ class ProcessNode(Node):
         .. see:: :meth:`capsul.process.process.check_requirements`
         '''
         return self.process.check_requirements(environment)
+
+    def get_study_config(self):
+        ''' Get (or create) the StudyConfig this process belongs to
+        '''
+        return self.process.get_study_config()
+
+    @property
+    def study_config(self):
+        try:
+            return self.process.study_config
+        except ReferenceError:
+            return None
+
+    @study_config.setter
+    def study_config(self, value):
+        try:
+            setattr(self.process, 'study_config', value)
+        except ReferenceError:
+            pass
+
+    @property
+    def completion_engine(self):
+        try:
+            return self.process.completion_engine
+        except ReferenceError:
+            return None
+
+    @completion_engine.setter
+    def completion_engine(self, value):
+        try:
+            setattr(self.process, 'completion_engine', value)
+        except ReferenceError:
+            pass
 
 
 class PipelineNode(ProcessNode):

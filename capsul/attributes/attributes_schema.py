@@ -23,10 +23,10 @@ import six
 from importlib import import_module
 from pkgutil import iter_modules
 from soma.sorted_dictionary import OrderedDict
-
 from soma.controller import Controller
 from soma.functiontools import partial, SomaPartial
 import traits.api as traits
+from capsul.pipeline.pipeline_nodes import ProcessNode
 
 
 class AttributesSchema(object):
@@ -116,9 +116,12 @@ class ProcessAttributes(Controller):
                 return  # this is just a lower priority
             raise KeyError('Attributes already set for parameter %s'
                            % parameter)
-        if parameter not in self._process._instance_traits():
+        process = self._process
+        if isinstance(process, ProcessNode):
+            process = process.process
+        if parameter not in process._instance_traits():
             print('WARNING: parameter', parameter,
-                  'not in process', self._process.name)
+                  'not in process', process.name)
             return
         if isinstance(editable_attributes, six.string_types) \
                 or isinstance(editable_attributes, EditableAttributes):
@@ -144,7 +147,7 @@ class ProcessAttributes(Controller):
             parameter_editable_attributes.append(ea)
             if add_editable_attributes:
                 is_list = allow_list \
-                        and isinstance(self._process.trait(parameter).trait_type,
+                        and isinstance(process.trait(parameter).trait_type,
                                        traits.List)
                 for name in list(ea.user_traits().keys()):
                     # don't use items() since traits may change during iter.
@@ -180,12 +183,15 @@ class ProcessAttributes(Controller):
         ''' Get attributes for each process parameter
         '''
         pa = {}
-        for parameter, trait in six.iteritems(self._process.user_traits()):
+        process = self._process
+        if isinstance(process, ProcessNode):
+            process = process.process
+        for parameter, trait in six.iteritems(process.user_traits()):
             if trait.output:
-                if hasattr(self._process, 'id'):
-                    process_name = self._process.id
+                if hasattr(process, 'id'):
+                    process_name = process.id
                 else:
-                    process_name = self._process.name
+                    process_name = process.name
                 attributes = {
                     'generated_by_process': process_name,
                     'generated_by_parameter': parameter}
