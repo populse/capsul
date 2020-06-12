@@ -749,6 +749,20 @@ class ProcessNode(Node):
         except ReferenceError:
             pass
 
+    @property
+    def completion_engine(self):
+        try:
+            return self.process.completion_engine
+        except ReferenceError:
+            return None
+
+    @completion_engine.setter
+    def completion_engine(self, value):
+        try:
+            setattr(self.process, 'completion_engine', value)
+        except ReferenceError:
+            pass
+
 
 class PipelineNode(ProcessNode):
     """ A special node to store the pipeline user-parameters
