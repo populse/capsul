@@ -48,6 +48,7 @@ from .pipeline_nodes import OptionalOutputSwitch
 # Soma import
 from soma.controller import Controller
 from soma.controller import ControllerTrait
+from soma.controller.trait_utils import relax_exists_constrain
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 
@@ -982,6 +983,11 @@ class Pipeline(Process):
         if (not dest_plug.output and dest_node is self.pipeline_node):
             raise ValueError("Cannot link to a pipeline input "
                              "plug: {0}".format(link))
+
+        # the destination of the link should not expect an already existing
+        # file value, since it will come as an output from the source.
+        trait = dest_node.get_trait(dest_plug_name)
+        relax_exists_constrain(trait)
 
         # Propagate the plug value from source to destination
         value = source_node.get_plug_value(source_plug_name)
