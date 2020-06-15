@@ -701,6 +701,9 @@ class Pipeline(Process):
             node.switch = switch_value
 
         self._set_subprocess_context_name(node, name)
+        study_config = getattr(self, 'study_config', None)
+        if study_config:
+            node.set_study_config(study_config)
 
     def add_optional_output_switch(self, name, input, output=None):
         """ Add an optional output switch node in the pipeline
@@ -763,6 +766,9 @@ class Pipeline(Process):
         self.nodes[name] = node
 
         self._set_subprocess_context_name(node, name)
+        study_config = getattr(self, 'study_config', None)
+        if study_config:
+            node.set_study_config(study_config)
 
     def add_custom_node(self, name, node_type, parameters=None,
                         make_optional=(), do_not_export=None, **kwargs):
@@ -818,6 +824,10 @@ class Pipeline(Process):
             if (parameter_name in do_not_export or
                     parameter_name in make_optional):
                 self.do_not_export.add((name, parameter_name))
+
+        study_config = getattr(self, 'study_config', None)
+        if study_config:
+            node.set_study_config(study_config)
 
         return node
 
@@ -2417,8 +2427,8 @@ class Pipeline(Process):
         '''
         super(Pipeline, self).set_study_config(study_config)
         for node_name, node in six.iteritems(self.nodes):
-            if hasattr(node, 'process') and node_name != "":
-                node.process.set_study_config(study_config)
+            if node_name != "":
+                node.set_study_config(study_config)
 
     def define_groups_as_steps(self, exclusive=True):
         ''' Define parameters groups according to which steps they are
@@ -2468,7 +2478,7 @@ class Pipeline(Process):
                     groups = [groups[0]]
                 trait.groups = groups
 
-    def check_requirements(self, environment='global'):
+    def check_requirements(self, environment='global', message_list=None):
         '''
         Reimplementation for pipelines of
         :meth:`capsul.process.process.Process.check_requirements <Process.check_requirements>`
@@ -2476,29 +2486,39 @@ class Pipeline(Process):
         A pipeline will return a list of unique configuration values.
         '''
         # start with pipeline-level requirements
-        conf = super(Pipeline, self).check_requirements(environment)
+        conf = super(Pipeline, self).check_requirements(
+            environment, message_list=message_list)
         if conf is None:
             return None
         confs = []
         if conf:
             confs.append(conf)
         from capsul.pipeline import pipeline_tools
+        success = True
         for key, node in six.iteritems(self.nodes):
             if node is self.pipeline_node:
                 continue
             if pipeline_tools.is_node_enabled(self, key, node):
-                conf = node.check_requirements(self.study_config.engine,
-                                               environment)
+                conf = node.check_requirements(
+                    environment,
+                    message_list=message_list)
                 if conf is None:
                     # requirement failed
-                    return None
-                if conf != {} and conf not in confs:
-                    if isinstance(conf, list):
-                        confs += [c for c in conf if c not in confs]
+                    if message_list is None:
+                        # return immediately
+                        return None
                     else:
-                        confs.append(conf)
-
-        return confs
+                        success = False
+                else:
+                    if conf != {} and conf not in confs:
+                        if isinstance(conf, list):
+                            confs += [c for c in conf if c not in confs]
+                        else:
+                            confs.append(conf)
+        if success:
+            return confs
+        else:
+            return None
 
     def rename_node(self, old_node_name, new_node_name):
         '''

@@ -480,12 +480,22 @@ class Node(Controller):
         '''
         return {}
 
-    def check_requirements(self, capsul_engine, environment='global'):
+    def check_requirements(self, environment='global', message_list=None):
         '''
         Checks the process requirements against configuration settings values
         in the attached CapsulEngine. This makes use of the
         :meth:`requirements` method and checks that there is one matching
         config value for each required module.
+
+        Parameters
+        ----------
+        environment: str
+            config environment id. Normally corresponds to the computing
+            resource name, and defaults to "global".
+        message_list: list
+            if not None, this list will be updated with messages for
+            unsatisfied requirements, in order to present the user with an
+            understandable error.
 
         Returns
         -------
@@ -497,14 +507,28 @@ class Node(Controller):
             configuration values, because different nodes may require different
             config values.
         '''
+        capsul_engine = self.get_study_config().engine
         settings = capsul_engine.settings
         req = self.requirements()
         config = settings.select_configurations(environment, uses=req)
+        success = True
         for module in req:
             module_name = settings.module_name(module)
             if module_name not in config:
+                if message_list is not None:
+                    message_list.append('requirement: %s is not met in %s'
+                                        % (req, self.name))
+                else:
+                    # if no message is expected, then we can return immediately
+                    # without checking further requirements. Otherwise we
+                    # continue to get a full list of unsatisfied requirements.
+                    return None
+                success = False
                 return None
-        return config
+        if success:
+            return config
+        else:
+            return None
 
     def get_missing_mandatory_parameters(self, exclude_links=False):
         ''' Returns a list of parameters which are not optional, and which
@@ -579,6 +603,11 @@ class Node(Controller):
             from capsul.study_config.study_config import default_study_config
             self.study_config = default_study_config()
         return self.study_config
+
+    def set_study_config(self, study_config):
+        ''' Set the StudyConfig this process belongs to
+        '''
+        self.study_config = study_config
 
 
 class ProcessNode(Node):
@@ -719,7 +748,7 @@ class ProcessNode(Node):
         '''
         return self.process.requirements()
 
-    def check_requirements(self, capsul_engine, environment='global'):
+    def check_requirements(self, environment='global', message_list=None):
         '''
         Reimplementation of
         :meth:`capsul.pipeline.pipeline_nodes.Node.requirements` for a
@@ -728,12 +757,18 @@ class ProcessNode(Node):
 
         .. see:: :meth:`capsul.process.process.check_requirements`
         '''
-        return self.process.check_requirements(environment)
+        return self.process.check_requirements(environment,
+                                               message_list=message_list)
 
     def get_study_config(self):
         ''' Get (or create) the StudyConfig this process belongs to
         '''
         return self.process.get_study_config()
+
+    def set_study_config(self, study_config):
+        ''' Get (or create) the StudyConfig this process belongs to
+        '''
+        return self.process.set_study_config(study_config)
 
     @property
     def study_config(self):

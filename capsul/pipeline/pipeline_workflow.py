@@ -382,10 +382,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         # soma-workflow)
         native_spec = getattr(process, 'native_specification', None)
         config = {}
-        if isinstance(process, Process):
-            config = process.check_requirements(environment)
-        elif engine is not None:
-            config = process.check_requirements(engine, environment)
+        config = process.check_requirements(environment)
         if config is None:
             # here we bypass unmet requirements, it's not our job here.
             config = {}
