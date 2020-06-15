@@ -62,13 +62,8 @@ def run_process(output_dir, process_instance,
     study_config = process_instance.get_study_config()
 
     if configuration_dict is None:
-        if isinstance(process_instance, Process):
-            configuration_dict \
-                = process_instance.check_requirements('global')
-        else:
-            configuration_dict \
-                = process_instance.check_requirements(study_config.engine,
-                                                      'global')
+        configuration_dict \
+            = process_instance.check_requirements('global')
 
     # create directories for outputs
     if study_config.create_output_directories:
