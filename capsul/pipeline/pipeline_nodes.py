@@ -780,7 +780,14 @@ class ProcessNode(Node):
     @study_config.setter
     def study_config(self, value):
         try:
-            setattr(self.process, 'study_config', value)
+            self.process.study_config = value
+        except ReferenceError:
+            pass
+
+    @study_config.deleter
+    def study_config(self):
+        try:
+            del self.process.study_config
         except ReferenceError:
             pass
 
@@ -794,7 +801,14 @@ class ProcessNode(Node):
     @completion_engine.setter
     def completion_engine(self, value):
         try:
-            setattr(self.process, 'completion_engine', value)
+            self.process.completion_engine = value
+        except ReferenceError:
+            pass
+
+    @completion_engine.deleter
+    def completion_engine(self):
+        try:
+            del self.process.completion_engine
         except ReferenceError:
             pass
 
