@@ -711,14 +711,10 @@ class StudyConfig(Controller):
         -------
         pipeline: :class:`Pipeline` instance
         """
-        pipeline = Pipeline()
-        pipeline.name = pipeline_name
-        pipeline.set_study_config(self)
-        pipeline.add_iterative_process(node_name, process_or_id,
-                                       iterative_plugs, do_not_export,
-                                       **kwargs)
-        pipeline.autoexport_nodes_parameters(include_optional=True)
-        return pipeline
+        return self.engine.get_iteration_pipeline(
+            pipeline_name, node_name, process_or_id,
+            iterative_plugs=iterative_plugs, do_not_export=do_not_export,
+            make_optional=make_optional, **kwargs)
 
 
 _default_study_config = None

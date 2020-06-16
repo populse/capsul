@@ -583,6 +583,7 @@ class Pipeline(Process):
             the process we want to add.
         iterative_plugs: list of str (optional)
             a list of plug names on which we want to iterate.
+            If None, all plugs of the process will be iterated.
         do_not_export: list of str (optional)
             a list of plug names that we do not want to export.
         make_optional: list of str (optional)
@@ -593,7 +594,10 @@ class Pipeline(Process):
             a list of temporary items.
         """
         if iterative_plugs is None:
-            iterative_plugs = []
+            forbidden = set(['nodes_activation', 'selection_changed',
+                             'pipeline_steps', 'visible_groups'])
+            iterative_plugs = [pname for pname in process.user_traits()
+                               if pname not in forbidden]
 
         from .process_iteration import ProcessIteration
         context_name = self._make_subprocess_context_name(name)
