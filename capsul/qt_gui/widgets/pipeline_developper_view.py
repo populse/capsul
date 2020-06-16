@@ -2802,11 +2802,12 @@ class PipelineDevelopperView(QGraphicsView):
                 except KeyError:
                     print('node not found in:')
                     print(list(self.scene.gnodes.keys()))
-            sub_view = PipelineDevelopperView(sub_pipeline,
-                                              show_sub_pipelines=self._show_sub_pipelines,
-                                              allow_open_controller=self._allow_open_controller,
-                                              enable_edition=self.edition_enabled(),
-                                              logical_view=self._logical_view)
+            sub_view = PipelineDevelopperView(
+                sub_pipeline,
+                show_sub_pipelines=self._show_sub_pipelines,
+                allow_open_controller=self._allow_open_controller,
+                enable_edition=self.edition_enabled(),
+                logical_view=self._logical_view)
             # set self.window() as QObject parent (not QWidget parent) to
             # prevent the sub_view to close/delete immediately
             QtCore.QObject.setParent(sub_view, self.window())
@@ -2855,7 +2856,6 @@ class PipelineDevelopperView(QGraphicsView):
 
         cwidget = AttributedProcessWidget(
             process, enable_attr_from_filename=True, enable_load_buttons=True)
-        cwidget.setParent(sub_view)
         sub_view.setWidget(cwidget)
         sub_view.setWidgetResizable(True)
         sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
