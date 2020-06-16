@@ -36,6 +36,7 @@ from traits.api import Dict, String, Undefined
 from soma.controller import Controller, controller_to_dict
 from soma.serialization import to_json, from_json
 from soma.sorted_dictionary import SortedDictionary
+from soma.utils.weak_proxy import get_ref
 
 from .database_json import JSONDBEngine
 from .database_populse import PopulseDBEngine
@@ -327,6 +328,42 @@ class CapsulEngine(Controller):
         instance = self.study_config.get_process_instance(process_or_id,
                                                           **kwargs)
         return instance
+
+    def get_iteration_pipeline(self, pipeline_name, node_name, process_or_id,
+                               iterative_plugs=None, do_not_export=None,
+                               make_optional=None, **kwargs):
+        """ Create a pipeline with an iteration node iterating the given
+        process.
+
+        Parameters
+        ----------
+        pipeline_name: str
+            pipeline name
+        node_name: str
+            iteration node name in the pipeline
+        process_or_id: process description
+            as in :meth:`get_process_instance`
+        iterative_plugs: list (optional)
+            passed to :meth:`Pipeline.add_iterative_process`
+        do_not_export: list
+            passed to :meth:`Pipeline.add_iterative_process`
+        make_optional: list
+            passed to :meth:`Pipeline.add_iterative_process`
+
+        Returns
+        -------
+        pipeline: :class:`Pipeline` instance
+        """
+        from capsul.pipeline.pipeline import Pipeline
+
+        pipeline = Pipeline()
+        pipeline.name = pipeline_name
+        pipeline.set_study_config(get_ref(self.study_config))
+        pipeline.add_iterative_process(node_name, process_or_id,
+                                       iterative_plugs, do_not_export,
+                                       **kwargs)
+        pipeline.autoexport_nodes_parameters(include_optional=True)
+        return pipeline
 
     def start(self, process, history=True, **kwargs):
         '''
