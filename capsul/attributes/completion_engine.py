@@ -30,7 +30,7 @@ from capsul.pipeline import pipeline_tools
 import traits.api as traits
 from soma.utils.weak_proxy import weak_proxy, get_ref
 from soma.functiontools import SomaPartial
-from soma.controller.trait_utils import relax_exists_constrain
+from soma.controller.trait_utils import relax_exists_constraint
 import six
 import sys
 import copy
@@ -385,7 +385,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                             #p = l[2]
                         #trait = p.trait(l[1])
                         #if trait:
-                            #relax_exists_constrain(trait)
+                            #relax_exists_constraint(trait)
                             ## FIXME this very specific stuff should be
                             ## handled another way at another place...
                             #if hasattr(p, 'process') \
@@ -393,7 +393,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                                 ## MIA custom wrappings of nipype interfaces
                                 ## are this way, and do not release the
                                 ## exists constrain internally.
-                                #relax_exists_constrain(
+                                #relax_exists_constraint(
                                     #p.process.inputs.trait(l[1]))
 
             if len(done) != len(nodes_list):
