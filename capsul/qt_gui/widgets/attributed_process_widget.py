@@ -25,7 +25,8 @@ class AttributedProcessWidget(QtGui.QWidget):
     """Process interface with attributes completion handling"""
     def __init__(self, attributed_process, enable_attr_from_filename=False,
                  enable_load_buttons=False, override_control_types=None,
-                 separate_outputs=False, user_data=None, scroll=True):
+                 separate_outputs=False, user_data=None, userlevel=0,
+                 scroll=True):
         """
         Parameters
         ----------
@@ -43,6 +44,8 @@ class AttributedProcessWidget(QtGui.QWidget):
         user_data: any type (optional)
             optional user data that can be accessed by individual control
             editors
+        userlevel: int
+            the current user level: some traits may be marked with a non-zero userlevel, and will only be visible if the ControllerWidget userlevel is more than (or equal) the trait level.
         scroll: bool
             if True, the widget includes scrollbars in the parameters and
             attributes sections when needed, otherwise it will be a fixed size
@@ -55,6 +58,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         self._show_completion = False
         self.user_data = user_data
         self.separate_outputs = separate_outputs
+        self.userlevel = userlevel
 
         process = attributed_process
         completion_engine = getattr(process, 'completion_engine', None)
@@ -159,11 +163,12 @@ class AttributedProcessWidget(QtGui.QWidget):
             sel = 'inputs'
         self.controller_widget = ControllerWidget(process, live=True,
             parent=param_widget, override_control_types=control_types_p,
-            user_data=user_data, select_controls=sel)
+            user_data=user_data, userlevel=userlevel, select_controls=sel)
         if separate_outputs:
             self.outputs_cwidget = ControllerWidget(process, live=True,
             parent=out_widget, override_control_types=control_types_p,
-            user_data=user_data, select_controls='outputs')
+            user_data=user_data, userlevel=userlevel,
+            select_controls='outputs')
 
         show_ce = (completion_engine is not None
                    and len(
@@ -174,13 +179,14 @@ class AttributedProcessWidget(QtGui.QWidget):
             self.controller_widget2 = CWidgetClass(
                 completion_engine.get_attribute_values(),
                 live=True, parent=attrib_widget,
-                override_control_types=control_types_a, user_data=user_data)
+                override_control_types=control_types_a, user_data=user_data,
+                userlevel=userlevel)
             completion_engine.get_attribute_values().on_trait_change(
                 completion_engine.attributes_changed, 'anytrait')
         else:
             self.controller_widget2 = CWidgetClass(
                 Controller(), override_control_types=control_types_a,
-                user_data=user_data)
+                user_data=user_data, userlevel=userlevel)
 
         # Set controller of attributs and controller of process for each
         # corresponding area
@@ -221,6 +227,23 @@ class AttributedProcessWidget(QtGui.QWidget):
             completion_engine.on_trait_change(
                 self._completion_progress_changed, 'completion_progress',
                 remove=True)
+
+    @property
+    def userlevel(self):
+        return getattr(self, '_userlevel', 0)
+
+    @userlevel.setter
+    def userlevel(self, value):
+        self._userlevel = value
+        cw = getattr(self, 'controller_widget', None)
+        if cw:
+            cw.userlevel = value
+        cw = getattr(self, 'outputs_cwidget', None)
+        if cw:
+            cw.userlevel = value
+        cw = getattr(self, 'controller_widget2', None)
+        if cw:
+            cw.userlevel = value
 
     def on_input_filename_changed(self, text):
         '''
