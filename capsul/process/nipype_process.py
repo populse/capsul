@@ -19,7 +19,7 @@ Functions
 # System import
 from __future__ import print_function
 from __future__ import absolute_import
-from soma.controller.trait_utils import relax_exists_constrain
+from soma.controller.trait_utils import relax_exists_constraint
 import sys
 import os
 import types
@@ -289,7 +289,7 @@ def nipype_factory(nipype_instance):
             trait_name = "nipype_" + trait_name
 
         # Relax nipye exists trait contrain
-        relax_exists_constrain(trait)
+        relax_exists_constraint(trait)
 
         # Clone the nipype trait
         process_trait = clone_nipype_trait(process_instance, trait)
@@ -332,7 +332,7 @@ def nipype_factory(nipype_instance):
     for trait_name, trait in nipype_instance.output_spec().items():
 
         # Relax nipye exists trait contrain
-        relax_exists_constrain(trait)
+        relax_exists_constraint(trait)
 
         # Clone the nipype trait
         process_trait = clone_nipype_trait(process_instance, trait)

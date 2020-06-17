@@ -156,6 +156,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             # ProcessCompletionEngine not implemented for this process:
             # no completion
             return
+
         iterated_attributes = self.get_iterated_attributes()
         for attribute in attributes_set.user_traits():
             if attribute not in iterated_attributes:
@@ -166,8 +167,20 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             if not process.trait(parameter).forbid_completion:
                 parameters[parameter] = getattr(process, parameter)
 
-        size = max([len(getattr(attributes_set, attribute))
-                    for attribute in iterated_attributes])
+        # attributes lists sizes
+        sizes = [len(getattr(attributes_set, attribute))
+                 for attribute in iterated_attributes]
+        if sizes:
+            size = max(sizes)
+        else:
+            size = 0
+        sizes = [len(getattr(process, param)) if getattr(process, param) else 0
+                 for param in process.iterative_parameters]
+        if sizes:
+            psize = max(sizes)
+        else:
+            psize = 0
+        size = max(size, psize)
 
         # complete each step to get iterated parameters.
         # This is generally "too much" but it's difficult to perform a partial
