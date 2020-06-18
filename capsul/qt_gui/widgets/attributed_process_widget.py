@@ -58,7 +58,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         self._show_completion = False
         self.user_data = user_data
         self.separate_outputs = separate_outputs
-        self.userlevel = userlevel
+        self._userlevel = userlevel
 
         process = attributed_process
         completion_engine = getattr(process, 'completion_engine', None)
@@ -244,6 +244,8 @@ class AttributedProcessWidget(QtGui.QWidget):
         cw = getattr(self, 'controller_widget2', None)
         if cw:
             cw.userlevel = value
+        # re-hide file params if needed
+        self.show_completion(self._show_completion)
 
     def on_input_filename_changed(self, text):
         '''
@@ -391,12 +393,15 @@ class AttributedProcessWidget(QtGui.QWidget):
                                     trait.inner_traits[0].trait_type,
                                     (File, Directory, Any))):
                         continue
-                    control_instance.setVisible(visible)
+                    hidden = trait.hidden \
+                          or (trait.userlevel is not None
+                              and trait.userlevel > self.userlevel)
+                    control_instance.setVisible(visible and not hidden)
                     if isinstance(control_label, tuple):
                         for cl in control_label:
-                            cl.setVisible(visible)
+                            cl.setVisible(visible and not hidden)
                     else:
-                        control_label.setVisible(visible)
+                        control_label.setVisible(visible and not hidden)
             for group, group_widget in six.iteritems(
                     controller_widget._groups):
                 if [x for x in group_widget.hideable_widget.children()
