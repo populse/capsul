@@ -252,20 +252,41 @@ class NodeGWidget(QtGui.QGraphicsItem):
                  parent=None, process=None, sub_pipeline=None,
                  colored_parameters=True,
                  logical_view=False, labels=[],
-                 show_opt_inputs=True, show_opt_outputs=True):
+                 show_opt_inputs=True, show_opt_outputs=True,
+                 userlevel=0):
         super(NodeGWidget, self).__init__(parent)
 
         self.infoActived = QtGui.QGraphicsTextItem('', self)
         self.colType = ColorType()
+        self._userlevel = userlevel
 
         self.setFlags(self.ItemIsSelectable)
         self.setCursor(Qt.QCursor(QtCore.Qt.PointingHandCursor))
 
         self.style = 'default'
         self.name = name
-        self.parameters = SortedDictionary(
-            [(pname, param) for pname, param in six.iteritems(parameters)
-             if not getattr(param, 'hidden', False)])
+        #print('GNode userlevel:', self.userlevel)
+        #print([(pname, param) for pname, param in six.iteritems(parameters)
+             #if not getattr(param, 'hidden', False)
+             #and (getattr(param, 'userlevel', None) is None
+                  #or param.userlevel <= self.userlevel)]
+        if isinstance(process, ProcessNode):
+            controller = process.process
+        else:
+            controller = process
+        self.parameters = SortedDictionary()
+        for pname, param in six.iteritems(parameters):
+            show = True
+            if controller:
+                trait = controller.trait(pname)
+                if getattr(trait, 'hidden', False):
+                    show = False
+                elif getattr(trait, 'userlevel', None) is not None:
+                    if trait.userlevel > self.userlevel:
+                        show = False
+            if show:
+                self.parameters[pname] = param
+
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.in_plugs = SortedDictionary()
         self.in_params = {}
@@ -317,6 +338,15 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self._release()
         # super(NodeGWidget, self).__del__()
 
+    @property
+    def userlevel(self):
+        return self._userlevel
+
+    @userlevel.setter
+    def userlevel(self, value):
+        self._userlevel = value
+        self.update_parameters()
+
     def _release(self):
         # release internal connections / callbacks / references in order to
         # allow deletion of self
@@ -339,11 +369,28 @@ class NodeGWidget(QtGui.QGraphicsItem):
     def update_parameters(self):
         forbidden = ['nodes_activation', 'activated', 'enabled', 'name',
                      'node_type']
-        self.parameters = SortedDictionary(
-            [(pname, param)
-             for pname, param in six.iteritems(self.process.user_traits())
-             if pname not in forbidden
-                and not getattr(param, 'hidden', False)])
+
+        if isinstance(self.process, ProcessNode):
+            controller = self.process.process
+        else:
+            controller = self.process
+        self.parameters = SortedDictionary()
+        for pname, param in six.iteritems(self.process.user_traits()):
+            show = True
+            if self.name == 'inputs' and param.output:
+                continue
+            elif self.name == 'outputs' and not param.output:
+                continue
+            if controller:
+                trait = controller.trait(pname)
+                if getattr(trait, 'hidden', False):
+                    show = False
+                elif getattr(trait, 'userlevel', None) is not None:
+                    if trait.userlevel > self.userlevel:
+                        show = False
+            if show:
+                self.parameters[pname] = param
+
         self.update_node()
 
     def update_labels(self, labels):
@@ -1430,7 +1477,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 
     node_keydelete_clicked = QtCore.Signal(str)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, userlevel=0):
         super(PipelineScene, self).__init__(parent)
 
         self.gnodes = {}
@@ -1442,6 +1489,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.logical_view = False
         self._enable_edition = False
         self.labels = []
+        self._userlevel = userlevel
 
         #         pen = QtGui.QPen(QtGui.QColor(250,100,0),2)
         #         self.l = QtCore.QLineF(-10,0,10,0)
@@ -1470,9 +1518,19 @@ class PipelineScene(QtGui.QGraphicsScene):
         import gc
         gc.collect()
 
+    @property
+    def userlevel(self):
+        return self._userlevel
+
+    @userlevel.setter
+    def userlevel(self, value):
+        self._userlevel = value
+        for name, gnode in self.gnodes.items():
+            gnode.userlevel = value
+
     def _add_node(self, name, gnode):
         self.addItem(gnode)
-        
+
         ################# add by Irmage OM ####################
         dim = self.dim.get(name)
 #         print("_add_node : dim : ",dim," , type =",type(dim).__name__)
@@ -1487,7 +1545,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 #         gnode.update_node()
 
         ######################################################
-        
+
         pos = self.pos.get(name)
         if pos is None:
             gnode.setPos(2 * self._pos, self._pos)
@@ -1544,7 +1602,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             node_name, node.plugs, self.pipeline,
             sub_pipeline=sub_pipeline, process=process,
             colored_parameters=self.colored_parameters,
-            logical_view=self.logical_view, labels=self.labels)
+            logical_view=self.logical_view, labels=self.labels,
+            userlevel=self.userlevel)
         self._add_node(node_name, gnode)
         gnode.update_node()
         return gnode
@@ -1654,7 +1713,8 @@ class PipelineScene(QtGui.QGraphicsScene):
                         'inputs', pipeline_inputs, pipeline,
                         process=pipeline,
                         colored_parameters=self.colored_parameters,
-                        logical_view=self.logical_view))
+                        logical_view=self.logical_view,
+                        userlevel=self.userlevel))
             for node_name, node in six.iteritems(pipeline.nodes):
                 if not node_name:
                     continue
@@ -1665,7 +1725,8 @@ class PipelineScene(QtGui.QGraphicsScene):
                         'outputs', pipeline_outputs, pipeline,
                         process=pipeline,
                         colored_parameters=self.colored_parameters,
-                        logical_view=self.logical_view))
+                        logical_view=self.logical_view,
+                        userlevel=self.userlevel))
 
             for source_node_name, source_node in six.iteritems(pipeline.nodes):
                 for source_parameter, source_plug \
@@ -1740,14 +1801,16 @@ class PipelineScene(QtGui.QGraphicsScene):
                             'inputs', pipeline_inputs, pipeline,
                             process=pipeline,
                             colored_parameters=self.colored_parameters,
-                            logical_view=self.logical_view))
+                            logical_view=self.logical_view,
+                            userlevel=self.userlevel))
                 if pipeline_outputs and 'outputs' not in self.gnodes:
                     self._add_node(
                         'outputs', NodeGWidget(
                             'outputs', pipeline_outputs, pipeline,
                             process=pipeline,
                             colored_parameters=self.colored_parameters,
-                            logical_view=self.logical_view))
+                            logical_view=self.logical_view,
+                            userlevel=self.userlevel))
             elif node_name not in self.gnodes:
                 process = None
                 if isinstance(node, Switch):
@@ -1871,14 +1934,16 @@ class PipelineScene(QtGui.QGraphicsScene):
                             'inputs', pipeline_inputs, pipeline,
                             process=pipeline,
                             colored_parameters=self.colored_parameters,
-                            logical_view=self.logical_view))
+                            logical_view=self.logical_view,
+                            userlevel=self.userlevel))
                 if pipeline_outputs and 'outputs' not in self.gnodes:
                     self._add_node(
                         'outputs', NodeGWidget(
                             'outputs', pipeline_outputs, pipeline,
                             process=pipeline,
                             colored_parameters=self.colored_parameters,
-                            logical_view=self.logical_view))
+                            logical_view=self.logical_view,
+                            userlevel=self.userlevel))
             elif node_name not in self.gnodes:
                 process = None
                 if isinstance(node, Switch):
@@ -2464,7 +2529,7 @@ class PipelineDevelopperView(QGraphicsView):
 
     def __init__(self, pipeline=None, parent=None, show_sub_pipelines=False,
                  allow_open_controller=False, logical_view=False,
-                 enable_edition=False):
+                 enable_edition=False, userlevel=0):
         '''PipelineDevelopperView
 
         Parameters
@@ -2509,6 +2574,7 @@ class PipelineDevelopperView(QGraphicsView):
         self._pipeline_filename = ""
         self._restricted_edition = False
         self.disable_overwrite = False
+        self._userlevel = userlevel
 
         if pipeline is None:
             pipeline = Pipeline()
@@ -2544,6 +2610,16 @@ class PipelineDevelopperView(QGraphicsView):
         #print('PipelineDevelopperView.__del__')
         self.release_pipeline(delete=True)
         # super(PipelineDevelopperView, self).__del__()
+
+    @property
+    def userlevel(self):
+        return self._userlevel
+
+    @userlevel.setter
+    def userlevel(self, value):
+        self._userlevel = value
+        if self.scene:
+            self.scene.userlevel = value
 
     def _set_pipeline(self, pipeline):
         pos = {}
@@ -2622,7 +2698,7 @@ class PipelineDevelopperView(QGraphicsView):
             pipeline.on_trait_change(self._reset_pipeline,
                                      'user_traits_changed', remove=True)
         if not delete and (pipeline is not None or self.scene is None):
-            self.scene = PipelineScene(self)
+            self.scene = PipelineScene(self, userlevel=self.userlevel)
             self.scene.set_enable_edition(self._enable_edition)
             self.scene.logical_view = self._logical_view
             self.scene.colored_parameters = self.colored_parameters
