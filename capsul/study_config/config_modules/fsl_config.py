@@ -26,13 +26,14 @@ class FSLConfig(StudyConfigModule):
         self.study_config.add_trait('fsl_config', File(
             Undefined,
             output=False,
-            desc='Parameter to specify the fsl.sh path'))
+            desc='Parameter to specify the fsl.sh path', groups=['fsl']))
         self.study_config.add_trait('fsl_prefix', String(Undefined,
-            desc='Prefix to add to FSL commands'))
+            desc='Prefix to add to FSL commands', groups=['fsl']))
         self.study_config.add_trait('use_fsl', Bool(
             Undefined,
             output=False,
-            desc='Parameter to tell that we need to configure FSL'))
+            desc='Parameter to tell that we need to configure FSL',
+            groups=['fsl']))
 
     def __del__(self):
         try:

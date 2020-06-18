@@ -32,7 +32,7 @@ class BrainVISAConfig(StudyConfigModule):
         study_config.add_trait('shared_directory',Directory(
             Undefined,
             output=False,
-            desc='Study shared directory'))
+            desc='Study shared directory', groups=['brainvisa']))
 
         study_config.shared_directory = soma_config.BRAINVISA_SHARE
         # the following would be good but if Axon is not present, it will

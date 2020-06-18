@@ -93,30 +93,35 @@ class SomaWorkflowConfig(StudyConfigModule):
         study_config.add_trait('use_soma_workflow', Bool(
             False,
             output=False,
-            desc='Use soma workflow for the execution'))
+            desc='Use soma workflow for the execution',
+            groups=['soma-workflow']))
         study_config.add_trait(
             'somaworkflow_computing_resource',
             Str(
                 Undefined,
                 output=False,
-                desc='Soma-workflow computing resource to be used to run processing'))
+                desc='Soma-workflow computing resource to be used to run processing',
+                groups=['soma-workflow']))
         study_config.add_trait(
             'somaworkflow_config_file',
             File(Undefined, output=False, optional=True,
                  desc='Soma-Workflow configuration file. '
-                 'Default: $HOME/.soma_workflow.cfg'))
+                 'Default: $HOME/.soma_workflow.cfg',
+                 groups=['soma-workflow']))
         study_config.add_trait(
             'somaworkflow_keep_failed_workflows',
             Bool(
                 True,
                 desc='Keep failed workflows after pipeline execution through '
-                'StudyConfig'))
+                'StudyConfig',
+                groups=['soma-workflow']))
         study_config.add_trait(
             'somaworkflow_keep_succeeded_workflows',
             Bool(
                 False,
                 desc='Keep succeeded workflows after pipeline execution '
-                'through StudyConfig'))
+                'through StudyConfig',
+                groups=['soma-workflow']))
         study_config.add_trait(
             'somaworkflow_computing_resources_config',
             ControllerTrait(
@@ -126,7 +131,8 @@ class SomaWorkflowConfig(StudyConfigModule):
                         output=False, allow_none=False,
                         desc='Computing resource config')),
                 output=False, allow_none=False,
-                desc='Computing resource config'))
+                desc='Computing resource config',
+                groups=['soma-workflow']))
         self.study_config.modules_data.somaworkflow = {}
 
     def initialize_callbacks(self):

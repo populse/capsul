@@ -36,20 +36,25 @@ class SPMConfig(StudyConfigModule):
         self.study_config.add_trait("spm_directory", Directory(
             Undefined,
             output=False,
-            desc="Directory containing SPM."))
+            desc="Directory containing SPM.",
+            groups=['spm']))
         self.study_config.add_trait("spm_standalone", Bool(
             Undefined,
-            desc="If True, use the standalone version of SPM."))
+            desc="If True, use the standalone version of SPM.",
+            groups=['spm']))
         self.study_config.add_trait('spm_version', Str(
             Undefined, output=False,
-            desc='Version string for SPM: "12", "8", etc.'))
+            desc='Version string for SPM: "12", "8", etc.',
+            groups=['spm']))
         self.study_config.add_trait("spm_exec", File(
             Undefined,
             output=False,
-            desc="SPM standalone (MCR) command path."))
+            desc="SPM standalone (MCR) command path.",
+            groups=['spm']))
         self.study_config.add_trait("use_spm", Bool(
             Undefined,
-            desc="If True, SPM configuration is checked on module initialization."))
+            desc="If True, SPM configuration is checked on module initialization.",
+            groups=['spm']))
 
     def initialize_module(self):
         if 'capsul.engine.module.spm' \

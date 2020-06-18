@@ -60,17 +60,17 @@ class FomConfig(StudyConfigModule):
     def __init__(self, study_config, configuration):
         super(FomConfig, self).__init__(study_config, configuration)
         self.study_config.add_trait('input_fom', Str(Undefined, output=False,
-            desc='input FOM'))
+            desc='input FOM', groups=['fom']))
         self.study_config.add_trait('output_fom', Str(Undefined, output=False,
-            desc='output FOM'))
+            desc='output FOM', groups=['fom']))
         self.study_config.add_trait('shared_fom', Str(Undefined, output=False,
-            desc='shared data FOM'))
+            desc='shared data FOM', groups=['fom']))
         self.study_config.add_trait('volumes_format',
                                     Str(Undefined, output=False,
-            desc='Format used for volumes'))
+            desc='Format used for volumes', groups=['fom']))
         self.study_config.add_trait('meshes_format',
                                     Str(Undefined, output=False,
-            desc='Format used for meshes'))
+            desc='Format used for meshes', groups=['fom']))
         self.study_config.add_trait(
             'auto_fom',
             Bool(True, output=False,
@@ -79,16 +79,19 @@ class FomConfig(StudyConfigModule):
                  'looks for the first FOM matching the process to get '
                  'completion for, and does not handle ambiguities. Moreover '
                  'it brings an overhead (typically 6-7 seconds) the first '
-                 'time it is used since it has to parse all available FOMs.'))
+                 'time it is used since it has to parse all available FOMs.',
+                 groups=['fom']))
         self.study_config.add_trait(
             'fom_path',
             List(Directory(output=False),
-                 desc='list of additional directories where to look for FOMs'))
+                 desc='list of additional directories where to look for FOMs',
+                 groups=['fom']))
         self.study_config.add_trait('use_fom', Bool(
             Undefined,
             output=False,
             desc='Use File Organization Models for file parameters '
-                'completion'))
+                'completion',
+            groups=['fom']))
 
         # defaults
         self.study_config.input_fom = ""

@@ -44,11 +44,13 @@ class NipypeConfig(StudyConfigModule):
         super(NipypeConfig, self).__init__(study_config, configuration)
         study_config.add_trait("use_nipype", Bool(
             Undefined,
-            desc="If True, Nipype configuration is set up on startup."))
+            desc="If True, Nipype configuration is set up on startup.",
+            groups=['nipype']))
         study_config.add_trait("add_to_default_matlab_path", List(
             Directory,
             default=[],
-            desc="Paths that are added to Matlab default path."))
+            desc="Paths that are added to Matlab default path.",
+            groups=['nipype']))
         self.has_nipype = has_nipype
 
     def initialize_module(self):

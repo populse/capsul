@@ -116,30 +116,35 @@ class StudyConfig(Controller):
         # traits with transient=True will not be saved in configuration
         # see  http://code.enthought.com/projects/traits/docs/html/
         # traits_user_manual/advanced.html#pickling-hastraits-objects
-        transient=True)
+        transient=True, groups=['study'])
 
     input_directory = Directory(
         Undefined,
-        desc="Parameter to set the study input directory")
+        desc="Parameter to set the study input directory",
+        groups=['study'])
 
     output_directory = Directory(
         Undefined,
-        desc="Parameter to set the study output directory")
+        desc="Parameter to set the study output directory",
+        groups=['study'])
 
     generate_logging = Bool(
         False,
-        desc="Parameter to control the log generation")
+        desc="Parameter to control the log generation",
+        groups=['study'])
 
     create_output_directories = Bool(
         True,
-        desc="Create parent directories of all output File or Directory before running a process")
+        desc="Create parent directories of all output File or Directory before running a process",
+        groups=['study'])
 
     process_output_directory = Bool(
         False,
         desc="Create a process specific output_directory by appending a "
              "subdirectory to output_directory. This subdirectory is named "
-             "'<count>-<name>' where <count> if self.process_counter and <name> "
-             "is the name of the process.")
+             "'<count>-<name>' where <count> if self.process_counter and "
+             "<name> is the name of the process.",
+             groups=['study'])
 
     def __init__(self, study_name=None, init_config=None, modules=None,
                  engine=None, **override_config):
@@ -188,6 +193,8 @@ class StudyConfig(Controller):
                 config.update(override_config)
             else:
                 config = init_config
+
+        self.visible_groups = set(['study'])
 
         # Create modules
         if modules is None:

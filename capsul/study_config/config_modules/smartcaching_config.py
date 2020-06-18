@@ -21,6 +21,7 @@ class SmartCachingConfig(StudyConfigModule):
         study_config.add_trait('use_smart_caching', Bool(
             False,
             output=False,
-            desc='Use smart-caching during the execution'))
+            desc='Use smart-caching during the execution',
+            groups=['smartcaching']))
         self.study_config = study_config
         # self.study_config.on_trait_change(self._use_smart_caching_changed, 'use_smart_caching')

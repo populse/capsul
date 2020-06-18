@@ -39,13 +39,14 @@ class FreeSurferConfig(StudyConfigModule):
         super(FreeSurferConfig, self).__init__(study_config, configuration)
         self.study_config.add_trait("freesurfer_config", File(
             Undefined,
-            desc="Path to 'FreeSurferEnv.sh'"))
+            desc="Path to 'FreeSurferEnv.sh'", groups=['freesurfer']))
         self.study_config.add_trait('freesurfer_subjectsdir', Directory(
             Undefined,
-            desc='FreeSurfer subjects data directory'))
+            desc='FreeSurfer subjects data directory', groups=['freesurfer']))
         self.study_config.add_trait("use_freesurfer", Bool(
             False,
-            desc="If True, FreeSurfer configuration is set up on startup"))
+            desc="If True, FreeSurfer configuration is set up on startup",
+            groups=['freesurfer']))
 
     def initialize_module(self):
         """ Set up FSL environment variables according to current
