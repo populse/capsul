@@ -25,7 +25,8 @@ class AttributedProcessWidget(QtGui.QWidget):
     """Process interface with attributes completion handling"""
     def __init__(self, attributed_process, enable_attr_from_filename=False,
                  enable_load_buttons=False, override_control_types=None,
-                 user_data=None):
+                 separate_outputs=False, user_data=None, userlevel=0,
+                 scroll=True):
         """
         Parameters
         ----------
@@ -37,15 +38,27 @@ class AttributedProcessWidget(QtGui.QWidget):
         override_control_types: dict (optional)
             if given, this is a "factory" dict assigning new controller editor
             types to some traits types in the parameters controller.
+        separate_outputs: bool
+            if True, inputs and outputs (traits with output=True set) will
+            be separated into two boxes.
         user_data: any type (optional)
             optional user data that can be accessed by individual control
             editors
+        userlevel: int
+            the current user level: some traits may be marked with a non-zero userlevel, and will only be visible if the ControllerWidget userlevel is more than (or equal) the trait level.
+        scroll: bool
+            if True, the widget includes scrollbars in the parameters and
+            attributes sections when needed, otherwise it will be a fixed size
+            widget.
         """
         super(AttributedProcessWidget, self).__init__()
         self.setLayout(QtGui.QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
         self.attributed_process = attributed_process
         self._show_completion = False
         self.user_data = user_data
+        self.separate_outputs = separate_outputs
+        self._userlevel = userlevel
 
         process = attributed_process
         completion_engine = getattr(process, 'completion_engine', None)
@@ -76,6 +89,7 @@ class AttributedProcessWidget(QtGui.QWidget):
 
         # groupbox area to show attributs
         attrib_widget = QtGui.QGroupBox('Attributes:')
+        attrib_widget.setFlat(True)
         attrib_widget.setAlignment(QtCore.Qt.AlignLeft)
         attrib_widget.setLayout(QtGui.QVBoxLayout())
         self.attrib_widget = attrib_widget
@@ -98,13 +112,42 @@ class AttributedProcessWidget(QtGui.QWidget):
         hlay.addWidget(self.btn_show_completion)
         self.btn_show_completion.stateChanged.connect(self.on_show_completion)
 
+        params = QtGui.QWidget()
+        playout = QtGui.QVBoxLayout()
+        params.setLayout(playout)
+        if scroll:
+            scroll_a = QtGui.QScrollArea()
+            scroll_a.setWidgetResizable(True)
+            scroll_a.setWidget(params)
+            spl_up.layout().addWidget(scroll_a)
+            scroll_a.setSizePolicy(QtGui.QSizePolicy.Preferred,
+                                   QtGui.QSizePolicy.Preferred)
+            params.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                 QtGui.QSizePolicy.Preferred)
+            CWidgetClass = ScrollControllerWidget
+        else:
+            spl_up.layout().addWidget(params)
+            CWidgetClass = ControllerWidget
+
         # groupbox area to show completion
-        param_widget = QtGui.QGroupBox('Parameters:')
+        if separate_outputs:
+            param_widget = QtGui.QGroupBox('Inputs:')
+        else:
+            param_widget = QtGui.QGroupBox('Parameters:')
+        param_widget.setFlat(True)
         param_widget.setAlignment(QtCore.Qt.AlignLeft)
-        spl_down.layout().addWidget(param_widget)
+        playout.addWidget(param_widget)
         param_widget.setLayout(QtGui.QVBoxLayout())
         param_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                    QtGui.QSizePolicy.Expanding)
+        if separate_outputs:
+            out_widget = QtGui.QGroupBox('Outputs:')
+            out_widget.setFlat(True)
+            out_widget.setAlignment(QtCore.Qt.AlignLeft)
+            playout.addWidget(out_widget)
+            out_widget.setLayout(QtGui.QVBoxLayout())
+            out_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                     QtGui.QSizePolicy.Expanding)
 
         # use concise shape for lists GUI
         from  soma.qt_gui.controls import OffscreenListControlWidget
@@ -115,9 +158,17 @@ class AttributedProcessWidget(QtGui.QWidget):
         #ControllerWidget._defined_controls['List'] = OffscreenListControlWidget
 
         # Create controller widget for process and object_attribute
-        self.controller_widget = ScrollControllerWidget(process, live=True,
+        sel = None
+        if separate_outputs:
+            sel = 'inputs'
+        self.controller_widget = ControllerWidget(process, live=True,
             parent=param_widget, override_control_types=control_types_p,
-            user_data=user_data)
+            user_data=user_data, userlevel=userlevel, select_controls=sel)
+        if separate_outputs:
+            self.outputs_cwidget = ControllerWidget(process, live=True,
+            parent=out_widget, override_control_types=control_types_p,
+            user_data=user_data, userlevel=userlevel,
+            select_controls='outputs')
 
         show_ce = (completion_engine is not None
                    and len(
@@ -125,20 +176,23 @@ class AttributedProcessWidget(QtGui.QWidget):
                           != 0)
 
         if completion_engine is not None:
-            self.controller_widget2 = ScrollControllerWidget(
+            self.controller_widget2 = CWidgetClass(
                 completion_engine.get_attribute_values(),
                 live=True, parent=attrib_widget,
-                override_control_types=control_types_a, user_data=user_data)
+                override_control_types=control_types_a, user_data=user_data,
+                userlevel=userlevel)
             completion_engine.get_attribute_values().on_trait_change(
                 completion_engine.attributes_changed, 'anytrait')
         else:
-            self.controller_widget2 = ScrollControllerWidget(
+            self.controller_widget2 = CWidgetClass(
                 Controller(), override_control_types=control_types_a,
-                user_data=user_data)
+                user_data=user_data, userlevel=userlevel)
 
         # Set controller of attributs and controller of process for each
         # corresponding area
         param_widget.layout().addWidget(self.controller_widget)
+        if separate_outputs:
+            out_widget.layout().addWidget(self.outputs_cwidget)
         attrib_widget.layout().addWidget(self.controller_widget2)
 
         if enable_load_buttons and completion_engine is not None:
@@ -173,6 +227,25 @@ class AttributedProcessWidget(QtGui.QWidget):
             completion_engine.on_trait_change(
                 self._completion_progress_changed, 'completion_progress',
                 remove=True)
+
+    @property
+    def userlevel(self):
+        return getattr(self, '_userlevel', 0)
+
+    @userlevel.setter
+    def userlevel(self, value):
+        self._userlevel = value
+        cw = getattr(self, 'controller_widget', None)
+        if cw:
+            cw.userlevel = value
+        cw = getattr(self, 'outputs_cwidget', None)
+        if cw:
+            cw.userlevel = value
+        cw = getattr(self, 'controller_widget2', None)
+        if cw:
+            cw.userlevel = value
+        # re-hide file params if needed
+        self.show_completion(self._show_completion)
 
     def on_input_filename_changed(self, text):
         '''
@@ -303,30 +376,39 @@ class AttributedProcessWidget(QtGui.QWidget):
         if visible is None:
             visible = not self._show_completion
         self._show_completion = visible
-        for control_name, control_groups in \
-                six.iteritems(
-                    self.controller_widget.controller_widget._controls):
-            for group, control in six.iteritems(control_groups):
-                trait, control_class, control_instance, control_label = control
-                if not isinstance(trait.trait_type, (File, Any, Directory)) \
-                        and (not isinstance(trait.trait_type, List)
-                             or not isinstance(
-                                trait.inner_traits[0].trait_type,
-                                (File, Directory, Any))):
-                    continue
-                control_instance.setVisible(visible)
-                if isinstance(control_label, tuple):
-                    for cl in control_label:
-                        cl.setVisible(visible)
+        cwidgets = [self.controller_widget]
+        if self.separate_outputs:
+            cwidgets.append(self.outputs_cwidget)
+        for controller_widget in cwidgets:
+            for control_name, control_groups in \
+                    six.iteritems(
+                        controller_widget._controls):
+                for group, control in six.iteritems(control_groups):
+                    trait, control_class, control_instance, control_label \
+                        = control
+                    if not isinstance(trait.trait_type,
+                                      (File, Any, Directory)) \
+                            and (not isinstance(trait.trait_type, List)
+                                or not isinstance(
+                                    trait.inner_traits[0].trait_type,
+                                    (File, Directory, Any))):
+                        continue
+                    hidden = trait.hidden \
+                          or (trait.userlevel is not None
+                              and trait.userlevel > self.userlevel)
+                    control_instance.setVisible(visible and not hidden)
+                    if isinstance(control_label, tuple):
+                        for cl in control_label:
+                            cl.setVisible(visible and not hidden)
+                    else:
+                        control_label.setVisible(visible and not hidden)
+            for group, group_widget in six.iteritems(
+                    controller_widget._groups):
+                if [x for x in group_widget.hideable_widget.children()
+                    if isinstance(x, QtGui.QWidget) and not x.isHidden()]:
+                    group_widget.show()
                 else:
-                    control_label.setVisible(visible)
-        for group, group_widget in six.iteritems(
-                self.controller_widget.controller_widget._groups):
-            if [x for x in group_widget.hideable_widget.children()
-                if isinstance(x, QtGui.QWidget) and not x.isHidden()]:
-                group_widget.show()
-            else:
-                group_widget.hide()
+                    group_widget.hide()
 
     def on_show_completion(self, visible):
         '''

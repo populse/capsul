@@ -36,6 +36,8 @@ from traits.api import Str
 from traits.api import Bool
 from traits.api import Any
 from traits.api import Undefined
+from traits.api import File
+from traits.api import Directory
 from traits.api import TraitError
 
 # Capsul import
@@ -226,7 +228,14 @@ class Node(Controller):
         try:
             dest_node.set_plug_value(dest_plug_name, value)
         except traits.TraitError:
-            pass
+            if isinstance(value, list) and len(value) == 1:
+                # Nipype MultiObject, when a single object is involved, looks
+                # like a single object but is actually a list. We want to
+                # allow it to be linked to a "single object" plug.
+                try:
+                    dest_node.set_plug_value(dest_plug_name, value[0])
+                except traits.TraitError:
+                    pass
 
     def _value_callback_with_logging(
             self, log_stream, prefix, source_plug_name, dest_node,
@@ -471,12 +480,22 @@ class Node(Controller):
         '''
         return {}
 
-    def check_requirements(self, capsul_engine, environment='global'):
+    def check_requirements(self, environment='global', message_list=None):
         '''
         Checks the process requirements against configuration settings values
         in the attached CapsulEngine. This makes use of the
         :meth:`requirements` method and checks that there is one matching
         config value for each required module.
+
+        Parameters
+        ----------
+        environment: str
+            config environment id. Normally corresponds to the computing
+            resource name, and defaults to "global".
+        message_list: list
+            if not None, this list will be updated with messages for
+            unsatisfied requirements, in order to present the user with an
+            understandable error.
 
         Returns
         -------
@@ -488,14 +507,107 @@ class Node(Controller):
             configuration values, because different nodes may require different
             config values.
         '''
+        capsul_engine = self.get_study_config().engine
         settings = capsul_engine.settings
         req = self.requirements()
         config = settings.select_configurations(environment, uses=req)
+        success = True
         for module in req:
             module_name = settings.module_name(module)
             if module_name not in config:
+                if message_list is not None:
+                    message_list.append('requirement: %s is not met in %s'
+                                        % (req, self.name))
+                else:
+                    # if no message is expected, then we can return immediately
+                    # without checking further requirements. Otherwise we
+                    # continue to get a full list of unsatisfied requirements.
+                    return None
+                success = False
                 return None
-        return config
+        if success:
+            return config
+        else:
+            return None
+
+    def get_missing_mandatory_parameters(self, exclude_links=False):
+        ''' Returns a list of parameters which are not optional, and which
+        value is Undefined or None, or an empty string for a File or
+        Directory parameter.
+
+        Parameters
+        ----------
+        exclude_links: bool
+            if True, an empty parameter which has a link to another node
+            will not be reported missing, since the execution
+            will assign it a temporary value which will not prevent the
+            pipeline from running.
+        '''
+        def check_trait(node, plug, trait, value, exclude_links):
+            if trait.optional:
+                return True
+            if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
+                if value is Undefined:
+                    return bool(trait.output)
+                for i, item in enumerate(value):
+                    j = min(i, len(trait.inner_traits) - 1)
+                    if not check_trait(node, plug, trait.inner_traits[j],
+                                       item, exclude_links):
+                        return False
+                return True
+            if isinstance(trait.trait_type, (File, Directory)):
+                if value not in (Undefined, None, '') \
+                        or (trait.output
+                            and trait.input_filename is not False):
+                    return True
+                if not exclude_links:
+                    return False
+                if trait.output:
+                    links = plug.links_to
+                else:
+                    links = plug.links_from
+                # check if there is a connection not going outside the
+                # current pipeline
+                end = [l for l in links if l[0] != '']
+                if len(end) != 0:
+                    return True  # it's connected.
+                # otherwise check if there is a connection outside the
+                # current pipeline
+                end = [l for l in links if l[0] == '']
+                for link in end:
+                    p = link[2].plugs[link[1]]
+                    if trait.output:
+                        relinks = p.links_to
+                    else:
+                        relinks = p.links_from
+                    if relinks:
+                        return True  # it's connected.
+                return False  # no other connection.
+            return trait.output or value not in (Undefined, None)
+
+        missing = []
+        for name, plug in six.iteritems(self.plugs):
+            trait = self.get_trait(name)
+            if not trait.optional:
+                value = self.get_plug_value(name)
+                if not check_trait(self, plug, trait, value, exclude_links):
+                    missing.append(name)
+        return missing
+
+    def get_study_config(self):
+        ''' Get (or create) the StudyConfig this process belongs to
+        '''
+        study_config = getattr(self, 'study_config', None)
+        if study_config is None:
+            # Import cannot be done on module due to circular dependencies
+            from capsul.study_config.study_config import default_study_config
+            self.study_config = default_study_config()
+        return self.study_config
+
+    def set_study_config(self, study_config):
+        ''' Set the StudyConfig this process belongs to
+        '''
+        self.study_config = study_config
 
 
 class ProcessNode(Node):
@@ -636,7 +748,7 @@ class ProcessNode(Node):
         '''
         return self.process.requirements()
 
-    def check_requirements(self, capsul_engine, environment='global'):
+    def check_requirements(self, environment='global', message_list=None):
         '''
         Reimplementation of
         :meth:`capsul.pipeline.pipeline_nodes.Node.requirements` for a
@@ -645,7 +757,60 @@ class ProcessNode(Node):
 
         .. see:: :meth:`capsul.process.process.check_requirements`
         '''
-        return self.process.check_requirements(environment)
+        return self.process.check_requirements(environment,
+                                               message_list=message_list)
+
+    def get_study_config(self):
+        ''' Get (or create) the StudyConfig this process belongs to
+        '''
+        return self.process.get_study_config()
+
+    def set_study_config(self, study_config):
+        ''' Get (or create) the StudyConfig this process belongs to
+        '''
+        return self.process.set_study_config(study_config)
+
+    @property
+    def study_config(self):
+        try:
+            return self.process.study_config
+        except ReferenceError:
+            return None
+
+    @study_config.setter
+    def study_config(self, value):
+        try:
+            self.process.study_config = value
+        except ReferenceError:
+            pass
+
+    @study_config.deleter
+    def study_config(self):
+        try:
+            del self.process.study_config
+        except ReferenceError:
+            pass
+
+    @property
+    def completion_engine(self):
+        try:
+            return self.process.completion_engine
+        except ReferenceError:
+            return None
+
+    @completion_engine.setter
+    def completion_engine(self, value):
+        try:
+            self.process.completion_engine = value
+        except ReferenceError:
+            pass
+
+    @completion_engine.deleter
+    def completion_engine(self):
+        try:
+            del self.process.completion_engine
+        except ReferenceError:
+            pass
 
 
 class PipelineNode(ProcessNode):

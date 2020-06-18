@@ -48,6 +48,7 @@ from .pipeline_nodes import OptionalOutputSwitch
 # Soma import
 from soma.controller import Controller
 from soma.controller import ControllerTrait
+from soma.controller.trait_utils import relax_exists_constraint
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 
@@ -582,6 +583,7 @@ class Pipeline(Process):
             the process we want to add.
         iterative_plugs: list of str (optional)
             a list of plug names on which we want to iterate.
+            If None, all plugs of the process will be iterated.
         do_not_export: list of str (optional)
             a list of plug names that we do not want to export.
         make_optional: list of str (optional)
@@ -592,7 +594,10 @@ class Pipeline(Process):
             a list of temporary items.
         """
         if iterative_plugs is None:
-            iterative_plugs = []
+            forbidden = set(['nodes_activation', 'selection_changed',
+                             'pipeline_steps', 'visible_groups'])
+            iterative_plugs = [pname for pname in process.user_traits()
+                               if pname not in forbidden]
 
         from .process_iteration import ProcessIteration
         context_name = self._make_subprocess_context_name(name)
@@ -700,6 +705,9 @@ class Pipeline(Process):
             node.switch = switch_value
 
         self._set_subprocess_context_name(node, name)
+        study_config = getattr(self, 'study_config', None)
+        if study_config:
+            node.set_study_config(study_config)
 
     def add_optional_output_switch(self, name, input, output=None):
         """ Add an optional output switch node in the pipeline
@@ -762,9 +770,12 @@ class Pipeline(Process):
         self.nodes[name] = node
 
         self._set_subprocess_context_name(node, name)
+        study_config = getattr(self, 'study_config', None)
+        if study_config:
+            node.set_study_config(study_config)
 
     def add_custom_node(self, name, node_type, parameters=None,
-                        make_optional=(), **kwargs):
+                        make_optional=(), do_not_export=None, **kwargs):
         """
         Inserts a custom node (Node subclass instance which is not a Process)
         in the pipeline.
@@ -784,6 +795,8 @@ class Pipeline(Process):
             which will not work for every node type.
         make_optional: list or tuple
             paramters names to be made optional
+        do_not_export: list of str (optional)
+            a list of plug names that we do not want to export.
         kwargs: default values of node parameters
         """
         # It is necessary not to import study_config.process_instance at
@@ -799,6 +812,9 @@ class Pipeline(Process):
                 % node_type)
         self.nodes[name] = node
 
+        do_not_export = set(do_not_export or [])
+        do_not_export.update(kwargs)
+
         # Change plug default properties
         for parameter_name in node.plugs:
             # Optional plug
@@ -807,6 +823,15 @@ class Pipeline(Process):
                 trait = node.trait(parameter_name)
                 if trait is not None:
                     trait.optional = True
+
+            # Do not export plug
+            if (parameter_name in do_not_export or
+                    parameter_name in make_optional):
+                self.do_not_export.add((name, parameter_name))
+
+        study_config = getattr(self, 'study_config', None)
+        if study_config:
+            node.set_study_config(study_config)
 
         return node
 
@@ -972,6 +997,11 @@ class Pipeline(Process):
         if (not dest_plug.output and dest_node is self.pipeline_node):
             raise ValueError("Cannot link to a pipeline input "
                              "plug: {0}".format(link))
+
+        # the destination of the link should not expect an already existing
+        # file value, since it will come as an output from the source.
+        trait = dest_node.get_trait(dest_plug_name)
+        relax_exists_constraint(trait)
 
         # Propagate the plug value from source to destination
         value = source_node.get_plug_value(source_plug_name)
@@ -2401,8 +2431,8 @@ class Pipeline(Process):
         '''
         super(Pipeline, self).set_study_config(study_config)
         for node_name, node in six.iteritems(self.nodes):
-            if hasattr(node, 'process') and node_name != "":
-                node.process.set_study_config(study_config)
+            if node_name != "":
+                node.set_study_config(study_config)
 
     def define_groups_as_steps(self, exclusive=True):
         ''' Define parameters groups according to which steps they are
@@ -2452,7 +2482,7 @@ class Pipeline(Process):
                     groups = [groups[0]]
                 trait.groups = groups
 
-    def check_requirements(self, environment='global'):
+    def check_requirements(self, environment='global', message_list=None):
         '''
         Reimplementation for pipelines of
         :meth:`capsul.process.process.Process.check_requirements <Process.check_requirements>`
@@ -2460,29 +2490,39 @@ class Pipeline(Process):
         A pipeline will return a list of unique configuration values.
         '''
         # start with pipeline-level requirements
-        conf = super(Pipeline, self).check_requirements(environment)
+        conf = super(Pipeline, self).check_requirements(
+            environment, message_list=message_list)
         if conf is None:
             return None
         confs = []
         if conf:
             confs.append(conf)
         from capsul.pipeline import pipeline_tools
+        success = True
         for key, node in six.iteritems(self.nodes):
             if node is self.pipeline_node:
                 continue
             if pipeline_tools.is_node_enabled(self, key, node):
-                conf = node.check_requirements(self.study_config.engine,
-                                               environment)
+                conf = node.check_requirements(
+                    environment,
+                    message_list=message_list)
                 if conf is None:
                     # requirement failed
-                    return None
-                if conf != {} and conf not in confs:
-                    if isinstance(conf, list):
-                        confs += [c for c in conf if c not in confs]
+                    if message_list is None:
+                        # return immediately
+                        return None
                     else:
-                        confs.append(conf)
-
-        return confs
+                        success = False
+                else:
+                    if conf != {} and conf not in confs:
+                        if isinstance(conf, list):
+                            confs += [c for c in conf if c not in confs]
+                        else:
+                            confs.append(conf)
+        if success:
+            return confs
+        else:
+            return None
 
     def rename_node(self, old_node_name, new_node_name):
         '''

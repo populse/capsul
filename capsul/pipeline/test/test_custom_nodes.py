@@ -382,12 +382,12 @@ class PipelineMapReduce(Pipeline):
         self.add_custom_node(
             'input_len2', 'capsul.pipeline.custom_nodes.reduce_node',
             parameters={'input_types': ['Int']},
-            make_optional=['lengths'])
+            make_optional=['lengths'], do_not_export=['skip_empty'])
         # real reduce
         self.add_custom_node(
             'reduce', 'capsul.pipeline.custom_nodes.reduce_node',
             parameters={'input_names': ['in_output_%d'],
-                        'input_types': ['File']})
+                        'input_types': ['File']}, do_not_export=['skip_empty'])
         self.add_process(
             'cat', 'capsul.pipeline.test.test_custom_nodes.CatFileProcess')
         self.export_parameter('proc1', 'main_inputs', 'main_inputs')

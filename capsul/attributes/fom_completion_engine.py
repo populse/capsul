@@ -25,7 +25,7 @@ except ImportError:
 
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
-from capsul.pipeline.pipeline_nodes import Switch
+from capsul.pipeline.pipeline_nodes import Node, Switch, ProcessNode
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory, PathCompletionEngine, \
     PathCompletionEngineFactory
@@ -116,12 +116,19 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         """To get useful attributes by the fom"""
 
         process = self.process
+        if isinstance(process, ProcessNode):
+            process = process.process
+
         study_config = process.study_config
         modules_data = study_config.modules_data
 
         #Get attributes in input fom
-        names_search_list = (self.name, process.id, process.name,
-                             getattr(process, 'context_name', ''))
+        id = getattr(process, 'id', None)
+        names_search_list = [self.name]
+        if id:
+            names_search_list.append(id)
+        names_search_list += [process.name,
+                             getattr(process, 'context_name', '')]
         capsul_attributes = self.get_attribute_values()
         matching_fom = False
         input_found = False
@@ -228,11 +235,11 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
         # in a pipeline, we still must iterate over nodes to find switches,
         # which have their own behaviour.
-        if isinstance(self.process, Pipeline):
+        if isinstance(process, Pipeline):
             attributes = self.capsul_attributes
-            name = self.process.name
+            name = process.name
 
-            for node_name, node in six.iteritems(self.process.nodes):
+            for node_name, node in six.iteritems(process.nodes):
                 if isinstance(node, Switch):
                     subprocess = node
                     if subprocess is None:
@@ -363,15 +370,22 @@ class FomPathCompletionEngine(PathCompletionEngine):
         output_atp = process.study_config.modules_data.fom_atp['output']
 
         #Create completion
-        if process.trait(parameter).output:
+        names_search_list = []
+        if isinstance(process, Node):
+            trait = process.get_trait(parameter)
+            name = process.name
+        else:
+            trait = process.trait(parameter)
+            name = process.id
+            names_search_list.append(name)
+        if trait.output:
             atp = output_atp
             fom = output_fom
         else:
             atp = input_atp
             fom = input_fom
-        name = process.id
-        names_search_list = (process.id, process.name,
-                             getattr(process, 'context_name', ''))
+        names_search_list += [process.name,
+                              getattr(process, 'context_name', '')]
         for fname in names_search_list:
             fom_patterns = fom.patterns.get(fname)
             if fom_patterns is not None:
@@ -430,9 +444,12 @@ class FomPathCompletionEngine(PathCompletionEngine):
             # print('fom:', fom.fom_names)
             # print('atp:', atp)
 
-            name = process.id
-            names_search_list = (process.id, process.name,
-                                getattr(process, 'context_name', ''))
+            name = getattr(process, 'id', process.name)
+            names_search_list = []
+            if hasattr(process, 'id'):
+                names_search_list.append(process.id)
+            names_search_list += [process.name,
+                                  getattr(process, 'context_name', '')]
             for fname in names_search_list:
                 fom_patterns = fom.patterns.get(fname)
                 if fom_patterns is not None:
@@ -485,7 +502,10 @@ class FomPathCompletionEngine(PathCompletionEngine):
 class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
     def get_iterated_attributes(self):
-        subprocess = self.process.process
+        process = self.process
+        if isinstance(process, ProcessNode):
+            process = process.process
+        subprocess = process.process
 
         FomProcessCompletionEngine.setup_fom(subprocess)
 

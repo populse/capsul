@@ -1118,12 +1118,22 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         '''
         return {}
 
-    def check_requirements(self, environment='global'):
+    def check_requirements(self, environment='global', message_list=None):
         '''
         Checks the process requirements against configuration settings values
         in the attached CapsulEngine. This makes use of the
         :meth:`requirements` method and checks that there is one matching
         config value for each required module.
+
+        Parameters
+        ----------
+        environment: str
+            config environment id. Normally corresponds to the computing
+            resource name, and defaults to "global".
+        message_list: list
+            if not None, this list will be updated with messages for
+            unsatisfied requirements, in order to present the user with an
+            understandable error.
 
         Returns
         -------
@@ -1138,13 +1148,25 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         settings = self.get_study_config().engine.settings
         req = self.requirements()
         config = settings.select_configurations(environment, uses=req)
+        success = True
         for module in req:
             module_name = settings.module_name(module)
             if module_name not in config:
                 print('requirement:', req, 'not met in', self.name)
                 print('config:', settings.select_configurations(environment))
-                return None
-        return config
+                if message_list is not None:
+                    message_list.append('requirement: %s is not met in %s'
+                                        % (req, self.name))
+                else:
+                    # if no message is expected, then we can return immediately
+                    # without checking further requirements. Otherwise we
+                    # continue to get a full list of unsatisfied requirements.
+                    return None
+                success = False
+        if success:
+            return config
+        else:
+            return None
 
 
 class FileCopyProcess(Process):

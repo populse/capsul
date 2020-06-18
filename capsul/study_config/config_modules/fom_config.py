@@ -132,7 +132,7 @@ class FomConfig(StudyConfigModule):
         with self.study_config.engine.settings as session:
             config = session.config('fom', 'global')
             if config:
-                if param is not None:
+                if param in params:
                     params = [param]
                 for p in params:
                     value = getattr(self.study_config, p)

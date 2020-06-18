@@ -76,7 +76,7 @@ class Process_4(Process):
         cmdline = ['python', '-c',
                    'import os; import sys; f = open(sys.argv[3], "w"); '
                    'f.write(open(sys.argv[1]).read()); '
-                   'f.write(open(sys.argv[2]).read())',
+                   'f.write(open(sys.argv[2]).read()); f.close()',
                    self.input_image, self.other_image, self.output_image]
         return cmdline
 
@@ -205,7 +205,8 @@ class TestSomaWorkflow(unittest.TestCase):
             self.atomic_pipeline.output_image = tmp2[1]
             self.study_config.run(self.atomic_pipeline)
             self.assertTrue(os.path.exists(tmp2[1]))
-            content = open(tmp2[1]).read()
+            with open(tmp2[1]) as f:
+                content = f.read()
             self.assertEqual(content, 'bidibidibidibidi')
         finally:
             if os.path.exists(tmp1[1]):
@@ -225,7 +226,8 @@ class TestSomaWorkflow(unittest.TestCase):
             self.study_config.run(atomic_pipeline,
                                   input_image=tmp1[1], output_image=tmp2[1])
             self.assertTrue(os.path.exists(tmp2[1]))
-            content = open(tmp2[1]).read()
+            with open(tmp2[1]) as f:
+                content = f.read()
             self.assertEqual(content, 'bidibidibidibidi')
         finally:
             if os.path.exists(tmp1[1]):
@@ -263,7 +265,8 @@ class TestSomaWorkflow(unittest.TestCase):
             self.composite_pipeline.output_image = tmp2[1]
             self.study_config.run(self.composite_pipeline)
             self.assertTrue(os.path.exists(tmp2[1]))
-            content = open(tmp2[1]).read()
+            with open(tmp2[1]) as f:
+                content = f.read()
             self.assertEqual(content, 'bidibidibidibidibidibidi')
         finally:
             if os.path.exists(tmp1[1]):
