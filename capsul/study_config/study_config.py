@@ -34,7 +34,7 @@ else:
 logger = logging.getLogger(__name__)
 
 # Trait import
-from traits.api import File, Directory, Bool, String, Undefined
+from traits.api import File, Directory, Bool, String, Undefined, Int
 
 # Soma import
 from soma.controller import Controller
@@ -118,6 +118,13 @@ class StudyConfig(Controller):
         # traits_user_manual/advanced.html#pickling-hastraits-objects
         transient=True, groups=['study'])
 
+    user_level = Int(
+        0,
+        desc="0: basic, 1: advanced, 2: expert... used to display or hide "
+             "some advanced features or process parameters that would be "
+             "confusing to a novice user",
+        groups=['study'])
+
     input_directory = Directory(
         Undefined,
         desc="Parameter to set the study input directory",
@@ -144,7 +151,7 @@ class StudyConfig(Controller):
              "subdirectory to output_directory. This subdirectory is named "
              "'<count>-<name>' where <count> if self.process_counter and "
              "<name> is the name of the process.",
-             groups=['study'])
+        groups=['study'])
 
     def __init__(self, study_name=None, init_config=None, modules=None,
                  engine=None, **override_config):
