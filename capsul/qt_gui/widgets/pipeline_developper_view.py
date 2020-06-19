@@ -2942,6 +2942,10 @@ class PipelineDevelopperView(QGraphicsView):
         sub_view.setWidgetResizable(True)
         sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         sub_view.setWindowTitle(self.current_node_name)
+        # try to resize to a width that doesn't need an horizontal scrollbar
+        sub_view.resize(
+            cwidget.controller_widget.parent().parent().sizeHint().width(),
+            sub_view.sizeHint().height())
         sub_view.show()
         # set self.window() as QObject parent (not QWidget parent) to
         # prevent the sub_view to close/delete immediately

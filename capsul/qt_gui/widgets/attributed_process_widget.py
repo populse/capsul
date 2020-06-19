@@ -25,7 +25,7 @@ class AttributedProcessWidget(QtGui.QWidget):
     """Process interface with attributes completion handling"""
     def __init__(self, attributed_process, enable_attr_from_filename=False,
                  enable_load_buttons=False, override_control_types=None,
-                 separate_outputs=False, user_data=None, userlevel=0,
+                 separate_outputs=True, user_data=None, userlevel=0,
                  scroll=True):
         """
         Parameters
@@ -76,16 +76,18 @@ class AttributedProcessWidget(QtGui.QWidget):
             spl_up = self
             spl_down = self
 
+        filename_widget = None
         if enable_attr_from_filename and completion_engine is not None:
             c = Controller()
             c.add_trait('attributes_from_input_filename', File(optional=True))
-            cw = ControllerWidget(c, live=True, user_data=user_data)
-            spl_up.layout().addWidget(cw)
+            filename_widget = ControllerWidget(c, live=True,
+                                               user_data=user_data)
+            spl_up.layout().addWidget(filename_widget)
             self.input_filename_controller = c
             c.on_trait_change(self.on_input_filename_changed,
                               'attributes_from_input_filename', dispatch='ui')
-            cw.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                             QtGui.QSizePolicy.Fixed)
+            filename_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                          QtGui.QSizePolicy.Fixed)
 
         # groupbox area to show attributs
         attrib_widget = QtGui.QGroupBox('Attributes:')
@@ -206,9 +208,14 @@ class AttributedProcessWidget(QtGui.QWidget):
             self.btn_save_json.clicked.connect(self.on_btn_save_json)
 
         if not show_ce:
+            if filename_widget:
+                filename_widget.hide()
             attrib_widget.hide()
             self.checkbox_fom.hide()
             self.btn_show_completion.hide()
+            if hasattr(self, 'btn_load_json'):
+                self.btn_load_json.hide()
+                self.btn_save_json.hide()
             self.show_completion(True) # hide file parts
         else:
             self.show_completion(False) # hide file parts
