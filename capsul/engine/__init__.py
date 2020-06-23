@@ -93,8 +93,8 @@ class CapsulEngine(Controller):
         from capsul.engine import capsul_engine, activate_configuration
         ce = capsul_engine()
         # Nipype is not configured here
-        config = capsul_engine.select_configurations('global',
-                                                     {'nipype': 'any'})
+        config = capsul_engine.settings.select_configurations(
+            'global', {'nipype': 'any'})
         activate_configuration(config)
         # Nipype is configured here
 
