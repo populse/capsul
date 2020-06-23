@@ -191,6 +191,7 @@ class Settings:
                     if items is None:
                         # older populse_db 1.x
                         items = selected_config.items
+                    selected_config = dict(items())
                     for k, v in list(items()):
                         if v is None:
                             del selected_config[k]
