@@ -42,19 +42,20 @@ class AttributesConfig(StudyConfigModule):
         self.study_config.add_trait(
             'attributes_schema_paths',
             List(default_paths, Str(Undefined, output=False), output=False,
-            desc='attributes shchema module name'))
+            desc='attributes shchema module name', groups=['attributes']))
         self.study_config.add_trait(
             'attributes_schemas',
             DictStrStr(output=False,
-                desc='attributes shchemas names'))
+                desc='attributes shchemas names', groups=['attributes']))
         self.study_config.add_trait(
             'process_completion',
             Str('builtin', output=False,
-                desc='process completion model name'))
+                desc='process completion model name', groups=['attributes']))
         self.study_config.add_trait(
             'path_completion',
             Str(Undefined, output=False,
-                desc='path completion model name'))
+                desc='path completion model name', groups=['attributes'],
+                optional=True))
 
 
     def initialize_module(self):

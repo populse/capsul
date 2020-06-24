@@ -28,10 +28,12 @@ class MatlabConfig(StudyConfigModule):
             Undefined,
             output=False,
             desc='Matlab command path',
-            exists=True))
+            exists=True,
+            groups=['matlab']))
         self.study_config.add_trait("use_matlab", Bool(
             Undefined,
-            desc="If True, Matlab configuration is set up on startup"))
+            desc="If True, Matlab configuration is set up on startup",
+            groups=['matlab']))
 
     def initialize_module(self):
         """ Set up Matlab environment according to current configuration.

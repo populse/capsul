@@ -1236,10 +1236,12 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 self.embedded_subpipeline.show()
                 self.resize_subpipeline_on_show()
         else:
-            sub_view = PipelineDevelopperView(sub_pipeline,
-                                              show_sub_pipelines=True,
-                                              allow_open_controller=allow_open_controller,
-                                              enable_edition=self.scene().edition_enabled())
+            sub_view = PipelineDevelopperView(
+                sub_pipeline,
+                show_sub_pipelines=True,
+                allow_open_controller=allow_open_controller,
+                enable_edition=self.scene().edition_enabled(),
+                userlevel=self.userlevel)
             if scale is not None:
                 sub_view.scale(scale, scale)
             pwid = EmbeddedSubPipelineItem(sub_view)
@@ -2620,6 +2622,9 @@ class PipelineDevelopperView(QGraphicsView):
         self._userlevel = value
         if self.scene:
             self.scene.userlevel = value
+        for widget in self.findChildren(QtGui.QWidget):
+            if hasattr(widget, 'userlevel'):
+                widget.userlevel = value
 
     def _set_pipeline(self, pipeline):
         pos = {}
@@ -2883,7 +2888,7 @@ class PipelineDevelopperView(QGraphicsView):
                 show_sub_pipelines=self._show_sub_pipelines,
                 allow_open_controller=self._allow_open_controller,
                 enable_edition=self.edition_enabled(),
-                logical_view=self._logical_view)
+                logical_view=self._logical_view, userlevel=self.userlevel)
             # set self.window() as QObject parent (not QWidget parent) to
             # prevent the sub_view to close/delete immediately
             QtCore.QObject.setParent(sub_view, self.window())
@@ -2931,11 +2936,16 @@ class PipelineDevelopperView(QGraphicsView):
             ce = ProcessCompletionEngine.get_completion_engine(process)
 
         cwidget = AttributedProcessWidget(
-            process, enable_attr_from_filename=True, enable_load_buttons=True)
+            process, enable_attr_from_filename=True, enable_load_buttons=True,
+            userlevel=self.userlevel)
         sub_view.setWidget(cwidget)
         sub_view.setWidgetResizable(True)
         sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         sub_view.setWindowTitle(self.current_node_name)
+        # try to resize to a width that doesn't need an horizontal scrollbar
+        sub_view.resize(
+            cwidget.controller_widget.parent().parent().sizeHint().width(),
+            sub_view.sizeHint().height())
         sub_view.show()
         # set self.window() as QObject parent (not QWidget parent) to
         # prevent the sub_view to close/delete immediately
