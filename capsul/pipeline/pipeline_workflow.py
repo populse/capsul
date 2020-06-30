@@ -360,10 +360,13 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         use_input_params_file = False
         if process_cmdline[0] == 'capsul_job':
             python_command = os.path.basename(sys.executable)
+            # pass the sys.path for dev mode
             process_cmdline = [
                 'capsul_job', python_command, '-c',
+                'import sys; sys.path = %s; '
                 'from capsul.api import Process; '
-                'Process.run_from_commandline("%s")' % process_cmdline[1]]
+                'Process.run_from_commandline("%s")' % (sys.path,
+                                                        process_cmdline[1])]
             use_input_params_file = True
             param_dict = process.export_to_dict(exclude_undefined=False)
         elif process_cmdline[0] in ('json_job', 'custom_job'):
