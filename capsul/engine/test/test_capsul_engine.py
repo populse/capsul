@@ -9,11 +9,14 @@ import os
 import sys
 import os.path as osp
 import shutil
+import json
 
 from capsul.api import capsul_engine
+from capsul.api import Process, Pipeline
 from capsul.engine import activate_configuration
 from capsul import engine
 from soma_workflow import configuration as swconfig
+from traits.api import File
 
 
 def setUpModule():
@@ -35,6 +38,22 @@ def setUpModule():
         if temp_home_dir:
             shutil.rmtree(temp_home_dir)
         raise
+
+
+class MatlabProcess(Process):
+    output_config = File(output=True, desc='output file to write config',
+                         allowed_extensions=['.json'])
+
+    def requirements(self):
+        return {'matlab': 'any'}
+
+    def _run_process(self):
+        import capsul.engine
+        mconf = capsul.engine.configurations.get('capsul.engine.module.matlab')
+        with open(self.output_config, 'w') as f:
+            json.dump(mconf, f)
+        if not mconf:
+            raise RuntimeError('Matlab config is not present')
 
 
 def tearDownModule():
@@ -245,6 +264,41 @@ print(sys.argv)
             self.ce.study_config.run(process, configuration_dict=conf)
             self.assertTrue(osp.exists(osp.join(tdir, 'sT1.nii')))
 
+        finally:
+            #print('tdir:', tdir)
+            shutil.rmtree(tdir)
+
+    def test_matlab_config(self):
+        tdir = tempfile.mkdtemp(prefix='capsul_spm')
+        ce = self.ce
+        try:
+            matlab_exe = os.path.join(tdir, 'matlab')
+            with open(matlab_exe, 'w') as f:
+                f.write('#!bin/sh\necho "$@"')
+            os.chmod(matlab_exe, 0o755)
+
+            ce.load_module('matlab')
+            with ce.settings as session:
+                session.new_config(
+                    'matlab', 'global',
+                    {'config_id': 'matlab',
+                     'executable': matlab_exe})
+            proc = ce.get_process_instance(
+                'capsul.engine.test.test_capsul_engine.MatlabProcess')
+            config_file = os.path.join(tdir, 'config.json')
+            proc.output_config = config_file
+            mlist = []
+            req = proc.check_requirements(message_list=mlist)
+            self.assertTrue(
+                req is not None,
+                'requirements are not met:\n%s' % '\n'.join(mlist))
+            ce.check_call(proc)
+            with open(config_file) as f:
+                config = json.load(f)
+            self.assertEqual(
+                config,
+                {'config_id': 'matlab', 'executable': matlab_exe,
+                 'config_environment': 'global'})
         finally:
             #print('tdir:', tdir)
             shutil.rmtree(tdir)
