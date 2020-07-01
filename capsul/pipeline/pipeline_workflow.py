@@ -357,13 +357,43 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         _replace_transfers(
             process_cmdline, process, iproc_transfers, oproc_transfers)
 
+        config = {}
+        config = process.check_requirements(environment)
+        if config is None:
+            # here we bypass unmet requirements, it's not our job here.
+            config = {}
+
         use_input_params_file = False
         if process_cmdline[0] == 'capsul_job':
-            python_command = os.path.basename(sys.executable)
+            # use python executable from config, if any
+            pconf = config.get('capsul.engine.module.python')
+            if not pconf:
+                pconf = process.get_study_config().engine.settings. \
+                    select_configurations(environment, {'python': 'any'})
+            python_command = pconf.get(
+                'capsul.engine.module.python', {}).get('executable')
+            if not python_command:
+                python_command = os.path.basename(sys.executable)
+            if pconf:
+                if not config:
+                    config = pconf
+                else:
+                    config['capsul.engine.module.python'] = pconf
+            path_trick = ''
+            # python path cannot be passed in a library since the access to
+            # this library (capsul module typically) may be conditioned by
+            # this path. We cannot use PYTHONPATH env either because it would
+            # completely erase any user settings (.bashrc). So we add it here.
+            ppath = pconf.get(
+                'capsul.engine.module.python', {}).get('path')
+            if ppath:
+                path_trick = 'import sys; sys.path = %s + sys.path; ' \
+                    % repr(ppath)
             process_cmdline = [
                 'capsul_job', python_command, '-c',
-                'from capsul.api import Process; '
-                'Process.run_from_commandline("%s")' % process_cmdline[1]]
+                '%sfrom capsul.api import Process; '
+                'Process.run_from_commandline("%s")'
+                % (path_trick, process_cmdline[1])]
             use_input_params_file = True
             param_dict = process.export_to_dict(exclude_undefined=False)
         elif process_cmdline[0] in ('json_job', 'custom_job'):
@@ -381,11 +411,6 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         # handle native specification (cluster-specific specs as in
         # soma-workflow)
         native_spec = getattr(process, 'native_specification', None)
-        config = {}
-        config = process.check_requirements(environment)
-        if config is None:
-            # here we bypass unmet requirements, it's not our job here.
-            config = {}
 
         # Return the soma-workflow job
         if process_cmdline[0] == 'custom_job':

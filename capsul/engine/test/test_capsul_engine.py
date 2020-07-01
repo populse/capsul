@@ -55,6 +55,28 @@ class MatlabProcess(Process):
         if not mconf:
             raise RuntimeError('Matlab config is not present')
 
+class PythonProcess(Process):
+    output_config = File(output=True, desc='output file to write config',
+                         allowed_extensions=['.json'])
+
+    # python requirements are handled automatically
+    #def requirements(self):
+        #return {'python': 'any'}
+
+    def _run_process(self):
+        import capsul.engine
+        import sys
+        import os
+        pconf = capsul.engine.configurations.get('capsul.engine.module.python')
+        exe = os.environ.get('EXECUTABLE', sys.executable)
+        conf = {'python_config': pconf,
+                'runtime': {'executable': exe,
+                            'path': sys.path}}
+        with open(self.output_config, 'w') as f:
+            json.dump(conf, f)
+        if not pconf:
+            raise RuntimeError('Python config is not present')
+
 
 def tearDownModule():
     if old_home is None:
@@ -269,12 +291,12 @@ print(sys.argv)
             shutil.rmtree(tdir)
 
     def test_matlab_config(self):
-        tdir = tempfile.mkdtemp(prefix='capsul_spm')
+        tdir = tempfile.mkdtemp(prefix='capsul_matlab')
         ce = self.ce
         try:
             matlab_exe = os.path.join(tdir, 'matlab')
             with open(matlab_exe, 'w') as f:
-                f.write('#!bin/sh\necho "$@"')
+                f.write('#!/bin/sh\necho "$@"')
             os.chmod(matlab_exe, 0o755)
 
             ce.load_module('matlab')
@@ -303,6 +325,49 @@ print(sys.argv)
             #print('tdir:', tdir)
             shutil.rmtree(tdir)
 
+    def test_python_config(self):
+        tdir = tempfile.mkdtemp(prefix='capsul_python')
+        ce = self.ce
+        try:
+            py_exe = os.path.join(tdir, 'python')
+            with open(py_exe, 'w') as f:
+                f.write('#!/bin/sh\nexport EXECUTABLE="$0"\nexec python "$@"')
+            os.chmod(py_exe, 0o755)
+
+            ce.load_module('python')
+            py_path = ['/tmp', '/tmp/path2']
+            with ce.settings as session:
+                session.new_config(
+                    'python', 'global',
+                    {'config_id': 'python',
+                     'executable': py_exe,
+                     'path': py_path})
+            proc = ce.get_process_instance(
+                'capsul.engine.test.test_capsul_engine.PythonProcess')
+            config_file = os.path.join(tdir, 'config.json')
+            proc.output_config = config_file
+            mlist = []
+            req = proc.check_requirements(message_list=mlist)
+            self.assertTrue(
+                req is not None,
+                'requirements are not met:\n%s' % '\n'.join(mlist))
+            ce.check_call(proc)
+            with open(config_file) as f:
+                config = json.load(f)
+            self.assertEqual(
+                config.get('python_config'), {
+                    'config_id': 'python', 'executable': py_exe,
+                    'path': py_path,
+                    'config_environment': 'global'})
+            self.assertEqual(
+                config.get('runtime', {}).get('executable'), py_exe)
+            paths = config.get('runtime', {}).get('path', [])
+            for path in py_path:
+                self.assertTrue(path in paths)
+        finally:
+            #print('tdir:', tdir)
+            shutil.rmtree(tdir)
+
 
 def test():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestCapsulEngine)
@@ -311,5 +376,5 @@ def test():
 
 
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
+    print("RETURNCODE: ", unittest.main())
 

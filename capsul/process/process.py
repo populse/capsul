@@ -211,28 +211,6 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     log_file: str (default None)
         if None, the log will be generated in the current directory
         otherwise it will be written in log_file path.
-
-    **Methods**
-
-    Methods
-    -------
-    __call__
-    _run_process
-    _get_log
-    add_trait
-    save_log
-    help
-    get_input_help
-    get_output_help
-    get_log
-    get_input_spec
-    get_output_spec
-    get_inputs
-    get_outputs
-    set_parameter
-    get_parameter
-    params_to_command
-
     """
 
     def __init__(self, **kwargs):
