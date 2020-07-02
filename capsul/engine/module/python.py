@@ -45,3 +45,54 @@ def activate_configurations():
         if py_path:
             sys.path = py_path + [p for p in sys.path if p not in py_path]
 
+def edition_widget(engine, environment):
+    ''' Edition GUI for python config - see
+    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
+    '''
+    from soma.qt_gui.qt_backend import Qt
+    from soma.qt_gui.controller_widget import ScrollControllerWidget
+    from soma.controller import Controller
+    import types
+    import traits.api as traits
+
+    def validate_config(widget):
+        controller = widget.controller_widget.controller
+        with widget.engine.settings as session:
+            conf = session.config('python', widget.environment)
+            values = {'config_id': 'python',
+                      'path': controller.path}
+            print('values:', values)
+            if controller.executable in (None,
+                                                traits.Undefined, ''):
+                values['executable'] = None
+            else:
+                values['executable'] = controller.executable
+            if conf is None:
+                session.new_config('python', widget.environment, values)
+            else:
+                for k in ('path', 'executable'):
+                    setattr(conf, k, values[k])
+
+    controller = Controller()
+    controller.add_trait('executable',
+                         traits.Str(desc='Full path of the python executable'))
+    controller.add_trait('path',
+                         traits.List(traits.Directory(), [],
+                                     desc='paths to prepend to sys.path'))
+
+    conf = engine.settings.select_configurations(
+        environment, {'python': 'any'})
+    if conf:
+        controller.executable = conf.get(
+            'capsul.engine.module.python', {}).get('executable',
+                                                   traits.Undefined)
+        controller.path = conf.get(
+            'capsul.engine.module.python', {}).get('path', [])
+
+    print(controller.export_to_dict())
+    widget = ScrollControllerWidget(controller, live=True)
+    widget.engine = engine
+    widget.environment = environment
+    widget.accept = types.MethodType(validate_config, widget)
+
+    return widget
