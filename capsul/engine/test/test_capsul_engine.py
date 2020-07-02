@@ -290,6 +290,8 @@ print(sys.argv)
             #print('tdir:', tdir)
             shutil.rmtree(tdir)
 
+    @unittest.skipIf(sys.platform.startswith('win'),
+                     'Shell script needed, windows cannot execute this test.')
     def test_matlab_config(self):
         tdir = tempfile.mkdtemp(prefix='capsul_matlab')
         ce = self.ce
@@ -325,6 +327,8 @@ print(sys.argv)
             #print('tdir:', tdir)
             shutil.rmtree(tdir)
 
+    @unittest.skipIf(sys.platform.startswith('win'),
+                     'Shell script needed, windows cannot execute this test.')
     def test_python_config(self):
         tdir = tempfile.mkdtemp(prefix='capsul_python')
         ce = self.ce
