@@ -8,8 +8,6 @@ from __future__ import absolute_import
 
 import os
 import six
-from soma.controller import Controller
-from traits.api import Bool, Str, Undefined, List, DictStrStr, Instance
 from capsul.attributes.attributes_factory import AttributesFactory
 from capsul.attributes.attributes_schema import AttributesSchema, \
     ProcessAttributes
@@ -105,5 +103,72 @@ def _sync_attributes_factory(capsul_engine, param=None, value=None):
         config = session.config('attributes', 'global')
         if config:
             factory.module_path = config.attributes_schema_paths
+
+
+def edition_widget(engine, environment):
+    ''' Edition GUI for attributes config - see
+    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
+    '''
+    from soma.qt_gui.controller_widget import ScrollControllerWidget
+    from soma.controller import Controller
+    import types
+    import traits.api as traits
+
+    def validate_config(widget):
+        controller = widget.controller_widget.controller
+        with widget.engine.settings as session:
+            conf = session.config('attributes', widget.environment)
+            values = {'config_id': 'attributes'}
+            values['attributes_schema_paths'] \
+                = controller.attributes_schema_paths
+            values['attributes_schemas'] = controller.attributes_schemas
+            values['process_completion'] = controller.process_completion
+            if controller.process_completion is traits.Undefined:
+                values['process_completion'] = None
+            values['path_completion'] = controller.path_completion
+            if controller.path_completion is traits.Undefined:
+                values['path_completion'] = None
+            if conf is None:
+                session.new_config('attributes', widget.environment, values)
+            else:
+                for k in ('attributes_schema_paths', 'attributes_schemas',
+                          'process_completion', 'path_completion'):
+                    setattr(conf, k, values[k])
+
+    controller = Controller()
+    controller.add_trait(
+        'attributes_schema_paths',
+        traits.List(traits.Str(), desc='attributes shchemas modules names'))
+    controller.add_trait(
+        'attributes_schemas',
+        traits.DictStrStr(desc='attributes shchemas names'))
+    controller.add_trait(
+        'process_completion',
+        traits.Str(desc='process completion model name'))
+    controller.add_trait(
+        'path_completion',
+        traits.Str(desc='path completion model name',
+                   optional=True))
+
+    conf = engine.settings.select_configurations(
+        environment, {'attributes': 'any'})
+    if conf:
+        aconf = conf.get(
+            'capsul.engine.module.attributes', {})
+        controller.attributes_schema_paths = aconf.get(
+            'attributes_schema_paths', [])
+        controller.attributes_schemas = aconf.get(
+            'attributes_schemas', {})
+        controller.process_completion = aconf.get(
+            'process_completion', 'builtin')
+        controller.path_completion = aconf.get(
+            'path_completion', traits.Undefined)
+
+    widget = ScrollControllerWidget(controller, live=True)
+    widget.engine = engine
+    widget.environment = environment
+    widget.accept = types.MethodType(validate_config, widget)
+
+    return widget
 
 

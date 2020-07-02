@@ -5,7 +5,6 @@ import capsul.engine
 import os
 from soma.path import find_in_path
 import os.path as osp
-from capsul import engine
 import six
 
 
@@ -70,4 +69,58 @@ def complete_configurations():
                     fs_setup = None
         if fs_setup:
             config['setup'] = fs_setup
+
+
+def edition_widget(engine, environment):
+    ''' Edition GUI for Freesurfer config - see
+    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
+    '''
+    from soma.qt_gui.controller_widget import ScrollControllerWidget
+    from soma.controller import Controller
+    import types
+    import traits.api as traits
+
+    def validate_config(widget):
+        controller = widget.controller_widget.controller
+        with widget.engine.settings as session:
+            conf = session.config('freesurfer', widget.environment)
+            values = {'config_id': 'freesurfer'}
+            for k in ('setup', 'subjects_dir'):
+                value = getattr(controller, k)
+                if value is traits.Undefined:
+                    value = None
+                values[k] = value
+            if conf is None:
+                session.new_config('freesurfer', widget.environment, values)
+            else:
+                for k, value in values.items():
+                    if k == 'config_id':
+                        continue
+                    setattr(conf, k, values[k])
+
+    controller = Controller()
+
+    controller.add_trait("setup", traits.File(
+        traits.Undefined,
+        desc="Path to 'FreeSurferEnv.sh'"))
+    controller.add_trait('subjectsdir', traits.Directory(
+        traits.Undefined,
+        desc='FreeSurfer subjects data directory'))
+
+    conf = engine.settings.select_configurations(
+        environment, {'freesurfer': 'any'})
+    if conf:
+        controller.setup = conf.get(
+            'capsul.engine.module.freesurfer', {}).get('setup',
+                                                       traits.Undefined)
+        controller.subjects_dir= conf.get(
+            'capsul.engine.module.freesurfer', {}).get('subjects_dir',
+                                                       traits.Undefined)
+
+    widget = ScrollControllerWidget(controller, live=True)
+    widget.engine = engine
+    widget.environment = environment
+    widget.accept = types.MethodType(validate_config, widget)
+
+    return widget
 
