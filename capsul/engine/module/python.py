@@ -61,7 +61,6 @@ def edition_widget(engine, environment):
             conf = session.config('python', widget.environment)
             values = {'config_id': 'python',
                       'path': controller.path}
-            print('values:', values)
             if controller.executable in (None,
                                                 traits.Undefined, ''):
                 values['executable'] = None
@@ -89,7 +88,6 @@ def edition_widget(engine, environment):
         controller.path = conf.get(
             'capsul.engine.module.python', {}).get('path', [])
 
-    print(controller.export_to_dict())
     widget = ScrollControllerWidget(controller, live=True)
     widget.engine = engine
     widget.environment = environment

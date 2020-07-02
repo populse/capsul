@@ -25,7 +25,7 @@ class PopulseDBEngine(DatabaseEngine):
                 dbs.add_field('path_metadata', 'named_directory', 'string', 
                               description='Reference to a base directory whose '
                               'path is stored in named_directory collection')
-        self.dbs = self.db.__enter__()
+        #self.dbs = self.db.__enter__()
             
     
     def __del__(self):
@@ -35,53 +35,88 @@ class PopulseDBEngine(DatabaseEngine):
     def close(self):
         #self.db.__exit__(None, None, None)
         self.db = None
-        self.dbs = None
+        #self.dbs = None
     
     
     def commit(self):
-        self.dbs.save_modifications()
-    
+        #self.dbs.save_modifications()
+        with self.db as dbs:
+            dbs.save_modifications()
+
     def rollback(self):
-        self.dbs.unsave_modifications()
-    
+        #self.dbs.unsave_modifications()
+        with self.db as dbs:
+            dbs.unsave_modifications()
+
     def set_named_directory(self, name, path):
         if path:
             path = osp.normpath(osp.abspath(path))
-        doc = self.dbs.get_document('named_directory', name)
-        if doc is None:
-            if path:
-                doc = {'name': name,
-                       'path': path}
-                self.dbs.add_document('named_directory', doc)
-        else:
-            if path:
-                self.dbs.set_value('named_directory', name, 'path', path)
+        #doc = self.dbs.get_document('named_directory', name)
+        #if doc is None:
+            #if path:
+                #doc = {'name': name,
+                       #'path': path}
+                #self.dbs.add_document('named_directory', doc)
+        #else:
+            #if path:
+                #self.dbs.set_value('named_directory', name, 'path', path)
+            #else:
+                #self.dbs.remove_document('named_directory', name)
+        with self.db as dbs:
+            doc = dbs.get_document('named_directory', name)
+            if doc is None:
+                if path:
+                    doc = {'name': name,
+                          'path': path}
+                    dbs.add_document('named_directory', doc)
             else:
-                self.dbs.remove_document('named_directory', name)
-    
+                if path:
+                    dbs.set_value('named_directory', name, 'path', path)
+                else:
+                    dbs.remove_document('named_directory', name)
+
     def named_directory(self, name):
-        return self.dbs.get_value('named_directory', name, 'path')
-    
+        #return self.dbs.get_value('named_directory', name, 'path')
+        with self.db as dbs:
+            return dbs.get_value('named_directory', name, 'path')
+
     def named_directories(self):
-        return self.dbs.filter_documents('named_directory', 'all')    
-        
+        #return self.dbs.filter_documents('named_directory', 'all')
+        with self.db as dbs:
+            return dbs.filter_documents('named_directory', 'all')
+
     def set_json_value(self, name, json_value):
-        doc = self.dbs.get_document('json_value', name)
-        json_dict = {'value': json_value}
-        if doc is None:
-            doc = {'name': name,
-                   'json_dict': json_dict
-                  }
-            self.dbs.add_document('json_value', doc)
-        else:
-            self.dbs.set_value('json_value', name, 'json_dict', json_dict)
+        #doc = self.dbs.get_document('json_value', name)
+        #json_dict = {'value': json_value}
+        #if doc is None:
+            #doc = {'name': name,
+                   #'json_dict': json_dict
+                  #}
+            #self.dbs.add_document('json_value', doc)
+        #else:
+            #self.dbs.set_value('json_value', name, 'json_dict', json_dict)
+        with self.db as dbs:
+            doc = dbs.get_document('json_value', name)
+            json_dict = {'value': json_value}
+            if doc is None:
+                doc = {'name': name,
+                      'json_dict': json_dict
+                      }
+                dbs.add_document('json_value', doc)
+            else:
+                dbs.set_value('json_value', name, 'json_dict', json_dict)
 
     def json_value(self, name):
-        doc = self.dbs.get_document('json_value', name)
-        if doc:
-            return doc['json_dict']['value']
-        return None
-    
+        #doc = self.dbs.get_document('json_value', name)
+        #if doc:
+            #return doc['json_dict']['value']
+        #return None
+        with self.db as dbs:
+            doc = dbs.get_document('json_value', name)
+            if doc:
+                return doc['json_dict']['value']
+            return None
+
     def set_path_metadata(self, path, metadata):
         named_directory = metadata.get('named_directory')
         if named_directory:

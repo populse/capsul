@@ -7,8 +7,6 @@ Configuration module which links with `Axon <http://brainvisa.info/axon/user_doc
 from __future__ import absolute_import
 import os
 import six
-from soma.controller import Controller
-from traits.api import Directory, Undefined, Instance
 import capsul.engine
 import os.path as osp
 
@@ -64,4 +62,48 @@ def complete_configurations():
         shared_dir = soma_config.BRAINVISA_SHARE
         if shared_dir:
             config['shared_directory'] = shared_dir
+
+
+def edition_widget(engine, environment):
+    ''' Edition GUI for axon config - see
+    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
+    '''
+    from soma.qt_gui.controller_widget import ScrollControllerWidget
+    from soma.controller import Controller
+    import types
+    import traits.api as traits
+
+    def validate_config(widget):
+        controller = widget.controller_widget.controller
+        with widget.engine.settings as session:
+            conf = session.config('axon', widget.environment)
+            values = {'config_id': 'axon'}
+            if controller.shared_directory in (None, traits.Undefined, ''):
+                values['shared_directory'] = None
+            else:
+                values['shared_directory'] = controller.shared_directory
+            if conf is None:
+                session.new_config('axon', widget.environment, values)
+            else:
+                for k in ('shared_directory', ):
+                    setattr(conf, k, values[k])
+
+    controller = Controller()
+    controller.add_trait('shared_directory',
+                         traits.Directory(desc='Directory where BrainVisa '
+                                          'shared data is installed'))
+
+    conf = engine.settings.select_configurations(
+        environment, {'axon': 'any'})
+    if conf:
+        controller.executable = conf.get(
+            'capsul.engine.module.axon', {}).get('shared_directory',
+                                                 traits.Undefined)
+
+    widget = ScrollControllerWidget(controller, live=True)
+    widget.engine = engine
+    widget.environment = environment
+    widget.accept = types.MethodType(validate_config, widget)
+
+    return widget
 

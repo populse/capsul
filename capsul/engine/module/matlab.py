@@ -31,3 +31,45 @@ def check_configurations():
     return None
 
 
+def edition_widget(engine, environment):
+    ''' Edition GUI for matlab config - see
+    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
+    '''
+    from soma.qt_gui.controller_widget import ScrollControllerWidget
+    from soma.controller import Controller
+    import types
+    import traits.api as traits
+
+    def validate_config(widget):
+        controller = widget.controller_widget.controller
+        with widget.engine.settings as session:
+            conf = session.config('matlab', widget.environment)
+            values = {'config_id': 'matlab'}
+            if controller.executable in (None, traits.Undefined, ''):
+                values['executable'] = None
+            else:
+                values['executable'] = controller.executable
+            if conf is None:
+                session.new_config('matlab', widget.environment, values)
+            else:
+                for k in ('executable', ):
+                    setattr(conf, k, values[k])
+
+    controller = Controller()
+    controller.add_trait('executable',
+                         traits.Str(desc='Full path of the matlab executable'))
+
+    conf = engine.settings.select_configurations(
+        environment, {'matlab': 'any'})
+    if conf:
+        controller.executable = conf.get(
+            'capsul.engine.module.matlab', {}).get('executable',
+                                                   traits.Undefined)
+
+    widget = ScrollControllerWidget(controller, live=True)
+    widget.engine = engine
+    widget.environment = environment
+    widget.accept = types.MethodType(validate_config, widget)
+
+    return widget
+
