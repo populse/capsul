@@ -22,6 +22,10 @@ class SettingsEditor(Qt.QDialog):
         layout.addLayout(env_layout)
         env_layout.addWidget(Qt.QLabel('Environment:'))
         self.environment_combo = Qt.QComboBox()
+        self.environment_combo.setEditable(True)
+        self.environment_combo.setInsertPolicy(
+            Qt.QComboBox.InsertAlphabetically)
+        self.environment_combo.addItem('global')
         env_layout.addWidget(self.environment_combo)
 
         #htab_layout = Qt.QHBoxLayout()
@@ -40,26 +44,33 @@ class SettingsEditor(Qt.QDialog):
 
         ok.clicked.connect(self.accept)
         cancel.clicked.connect(self.reject)
-        ok.setDefault(True)
+        #ok.setDefault(True)
+        self.environment_combo.activated.connect(self.change_environment)
 
         self.update_gui()
 
     def update_gui(self):
-        self.environment_combo.clear()
-        self.environment_combo.addItem('global')
         self.tab_wid.clear()
         self.module_tabs = {}
         environment = self.environment_combo.currentText()
-        for module_name in self.engine._loaded_modules:
+        mod_map = dict([(module_name.split('.')[-1], module_name)
+                        for module_name in self.engine._loaded_modules])
+        for short_module_name in sorted(mod_map.keys()):
+            module_name = mod_map[short_module_name]
             module = sys.modules.get(module_name)
             if module:
                 edition_func = getattr(module, 'edition_widget', None)
                 if edition_func:
                     tab = edition_func(self.engine, environment)
-                    self.tab_wid.addTab(tab, module_name.split('.')[-1])
+                    self.tab_wid.addTab(tab, short_module_name)
                     self.module_tabs[module] = tab
 
+    def change_environment(self, index):
+        environment = self.environment_combo.currentText()
+        print('change_environment:', environment)
+        self.update_gui()
+
     def accept(self):
+        super(SettingsEditor, self).accept()
         for module_name, tab in self.module_tabs.items():
             tab.accept()
-        super(SettingsEditor, self).accept()
