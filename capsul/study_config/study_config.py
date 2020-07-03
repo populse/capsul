@@ -25,6 +25,7 @@ import json
 import sys
 import six
 import weakref
+import threading
 if sys.version_info[:2] >= (2, 7):
     from collections import OrderedDict
 else:
@@ -221,6 +222,8 @@ class StudyConfig(Controller):
         for k, v in six.iteritems(config):
             setattr(self, k, v)
         self.initialize_modules()
+        self.run_lock = threading.RLock()
+        self.run_interruption_request = False
 
     def initialize_modules(self):
         """
@@ -327,6 +330,9 @@ class StudyConfig(Controller):
 
         # here we only deal with the (obsolete) local execution mode.
 
+        with self.run_lock:
+            self.run_interruption_request = False
+
         # set parameters values
         for k, v in six.iteritems(kwargs):
             setattr(process_or_pipeline, k, v)
@@ -396,6 +402,11 @@ class StudyConfig(Controller):
                     "Pipeline instances".format(
                         process_or_pipeline.__module__.name__))
 
+            with self.run_lock:
+                if self.run_interruption_request:
+                    self.run_interruption_request = False
+                    raise RuntimeError('Execution interruption requested')
+
             # Execute each process node element
             for process_node in execution_list:
                 # Execute the process instance contained in the node
@@ -415,6 +426,12 @@ class StudyConfig(Controller):
                         generate_logging=self.generate_logging,
                         verbose=verbose,
                         configuration_dict=configuration_dict)
+
+                with self.run_lock:
+                    if self.run_interruption_request:
+                        self.run_interruption_request = False
+                        raise RuntimeError('Execution interruption requested')
+
         finally:
             # Destroy temporary files
             if temporary_files:
