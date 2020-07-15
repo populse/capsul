@@ -137,7 +137,7 @@ def edition_widget(engine, environment):
     conf = engine.settings.select_configurations(
         environment, {'fsl': 'any'})
     if conf:
-        fconf = conf.get('capsul.engine.module.freesurfer', {})
+        fconf = conf.get('capsul.engine.module.fsl', {})
         controller.directory = fconf.get('directory', traits.Undefined)
         controller.config = fconf.get('config', traits.Undefined)
         controller.prefix = fconf.get('prefix', traits.Undefined)
