@@ -96,7 +96,7 @@ def edition_widget(engine, environment):
     conf = engine.settings.select_configurations(
         environment, {'axon': 'any'})
     if conf:
-        controller.executable = conf.get(
+        controller.shared_directory = conf.get(
             'capsul.engine.module.axon', {}).get('shared_directory',
                                                  traits.Undefined)
 
