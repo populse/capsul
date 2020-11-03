@@ -2,7 +2,7 @@
 capsul.utils module
 ===================
 
-.. inheritance-diagram:: capsul.utils capsul.utils.finder capsul.utils.pilot capsul.utils.version_utils
+.. inheritance-diagram:: capsul.utils capsul.utils.finder capsul.utils.version_utils
     :parts: 1
 
 .. automodule:: capsul.utils
