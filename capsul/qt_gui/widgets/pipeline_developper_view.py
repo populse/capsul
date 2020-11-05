@@ -4684,7 +4684,7 @@ class PipelineDevelopperView(QGraphicsView):
 
         #pipeline_tools.save_pipeline_parameters(filename, pipeline)
 
-    def load_pipeline_parameters(self):
+    def load_pipeline_parameters(self, root_path=''):
         """
         Loading and setting pipeline parameters (inputs and outputs) from a Json file.
         :return:
@@ -4699,7 +4699,7 @@ class PipelineDevelopperView(QGraphicsView):
                 return obj
 
         filename = qt_backend.getOpenFileName(
-                                              None, 'Load the pipeline parameters', '',
+                                              None, 'Load the pipeline parameters', root_path,
                                               'Compatible files (*.json)')
 
         if filename:
