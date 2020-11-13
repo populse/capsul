@@ -301,7 +301,10 @@ def edition_widget(engine, environment):
                       'fom_path', 'input_directory', 'output_directory'):
                 value = getattr(controller, k)
                 if value is traits.Undefined:
-                    value = None
+                    if k in ('fom_path', ):
+                        value = []
+                    else:
+                        value = None
                 values[k] = value
             if conf is None:
                 session.new_config('fom', widget.environment, values)

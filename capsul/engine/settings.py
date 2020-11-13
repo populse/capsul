@@ -110,10 +110,10 @@ class Settings:
         This parameter is a dictionary whose keys are a module name and
         values are populse_db queries used to select module.
         
-        The enviroment parameter defines the execution environment in which
+        The environment parameter defines the execution environment in which
         the configurations will be used. For each module, configurations are
         filtered with the query. First, values are searched in the given
-        environment and, if no result is found, the `'global'` enviroment
+        environment and, if no result is found, the `'global'` environment
         (the value defined in `Settings.global_environment`) is used.
         
         example
@@ -206,6 +206,37 @@ class Settings:
                             uses_stack.extend(list(d.items()))
 
         return configurations
+
+    def import_configs(self, environment, config_dict):
+        '''
+        Import config values from a dictionary as given by
+        :meth:`select_configurations`.
+
+        Compared to :meth:`CapsulEngine.import_configs` this method (at
+        :class:`Settings` level) does not load the required modules.
+        '''
+        modules = config_dict.get('capsul_engine', {}).get('uses', {})
+        with self as session:
+            for module in modules:
+                mod_dict = config_dict.get(module, {})
+                if mod_dict:
+                    config_id = mod_dict.get('config_id', '')
+                    conf = session.config(
+                        module, environment, 'config_id == "%s"' % config_id)
+                    if conf:
+                        for key, value in mod_dict.items():
+                            if key in ('config_id', 'config_environment'):
+                                continue
+                            setattr(conf, key, value)
+                    else:
+                        session.new_config(module, environment, mod_dict)
+
+    def get_all_environments(self):
+        '''
+        Get all environment values in the database
+        '''
+        with self as session:
+            return session.get_all_environments()
     
     
 class SettingsSession:
@@ -280,7 +311,7 @@ class SettingsSession:
         config.notify()
         return config
 
-    def remove_config(self, module, enviroment, config_id):
+    def remove_config(self, module, environment, config_id):
         '''
         Removes a configuration (document in the database) for a given module /
         environment, idenfified by its `Settings.config_id_field` value.
@@ -340,6 +371,30 @@ class SettingsSession:
             return configs[0]
         return None
 
+    def get_all_environments(self):
+        '''
+        Get all environment values in the database
+        '''
+        # TODO FIXME
+        # this function uses low-level SQL requests on the sql engine of
+        # populse_db 2, because I don't know how to perform requests with the
+        # "DISTINCT" keyword using the high level requests language. It will
+        # not work using populse_db 1 nor using another (non-SQL)
+        # implementation of the database engine.
+        environments = set()
+        for collection in (i.collection_name
+                           for i in self._dbs.get_collections()):
+            if collection.startswith(Settings.collection_prefix):
+                #collection = collection[len(Settings.collection_prefix):]
+                table = self._dbs.engine.collection_table[collection]
+                #full_query = '%s == "%s"' % (
+                    #Settings.environment_field, environment)
+                #docs = self._dbs.filter_documents(collection, full_query)
+                query = 'SELECT DISTINCT %s FROM "%s"' \
+                    % (Settings.environment_field, table)
+                res = self._dbs.engine.cursor.execute(query)
+                environments.update([r[0] for r in res])
+        return environments
 
 class SettingsConfig(object):
     def __init__(self, populse_session, collection, id, notifiers=[]):
