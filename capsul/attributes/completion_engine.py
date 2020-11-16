@@ -421,7 +421,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         if isinstance(process, ProcessNode):
             process = process.process
         for pname, trait in six.iteritems(process.user_traits()):
-            if trait.forbid_completion:
+            if trait.forbid_completion \
+                    or process.is_parameter_protected(pname):
                 # completion has been explicitly disabled on this parameter
                 continue
             value = []  # for the try.. except
