@@ -226,14 +226,18 @@ class Node(Controller):
         """ Spread the source plug value to the destination plug.
         """
         try:
-            dest_node.set_plug_value(dest_plug_name, value)
+            dest_node.set_plug_value(
+                dest_plug_name, value,
+                self.is_parameter_protected(source_plug_name))
         except traits.TraitError:
             if isinstance(value, list) and len(value) == 1:
                 # Nipype MultiObject, when a single object is involved, looks
                 # like a single object but is actually a list. We want to
                 # allow it to be linked to a "single object" plug.
                 try:
-                    dest_node.set_plug_value(dest_plug_name, value[0])
+                    dest_node.set_plug_value(
+                        dest_plug_name, value[0],
+                        self.is_parameter_protected(source_plug_name))
                 except traits.TraitError:
                     pass
 
@@ -302,7 +306,8 @@ class Node(Controller):
         log_stream.flush()
 
         # actually propagate
-        dest_node.set_plug_value(dest_plug_name, value)
+        dest_node.set_plug_value(dest_plug_name, value,
+                                 self.is_parameter_protected(source_plug_name))
 
     def connect(self, source_plug_name, dest_node, dest_plug_name):
         """ Connect linked plugs of two nodes
@@ -402,7 +407,7 @@ class Node(Controller):
         """
         return getattr(self, plug_name)
 
-    def set_plug_value(self, plug_name, value):
+    def set_plug_value(self, plug_name, value, protected=None):
         """ Set the plug value
 
         Parameters
@@ -411,7 +416,12 @@ class Node(Controller):
             a plug name
         value: object (mandatory)
             the plug value we want to set
+        protected: None or bool (tristate)
+            if True or Fase, force the "protected" status of the plug. If None,
+            keep it as is.
         """
+        if protected is not None:
+            self.protect_parameter(plug_name, protected)
         setattr(self, plug_name, value)
 
     def get_trait(self, trait_name):
@@ -705,7 +715,7 @@ class ProcessNode(Node):
         else:
             return None
 
-    def set_plug_value(self, plug_name, value):
+    def set_plug_value(self, plug_name, value, protected=None):
         """ Set the plug value
 
         Parameters
@@ -714,12 +724,21 @@ class ProcessNode(Node):
             a plug name
         value: object (mandatory)
             the plug value we want to set
+        protected: None or bool (tristate)
+            if True or Fase, force the "protected" status of the plug. If None,
+            keep it as is.
         """
         if value in ["", "<undefined>"]:
             value = Undefined
         elif is_trait_pathname(self.process.trait(plug_name)) and value is None:
             value = Undefined
-        self.process.set_parameter(plug_name, value)
+        self.process.set_parameter(plug_name, value, protected)
+
+    def is_parameter_protected(self, plug_name):
+        return self.process.is_parameter_protected(plug_name)
+
+    def protect_parameter(self, plug_name, state=True):
+        self.process.protect_parameter(plug_name, state)
 
     def get_trait(self, trait_name):
         """ Return the desired trait

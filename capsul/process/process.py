@@ -996,7 +996,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         return helpstr
 
-    def set_parameter(self, name, value):
+    def set_parameter(self, name, value, protected=None):
         """ Method to set a process instance trait value.
 
         For File and Directory traits the None value is replaced by the
@@ -1008,11 +1008,16 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             the trait name we want to modify
         value: object (mandatory)
             the trait value we want to set
+        protected: None or bool (tristate)
+            if True or Fase, force the "protected" status of the plug. If None,
+            keep it as is.
         """
         # The None trait value is Undefined, do the replacement
         if value is None:
             value = Undefined
 
+        if protected is not None:
+            self.protect_parameter(name, protected)
         # Set the new trait value
         setattr(self, name, value)
 
