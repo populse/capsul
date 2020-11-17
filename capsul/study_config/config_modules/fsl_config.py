@@ -38,7 +38,7 @@ class FSLConfig(StudyConfigModule):
     def __del__(self):
         try:
             self.study_config.engine.settings.module_notifiers.get(
-                'fsl', []).remove(self.sync_from_engine)
+                'capsul.engine.module.fsl', []).remove(self.sync_from_engine)
         except (ValueError, ReferenceError):
             pass
 
@@ -64,8 +64,8 @@ class FSLConfig(StudyConfigModule):
         self.study_config.on_trait_change(
             self.sync_to_engine, '[fsl_config, fsl_prefix, use_fsl]')
         #  WARNING ref to self in callback
-        self.study_config.engine.settings.module_notifiers['fsl'] \
-            = [self.sync_from_engine]
+        self.study_config.engine.settings.module_notifiers[
+            'capsul.engine.module.fsl'] = [self.sync_from_engine]
 
     def sync_to_engine(self, param=None, value=None):
         if getattr(self, '_syncing', False):

@@ -68,12 +68,14 @@ def init_settings(capsul_engine):
     store['fom_atp'] = {'all': {}}
     store['fom_pta'] = {'all': {}}
 
-    capsul_engine.settings.module_notifiers['fom'] \
+    capsul_engine.settings.module_notifiers['capsul.engine.module.fom'] \
         = [partial(fom_config_updated, weakref.proxy(capsul_engine), 'global')]
-    capsul_engine.settings.module_notifiers.setdefault('axon', []).append(
-          partial(config_updated, weakref.proxy(capsul_engine), 'global'))
-    capsul_engine.settings.module_notifiers.setdefault('spm', []).append(
-          partial(config_updated, weakref.proxy(capsul_engine), 'global'))
+    capsul_engine.settings.module_notifiers.setdefault(
+        'capsul.engine.module.axon', []).append(
+            partial(config_updated, weakref.proxy(capsul_engine), 'global'))
+    capsul_engine.settings.module_notifiers.setdefault(
+        'capsul.engine.module.spm', []).append(
+            partial(config_updated, weakref.proxy(capsul_engine), 'global'))
 
     # link with StudyConfig
     if hasattr(capsul_engine, 'study_config') \

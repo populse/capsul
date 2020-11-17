@@ -71,8 +71,8 @@ class BrainVISAConfig(StudyConfigModule):
         self.study_config.on_trait_change(self.sync_to_engine,
                                           'shared_directory')
         #  WARNING ref to self in callback
-        self.study_config.engine.settings.module_notifiers['axon'] \
-            = [self.sync_from_engine]
+        self.study_config.engine.settings.module_notifiers[
+            'capsul.engine.module.axon'] = [self.sync_from_engine]
 
 
     def sync_to_engine(self, param=None, value=None):

@@ -203,7 +203,9 @@ class Settings:
                     if config_dependencies:
                         d = config_dependencies(selected_config)
                         if d:
-                            uses_stack.extend(list(d.items()))
+                            uses_stack.extend(
+                                [(Settings.module_name(k), v)
+                                 for k, v in d.items()])
 
         return configurations
 
@@ -307,7 +309,8 @@ class SettingsSession:
         self._dbs.add_document(collection, document)
         config = SettingsConfig(
             self._dbs, collection, id,
-            notifiers=self.module_notifiers.get(module, []))
+            notifiers=self.module_notifiers.get(Settings.module_name(module),
+                                                []))
         config.notify()
         return config
 
@@ -338,7 +341,8 @@ class SettingsSession:
                 id = d[Settings.config_id_field]
                 yield SettingsConfig(
                     self._dbs, collection, id,
-                    notifiers=self.module_notifiers.get(module, []))
+                    notifiers=self.module_notifiers.get(Settings.module_name(
+                        module), []))
 
     def config(self, module, environment, selection=None, any=True):
         '''

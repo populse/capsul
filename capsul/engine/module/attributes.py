@@ -64,8 +64,9 @@ def init_settings(capsul_engine):
         = ProcessAttributes
 
     factory.module_path = default_paths
-    capsul_engine.settings.module_notifiers['attributes'] \
-            = [partial(_sync_attributes_factory, weakref.proxy(capsul_engine))]
+    capsul_engine.settings.module_notifiers[
+        'capsul.engine.module.attributes'] = [
+            partial(_sync_attributes_factory, weakref.proxy(capsul_engine))]
 
     # link with StudyConfig
     if hasattr(capsul_engine, 'study_config') \
