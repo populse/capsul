@@ -370,15 +370,21 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             if not pconf:
                 pconf = process.get_study_config().engine.settings. \
                     select_configurations(environment, {'python': 'any'})
+                if pconf:
+                    if not config:
+                        config = pconf
+                    else:
+                        if 'capsul.engine.module.python' in pconf:
+                            config['capsul.engine.module.python'] \
+                                = pconf['capsul.engine.module.python']
+                        uses = pconf.get('capsul_engine', {}).get('uses', {})
+                        if uses:
+                            config.setdefault('capsul_engine', {}).setdefault(
+                                'uses', {}).update(uses)
             python_command = pconf.get(
                 'capsul.engine.module.python', {}).get('executable')
             if not python_command:
                 python_command = os.path.basename(sys.executable)
-            if pconf:
-                if not config:
-                    config = pconf
-                else:
-                    config['capsul.engine.module.python'] = pconf
             path_trick = ''
             # python path cannot be passed in a library since the access to
             # this library (capsul module typically) may be conditioned by
