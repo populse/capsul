@@ -1232,7 +1232,7 @@ class FileCopyProcess(Process):
             if self.use_temp_output_dir:
                 workspace = tempfile.mkdtemp(dir=output_directory,
                                              prefix=self.name)
-                destdir = os.path.join(output_directory, workspace)
+                destdir = workspace
             else:
                 destdir = output_directory
         else:
