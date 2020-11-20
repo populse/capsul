@@ -688,7 +688,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         from capsul.engine import capsul_engine
 
         ce = capsul_engine()
-        process = ce.get_process_instance(process_definition)
+
         param_file = os.environ.get('SOMAWF_INPUT_PARAMS')
         if param_file is None:
             print('Warning: no input parameters, the env variable '
@@ -697,8 +697,28 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         else:
             with open(param_file) as f:
                 params_conf = json_utils.from_json(json.load(f))
-        params = params_conf.get('parameters', {})
+
         configuration = params_conf.get('configuration_dict')
+        if configuration:
+            # activation will be re-done during run() but some global configs
+            # (nipype SPM/Matlab settings) need to be done before any process
+            # is instantiated, so we must do it earlier, right now.
+
+            # clear activations for now.
+            from capsul import engine
+            engine.activated_modules = set()
+            engine.activate_configuration(configuration)
+
+        params = params_conf.get('parameters', {})
+        ## filter out undefined values -- maybe this is not OK in all cases:
+        ## we may want to manually reset a parameter, but in normal cases,
+        ## Undefined values are just not set, which means that the values are
+        ## left to defaults depending on the global config: nipype works like
+        ## this for matlab parameters.
+        #params = dict([(k, v) for k, v in params.items()
+                       #if v is not Undefined])
+
+        process = ce.get_process_instance(process_definition)
         try:
             process.import_from_dict(params)
         except Exception as e:
