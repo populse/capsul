@@ -60,7 +60,7 @@ class WorkflowExecutionError(Exception):
             os.close(tmp2[0])
             fileio = io.StringIO()
             try:
-                swclient.log_failed_workflow(workflow_id, file=fileio)
+                controller.log_failed_workflow(workflow_id, file=fileio)
                 precisions_list.append(fileio.getvalue())
 
                 #jobs = failed_jobs + aborted_jobs
