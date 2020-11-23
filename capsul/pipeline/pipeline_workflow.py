@@ -965,7 +965,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             # collect iterated inputs / outputs
             map_param_dict = {}
             forbidden_traits = ('nodes_activation', 'selection_changed',
-                                'pipeline_steps')
+                                'pipeline_steps', 'visible_groups',
+                                'protected_parameters', )
             # copy non-iterative inputs
             for param, trait in six.iteritems(it_process.user_traits()):
                 if not trait.output and param not in forbidden_traits:
@@ -1008,6 +1009,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             reduce_iter_links = {}
             red_iter_links = {}
             for param, plug in six.iteritems(it_node.plugs):
+                if param in forbidden_traits:
+                    continue
                 if not plug.output:
                     # connect inputs of the map node
                     sources = pipeline_tools.find_plug_connection_sources(
