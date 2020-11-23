@@ -401,10 +401,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 'Process.run_from_commandline("%s")'
                 % (path_trick, process_cmdline[1])]
             use_input_params_file = True
-            param_dict = process.export_to_dict(exclude_undefined=False)
+            param_dict = process.export_to_dict(exclude_undefined=True)
         elif process_cmdline[0] in ('json_job', 'custom_job'):
             use_input_params_file = True
-            param_dict = process.export_to_dict(exclude_undefined=False)
+            param_dict = process.export_to_dict(exclude_undefined=True)
         for name in forbidden_traits:
             if name in param_dict:
                 del param_dict[name]
