@@ -36,7 +36,7 @@ install:
     - git clone https://github.com/populse/soma-base.git /tmp/soma-base
     - python /tmp/soma-base/setup.py install
     #- pip install -U setuptools pip
-    - git clone https://github.com/populse/populse_db.git /tmp/populse_db
+    - git clone --branch=2.0 https://github.com/populse/populse_db.git /tmp/populse_db
     - pushd /tmp/populse_db
     - PYTHONPATH="/tmp/populse_db/lib/python${TRAVIS_PYTHON_VERSION}/site-packages:$PYTHONPATH" python /tmp/populse_db/setup.py install
     - popd
