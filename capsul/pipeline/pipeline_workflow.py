@@ -1527,6 +1527,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     # mark workflow with pipeline
     workflow.pipeline = weakref.ref(pipeline)
     workflow._do_not_pickle = ['pipeline']
+    if hasattr(pipeline, 'uuid'):
+        workflow.uuid = pipeline.uuid
 
     return workflow
 
