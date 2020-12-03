@@ -451,6 +451,9 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 job.parallel_job_info = parallel_job_info
         if step_name:
             job.user_storage = step_name
+        if hasattr(process, 'uuid'):
+            # propagate the process uuid, if any, to maintain link with it
+            job.uuid = process.uuid
         job.configuration = config
         # associate job with process
         job.process = weakref.ref(process)
