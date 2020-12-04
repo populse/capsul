@@ -1648,7 +1648,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         dest_gnode = self.gnodes.get(dest_gnode_name)
 
         if dest_gnode is not None:
-            if dest_param in dest_gnode.in_plugs:
+            if dest_param in dest_gnode.in_plugs \
+                    and source_param in source_gnode.out_plugs:
                 glink = Link(
                     source_gnode.mapToScene(
                         source_gnode.out_plugs[source_param].get_plug_point()),
