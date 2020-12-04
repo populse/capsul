@@ -32,7 +32,9 @@ The documentation will include all pipelines and processes in the module to be d
 
 Then within the sphinx docs sources (``index.rst`` for instance, or any other sphinx source file), you can include them:
 
-.. code-block:: sphinx
+# interestingly, sphinx lexers do not support sphinx language ;)
+
+.. code-block:: ReST
 
     .. toctree::
 

@@ -11,8 +11,7 @@ Classes
 from __future__ import absolute_import
 import os
 import six
-from traits.api import Bool, Str, Undefined, Instance, Directory, List
-from soma.controller import Controller
+import traits.api as traits
 from soma.fom import AttributesToPaths, PathToAttributes
 from soma.application import Application
 from soma.sorted_dictionary import SortedDictionary
@@ -69,12 +68,14 @@ def init_settings(capsul_engine):
     store['fom_atp'] = {'all': {}}
     store['fom_pta'] = {'all': {}}
 
-    capsul_engine.settings.module_notifiers['fom'] \
+    capsul_engine.settings.module_notifiers['capsul.engine.module.fom'] \
         = [partial(fom_config_updated, weakref.proxy(capsul_engine), 'global')]
-    capsul_engine.settings.module_notifiers.setdefault('axon', []).append(
-          partial(config_updated, weakref.proxy(capsul_engine), 'global'))
-    capsul_engine.settings.module_notifiers.setdefault('spm', []).append(
-          partial(config_updated, weakref.proxy(capsul_engine), 'global'))
+    capsul_engine.settings.module_notifiers.setdefault(
+        'capsul.engine.module.axon', []).append(
+            partial(config_updated, weakref.proxy(capsul_engine), 'global'))
+    capsul_engine.settings.module_notifiers.setdefault(
+        'capsul.engine.module.spm', []).append(
+            partial(config_updated, weakref.proxy(capsul_engine), 'global'))
 
     # link with StudyConfig
     if hasattr(capsul_engine, 'study_config') \
@@ -150,7 +151,7 @@ def update_fom(capsul_engine, environment='global', param=None, value=None):
                 ('output', config.output_fom),
                 ('shared', config.shared_fom))
         for fom_type, fom_filename in foms:
-            if fom_filename not in ("", None, Undefined):
+            if fom_filename not in ("", None, traits.Undefined):
                 fom = store['all_foms'].get(fom_filename)
                 if fom is None:
                     fom, atp, pta = load_fom(capsul_engine, fom_filename,
@@ -283,4 +284,107 @@ def reset_foms(capsul_engine, environment):
     soma_app.fom_manager.clear_cache()
     update_fom(capsul_engine, environment)
 
+
+def edition_widget(engine, environment):
+    ''' Edition GUI for FOM config - see
+    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
+    '''
+    from soma.qt_gui.controller_widget import ScrollControllerWidget
+    from soma.controller import Controller
+    import types
+
+    def validate_config(widget):
+        controller = widget.controller_widget.controller
+        with widget.engine.settings as session:
+            conf = session.config('fom', widget.environment)
+            values = {'config_id': 'fom'}
+            for k in ('input_fom', 'output_fom', 'shared_fom',
+                      'volumes_format', 'meshes_format', 'auto_fom',
+                      'fom_path', 'input_directory', 'output_directory'):
+                value = getattr(controller, k)
+                if value is traits.Undefined:
+                    if k in ('fom_path', ):
+                        value = []
+                    else:
+                        value = None
+                values[k] = value
+            if conf is None:
+                session.new_config('fom', widget.environment, values)
+            else:
+                for k, value in values.items():
+                    if k == 'config_id':
+                        continue
+                    setattr(conf, k, values[k])
+
+    controller = Controller()
+
+    controller.add_trait(
+        'input_fom',
+        traits.Str(traits.Undefined, output=False, desc='input FOM'))
+    controller.add_trait(
+        'output_fom',
+        traits.Str(traits.Undefined, output=False, desc='output FOM'))
+    controller.add_trait(
+        'shared_fom',
+        traits.Str(traits.Undefined, output=False, desc='shared data FOM'))
+    controller.add_trait(
+        'volumes_format',
+        traits.Str(traits.Undefined, output=False, desc='Format used for volumes'))
+    controller.add_trait(
+        'meshes_format',
+        traits.Str(traits.Undefined, output=False,
+                   desc='Format used for meshes'))
+    controller.add_trait(
+        'auto_fom',
+        traits.Bool(True, output=False,
+              desc='Look in all FOMs when a process is not found (in '
+              'addition to the standard share/foms). Note that auto_fom '
+              'looks for the first FOM matching the process to get '
+              'completion for, and does not handle ambiguities. Moreover '
+              'it brings an overhead (typically 6-7 seconds) the first '
+              'time it is used since it has to parse all available FOMs.'))
+    controller.add_trait(
+        'fom_path',
+        traits.List(traits.Directory(output=False),
+          desc='list of additional directories where to look for FOMs'))
+    # FIXME: until directories are included in another config module
+    controller.add_trait(
+        'input_directory',
+        traits.Directory(traits.Undefined, output=False,
+                         desc='input study data directory'))
+    controller.add_trait(
+        'output_directory',
+        traits.Directory(traits.Undefined, output=False,
+                         desc='output study data directory'))
+
+    conf = engine.settings.select_configurations(
+        environment, {'fom': 'any'})
+    if conf:
+        fconf = conf.get(
+            'capsul.engine.module.fom', {})
+        controller.input_fom = fconf.get(
+            'input_fom', traits.Undefined)
+        controller.output_fom = fconf.get(
+            'output_fom', traits.Undefined)
+        controller.shared_fom = fconf.get(
+            'shared_fom', traits.Undefined)
+        controller.volumes_format= fconf.get(
+            'volumes_format', traits.Undefined)
+        controller.meshes_format = fconf.get(
+            'meshes_format', traits.Undefined)
+        controller.auto_fom = fconf.get(
+            'auto_fom', traits.Undefined)
+        controller.fom_path = fconf.get(
+            'fom_path', traits.Undefined)
+        controller.input_directory= fconf.get(
+            'input_directory', traits.Undefined)
+        controller.output_directory = fconf.get(
+            'output_directory', traits.Undefined)
+
+    widget = ScrollControllerWidget(controller, live=True)
+    widget.engine = engine
+    widget.environment = environment
+    widget.accept = types.MethodType(validate_config, widget)
+
+    return widget
 

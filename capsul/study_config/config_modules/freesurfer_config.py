@@ -68,8 +68,8 @@ class FreeSurferConfig(StudyConfigModule):
             self.sync_to_engine,
             ['freesurfer_config', 'freesurfer_subjectsdir'])
         #  WARNING ref to self in callback
-        self.study_config.engine.settings.module_notifiers['freesurfer'] \
-            = [self.sync_from_engine]
+        self.study_config.engine.settings.module_notifiers[
+            'capsul.engine.module.freesurfer'] = [self.sync_from_engine]
 
     def sync_to_engine(self, param=None, value=None):
         if getattr(self, '_syncing', False):

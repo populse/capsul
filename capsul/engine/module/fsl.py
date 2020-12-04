@@ -96,3 +96,56 @@ def activate_configurations():
         del os.environ['FSL_CONFIG']
 
 
+def edition_widget(engine, environment):
+    ''' Edition GUI for FSL config - see
+    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
+    '''
+    from soma.qt_gui.controller_widget import ScrollControllerWidget
+    from soma.controller import Controller
+    import types
+    import traits.api as traits
+
+    def validate_config(widget):
+        controller = widget.controller_widget.controller
+        with widget.engine.settings as session:
+            conf = session.config('fsl', widget.environment)
+            values = {'config_id': 'fsl'}
+            for k in ('directory', 'config', 'prefix'):
+                value = getattr(controller, k)
+                if value is traits.Undefined:
+                    value = None
+                values[k] = value
+            if conf is None:
+                session.new_config('fsl', widget.environment, values)
+            else:
+                for k, value in values.items():
+                    if k == 'config_id':
+                        continue
+                    setattr(conf, k, values[k])
+
+    controller = Controller()
+
+    controller.add_trait('directory', traits.Directory(traits.Undefined,
+        desc='Directory where FSL is installed'))
+    controller.add_trait('config', traits.File(
+        traits.Undefined,
+        output=False,
+        desc='Parameter to specify the fsl.sh path'))
+    controller.add_trait('prefix', traits.String(traits.Undefined,
+        desc='Prefix to add to FSL commands'))
+
+    conf = engine.settings.select_configurations(
+        environment, {'fsl': 'any'})
+    if conf:
+        fconf = conf.get('capsul.engine.module.fsl', {})
+        controller.directory = fconf.get('directory', traits.Undefined)
+        controller.config = fconf.get('config', traits.Undefined)
+        controller.prefix = fconf.get('prefix', traits.Undefined)
+
+    widget = ScrollControllerWidget(controller, live=True)
+    widget.engine = engine
+    widget.environment = environment
+    widget.accept = types.MethodType(validate_config, widget)
+
+    return widget
+

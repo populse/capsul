@@ -10,7 +10,8 @@
 *~
 .coverage
 
-# Folders #
-###########
+# Generated documentation #
+###########################
 build/
 /doc/source/*/generated/
+/doc/source/tutorial/capsul_tutorial.ipynb

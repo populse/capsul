@@ -156,3 +156,65 @@ def activate_configurations():
         del os.environ['SPM_STANDALONE']
 
 
+def edition_widget(engine, environment):
+    ''' Edition GUI for SPM config - see
+    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
+    '''
+    from soma.qt_gui.controller_widget import ScrollControllerWidget
+    from soma.controller import Controller
+    import types
+    import traits.api as traits
+
+    def validate_config(widget):
+        controller = widget.controller_widget.controller
+        with widget.engine.settings as session:
+            values = {}
+            if controller.directory in (None, traits.Undefined, ''):
+                values['directory'] = None
+            else:
+                values['directory'] = controller.directory
+            values['standalone'] = controller.standalone
+            values['version'] = controller.version
+            id = 'spm%s%s' % (controller.version,
+                              '-standalone' if controller.standalone else '')
+            values['config_id'] = id
+            query = 'config_id == "%s"' % id
+            conf = session.config('spm', 'global', selection=query)
+            if conf is None:
+                session.new_config('spm', widget.environment, values)
+            else:
+                for k in ('directory', 'standalone', 'version'):
+                    setattr(conf, k, values[k])
+
+    controller = Controller()
+    controller.add_trait("directory", traits.Directory(
+        traits.Undefined,
+        output=False,
+        desc="Directory containing SPM."))
+    controller.add_trait("standalone", traits.Bool(
+        True,
+        desc="If True, use the standalone version of SPM."))
+    controller.add_trait('version', traits.Str(
+        traits.Undefined, output=False,
+        desc='Version string for SPM: "12", "8", etc.'))
+
+    conf = engine.settings.select_configurations(
+        environment, {'spm': 'any'})
+    if conf:
+        controller.directory = conf.get(
+            'capsul.engine.module.spm', {}).get('directory',
+                                                traits.Undefined)
+        controller.standalone = conf.get(
+            'capsul.engine.module.spm', {}).get('standalone', True)
+        controller.version = conf.get(
+            'capsul.engine.module.spm', {}).get('version', '12')
+
+    # TODO handle several configs
+
+    widget = ScrollControllerWidget(controller, live=True)
+    widget.engine = engine
+    widget.environment = environment
+    widget.accept = types.MethodType(validate_config, widget)
+
+    return widget
+

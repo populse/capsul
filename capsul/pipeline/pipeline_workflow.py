@@ -357,18 +357,54 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         _replace_transfers(
             process_cmdline, process, iproc_transfers, oproc_transfers)
 
+        config = {}
+        config = process.check_requirements(environment)
+        if config is None:
+            # here we bypass unmet requirements, it's not our job here.
+            config = {}
+
         use_input_params_file = False
         if process_cmdline[0] == 'capsul_job':
-            python_command = os.path.basename(sys.executable)
+            # use python executable from config, if any
+            pconf = config.get('capsul.engine.module.python')
+            if not pconf:
+                pconf = process.get_study_config().engine.settings. \
+                    select_configurations(environment, {'python': 'any'})
+                if pconf:
+                    if not config:
+                        config = pconf
+                    else:
+                        if 'capsul.engine.module.python' in pconf:
+                            config['capsul.engine.module.python'] \
+                                = pconf['capsul.engine.module.python']
+                        uses = pconf.get('capsul_engine', {}).get('uses', {})
+                        if uses:
+                            config.setdefault('capsul_engine', {}).setdefault(
+                                'uses', {}).update(uses)
+            python_command = pconf.get(
+                'capsul.engine.module.python', {}).get('executable')
+            if not python_command:
+                python_command = os.path.basename(sys.executable)
+            path_trick = ''
+            # python path cannot be passed in a library since the access to
+            # this library (capsul module typically) may be conditioned by
+            # this path. We cannot use PYTHONPATH env either because it would
+            # completely erase any user settings (.bashrc). So we add it here.
+            ppath = pconf.get(
+                'capsul.engine.module.python', {}).get('path')
+            if ppath:
+                path_trick = 'import sys; sys.path = %s + sys.path; ' \
+                    % repr(ppath)
             process_cmdline = [
                 'capsul_job', python_command, '-c',
-                'from capsul.api import Process; '
-                'Process.run_from_commandline("%s")' % process_cmdline[1]]
+                '%sfrom capsul.api import Process; '
+                'Process.run_from_commandline("%s")'
+                % (path_trick, process_cmdline[1])]
             use_input_params_file = True
-            param_dict = process.export_to_dict(exclude_undefined=False)
+            param_dict = process.export_to_dict(exclude_undefined=True)
         elif process_cmdline[0] in ('json_job', 'custom_job'):
             use_input_params_file = True
-            param_dict = process.export_to_dict(exclude_undefined=False)
+            param_dict = process.export_to_dict(exclude_undefined=True)
         for name in forbidden_traits:
             if name in param_dict:
                 del param_dict[name]
@@ -381,11 +417,6 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         # handle native specification (cluster-specific specs as in
         # soma-workflow)
         native_spec = getattr(process, 'native_specification', None)
-        config = {}
-        config = process.check_requirements(environment)
-        if config is None:
-            # here we bypass unmet requirements, it's not our job here.
-            config = {}
 
         # Return the soma-workflow job
         if process_cmdline[0] == 'custom_job':
@@ -420,6 +451,9 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 job.parallel_job_info = parallel_job_info
         if step_name:
             job.user_storage = step_name
+        if hasattr(process, 'uuid'):
+            # propagate the process uuid, if any, to maintain link with it
+            job.uuid = process.uuid
         job.configuration = config
         # associate job with process
         job.process = weakref.ref(process)
@@ -934,7 +968,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             # collect iterated inputs / outputs
             map_param_dict = {}
             forbidden_traits = ('nodes_activation', 'selection_changed',
-                                'pipeline_steps')
+                                'pipeline_steps', 'visible_groups',
+                                'protected_parameters', )
             # copy non-iterative inputs
             for param, trait in six.iteritems(it_process.user_traits()):
                 if not trait.output and param not in forbidden_traits:
@@ -977,6 +1012,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             reduce_iter_links = {}
             red_iter_links = {}
             for param, plug in six.iteritems(it_node.plugs):
+                if param in forbidden_traits:
+                    continue
                 if not plug.output:
                     # connect inputs of the map node
                     sources = pipeline_tools.find_plug_connection_sources(
@@ -1490,6 +1527,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     # mark workflow with pipeline
     workflow.pipeline = weakref.ref(pipeline)
     workflow._do_not_pickle = ['pipeline']
+    if hasattr(pipeline, 'uuid'):
+        workflow.uuid = pipeline.uuid
 
     return workflow
 

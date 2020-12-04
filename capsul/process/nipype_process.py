@@ -20,6 +20,7 @@ Functions
 from __future__ import print_function
 from __future__ import absolute_import
 from soma.controller.trait_utils import relax_exists_constraint
+from soma.controller import trait_ids
 import sys
 import os
 import types
@@ -146,11 +147,13 @@ def nipype_factory(nipype_instance):
         #print('sync_process_output_traits', name)
         # Get all the input traits
         input_traits = process_instance.traits(output=False)
+        output_directory \
+            = getattr(process_instance, 'output_directory', Undefined)
 
         # Try to update all the output process instance traits values when
         # a process instance input trait is modified or when the dedicated
         # 'synchronize' trait value is modified
-        if name in input_traits or name == "synchronize":
+        if name in input_traits or name in ("synchronize", 'output_directory'):
 
             # Try to set all the process instance output traits values from
             # the nipype autocompleted traits values
@@ -179,6 +182,13 @@ def nipype_factory(nipype_instance):
             for out_name, out_value in six.iteritems(nipype_outputs):
 
                 try:
+                    # if we have an output directory, replace it
+                    if output_directory not in (Undefined, None) \
+                            and any([x
+                                     for x in trait_ids(process_instance.trait(
+                                        "_" + out_name))
+                                     if 'File' in x or 'Directory' in x]):
+                        out_value = _replace_dir(out_value, output_directory)
                     # Set the output process trait value
                     process_instance.set_parameter(
                         "_" + out_name, out_value)
@@ -211,9 +221,6 @@ def nipype_factory(nipype_instance):
                     out_trait = process_instance.trait('_modified_%s' % name)
                     if out_trait:
                         new_value = getattr(process_instance, name)
-                        output_directory \
-                            = getattr(process_instance, 'output_directory',
-                                      Undefined)
                         if output_directory not in (Undefined, None):
                             new_value = _replace_dir(new_value,
                                                      output_directory)

@@ -374,6 +374,10 @@ class FomPathCompletionEngine(PathCompletionEngine):
         if isinstance(process, Node):
             trait = process.get_trait(parameter)
             name = process.name
+            if hasattr(process, 'process'):
+                if hasattr(process.process, 'context_name'):
+                    names_search_list.append(process.process.context_name)
+                names_search_list.append(process.process.name)
         else:
             trait = process.trait(parameter)
             name = process.id
@@ -425,8 +429,6 @@ class FomPathCompletionEngine(PathCompletionEngine):
             #path_values.append(h[0])
             break
 
-        #if len(path_values) > 0:
-            #path_value = path_values[0]
         return path_value
 
 

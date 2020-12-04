@@ -1648,7 +1648,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         dest_gnode = self.gnodes.get(dest_gnode_name)
 
         if dest_gnode is not None:
-            if dest_param in dest_gnode.in_plugs:
+            if dest_param in dest_gnode.in_plugs \
+                    and source_param in source_gnode.out_plugs:
                 glink = Link(
                     source_gnode.mapToScene(
                         source_gnode.out_plugs[source_param].get_plug_point()),
@@ -4684,7 +4685,7 @@ class PipelineDevelopperView(QGraphicsView):
 
         #pipeline_tools.save_pipeline_parameters(filename, pipeline)
 
-    def load_pipeline_parameters(self):
+    def load_pipeline_parameters(self, root_path=''):
         """
         Loading and setting pipeline parameters (inputs and outputs) from a Json file.
         :return:
@@ -4699,7 +4700,7 @@ class PipelineDevelopperView(QGraphicsView):
                 return obj
 
         filename = qt_backend.getOpenFileName(
-                                              None, 'Load the pipeline parameters', '',
+                                              None, 'Load the pipeline parameters', root_path,
                                               'Compatible files (*.json)')
 
         if filename:

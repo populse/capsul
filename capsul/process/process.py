@@ -211,28 +211,6 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     log_file: str (default None)
         if None, the log will be generated in the current directory
         otherwise it will be written in log_file path.
-
-    **Methods**
-
-    Methods
-    -------
-    __call__
-    _run_process
-    _get_log
-    add_trait
-    save_log
-    help
-    get_input_help
-    get_output_help
-    get_log
-    get_input_spec
-    get_output_spec
-    get_inputs
-    get_outputs
-    set_parameter
-    get_parameter
-    params_to_command
-
     """
 
     def __init__(self, **kwargs):
@@ -710,7 +688,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         from capsul.engine import capsul_engine
 
         ce = capsul_engine()
-        process = ce.get_process_instance(process_definition)
+
         param_file = os.environ.get('SOMAWF_INPUT_PARAMS')
         if param_file is None:
             print('Warning: no input parameters, the env variable '
@@ -719,8 +697,28 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         else:
             with open(param_file) as f:
                 params_conf = json_utils.from_json(json.load(f))
-        params = params_conf.get('parameters', {})
+
         configuration = params_conf.get('configuration_dict')
+        if configuration:
+            # activation will be re-done during run() but some global configs
+            # (nipype SPM/Matlab settings) need to be done before any process
+            # is instantiated, so we must do it earlier, right now.
+
+            # clear activations for now.
+            from capsul import engine
+            engine.activated_modules = set()
+            engine.activate_configuration(configuration)
+
+        params = params_conf.get('parameters', {})
+        ## filter out undefined values -- maybe this is not OK in all cases:
+        ## we may want to manually reset a parameter, but in normal cases,
+        ## Undefined values are just not set, which means that the values are
+        ## left to defaults depending on the global config: nipype works like
+        ## this for matlab parameters.
+        #params = dict([(k, v) for k, v in params.items()
+                       #if v is not Undefined])
+
+        process = ce.get_process_instance(process_definition)
         try:
             process.import_from_dict(params)
         except Exception as e:
@@ -1018,7 +1016,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         return helpstr
 
-    def set_parameter(self, name, value):
+    def set_parameter(self, name, value, protected=None):
         """ Method to set a process instance trait value.
 
         For File and Directory traits the None value is replaced by the
@@ -1030,11 +1028,16 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             the trait name we want to modify
         value: object (mandatory)
             the trait value we want to set
+        protected: None or bool (tristate)
+            if True or Fase, force the "protected" status of the plug. If None,
+            keep it as is.
         """
         # The None trait value is Undefined, do the replacement
         if value is None:
             value = Undefined
 
+        if protected is not None:
+            self.protect_parameter(name, protected)
         # Set the new trait value
         setattr(self, name, value)
 
@@ -1249,7 +1252,7 @@ class FileCopyProcess(Process):
             if self.use_temp_output_dir:
                 workspace = tempfile.mkdtemp(dir=output_directory,
                                              prefix=self.name)
-                destdir = os.path.join(output_directory, workspace)
+                destdir = workspace
             else:
                 destdir = output_directory
         else:

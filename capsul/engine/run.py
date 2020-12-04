@@ -15,6 +15,7 @@ from traits.api import Undefined
 import six
 import tempfile
 import os
+import io
 
 
 class WorkflowExecutionError(Exception):
@@ -57,44 +58,48 @@ class WorkflowExecutionError(Exception):
             tmp2 = tempfile.mkstemp(prefix='capsul_swf_job_stderr')
             os.close(tmp1[0])
             os.close(tmp2[0])
+            fileio = io.StringIO()
             try:
-                jobs = failed_jobs + aborted_jobs
-                cmds = controller.jobs(jobs)
-                workflow = controller.workflow(workflow_id)
-                for job_id in jobs:
-                    jinfo = cmds[job_id]
-                    if job_id in failed_jobs:
-                        has_run = True
-                    else:
-                        has_run = False
-                    status = controller.job_termination_status(job_id)
-                    controller.retrieve_job_stdouterr(job_id, tmp1[1], tmp2[1])
-                    with open(tmp1[1]) as f:
-                        stdout = f.read()
-                    with open(tmp2[1]) as f:
-                        stderr = f.read()
-                    full_job = [j for j in workflow.jobs
-                                if workflow.job_mapping[j].job_id == job_id][0]
-                    precisions_list += [
-                        '============================================',
-                        '---- failed job info ---',
-                        '* job: %d: %s' % (job_id, jinfo[0]),
-                        '* exit status: %s' % status[0],
-                        '* commandline:',
-                        jinfo[1],
-                        '* exit value: %s' % str(status[1]),
-                        '* term signal: %s' % str(status[2]),
-                        '---- env ----',
-                        repr(full_job.env),
-                        '---- configuration ----',
-                        repr(full_job.configuration),
-                        '---- stdout ----',
-                        stdout,
-                        '---- stderr ----',
-                        stderr,
-                        #'---- full host env ----',
-                        #repr(os.environ)
-                    ]
+                controller.log_failed_workflow(workflow_id, file=fileio)
+                precisions_list.append(fileio.getvalue())
+
+                #jobs = failed_jobs + aborted_jobs
+                #cmds = controller.jobs(jobs)
+                #workflow = controller.workflow(workflow_id)
+                #for job_id in jobs:
+                    #jinfo = cmds[job_id]
+                    #if job_id in failed_jobs:
+                        #has_run = True
+                    #else:
+                        #has_run = False
+                    #status = controller.job_termination_status(job_id)
+                    #controller.retrieve_job_stdouterr(job_id, tmp1[1], tmp2[1])
+                    #with open(tmp1[1]) as f:
+                        #stdout = f.read()
+                    #with open(tmp2[1]) as f:
+                        #stderr = f.read()
+                    #full_job = [j for j in workflow.jobs
+                                #if workflow.job_mapping[j].job_id == job_id][0]
+                    #precisions_list += [
+                        #'============================================',
+                        #'---- failed job info ---',
+                        #'* job: %d: %s' % (job_id, jinfo[0]),
+                        #'* exit status: %s' % status[0],
+                        #'* commandline:',
+                        #jinfo[1],
+                        #'* exit value: %s' % str(status[1]),
+                        #'* term signal: %s' % str(status[2]),
+                        #'---- env ----',
+                        #repr(full_job.env),
+                        #'---- configuration ----',
+                        #repr(full_job.configuration),
+                        #'---- stdout ----',
+                        #stdout,
+                        #'---- stderr ----',
+                        #stderr,
+                        ##'---- full host env ----',
+                        ##repr(os.environ)
+                    #]
             finally:
                 if os.path.exists(tmp1[1]):
                     os.unlink(tmp1[1])

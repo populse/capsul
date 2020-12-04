@@ -76,8 +76,8 @@ class SPMConfig(StudyConfigModule):
         self.study_config.on_trait_change(self.sync_to_engine,
                                           "[use_spm, spm_+]")
         #  WARNING ref to self in callback
-        self.study_config.engine.settings.module_notifiers['spm'] \
-            = [self.sync_from_engine]
+        self.study_config.engine.settings.module_notifiers[
+            'capsul.engine.module.spm'] = [self.sync_from_engine]
 
     def sync_from_engine(self, param=None, value=None):
         if getattr(self, '_syncing', False):
