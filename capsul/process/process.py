@@ -1762,13 +1762,14 @@ class NipypeProcess(FileCopyProcess):
         return None
 
     def _after_run_process(self, run_process_result):
-        if getattr(self, '_spm_script_file', None) not in (None,
-                                                           Undefined, ''):
+        trait_map = getattr(self, '_nipype_trait_mapping', {})
+        script_tname = trait_map.get('_spm_script_file', '_spm_script_file')
+        if getattr(self, script_tname, None) not in (None, Undefined, ''):
             script_file = os.path.join(
                 self.output_directory,
                 self._nipype_interface.mlab.inputs.script_file)
             if os.path.exists(script_file):
-                shutil.move(script_file, self._spm_script_file)
+                shutil.move(script_file, getattr(self, script_tname))
         return super(NipypeProcess,
                      self)._after_run_process(run_process_result)
 

@@ -112,6 +112,10 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             the new trait value
         """
         # Set the new nypipe interface value
+        trait_map = getattr(process_instance, '_nipype_trait_mapping', {})
+        inames = [iname for iname, pname in trait_map.items() if pname == name]
+        if inames:
+            name = inames[0]
         setattr(process_instance._nipype_interface.inputs, name,
                 value)
 
@@ -150,6 +154,9 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         output_directory \
             = getattr(process_instance, 'output_directory', Undefined)
 
+        # get the interface name from the process trait name
+        trait_map = getattr(process_instance, '_nipype_trait_mapping', {})
+
         # Try to update all the output process instance traits values when
         # a process instance input trait is modified or when the dedicated
         # 'synchronize' trait value is modified
@@ -181,23 +188,24 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             # Synchronize traits: check file existance
             for out_name, out_value in six.iteritems(nipype_outputs):
 
+                pname = trait_map.get(out_name, '_' + out_name)
+
                 try:
                     # if we have an output directory, replace it
                     if output_directory not in (Undefined, None) \
                             and any([x
                                      for x in trait_ids(process_instance.trait(
-                                        "_" + out_name))
+                                        pname))
                                      if 'File' in x or 'Directory' in x]):
                         out_value = _replace_dir(out_value, output_directory)
                     # Set the output process trait value
-                    process_instance.set_parameter(
-                        "_" + out_name, out_value)
+                    process_instance.set_parameter(pname, out_value)
 
                 # If we can't update the output process instance traits values,
                 # print a logging debug message.
                 except Exception as e:
                     print('EXCEPTION:', e, file=sys.stderr)
-                    print('while setting nipype output parameter', out_name,
+                    print('while setting nipype output parameter', pname,
                           'on', process_instance.name, 'with value:',
                           out_value, file=sys.stderr)
                     import traceback
@@ -287,11 +295,14 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
 
     # Add nipype traits to the process instance
     # > input traits
+    trait_map = getattr(process_instance, '_nipype_trait_mapping', {})
+
     for trait_name, trait in nipype_instance.input_spec().items():
 
         # Check if trait name already used in class attributes:
         # For instance nipype.interfaces.fsl.FLIRT has a save_log bool input
         # trait.
+        trait_name = trait_map.get(trait_name, trait_name)
         if hasattr(process_instance, trait_name):
             trait_name = "nipype_" + trait_name
 
@@ -346,7 +357,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
 
         # Create the output process trait name: nipype trait name prefixed
         # by '_'
-        private_name = "_" + trait_name
+        private_name = trait_map.get(trait_name, '_' + trait_name)
 
         # Add the cloned trait to the process instance
         process_instance.add_trait(private_name, process_trait)
@@ -374,7 +385,9 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
     # allow to save the SPM .m script
     if nipype_instance.__class__.__module__.startswith(
             'nipype.interfaces.spm.'):
-        process_instance.add_trait('_spm_script_file',
+        script_name = trait_map.get('_spm_script_file', '_spm_script_file')
+
+        process_instance.add_trait(script_name,
                                    File(output=True, optional=True))
 
     return process_instance
