@@ -37,7 +37,7 @@ from traits.api import Directory, File, List, CTrait, Undefined, TraitError
 from .process import NipypeProcess
 
 
-def nipype_factory(nipype_instance):
+def nipype_factory(nipype_instance, base_class=NipypeProcess):
     """ From a nipype class instance generate dynamically a process
     instance that encapsulate the nipype instance.
 
@@ -90,7 +90,7 @@ def nipype_factory(nipype_instance):
             _make_matlab_command, nipype_instance)
 
     # Create new instance derived from Process
-    process_instance = NipypeProcess(nipype_instance)
+    process_instance = base_class(nipype_instance)
 
     ####################################################################
     # Define functions to synchronized the process and interface traits
