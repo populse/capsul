@@ -1588,49 +1588,69 @@ class FileCopyProcess(Process):
 class NipypeProcess(FileCopyProcess):
     """ Base class used to wrap nipype interfaces.
     """
+
     def __new__(cls, *args, **kwargs):
-      # determine if we were called from within nipype_factory()
-      stack = traceback.extract_stack()
-      # stack[-1] should be here
-      # stack[-2] may be nipype_factory
-      if len(stack) >= 2:
-          s2 = stack[-2]
-          if s2[2] == 'nipype_factory':
-              instance = super(NipypeProcess, cls).__new__(cls, *args,
-                                                           **kwargs)
-              instance.__np_init_done__ = False
-              return instance
-      nipype_class = getattr(cls, '_nipype_class_type', None)
-      nargs = args
-      nkwargs = kwargs
-      arg0 = None
-      if nipype_class is not None:
-          arg0 = nipype_class()
-      else:
-          if 'nipype_class' in kwargs:
-              arg0 = kwargs['nipype_class']()
-              nkwargs = {k: v for k, v in kwargs if k != 'nipype_class'}
-          elif 'nipype_instance' in kwargs:
-              pass
-          elif len(args) != 0:
-              import nipype.interfaces.base
-              if isinstance(args[0], nipype.interfaces.base.BaseInterface):
-                  arg0 = args[0]
-                  nargs = nargs[1:]
-              elif issubclass(args[0], nipype.interfaces.base.BaseInterface):
-                  arg0 = args[0]()
-                  nargs = args[1:]
-      if arg0 is not None:
-          from .nipype_process import nipype_factory
-          instance = nipype_factory(arg0, base_class=cls, *nargs, **nkwargs)
-          if cls != NipypeProcess:
-              # override direct nipype reference
-              instance.id = instance.__class__.__module__ + "." + instance.name
-          instance.__postinit__(*nargs, **nkwargs)
-      else:
-          instance = super(NipypeProcess, cls).__new__(cls, *args, **kwargs)
-          instance.__np_init_done__ = False
-      return instance
+
+        def init_with_skip(self, *args, **kwargs):
+
+            cls = self.__init__.cls
+            init_att = '__%s_np_init_done__' % cls.__name__
+            if hasattr(self, init_att) and getattr(self, init_att):
+                # may be called twice, from within __new__ or from python
+                # internals
+                return
+
+            setattr(self, init_att, True)
+            super(cls, self).__init__(*args, **kwargs)
+
+        if cls.__init__ is cls.__base__.__init__ and cls is not NipypeProcess:
+            # we must setup a conditional __init__ for each specialized class
+            cls.__init__ = init_with_skip
+            init_with_skip.cls = cls
+
+        # determine if we were called from within nipype_factory()
+        stack = traceback.extract_stack()
+        # stack[-1] should be here
+        # stack[-2] may be nipype_factory
+        if len(stack) >= 2:
+            s2 = stack[-2]
+            if s2[2] == 'nipype_factory':
+                instance = super(NipypeProcess, cls).__new__(cls, *args,
+                                                            **kwargs)
+                setattr(instance, '__%s_np_init_done__' % cls.__name__, False)
+                return instance
+        nipype_class = getattr(cls, '_nipype_class_type', None)
+        nargs = args
+        nkwargs = kwargs
+        arg0 = None
+        if nipype_class is not None:
+            arg0 = nipype_class()
+        else:
+            if 'nipype_class' in kwargs:
+                arg0 = kwargs['nipype_class']()
+                nkwargs = {k: v for k, v in kwargs if k != 'nipype_class'}
+            elif 'nipype_instance' in kwargs:
+                pass
+            elif len(args) != 0:
+                import nipype.interfaces.base
+                if isinstance(args[0], nipype.interfaces.base.BaseInterface):
+                    arg0 = args[0]
+                    nargs = nargs[1:]
+                elif issubclass(args[0], nipype.interfaces.base.BaseInterface):
+                    arg0 = args[0]()
+                    nargs = args[1:]
+        if arg0 is not None:
+            from .nipype_process import nipype_factory
+            instance = nipype_factory(arg0, base_class=cls, *nargs, **nkwargs)
+            if cls != NipypeProcess:
+                # override direct nipype reference
+                instance.id = instance.__class__.__module__ + "." \
+                    + instance.name
+            instance.__postinit__(*nargs, **nkwargs)
+        else:
+            instance = super(NipypeProcess, cls).__new__(cls, *args, **kwargs)
+            setattr(instance, '__%s_np_init_done__' % cls.__name__, False)
+        return instance
 
 
     def __init__(self, nipype_instance=None, use_temp_output_dir=None,
@@ -1705,11 +1725,12 @@ class NipypeProcess(FileCopyProcess):
         _nipype_interface_name : str
             private attribute to store the nipye interface name
         """
-        if hasattr(self, '__np_init_done__') and self.__np_init_done__:
+        if hasattr(self, '__NipypeProcess_np_init_done__') \
+                and self.__NipypeProcess_np_init_done__:
             # may be called twice, from within __new__ or from python internals
             return
 
-        self.__np_init_done__ = True
+        self.__NipypeProcess_np_init_done__ = True
         #super(NipypeProcess, self).__init__(*args, **kwargs)
 
         # Set some class attributes that characterize the nipype interface
@@ -1827,7 +1848,7 @@ class NipypeProcess(FileCopyProcess):
         # before now)
         from capsul.in_context import nipype as inp_npp
         inp_npp.configure_all()
-    
+
     def _run_process(self):
         """ Method that do the processings when the instance is called.
 
@@ -1854,13 +1875,9 @@ class NipypeProcess(FileCopyProcess):
                 if old is Undefined and old != new:
                     setattr(self._nipype_interface.inputs, trait_name, new)
 
-        # activate config
-        #study_config = self.get_study_config()
-        #print('SC:', study_config.export_to_dict())
-
         results = self._nipype_interface.run()
         self.synchronize += 1
-        
+
         # For spm, need to move the batch
         # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)
         if self._nipype_interface_name == "spm":
@@ -1872,7 +1889,7 @@ class NipypeProcess(FileCopyProcess):
                 self._nipype_interface.mlab.inputs.script_file)
             if os.path.isfile(mfile):
                 shutil.move(mfile, destmfile)
-        
+
         # Restore cwd
         if cwd is not None:
             os.chdir(cwd)

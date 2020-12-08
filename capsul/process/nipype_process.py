@@ -151,7 +151,6 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         value: type (mandatory)
             the old trait value
         """
-        #print('sync_process_output_traits', name)
         # Get all the input traits
         input_traits = process_instance.traits(output=False)
         output_directory \
