@@ -90,7 +90,10 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             _make_matlab_command, nipype_instance)
 
     # Create new instance derived from Process
-    process_instance = base_class(nipype_instance)
+    if hasattr(base_class, '_nipype_class_type'):
+        process_instance = base_class()
+    else:
+        process_instance = base_class(nipype_instance)
 
     ####################################################################
     # Define functions to synchronized the process and interface traits

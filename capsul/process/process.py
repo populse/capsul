@@ -38,6 +38,7 @@ import sys
 import functools
 import glob
 import tempfile
+import traceback
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -1587,19 +1588,111 @@ class FileCopyProcess(Process):
 class NipypeProcess(FileCopyProcess):
     """ Base class used to wrap nipype interfaces.
     """
-    def __init__(self, nipype_instance, use_temp_output_dir=None,
+    def __new__(cls, *args, **kwargs):
+      # determine if we were called from within nipype_factory()
+      stack = traceback.extract_stack()
+      # stack[-1] should be here
+      # stack[-2] may be nipype_factory
+      if len(stack) >= 2:
+          s2 = stack[-2]
+          if s2[2] == 'nipype_factory':
+              instance = super(NipypeProcess, cls).__new__(cls, *args,
+                                                           **kwargs)
+              instance.__np_init_done__ = False
+              return instance
+      nipype_class = getattr(cls, '_nipype_class_type', None)
+      nargs = args
+      nkwargs = kwargs
+      arg0 = None
+      if nipype_class is not None:
+          arg0 = nipype_class()
+      else:
+          if 'nipype_class' in kwargs:
+              arg0 = kwargs['nipype_class']()
+              nkwargs = {k: v for k, v in kwargs if k != 'nipype_class'}
+          elif 'nipype_instance' in kwargs:
+              pass
+          elif len(args) != 0:
+              import nipype.interfaces.base
+              if isinstance(args[0], nipype.interfaces.base.BaseInterface):
+                  arg0 = args[0]
+                  nargs = nargs[1:]
+              elif issubclass(args[0], nipype.interfaces.base.BaseInterface):
+                  arg0 = args[0]()
+                  nargs = args[1:]
+      if arg0 is not None:
+          from .nipype_process import nipype_factory
+          instance = nipype_factory(arg0, base_class=cls, *nargs, **nkwargs)
+          if cls != NipypeProcess:
+              # override direct nipype reference
+              instance.id = instance.__class__.__module__ + "." + instance.name
+          instance.__postinit__(*nargs, **nkwargs)
+      else:
+          instance = super(NipypeProcess, cls).__new__(cls, *args, **kwargs)
+          instance.__np_init_done__ = False
+      return instance
+
+
+    def __init__(self, nipype_instance=None, use_temp_output_dir=None,
                  *args, **kwargs):
         """ Initialize the NipypeProcess class.
 
         NipypeProcess instance gets automatically an additional user trait
         'output_directory'.
 
-        This class also fix also some lake of the nipye version '0.10.0'.
+        This class also fix also some lacks of the nipye version '0.10.0'.
+
+        NipypeProcess is normally not instantiated directly, but through the
+        CapsulEngine factory, using a nipype interface name::
+
+            ce = capsul_engine()
+            npproc = ce.get_process_instance('nipype.interfaces.spm.Smooth')
+
+        However it is now still possible to instantiate it directly, using a
+        nipype interface class or instance::
+
+            npproc = NipypeProcess(nipype.interfaces.spm.Smooth)
+
+        NipypeProcess may be subclassed for specialized interfaces. In such a
+        case, the subclass may provide:
+
+        * (optionally) a class attribute `_nipype_class_type` to specify the
+        nipype interface class. If present the nipype interface class or
+        instance will not be specified in the constructor call.
+        * (optionally) a :meth:`__postinit__` method which will be called in
+        addition to the constructor, but later once the instance is correctly
+        setup. This `__postinit__` method allows to customize the new class
+        instance.
+        * (optionally) a class attribute `_nipype_trait_mapping`: a dict
+        specifying a translation table between nipype traits names and the
+        names they will get in the Process instance. By default inputs get the
+        same name as in their nipype interface, and outputs are prefixed with
+        an underscore ('_') to avoid names collisions when a trait exists both
+        in inputs and outputs in nipype. A special trait name
+        `_spm_script_file` is also used in SPM interfaces to write the matlab
+        script. It can also be translated to a different name in this dict.
+
+        Subclasses should preferably *not* define an __init__ method, because
+        it may be called twice if no precaution is taken to avoid it (a
+        `__np_init_done__` instance attribute is set once init is done the
+        first time).
+
+        Ex::
+
+            class Smooth(NipypeProcess):
+                _nipype_class_type = spm.Smooth
+                _nipype_trait_mapping = {
+                    'smoothed_files': 'smoothed_files',
+                    '_spm_script_file': 'spm_script_file'}
+
+            smooth = Smooth()
 
         Parameters
         ----------
-        nipype_instance: nipype interface (mandatory)
+        nipype_instance: nipype interface (mandatory, except from internals)
             the nipype interface we want to wrap in capsul.
+        use_temp_output_dir: bool or None
+            use a temp working directory during processing
 
         Attributes
         ----------
@@ -1612,7 +1705,25 @@ class NipypeProcess(FileCopyProcess):
         _nipype_interface_name : str
             private attribute to store the nipye interface name
         """
+        if hasattr(self, '__np_init_done__') and self.__np_init_done__:
+            # may be called twice, from within __new__ or from python internals
+            return
+
+        self.__np_init_done__ = True
+        #super(NipypeProcess, self).__init__(*args, **kwargs)
+
         # Set some class attributes that characterize the nipype interface
+        if nipype_instance is None:
+            # probably called from a specialized subclass
+            np_class = getattr(self, '_nipype_class_type', None)
+            if np_class:
+                nipype_instance = np_class()
+            else:
+                raise TypeError(
+                    'NipypeProcess.__init__ must either be called with a '
+                    'nipye interface instance as 1st argument, or from a '
+                    'specialized subclass providing the _nipype_class_type '
+                    'class attribute')
         self._nipype_interface = nipype_instance
         self._nipype_module = nipype_instance.__class__.__module__
         self._nipype_class = nipype_instance.__class__.__name__
@@ -1664,6 +1775,14 @@ class NipypeProcess(FileCopyProcess):
         doc = getattr(nipype_instance, '__doc__')
         if doc:
             self.__doc__ = doc
+
+
+    def __postinit__(self, *args, **kwargs):
+        '''
+        `__postinit__` allows to customize subclasses. the base `NipypeProcess`
+        implementation does nothing, it is empty.
+        '''
+        pass
 
 
     def requirements(self):
