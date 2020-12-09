@@ -1125,12 +1125,12 @@ class Pipeline(Process):
             # export an invalid plug: mark it as invalid
             self.pipeline_node.invalid_plugs.add(pipeline_parameter)
             return
+
         # Make a copy of the trait
         source_trait = node.get_trait(plug_name)
-        trait = Trait(source_trait)
 
         # Check if the plug name is valid
-        if trait is None:
+        if source_trait is None:
             raise ValueError("Node {0} ({1}) has no parameter "
                              "{2}".format(node_name, node.name, plug_name))
 
@@ -1141,6 +1141,8 @@ class Pipeline(Process):
                 "parameter '{2}'".format(
                     plug_name, node_name or 'pipeline_node',
                     pipeline_parameter))
+
+        trait = self._clone_trait(source_trait)
 
         # Set user enabled parameter only if specified
         # Important because this property is automatically set during
