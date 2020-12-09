@@ -1526,9 +1526,11 @@ class PipelineScene(QtGui.QGraphicsScene):
 
     @userlevel.setter
     def userlevel(self, value):
-        self._userlevel = value
-        for name, gnode in self.gnodes.items():
-            gnode.userlevel = value
+        if self._userlevel != value:
+            self._userlevel = value
+            for name, gnode in self.gnodes.items():
+                gnode.userlevel = value
+            self.update_pipeline()
 
     def _add_node(self, name, gnode):
         self.addItem(gnode)
@@ -1686,16 +1688,23 @@ class PipelineScene(QtGui.QGraphicsScene):
             br = i.box.boundingRect()
             self.dim[i.name] = (br.width(), br.height())
 
+        dropped = []
         for source_dest, glink in six.iteritems(self.glinks):
             source, dest = source_dest
             source_gnode_name, source_param = source
             dest_gnode_name, dest_param = dest
             source_gnode = self.gnodes[source_gnode_name]
             dest_gnode = self.gnodes[dest_gnode_name]
-            glink.update(source_gnode.mapToScene(
-                source_gnode.out_plugs[source_param].get_plug_point()),
-                dest_gnode.mapToScene(
-                    dest_gnode.in_plugs[dest_param].get_plug_point()))
+            if source_param not in source_gnode.out_plugs \
+                    or dest_param not in dest_gnode.in_plugs:
+                dropped.append(source_dest)
+            else:
+                glink.update(source_gnode.mapToScene(
+                    source_gnode.out_plugs[source_param].get_plug_point()),
+                    dest_gnode.mapToScene(
+                        dest_gnode.in_plugs[dest_param].get_plug_point()))
+        for source_dest in dropped:
+            self._remove_link(source_dest)
 
     def set_pipeline(self, pipeline):
 
@@ -2599,26 +2608,6 @@ class PipelineDevelopperView(QGraphicsView):
         self.disable_overwrite = False
         self._userlevel = userlevel
 
-        if pipeline is None:
-            pipeline = Pipeline()
-            enable_edition = True
-
-        # Check that we have a pipeline or a process
-        if not isinstance(pipeline, Pipeline):
-            if isinstance(pipeline, Process):
-                process = pipeline
-                pipeline = Pipeline()
-                pipeline.add_process(process.name, process)
-                pipeline.autoexport_nodes_parameters()
-                pipeline.node_position["inputs"] = (0., 0.)
-                pipeline.node_position[process.name] = (300., 0.)
-                pipeline.node_position["outputs"] = (600., 0.)
-                # pipeline.scene_scale_factor = 0.5
-                pipeline.node_dimension[process.name] = (300., 200.) #add by Irmage OM
-            else:
-                raise Exception("Expect a Pipeline or a Process, not a "
-                                "'{0}'.".format(repr(pipeline)))
-
         self.set_pipeline(pipeline)
         self._grab = False
         self._grab_link = False
@@ -2646,6 +2635,31 @@ class PipelineDevelopperView(QGraphicsView):
         for widget in self.findChildren(QtGui.QWidget):
             if hasattr(widget, 'userlevel'):
                 widget.userlevel = value
+
+    def ensure_pipeline(self, pipeline):
+        '''
+        Check that we have a pipeline or a process
+        '''
+        if pipeline is None:
+            pipeline = Pipeline()
+            enable_edition = True
+
+        if not isinstance(pipeline, Pipeline):
+            if isinstance(pipeline, Process):
+                process = pipeline
+                pipeline = Pipeline()
+                pipeline.set_study_config(process.get_study_config())
+                pipeline.add_process(process.name, process)
+                pipeline.autoexport_nodes_parameters()
+                pipeline.node_position["inputs"] = (0., 0.)
+                pipeline.node_position[process.name] = (300., 0.)
+                pipeline.node_position["outputs"] = (600., 0.)
+                # pipeline.scene_scale_factor = 0.5
+                pipeline.node_dimension[process.name] = (300., 200.) #add by Irmage OM
+            else:
+                raise Exception("Expect a Pipeline or a Process, not a "
+                                "'{0}'.".format(repr(pipeline)))
+        return pipeline
 
     def _set_pipeline(self, pipeline):
         pos = {}
@@ -2693,6 +2707,7 @@ class PipelineDevelopperView(QGraphicsView):
         '''
         Assigns a new pipeline to the view.
         '''
+        pipeline = self.ensure_pipeline(pipeline)
         self._set_pipeline(pipeline)
         if pipeline is not None:
             # Setup callback to update view when pipeline state is modified
