@@ -2051,7 +2051,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         trait_type_str = str(trait_type)
         trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
         trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
-        typestr = ('%s (%s)' % (str(type(value)), trait_type_str)).replace(
+        inst_type = self.get_instance_type_string(value)
+        typestr = ('%s (%s)' % (inst_type, trait_type_str)).replace(
             '<', '').replace('>', '')
         msg = '''<h3>%s</h3>
 <table cellspacing="6">
@@ -2089,6 +2090,16 @@ class PipelineScene(QtGui.QGraphicsScene):
 '''
         msg += '</table>'
         return msg
+
+    @staticmethod
+    def get_instance_type_string(value):
+        if value is None:
+            return 'None'
+        if value is traits.Undefined:
+            return 'Undefined'
+        if isinstance(value, (list, traits.TraitListObject)):
+            return 'list'
+        return type(value).__name__
 
     @staticmethod
     def is_existing_path(value):
@@ -2138,7 +2149,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         trait_type_str = trait_type.__class__.__name__
         if trait.output and trait.input_filename is False:
             trait_type_str += ', output filename'
-        typestr = ('%s (%s)' % (str(type(value)), trait_type_str)).replace(
+        typestr = ('%s (%s)' % (self.get_instance_type_string(value),
+                                trait_type_str)).replace(
             '<', '').replace('>', '')
         msg = '''<h3>%s</h3>
 <table cellspacing="6">
