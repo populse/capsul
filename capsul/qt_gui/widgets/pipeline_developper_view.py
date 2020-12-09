@@ -1766,13 +1766,21 @@ class PipelineScene(QtGui.QGraphicsScene):
                     pipeline_inputs = SortedDictionary()
                     for name, plug in six.iteritems(node.plugs):
                         if not plug.output:
-                            pipeline_inputs[name] = plug
+                            trait = node.get_trait(name)
+                            if not trait.hidden \
+                                    and (trait.userlevel is None
+                                         or trait.userlevel <= self.userlevel):
+                                pipeline_inputs[name] = plug
                     gnode.parameters = pipeline_inputs
                 else:
                     pipeline_outputs = SortedDictionary()
                     for name, plug in six.iteritems(node.plugs):
                         if plug.output:
-                            pipeline_outputs[name] = plug
+                            trait = node.get_trait(name)
+                            if not trait.hidden \
+                                    and (trait.userlevel is None
+                                         or trait.userlevel <= self.userlevel):
+                                pipeline_outputs[name] = plug
                     gnode.parameters = pipeline_outputs
             else:
                 node = pipeline.nodes.get(node_name)
