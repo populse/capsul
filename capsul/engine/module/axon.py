@@ -17,14 +17,21 @@ def init_settings(capsul_engine):
             [dict(name='shared_directory',
                 type='string',
                 description=
-                  'Directory where BrainVisa shared data is installed'),
+                    'Directory where BrainVisa shared data is installed'),
+             dict(name='user_level',
+                  type='int',
+                  description=
+                      '0: basic, 1: advanced, 2: expert, or more. '
+                      'used to display or hide some advanced features or '
+                      'process parameters that would be confusing to a novice '
+                      'user'),
             ])
 
     with capsul_engine.settings as session:
         config = session.config('axon', 'global')
         if not config:
             values = {capsul_engine.settings.config_id_field: 'axon',
-                      'shared_directory': None}
+                      'shared_directory': None, 'user_level': 0}
             session.new_config('axon', 'global', values)
 
     # link with StudyConfig
@@ -77,7 +84,7 @@ def edition_widget(engine, environment):
         controller = widget.controller_widget.controller
         with widget.engine.settings as session:
             conf = session.config('axon', widget.environment)
-            values = {'config_id': 'axon'}
+            values = {'config_id': 'axon', 'user_level': controller.user_level}
             if controller.shared_directory in (None, traits.Undefined, ''):
                 values['shared_directory'] = None
             else:
@@ -85,13 +92,20 @@ def edition_widget(engine, environment):
             if conf is None:
                 session.new_config('axon', widget.environment, values)
             else:
-                for k in ('shared_directory', ):
+                for k in ('shared_directory', 'user_level'):
                     setattr(conf, k, values[k])
 
     controller = Controller()
     controller.add_trait('shared_directory',
                          traits.Directory(desc='Directory where BrainVisa '
                                           'shared data is installed'))
+    controller.add_trait(
+        'user_level',
+        traits.Int(desc=
+                   '0: basic, 1: advanced, 2: expert, or more. '
+                    'used to display or hide some advanced features or '
+                    'process parameters that would be confusing to a novice '
+                    'user'))
 
     conf = engine.settings.select_configurations(
         environment, {'axon': 'any'})
@@ -99,6 +113,8 @@ def edition_widget(engine, environment):
         controller.shared_directory = conf.get(
             'capsul.engine.module.axon', {}).get('shared_directory',
                                                  traits.Undefined)
+        controller.user_level = conf.get(
+            'capsul.engine.module.axon', {}).get('user_level', 0)
 
     widget = ScrollControllerWidget(controller, live=True)
     widget.engine = engine

@@ -69,35 +69,50 @@ class BrainVISAConfig(StudyConfigModule):
 
     def initialize_callbacks(self):
         self.study_config.on_trait_change(self.sync_to_engine,
-                                          'shared_directory')
+                                          ['shared_directory', 'user_level'])
         #  WARNING ref to self in callback
-        self.study_config.engine.settings.module_notifiers[
-            'capsul.engine.module.axon'] = [self.sync_from_engine]
+        self.study_config.engine.settings.module_notifiers.setdefault(
+            'capsul.engine.module.axon', []).append(self.sync_from_engine)
 
 
     def sync_to_engine(self, param=None, value=None):
-        with self.study_config.engine.settings as session:
-            cif = self.study_config.engine.settings.config_id_field
-            config = session.config('axon', 'global')
-            shared_dir = self.study_config.shared_directory
-            if shared_dir is Undefined:
-                shared_dir = None
-            if config is None:
-                session.new_config(
-                    'axon', 'global',
-                    {'shared_directory': shared_dir,
-                      cif: 'axon'})
-            else:
-                config.shared_directory = shared_dir
+        if getattr(self, '_syncing', False):
+            return
+        self._syncing = True
+        try:
+            with self.study_config.engine.settings as session:
+                cif = self.study_config.engine.settings.config_id_field
+                config = session.config('axon', 'global')
+                shared_dir = self.study_config.shared_directory
+                if shared_dir is Undefined:
+                    shared_dir = None
+                if config is None:
+                    session.new_config(
+                        'axon', 'global',
+                        {'shared_directory': shared_dir,
+                        'user_level': self.study_config.user_level,
+                          cif: 'axon'})
+                else:
+                    config.shared_directory = shared_dir
+                    config.user_level = self.study_config.user_level
+        finally:
+            del self._syncing
 
 
     def sync_from_engine(self, param=None, value=None):
-        with self.study_config.engine.settings as session:
-            config = session.config('axon', 'global', any=True)
-            if config:
-                shared_dir = config.shared_directory
-                if shared_dir is None:
-                    shared_dir = Undefined
-                self.study_config.shared_directory = shared_dir
+        if getattr(self, '_syncing', False):
+            return
+        self._syncing = True
+        try:
+            with self.study_config.engine.settings as session:
+                config = session.config('axon', 'global', any=True)
+                if config:
+                    shared_dir = config.shared_directory
+                    if shared_dir is None:
+                        shared_dir = Undefined
+                    self.study_config.shared_directory = shared_dir
+                    self.study_config.user_level = config.user_level
+        finally:
+            del self._syncing
 
 
