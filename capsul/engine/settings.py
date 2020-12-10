@@ -218,6 +218,7 @@ class Settings:
         :class:`Settings` level) does not load the required modules.
         '''
         modules = config_dict.get('capsul_engine', {}).get('uses', {})
+
         with self as session:
             for module in modules:
                 mod_dict = config_dict.get(module, {})
@@ -226,10 +227,10 @@ class Settings:
                     conf = session.config(
                         module, environment, 'config_id == "%s"' % config_id)
                     if conf:
-                        for key, value in mod_dict.items():
-                            if key in ('config_id', 'config_environment'):
-                                continue
-                            setattr(conf, key, value)
+                        values = {k: v for k, v in mod_dict.items()
+                                  if k not in ('config_id',
+                                               'config_environment')}
+                        conf.set_values(values)
                     else:
                         session.new_config(module, environment, mod_dict)
 
@@ -408,12 +409,22 @@ class SettingsConfig(object):
         super(SettingsConfig, self).__setattr__('_notifiers', notifiers)
 
     def __setattr__(self, name, value):
-        self._dbs.set_value(self._collection, self._id, name, value)
-        # notify change for listeners
-        self.notify(name, value)
+        if getattr(self, name) != value:
+            self._dbs.set_value(self._collection, self._id, name, value)
+            # notify change for listeners
+            self.notify(name, value)
 
     def __getattr__(self, name):
         return self._dbs.get_value(self._collection, self._id, name)
+
+    def set_values(self, values):
+        old = self._dbs.get_document(self._collection, self._id,
+                                     fields=values.keys(), as_list=True)
+        mod_values = {k: v for o, (k, v) in zip(old, values.items()) if o != v}
+        if mod_values:
+            self._dbs.set_values(self._collection, self._id, mod_values)
+            for name, value in mod_values.items():
+                self.notify(name, value)
 
     def notify(self, name=None, value=None):
         for notifier in self._notifiers:

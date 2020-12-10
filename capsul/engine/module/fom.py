@@ -57,7 +57,7 @@ def init_settings(capsul_engine):
         config = session.config('fom', 'global')
         if not config:
             values = {capsul_engine.settings.config_id_field: 'fom',
-                      'auto_fom': True}
+                      'auto_fom': True, 'fom_path': []}
             session.new_config('fom', 'global', values)
 
     if not hasattr(capsul_engine, '_modules_data'):
