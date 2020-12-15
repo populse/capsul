@@ -208,7 +208,11 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 iterative_parameters[parameter].append(value)
             self.completion_progress = it_step + 1
         for parameter, values in six.iteritems(iterative_parameters):
-            setattr(process, parameter, values)
+            try:
+                setattr(process, parameter, values)
+            except Exception as e:
+                print('assign iteration parameter', parameter, ':\n', e,
+                      file=sys.stderr)
 
 
     def complete_iteration_step(self, step):
