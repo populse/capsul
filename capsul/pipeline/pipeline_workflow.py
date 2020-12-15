@@ -891,12 +891,6 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     elif not no_output_value:
                         size_error = True
                         break
-                else:
-                    if size is None:
-                        size = psize
-                    elif size != psize:
-                        size_error = True
-                        break
 
         if size_error:
             raise ValueError('Iterative parameter values must be lists of the '
@@ -936,8 +930,14 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 for parameter in it_process.iterative_parameters:
                     if not no_output_value \
                             or not it_process.trait(parameter).output:
-                        setattr(it_process.process, parameter,
-                                getattr(it_process, parameter)[iteration])
+                        values = getattr(it_process, parameter)
+                        if len(values) != 0:
+                            if len(values) > iteration:
+                                setattr(it_process.process, parameter,
+                                        values[iteration])
+                            else:
+                                setattr(it_process.process, parameter,
+                                        values[-1])
 
                 # operate completion
                 complete_iteration(it_process, iteration)
@@ -1082,8 +1082,13 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                             is False:
                         # dynamic output has no forced value
                         continue
-                    setattr(it_process.process, parameter,
-                            getattr(it_process, parameter)[iteration])
+                    values = getattr(it_process, parameter)
+                    if len(values) != 0:
+                        if len(values) > iteration:
+                            setattr(it_process.process, parameter,
+                                    values[iteration])
+                        else:
+                            setattr(it_process.process, parameter, values[-1])
 
                 # operate completion
                 complete_iteration(it_process, iteration)
