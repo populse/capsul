@@ -579,7 +579,7 @@ class Pipeline(Process):
         ----------
         name: str (mandatory)
             the node name (has to be unique).
-        process: Process (mandatory)
+        process: Process or str (mandatory)
             the process we want to add.
         iterative_plugs: list of str (optional)
             a list of plug names on which we want to iterate.
@@ -593,6 +593,14 @@ class Pipeline(Process):
         inputs_to_clean: list of str (optional)
             a list of temporary items.
         """
+        if isinstance(process, str):
+            # It is necessary not to import study_config.process_instance at
+            # the module level because there are circular dependencies between
+            # modules. For instance, Pipeline class needs get_process_instance
+            # which needs create_xml_pipeline which needs Pipeline class.
+            from capsul.study_config.process_instance \
+                import get_process_instance
+            process = get_process_instance(process)
         if iterative_plugs is None:
             forbidden = set(['nodes_activation', 'selection_changed',
                              'pipeline_steps', 'visible_groups'])
