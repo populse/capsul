@@ -378,7 +378,7 @@ class CapsulEngine(Controller):
         pipeline.autoexport_nodes_parameters(include_optional=True)
         return pipeline
 
-    def start(self, process, history=True, **kwargs):
+    def start(self, process, history=True, get_pipeline=False, **kwargs):
         '''
         Asynchronously start the exectution of a process or pipeline in the
         connected computing environment. Returns an identifier of
@@ -412,7 +412,7 @@ class CapsulEngine(Controller):
         pipeline: Pipeline instance (optional)
             only returned if get_pipeline is True.
         '''
-        return run.start(self, process, history, **kwargs)
+        return run.start(self, process, history, get_pipeline, **kwargs)
 
     def connect(self, computing_resource):
         '''
