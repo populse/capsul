@@ -169,6 +169,12 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             try:
                 nipype_outputs = (process_instance.
                                   _nipype_interface._list_outputs())
+
+            except TypeError:
+                # a hack to avoid the numerous exceptions that make the stdout
+                # unreadable
+                nipype_outputs = {}
+            
             except Exception as e:
                 # don't make it all crash because of a nipype trait assign
                 # error
