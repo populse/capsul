@@ -236,8 +236,8 @@ def load_fom(capsul_engine, schema, config, session, environment='global'):
         soma_app.initialize()
     old_fom_path = soma_app.fom_path
     if config.fom_path:
-        soma_app.fom_path = [p for p in config.fom_path
-                              if p not in soma_app.fom_path] \
+        soma_app.fom_path = [six.ensure_str(p) for p in config.fom_path
+                             if p not in soma_app.fom_path] \
             + soma_app.fom_path
     else:
         soma_app.fom_path = list(soma_app.fom_path)
