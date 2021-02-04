@@ -1513,7 +1513,7 @@ class FileCopyProcess(Process):
                 if out == python_object:
                     return out  # input=output, nothing to do
                 if copy:
-                    if os.path.exists(out):
+                    if os.path.exists(out) or os.path.islink(out):
                         if os.path.isdir(out):
                             shutil.rmtree(out)
                         else:
@@ -1533,7 +1533,8 @@ class FileCopyProcess(Process):
                         extrafname = os.path.basename(matfname)
                         extraout = os.path.join(destdir, extrafname)
                         if extraout != out:
-                            if os.path.exists(extraout):
+                            if os.path.exists(extraout) \
+                                    or os.path.islink(extraout):
                                 if os.path.isdir(extraout):
                                     shutil.rmtree(extraout)
                                 else:
