@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+import os.path
 import sys
 
 ''' Information module describing the Capsul package.
@@ -105,5 +106,5 @@ EXTRA_REQUIRES = {
 }
 
 # tests to run
-test_commands = ['%s -m capsul.test' % sys.executable]
+test_commands = ['%s -m capsul.test' % os.path.basename(sys.executable)]
 
