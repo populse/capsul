@@ -107,5 +107,5 @@ EXTRA_REQUIRES = {
 
 # tests to run
 test_commands = ['%s -m capsul.test' % os.path.basename(sys.executable)]
-test_timeouts = [3600]
+# test_timeouts = [1500]  # this is the default
 
