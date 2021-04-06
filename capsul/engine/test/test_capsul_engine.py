@@ -254,6 +254,42 @@ print(sys.argv)
     @unittest.skipIf(check_nipype_spm() is None,
                      'SPM12 standalone or nipype are not found')
     def test_nipype_spm_config(self):
+        import linecache
+
+        def trace_lines(frame, event, arg):
+            if event != 'line':
+                return
+            co = frame.f_code
+            func_name = co.co_name
+            line_no = frame.f_lineno
+            filename = co.co_filename
+            line_text = linecache.getline(co.co_filename, line_no)
+            sys.stdout.write('+[% 4d] %s' % (line_no, line_text))
+
+        def trace_calls(frame, event, arg):
+            if event != 'call':
+                return
+            co = frame.f_code
+            func_name = co.co_name
+            if func_name == 'write':
+                # Ignore write() calls from print statements
+                return
+            line_no = frame.f_lineno
+            filename = co.co_filename
+            if filename.startswith('/casa'):
+                print('Call to %s on line %s of %s'
+                      % (func_name, line_no, filename))
+                return trace_lines  # Trace into this function
+            return
+
+        try:
+            sys.settrace(trace_calls)  # debug deadlock
+            self.do_nipype_spm_config_test()
+        finally:
+            sys.settrace(None)  # debug deadlock
+
+
+    def do_nipype_spm_config_test(self):
         tdir = tempfile.mkdtemp(prefix='capsul_spm')
         try:
             cif = self.ce.settings.config_id_field
