@@ -107,5 +107,7 @@ EXTRA_REQUIRES = {
 
 # tests to run
 test_commands = ['%s -m capsul.test --verbose' % os.path.basename(sys.executable)]
-# test_timeouts = [1500]  # this is the default
+# Shorten the default timeout: tests usually last 4 minutes, and have a known
+# deadlock issue so we want them to fail asap.
+test_timeouts = [600]
 
