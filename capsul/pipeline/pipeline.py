@@ -1101,7 +1101,7 @@ class Pipeline(Process):
 
     def export_parameter(self, node_name, plug_name,
                          pipeline_parameter=None, weak_link=False,
-                         is_enabled=None, is_optional=None):
+                         is_enabled=None, is_optional=None, same_name=None):
         """ Export a node plug at the pipeline level.
 
         Parameters
@@ -1122,6 +1122,8 @@ class Pipeline(Process):
             automatic generation)
         is_optional: bool (optional)
             sets the exported parameter to be optional
+        same_name:bool (optional)
+            the same pipeline plug may be connected to several process plugs
         """
         # If a tuned name is not specified, used the plug name
         if not pipeline_parameter:
@@ -1142,8 +1144,8 @@ class Pipeline(Process):
             raise ValueError("Node {0} ({1}) has no parameter "
                              "{2}".format(node_name, node.name, plug_name))
 
-        # Check the the pipeline parameter name is not already used
-        if pipeline_parameter in self.user_traits():
+        # Check the pipeline parameter name is not already used
+        if pipeline_parameter in self.user_traits() and same_name is not True:
             raise ValueError(
                 "Parameter '{0}' of node '{1}' cannot be exported to pipeline "
                 "parameter '{2}'".format(
@@ -1163,7 +1165,8 @@ class Pipeline(Process):
             trait.optional = bool(is_optional)
 
         # Now add the parameter to the pipeline
-        self.add_trait(pipeline_parameter, trait)
+        if not pipeline_parameter in self.user_traits():
+            self.add_trait(pipeline_parameter, trait)
 
         # Propagate the parameter value to the new exported one
         try:
