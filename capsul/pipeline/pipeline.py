@@ -1101,7 +1101,8 @@ class Pipeline(Process):
 
     def export_parameter(self, node_name, plug_name,
                          pipeline_parameter=None, weak_link=False,
-                         is_enabled=None, is_optional=None, same_name=None):
+                         is_enabled=None, is_optional=None,
+                         allow_existing_plug=None):
         """ Export a node plug at the pipeline level.
 
         Parameters
@@ -1122,7 +1123,7 @@ class Pipeline(Process):
             automatic generation)
         is_optional: bool (optional)
             sets the exported parameter to be optional
-        same_name:bool (optional)
+        allow_existing_plug:bool (optional)
             the same pipeline plug may be connected to several process plugs
         """
         # If a tuned name is not specified, used the plug name
@@ -1145,7 +1146,8 @@ class Pipeline(Process):
                              "{2}".format(node_name, node.name, plug_name))
 
         # Check the pipeline parameter name is not already used
-        if pipeline_parameter in self.user_traits() and same_name is not True:
+        if (pipeline_parameter in self.user_traits() and
+                                               not allow_existing_plug is True):
             raise ValueError(
                 "Parameter '{0}' of node '{1}' cannot be exported to pipeline "
                 "parameter '{2}'".format(
