@@ -1504,7 +1504,6 @@ class FileCopyProcess(Process):
             if (python_object is not Undefined and
                     isinstance(python_object, six.string_types) and
                     os.path.isfile(python_object)):
-                srcdir = os.path.dirname(python_object)
                 destdir = self._destination
                 if not os.path.exists(destdir):
                     os.makedirs(destdir)
@@ -1525,8 +1524,8 @@ class FileCopyProcess(Process):
                     if files_list is not None:
                         files_list.append(out)
 
-                    # Copy associated .mat files
-                    name = fname.split(".")[0]
+                    # Copy associated .mat/.json/.minf files
+                    name = fname.rsplit(".", 1)[0]
                     matfnames = glob.glob(os.path.join(
                         os.path.dirname(python_object), name + ".*"))
                     for matfname in matfnames:
