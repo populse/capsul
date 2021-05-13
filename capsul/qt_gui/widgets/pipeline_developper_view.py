@@ -4446,6 +4446,16 @@ class PipelineDevelopperView(QGraphicsView):
             edit_plug = menu.addAction('Rename / edit plug')
             edit_plug.triggered.connect(self._edit_plug)
 
+        protect_action = menu.addAction('protected')
+        protect_action.setCheckable(True)
+        protect_action.setChecked(node.is_parameter_protected(plug_name))
+        protect_action.toggled[bool].connect(self._protect_plug)
+        complete_action = menu.addAction('completion enabled')
+        complete_action.setCheckable(True)
+        complete_action.setChecked(
+            not node.get_trait(plug_name).forbid_completion)
+        complete_action.toggled[bool].connect(self._enable_plug_completion)
+
         menu.exec_(QtGui.QCursor.pos())
         del self._temp_plug
         del self._temp_plug_name
@@ -4504,6 +4514,16 @@ class PipelineDevelopperView(QGraphicsView):
         node_name, name = self._temp_plug_name
         node.process.change_iterative_plug(name, checked)
         self.scene.update_pipeline()
+
+    def _protect_plug(self, checked):
+        node = self._temp_node
+        node_name, name = self._temp_plug_name
+        node.protect_parameter(name, checked)
+
+    def _enable_plug_completion(self, checked):
+        node = self._temp_node
+        node_name, name = self._temp_plug_name
+        node.get_trait(name).forbid_completion = not checked
 
     def _remove_plug(self):
 
