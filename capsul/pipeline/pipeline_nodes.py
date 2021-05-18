@@ -136,10 +136,10 @@ class Node(Controller):
     set_plug_value
     get_trait
     """
-    name = Str()
-    enabled = Bool(default_value=True)
-    activated = Bool(default_value=False)
-    node_type = Enum(("processing_node", "view_node"))
+    name = Str(hidden=True)
+    enabled = Bool(default_value=True, hidden=True)
+    activated = Bool(default_value=False, hidden=True)
+    node_type = Enum(("processing_node", "view_node"), hidden=True)
 
     def __init__(self, pipeline, name, inputs, outputs):
         """ Generate a Node
