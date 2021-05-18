@@ -2140,7 +2140,9 @@ class PipelineScene(QtGui.QGraphicsScene):
             splug = self.pipeline.pipeline_node.plugs[name]
         else:
             src = self.pipeline.nodes[node.name]
-            splug = src.plugs[name]
+            splug = src.plugs.get(name)
+            if not splug:
+                return None
             proc = src
             if hasattr(src, 'process'):
                 proc = src.process
@@ -3853,6 +3855,20 @@ class PipelineDevelopperView(QGraphicsView):
         module/name, and the node name before inserting.
         '''
 
+        def is_pipeline_node(item):
+            return item is not Node and isinstance(item, Node)
+
+        node_name_gui = PipelineDevelopperView.ProcessModuleInput(
+            display_str='node module/name', class_type_check=is_pipeline_node)
+        node_name_gui.resize(800, node_name_gui.sizeHint().height())
+
+        res = node_name_gui.exec_()
+        if res:
+            node_module = six.text_type(node_name_gui.proc_line.text())
+            node_name = str(node_name_gui.name_line.text())
+            self.add_named_node(node_name, node_module)
+
+    def add_named_node(self, node_name, node_module):
         def configure_node(cls):
             conf_controller = cls.configure_controller()
             print('configure_node crl:', conf_controller.export_to_dict())
@@ -3877,20 +3893,16 @@ class PipelineDevelopperView(QGraphicsView):
                 return None
 
         def get_node_instance(class_str, pipeline):
-            print('get_node_instance:', class_str)
             cls_and_name = process_instance.get_node_class(class_str)
-            print('cls:', cls_and_name)
             if cls_and_name is None:
                 return None
             name, cls = cls_and_name
-            print('name:', name, ', cls:', cls)
             if hasattr(cls, 'configure_controller'):
                 conf_controller = configure_node(cls)
                 if conf_controller is None:
                     return None # abort
             else:
                 conf_controller = Controller()
-            print('controller:', conf_controller.export_to_dict())
             if hasattr(cls, 'build_node'):
                 node = cls.build_node(pipeline, name, conf_controller)
             else:
@@ -3898,31 +3910,28 @@ class PipelineDevelopperView(QGraphicsView):
                 node = cls(pipeline, name, [], [])
             return node
 
-        def is_pipeline_node(item):
-            return item is not Node and isinstance(item, Node)
+        pipeline = self.scene.pipeline
+        try:
+            node = get_node_instance(node_module, pipeline)
+        except Exception as e:
+            print(e)
+            return
+        if node is None:
+            return
 
-        node_name_gui = PipelineDevelopperView.ProcessModuleInput(
-            display_str='node module/name', class_type_check=is_pipeline_node)
-        node_name_gui.resize(800, node_name_gui.sizeHint().height())
+        if not node_name and node:
+            class_name = node.__class__.__name__
+            i = 1
+            node_name = class_name.lower() + str(i)
 
-        res = node_name_gui.exec_()
-        if res:
-            node_module = six.text_type(node_name_gui.proc_line.text())
-            node_name = str(node_name_gui.name_line.text())
-            pipeline = self.scene.pipeline
-            try:
-                node = get_node_instance(
-                  six.text_type(node_name_gui.proc_line.text()), pipeline)
-                print('Node:', node)
-            except Exception as e:
-                print(e)
-                return
-            if node is None:
-                return
-            pipeline.nodes[node_name] = node
+            while node_name in pipeline.nodes and i < 100:
+                i += 1
+                node_name = class_name.lower() + str(i)
 
-            gnode = self.scene.add_node(node_name, node)
-            gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
+        pipeline.nodes[node_name] = node
+
+        gnode = self.scene.add_node(node_name, node)
+        gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
     class IterativeProcessInput(ProcessModuleInput):
         def __init__(self, engine):
