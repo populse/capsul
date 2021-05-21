@@ -3871,7 +3871,6 @@ class PipelineDevelopperView(QGraphicsView):
     def add_named_node(self, node_name, node_module):
         def configure_node(cls):
             conf_controller = cls.configure_controller()
-            print('configure_node crl:', conf_controller.export_to_dict())
             w = Qt.QDialog()
             w.setWindowTitle('Custom node parameterization')
             l = Qt.QVBoxLayout()
@@ -3888,6 +3887,7 @@ class PipelineDevelopperView(QGraphicsView):
             cancel.clicked.connect(w.reject)
             res = w.exec_()
             if res:
+                c.update_controller()
                 return conf_controller
             else:
                 return None
