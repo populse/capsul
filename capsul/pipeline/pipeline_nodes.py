@@ -97,7 +97,7 @@ class Plug(Controller):
 class Node(Controller):
     """ Basic Node structure of the pipeline that need to be tuned.
 
-    It is possible to defile custom nodes inheriting Node. To be usable in all
+    It is possible to define custom nodes inheriting Node. To be usable in all
     contexts (GUI construction, pipeline save / reload), custom nodes should
     define a few additional instance and class methods which will allow
     automatic systems (such as :func:`~capsul.study_config.get_node_instance`)
@@ -1178,6 +1178,48 @@ class Switch(Node):
     def is_job(self):
         return False
 
+    def get_switch_inputs(self):
+        inputs = []
+        for plug, trait in self.user_traits().items():
+            if trait.output:
+                continue
+            ps = plug.split('_switch_')
+            if len(ps) == 2 and ps[1] in self.user_traits() \
+                    and self.trait(ps[1]).output:
+                inputs.append(ps[0])
+        return inputs
+
+    @classmethod
+    def configure_controller(cls):
+        c = Controller()
+        c.add_trait('inputs', traits.List(traits.Str))
+        c.add_trait('outputs', traits.List(traits.Str))
+        c.add_trait('optional_params', traits.List(traits.Str))
+        c.add_trait('output_types', traits.List(traits.Str))
+        c.inputs = ['input_1', 'input_2']
+        c.outputs = ['output']
+        c.output_types = ['Any']
+        return c
+
+    def configured_controller(self):
+        c = self.configure_controller()
+        c.outputs = [plug for plug, trait in self.user_traits().items()
+                     if trait.output]
+        c.inputs = self.get_switch_inputs()
+        c.output_types = [self.trait(p).trait_type.__class__.__name__
+                          for p in self.outputs]
+        c.optional_params = [self.trait(p).optional for p in self.inputs]
+
+        return c
+
+    @classmethod
+    def build_node(cls, pipeline, name, conf_controller):
+        node = Switch(pipeline, name, conf_controller.inputs,
+                      conf_controller.outputs,
+                      make_optional=conf_controller.optional_params,
+                      output_types=conf_controller.output_types)
+        return node
+
 
 class OptionalOutputSwitch(Switch):
     ''' A switch which activates or disables its input/output link according
@@ -1303,3 +1345,26 @@ class OptionalOutputSwitch(Switch):
                 self._Switch__block_output_propagation = True
                 setattr(self, output_plug_name, new)
                 self._Switch__block_output_propagation = False
+
+    @classmethod
+    def configure_controller(cls):
+        c = Controller()
+        c.add_trait('input', traits.Str)
+        c.add_trait('output', traits.Str)
+        c.input = 'input'
+        c.output = 'output'
+        return c
+
+    def configured_controller(self):
+        c = self.configure_controller()
+        c.output = [plug for plug, trait in self.user_traits().items()
+                    if trait.output][0]
+        c.input = self.get_switch_inputs()[0]
+
+        return c
+
+    @classmethod
+    def build_node(cls, pipeline, name, conf_controller):
+        node = OptionalOutputSwitch(pipeline, name, conf_controller.input,
+                                    conf_controller.output)
+        return node
