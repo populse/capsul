@@ -2610,6 +2610,7 @@ class PipelineDevelopperView(QGraphicsView):
         self._restricted_edition = False
         self.disable_overwrite = False
         self._userlevel = userlevel
+        self.doc_browser = None
 
         self.set_pipeline(pipeline)
         self._grab = False
@@ -2996,8 +2997,7 @@ class PipelineDevelopperView(QGraphicsView):
             QtCore.QObject.setParent(sub_view, self.window())
             sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             sub_view.setWindowTitle(node_name)
-            if hasattr(self, 'doc_browser'):
-                sub_view.doc_browser = self.doc_browser
+            sub_view.doc_browser = self
             self.scene.update()
             sub_view.show()
 
@@ -3146,7 +3146,7 @@ class PipelineDevelopperView(QGraphicsView):
                 if item == value:
                     action.setChecked(True)
 
-        if not hasattr(self, 'doc_browser') or not self.doc_browser:
+        if not self.get_doc_browser(create=False):
             menu.addSeparator()
             doc_action = menu.addAction('Show doc')
             doc_action.triggered.connect(self.show_doc)
@@ -4340,7 +4340,14 @@ class PipelineDevelopperView(QGraphicsView):
         del self._current_link_def
 
     def get_doc_browser(self, create=False):
-        doc_browser = getattr(self, 'doc_browser', None)
+        doc_browser = self.doc_browser
+        pv = self
+        proxy = False
+        if isinstance(doc_browser, PipelineDevelopperView):
+            # it's a proxy to a parent view
+            pv = doc_browser
+            doc_browser = pv.doc_browser
+            proxy = True
         if doc_browser or not create:
             return doc_browser
         try:
@@ -4356,9 +4363,23 @@ class PipelineDevelopperView(QGraphicsView):
             QWebEnginePage = QWebPage
             use_webengine = False
         self._use_webengine = use_webengine
-        self.doc_browser = QWebEngineView()
-        self.doc_browser.show()
-        return self.doc_browser
+
+        class DocBrowser(QWebEngineView):
+            def __init__(self, pview, *args, **kwargs):
+                super(DocBrowser, self).__init__(*args, **kwargs)
+                self.setAttribute(Qt.Qt.WA_DeleteOnClose)
+                self.pview = pview
+
+            def closeEvent(self, event):
+                self.pview.doc_browser = None
+                event.accept()
+                super(DocBrowser, self).closeEvent(event)
+
+        doc_browser = DocBrowser(pv) # QWebEngineView()
+        pv.doc_browser = doc_browser
+        doc_browser.show()
+
+        return doc_browser
 
     def _node_clicked(self, name, node):
         self.show_node_doc(node)
