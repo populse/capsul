@@ -48,6 +48,7 @@ import inspect
 import six
 import json
 import io
+import traceback
 
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
@@ -2897,6 +2898,69 @@ class PipelineDevelopperView(QGraphicsView):
         else:
             super(PipelineDevelopperView, self).mouseMoveEvent(event)
 
+    def dragEnterEvent(self, event):
+        """Event handler when the mouse enters the widget.
+
+        :param event: event
+        """
+
+        if event.mimeData().hasFormat('component/name'):
+            event.accept()
+
+    def dragMoveEvent(self, event):
+        """Event handler when the mouse moves in the widget.
+
+        :param event: event
+        """
+
+        if event.mimeData().hasFormat('component/name'):
+            event.accept()
+
+    def dropEvent(self, event):
+        """Event handler when something is dropped in the widget.
+
+        :param event: event
+
+        """
+
+        if event.mimeData().hasFormat('component/name'):
+            self.click_pos = QtGui.QCursor.pos()
+            path = bytes(event.mimeData().data('component/name'))
+            self.drop_process(path.decode('utf8'))
+
+    def drop_process(self, path):
+        """Find the dropped process in the system's paths.
+
+        :param path: class's path (e.g. "nipype.interfaces.spm.Smooth") (str)
+        """
+
+        package_name, process_name = os.path.splitext(path)
+        process_name = process_name[1:]
+        __import__(package_name)
+        pkg = sys.modules[package_name]
+        for name, instance in sorted(list(pkg.__dict__.items())):
+            if name == process_name:
+                if issubclass(instance, Node):
+                    # it's a node
+                    try:
+                        QtGui.QApplication.setOverrideCursor(
+                            QtCore.Qt.WaitCursor)
+                        self.add_named_node(None, instance)
+                        QtGui.QApplication.restoreOverrideCursor()
+                        return
+                    except Exception as e:
+                        print(e)
+                        return
+                try:
+                    process = get_process_instance(instance)
+                except Exception as e:
+                    print(e)
+                    return
+                else:
+                    QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+                    self.add_named_process(instance)
+                    QtGui.QApplication.restoreOverrideCursor()
+
     def add_embedded_subpipeline(self, subpipeline_name, scale=None):
         '''
         Adds an embedded sub-pipeline inside its parent node.
@@ -3835,19 +3899,36 @@ class PipelineDevelopperView(QGraphicsView):
         if res:
             proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
+            self.add_named_process(node_name, proc_module)
+
+    def add_named_process(self, proc_module, node_name=None):
             pipeline = self.scene.pipeline
+
+            if not node_name:
+                if isinstance(proc_module, six.string_types):
+                    class_name = proc_module
+                else:
+                    class_name = proc_module.__name__
+                i = 1
+                node_name = '%s_%d' % (class_name.lower(), i)
+
+                while node_name in pipeline.nodes and i < 100:
+                    i += 1
+                    node_name = '%s_%d' % (class_name.lower(), i)
+
             engine = pipeline.get_study_config().engine
             try:
-                process = engine.get_process_instance(
-                    six.text_type(proc_name_gui.proc_line.text()))
+                process = engine.get_process_instance(proc_module)
             except Exception as e:
-                print(e)
+                traceback.print_exc()
                 return
             pipeline.add_process(node_name, process)
 
             node = pipeline.nodes[node_name]
             gnode = self.scene.add_node(node_name, node)
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
+
+            return process
 
     def add_node(self):
         '''
