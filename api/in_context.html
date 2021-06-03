@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../index.html">
+    <img src="../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CAPSUL</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="capsul-in-context-module">
+<h1>capsul.in_context module<a class="headerlink" href="#capsul-in-context-module" title="Permalink to this headline">¶</a></h1>
+<div class="graphviz"><img src="../_images/inheritance-818b2b3daf1391fb8caf178679e6aed9d6d1f1a3.png" alt="Inheritance diagram of capsul.in_context, capsul.in_context.fsl, capsul.in_context.spm" usemap="#inheritance645a63be1b" class="inheritance graphviz" /></div>
+<map id="inheritance645a63be1b" name="inheritance645a63be1b">
+<area shape="rect" id="node1" href="#capsul.in_context.fsl.FslPopen" target="_top" title="Equivalent to Python subprocess.Popen for FSL commands" alt="" coords="131,5,210,31"/>
+<area shape="rect" id="node3" href="#capsul.in_context.spm.SPMPopen" target="_top" title="Equivalent to Python subprocess.Popen for SPM batch" alt="" coords="125,55,216,80"/>
+</map><span class="target" id="module-capsul.in_context"></span><p>The <code class="docutils literal notranslate"><span class="pre">in_context</span></code> module provides functions to call some external software from Capsul processes (SPM, FSL, etc.). The main functions perform calls to the software in a similar way as <code class="docutils literal notranslate"><span class="pre">subprocess</span></code> functions (<a class="reference external" href="https://docs.python.org/3.7/library/subprocess.html#subprocess.Popen" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a>, <a class="reference external" href="https://docs.python.org/3.7/library/subprocess.html#subprocess.call" title="(in Python v3.7)"><code class="xref py py-func docutils literal notranslate"><span class="pre">call()</span></code></a>, <a class="reference external" href="https://docs.python.org/3.7/library/subprocess.html#subprocess.check_call" title="(in Python v3.7)"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_call()</span></code></a> and <a class="reference external" href="https://docs.python.org/3.7/library/subprocess.html#subprocess.check_output" title="(in Python v3.7)"><code class="xref py py-func docutils literal notranslate"><span class="pre">subprocess.check_output()</span></code></a>). These functions are only valid when the software environment <em>context</em> is activated.
+Activating the context is normally done using the <code class="docutils literal notranslate"><span class="pre">with</span></code> statement on a <a class="reference internal" href="engine.html#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulEngine</span></code></a> object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
+<span class="kn">from</span> <span class="nn">capsul.in_context.fsl</span> <span class="kn">import</span> <span class="n">fsl_check_call</span>
+
+<span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
+<span class="c1"># .. configure it ...</span>
+
+<span class="k">with</span> <span class="n">ce</span><span class="p">:</span>
+    <span class="n">fsl_check_call</span><span class="p">([</span><span class="s1">&#39;bet&#39;</span><span class="p">,</span> <span class="s1">&#39;-h&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<section id="module-capsul.in_context.fsl">
+<span id="capsul-in-context-fsl-submodule"></span><h2>capsul.in_context.fsl submodule<a class="headerlink" href="#module-capsul.in_context.fsl" title="Permalink to this headline">¶</a></h2>
+<p>Specific subprocess-like functions to call FSL taking into account
+configuration stored in ExecutionContext. To functions and class in
+this module it is mandatory to activate an ExecutionContext (using a
+with statement). For instance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
+<span class="kn">from</span> <span class="nn">capsul.in_context.fsl</span> <span class="kn">import</span> <span class="n">fsl_check_call</span>
+
+<span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">ce</span><span class="p">:</span>
+    <span class="n">fsl_check_call</span><span class="p">([</span><span class="s1">&#39;bet&#39;</span><span class="p">,</span> <span class="s1">&#39;/somewhere/myimage.nii&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>For calling FSL command with this module, the first arguent of
+command line must be the FSL executable without any path nor prefix.
+Prefix are used in Neurodebian install. For instance on Ubuntu 16.04
+Neurodebian FSL commands are prefixed with “fsl5.0-“.
+The appropriate path and eventualy prefix are added from the configuration
+of the ExecutionContext.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="capsul.in_context.fsl.FslPopen">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.in_context.fsl.</span></span><span class="sig-name descname"><span class="pre">FslPopen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/in_context/fsl.html#FslPopen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.in_context.fsl.FslPopen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to Python subprocess.Popen for FSL commands</p>
+<p>Create new Popen instance.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.in_context.fsl.fsl_call">
+<span class="sig-prename descclassname"><span class="pre">capsul.in_context.fsl.</span></span><span class="sig-name descname"><span class="pre">fsl_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/in_context/fsl.html#fsl_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.in_context.fsl.fsl_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to Python subprocess.call for FSL commands</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.in_context.fsl.fsl_check_call">
+<span class="sig-prename descclassname"><span class="pre">capsul.in_context.fsl.</span></span><span class="sig-name descname"><span class="pre">fsl_check_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/in_context/fsl.html#fsl_check_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.in_context.fsl.fsl_check_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to Python subprocess.check_call for FSL commands</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.in_context.fsl.fsl_check_output">
+<span class="sig-prename descclassname"><span class="pre">capsul.in_context.fsl.</span></span><span class="sig-name descname"><span class="pre">fsl_check_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/in_context/fsl.html#fsl_check_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.in_context.fsl.fsl_check_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to Python subprocess.check_output for FSL commands</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.in_context.fsl.fsl_command_with_environment">
+<span class="sig-prename descclassname"><span class="pre">capsul.in_context.fsl.</span></span><span class="sig-name descname"><span class="pre">fsl_command_with_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_runtime_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/in_context/fsl.html#fsl_command_with_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.in_context.fsl.fsl_command_with_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an FSL command where first element is a command name without
+any path or prefix (e.g. “bet”). Returns the appropriate command to
+call taking into account the FSL configuration stored in the
+activated ExecutionContext.</p>
+<p>Usinfg :func`fsl_env` is an alternative to this.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.in_context.fsl.fsl_env">
+<span class="sig-prename descclassname"><span class="pre">capsul.in_context.fsl.</span></span><span class="sig-name descname"><span class="pre">fsl_env</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/in_context/fsl.html#fsl_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.in_context.fsl.fsl_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>get FSL env variables by running the setup script in a separate bash
+process</p>
+</dd></dl>
+
+</section>
+<section id="module-capsul.in_context.spm">
+<span id="capsul-in-context-spm-submodule"></span><h2>capsul.in_context.spm submodule<a class="headerlink" href="#module-capsul.in_context.spm" title="Permalink to this headline">¶</a></h2>
+<p>Specific subprocess-like functions to call SPM taking into account
+configuration stored in ExecutionContext. To functions and class in
+this module it is mandatory to activate an ExecutionContext (using a
+with statement). For instance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
+<span class="kn">from</span> <span class="nn">capsul.in_context.spm</span> <span class="kn">import</span> <span class="n">spm_check_call</span>
+
+<span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">ce</span><span class="p">:</span>
+   <span class="n">spm_check_call</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For calling SPM command with this module, the first arguent of
+command line must be the SPM batch file to execute with Matlab.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="capsul.in_context.spm.SPMPopen">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.in_context.spm.</span></span><span class="sig-name descname"><span class="pre">SPMPopen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spm_batch_filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/in_context/spm.html#SPMPopen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.in_context.spm.SPMPopen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to Python subprocess.Popen for SPM batch</p>
+<p>Create new Popen instance.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.in_context.spm.spm_call">
+<span class="sig-prename descclassname"><span class="pre">capsul.in_context.spm.</span></span><span class="sig-name descname"><span class="pre">spm_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spm_batch_filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/in_context/spm.html#spm_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.in_context.spm.spm_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to Python subprocess.call for SPM batch</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.in_context.spm.spm_check_call">
+<span class="sig-prename descclassname"><span class="pre">capsul.in_context.spm.</span></span><span class="sig-name descname"><span class="pre">spm_check_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spm_batch_filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/in_context/spm.html#spm_check_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.in_context.spm.spm_check_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to Python subprocess.check_call for SPM batch</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.in_context.spm.spm_check_output">
+<span class="sig-prename descclassname"><span class="pre">capsul.in_context.spm.</span></span><span class="sig-name descname"><span class="pre">spm_check_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spm_batch_filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/in_context/spm.html#spm_check_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.in_context.spm.spm_check_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to Python subprocess.check_output for SPM batch</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">capsul.in_context module</a><ul>
+<li><a class="reference internal" href="#module-capsul.in_context.fsl">capsul.in_context.fsl submodule</a></li>
+<li><a class="reference internal" href="#module-capsul.in_context.spm">capsul.in_context.spm submodule</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CAPSUL</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+<map id="inheritance75dab25d1b" name="inheritance75dab25d1b">
+<area shape="rect" id="node1" title="Base class for HasTraits." alt="" coords="33,55,123,80"/>
+<area shape="rect" id="node3" title="Enables any Python class derived from it to have trait attributes." alt="" coords="199,55,279,80"/>
+<area shape="rect" id="node2" title="A Controller contains some traits: attributes typing and observer" alt="" coords="327,55,411,80"/>
+<area shape="rect" id="node4" href="#capsul.study_config.study_config.StudyConfig" target="_top" title="Class to store the study parameters and processing options." alt="" coords="459,55,557,80"/>
+<area shape="rect" id="node5" href="#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="5,5,151,31"/>
+</map>

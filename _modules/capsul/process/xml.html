@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.process.xml</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Read and write a Process as an XML file.</span>
+
+<span class="sd">Classes</span>
+<span class="sd">=======</span>
+<span class="sd">:class:`XMLProcess`</span>
+<span class="sd">-------------------</span>
+
+<span class="sd">Functions</span>
+<span class="sd">=========</span>
+<span class="sd">:func:`string_to_value`</span>
+<span class="sd">-----------------------</span>
+<span class="sd">:func:`trait_from_xml`</span>
+<span class="sd">----------------------</span>
+<span class="sd">:func:`create_xml_process`</span>
+<span class="sd">--------------------------</span>
+
+<span class="sd">Decorator</span>
+<span class="sd">=========</span>
+<span class="sd">:func:`xml_process`</span>
+<span class="sd">-------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span>
+
+<span class="kn">from</span> <span class="nn">capsul.process.process</span> <span class="kn">import</span> <span class="n">Process</span>
+
+<span class="kn">from</span> <span class="nn">soma.utils.functiontools</span> <span class="kn">import</span> <span class="n">getArgumentsSpecification</span>
+
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Int</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Unicode</span><span class="p">,</span> <span class="n">File</span><span class="p">,</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Enum</span><span class="p">,</span>
+                        <span class="n">Bool</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">range</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="n">xrange</span> <span class="o">=</span> <span class="nb">range</span>
+
+<span class="n">_known_values</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Undefined&#39;</span><span class="p">:</span> <span class="n">Undefined</span><span class="p">,</span>
+    <span class="s1">&#39;None&#39;</span><span class="p">:</span> <span class="n">Undefined</span>
+<span class="p">}</span>
+    
+<div class="viewcode-block" id="string_to_value"><a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.string_to_value">[docs]</a><span class="k">def</span> <span class="nf">string_to_value</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Converts a string into a Python value without executing code.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">_known_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">literal_eval</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">string</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="XMLProcess"><a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.XMLProcess">[docs]</a><span class="k">class</span> <span class="nc">XMLProcess</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Base class of all generated classes for processes defined as a Python</span>
+<span class="sd">    function decorated with an XML string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">def</span> <span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the XMLProcess. Runs the function and check its result</span>
+<span class="sd">        to set the output attributes values accordingly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build function parameters with identified input attributes</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_inputs</span><span class="p">)</span>
+        <span class="c1"># Calls the function and get the result</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_return</span><span class="p">:</span>
+            <span class="c1"># Process was declared to return a single value</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_return</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_outputs</span><span class="p">:</span>
+            <span class="c1"># Process was declared to return several output values</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="c1"># Return value is a list, maps the output parameter names in</span>
+                <span class="c1"># their declaration order</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_function_outputs</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Too many values (</span><span class="si">%d</span><span class="s1"> instead of </span><span class="si">%d</span><span class="s1">) &#39;</span>
+                                     <span class="s1">&#39;returned by process </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> 
+                                     <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_function_outputs</span><span class="p">),</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_function_outputs</span><span class="p">)):</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_outputs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="c1"># Return value is a dict, set the output parameter values.</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_outputs</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Value returned by process </span><span class="si">%s</span><span class="s1"> must be a list,&#39;</span>
+                                 <span class="s1">&#39; tuple or dict&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
+
+<span class="n">string_to_trait</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;int&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">Int</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="s1">&#39;float&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">Float</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="s1">&#39;string&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="s1">&#39;unicode&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">Unicode</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="s1">&#39;bool&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">Bool</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="s1">&#39;file&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="s1">&#39;directory&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="s1">&#39;any&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">Any</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="s1">&#39;list_int&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;trait&#39;</span><span class="p">:</span> <span class="n">Int</span><span class="p">}),</span>
+    <span class="s1">&#39;list_float&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;trait&#39;</span><span class="p">:</span> <span class="n">Float</span><span class="p">}),</span>
+    <span class="s1">&#39;list_string&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;trait&#39;</span><span class="p">:</span> <span class="n">String</span><span class="p">}),</span>
+    <span class="s1">&#39;list_unicode&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;trait&#39;</span><span class="p">:</span> <span class="n">Unicode</span><span class="p">}),</span>
+    <span class="s1">&#39;list_bool&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;trait&#39;</span><span class="p">:</span> <span class="n">Bool</span><span class="p">}),</span>
+    <span class="s1">&#39;list_file&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;trait&#39;</span><span class="p">:</span> <span class="n">File</span><span class="p">}),</span>
+    <span class="s1">&#39;list_directory&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;trait&#39;</span><span class="p">:</span> <span class="n">Directory</span><span class="p">}),</span>
+    <span class="s1">&#39;list_any&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;trait&#39;</span><span class="p">:</span> <span class="n">Any</span><span class="p">}),</span>
+<span class="p">}</span>
+<div class="viewcode-block" id="trait_from_xml"><a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.trait_from_xml">[docs]</a><span class="k">def</span> <span class="nf">trait_from_xml</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Creates a trait from an XML element type (&lt;input&gt;, &lt;output&gt; or</span>
+<span class="sd">    &lt;return&gt;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+    <span class="n">trait_args</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">string_to_trait</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">t</span><span class="p">:</span>
+        <span class="n">trait_class</span><span class="p">,</span> <span class="n">trait_kwargs</span> <span class="o">=</span> <span class="n">t</span>
+    <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;enum&#39;</span><span class="p">:</span>
+        <span class="n">trait_class</span> <span class="o">=</span> <span class="n">Enum</span>
+        <span class="n">trait_args</span> <span class="o">=</span> <span class="n">string_to_value</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;values&#39;</span><span class="p">))</span>
+        <span class="n">trait_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid parameter type: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">)</span>
+    <span class="n">trait_kwargs</span> <span class="o">=</span> <span class="n">trait_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">trait_kwargs</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s1">&#39;input&#39;</span><span class="p">)</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;doc&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">doc</span><span class="p">:</span>
+        <span class="n">trait_kwargs</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">doc</span>
+    <span class="n">optional</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optional&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">trait_kwargs</span><span class="p">[</span><span class="s1">&#39;optional&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">optional</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span><span class="p">)</span>
+    <span class="n">allowed_ext</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;allowed_extensions&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">allowed_ext</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">trait_kwargs</span><span class="p">[</span><span class="s1">&#39;allowed_extensions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">allowed_ext</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="s1">&#39;list_file&#39;</span><span class="p">):</span>
+        <span class="n">input_filename</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;input_filename&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">input_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">trait_kwargs</span><span class="p">[</span><span class="s1">&#39;input_filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_filename</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trait_kwargs</span><span class="p">[</span><span class="s1">&#39;input_filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">order</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">trait_kwargs</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">order</span>
+    <span class="k">return</span> <span class="n">trait_class</span><span class="p">(</span><span class="o">*</span><span class="n">trait_args</span><span class="p">,</span> <span class="o">**</span><span class="n">trait_kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="create_xml_process"><a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.create_xml_process">[docs]</a><span class="k">def</span> <span class="nf">create_xml_process</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">xml</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new process class given a Python function and a string containing</span>
+<span class="sd">    the corresponding Capsul XML 2.0 definition.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module: str (mandatory)</span>
+<span class="sd">        name of the module for the created Process class (the Python module is</span>
+<span class="sd">        not modified).</span>
+<span class="sd">    name: str (mandatory)</span>
+<span class="sd">        name of the new process class</span>
+<span class="sd">    function: callable (mandatory)</span>
+<span class="sd">        function to call to execute the process.</span>
+<span class="sd">    xml: str (mandatory)</span>
+<span class="sd">        XML definition of the function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    results:  XMLProcess subclass</span>
+<span class="sd">        created process class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">xml_process</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+    
+    <span class="n">class_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;__module__&quot;</span><span class="p">:</span> <span class="n">module</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">function</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">:</span>
+        <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">&#39;__doc__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="vm">__doc__</span>
+    
+    <span class="n">args</span><span class="p">,</span> <span class="n">varargs</span><span class="p">,</span> <span class="n">varkw</span><span class="p">,</span> <span class="n">defaults</span> <span class="o">=</span> <span class="n">getArgumentsSpecification</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">defaults</span><span class="p">:</span>
+        <span class="n">default_values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">],</span> <span class="n">defaults</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">defaults</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">default_values</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">&#39;default_values&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_values</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="n">xml_process</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;capsul_xml&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">version</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">!=</span> <span class="s1">&#39;2.0&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only Capsul XML 2.0 is supported, not </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">version</span><span class="p">)</span>
+    
+    <span class="n">role</span> <span class="o">=</span> <span class="n">xml_process</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;role&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">role</span><span class="p">:</span>
+        <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">role</span>
+    
+    <span class="n">function_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">function_outputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">function_return</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">trait_count</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># used to order traits in class</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">xml_process</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">):</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="n">trait</span> <span class="o">=</span> <span class="n">trait_from_xml</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">trait_count</span><span class="p">)</span>
+            <span class="n">trait_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">class_kwargs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">trait</span>
+            <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span> <span class="ow">and</span> <span class="n">trait</span><span class="o">.</span><span class="n">input_filename</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">function_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">function_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;return&#39;</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n</span><span class="p">:</span>
+                <span class="n">trait</span> <span class="o">=</span> <span class="n">trait_from_xml</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">trait_count</span><span class="p">)</span>
+                <span class="n">trait_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">class_kwargs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">trait</span>
+                <span class="n">function_return</span> <span class="o">=</span> <span class="n">n</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">child</span><span class="p">:</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="n">parameter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+                    <span class="n">trait</span> <span class="o">=</span> <span class="n">trait_from_xml</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">trait_count</span><span class="p">)</span>
+                    <span class="n">trait_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">class_kwargs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">trait</span>
+                    <span class="n">function_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid tag in &lt;process&gt;: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+    <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">&#39;_function&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">&#39;_function_inputs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">function_inputs</span>
+    <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">&#39;_function_outputs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">function_outputs</span>
+    <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">&#39;_function_return&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">function_return</span>
+    
+    <span class="c1"># Get the process instance associated to the function</span>
+    <span class="n">process_class</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="p">(</span><span class="n">XMLProcess</span><span class="p">,</span> <span class="p">),</span> <span class="n">class_kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">process_class</span></div>
+
+
+<div class="viewcode-block" id="xml_process"><a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.xml_process">[docs]</a><span class="k">def</span> <span class="nf">xml_process</span><span class="p">(</span><span class="n">xml</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Decorator used to associate a Python function to its Process XML</span>
+<span class="sd">    representation.    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">set_capsul_xml</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+        <span class="n">function</span><span class="o">.</span><span class="n">capsul_xml</span> <span class="o">=</span> <span class="n">xml</span>
+        <span class="k">return</span> <span class="n">function</span>
+    <span class="k">return</span> <span class="n">set_capsul_xml</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

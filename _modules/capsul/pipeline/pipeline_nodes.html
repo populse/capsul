@@ -1,0 +1,1510 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.pipeline.pipeline_nodes</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Node classes for CAPSUL pipeline elements</span>
+
+<span class="sd">Classes</span>
+<span class="sd">=======</span>
+<span class="sd">:class:`Plug`</span>
+<span class="sd">-------------</span>
+<span class="sd">:class:`Node`</span>
+<span class="sd">-------------</span>
+<span class="sd">:class:`ProcessNode`</span>
+<span class="sd">--------------------</span>
+<span class="sd">:class:`PipelineNode`</span>
+<span class="sd">---------------------</span>
+<span class="sd">:class:`Switch`</span>
+<span class="sd">---------------</span>
+<span class="sd">:class:`OptionalOutputSwitch`</span>
+<span class="sd">-----------------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="c1"># System import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">zip</span>
+
+<span class="c1"># Define the logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Trait import</span>
+<span class="kn">import</span> <span class="nn">traits.api</span> <span class="k">as</span> <span class="nn">traits</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Str</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Bool</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Undefined</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">File</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Directory</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">TraitError</span>
+
+<span class="c1"># Capsul import</span>
+<span class="kn">from</span> <span class="nn">soma.controller.trait_utils</span> <span class="kn">import</span> <span class="n">trait_ids</span>
+<span class="kn">from</span> <span class="nn">soma.controller.trait_utils</span> <span class="kn">import</span> <span class="n">is_trait_pathname</span>
+
+<span class="c1"># Soma import</span>
+<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">from</span> <span class="nn">soma.sorted_dictionary</span> <span class="kn">import</span> <span class="n">SortedDictionary</span>
+<span class="kn">from</span> <span class="nn">soma.utils.functiontools</span> <span class="kn">import</span> <span class="n">SomaPartial</span>
+<span class="kn">from</span> <span class="nn">soma.utils.weak_proxy</span> <span class="kn">import</span> <span class="n">weak_proxy</span><span class="p">,</span> <span class="n">get_ref</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<div class="viewcode-block" id="Plug"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Plug">[docs]</a><span class="k">class</span> <span class="nc">Plug</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Overload of the traits in oder to keep the pipeline memory.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    enabled : bool</span>
+<span class="sd">        user parameter to control the plug activation</span>
+<span class="sd">    activated : bool</span>
+<span class="sd">        parameter describing the Plug status</span>
+<span class="sd">    output : bool</span>
+<span class="sd">        parameter to set the Plug type (input or output)</span>
+<span class="sd">    optional : bool</span>
+<span class="sd">        parameter to create an optional Plug</span>
+<span class="sd">    has_default_value : bool</span>
+<span class="sd">        indicate if a value is available for that plug even if its not linked</span>
+<span class="sd">    links_to : set (node_name, plug_name, node, plug, is_weak)</span>
+<span class="sd">        the successor plugs of this  plug</span>
+<span class="sd">    links_from : set (node_name, plug_name, node, plug, is_weak)</span>
+<span class="sd">        the predecessor plugs of this plug</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">enabled</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">activated</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">optional</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate a Plug, i.e. a trait with the memory of the</span>
+<span class="sd">        pipeline adjacent nodes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Plug</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># The links correspond to edges in the graph theory</span>
+        <span class="c1"># links_to = successor</span>
+        <span class="c1"># links_from = predecessor</span>
+        <span class="c1"># A link is a tuple of the form (node, plug)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">links_to</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">links_from</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c1"># The has_default value flag can be set by setting a value for a</span>
+        <span class="c1"># parameter in Pipeline.add_process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_default_value</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Basic Node structure of the pipeline that need to be tuned.</span>
+
+<span class="sd">    It is possible to define custom nodes inheriting Node. To be usable in all</span>
+<span class="sd">    contexts (GUI construction, pipeline save / reload), custom nodes should</span>
+<span class="sd">    define a few additional instance and class methods which will allow</span>
+<span class="sd">    automatic systems (such as :func:`~capsul.study_config.get_node_instance`)</span>
+<span class="sd">    to reinstantiate and save them:</span>
+
+<span class="sd">    * configure_controller(cls): classmethod</span>
+<span class="sd">        return a Controller instance which specifies parameters needed to build</span>
+<span class="sd">        the node instance. Typically it may contain a paremeters (plugs) list</span>
+<span class="sd">        and other specifications.</span>
+<span class="sd">    * configured_controller(self): instance method:</span>
+<span class="sd">        on an instance, returns a Controller instance in the same shape as</span>
+<span class="sd">        configure_controller above, but with values filled from the instance.</span>
+<span class="sd">        This controller will allow saving parameters needed to instantiate</span>
+<span class="sd">        again the node with the same state.</span>
+<span class="sd">    * build_node(cls, pipeline, name, conf_controller): class method</span>
+<span class="sd">        returns an instance of the node class, built using appropriate</span>
+<span class="sd">        parameters (using configure_controller() or configured_controller()</span>
+<span class="sd">        from another instance)</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        the node name</span>
+<span class="sd">    full_name : str</span>
+<span class="sd">        a unique name among all nodes and sub-nodes of the top level pipeline</span>
+<span class="sd">    enabled : bool</span>
+<span class="sd">        user parameter to control the node activation</span>
+<span class="sd">    activated : bool</span>
+<span class="sd">        parameter describing the node status</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    connect</span>
+<span class="sd">    set_callback_on_plug</span>
+<span class="sd">    get_plug_value</span>
+<span class="sd">    set_plug_value</span>
+<span class="sd">    get_trait</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">Str</span><span class="p">(</span><span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">enabled</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">activated</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">node_type</span> <span class="o">=</span> <span class="n">Enum</span><span class="p">((</span><span class="s2">&quot;processing_node&quot;</span><span class="p">,</span> <span class="s2">&quot;view_node&quot;</span><span class="p">),</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate a Node</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pipeline: Pipeline (mandatory)</span>
+<span class="sd">            the pipeline object where the node is added</span>
+<span class="sd">        name: str (mandatory)</span>
+<span class="sd">            the node name</span>
+<span class="sd">        inputs: list of dict (mandatory)</span>
+<span class="sd">            a list of input parameters containing a dictionary with default</span>
+<span class="sd">            values (mandatory key: name)</span>
+<span class="sd">        outputs: dict (mandatory)</span>
+<span class="sd">            a list of output parameters containing a dictionary with default</span>
+<span class="sd">            values (mandatory key: name)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">weak_proxy</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span> <span class="o">=</span> <span class="n">SortedDictionary</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invalid_plugs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c1"># _callbacks -&gt; (src_plug_name, dest_node, dest_plug_name)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># generate a list with all the inputs and outputs</span>
+        <span class="c1"># the second parameter (parameter_type) is False for an input,</span>
+        <span class="c1"># True for an output</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)))</span>
+        <span class="n">parameters</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs</span><span class="p">))))</span>
+        <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">parameter_type</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="c1"># check if parameter is a dictionary as specified in the</span>
+            <span class="c1"># docstring</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="c1"># check if parameter contains a name item</span>
+                <span class="c1"># as specified in the docstring</span>
+                <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parameter</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can&#39;t create parameter with unknown&quot;</span>
+                                    <span class="s2">&quot;identifier and parameter </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                        <span class="n">parameter</span><span class="p">))</span>
+                <span class="n">parameter</span> <span class="o">=</span> <span class="n">parameter</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">plug_name</span> <span class="o">=</span> <span class="n">parameter</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+                <span class="c1"># force the parameter type</span>
+                <span class="n">parameter</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameter_type</span>
+                <span class="c1"># generate plug with input parameter and identifier name</span>
+                <span class="n">plug</span> <span class="o">=</span> <span class="n">Plug</span><span class="p">(</span><span class="o">**</span><span class="n">parameter</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can&#39;t create Node. Expect a dict structure &quot;</span>
+                                <span class="s2">&quot;to initialize the Node, &quot;</span>
+                                <span class="s2">&quot;got </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">parameter</span><span class="p">),</span>
+                                                      <span class="n">parameter</span><span class="p">))</span>
+            <span class="c1"># update plugs list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">plug_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">plug</span>
+            <span class="c1"># add an event on plug to validate the pipeline</span>
+            <span class="n">plug</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">update_nodes_and_plugs_activation</span><span class="p">,</span>
+                                 <span class="s2">&quot;enabled&quot;</span><span class="p">)</span>
+
+        <span class="c1"># add an event on the Node instance traits to validate the pipeline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">update_nodes_and_plugs_activation</span><span class="p">,</span>
+                             <span class="s2">&quot;enabled&quot;</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> object has no attribute process&#39;</span>
+                                 <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+    
+    <span class="nd">@process</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span> <span class="o">=</span> <span class="n">value</span>
+    
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">full_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">parent_pipeline</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_node</span><span class="o">.</span><span class="n">full_name</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_value_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_plug_name</span><span class="p">,</span> <span class="n">dest_node</span><span class="p">,</span> <span class="n">dest_plug_name</span><span class="p">,</span>
+                        <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Spread the source plug value to the destination plug.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dest_node</span><span class="o">.</span><span class="n">set_plug_value</span><span class="p">(</span>
+                <span class="n">dest_plug_name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_parameter_protected</span><span class="p">(</span><span class="n">source_plug_name</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">traits</span><span class="o">.</span><span class="n">TraitError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Nipype MultiObject, when a single object is involved, looks</span>
+                <span class="c1"># like a single object but is actually a list. We want to</span>
+                <span class="c1"># allow it to be linked to a &quot;single object&quot; plug.</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">dest_node</span><span class="o">.</span><span class="n">set_plug_value</span><span class="p">(</span>
+                        <span class="n">dest_plug_name</span><span class="p">,</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">is_parameter_protected</span><span class="p">(</span><span class="n">source_plug_name</span><span class="p">))</span>
+                <span class="k">except</span> <span class="n">traits</span><span class="o">.</span><span class="n">TraitError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_value_callback_with_logging</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">log_stream</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">source_plug_name</span><span class="p">,</span> <span class="n">dest_node</span><span class="p">,</span>
+            <span class="n">dest_plug_name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Spread the source plug value to the destination plug, and log it in</span>
+<span class="sd">        a stream for debugging.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#print &#39;(debug) value changed:&#39;, self, self.name, source_plug_name, dest_node, dest_plug_name, repr(value), &#39;, stream:&#39;, log_stream, prefix</span>
+
+        <span class="n">plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_plug_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plug</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">def</span> <span class="nf">_link_name</span><span class="p">(</span><span class="n">dest_node</span><span class="p">,</span> <span class="n">plug</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">dest_plug_name</span><span class="p">,</span>
+                       <span class="n">source_node_or_process</span><span class="p">):</span>
+            <span class="n">external</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">sibling</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># check if it is an external link: if source is not a parent of dest</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_node_or_process</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">)</span> \
+                    <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_node_or_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;nodes&#39;</span><span class="p">):</span>
+                <span class="n">source_process</span> <span class="o">=</span> <span class="n">source_node_or_process</span>
+                <span class="n">source_node</span> <span class="o">=</span> <span class="n">source_node_or_process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span>
+                <span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">source_node</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">dest_node</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+                    <span class="n">external</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># check if it is a sibling node:</span>
+            <span class="c1"># if external and source is not in dest</span>
+            <span class="k">if</span> <span class="n">external</span><span class="p">:</span>
+                <span class="n">sibling</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="c1">#print &gt;&gt; open(&#39;/tmp/linklog.txt&#39;, &#39;a&#39;), &#39;check sibling, prefix:&#39;, prefix, &#39;source:&#39;, source_node_or_process, &#39;, dest_plug_name:&#39;, dest_plug_name, &#39;dest_node:&#39;, dest_node, dest_node.name</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dest_node</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">)</span> \
+                        <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dest_node</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;nodes&#39;</span><span class="p">):</span>
+                    <span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dest_node</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">source_node_or_process</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+                        <span class="n">sibling</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="n">x</span><span class="o">.</span><span class="n">process</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">children</span> \
+                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">)]</span>
+                    <span class="k">if</span> <span class="n">source_node_or_process</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+                        <span class="n">sibling</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="c1">#print &#39;sibling:&#39;, sibling</span>
+            <span class="k">if</span> <span class="n">external</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sibling</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> \
+                        <span class="o">+</span> <span class="p">[</span><span class="n">dest_node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">dest_plug_name</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">dest_plug_name</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># internal connection in a (sub) pipeline</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">dest_node</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+                  <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.&#39;</span>
+                <span class="n">name</span> <span class="o">+=</span> <span class="n">dest_plug_name</span>
+            <span class="k">return</span> <span class="n">name</span>
+        <span class="n">dest_plug</span> <span class="o">=</span> <span class="n">dest_node</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">dest_plug_name</span><span class="p">]</span>
+        <span class="c1">#print &gt;&gt; open(&#39;/tmp/linklog.txt&#39;, &#39;a&#39;), &#39;link_name:&#39;,  self, repr(self.name), &#39;, prefix:&#39;, repr(prefix), &#39;, source_plug_name:&#39;, source_plug_name, &#39;dest:&#39;, dest_plug, repr(dest_plug_name), &#39;dest node:&#39;, dest_node, repr(dest_node.name)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;value link:&#39;</span><span class="p">,</span> \
+            <span class="s1">&#39;from:&#39;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">source_plug_name</span><span class="p">,</span> \
+            <span class="s1">&#39;to:&#39;</span><span class="p">,</span> <span class="n">_link_name</span><span class="p">(</span><span class="n">dest_node</span><span class="p">,</span> <span class="n">dest_plug</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">dest_plug_name</span><span class="p">,</span>
+                              <span class="bp">self</span><span class="p">),</span> \
+            <span class="s1">&#39;, value:&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">log_stream</span><span class="p">)</span> <span class="c1">#, &#39;self:&#39;, self, repr(self.name), &#39;, prefix:&#39;,repr(prefix), &#39;, source_plug_name:&#39;, source_plug_name, &#39;dest:&#39;, dest_plug, repr(dest_plug_name), &#39;dest node:&#39;, dest_node, repr(dest_node.name)</span>
+        <span class="n">log_stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="c1"># actually propagate</span>
+        <span class="n">dest_node</span><span class="o">.</span><span class="n">set_plug_value</span><span class="p">(</span><span class="n">dest_plug_name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">is_parameter_protected</span><span class="p">(</span><span class="n">source_plug_name</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Node.connect"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_plug_name</span><span class="p">,</span> <span class="n">dest_node</span><span class="p">,</span> <span class="n">dest_plug_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Connect linked plugs of two nodes</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        source_plug_name: str (mandatory)</span>
+<span class="sd">            the source plug name</span>
+<span class="sd">        dest_node: Node (mandatory)</span>
+<span class="sd">            the destination node</span>
+<span class="sd">        dest_plug_name: str (mandatory)</span>
+<span class="sd">            the destination plug name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># add a callback to spread the source plug value</span>
+        <span class="n">value_callback</span> <span class="o">=</span> <span class="n">SomaPartial</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">_value_callback</span><span class="p">,</span> <span class="n">weak_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="n">source_plug_name</span><span class="p">,</span> <span class="n">weak_proxy</span><span class="p">(</span><span class="n">dest_node</span><span class="p">),</span> <span class="n">dest_plug_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">[(</span><span class="n">source_plug_name</span><span class="p">,</span> <span class="n">dest_node</span><span class="p">,</span>
+                         <span class="n">dest_plug_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value_callback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_callback_on_plug</span><span class="p">(</span><span class="n">source_plug_name</span><span class="p">,</span> <span class="n">value_callback</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.disconnect"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.disconnect">[docs]</a>    <span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_plug_name</span><span class="p">,</span> <span class="n">dest_node</span><span class="p">,</span> <span class="n">dest_plug_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; disconnect linked plugs of two nodes</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        source_plug_name: str (mandatory)</span>
+<span class="sd">            the source plug name</span>
+<span class="sd">        dest_node: Node (mandatory)</span>
+<span class="sd">            the destination node</span>
+<span class="sd">        dest_plug_name: str (mandatory)</span>
+<span class="sd">            the destination plug name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># remove the callback to spread the source plug value</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">source_plug_name</span><span class="p">,</span> <span class="n">dest_node</span><span class="p">,</span> <span class="n">dest_plug_name</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_callback_from_plug</span><span class="p">(</span><span class="n">source_plug_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove the callbacks from the default __getstate__ result because</span>
+<span class="sd">        they prevent Node instance from being used with pickle.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">()</span>
+        <span class="n">state</span><span class="p">[</span><span class="s1">&#39;_callbacks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;_callbacks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">state</span><span class="p">[</span><span class="s1">&#39;pipeline&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_ref</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;pipeline&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Restore the callbacks that have been removed by __getstate__.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">state</span><span class="p">[</span><span class="s1">&#39;_callbacks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">SomaPartial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value_callback</span><span class="p">,</span> <span class="o">*</span><span class="n">i</span><span class="p">))</span>
+                                   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;_callbacks&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;pipeline&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;process&#39;</span><span class="p">]:</span>
+            <span class="n">state</span><span class="p">[</span><span class="s1">&#39;pipeline&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;process&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weak_proxy</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;pipeline&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">state</span><span class="p">[</span><span class="s1">&#39;pipeline&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weak_proxy</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;pipeline&#39;</span><span class="p">])</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setstate__</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">callback_key</span><span class="p">,</span> <span class="n">value_callback</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_callback_on_plug</span><span class="p">(</span><span class="n">callback_key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">value_callback</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Node.set_callback_on_plug"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.set_callback_on_plug">[docs]</a>    <span class="k">def</span> <span class="nf">set_callback_on_plug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add an event when a plug change</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plug_name: str (mandatory)</span>
+<span class="sd">            a plug name</span>
+<span class="sd">        callback: @f (mandatory)</span>
+<span class="sd">            a callback function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.remove_callback_from_plug"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.remove_callback_from_plug">[docs]</a>    <span class="k">def</span> <span class="nf">remove_callback_from_plug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove an event when a plug change</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plug_name: str (mandatory)</span>
+<span class="sd">            a plug name</span>
+<span class="sd">        callback: @f (mandatory)</span>
+<span class="sd">            a callback function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.get_plug_value"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.get_plug_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_plug_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the plug value</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plug_name: str (mandatory)</span>
+<span class="sd">            a plug name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output: object</span>
+<span class="sd">            the plug value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.set_plug_value"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.set_plug_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_plug_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">protected</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set the plug value</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plug_name: str (mandatory)</span>
+<span class="sd">            a plug name</span>
+<span class="sd">        value: object (mandatory)</span>
+<span class="sd">            the plug value we want to set</span>
+<span class="sd">        protected: None or bool (tristate)</span>
+<span class="sd">            if True or Fase, force the &quot;protected&quot; status of the plug. If None,</span>
+<span class="sd">            keep it as is.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">protected</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">protect_parameter</span><span class="p">(</span><span class="n">plug_name</span><span class="p">,</span> <span class="n">protected</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.get_trait"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.get_trait">[docs]</a>    <span class="k">def</span> <span class="nf">get_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the desired trait</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trait_name: str (mandatory)</span>
+<span class="sd">            a trait name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output: trait</span>
+<span class="sd">            the trait named trait_name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">trait_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.get_connections_through"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.get_connections_through">[docs]</a>    <span class="k">def</span> <span class="nf">get_connections_through</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; If the node has internal links (inside a pipeline, or in a switch</span>
+<span class="sd">        or other custom connection node), return the &quot;other side&quot; of the</span>
+<span class="sd">        internal connection to the selected plug. The returned plug may be</span>
+<span class="sd">        in an internal node (in a pipeline), or in an external node connected to the node.</span>
+<span class="sd">        When the node is &quot;opaque&quot; (no internal connections), it returns the</span>
+<span class="sd">        input plug.</span>
+<span class="sd">        When the node is inactive / disabled, it returns [].</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plug_name: str</span>
+<span class="sd">            plug to get connections with</span>
+<span class="sd">        single: bool</span>
+<span class="sd">            if True, stop at the first connected plug. Otherwise return the</span>
+<span class="sd">            list of all connected plugs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        connected_plug; list of tuples</span>
+<span class="sd">            [(node, plug_name, plug), ...]</span>
+<span class="sd">            Returns [(self, plug_name, plug)] when the plug has no internal</span>
+<span class="sd">            connection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">activated</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">plug_name</span><span class="p">])]</span></div>
+
+<div class="viewcode-block" id="Node.is_job"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.is_job">[docs]</a>    <span class="k">def</span> <span class="nf">is_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot; if True, the node will be represented as a Job in</span>
+<span class="sd">      :somaworkflow:`Soma-Workflow &lt;index.html&gt;`. Otherwise the node is static</span>
+<span class="sd">      and does not run.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;build_job&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Node.requirements"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.requirements">[docs]</a>    <span class="k">def</span> <span class="nf">requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Requirements needed to run the node. It is a dictionary which keys are</span>
+<span class="sd">        config/settings modules and values are requests for them.</span>
+
+<span class="sd">        The default implementation returns an empty dict (no requirements), and</span>
+<span class="sd">        should be overloaded by processes which actually have requirements.</span>
+
+<span class="sd">        Ex::</span>
+
+<span class="sd">            {&#39;spm&#39;: &#39;version &gt;= &quot;12&quot; and standalone == &quot;True&quot;&#39;)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Node.check_requirements"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.check_requirements">[docs]</a>    <span class="k">def</span> <span class="nf">check_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">message_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks the process requirements against configuration settings values</span>
+<span class="sd">        in the attached CapsulEngine. This makes use of the</span>
+<span class="sd">        :meth:`requirements` method and checks that there is one matching</span>
+<span class="sd">        config value for each required module.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        environment: str</span>
+<span class="sd">            config environment id. Normally corresponds to the computing</span>
+<span class="sd">            resource name, and defaults to &quot;global&quot;.</span>
+<span class="sd">        message_list: list</span>
+<span class="sd">            if not None, this list will be updated with messages for</span>
+<span class="sd">            unsatisfied requirements, in order to present the user with an</span>
+<span class="sd">            understandable error.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        config: dict, list, or None</span>
+<span class="sd">            if None is returned, requirements are not met: the process cannot</span>
+<span class="sd">            run. If a dict is returned, it corresponds to the matching config</span>
+<span class="sd">            values. When no requirements are needed, an empty dict is returned.</span>
+<span class="sd">            A pipeline, if its requirements are met will return a list of</span>
+<span class="sd">            configuration values, because different nodes may require different</span>
+<span class="sd">            config values.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">capsul_engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span><span class="o">.</span><span class="n">engine</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">requirements</span><span class="p">()</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">uses</span><span class="o">=</span><span class="n">req</span><span class="p">)</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">req</span><span class="p">:</span>
+            <span class="n">module_name</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">module_name</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">module_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">message_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">message_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;requirement: </span><span class="si">%s</span><span class="s1"> is not met in </span><span class="si">%s</span><span class="s1">&#39;</span>
+                                        <span class="o">%</span> <span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># if no message is expected, then we can return immediately</span>
+                    <span class="c1"># without checking further requirements. Otherwise we</span>
+                    <span class="c1"># continue to get a full list of unsatisfied requirements.</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">config</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Node.get_missing_mandatory_parameters"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.get_missing_mandatory_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_missing_mandatory_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude_links</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Returns a list of parameters which are not optional, and which</span>
+<span class="sd">        value is Undefined or None, or an empty string for a File or</span>
+<span class="sd">        Directory parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        exclude_links: bool</span>
+<span class="sd">            if True, an empty parameter which has a link to another node</span>
+<span class="sd">            will not be reported missing, since the execution</span>
+<span class="sd">            will assign it a temporary value which will not prevent the</span>
+<span class="sd">            pipeline from running.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">check_trait</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">plug</span><span class="p">,</span> <span class="n">trait</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">exclude_links</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">optional</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">trait</span><span class="p">,</span> <span class="s1">&#39;inner_traits&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">check_trait</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">plug</span><span class="p">,</span> <span class="n">trait</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
+                                       <span class="n">item</span><span class="p">,</span> <span class="n">exclude_links</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">trait_type</span><span class="p">,</span> <span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="n">Directory</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Undefined</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> \
+                        <span class="ow">or</span> <span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">output</span>
+                            <span class="ow">and</span> <span class="n">trait</span><span class="o">.</span><span class="n">input_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">exclude_links</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                    <span class="n">links</span> <span class="o">=</span> <span class="n">plug</span><span class="o">.</span><span class="n">links_to</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">links</span> <span class="o">=</span> <span class="n">plug</span><span class="o">.</span><span class="n">links_from</span>
+                <span class="c1"># check if there is a connection not going outside the</span>
+                <span class="c1"># current pipeline</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">links</span> <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">end</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># it&#39;s connected.</span>
+                <span class="c1"># otherwise check if there is a connection outside the</span>
+                <span class="c1"># current pipeline</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">links</span> <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">end</span><span class="p">:</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                        <span class="n">relinks</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">links_to</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">relinks</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">links_from</span>
+                    <span class="k">if</span> <span class="n">relinks</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># it&#39;s connected.</span>
+                <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># no other connection.</span>
+            <span class="k">return</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Undefined</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">plug</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">):</span>
+            <span class="n">trait</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">trait</span><span class="o">.</span><span class="n">optional</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plug_value</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">check_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug</span><span class="p">,</span> <span class="n">trait</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">exclude_links</span><span class="p">):</span>
+                    <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">missing</span></div>
+
+<div class="viewcode-block" id="Node.get_study_config"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.get_study_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get (or create) the StudyConfig this process belongs to</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">study_config</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;study_config&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">study_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Import cannot be done on module due to circular dependencies</span>
+            <span class="kn">from</span> <span class="nn">capsul.study_config.study_config</span> <span class="kn">import</span> <span class="n">default_study_config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span> <span class="o">=</span> <span class="n">default_study_config</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span></div>
+
+<div class="viewcode-block" id="Node.set_study_config"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node.set_study_config">[docs]</a>    <span class="k">def</span> <span class="nf">set_study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Set the StudyConfig this process belongs to</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span> <span class="o">=</span> <span class="n">study_config</span></div></div>
+
+
+<div class="viewcode-block" id="ProcessNode"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode">[docs]</a><span class="k">class</span> <span class="nc">ProcessNode</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Process node.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    process : process instance</span>
+<span class="sd">        the process instance stored in the pipeline node</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    set_callback_on_plug</span>
+<span class="sd">    get_plug_value</span>
+<span class="sd">    set_plug_value</span>
+<span class="sd">    get_trait</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate a ProcessNode</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pipeline: Pipeline (mandatory)</span>
+<span class="sd">            the pipeline object where the node is added.</span>
+<span class="sd">        name: str (mandatory)</span>
+<span class="sd">            the node name.</span>
+<span class="sd">        process: instance</span>
+<span class="sd">            a process/interface instance.</span>
+<span class="sd">        kwargs: dict</span>
+<span class="sd">            process default values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">process</span> <span class="ow">is</span> <span class="n">pipeline</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">weak_proxy</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;nodes_activation&#39;</span><span class="p">,</span> <span class="s1">&#39;selection_changed&#39;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">parameter</span><span class="p">,</span>
+                                    <span class="n">optional</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">optional</span><span class="p">),</span>
+                                    <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">parameter</span><span class="p">,</span>
+                                   <span class="n">optional</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">optional</span> <span class="ow">or</span>
+                                                 <span class="n">parameter</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">)))</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ProcessNode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProcessNode.set_callback_on_plug"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.set_callback_on_plug">[docs]</a>    <span class="k">def</span> <span class="nf">set_callback_on_plug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add an event when a plug change</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plug_name: str (mandatory)</span>
+<span class="sd">            a plug name</span>
+<span class="sd">        callback: @f (mandatory)</span>
+<span class="sd">            a callback function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessNode.remove_callback_from_plug"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.remove_callback_from_plug">[docs]</a>    <span class="k">def</span> <span class="nf">remove_callback_from_plug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove an event when a plug change</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plug_name: str (mandatory)</span>
+<span class="sd">            a plug name</span>
+<span class="sd">        callback: @f (mandatory)</span>
+<span class="sd">            a callback function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessNode.get_plug_value"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.get_plug_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_plug_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the plug value</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plug_name: str (mandatory)</span>
+<span class="sd">            a plug name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output: object</span>
+<span class="sd">            the plug value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_trait</span><span class="p">(</span><span class="n">plug_name</span><span class="p">)</span><span class="o">.</span><span class="n">handler</span><span class="p">,</span>
+                          <span class="n">traits</span><span class="o">.</span><span class="n">Event</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">TraitError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Undefined</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ProcessNode.set_plug_value"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.set_plug_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_plug_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">protected</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set the plug value</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plug_name: str (mandatory)</span>
+<span class="sd">            a plug name</span>
+<span class="sd">        value: object (mandatory)</span>
+<span class="sd">            the plug value we want to set</span>
+<span class="sd">        protected: None or bool (tristate)</span>
+<span class="sd">            if True or Fase, force the &quot;protected&quot; status of the plug. If None,</span>
+<span class="sd">            keep it as is.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;undefined&gt;&quot;</span><span class="p">]:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">Undefined</span>
+        <span class="k">elif</span> <span class="n">is_trait_pathname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">plug_name</span><span class="p">))</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">Undefined</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="n">plug_name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">protected</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessNode.is_parameter_protected"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.is_parameter_protected">[docs]</a>    <span class="k">def</span> <span class="nf">is_parameter_protected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">is_parameter_protected</span><span class="p">(</span><span class="n">plug_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessNode.protect_parameter"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.protect_parameter">[docs]</a>    <span class="k">def</span> <span class="nf">protect_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">protect_parameter</span><span class="p">(</span><span class="n">plug_name</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessNode.get_trait"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.get_trait">[docs]</a>    <span class="k">def</span> <span class="nf">get_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the desired trait</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trait_name: str (mandatory)</span>
+<span class="sd">            a trait name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output: trait</span>
+<span class="sd">            the trait named trait_name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">trait_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessNode.is_job"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.is_job">[docs]</a>    <span class="k">def</span> <span class="nf">is_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="ProcessNode.requirements"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.requirements">[docs]</a>    <span class="k">def</span> <span class="nf">requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Requirements reimplementation for a process node. This node delegates</span>
+<span class="sd">        to its underlying process. see</span>
+<span class="sd">        :meth:`capsul.process.process.requirements`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">requirements</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProcessNode.check_requirements"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.check_requirements">[docs]</a>    <span class="k">def</span> <span class="nf">check_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">message_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Reimplementation of</span>
+<span class="sd">        :meth:`capsul.pipeline.pipeline_nodes.Node.requirements` for a</span>
+<span class="sd">        ProcessNode. This one delegates to its underlying process (or</span>
+<span class="sd">        pipeline).</span>
+
+<span class="sd">        .. see:: :meth:`capsul.process.process.check_requirements`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">check_requirements</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span>
+                                               <span class="n">message_list</span><span class="o">=</span><span class="n">message_list</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessNode.get_study_config"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.get_study_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get (or create) the StudyConfig this process belongs to</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProcessNode.set_study_config"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode.set_study_config">[docs]</a>    <span class="k">def</span> <span class="nf">set_study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get (or create) the StudyConfig this process belongs to</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">set_study_config</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">study_config</span>
+        <span class="k">except</span> <span class="ne">ReferenceError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@study_config</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">study_config</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">ReferenceError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="nd">@study_config</span><span class="o">.</span><span class="n">deleter</span>
+    <span class="k">def</span> <span class="nf">study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">study_config</span>
+        <span class="k">except</span> <span class="ne">ReferenceError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">completion_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span>
+        <span class="k">except</span> <span class="ne">ReferenceError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@completion_engine</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">completion_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">ReferenceError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="nd">@completion_engine</span><span class="o">.</span><span class="n">deleter</span>
+    <span class="k">def</span> <span class="nf">completion_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span>
+        <span class="k">except</span> <span class="ne">ReferenceError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="PipelineNode"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.PipelineNode">[docs]</a><span class="k">class</span> <span class="nc">PipelineNode</span><span class="p">(</span><span class="n">ProcessNode</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A special node to store the pipeline user-parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PipelineNode.get_connections_through"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.PipelineNode.get_connections_through">[docs]</a>    <span class="k">def</span> <span class="nf">get_connections_through</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">activated</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">plug_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">plug</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+            <span class="n">links</span> <span class="o">=</span> <span class="n">plug</span><span class="o">.</span><span class="n">links_from</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">links</span> <span class="o">=</span> <span class="n">plug</span><span class="o">.</span><span class="n">links_to</span>
+        <span class="n">dest_plugs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+            <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">activated</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># skip disabled nodes</span>
+            <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="c1"># other side of the pipeline</span>
+                <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                    <span class="n">more_links</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">links_to</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">more_links</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">links_from</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">more_links</span><span class="p">:</span>
+                    <span class="c1"># going outside the pipeline which seems to be top-level:</span>
+                    <span class="c1"># keep it</span>
+                    <span class="n">dest_plugs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">link</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="n">single</span><span class="p">:</span>
+                        <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">for</span> <span class="n">other_link</span> <span class="ow">in</span> <span class="n">more_links</span><span class="p">:</span>
+                    <span class="n">other_end</span> <span class="o">=</span> <span class="n">other_link</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get_connections_through</span><span class="p">(</span>
+                        <span class="n">other_link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">single</span><span class="p">)</span>
+                    <span class="n">dest_plugs</span> <span class="o">+=</span> <span class="n">other_end</span>
+                    <span class="k">if</span> <span class="n">other_end</span> <span class="ow">and</span> <span class="n">single</span><span class="p">:</span>
+                        <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">other_end</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get_connections_through</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">single</span><span class="p">)</span>
+                <span class="n">dest_plugs</span> <span class="o">+=</span> <span class="n">other_end</span>
+                <span class="k">if</span> <span class="n">other_end</span> <span class="ow">and</span> <span class="n">single</span><span class="p">:</span>
+                    <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">dest_plugs</span></div></div>
+
+
+<div class="viewcode-block" id="Switch"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Switch">[docs]</a><span class="k">class</span> <span class="nc">Switch</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Switch node to select a specific Process.</span>
+
+<span class="sd">    A switch commutes a group of inputs to its outputs, according to its</span>
+<span class="sd">    &quot;switch&quot; trait value. Each group may be typically linked to a different</span>
+<span class="sd">    process. Processes not &quot;selected&quot; by the switch are disabled, if possible.</span>
+<span class="sd">    Values are also propagated through inputs/outputs of the switch</span>
+<span class="sd">    (see below).</span>
+
+<span class="sd">    Inputs / outputs:</span>
+
+<span class="sd">    Say the switch &quot;my_switch&quot; has 2 outputs, &quot;param1&quot; and &quot;param2&quot;. It will</span>
+<span class="sd">    be connected to the outputs of 2 processing nodes, &quot;node1&quot; and &quot;node2&quot;,</span>
+<span class="sd">    both having 2 outputs: node1.out1, node1.out2, node2.out1, node2.out2.</span>
+<span class="sd">    The switch will thus have 4 entries, in 2 groups, named for instance</span>
+<span class="sd">    &quot;node1&quot; and &quot;node2&quot;. The switch will link the outputs of node1 or</span>
+<span class="sd">    node2 to its outputs. The switch inputs will be named as follows:</span>
+
+<span class="sd">    * 1st group: &quot;node1_switch_param1&quot;, &quot;node1_switch_param2&quot;</span>
+<span class="sd">    * 2nd group: &quot;node2_switch_param1&quot;, &quot;node2_switch_param2&quot;</span>
+
+<span class="sd">    * When my_switch.switch value is &quot;node1&quot;, my_switch.node1_switch_param1</span>
+<span class="sd">      is connected to my_switch.param1 and my_switch.node1_switch_param2 is</span>
+<span class="sd">      connected to my_switch.param2. The processing node node2 is disabled</span>
+<span class="sd">      (unselected).</span>
+<span class="sd">    * When my_switch.switch value is &quot;node2&quot;, my_switch.node2_switch_param1</span>
+<span class="sd">      is connected to my_switch.param1 and my_switch.node2_switch_param2 is</span>
+<span class="sd">      connected to my_switch.param2. The processing node node1 is disabled</span>
+<span class="sd">      (unselected).</span>
+
+<span class="sd">    Values propagation:</span>
+
+<span class="sd">    * When a switch is activated (its switch parameter is changed), the</span>
+<span class="sd">      outputs will reflect the selected inputs, which means their values will</span>
+<span class="sd">      be the same as the corresponding inputs.</span>
+
+<span class="sd">    * But in many cases, parameters values will be given from the output</span>
+<span class="sd">      (if the switch output is one of the pipeline outputs, this one will be</span>
+<span class="sd">      visible from the &quot;outside world, not the switch inputs). In this case,</span>
+<span class="sd">      values set as a switch input propagate to its inputs.</span>
+
+<span class="sd">    * An exception is when a switch input is linked to the parent pipeline</span>
+<span class="sd">      inputs: its value is also visible from &quot;outside&quot; and should not be set</span>
+<span class="sd">      via output values via the switch. In this specific case, output values</span>
+<span class="sd">      are not propagated to such inputs.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Switch is normally not instantiated directly, but from a pipeline</span>
+<span class="sd">    :py:meth:`pipeline_definition</span>
+<span class="sd">    &lt;capsul.pipeline.pipeline.Pipeline.pipeline_definition&gt;` method</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _switch_values : list</span>
+<span class="sd">        the switch options</span>
+<span class="sd">    _outputs: list</span>
+<span class="sd">        the switch output parameters</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    _switch_changed</span>
+<span class="sd">    _anytrait_changed</span>
+<span class="sd">    capsul.pipeline.pipeline.Pipeline.add_switch</span>
+<span class="sd">    capsul.pipeline.pipeline.Pipeline.pipeline_definition</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_doc_path</span> <span class="o">=</span> <span class="s1">&#39;api/pipeline.html#capsul.pipeline.pipeline_nodes.Switch&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">make_optional</span><span class="o">=</span><span class="p">(),</span>
+                 <span class="n">output_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate a Switch Node</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        The input plug names are built according to the following rule:</span>
+<span class="sd">        &lt;input_name&gt;_switch_&lt;output_name&gt;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pipeline: Pipeline (mandatory)</span>
+<span class="sd">            the pipeline object where the node is added</span>
+<span class="sd">        name: str (mandatory)</span>
+<span class="sd">            the switch node name</span>
+<span class="sd">        inputs: list (mandatory)</span>
+<span class="sd">            a list of options</span>
+<span class="sd">        outputs: list (mandatory)</span>
+<span class="sd">            a list of output parameters</span>
+<span class="sd">        make_optional: sequence (optional)</span>
+<span class="sd">            list of optional outputs.</span>
+<span class="sd">            These outputs will be made optional in the switch output. By</span>
+<span class="sd">            default they are mandatory.</span>
+<span class="sd">        output_types: sequence of traits (optional)</span>
+<span class="sd">            If given, this sequence sould have the same size as outputs. It</span>
+<span class="sd">            will specify each switch output parameter type (as a standard</span>
+<span class="sd">            trait). Input parameters for each input block will also have this</span>
+<span class="sd">            type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if the user pass a simple element, create a list and add this</span>
+        <span class="c1"># element</span>
+        <span class="c1">#super(Node, self).__init__()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__block_output_propagation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">outputs</span><span class="p">,</span> <span class="p">]</span>
+        <span class="k">if</span> <span class="n">output_types</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_types</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> \
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_types</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;output_types parameter should be a list or tuple&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_types</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;output_types should have the same number of &#39;</span>
+                                 <span class="s1">&#39;elements as outputs&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">Any</span><span class="p">(</span><span class="n">Undefined</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+
+        <span class="c1"># check consistency</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The Switch node input and output parameters &quot;</span>
+                            <span class="s2">&quot;are inconsistent: expect list, &quot;</span>
+                            <span class="s2">&quot;got </span><span class="si">{0}</span><span class="s2">, </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">outputs</span><span class="p">)))</span>
+
+        <span class="c1"># private copy of outputs and inputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span> <span class="o">=</span> <span class="n">outputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_switch_values</span> <span class="o">=</span> <span class="n">inputs</span>
+
+        <span class="c1"># format inputs and outputs to inherit from Node class</span>
+        <span class="n">flat_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">switch_name</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+            <span class="n">flat_inputs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_switch_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">switch_name</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">plug_name</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">])</span>
+        <span class="n">node_inputs</span> <span class="o">=</span> <span class="p">([</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;switch&quot;</span><span class="p">),</span> <span class="p">]</span> <span class="o">+</span>
+                       <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">flat_inputs</span><span class="p">])</span>
+        <span class="n">node_outputs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">make_optional</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">]</span>
+        <span class="c1"># inherit from Node class</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Switch</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">node_inputs</span><span class="p">,</span>
+                                     <span class="n">node_outputs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">node_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span>
+            <span class="n">plug</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># add switch enum trait to select the process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;switch&quot;</span><span class="p">,</span> <span class="n">Enum</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="n">inputs</span><span class="p">))</span>
+
+        <span class="c1"># add a trait for each input and each output</span>
+        <span class="n">input_types</span> <span class="o">=</span> <span class="n">output_types</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">flat_inputs</span><span class="p">,</span> <span class="n">input_types</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">optional</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">optional</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">output_types</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">optional</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">optional</span>
+
+        <span class="c1"># activate the switch first Process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_switch_changed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_switch_values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch_values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_switch_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_selection</span><span class="p">,</span> <span class="n">new_selection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add an event to the switch trait that enables us to select</span>
+<span class="sd">        the desired option.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        old_selection: str (mandatory)</span>
+<span class="sd">            the old option</span>
+<span class="sd">        new_selection: str (mandatory)</span>
+<span class="sd">            the new option</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__block_output_propagation</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">delay_update_nodes_and_plugs_activation</span><span class="p">()</span>
+        <span class="c1"># deactivate the plugs associated with the old option</span>
+        <span class="n">old_plug_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_switch_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">old_selection</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">plug_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">plug_name</span> <span class="ow">in</span> <span class="n">old_plug_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">plug_name</span><span class="p">]</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># activate the plugs associated with the new option</span>
+        <span class="n">new_plug_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_switch_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_selection</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">plug_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">plug_name</span> <span class="ow">in</span> <span class="n">new_plug_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">plug_name</span><span class="p">]</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># refresh the pipeline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">update_nodes_and_plugs_activation</span><span class="p">()</span>
+
+        <span class="c1"># Refresh the links to the output plugs</span>
+        <span class="k">for</span> <span class="n">output_plug_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">:</span>
+            <span class="c1"># Get the associated input name</span>
+            <span class="n">corresponding_input_plug_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_switch_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">new_selection</span><span class="p">,</span> <span class="n">output_plug_name</span><span class="p">)</span>
+
+            <span class="c1"># Update the output value</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_plug_name</span><span class="p">,</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corresponding_input_plug_name</span><span class="p">))</span>
+
+            <span class="c1"># Propagate the associated trait description</span>
+            <span class="n">out_trait</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">output_plug_name</span><span class="p">)</span>
+            <span class="n">in_trait</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">corresponding_input_plug_name</span><span class="p">)</span>
+            <span class="n">out_trait</span><span class="o">.</span><span class="n">desc</span> <span class="o">=</span> <span class="n">in_trait</span><span class="o">.</span><span class="n">desc</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">restore_update_nodes_and_plugs_activation</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__block_output_propagation</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Switch.connections"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Switch.connections">[docs]</a>    <span class="k">def</span> <span class="nf">connections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the current internal connections between input and output</span>
+<span class="sd">        plugs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        connections: list</span>
+<span class="sd">            list of internal connections</span>
+<span class="sd">            [(input_plug_name, output_plug_name), ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">_switch_</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">switch</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">),</span> <span class="n">plug_name</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">plug_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_anytrait_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add an event to the switch trait that enables us to select</span>
+<span class="sd">        the desired option.</span>
+
+<span class="sd">        Propagates value through the switch, from in put to output if the</span>
+<span class="sd">        switch state corresponds to this input, or from output to inputs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: str (mandatory)</span>
+<span class="sd">            the trait name</span>
+<span class="sd">        old: str (mandatory)</span>
+<span class="sd">            the old value</span>
+<span class="sd">        new: str (mandatory)</span>
+<span class="sd">            the new value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if the value change is on an output of the switch, and comes from</span>
+        <span class="c1"># an &quot;external&quot; assignment (ie not the result of switch action or</span>
+        <span class="c1"># change in one of its inputs), then propagate the new value to</span>
+        <span class="c1"># all corresponding inputs.</span>
+        <span class="c1"># However those inputs which are connected to a pipeline input are</span>
+        <span class="c1"># not propagated, to avoid cyclic feedback between outputs and inputs</span>
+        <span class="c1"># inside a pipeline</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_outputs&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__block_output_propagation</span> \
+                <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__block_output_propagation</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">flat_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_switch_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">switch_name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                           <span class="k">for</span> <span class="n">switch_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch_values</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">flat_inputs</span><span class="p">:</span>
+                <span class="c1"># check if input is connected to a pipeline input</span>
+                <span class="n">plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">link_spec</span> <span class="ow">in</span> <span class="n">plug</span><span class="o">.</span><span class="n">links_from</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">link_spec</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">PipelineNode</span><span class="p">)</span> \
+                            <span class="ow">and</span> <span class="ow">not</span> <span class="n">link_spec</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_name</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__block_output_propagation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># if the change is in an input, change the corresponding output</span>
+        <span class="c1"># accordingly, if the current switch selection is on this input.</span>
+        <span class="n">spliter</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_switch_&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spliter</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">spliter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch_values</span><span class="p">:</span>
+            <span class="n">switch_selection</span><span class="p">,</span> <span class="n">output_plug_name</span> <span class="o">=</span> <span class="n">spliter</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch</span> <span class="o">==</span> <span class="n">switch_selection</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__block_output_propagation</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_plug_name</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__block_output_propagation</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__block_output_propagation</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Switch</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setstate__</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Switch.get_connections_through"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Switch.get_connections_through">[docs]</a>    <span class="k">def</span> <span class="nf">get_connections_through</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">activated</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">plug_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">plug</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+            <span class="n">connected_plug_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_switch_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">switch</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">splitter</span> <span class="o">=</span> <span class="n">plug_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_switch_&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitter</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="c1"># not a switch input plug</span>
+                <span class="k">return</span> <span class="p">[]</span>
+            <span class="n">connected_plug_name</span> <span class="o">=</span> <span class="n">splitter</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">connected_plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">connected_plug_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">plug</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+            <span class="n">links</span> <span class="o">=</span> <span class="n">connected_plug</span><span class="o">.</span><span class="n">links_from</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">links</span> <span class="o">=</span> <span class="n">connected_plug</span><span class="o">.</span><span class="n">links_to</span>
+        <span class="n">dest_plugs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_node</span><span class="p">:</span>
+                <span class="n">other_end</span> <span class="o">=</span> <span class="p">[(</span><span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">link</span><span class="p">[</span><span class="mi">3</span><span class="p">])]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">other_end</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get_connections_through</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">single</span><span class="p">)</span>
+            <span class="n">dest_plugs</span> <span class="o">+=</span> <span class="n">other_end</span>
+            <span class="k">if</span> <span class="n">other_end</span> <span class="ow">and</span> <span class="n">single</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">dest_plugs</span></div>
+
+<div class="viewcode-block" id="Switch.is_job"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.Switch.is_job">[docs]</a>    <span class="k">def</span> <span class="nf">is_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">get_switch_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">plug</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">ps</span> <span class="o">=</span> <span class="n">plug</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_switch_&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">ps</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span> \
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">ps</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ps</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">inputs</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">configure_controller</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;inputs&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">))</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;outputs&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">))</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;optional_params&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">))</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;output_types&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">))</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;input_1&#39;</span><span class="p">,</span> <span class="s1">&#39;input_2&#39;</span><span class="p">]</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">output_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Any&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">c</span>
+
+    <span class="k">def</span> <span class="nf">configured_controller</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">configure_controller</span><span class="p">()</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">plug</span> <span class="k">for</span> <span class="n">plug</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                     <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">]</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_switch_inputs</span><span class="p">()</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">output_types</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+                          <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">]</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">optional_params</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">optional</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">c</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_node</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">conf_controller</span><span class="p">):</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">Switch</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">conf_controller</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span>
+                      <span class="n">conf_controller</span><span class="o">.</span><span class="n">outputs</span><span class="p">,</span>
+                      <span class="n">make_optional</span><span class="o">=</span><span class="n">conf_controller</span><span class="o">.</span><span class="n">optional_params</span><span class="p">,</span>
+                      <span class="n">output_types</span><span class="o">=</span><span class="n">conf_controller</span><span class="o">.</span><span class="n">output_types</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span></div>
+
+
+<div class="viewcode-block" id="OptionalOutputSwitch"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_nodes.OptionalOutputSwitch">[docs]</a><span class="k">class</span> <span class="nc">OptionalOutputSwitch</span><span class="p">(</span><span class="n">Switch</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; A switch which activates or disables its input/output link according</span>
+<span class="sd">    to the output value. If the output value is not None or Undefined, the</span>
+<span class="sd">    link is active, otherwise it is inactive.</span>
+
+<span class="sd">    This kind of switch is meant to make a pipeline output optional, but still</span>
+<span class="sd">    available for temporary files values inside the pipeline.</span>
+
+<span class="sd">    Ex:</span>
+
+<span class="sd">        A.output -&gt; B.input</span>
+
+<span class="sd">        B.input is mandatory, but we want to make A.output available and</span>
+<span class="sd">        optional in the pipeline outputs. If we directlty export A.output, then</span>
+<span class="sd">        if the pipeline does not set a value, B.input will be empty and the</span>
+<span class="sd">        pipeline run will fail.</span>
+
+<span class="sd">        Instead we can add an OptionalOutputSwitch between A.output and</span>
+<span class="sd">        pipeline.output. If pipeline.output is set a valid value, then A.output</span>
+<span class="sd">        and B.input will have the same valid value. If pipeline.output is left</span>
+<span class="sd">        Undefined, then A.output and B.input will get a temporary value during</span>
+<span class="sd">        the run.</span>
+
+<span class="sd">    Technically, the OptionalOutputSwitch is currently implemented as a</span>
+<span class="sd">    specialized switch node with two inputs and one output, and thus follows</span>
+<span class="sd">    the inputs naming rules. The first input is the defined one, and the</span>
+<span class="sd">    second, hidden one, is named &quot;_none&quot;. As a consequence, its 1st input</span>
+<span class="sd">    should be connected under the name &quot;&lt;input&gt;_switch_&lt;output&gt; as in a</span>
+<span class="sd">    standard switch.</span>
+<span class="sd">    The &quot;switch&quot; input is hidden (not exported to the pipeline) and set</span>
+<span class="sd">    automatically according to the output value.</span>
+<span class="sd">    The implementation details may change in future versions.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">_doc_path</span> <span class="o">=</span> <span class="s1">&#39;api/pipeline.html&#39;</span> \
+        <span class="s1">&#39;#capsul.pipeline.pipeline_nodes.OptionalOutputSwitch&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate an OptionalOutputSwitch Node</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        The input plug name is built according to the following rule:</span>
+<span class="sd">        &lt;input&gt;_switch_&lt;output&gt;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pipeline: Pipeline (mandatory)</span>
+<span class="sd">            the pipeline object where the node is added</span>
+<span class="sd">        name: str (mandatory)</span>
+<span class="sd">            the switch node name</span>
+<span class="sd">        input: str (mandatory)</span>
+<span class="sd">            option</span>
+<span class="sd">        output: str (mandatory)</span>
+<span class="sd">            output parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OptionalOutputSwitch</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="nb">input</span><span class="p">,</span> <span class="s1">&#39;_none&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">output</span><span class="p">],</span> <span class="p">[</span><span class="n">output</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="s1">&#39;switch&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">optional</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="s1">&#39;switch&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">optional</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">switch</span> <span class="o">=</span> <span class="s1">&#39;_none&#39;</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">do_not_export</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;switch&#39;</span><span class="p">))</span>
+        <span class="n">none_input</span> <span class="o">=</span> <span class="s1">&#39;_none_switch_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">output</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">do_not_export</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">none_input</span><span class="p">))</span>
+        <span class="c1"># hide internal machinery plugs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="s1">&#39;switch&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">hidden</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="s1">&#39;switch&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">hidden</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">none_input</span><span class="p">)</span><span class="o">.</span><span class="n">hidden</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">none_input</span><span class="p">]</span><span class="o">.</span><span class="n">hidden</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_anytrait_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add an event to the switch trait that enables us to select</span>
+<span class="sd">        the desired option.</span>
+
+<span class="sd">        Propagates value through the switch, from output to input.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: str (mandatory)</span>
+<span class="sd">            the trait name</span>
+<span class="sd">        old: str (mandatory)</span>
+<span class="sd">            the old value</span>
+<span class="sd">        new: str (mandatory)</span>
+<span class="sd">            the new value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if the value change is on an output of the switch, and comes from</span>
+        <span class="c1"># an &quot;external&quot; assignment (ie not the result of switch action or</span>
+        <span class="c1"># change in one of its inputs), then propagate the new value to</span>
+        <span class="c1"># all corresponding inputs.</span>
+        <span class="c1"># However those inputs which are connected to a pipeline input are</span>
+        <span class="c1"># not propagated, to avoid cyclic feedback between outputs and inputs</span>
+        <span class="c1"># inside a pipeline</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;trait_added&#39;</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_outputs&#39;</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Switch__block_output_propagation</span> \
+                <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Switch__block_output_propagation</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># change the switch value according to the output value</span>
+            <span class="k">if</span> <span class="n">new</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch</span> <span class="o">=</span> <span class="s1">&#39;_none&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">flat_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_switch_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">switch_name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                           <span class="k">for</span> <span class="n">switch_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch_values</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">flat_inputs</span><span class="p">:</span>
+                <span class="c1"># check if input is connected to a pipeline input</span>
+                <span class="n">plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">link_spec</span> <span class="ow">in</span> <span class="n">plug</span><span class="o">.</span><span class="n">links_from</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">link_spec</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">PipelineNode</span><span class="p">)</span> \
+                            <span class="ow">and</span> <span class="ow">not</span> <span class="n">link_spec</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_name</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Switch__block_output_propagation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># if the change is in an input, change the corresponding output</span>
+        <span class="c1"># accordingly, if the current switch selection is on this input.</span>
+        <span class="n">spliter</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_switch_&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spliter</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">spliter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch_values</span><span class="p">:</span>
+            <span class="n">switch_selection</span><span class="p">,</span> <span class="n">output_plug_name</span> <span class="o">=</span> <span class="n">spliter</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch</span> <span class="o">==</span> <span class="n">switch_selection</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_Switch__block_output_propagation</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_plug_name</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_Switch__block_output_propagation</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">configure_controller</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="s1">&#39;input&#39;</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="s1">&#39;output&#39;</span>
+        <span class="k">return</span> <span class="n">c</span>
+
+    <span class="k">def</span> <span class="nf">configured_controller</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">configure_controller</span><span class="p">()</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="n">plug</span> <span class="k">for</span> <span class="n">plug</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_switch_inputs</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">c</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_node</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">conf_controller</span><span class="p">):</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">OptionalOutputSwitch</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">conf_controller</span><span class="o">.</span><span class="n">input</span><span class="p">,</span>
+                                    <span class="n">conf_controller</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

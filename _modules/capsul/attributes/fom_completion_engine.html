@@ -1,0 +1,699 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.attributes.fom_completion_engine</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Completion engine for File Organization Models (FOM).</span>
+
+<span class="sd">Classes</span>
+<span class="sd">=======</span>
+<span class="sd">:class:`FomProcessCompletionEngine`</span>
+<span class="sd">-----------------------------------</span>
+<span class="sd">:class:`FomPathCompletionEngine`</span>
+<span class="sd">--------------------------------</span>
+<span class="sd">:class:`FomProcessCompletionEngineIteration`</span>
+<span class="sd">--------------------------------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Str</span><span class="p">,</span> <span class="n">HasTraits</span><span class="p">,</span> <span class="n">List</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">enthought.traits.api</span> <span class="kn">import</span> <span class="n">Str</span><span class="p">,</span> <span class="n">HasTraits</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span><span class="p">,</span> <span class="n">ControllerTrait</span>
+<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">ProcessNode</span>
+<span class="kn">from</span> <span class="nn">capsul.attributes.completion_engine</span> <span class="kn">import</span> <span class="n">ProcessCompletionEngine</span><span class="p">,</span> \
+    <span class="n">ProcessCompletionEngineFactory</span><span class="p">,</span> <span class="n">PathCompletionEngine</span><span class="p">,</span> \
+    <span class="n">PathCompletionEngineFactory</span>
+<span class="kn">from</span> <span class="nn">capsul.attributes.completion_engine_iteration</span> \
+    <span class="kn">import</span> <span class="nn">ProcessCompletionEngineIteration</span>
+<span class="kn">from</span> <span class="nn">capsul.pipeline.process_iteration</span> <span class="kn">import</span> <span class="n">ProcessIteration</span>
+<span class="kn">from</span> <span class="nn">capsul.attributes.attributes_schema</span> <span class="kn">import</span> <span class="n">ProcessAttributes</span><span class="p">,</span> \
+    <span class="n">EditableAttributes</span>
+<span class="kn">from</span> <span class="nn">soma.fom</span> <span class="kn">import</span> <span class="n">DirectoryAsDict</span>
+<span class="kn">from</span> <span class="nn">soma.path</span> <span class="kn">import</span> <span class="n">split_path</span>
+<span class="kn">from</span> <span class="nn">soma.sorted_dictionary</span> <span class="kn">import</span> <span class="n">SortedDictionary</span>
+
+
+<div class="viewcode-block" id="FomProcessCompletionEngine"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine">[docs]</a><span class="k">class</span> <span class="nc">FomProcessCompletionEngine</span><span class="p">(</span><span class="n">ProcessCompletionEngine</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    FOM (File Organization Model) implementation of completion engine.</span>
+
+<span class="sd">    * A capsul.study_config.StudyConfig also needs to be configured with FOM</span>
+<span class="sd">      module, and selected FOMS and directories:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        from capsul.api import StudyConfig</span>
+<span class="sd">        from capsul.study_config.config_modules.fom_config import FomConfig</span>
+<span class="sd">        study_config = StudyConfig(modules=StudyConfig.default_modules</span>
+<span class="sd">                                   + [&#39;FomConfig&#39;, &#39;BrainVISAConfig&#39;])</span>
+<span class="sd">        study_config.update_study_configuration(&#39;study_config.json&#39;)</span>
+
+<span class="sd">    * Only then a FomProcessCompletionEngine can be created:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        process = get_process_instance(&#39;morphologist&#39;)</span>
+<span class="sd">        fom_completion_engine = FomProcessCompletionEngine(</span>
+<span class="sd">            process, study_config)</span>
+
+<span class="sd">    But generally this creation is handled via the</span>
+<span class="sd">    ProcessCompletionEngine.get_completion_engine() function:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        fom_completion_engine = ProcessCompletionEngine.get_completion_engine(</span>
+<span class="sd">            process)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: string (optional)</span>
+<span class="sd">        name of the process in the FOM dictionary. By default the</span>
+<span class="sd">        process.name variable will be used.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    create_attributes_with_fom</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FomProcessCompletionEngine</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shared_fom</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="FomProcessCompletionEngine.get_attribute_values"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.get_attribute_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_attribute_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get attributes Controller associated to a process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        attributes: Controller</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_attributes</span> \
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;capsul_attributes&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span>
+
+        <span class="n">schemas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_schemas</span><span class="p">()</span>
+        <span class="c1">#schemas = self.process.get_study_config().modules_data.foms.keys()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;capsul_attributes&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">,</span> <span class="n">ControllerTrait</span><span class="p">(</span><span class="n">Controller</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span> <span class="o">=</span> <span class="n">ProcessAttributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">schemas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_attributes</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_attributes_with_fom</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span></div>
+
+
+<div class="viewcode-block" id="FomProcessCompletionEngine.create_attributes_with_fom"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.create_attributes_with_fom">[docs]</a>    <span class="k">def</span> <span class="nf">create_attributes_with_fom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To get useful attributes by the fom&quot;&quot;&quot;</span>
+
+        <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
+
+        <span class="n">study_config</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span>
+        <span class="n">modules_data</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span>
+
+        <span class="c1">#Get attributes in input fom</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">names_search_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">:</span>
+            <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="n">names_search_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                             <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span>
+        <span class="n">capsul_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
+        <span class="n">matching_fom</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">input_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">output_found</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">foms</span> <span class="o">=</span> <span class="n">SortedDictionary</span><span class="p">()</span>
+        <span class="n">foms</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">auto_fom</span><span class="p">:</span>
+            <span class="c1"># in auto-fom mode, also search in additional and non-loaded FOMs</span>
+            <span class="k">for</span> <span class="n">schema</span><span class="p">,</span> <span class="n">fom</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">modules_data</span><span class="o">.</span><span class="n">all_foms</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">schema</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">input_fom</span><span class="p">,</span>
+                                  <span class="n">study_config</span><span class="o">.</span><span class="n">output_fom</span><span class="p">,</span>
+                                  <span class="n">study_config</span><span class="o">.</span><span class="n">shared_fom</span><span class="p">):</span>
+                    <span class="n">foms</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="n">fom</span>
+
+        <span class="k">def</span> <span class="nf">editable_attributes</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">fom</span><span class="p">):</span>
+            <span class="n">ea</span> <span class="o">=</span> <span class="n">EditableAttributes</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">attribute</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;fom_&#39;</span><span class="p">):</span>
+                    <span class="k">continue</span> <span class="c1"># skip FOM internals</span>
+                <span class="n">default_value</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">attribute_definitions</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s1">&#39;default_value&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">ea</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">Str</span><span class="p">(</span><span class="n">default_value</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">ea</span>
+
+        <span class="k">for</span> <span class="n">schema</span><span class="p">,</span> <span class="n">fom</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">foms</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">fom</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">fom</span><span class="p">,</span> <span class="n">atp</span><span class="p">,</span> <span class="n">pta</span> \
+                    <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">load_fom</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">atp</span> <span class="o">=</span> <span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span> \
+                    <span class="ow">or</span> <span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">atp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
+                <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fom_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">matching_fom</span><span class="p">:</span>
+                <span class="n">matching_fom</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">schema</span> <span class="o">==</span> <span class="s1">&#39;input&#39;</span><span class="p">:</span>
+                <span class="n">input_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">schema</span> <span class="o">==</span> <span class="s1">&#39;output&#39;</span><span class="p">:</span>
+                <span class="n">output_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">matching_fom</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">matching_fom</span> <span class="o">=</span> <span class="n">schema</span><span class="p">,</span> <span class="n">fom</span><span class="p">,</span> <span class="n">atp</span><span class="p">,</span> <span class="n">fom_patterns</span>
+            <span class="c1"># print(&#39;completion using FOM:&#39;, schema, &#39;for&#39;, process.id)</span>
+            <span class="c1">#break</span>
+
+            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">fom_patterns</span><span class="p">:</span>
+                <span class="n">param_attributes</span> <span class="o">=</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_discriminant_attributes</span><span class="p">(</span>
+                        <span class="n">fom_parameter</span><span class="o">=</span><span class="n">parameter</span><span class="p">,</span> <span class="n">fom_process</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">ea</span> <span class="o">=</span> <span class="n">editable_attributes</span><span class="p">(</span><span class="n">param_attributes</span><span class="p">,</span> <span class="n">fom</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">capsul_attributes</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span>
+                        <span class="n">parameter</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="c1"># param already registered</span>
+                    <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">matching_fom</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Process not found in FOMs&#39;</span><span class="p">)</span>
+        <span class="c1">#if isinstance(matching_fom, tuple): print(&#39;matching_fom:&#39;, matching_fom[0])</span>
+        <span class="c1">#else: print(&#39;matching fom:&#39;, matching_fom)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">input_found</span> <span class="ow">and</span> <span class="n">matching_fom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">fom_type</span><span class="p">,</span> <span class="n">fom</span><span class="p">,</span> <span class="n">atp</span><span class="p">,</span> <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">matching_fom</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;input&#39;</span>
+            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">fom_patterns</span><span class="p">:</span>
+                <span class="n">param_attributes</span> <span class="o">=</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_discriminant_attributes</span><span class="p">(</span>
+                        <span class="n">fom_parameter</span><span class="o">=</span><span class="n">parameter</span><span class="p">,</span> <span class="n">fom_process</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">ea</span> <span class="o">=</span> <span class="n">editable_attributes</span><span class="p">(</span><span class="n">param_attributes</span><span class="p">,</span> <span class="n">fom</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">capsul_attributes</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span>
+                        <span class="n">parameter</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="c1"># param already registered</span>
+                    <span class="k">pass</span>
+            <span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="n">fom</span>
+            <span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="n">atp</span>
+            <span class="n">study_config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="n">fom_type</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_found</span> <span class="ow">and</span> <span class="n">matching_fom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">fom_type</span><span class="p">,</span> <span class="n">fom</span><span class="p">,</span> <span class="n">atp</span><span class="p">,</span> <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">matching_fom</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;output&#39;</span>
+            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">fom_patterns</span><span class="p">:</span>
+                <span class="n">param_attributes</span> <span class="o">=</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_discriminant_attributes</span><span class="p">(</span>
+                        <span class="n">fom_parameter</span><span class="o">=</span><span class="n">parameter</span><span class="p">,</span> <span class="n">fom_process</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">ea</span> <span class="o">=</span> <span class="n">editable_attributes</span><span class="p">(</span><span class="n">param_attributes</span><span class="p">,</span> <span class="n">fom</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">capsul_attributes</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span>
+                        <span class="n">parameter</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="c1"># param already registered</span>
+                    <span class="k">pass</span>
+            <span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="n">fom</span>
+            <span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="n">atp</span>
+            <span class="n">study_config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="n">fom_type</span>
+
+
+        <span class="c1"># in a pipeline, we still must iterate over nodes to find switches,</span>
+        <span class="c1"># which have their own behaviour.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span>
+
+            <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">nodes</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Switch</span><span class="p">):</span>
+                    <span class="n">subprocess</span> <span class="o">=</span> <span class="n">node</span>
+                    <span class="k">if</span> <span class="n">subprocess</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">pname</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">])</span>
+                    <span class="n">subprocess_compl</span> <span class="o">=</span> \
+                        <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span>
+                            <span class="n">subprocess</span><span class="p">,</span> <span class="n">pname</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">sub_attributes</span> \
+                            <span class="o">=</span> <span class="n">subprocess_compl</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">subprocess_compl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">subprocess</span><span class="p">)</span>
+                            <span class="n">sub_attributes</span> \
+                                <span class="o">=</span> <span class="n">subprocess_compl</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
+                        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                    <span class="k">for</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">trait</span> \
+                            <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">sub_attributes</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+                        <span class="k">if</span> <span class="n">attributes</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">attribute</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">attributes</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span>
+                            <span class="nb">setattr</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span>
+                                    <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_attributes</span><span class="p">,</span> <span class="n">attribute</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_linked_attributes</span><span class="p">()</span>
+
+        <span class="c1"># remember foms for later</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">input_fom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">output_fom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shared_fom</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">shared_fom</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">setup_fom</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+        <span class="n">completion_engine</span> \
+            <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">completion_engine</span><span class="p">,</span> <span class="n">FomProcessCompletionEngine</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">completion_engine</span><span class="p">,</span> <span class="s1">&#39;input_fom&#39;</span><span class="p">)</span> \
+                <span class="ow">or</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">input_fom</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">completion_engine</span><span class="o">.</span><span class="n">create_attributes_with_fom</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">!=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">input_fom</span><span class="p">:</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">input_fom</span>
+        <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">!=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">output_fom</span><span class="p">:</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">output_fom</span>
+        <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">shared_fom</span> <span class="o">!=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">shared_fom</span><span class="p">:</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">shared_fom</span> <span class="o">=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">shared_fom</span>
+
+
+<div class="viewcode-block" id="FomProcessCompletionEngine.path_attributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.path_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">path_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">parameter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;By the path, find value of attributes&quot;&quot;&quot;</span>
+
+        <span class="n">pta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_pta</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Extract the attributes from the first result returned by</span>
+        <span class="c1"># parse_directory</span>
+        <span class="n">liste</span> <span class="o">=</span> <span class="n">split_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">len_element_to_delete</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">liste</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">element</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">:</span>
+                <span class="n">len_element_to_delete</span> \
+                    <span class="o">=</span> <span class="n">len_element_to_delete</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">new_value</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="n">len_element_to_delete</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="p">)]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1">#import logging</span>
+                    <span class="c1">#logging.root.setLevel( logging.DEBUG )</span>
+                    <span class="c1">#path, st, self.attributes = pta.parse_directory(</span>
+                    <span class="c1">#    DirectoryAsDict.paths_to_dict( new_value),</span>
+                    <span class="c1">#        log=logging ).next()</span>
+                    <span class="n">path</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">attributes</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">pta</span><span class="o">.</span><span class="n">parse_directory</span><span class="p">(</span>
+                        <span class="n">DirectoryAsDict</span><span class="o">.</span><span class="n">paths_to_dict</span><span class="p">(</span> <span class="n">new_value</span><span class="p">)</span> <span class="p">))</span>
+                    <span class="k">break</span>
+                <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">element</span> <span class="o">==</span> <span class="n">liste</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is not recognized for parameter &quot;</span><span class="si">%s</span><span class="s1">&quot; of &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="n">attrib_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">att</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">attrib_values</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">attrib_values</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">attributes</span><span class="p">[</span><span class="n">att</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">attributes</span></div>
+
+
+<div class="viewcode-block" id="FomProcessCompletionEngine.get_path_completion_engine"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.get_path_completion_engine">[docs]</a>    <span class="k">def</span> <span class="nf">get_path_completion_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">FomPathCompletionEngine</span><span class="p">()</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_fom_completion_factory</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Factoty inserted in attributed_processFactory</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">study_config</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">study_config</span> <span class="ow">is</span> <span class="kc">None</span> \
+                <span class="ow">or</span> <span class="s1">&#39;FomConfig&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span> \
+                <span class="ow">or</span> <span class="n">study_config</span><span class="o">.</span><span class="n">use_fom</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="c1">#print(&quot;no FOM:&quot;, study_config, study_config.modules.keys())</span>
+            <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Non Fom config, no way it could work</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pfom</span> <span class="o">=</span> <span class="n">FomProcessCompletionEngine</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pfom</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># process not in FOM</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="FomPathCompletionEngine"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomPathCompletionEngine">[docs]</a><span class="k">class</span> <span class="nc">FomPathCompletionEngine</span><span class="p">(</span><span class="n">PathCompletionEngine</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FomPathCompletionEngine.attributes_to_path"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.attributes_to_path">[docs]</a>    <span class="k">def</span> <span class="nf">attributes_to_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Build a path from attributes</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        process: Process instance</span>
+<span class="sd">        parameter: str</span>
+<span class="sd">        attributes: ProcessAttributes instance (Controller)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">FomProcessCompletionEngine</span><span class="o">.</span><span class="n">setup_fom</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+
+        <span class="n">input_fom</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span>
+        <span class="n">output_fom</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+        <span class="n">input_atp</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span>
+        <span class="n">output_atp</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+
+        <span class="c1">#Create completion</span>
+        <span class="n">names_search_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="n">trait</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">get_trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">):</span>
+                    <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">context_name</span><span class="p">)</span>
+                <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trait</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">id</span>
+            <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+            <span class="n">atp</span> <span class="o">=</span> <span class="n">output_atp</span>
+            <span class="n">fom</span> <span class="o">=</span> <span class="n">output_fom</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">atp</span> <span class="o">=</span> <span class="n">input_atp</span>
+            <span class="n">fom</span> <span class="o">=</span> <span class="n">input_fom</span>
+        <span class="n">names_search_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                              <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
+            <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fom_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">fname</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Process not found in FOMs amongst </span><span class="si">%s</span><span class="s1">&#39;</span> \
+                <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">names_search_list</span><span class="p">))</span>
+
+        <span class="n">allowed_attributes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">attributes</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">allowed_attributes</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;parameter&#39;</span><span class="p">)</span>
+        <span class="n">allowed_attributes</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;process_name&#39;</span><span class="p">)</span>
+        <span class="c1">#allowed_attributes = set(attributes.get_parameters_attributes()[</span>
+            <span class="c1">#parameter].keys())</span>
+        <span class="c1">#allowed_attributes.discard(&#39;type&#39;)</span>
+        <span class="c1">#allowed_attributes.discard(&#39;generated_by_parameter&#39;)</span>
+        <span class="c1">#allowed_attributes.discard(&#39;generated_by_process&#39;)</span>
+
+        <span class="c1"># Select only the attributes that are discriminant for this</span>
+        <span class="c1"># parameter otherwise other attibutes can prevent the appropriate</span>
+        <span class="c1"># rule to match</span>
+        <span class="n">parameter_attributes</span> <span class="o">=</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_discriminant_attributes</span><span class="p">(</span>
+            <span class="n">fom_parameter</span><span class="o">=</span><span class="n">parameter</span><span class="p">,</span> <span class="n">fom_process</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> \
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">parameter_attributes</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">allowed_attributes</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fom_process&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fom_parameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameter</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fom_format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;fom_preferred&#39;</span>
+        <span class="n">path_value</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">#path_values = []</span>
+        <span class="c1">#debug = getattr(self, &#39;debug&#39;, None)</span>
+        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_paths</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>  <span class="c1"># , debug=debug):</span>
+            <span class="n">path_value</span> <span class="o">=</span> <span class="n">h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># find_paths() is a generator which can sometimes generate</span>
+            <span class="c1"># several values (formats). We are only interested in the</span>
+            <span class="c1"># first one.</span>
+            <span class="c1">#path_values.append(h[0])</span>
+            <span class="k">break</span>
+
+        <span class="k">return</span> <span class="n">path_value</span></div>
+
+
+<div class="viewcode-block" id="FomPathCompletionEngine.open_values_attributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.open_values_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">open_values_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Attributes with &quot;open&quot; values, not restricted to a list of possible</span>
+<span class="sd">        values</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># print(&#39;open_values_attributes&#39;, process.id, parameter)</span>
+
+        <span class="n">FomProcessCompletionEngine</span><span class="o">.</span><span class="n">setup_fom</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">schema</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;shared&#39;</span><span class="p">):</span>
+            <span class="n">fom</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span>
+            <span class="n">atp</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span>
+            <span class="c1"># print(&#39;fom:&#39;, fom.fom_names)</span>
+            <span class="c1"># print(&#39;atp:&#39;, atp)</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">names_search_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">):</span>
+                <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="n">names_search_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                  <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
+                <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fom_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">fname</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">values</span> <span class="o">=</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_attributes_values</span><span class="p">()</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+                          <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;fom_name&#39;</span><span class="p">,</span> <span class="s1">&#39;fom_process&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;fom_parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;fom_format&#39;</span><span class="p">)</span>
+                            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="p">)]</span>
+            <span class="k">return</span> <span class="n">attributes</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="FomPathCompletionEngine.allowed_formats"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.allowed_formats">[docs]</a>    <span class="k">def</span> <span class="nf">allowed_formats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; List of possible formats names associated with a parameter</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">FomProcessCompletionEngine</span><span class="o">.</span><span class="n">setup_fom</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+
+        <span class="n">formats</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">schema</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;shared&#39;</span><span class="p">):</span>
+            <span class="n">atp</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span>
+            <span class="n">sub_f</span> <span class="o">=</span> <span class="n">atp</span><span class="o">.</span><span class="n">allowed_formats_for_parameter</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
+            <span class="n">formats</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">sub_f</span> <span class="k">if</span> <span class="n">f</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">formats</span></div>
+
+
+<div class="viewcode-block" id="FomPathCompletionEngine.allowed_extensions"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.allowed_extensions">[docs]</a>    <span class="k">def</span> <span class="nf">allowed_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; List of possible file extensions associated with a parameter</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">FomProcessCompletionEngine</span><span class="o">.</span><span class="n">setup_fom</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+
+        <span class="n">exts</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">schema</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;shared&#39;</span><span class="p">):</span>
+            <span class="n">atp</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span>
+            <span class="n">sub_e</span> <span class="o">=</span> <span class="n">atp</span><span class="o">.</span><span class="n">allowed_extensions_for_parameter</span><span class="p">(</span>
+                <span class="n">process_name</span><span class="o">=</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="n">parameter</span><span class="p">)</span>
+            <span class="n">exts</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_e</span><span class="p">)</span>
+        <span class="c1"># sort and add dots</span>
+        <span class="n">exts2</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="s1">&#39;.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">exts</span> <span class="k">if</span> <span class="n">e</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;&#39;</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
+            <span class="n">exts2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">exts2</span></div></div>
+
+
+<div class="viewcode-block" id="FomProcessCompletionEngineIteration"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration">[docs]</a><span class="k">class</span> <span class="nc">FomProcessCompletionEngineIteration</span><span class="p">(</span><span class="n">ProcessCompletionEngineIteration</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FomProcessCompletionEngineIteration.get_iterated_attributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration.get_iterated_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_iterated_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
+        <span class="n">subprocess</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
+
+        <span class="n">FomProcessCompletionEngine</span><span class="o">.</span><span class="n">setup_fom</span><span class="p">(</span><span class="n">subprocess</span><span class="p">)</span>
+
+        <span class="n">input_fom</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span>
+        <span class="n">output_fom</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+        <span class="n">input_atp</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span>
+        <span class="n">output_atp</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">names_search_list</span> <span class="o">=</span> <span class="p">(</span><span class="n">subprocess</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                             <span class="nb">getattr</span><span class="p">(</span><span class="n">subprocess</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">fom</span> <span class="ow">in</span> <span class="p">(</span><span class="n">input_fom</span><span class="p">,</span> <span class="n">output_fom</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
+                <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fom_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">fname</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Process not found in FOMs amongst </span><span class="si">%s</span><span class="s1">&#39;</span> \
+                <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">names_search_list</span><span class="p">))</span>
+
+        <span class="n">iter_attrib</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subprocess</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">iterative_parameters</span>
+        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="n">atp</span> <span class="o">=</span> <span class="n">output_atp</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">atp</span> <span class="o">=</span> <span class="n">input_atp</span>
+            <span class="n">parameter_attributes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span>
+                <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_discriminant_attributes</span><span class="p">(</span>
+                    <span class="n">fom_parameter</span><span class="o">=</span><span class="n">parameter</span><span class="p">,</span> <span class="n">fom_process</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;fom_&#39;</span><span class="p">)])</span>
+            <span class="n">iter_attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parameter_attributes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">iter_attrib</span></div></div>
+
+
+<span class="c1">#class FomPathCompletionEngineFactory(PathCompletionEngineFactory):</span>
+
+    <span class="c1">#factory_id = &#39;fom&#39;</span>
+
+    <span class="c1">#def get_path_completion_engine(self, process):</span>
+        <span class="c1">#return FomPathCompletionEngine(process)</span>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

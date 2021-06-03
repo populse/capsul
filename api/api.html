@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../index.html">
+    <img src="../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CAPSUL</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-capsul.api">
+<span id="capsul-api-module"></span><h1>capsul.api module<a class="headerlink" href="#module-capsul.api" title="Permalink to this headline">¶</a></h1>
+<p>The high-level capsul.api module pre-imports the main objects from several sub-modules:</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">Process</span></code></a></p></li>
+<li><p><a class="reference internal" href="process.html#capsul.process.process.NipypeProcess" title="capsul.process.process.NipypeProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">NipypeProcess</span></code></a></p></li>
+<li><p><a class="reference internal" href="process.html#capsul.process.process.ProcessResult" title="capsul.process.process.ProcessResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessResult</span></code></a></p></li>
+<li><p><a class="reference internal" href="process.html#capsul.process.process.FileCopyProcess" title="capsul.process.process.FileCopyProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileCopyProcess</span></code></a></p></li>
+<li><p><a class="reference internal" href="process.html#capsul.process.process.InteractiveProcess" title="capsul.process.process.InteractiveProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">InteractiveProcess</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline.Pipeline" title="capsul.pipeline.pipeline.Pipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.Plug" title="capsul.pipeline.pipeline_nodes.Plug"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plug</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.Node" title="capsul.pipeline.pipeline_nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode" title="capsul.pipeline.pipeline_nodes.ProcessNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessNode</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.PipelineNode" title="capsul.pipeline.pipeline_nodes.PipelineNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">PipelineNode</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.Switch" title="capsul.pipeline.pipeline_nodes.Switch"><code class="xref py py-class docutils literal notranslate"><span class="pre">Switch</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.OptionalOutputSwitch" title="capsul.pipeline.pipeline_nodes.OptionalOutputSwitch"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptionalOutputSwitch</span></code></a></p></li>
+<li><p><a class="reference internal" href="study_config.html#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a></p></li>
+</ul>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="engine.html#capsul.engine.capsul_engine" title="capsul.engine.capsul_engine"><code class="xref py py-func docutils literal notranslate"><span class="pre">capsul_engine()</span></code></a></p></li>
+<li><p><a class="reference internal" href="study_config.html#capsul.study_config.process_instance.get_process_instance" title="capsul.study_config.process_instance.get_process_instance"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_instance()</span></code></a></p></li>
+<li><p><a class="reference internal" href="utils.html#capsul.utils.finder.find_processes" title="capsul.utils.finder.find_processes"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_processes()</span></code></a></p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">capsul.api module</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CAPSUL</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

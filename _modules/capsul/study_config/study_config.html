@@ -1,0 +1,949 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.study_config.study_config</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Main :class:`StudyConfig` class for configuration of Capsul software, directories etc.</span>
+
+<span class="sd">Classes</span>
+<span class="sd">========</span>
+<span class="sd">:class:`StudyConfig`</span>
+<span class="sd">--------------------</span>
+<span class="sd">:class:`StudyConfigModule`</span>
+<span class="sd">--------------------------</span>
+
+<span class="sd">Functions</span>
+<span class="sd">=========</span>
+<span class="sd">:func:`default_study_config`</span>
+<span class="sd">----------------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="c1"># System import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">weakref</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">soma.sorted_dictionary</span> <span class="kn">import</span> <span class="n">SortedDictionary</span> <span class="k">as</span> <span class="n">OrderedDict</span>
+
+<span class="c1"># Define the logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Trait import</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">File</span><span class="p">,</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">Int</span>
+
+<span class="c1"># Soma import</span>
+<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
+
+<span class="c1"># Capsul import</span>
+<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="nn">capsul.process.process</span> <span class="kn">import</span> <span class="n">Process</span>
+<span class="kn">from</span> <span class="nn">capsul.study_config.run</span> <span class="kn">import</span> <span class="n">run_process</span>
+<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">Node</span>
+<span class="kn">from</span> <span class="nn">capsul.study_config.process_instance</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
+
+
+<div class="viewcode-block" id="StudyConfig"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig">[docs]</a><span class="k">class</span> <span class="nc">StudyConfig</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Class to store the study parameters and processing options.</span>
+
+<span class="sd">    StudyConfig is deprecated and will probably be removed in Capsul 3.</span>
+<span class="sd">    Please use :class:`~capsul.engine.CapsulEngine` instead and its</span>
+<span class="sd">    construction function, :func:`~capsul.engine.capsul_engine` when possible.</span>
+
+<span class="sd">    This in turn is used to evaluate a Process instance or a Pipeline.</span>
+
+<span class="sd">    StudyConfig has modules (see BrainVISAConfig, FSLConfig, MatlabConfig,</span>
+<span class="sd">    SmartCachingConfig, SomaWorkflowConfig, SPMConfig, FOMConfig).</span>
+<span class="sd">    Modules are initialized in the constructor, so their list has to be setup</span>
+<span class="sd">    before instantiating StudyConfig. A default modules list is used when no</span>
+<span class="sd">    modules are specified: StudyConfig.default_modules</span>
+
+<span class="sd">    StudyConfig configuration is loaded from a global file and then from a</span>
+<span class="sd">    study specific file (based on study_name parameter). The global</span>
+<span class="sd">    configuration file name is either in os.environ[&#39;CAPSUL_CONFIG&#39;] or</span>
+<span class="sd">    in &quot;~/.config/capsul/config.json&quot;. The study specific configuration</span>
+<span class="sd">    file name is either defined in the global configuration or in</span>
+<span class="sd">    &quot;~/.config/capsul/&lt;study_name&gt;/config.json&quot;.</span>
+<span class="sd">    ::</span>
+
+<span class="sd">      from capsul.api import StudyConfig</span>
+
+<span class="sd">      study_config = StudyConfig(modules=[&#39;SPMConfig&#39;, &#39;FomConfig&#39;])</span>
+<span class="sd">      # or:</span>
+<span class="sd">      study_config = StudyConfig(modules=StudyConfig.default_modules +</span>
+<span class="sd">      [&#39;FomConfig&#39;])</span>
+
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_directory : str</span>
+<span class="sd">        parameter to set the study input directory</span>
+<span class="sd">    output_directory : str</span>
+<span class="sd">        parameter to set the study output directory</span>
+<span class="sd">    generate_logging : bool (default False)</span>
+<span class="sd">        parameter to control the log generation</span>
+<span class="sd">    create_output_directories : bool (default True)</span>
+<span class="sd">        Create parent directories of all output File or Directory before</span>
+<span class="sd">        running a process</span>
+<span class="sd">    process_output_directory : bool (default False)</span>
+<span class="sd">        Create a process specific output_directory by appending a</span>
+<span class="sd">        subdirectory to output_directory. This subdirectory is named </span>
+<span class="sd">        &#39;&lt;count&gt;-&lt;name&gt;&#39; where &lt;count&gt; if self.process_counter and &lt;name&gt; </span>
+<span class="sd">        is the name of the process.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    run</span>
+<span class="sd">    reset_process_counter</span>
+<span class="sd">    set_trait_value</span>
+<span class="sd">    get_trait</span>
+<span class="sd">    get_trait_value</span>
+<span class="sd">    update_study_configuration</span>
+<span class="sd">    set_study_configuration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;FSLConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;MatlabConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;SmartCachingConfig&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;SPMConfig&#39;</span><span class="p">]</span>
+    <span class="n">_user_config_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">,</span> <span class="s2">&quot;.config&quot;</span><span class="p">,</span> <span class="s2">&quot;capsul&quot;</span><span class="p">)</span>
+
+    <span class="n">study_name</span> <span class="o">=</span> <span class="n">String</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Name of the study to configure&quot;</span><span class="p">,</span>
+        <span class="c1"># traits with transient=True will not be saved in configuration</span>
+        <span class="c1"># see  http://code.enthought.com/projects/traits/docs/html/</span>
+        <span class="c1"># traits_user_manual/advanced.html#pickling-hastraits-objects</span>
+        <span class="n">transient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;study&#39;</span><span class="p">])</span>
+
+    <span class="n">user_level</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;0: basic, 1: advanced, 2: expert... used to display or hide &quot;</span>
+             <span class="s2">&quot;some advanced features or process parameters that would be &quot;</span>
+             <span class="s2">&quot;confusing to a novice user&quot;</span><span class="p">,</span>
+        <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;study&#39;</span><span class="p">])</span>
+
+    <span class="n">input_directory</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span>
+        <span class="n">Undefined</span><span class="p">,</span>
+        <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Parameter to set the study input directory&quot;</span><span class="p">,</span>
+        <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;study&#39;</span><span class="p">])</span>
+
+    <span class="n">output_directory</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span>
+        <span class="n">Undefined</span><span class="p">,</span>
+        <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Parameter to set the study output directory&quot;</span><span class="p">,</span>
+        <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;study&#39;</span><span class="p">])</span>
+
+    <span class="n">generate_logging</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span>
+        <span class="kc">False</span><span class="p">,</span>
+        <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Parameter to control the log generation&quot;</span><span class="p">,</span>
+        <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;study&#39;</span><span class="p">])</span>
+
+    <span class="n">create_output_directories</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span>
+        <span class="kc">True</span><span class="p">,</span>
+        <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Create parent directories of all output File or Directory before running a process&quot;</span><span class="p">,</span>
+        <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;study&#39;</span><span class="p">])</span>
+
+    <span class="n">process_output_directory</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span>
+        <span class="kc">False</span><span class="p">,</span>
+        <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Create a process specific output_directory by appending a &quot;</span>
+             <span class="s2">&quot;subdirectory to output_directory. This subdirectory is named &quot;</span>
+             <span class="s2">&quot;&#39;&lt;count&gt;-&lt;name&gt;&#39; where &lt;count&gt; if self.process_counter and &quot;</span>
+             <span class="s2">&quot;&lt;name&gt; is the name of the process.&quot;</span><span class="p">,</span>
+        <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;study&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">override_config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initilize the StudyConfig class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        study_name: Name of the study to configure. This name is used to</span>
+<span class="sd">            identify specific configuration for a study.</span>
+<span class="sd">        init_config: if not None, must contain a dictionary that will be used</span>
+<span class="sd">            to configure this StudyConfig (instead of reading configuration</span>
+<span class="sd">            from configuration files).</span>
+<span class="sd">        modules: list of string (default self.default_modules).</span>
+<span class="sd">            the names of configuration module classes that will be included</span>
+<span class="sd">            in this study configuration.</span>
+<span class="sd">        engine: CapsulEngine</span>
+<span class="sd">            this parameter is temporary, it just helps to handle the transition</span>
+<span class="sd">            to :class:`capsul.engine.CapsulEngine`. Don&#39;t use it in client code.</span>
+<span class="sd">        override_config: dictionary</span>
+<span class="sd">            The content of these keyword parameters will be set on the</span>
+<span class="sd">            configuration after it has been initialized from configuration</span>
+<span class="sd">            files (or from init_config).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">StudyConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">study_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">study_name</span> <span class="o">=</span> <span class="n">study_name</span>
+
+        <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">study_config</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">proxy</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="c1"># Read the configuration for the given study</span>
+        <span class="k">if</span> <span class="n">init_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_configuration</span><span class="p">()</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">override_config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_config_file</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">study_config_file</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">override_config</span><span class="p">:</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">init_config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">override_config</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">init_config</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">visible_groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;study&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Create modules</span>
+        <span class="k">if</span> <span class="n">modules</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Make it possible for a study to define its own set of modules</span>
+            <span class="n">modules</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;config_modules&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_modules</span><span class="p">)</span>
+
+        <span class="c1"># &#39;modules_data&#39; is a container for modules-specific internal data</span>
+        <span class="c1"># each module is encouraged to prefix its variables there by its</span>
+        <span class="c1"># module name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules_data</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+        <span class="c1"># Set self attributes according to configuration values</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialize_modules</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_interruption_request</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="StudyConfig.initialize_modules"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.initialize_modules">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Modules initialization, calls initialize_module on each config module.</span>
+<span class="sd">        This is not done during module instanciation to allow interactions</span>
+<span class="sd">        between modules (e.g. Matlab configuration can influence Nipype</span>
+<span class="sd">        configuration). Modules dependencies are taken into account in</span>
+<span class="sd">        initialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">already_initialized</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c1"># Use a stack to allow to manage module dependencies</span>
+        <span class="n">stack</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">while</span> <span class="n">stack</span><span class="p">:</span>
+            <span class="n">module_name</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">module_name</span> <span class="ow">in</span> <span class="n">already_initialized</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">module</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;Required StudyConfig module </span><span class="si">%s</span><span class="s1"> is &#39;</span>
+                                       <span class="s1">&#39;missing&#39;</span> <span class="o">%</span> <span class="n">module_name</span><span class="p">)</span>
+            <span class="c1"># Check if there are dependent modules that must be initilaized</span>
+            <span class="c1"># before the current one</span>
+            <span class="n">initialize_first</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">dependencies</span>
+                                <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">already_initialized</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">initialize_first</span><span class="p">:</span>
+                <span class="n">stack</span> <span class="o">=</span> <span class="n">initialize_first</span> <span class="o">+</span> <span class="p">[</span><span class="n">module_name</span><span class="p">]</span> <span class="o">+</span> <span class="n">stack</span>
+                <span class="k">continue</span>
+            <span class="c1"># Intitialize a module</span>
+            <span class="n">module</span><span class="o">.</span><span class="n">initialize_module</span><span class="p">()</span>
+            <span class="n">module</span><span class="o">.</span><span class="n">initialize_callbacks</span><span class="p">()</span>
+            <span class="n">already_initialized</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+
+        <span class="c1"># Intern identifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="c1"># Parameter that is incremented at each process execution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_counter</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+    <span class="c1">####################################################################</span>
+    <span class="c1"># Methods</span>
+    <span class="c1">####################################################################</span>
+
+<div class="viewcode-block" id="StudyConfig.load_module"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.load_module">[docs]</a>    <span class="k">def</span> <span class="nf">load_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_module_name</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load an optional StudyConfig module.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_module_name: Name of the module to load (e.g. &quot;FSLConfig&quot;).</span>
+<span class="sd">        config: dictionary containing the configuration of the study.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">config_module_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+            <span class="n">python_module</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;capsul.study_config.config_modules.</span><span class="si">{0}</span><span class="s2">_config&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">config_module_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+            <span class="n">python_module</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="n">python_module</span><span class="p">,</span>
+                                       <span class="n">fromlist</span><span class="o">=</span><span class="p">[</span><span class="n">config_module_name</span><span class="p">])</span>
+            <span class="n">config_module_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">python_module</span><span class="p">,</span> <span class="n">config_module_name</span><span class="p">)</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="n">config_module_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">config_module_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+            <span class="c1"># load dependencies</span>
+            <span class="k">for</span> <span class="n">dep_module_name</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">dependencies</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">dep_module_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">dep_module_name</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">module</span></div>
+
+<div class="viewcode-block" id="StudyConfig.run"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_or_pipeline</span><span class="p">,</span> <span class="n">output_directory</span><span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">execute_qc_nodes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">configuration_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method to execute a process or a pipline in a study configuration</span>
+<span class="sd">         environment.</span>
+
+<span class="sd">         Depending on the studies_config settings, it may be a sequential run,</span>
+<span class="sd">         or a parallel run, which can involve remote execution (through soma-</span>
+<span class="sd">         workflow).</span>
+
+<span class="sd">         Only pipeline nodes can be filtered on the &#39;execute_qc_nodes&#39;</span>
+<span class="sd">         attribute.</span>
+
+<span class="sd">         A valid output directory is exepcted to execute the process or the</span>
+<span class="sd">         pepeline without soma-workflow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        process_or_pipeline: Process or Pipeline instance (mandatory)</span>
+<span class="sd">            the process or pipeline we want to execute</span>
+<span class="sd">        output_directory: Directory name (optional)</span>
+<span class="sd">            the output directory to use for process execution. This replaces</span>
+<span class="sd">            self.output_directory but left it unchanged.</span>
+<span class="sd">        execute_qc_nodes: bool (optional, default False)</span>
+<span class="sd">            if True execute process nodes that are taged as qualtity control</span>
+<span class="sd">            process nodes.</span>
+<span class="sd">        verbose: int</span>
+<span class="sd">            if different from zero, print console messages.</span>
+<span class="sd">        configuration_dict: dict (optional)</span>
+<span class="sd">            configuration dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c1"># Use soma worflow to execute the pipeline or porcess in parallel</span>
+        <span class="c1"># on the local machine. This has now moved to CapsulEngine.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_trait_value</span><span class="p">(</span><span class="s2">&quot;use_soma_workflow&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># here we only deal with the (obsolete) local execution mode.</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_interruption_request</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># set parameters values</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="c1"># output_directory cannot be in kwargs</span>
+        <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="s1">&#39;output_directory&#39;</span> <span class="ow">in</span> <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">traits</span><span class="p">():</span>
+            <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="n">output_directory</span>
+
+        <span class="n">missing</span> <span class="o">=</span> <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">get_missing_mandatory_parameters</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ptype</span> <span class="o">=</span> <span class="s1">&#39;process&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
+                <span class="n">ptype</span> <span class="o">=</span> <span class="s1">&#39;pipeline&#39;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;In </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">: missing mandatory parameters: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                             <span class="o">%</span> <span class="p">(</span><span class="n">ptype</span><span class="p">,</span> <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)))</span>
+
+
+        <span class="c1"># Use the local machine to execute the pipeline or process</span>
+        <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;output_directory&#39;</span> <span class="ow">in</span> <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">traits</span><span class="p">():</span>
+                <span class="n">output_directory</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span>
+                                            <span class="s1">&#39;output_directory&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
+                <span class="n">output_directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_directory</span>
+         <span class="c1"># Not all processes need an output_directory defined on</span>
+        <span class="c1"># StudyConfig</span>
+        <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+                <span class="ow">and</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span><span class="p">:</span>
+            <span class="c1"># Check the output directory is valid</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is not a valid directory. A valid output &quot;</span>
+                    <span class="s2">&quot;directory is expected to run the process or &quot;</span>
+                    <span class="s2">&quot;pipeline.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_directory</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">output_directory</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_directory</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Can&#39;t create folder &#39;</span><span class="si">{0}</span><span class="s2">&#39;, please investigate.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">output_directory</span><span class="p">))</span>
+
+        <span class="c1"># Temporary files can be generated for pipelines</span>
+        <span class="n">temporary_files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Generate ordered execution list</span>
+            <span class="n">execution_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
+                <span class="n">execution_list</span> <span class="o">=</span> \
+                    <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">workflow_ordered_nodes</span><span class="p">()</span>
+                <span class="c1"># Filter process nodes if necessary</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">execute_qc_nodes</span><span class="p">:</span>
+                    <span class="n">execution_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">execution_list</span>
+                                      <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">node_type</span>
+                                          <span class="o">==</span> <span class="s2">&quot;processing_node&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">execution_list</span><span class="p">:</span>
+                    <span class="c1"># check temporary outputs and allocate files</span>
+                    <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">_check_temporary_files_for_node</span><span class="p">(</span>
+                        <span class="n">node</span><span class="p">,</span> <span class="n">temporary_files</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span> <span class="n">Process</span><span class="p">):</span>
+                <span class="n">execution_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                    <span class="s2">&quot;Unknown instance type. Got </span><span class="si">{0}</span><span class="s2">and expect Process or &quot;</span>
+                    <span class="s2">&quot;Pipeline instances&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">process_or_pipeline</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">name__</span><span class="p">))</span>
+
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_lock</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_interruption_request</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">run_interruption_request</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Execution interruption requested&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Execute each process node element</span>
+            <span class="k">for</span> <span class="n">process_node</span> <span class="ow">in</span> <span class="n">execution_list</span><span class="p">:</span>
+                <span class="c1"># Execute the process instance contained in the node</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process_node</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+                    <span class="n">result</span><span class="p">,</span> <span class="n">log_file</span> <span class="o">=</span> <span class="n">run_process</span><span class="p">(</span>
+                        <span class="n">output_directory</span><span class="p">,</span>
+                        <span class="n">process_node</span><span class="o">.</span><span class="n">process</span><span class="p">,</span>
+                        <span class="n">generate_logging</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_logging</span><span class="p">,</span>
+                        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                        <span class="n">configuration_dict</span><span class="o">=</span><span class="n">configuration_dict</span><span class="p">)</span>
+
+                <span class="c1"># Execute the process instance</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">,</span> <span class="n">log_file</span> <span class="o">=</span> <span class="n">run_process</span><span class="p">(</span>
+                        <span class="n">output_directory</span><span class="p">,</span>
+                        <span class="n">process_node</span><span class="p">,</span>
+                        <span class="n">generate_logging</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_logging</span><span class="p">,</span>
+                        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                        <span class="n">configuration_dict</span><span class="o">=</span><span class="n">configuration_dict</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_lock</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_interruption_request</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">run_interruption_request</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Execution interruption requested&#39;</span><span class="p">)</span>
+
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Destroy temporary files</span>
+            <span class="k">if</span> <span class="n">temporary_files</span><span class="p">:</span>
+                <span class="c1"># If temporary files have been created, we are sure that</span>
+                <span class="c1"># process_or_pipeline is a pipeline with a method</span>
+                <span class="c1"># _free_temporary_files.</span>
+                <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">_free_temporary_files</span><span class="p">(</span><span class="n">temporary_files</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="StudyConfig.reset_process_counter"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.reset_process_counter">[docs]</a>    <span class="k">def</span> <span class="nf">reset_process_counter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method to reset the process counter to one.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_counter</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="StudyConfig.read_configuration"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.read_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">read_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find the configuration for the current study (whose name is defined</span>
+<span class="sd">        in self study_name) and returns a dictionary that is a merge between</span>
+<span class="sd">        global options and study specific options.</span>
+
+<span class="sd">        Global option are taken from environment variable CAPSUL_CONFIG if</span>
+<span class="sd">        it is defined, otherwise from &quot;~/.config/capsul/config.json&quot; if it</span>
+<span class="sd">        exists.</span>
+
+<span class="sd">        The configuration for a study can be defined the global configuration</span>
+<span class="sd">        if it contains a dictionary in it &quot;studies_config&quot; option and if there</span>
+<span class="sd">        is a key corresponding to self.study_name in this dictionary. If the</span>
+<span class="sd">        corresponding value is a string, it must be a valid json configuration</span>
+<span class="sd">        file name (either absolute or relative to the global configuration</span>
+<span class="sd">        file). Otherwise, the corresponding value must be a dictionary</span>
+<span class="sd">        containing study specific configuration values.</span>
+<span class="sd">        If no study configuration is found from global configuration, then</span>
+<span class="sd">        a file named &quot;~/.config/capsul/%s/config.json&quot; (where %s is</span>
+<span class="sd">        self.study_name) is used if it exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># First read global options</span>
+        <span class="n">global_config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CAPSUL_CONFIG&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">global_config_file</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">global_config_file</span><span class="p">)):</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">global_config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_config_file</span> <span class="o">=</span> <span class="n">global_config_file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">global_config_file</span> <span class="o">=</span> \
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_user_config_directory</span><span class="p">,</span>
+                                                <span class="s2">&quot;config.json&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">global_config_file</span><span class="p">):</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">global_config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">global_config_file</span> <span class="o">=</span> <span class="n">global_config_file</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">global_config_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Look for study specific configuration file</span>
+        <span class="n">study_config</span> <span class="o">=</span> \
+            <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;studies_config&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_config_file</span><span class="p">:</span>
+                <span class="n">study_config</span> <span class="o">=</span> \
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_config_file</span><span class="p">),</span>
+                                 <span class="n">study_config</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">study_config_file</span> <span class="o">=</span> <span class="n">study_config</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">study_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">study_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">study_config_file</span> <span class="o">=</span> \
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_user_config_directory</span><span class="p">,</span>
+                                 <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;config.json&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_name</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">study_config_file</span><span class="p">):</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">study_config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">study_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">study_config_file</span> <span class="o">=</span> <span class="n">study_config_file</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">study_config</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">study_config_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">study_config_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_config_file</span>
+
+        <span class="c1"># Merge study configuration file with global configuration</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="StudyConfig.get_configuration_dict"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_configuration_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_configuration_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns a json compatible dictionary containing current</span>
+<span class="sd">        configuration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">(</span><span class="n">exclude_transient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">exclude_undefined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="StudyConfig.save_configuration"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.save_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">save_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save study configuration as json file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file: file or str (mandatory)</span>
+<span class="sd">            either a writable opened file or the path to the output json file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Dump the study configuration elements</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_configuration_dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;: &quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;: &quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="StudyConfig.update_study_configuration"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.update_study_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">update_study_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_fname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Update the study configuration from a json file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        json_fname: str (mandatory)</span>
+<span class="sd">            the path to the output json file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Load the json file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_data</span><span class="p">:</span>
+            <span class="n">new_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+                <span class="n">json_data</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">)</span>
+
+        <span class="c1"># Update the study configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_study_configuration</span><span class="p">(</span><span class="n">new_config</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StudyConfig.add_trait"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.add_trait">[docs]</a>    <span class="k">def</span> <span class="nf">add_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">trait</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add a new trait.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: str (mandatory)</span>
+<span class="sd">            the trait name.</span>
+<span class="sd">        trait: traits.api (mandatory)</span>
+<span class="sd">            a valid trait.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Call the controller add_trait method</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">StudyConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">trait</span><span class="p">)</span>
+
+        <span class="c1"># Get the trait instance and if it is a user trait load the traits</span>
+        <span class="c1"># to get it in the traits accessor method that can select traits from</span>
+        <span class="c1"># trait attributes</span>
+        <span class="n">trait_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_user_trait</span><span class="p">(</span><span class="n">trait_instance</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trait_get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="c1">####################################################################</span>
+    <span class="c1"># Accessors</span>
+    <span class="c1">####################################################################</span>
+
+<div class="viewcode-block" id="StudyConfig.set_study_configuration"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.set_study_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">set_study_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method to set the new configuration of the study.</span>
+
+<span class="sd">        If a study configuration element can&#39;t be updated properly,</span>
+<span class="sd">        send an error message to the logger.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_config: ordered dict (mandatory)</span>
+<span class="sd">            the structure that contain the default study configuration:</span>
+<span class="sd">            see the class attributes to build this structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Go through the configuration structure, respecting the traits</span>
+        <span class="c1"># declaration order</span>
+        <span class="k">for</span> <span class="n">trait_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">trait_value</span> <span class="o">=</span> <span class="n">new_config</span><span class="p">[</span><span class="n">trait_name</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="c1"># not specified in new_config</span>
+                <span class="k">continue</span>
+            <span class="c1"># Try to update the &#39;trait_name&#39; configuration element</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_trait_value</span><span class="p">(</span><span class="n">trait_name</span><span class="p">,</span> <span class="n">trait_value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Could not set value for config variable </span><span class="si">{0}</span><span class="s2">: &quot;</span>
+                    <span class="s2">&quot;</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">trait_name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">trait_value</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="StudyConfig.set_trait_value"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.set_trait_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_trait_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">,</span> <span class="n">trait_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method to set the value of a parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trait_name: str (mandatory)</span>
+<span class="sd">            the trait name we want to modify</span>
+<span class="sd">        trait_value: object (madatory)</span>
+<span class="sd">            the trait value we want to set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">trait_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">,</span> <span class="n">trait_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StudyConfig.get_trait"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_trait">[docs]</a>    <span class="k">def</span> <span class="nf">get_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method to access the &#39;trait_name&#39; study configuration element.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        If the &#39;trait_name&#39; element is not found, return None</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trait_name: str (mandatory)</span>
+<span class="sd">            the trait name we want to access</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        trait: trait</span>
+<span class="sd">            the trait we want to access</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">trait_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">trait_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="StudyConfig.get_trait_value"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_trait_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_trait_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method to access the value of the &#39;trait_name&#39; study</span>
+<span class="sd">        configuration element.</span>
+
+<span class="sd">        .. note:</span>
+
+<span class="sd">            If the &#39;trait_name&#39; element is not found, return None</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trait_name: str (mandatory)</span>
+<span class="sd">            the trait name we want to modify</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value: object</span>
+<span class="sd">            the trait value we want to access</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">trait_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="StudyConfig.get_process_instance"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_process_instance">[docs]</a>    <span class="k">def</span> <span class="nf">get_process_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_or_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return a Process instance given an identifier.</span>
+
+<span class="sd">        The identifier is either:</span>
+
+<span class="sd">            * a derived Process class.</span>
+<span class="sd">            * a derived Process class instance.</span>
+<span class="sd">            * a Nipype Interface instance.</span>
+<span class="sd">            * a Nipype Interface class.</span>
+<span class="sd">            * a string description of the class `&lt;module&gt;.&lt;class&gt;`.</span>
+<span class="sd">            * a string description of a function to warp `&lt;module&gt;.&lt;function&gt;`.</span>
+<span class="sd">            * a string description of a pipeline `&lt;module&gt;.&lt;fname&gt;.xml`.</span>
+<span class="sd">            * an XML filename for a pipeline</span>
+
+<span class="sd">        Default values of the process instance are passed as additional</span>
+<span class="sd">        parameters.</span>
+
+<span class="sd">        .. note:</span>
+
+<span class="sd">            If no process is found an ImportError is raised.</span>
+
+<span class="sd">        .. note:</span>
+
+<span class="sd">            If the &#39;process_or_id&#39; parameter is not valid a ValueError is</span>
+<span class="sd">            raised.</span>
+
+<span class="sd">        .. note:</span>
+
+<span class="sd">            If the function to warp does not contain a process description in</span>
+<span class="sd">            its decorator or docstring (&#39;&lt;process&gt;...&lt;/process&gt;&#39;) a ValueError</span>
+<span class="sd">            is raised.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        process_or_id: instance or class description (mandatory)</span>
+<span class="sd">            a process/nipype interface instance/class or a string description.</span>
+<span class="sd">        kwargs:</span>
+<span class="sd">            default values of the process instance parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result: Process</span>
+<span class="sd">            an initialized process instance.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                    <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StudyConfig.get_iteration_pipeline"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_iteration_pipeline">[docs]</a>    <span class="k">def</span> <span class="nf">get_iteration_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">process_or_id</span><span class="p">,</span>
+                               <span class="n">iterative_plugs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">do_not_export</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">make_optional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a pipeline with an iteration node iterating the given</span>
+<span class="sd">        process.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pipeline_name: str</span>
+<span class="sd">            pipeline name</span>
+<span class="sd">        node_name: str</span>
+<span class="sd">            iteration node name in the pipeline</span>
+<span class="sd">        process_or_id: process description</span>
+<span class="sd">            as in :meth:`get_process_instance`</span>
+<span class="sd">        iterative_plugs: list (optional)</span>
+<span class="sd">            passed to :meth:`Pipeline.add_iterative_process`</span>
+<span class="sd">        do_not_export: list</span>
+<span class="sd">            passed to :meth:`Pipeline.add_iterative_process`</span>
+<span class="sd">        make_optional: list</span>
+<span class="sd">            passed to :meth:`Pipeline.add_iterative_process`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pipeline: :class:`Pipeline` instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_iteration_pipeline</span><span class="p">(</span>
+            <span class="n">pipeline_name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">process_or_id</span><span class="p">,</span>
+            <span class="n">iterative_plugs</span><span class="o">=</span><span class="n">iterative_plugs</span><span class="p">,</span> <span class="n">do_not_export</span><span class="o">=</span><span class="n">do_not_export</span><span class="p">,</span>
+            <span class="n">make_optional</span><span class="o">=</span><span class="n">make_optional</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<span class="n">_default_study_config</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="default_study_config"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.default_study_config">[docs]</a><span class="k">def</span> <span class="nf">default_study_config</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    On the first call create a StudyConfig instance with defaut configuration</span>
+<span class="sd">    (eventualy reading configuration files). Then returns this instance on all</span>
+<span class="sd">    subsequent calls.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_default_study_config</span>
+    <span class="k">if</span> <span class="n">_default_study_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_default_study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_default_study_config</span></div>
+
+    
+
+<div class="viewcode-block" id="StudyConfigModule"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfigModule">[docs]</a><span class="k">class</span> <span class="nc">StudyConfigModule</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :class:`StudyConfig` module base class (abstract)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The name of a module that can be used in configuration to select</span>
+<span class="sd">        modules to load.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+
+    <span class="c1"># List of modules that must be initialized before this one. It can be</span>
+    <span class="c1"># overrriden be derived module classes.</span>
+    <span class="n">dependencies</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span> <span class="o">=</span> <span class="n">study_config</span>
+
+<div class="viewcode-block" id="StudyConfigModule.initialize_module"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfigModule.initialize_module">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_module</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method called to initialize selected study configuration modules</span>
+<span class="sd">        on startup. This method does nothing but can be overriden by modules.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="StudyConfigModule.initialize_callbacks"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfigModule.initialize_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method called just after the first call to initialize_modules.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># Test the configuration time</span>
+    <span class="kn">import</span> <span class="nn">timeit</span>
+
+    <span class="c1"># Standard configuration</span>
+    <span class="n">tic</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">default_timer</span><span class="p">()</span>
+    <span class="n">study</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">()</span>
+    <span class="n">toc</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">default_timer</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Standard configuration done in  </span><span class="si">{0}</span><span class="s2"> s.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">toc</span> <span class="o">-</span> <span class="n">tic</span><span class="p">))</span>
+
+    <span class="c1"># Empty configuration</span>
+    <span class="n">empty_config</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([])</span>
+    <span class="n">tic</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">default_timer</span><span class="p">()</span>
+    <span class="n">study</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">empty_config</span><span class="p">)</span>
+    <span class="n">toc</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">default_timer</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Empty configuration done in  </span><span class="si">{0}</span><span class="s2"> s.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">toc</span> <span class="o">-</span> <span class="n">tic</span><span class="p">))</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

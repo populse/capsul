@@ -1,0 +1,586 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.pipeline.python_export</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Pipeline exportation function as a python source code file.</span>
+
+<span class="sd">Functions</span>
+<span class="sd">=========</span>
+<span class="sd">:func:`save_py_pipeline`</span>
+<span class="sd">------------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">import</span> <span class="nn">traits.api</span> <span class="k">as</span> <span class="nn">traits</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<div class="viewcode-block" id="save_py_pipeline"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.python_export.save_py_pipeline">[docs]</a><span class="k">def</span> <span class="nf">save_py_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">py_file</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Save a pipeline in an Python source file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pipeline: Pipeline instance</span>
+<span class="sd">        pipeline to save</span>
+<span class="sd">    py_file: str</span>
+<span class="sd">        .py file to save the pipeline in</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># imports are done locally to avoid circular imports</span>
+    <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Pipeline</span>
+    <span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">ProcessNode</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> \
+        <span class="n">OptionalOutputSwitch</span>
+    <span class="kn">from</span> <span class="nn">capsul.pipeline.process_iteration</span> <span class="kn">import</span> <span class="n">ProcessIteration</span>
+    <span class="kn">from</span> <span class="nn">capsul.process.process</span> <span class="kn">import</span> <span class="n">NipypeProcess</span>
+    <span class="kn">from</span> <span class="nn">capsul.study_config.process_instance</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
+    <span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Undefined</span>
+
+    <span class="k">def</span> <span class="nf">get_repr_value</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="c1"># TODO: handle None/Undefined in lists/dicts etc</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
+            <span class="n">repvalue</span> <span class="o">=</span> <span class="s1">&#39;traits.Undefined&#39;</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">repvalue</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Controller</span><span class="p">):</span>
+            <span class="n">repvalue</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">repvalue</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">repvalue</span>
+
+    <span class="k">def</span> <span class="nf">_write_process</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">skip_invalid</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">NipypeProcess</span><span class="p">):</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="vm">__module__</span>
+            <span class="n">classname</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="vm">__module__</span>
+            <span class="c1"># if process is a function with XML decorator, we need to</span>
+            <span class="c1"># retreive the original function name.</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;_function&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">func</span><span class="p">:</span>
+                <span class="n">classname</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">classname</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">procname</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">mod</span><span class="p">,</span> <span class="n">classname</span><span class="p">))</span>
+        <span class="n">proc_copy</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="n">procname</span><span class="p">)</span>
+        <span class="n">make_opt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">tname</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">proc_copy</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+            <span class="n">ntrait</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">tname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ntrait</span><span class="o">.</span><span class="n">optional</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">trait</span><span class="o">.</span><span class="n">optional</span><span class="p">:</span>
+                <span class="n">make_opt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tname</span><span class="p">)</span>
+        <span class="n">node_options</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">make_opt</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">node_options</span> <span class="o">+=</span> <span class="s1">&#39;, make_optional=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">make_opt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">skip_invalid</span><span class="p">:</span>
+            <span class="n">node_options</span> <span class="o">+=</span> <span class="s1">&#39;, skip_invalid=True&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.add_process(&quot;</span><span class="si">%s</span><span class="s1">&quot;, &quot;</span><span class="si">%s</span><span class="s1">&quot;</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">procname</span><span class="p">,</span>
+                                                          <span class="n">node_options</span><span class="p">),</span>
+              <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pname</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">pname</span><span class="p">)</span>
+            <span class="n">init_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">proc_copy</span><span class="p">,</span> <span class="n">pname</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">init_value</span> \
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">value</span> <span class="ow">is</span> <span class="n">Undefined</span> <span class="ow">and</span> <span class="n">init_value</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+                <span class="n">repvalue</span> <span class="o">=</span> <span class="n">get_repr_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.nodes[&quot;</span><span class="si">%s</span><span class="s1">&quot;].process.</span><span class="si">%s</span><span class="s1"> = </span><span class="si">%s</span><span class="s1">&#39;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pname</span><span class="p">,</span> <span class="n">repvalue</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="c1">#if isinstance(process, NipypeProcess):</span>
+            <span class="c1">## WARNING: not sure I&#39;m doing the right things for nipype. To be</span>
+            <span class="c1">## fixed if needed.</span>
+            <span class="c1">#for param in process.inputs_to_copy:</span>
+                <span class="c1">#elem = ET.SubElement(procnode, &#39;nipype&#39;)</span>
+                <span class="c1">#elem.set(&#39;name&#39;, param)</span>
+                <span class="c1">#if param in proces.inputs_to_clean:</span>
+                    <span class="c1">#elem.set(&#39;copyfile&#39;, &#39;discard&#39;)</span>
+                <span class="c1">#else:</span>
+                    <span class="c1">#elem.set(&#39;copyfile&#39;, &#39;true&#39;)</span>
+                <span class="c1">#np_input = getattr(process._nipype_interface.inputs, param)</span>
+                <span class="c1">#if np_input:</span>
+                    <span class="c1">#use_default = getattr(np_input, &#39;usedefault&#39;, False) # is it that?</span>
+                    <span class="c1">#if use_default:</span>
+                        <span class="c1">#elem.set(&#39;use_default&#39;, &#39;true&#39;)</span>
+            <span class="c1">#for param, np_input in \</span>
+                    <span class="c1">#six.iteritems(process._nipype_interface.inputs.__dict__):</span>
+                <span class="c1">#use_default = getattr(np_input, &#39;usedefault&#39;, False) # is it that?</span>
+                <span class="c1">#if use_default and param not in process.inputs_to_copy:</span>
+                    <span class="c1">#elem = ET.SubElement(procnode, &#39;nipype&#39;)</span>
+                    <span class="c1">#elem.set(&#39;name&#39;, param)</span>
+                    <span class="c1">#elem.set(&#39;use_default&#39;, &#39;true&#39;)</span>
+
+    <span class="k">def</span> <span class="nf">_write_custom_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">enabled</span><span class="p">):</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="vm">__module__</span>
+        <span class="n">classname</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">nodename</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">mod</span><span class="p">,</span> <span class="n">classname</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">&#39;configured_controller&#39;</span><span class="p">):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">configured_controller</span><span class="p">()</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">())</span>
+                          <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s1">&#39;        self.add_custom_node(&quot;</span><span class="si">%s</span><span class="s1">&quot;, &quot;</span><span class="si">%s</span><span class="s1">&quot;, </span><span class="si">%s</span><span class="s1">)&#39;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">nodename</span><span class="p">,</span> <span class="n">get_repr_value</span><span class="p">(</span><span class="n">params</span><span class="p">)),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.add_custom_node(&quot;</span><span class="si">%s</span><span class="s1">&quot;, &quot;</span><span class="si">%s</span><span class="s1">&quot;)&#39;</span>
+                  <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">nodename</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="c1"># optional plugs</span>
+        <span class="k">for</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">plug</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">plugs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">plug</span><span class="o">.</span><span class="n">optional</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.nodes[&quot;</span><span class="si">%s</span><span class="s1">&quot;].plugs[&quot;</span><span class="si">%s</span><span class="s1">&quot;].optional = True&#39;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="c1"># non-default: values of unconnected plugs</span>
+        <span class="k">for</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">plug</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">plugs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">plug</span><span class="o">.</span><span class="n">links_from</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">plug</span><span class="o">.</span><span class="n">links_to</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> \
+                    <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">plug_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span> \
+                        <span class="o">!=</span> <span class="n">node</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">plug_name</span><span class="p">)</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.nodes[&quot;</span><span class="si">%s</span><span class="s1">&quot;].</span><span class="si">%s</span><span class="s1"> = </span><span class="si">%s</span><span class="s1">&#39;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">get_repr_value</span><span class="p">(</span><span class="n">value</span><span class="p">)),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_iteration</span><span class="p">(</span><span class="n">process_iter</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">enabled</span><span class="p">):</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">process_iter</span><span class="o">.</span><span class="n">process</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">NipypeProcess</span><span class="p">):</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="vm">__module__</span>
+            <span class="n">classname</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="vm">__module__</span>
+            <span class="c1"># if process is a function with XML decorator, we need to</span>
+            <span class="c1"># retreive the original function name.</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;_function&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">func</span><span class="p">:</span>
+                <span class="n">classname</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">classname</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">procname</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">mod</span><span class="p">,</span> <span class="n">classname</span><span class="p">))</span>
+
+        <span class="n">iteration_params</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">process_iter</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">)</span>
+        <span class="c1"># TODO: optional plugs, non-exported plugs...</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.add_iterative_process(&quot;</span><span class="si">%s</span><span class="s1">&quot;, &quot;</span><span class="si">%s</span><span class="s1">&quot;, &#39;</span>
+              <span class="s1">&#39;iterative_plugs=</span><span class="si">%s</span><span class="s1">)&#39;</span>
+              <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">procname</span><span class="p">,</span> <span class="n">process_iter</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">),</span>
+              <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_switch</span><span class="p">(</span><span class="n">switch</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">enabled</span><span class="p">):</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">optional</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">opt_in</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">plug</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">switch</span><span class="o">.</span><span class="n">plugs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">plug</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plug_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">plug</span><span class="o">.</span><span class="n">optional</span><span class="p">:</span>
+                    <span class="n">optional</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plug_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">name_parts</span> <span class="o">=</span> <span class="n">plug_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_switch_&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> \
+                        <span class="ow">and</span> <span class="n">name_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+                    <span class="n">inputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">plug</span><span class="o">.</span><span class="n">optional</span><span class="p">:</span>
+                        <span class="n">opt_in</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">optional_p</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">optional</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">optional_p</span> <span class="o">=</span> <span class="s1">&#39;, make_optional=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">optional</span><span class="p">)</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">opt_inputs</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">switch</span><span class="p">,</span> <span class="s1">&#39;_optional_input_nodes&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">opt_inputs</span><span class="p">:</span>
+            <span class="n">opt_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">opt_inputs</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">opt_inputs</span> <span class="o">==</span> <span class="n">inputs</span><span class="p">:</span>
+                <span class="n">opt_inputs</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">options</span> <span class="o">+=</span> <span class="s1">&#39;, opt_nodes=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">opt_inputs</span><span class="p">)</span>
+        <span class="n">value_p</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">switch</span><span class="o">.</span><span class="n">switch</span> <span class="o">!=</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">value_p</span> <span class="o">=</span> <span class="s1">&#39;, switch_value=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">switch</span><span class="o">.</span><span class="n">switch</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.add_switch(&quot;</span><span class="si">%s</span><span class="s1">&quot;, </span><span class="si">%s</span><span class="s1">, </span><span class="si">%s%s%s%s</span><span class="s1">, export_switch=False)&#39;</span>
+              <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">outputs</span><span class="p">),</span> <span class="n">optional_p</span><span class="p">,</span> <span class="n">value_p</span><span class="p">,</span>
+                 <span class="n">options</span><span class="p">),</span>
+              <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_optional_output_switch</span><span class="p">(</span><span class="n">switch</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">enabled</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">plug</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">switch</span><span class="o">.</span><span class="n">plugs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">plug</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">plug_name</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">name_parts</span> <span class="o">=</span> <span class="n">plug_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_switch_&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">name_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;_none&#39;</span><span class="p">:</span>
+                    <span class="nb">input</span> <span class="o">=</span> <span class="n">name_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">output</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">output</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output</span> <span class="ow">or</span> <span class="n">output</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.add_optional_output_switch(&quot;</span><span class="si">%s</span><span class="s1">&quot;, &quot;</span><span class="si">%s</span><span class="s1">&quot;)&#39;</span>
+                  <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">input</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.add_optional_output_switch(&quot;</span><span class="si">%s</span><span class="s1">&quot;, &quot;</span><span class="si">%s</span><span class="s1">&quot;, &quot;</span><span class="si">%s</span><span class="s1">&quot;)&#39;</span>
+                  <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_processes</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        # nodes&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">proc_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># sort nodes, processes first</span>
+        <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">node_name</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
+                <span class="n">proc_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">proc_nodes</span> <span class="o">+</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">OptionalOutputSwitch</span><span class="p">):</span>
+                <span class="n">_write_optional_output_switch</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span>
+                                              <span class="n">node</span><span class="o">.</span><span class="n">enabled</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Switch</span><span class="p">):</span>
+                <span class="n">_write_switch</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">enabled</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">)</span> \
+                    <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessIteration</span><span class="p">):</span>
+                <span class="n">_write_iteration</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">enabled</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
+                <span class="n">_write_process</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                               <span class="n">node_name</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">_skip_invalid_nodes</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># custom node</span>
+                <span class="n">_write_custom_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">enabled</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_processes_selections</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">):</span>
+        <span class="n">selection_parameters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">&#39;processes_selection&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">        # processes selection&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">selector_name</span><span class="p">,</span> <span class="n">groups</span> \
+                    <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">processes_selection</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.add_processes_selection(&quot;</span><span class="si">%s</span><span class="s1">&quot;, </span><span class="si">%s</span><span class="s1">)&#39;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="n">selector_name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">groups</span><span class="p">)),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">selection_parameters</span>
+
+    <span class="k">def</span> <span class="nf">_write_export</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="n">param_name</span><span class="p">):</span>
+        <span class="n">plug</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_node</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">plug</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+            <span class="n">link</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">plug</span><span class="o">.</span><span class="n">links_from</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">link</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">plug</span><span class="o">.</span><span class="n">links_to</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">node_name</span><span class="p">,</span> <span class="n">plug_name</span> <span class="o">=</span> <span class="n">link</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param_name</span> <span class="o">==</span> <span class="n">plug_name</span><span class="p">:</span>
+            <span class="n">param_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">param_name</span> <span class="o">=</span> <span class="s1">&#39;, &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">param_name</span>
+        <span class="n">weak_link</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">weak_link</span> <span class="o">=</span> <span class="s1">&#39;, weak_link=True&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.export_parameter(&quot;</span><span class="si">%s</span><span class="s1">&quot;, &quot;</span><span class="si">%s</span><span class="s1">&quot;</span><span class="si">%s%s</span><span class="s1">)&#39;</span>
+              <span class="o">%</span> <span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">weak_link</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">plug_name</span>
+
+    <span class="k">def</span> <span class="nf">_write_links</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">):</span>
+        <span class="n">exported</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">        # links&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">plug</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">plugs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">node_name</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">plug</span><span class="o">.</span><span class="n">output</span><span class="p">)</span> \
+                        <span class="ow">or</span> <span class="p">(</span><span class="n">node_name</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="ow">and</span> <span class="n">plug</span><span class="o">.</span><span class="n">output</span><span class="p">):</span>
+                    <span class="n">links</span> <span class="o">=</span> <span class="n">plug</span><span class="o">.</span><span class="n">links_to</span>
+                    <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+                        <span class="n">exported_plug</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="k">if</span> <span class="n">node_name</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                            <span class="n">src</span> <span class="o">=</span> <span class="n">plug_name</span>
+                            <span class="k">if</span> <span class="n">src</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exported</span><span class="p">:</span>
+                                <span class="n">exported_plug</span> <span class="o">=</span> <span class="n">_write_export</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span>
+                                                              <span class="n">src</span><span class="p">)</span>
+                                <span class="n">exported</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">src</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                            <span class="n">dst</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">dst</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exported</span><span class="p">:</span>
+                                <span class="n">exported_plug</span> <span class="o">=</span> <span class="n">_write_export</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span>
+                                                              <span class="n">dst</span><span class="p">)</span>
+                                <span class="n">exported</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">dst</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">exported_plug</span> \
+                                <span class="ow">or</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exported_plug</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+                            <span class="n">weak_link</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                            <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                                <span class="n">weak_link</span> <span class="o">=</span> <span class="s1">&#39;, weak_link=True&#39;</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.add_link(&quot;</span><span class="si">%s</span><span class="s1">-&gt;</span><span class="si">%s</span><span class="s1">&quot;</span><span class="si">%s</span><span class="s1">)&#39;</span>
+                                  <span class="o">%</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">weak_link</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_steps</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">):</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="s1">&#39;pipeline_steps&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">steps</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">&#39;pipeline_steps&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">        # pipeline steps&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">step</span> \
+                    <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+                <span class="n">enabled</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)</span>
+                <span class="n">enabled_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">enabled</span><span class="p">:</span>
+                    <span class="n">enabled_str</span> <span class="o">=</span> <span class="s1">&#39;, enabled=false&#39;</span>
+                <span class="n">nodes</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">nodes</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.add_pipeline_step(&quot;</span><span class="si">%s</span><span class="s1">&quot;, </span><span class="si">%s%s</span><span class="s1">)&#39;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="n">step_name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span> <span class="n">enabled_str</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_nodes_positions</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">):</span>
+        <span class="n">node_position</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s2">&quot;node_position&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node_position</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">        # nodes positions&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.node_position = {&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">node_position</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                    <span class="c1"># pos is probably a QPointF</span>
+                    <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;            &quot;</span><span class="si">%s</span><span class="s1">&quot;: </span><span class="si">%s</span><span class="s1">,&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">pos</span><span class="p">)),</span>
+                      <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        }&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s2">&quot;scene_scale_factor&quot;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.scene_scale_factor = </span><span class="si">%s</span><span class="s1">&#39;</span>
+                  <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">scene_scale_factor</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+            
+    <span class="c1">########### add by Irmage OM #########################       </span>
+    <span class="k">def</span> <span class="nf">_write_nodes_dimensions</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">):</span>
+        <span class="n">node_dimension</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s2">&quot;node_dimension&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node_dimension</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">        # nodes dimensions&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.node_dimension = {&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">node_dimension</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                    <span class="n">dim</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">dim</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;            &quot;</span><span class="si">%s</span><span class="s1">&quot;: </span><span class="si">%s</span><span class="s1">,&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">dim</span><span class="p">)),</span>
+                      <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        }&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+    <span class="c1">######################################################  </span>
+
+    <span class="k">def</span> <span class="nf">_write_doc</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s2">&quot;__doc__&quot;</span><span class="p">):</span>
+            <span class="n">docstr</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="vm">__doc__</span>
+            <span class="k">if</span> <span class="n">docstr</span> <span class="o">==</span> <span class="n">Pipeline</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">:</span>
+                <span class="n">docstr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># don&#39;t use the builtin Pipeline help</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># remove automatically added doc</span>
+                <span class="n">splitdoc</span> <span class="o">=</span> <span class="n">docstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">notepos</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">splitdoc</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+                              <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.. note::&#39;</span><span class="p">)]</span>
+                <span class="n">autodocpos</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">notepos</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">notepos</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">splitdoc</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                                <span class="s2">&quot;* Type &#39;</span><span class="si">{0}</span><span class="s2">.help()&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                    <span class="n">pipeline</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                            <span class="n">autodocpos</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="k">if</span> <span class="n">autodocpos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># strip empty trailing lines</span>
+                    <span class="k">while</span> <span class="n">autodocpos</span> <span class="o">&gt;=</span> <span class="mi">1</span> \
+                            <span class="ow">and</span> <span class="n">splitdoc</span><span class="p">[</span><span class="n">autodocpos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                        <span class="n">autodocpos</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="n">docstr</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">splitdoc</span><span class="p">[:</span><span class="n">autodocpos</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="n">docstr</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">docstr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">if</span> <span class="n">docstr</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">docstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">docstr</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    </span><span class="se">\&quot;\&quot;\&quot;</span><span class="si">%s</span><span class="s1">    </span><span class="se">\&quot;\&quot;\&quot;</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">docstr</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_values</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">):</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">param_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_node</span><span class="o">.</span><span class="n">plugs</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># default cannot be set after trait creation</span>
+            <span class="c1">#if trait.default:</span>
+                <span class="c1">#if first:</span>
+                    <span class="c1">#first = False</span>
+                    <span class="c1">#print(&#39;\n        # default and initial values&#39;, file=pyf)</span>
+                <span class="c1">#print(&#39;        self.trait(&quot;%s&quot;).default = %s&#39;</span>
+                      <span class="c1">#% (param_name, repr(trait.default)), file=pyf)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">param_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">trait</span><span class="o">.</span><span class="n">default</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Controller</span><span class="p">):</span>
+                    <span class="n">value_repr</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">()))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value_repr</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="nb">eval</span><span class="p">(</span><span class="n">value_repr</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;warning, value of parameter </span><span class="si">%s</span><span class="s1"> cannot be saved&#39;</span>
+                          <span class="o">%</span> <span class="n">param_name</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">first</span><span class="p">:</span>
+                    <span class="n">first</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">        # default and initial values&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;        self.</span><span class="si">%s</span><span class="s1"> = </span><span class="si">%s</span><span class="s1">&#39;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="n">param_name</span><span class="p">,</span> <span class="n">value_repr</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+
+    <span class="n">class_name</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">if</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s1">&#39;Pipeline&#39;</span><span class="p">:</span>
+        <span class="c1"># don&#39;t accept the base Pipeline class</span>
+        <span class="n">class_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">py_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">class_name</span><span class="p">:</span>
+            <span class="n">class_name</span> <span class="o">=</span> <span class="n">class_name</span><span class="p">[:</span><span class="n">class_name</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)]</span>
+        <span class="n">class_name</span> <span class="o">=</span> <span class="n">class_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">class_name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">py_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pyf</span><span class="p">:</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;from capsul.api import Pipeline&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;import traits.api as traits&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;class </span><span class="si">%s</span><span class="s1">(Pipeline):&#39;</span> <span class="o">%</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+
+        <span class="n">_write_doc</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    def pipeline_definition(self):&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
+
+        <span class="n">_write_processes</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">)</span>
+        <span class="n">_write_links</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">)</span>
+        <span class="n">_write_processes_selections</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">)</span>
+        <span class="n">_write_steps</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">)</span>
+        <span class="n">_write_values</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">)</span>
+        <span class="n">_write_nodes_positions</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">)</span>
+        <span class="n">_write_nodes_dimensions</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">)</span> <span class="c1">#add by Irmage OM</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">        self.do_autoexport_nodes_parameters = False&#39;</span><span class="p">,</span>
+              <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span></div>
+
+
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

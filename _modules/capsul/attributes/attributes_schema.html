@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.attributes.attributes_schema</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39; A schema defines attrinbutes used within a completion framework</span>
+
+<span class="sd">Classes</span>
+<span class="sd">=======</span>
+<span class="sd">:class:`AttributesSchema`</span>
+<span class="sd">-------------------------</span>
+<span class="sd">:class:`EditableAttributes`</span>
+<span class="sd">---------------------------</span>
+<span class="sd">:class:`ProcessAttributes`</span>
+<span class="sd">--------------------------</span>
+
+<span class="sd">Functions</span>
+<span class="sd">=========</span>
+<span class="sd">:func:`set_attribute`</span>
+<span class="sd">---------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
+<span class="kn">from</span> <span class="nn">pkgutil</span> <span class="kn">import</span> <span class="n">iter_modules</span>
+<span class="kn">from</span> <span class="nn">soma.sorted_dictionary</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">from</span> <span class="nn">soma.functiontools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">SomaPartial</span>
+<span class="kn">import</span> <span class="nn">traits.api</span> <span class="k">as</span> <span class="nn">traits</span>
+<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">ProcessNode</span>
+
+
+<div class="viewcode-block" id="AttributesSchema"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.AttributesSchema">[docs]</a><span class="k">class</span> <span class="nc">AttributesSchema</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    An AttributesSchema has a name, which is used as an identifier to specify completion.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1"># Name of the schema. Must be defined in subclasses.</span>
+    <span class="n">schema_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Instanciate EditableAttributes classes that are defined in schema</span>
+        <span class="n">sets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">k</span><span class="p">)())</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> 
+                    <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> 
+                       <span class="nb">issubclass</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">EditableAttributes</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attribute_sets</span> <span class="o">=</span> <span class="n">sets</span></div>
+
+
+<div class="viewcode-block" id="EditableAttributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.EditableAttributes">[docs]</a><span class="k">class</span> <span class="nc">EditableAttributes</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; A set of attributes (group) used to define process parameters</span>
+<span class="sd">    attributes. Attributes are traits in the EditableAttributes Controller.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;</span><span class="si">{0}</span><span class="s1">(</span><span class="si">{1}</span><span class="s1">)&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="set_attribute"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.set_attribute">[docs]</a><span class="k">def</span> <span class="nf">set_attribute</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessAttributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes">[docs]</a><span class="k">class</span> <span class="nc">ProcessAttributes</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    This is the base class for managing attributes for a process.</span>
+
+<span class="sd">    It stores attributes associated with a Process, for each of its parameters.</span>
+<span class="sd">    Attribute values can be accessed &quot;globally&quot; (for the whole process) as</span>
+<span class="sd">    ProcessAttributes instance traits.</span>
+<span class="sd">    Or each parameter attributes set may be accessed individually, using</span>
+<span class="sd">    :meth:`get_parameters_attributes()`.</span>
+
+<span class="sd">    To define attributes for a process, the programmer may subclass</span>
+<span class="sd">    ProcessAttributes and define some EditableAttributes in it. Each</span>
+<span class="sd">    EditableAttributes is a group of attributes (traits in the EditableAttributes instance or subclass).</span>
+
+<span class="sd">    A ProcessAttributes subclass should be registered to a factory to be linked</span>
+<span class="sd">    to a process name, using the `factory_id` class variable.</span>
+
+<span class="sd">    See Capsul :ref:`advanced usage doc &lt;completion&gt;` for details.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">schema_dict</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ProcessAttributes</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span> <span class="o">=</span> <span class="n">process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schema_dict</span> <span class="o">=</span> <span class="n">schema_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editable_attributes</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameter_attributes</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">__getinitargs__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># needed for self.copy()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProcessAttributes.set_parameter_attributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.set_parameter_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_parameter_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">editable_attributes</span><span class="p">,</span>
+                                 <span class="n">fixed_attibute_values</span><span class="p">,</span> <span class="n">allow_list</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set attributes associated with a single process parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameter: str</span>
+<span class="sd">            process parameter name</span>
+<span class="sd">        schema: str</span>
+<span class="sd">            schema used for it (input, output, shared)</span>
+<span class="sd">        editable_attributes: str, EditableAttributes instance, or list of them</span>
+<span class="sd">            EditableAttributes or id containing attributes traits</span>
+<span class="sd">        fixed_attibute_values: dict (str/str)</span>
+<span class="sd">            values of non-editable attributes</span>
+<span class="sd">        allow_list: bool</span>
+<span class="sd">            if True (the default), it the process parameter is a list, then</span>
+<span class="sd">            attributes are transformed into lists.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameter_attributes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">schema</span> <span class="o">==</span> <span class="s1">&#39;link&#39;</span><span class="p">:</span>
+                <span class="k">return</span>  <span class="c1"># this is just a lower priority</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Attributes already set for parameter </span><span class="si">%s</span><span class="s1">&#39;</span>
+                           <span class="o">%</span> <span class="n">parameter</span><span class="p">)</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
+        <span class="k">if</span> <span class="n">parameter</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">_instance_traits</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING: parameter&#39;</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span>
+                  <span class="s1">&#39;not in process&#39;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">editable_attributes</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> \
+                <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">editable_attributes</span><span class="p">,</span> <span class="n">EditableAttributes</span><span class="p">):</span>
+            <span class="n">editable_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">editable_attributes</span><span class="p">]</span>
+        <span class="n">parameter_editable_attributes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ea</span> <span class="ow">in</span> <span class="n">editable_attributes</span><span class="p">:</span>
+            <span class="n">add_editable_attributes</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ea</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">ea</span>
+                <span class="n">ea</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">editable_attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ea</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">ea</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema_dict</span><span class="p">[</span><span class="n">schema</span><span class="p">],</span> <span class="n">key</span><span class="p">)()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">editable_attributes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">ea</span>
+                    <span class="n">add_editable_attributes</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ea</span><span class="p">,</span> <span class="n">EditableAttributes</span><span class="p">):</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">ea</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">editable_attributes</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">editable_attributes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">ea</span>
+                    <span class="n">add_editable_attributes</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s1">&#39;Invalid value for editable attributes: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ea</span><span class="p">))</span>
+            <span class="n">parameter_editable_attributes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ea</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">add_editable_attributes</span><span class="p">:</span>
+                <span class="n">is_list</span> <span class="o">=</span> <span class="n">allow_list</span> \
+                        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="p">,</span>
+                                       <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ea</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                    <span class="c1"># don&#39;t use items() since traits may change during iter.</span>
+                    <span class="n">trait</span> <span class="o">=</span> <span class="n">ea</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">is_list</span><span class="p">:</span>
+                        <span class="n">trait</span> <span class="o">=</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">trait</span><span class="p">)</span>
+                        <span class="n">ea</span><span class="o">.</span><span class="n">remove_trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                        <span class="n">ea</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_list</span> \
+                                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="p">,</span>
+                                               <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">):</span>
+                            <span class="c1"># a process attribute trait may have been changed</span>
+                            <span class="c1"># into a list. Here we assume attributes are only</span>
+                            <span class="c1"># strings (at this point - it can be changed at</span>
+                            <span class="c1"># higher lever afterwards), so change it back into</span>
+                            <span class="c1"># a single value trait.</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">remove_trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span>
+                        <span class="c1"># else don&#39;t add it again: this way non-list versions</span>
+                        <span class="c1"># of attributes get priority. If both exist, lists</span>
+                        <span class="c1"># should get one single value (otherwise there is an</span>
+                        <span class="c1"># ambiguity or inconsistency), so the attribute should</span>
+                        <span class="c1"># not be a list.</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span>
+                    <span class="n">f</span> <span class="o">=</span> <span class="n">SomaPartial</span><span class="p">(</span><span class="n">set_attribute</span><span class="p">,</span> <span class="n">ea</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameter_attributes</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">parameter_editable_attributes</span><span class="p">,</span>
+                                                <span class="n">fixed_attibute_values</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessAttributes.get_parameters_attributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.get_parameters_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameters_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get attributes for each process parameter</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">pa</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
+        <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">):</span>
+                    <span class="n">process_name</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">process_name</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">attributes</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;generated_by_process&#39;</span><span class="p">:</span> <span class="n">process_name</span><span class="p">,</span>
+                    <span class="s1">&#39;generated_by_parameter&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">attributes</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">editable_fixed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameter_attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="p">([],</span> <span class="p">{}))</span>
+            <span class="n">editable_attributes</span><span class="p">,</span> <span class="n">fixed_attibute_values</span> <span class="o">=</span> <span class="n">editable_fixed</span>
+            <span class="k">for</span> <span class="n">ea</span> <span class="ow">in</span> <span class="n">editable_attributes</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">ea</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ea</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span>
+                    <span class="n">attributes</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">attributes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fixed_attibute_values</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attributes</span><span class="p">:</span>
+                <span class="n">pa</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="n">attributes</span>
+        <span class="k">return</span> <span class="n">pa</span></div>
+
+<div class="viewcode-block" id="ProcessAttributes.copy"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">with_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; overloads :meth:`soma.Controller.copy`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_dict</span><span class="p">)</span>
+        <span class="n">ea_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">pa</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameter_attributes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">parameter</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">parameter_attributes</span><span class="p">:</span>
+                <span class="c1"># otherwise assume this has been done in a subclass constructor</span>
+                <span class="n">eas</span><span class="p">,</span> <span class="n">fa</span> <span class="o">=</span> <span class="n">pa</span>
+                <span class="n">oeas</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">ea</span> <span class="ow">in</span> <span class="n">eas</span><span class="p">:</span>
+                    <span class="n">oea</span> <span class="o">=</span> <span class="n">ea_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ea</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">oea</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">oea</span> <span class="o">=</span> <span class="n">ea</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">oeas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oea</span><span class="p">)</span>
+                <span class="n">other</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">oeas</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span>
+                                               <span class="n">allow_list</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># copy the values</span>
+        <span class="k">if</span> <span class="n">with_values</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+                <span class="c1">#print(&#39;copy attribs:&#39;, self, name, getattr(self, name))</span>
+                <span class="c1">#print(&#39;   to:&#39;, other.trait(name).trait_type)</span>
+                <span class="c1">#if isinstance(other.trait(name).trait_type, traits.List):</span>
+                    <span class="c1">#print(&#39;    &#39;, other.trait(name).inner_traits[0].trait_type)</span>
+                <span class="c1">#if isinstance(self.trait(name).trait_type, traits.List):</span>
+                    <span class="c1">#print(&#39;    self list:&#39;, self.trait(name).inner_traits[0].trait_type)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">other</span></div>
+
+<div class="viewcode-block" id="ProcessAttributes.copy_to_single"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.copy_to_single">[docs]</a>    <span class="k">def</span> <span class="nf">copy_to_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">with_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Similar to :meth:`copy`, excepts that it converts list attributes</span>
+<span class="sd">        into single values. This is useful within the completion system</span>
+<span class="sd">        infrastructure, to get from an attributes set containing lists</span>
+<span class="sd">        (process parameters which are lists), a single value allowing to</span>
+<span class="sd">        determine a single path.</span>
+
+<span class="sd">        This method is merely useful to the end user.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">other</span> <span class="o">=</span> <span class="n">ProcessAttributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_dict</span><span class="p">)</span>
+
+        <span class="n">ea_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">pa</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameter_attributes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">parameter</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">parameter_attributes</span><span class="p">:</span>
+                <span class="c1"># otherwise assume this has been done in a subclass constructor</span>
+                <span class="n">eas</span><span class="p">,</span> <span class="n">fa</span> <span class="o">=</span> <span class="n">pa</span>
+                <span class="n">oeas</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">ea</span> <span class="ow">in</span> <span class="n">eas</span><span class="p">:</span>
+                    <span class="n">oea</span> <span class="o">=</span> <span class="n">ea_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ea</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">oea</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">oea</span> <span class="o">=</span> <span class="n">EditableAttributes</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">ea</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">trait_type</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">):</span>
+                                <span class="n">trait</span> <span class="o">=</span> <span class="n">trait</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">oea</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span>
+                        <span class="n">ea_map</span><span class="p">[</span><span class="n">ea</span><span class="p">]</span> <span class="o">=</span> <span class="n">oea</span>
+                    <span class="n">oeas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oea</span><span class="p">)</span>
+                <span class="n">other</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">oeas</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span>
+                                               <span class="n">allow_list</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># copy the values</span>
+        <span class="k">if</span> <span class="n">with_values</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">default</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">other</span></div></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

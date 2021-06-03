@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../../index.html">
+    <img src="../../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.qt_apps.utils.fill_treectrl</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Functions</span>
+<span class="sd">=========</span>
+<span class="sd">:func:`fill_treectrl`</span>
+<span class="sd">---------------------</span>
+<span class="sd">:func:`add_tree_nodes`</span>
+<span class="sd">----------------------</span>
+<span class="sd">:func:`search_in_menu`</span>
+<span class="sd">----------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="c1"># Soma import</span>
+<span class="kn">from</span> <span class="nn">soma.qt_gui.qt_backend</span> <span class="kn">import</span> <span class="n">QtGui</span>
+
+<span class="c1"># Global parameters</span>
+<span class="n">font</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="o">.</span><span class="n">Bold</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="fill_treectrl"><a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.fill_treectrl.fill_treectrl">[docs]</a><span class="k">def</span> <span class="nf">fill_treectrl</span><span class="p">(</span><span class="n">treectrl</span><span class="p">,</span> <span class="n">menu</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Fill a tree control with the different menu items.</span>
+
+<span class="sd">    This procedure is able to filter the menu items.</span>
+<span class="sd">    Loadable pipelines appear in bold in the tree control.</span>
+<span class="sd">    Insert three elements (current module name, url, parent module name)</span>
+<span class="sd">    When the url and then parent module name are different from &#39;None&#39; we have</span>
+<span class="sd">    reached a leaf that contain a pipeline description.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    treectrl: QTreeControl (mandatory)</span>
+<span class="sd">        the tree control where we want to insert the menu</span>
+<span class="sd">    menu: hierachic dict (mandatory)</span>
+<span class="sd">        each key is a sub module of the module. Leafs contain a list with</span>
+<span class="sd">        the url to the documentation.</span>
+<span class="sd">    match: str (optional)</span>
+<span class="sd">        the string used to filter the menu items</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">treectrl</span><span class="o">.</span><span class="n">headerItem</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Pipelines&quot;</span><span class="p">)</span>
+    <span class="n">add_tree_nodes</span><span class="p">(</span><span class="n">treectrl</span><span class="p">,</span> <span class="n">menu</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_tree_nodes"><a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.fill_treectrl.add_tree_nodes">[docs]</a><span class="k">def</span> <span class="nf">add_tree_nodes</span><span class="p">(</span><span class="n">parent_item</span><span class="p">,</span> <span class="n">menu</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">parent_module</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Add the menu to tree control if match in current module name or</span>
+<span class="sd">    child modules.</span>
+
+<span class="sd">    The match is insensitive to the cast.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parent_item: QTreeWidgetItem (mandatory)</span>
+<span class="sd">        a tree control item where we want to insert the menu</span>
+<span class="sd">    menu: hierachic dict (mandatory)</span>
+<span class="sd">        each key is a sub module of the module. Leafs contain a list with</span>
+<span class="sd">        the url to the documentation.</span>
+<span class="sd">    match: str (mandatory)</span>
+<span class="sd">        the string used to filter the menu items</span>
+<span class="sd">    parent_module: str (optional)</span>
+<span class="sd">        the parent module string description (&#39;module.sub_module&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Go through the current module sub modules</span>
+    <span class="k">for</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">child_modules</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">menu</span><span class="p">):</span>
+
+        <span class="c1"># Filtering: check if we need to add this module in the tree</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="ow">or</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">module_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span>
+            <span class="n">search_in_menu</span><span class="p">(</span><span class="n">child_modules</span><span class="p">,</span> <span class="n">match</span><span class="p">)):</span>
+
+            <span class="c1"># Add the module name to the tree control</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child_modules</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">tree_item</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTreeWidgetItem</span><span class="p">(</span>
+                    <span class="n">parent_item</span><span class="p">,</span> <span class="p">[</span><span class="n">module_name</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">parent_module</span><span class="p">:</span>
+                    <span class="n">current_module</span> <span class="o">=</span> <span class="n">parent_module</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">module_name</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">current_module</span> <span class="o">=</span> <span class="n">module_name</span>
+                <span class="n">add_tree_nodes</span><span class="p">(</span><span class="n">tree_item</span><span class="p">,</span> <span class="n">child_modules</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">current_module</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tree_item</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTreeWidgetItem</span><span class="p">(</span>
+                    <span class="n">parent_item</span><span class="p">,</span>
+                    <span class="p">[</span><span class="n">module_name</span><span class="p">,</span> <span class="n">parent_module</span><span class="p">,</span> <span class="n">child_modules</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                <span class="n">tree_item</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">font</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="search_in_menu"><a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.fill_treectrl.search_in_menu">[docs]</a><span class="k">def</span> <span class="nf">search_in_menu</span><span class="p">(</span><span class="n">menu</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Recursive search in tree.</span>
+
+<span class="sd">    The search procedure is insensitive to the cast.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    menu: hierachic dict (mandatory)</span>
+<span class="sd">        each key is a sub module of the module. Leafs contain a list with</span>
+<span class="sd">        the url to the documentation.</span>
+<span class="sd">    match: str (mandatory)</span>
+<span class="sd">        the string used to filter the menu items</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    is_included: bool</span>
+<span class="sd">        True if we found match in the tree, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initialize the default value: match not found</span>
+    <span class="n">is_included</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># If we are on a leaf, check in the module list</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">menu</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">is_included</span>
+
+    <span class="c1"># Go through the current module sub modules</span>
+    <span class="k">for</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">child_modules</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">menu</span><span class="p">):</span>
+
+        <span class="c1"># Stop criteria</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child_modules</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">is_included</span> <span class="ow">or</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">module_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="c1"># Recursive search</span>
+        <span class="n">is_included</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">is_included</span> <span class="ow">or</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">module_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span>
+            <span class="n">search_in_menu</span><span class="p">(</span><span class="n">child_modules</span><span class="p">,</span> <span class="n">match</span><span class="p">))</span>
+
+        <span class="c1"># Stop criteria</span>
+        <span class="k">if</span> <span class="n">is_included</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">is_included</span>
+
+    <span class="k">return</span> <span class="n">is_included</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+<map id="inheritance8def285678" name="inheritance8def285678">
+<area shape="rect" id="node1" title="Base class for HasTraits." alt="" coords="24,104,113,129"/>
+<area shape="rect" id="node4" title="Enables any Python class derived from it to have trait attributes." alt="" coords="207,104,287,129"/>
+<area shape="rect" id="node2" href="#capsul.engine.CapsulEngine" target="_top" title="A CapsulEngine is the mandatory entry point of all software using Capsul." alt="" coords="495,104,603,129"/>
+<area shape="rect" id="node3" title="A Controller contains some traits: attributes typing and observer" alt="" coords="363,104,447,129"/>
+<area shape="rect" id="node5" href="#capsul.engine.database.DatabaseEngine" target="_top" title="A :py:class:`DatabaseEngine` is the base class for all engines " alt="" coords="5,31,132,56"/>
+<area shape="rect" id="node6" href="#capsul.engine.database_json.JSONDBEngine" target="_top" title="A JSON dictionary implementation of :py:class:`capsul.engine.database.DatabaseEngine`" alt="" coords="189,5,305,31"/>
+<area shape="rect" id="node7" href="#capsul.engine.database_populse.PopulseDBEngine" target="_top" title="PopulseDBEngine" alt="" coords="180,55,315,80"/>
+</map>

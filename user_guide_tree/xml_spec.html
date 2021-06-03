@@ -1,0 +1,802 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../index.html">
+    <img src="../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="index.html">User guide</a></li>
+              <li><a href="../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CAPSUL</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="xml-2-0-specification">
+<h1>XML 2.0 specification<a class="headerlink" href="#xml-2-0-specification" title="Permalink to this headline">¶</a></h1>
+<section id="table-of-content">
+<h2>Table of content<a class="headerlink" href="#table-of-content" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="#processes">Processes</a></p></li>
+<li><p><a class="reference external" href="#parameters-types">Parameters types</a></p></li>
+<li><p><a class="reference external" href="#process-roles">Process roles</a></p></li>
+<li><p><a class="reference external" href="#association-between-a-python-function-and-an-xml-string">Association between a Python function and an XML
+string</a></p></li>
+<li><p><a class="reference external" href="#processes-examples">Processes examples</a></p></li>
+<li><p><a class="reference external" href="#pipelines">Pipelines</a></p></li>
+<li><p><a class="reference external" href="#the-doc-element">The &lt;doc&gt; element</a></p></li>
+<li><p><a class="reference external" href="#the-process-element">The &lt;process&gt; element</a></p></li>
+<li><p><a class="reference external" href="#the-switch-element">The &lt;switch&gt; element</a></p></li>
+<li><p><a class="reference external" href="#the-optional-output-switch-element">The &lt;optional_output_switch&gt; element</a></p></li>
+<li><p><a class="reference external" href="#the-link-element">The &lt;link&gt; element</a></p></li>
+<li><p><a class="reference external" href="#the-processes-selection-element">The &lt;processes_selection&gt; element</a></p></li>
+<li><p><a class="reference external" href="#the-pipeline-steps-element">The &lt;pipeline_steps&gt; element</a></p></li>
+<li><p><a class="reference external" href="#the-gui-element">The &lt;gui&gt; element</a></p></li>
+<li><p><a class="reference external" href="#pipeline-example">Pipeline example</a></p></li>
+<li><p><a class="reference external" href="#api">API</a></p></li>
+<li><p><a class="reference external" href="#xml-validation">XML validation</a></p></li>
+</ul>
+</section>
+<section id="processes">
+<h2>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h2>
+<p>The XML process specification makes it possible to use a standard Python
+function and to associate it with an XML string that enables the
+creation of a <code class="docutils literal notranslate"><span class="pre">Process</span></code> instance. This XML string will define the type
+and behaviour of function parameters and return value(s).</p>
+<p>In order to create a <code class="docutils literal notranslate"><span class="pre">Process</span></code> instance for a function it is necessary
+to get some information about each parameter of the function and about
+the return value. This information about parameters is defined in an XML
+string with the exception of the <strong>default values</strong> of the parameters
+that are extracted from the function definition.</p>
+<p>The process XML string contains one single <code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> element.
+This element that may contain some global properties for the process.
+<code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> may contain the following attributes :</p>
+<ul class="simple">
+<li><p><em>capsul_xml</em> (optional): version of the Capsul XML specification
+this process definition is compatible with. If omitted, the process
+definition is supposed to be compatible with the latest Capsul XML
+specification available.</p></li>
+<li><p><em>role</em> (optional): A role that is attached to the process. See
+“Process roles” below.</p></li>
+</ul>
+<p>In the <code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> element, one can find one <code class="docutils literal notranslate"><span class="pre">&lt;input&gt;</span></code> element
+per parameter of the function. If the process produces one or several
+outputs, it must use a <code class="docutils literal notranslate"><span class="pre">&lt;return&gt;</span></code> element. If <code class="docutils literal notranslate"><span class="pre">&lt;return&gt;</span></code> is not
+defined, the value returned by the Python function is ignored and cannot
+be used in pipelines. For a single output, the Python function must
+directly return the value and the value name (an output value must
+always have a name), type and documentations must be in the element’s
+attributes (see below). Here is an example of a process defined as a
+function returning a value:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">xml_process</span>
+
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
+<span class="s1">    &lt;input name=&quot;a&quot; type=&quot;int&quot; doc=&quot;An integer&quot;/&gt;</span>
+<span class="s1">    &lt;input name=&quot;b&quot; type=&quot;int&quot; doc=&quot;Another integer&quot;/&gt;</span>
+<span class="s1">    &lt;return name=&quot;addition&quot; type=&quot;int&quot; doc=&quot;a + b&quot;/&gt;</span>
+<span class="s1">&lt;/process&gt;</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+</pre></div>
+</div>
+<p>If the process needs to return several values, they must be declared with
+<code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code> elements located between <code class="docutils literal notranslate"><span class="pre">&lt;return&gt;</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&lt;/return&gt;</span></code>. The function must return the output values either in a
+list or in a dictionary. If it is a list the order of the <code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code>
+elements is used to match the values in the list and the process
+parameter names. If it is a dictionary, each key must correspond to a
+<code class="docutils literal notranslate"><span class="pre">name</span></code> attribute in an <code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code> element. For instance:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">xml_process</span>
+
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
+<span class="s1">    &lt;input name=&quot;a&quot; type=&quot;int&quot; doc=&quot;An integer&quot;/&gt;</span>
+<span class="s1">    &lt;input name=&quot;b&quot; type=&quot;int&quot; doc=&quot;Another integer&quot;/&gt;</span>
+<span class="s1">    &lt;return&gt;</span>
+<span class="s1">        &lt;output name=&quot;quotient&quot; type=&quot;int&quot; doc=&quot;Quotient of a / b&quot;/&gt;</span>
+<span class="s1">        &lt;output name=&quot;remainder&quot; type=&quot;int&quot; doc=&quot;Remainder of a / b&quot;/&gt;</span>
+<span class="s1">    &lt;/return&gt;</span>
+<span class="s1">&lt;/process&gt;</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">divide</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+     <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;quotient&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">),</span>
+        <span class="s1">&#39;remainder&#39;</span><span class="p">:</span> <span class="n">a</span> <span class="o">%</span> <span class="n">b</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="c1"># On a process point of view, it would be equivalent to</span>
+    <span class="c1"># use the following code:</span>
+    <span class="c1"># return [int(a / b), a % b]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;input&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&lt;return&gt;</span></code> (for a single return with no
+children elements), contain the following attributes:</p>
+<ul class="simple">
+<li><p><em>name</em>: the name of the function parameter</p></li>
+<li><p><em>type</em>: the type of the parameter. See possible parameter types
+below.</p></li>
+<li><p><em>allowed_extensions</em>: for <code class="docutils literal notranslate"><span class="pre">file</span></code> type, list of possible file
+extensions.</p></li>
+<li><p><em>doc</em> (optional): the documentation of the parameter</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;input&gt;</span></code> is straightforward: it is always an input parameter.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code> is normally an output parameter, except in some cases
+when it is a file: an output file may have its filename specified as
+input (the filename is not generated by the process). In this case an
+additional attribute <em>input_filename</em> specifies the parameter used
+to specify the filename. this parameter has the type <code class="docutils literal notranslate"><span class="pre">File</span></code> and is
+marked as output, but is actually an input to the processing
+function.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;return&gt;</span></code> is an output which is returned by the processing
+function. For a single <code class="docutils literal notranslate"><span class="pre">&lt;return&gt;</span></code> it is very similar to
+<code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code> but only one <code class="docutils literal notranslate"><span class="pre">&lt;return&gt;</span></code> element is allowed in a
+process. The process should return a single value.</p></li>
+</ul>
+<section id="parameter-types">
+<h3>Parameter types<a class="headerlink" href="#parameter-types" title="Permalink to this headline">¶</a></h3>
+<p>For <code class="docutils literal notranslate"><span class="pre">&lt;input&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;return&gt;</span></code> elements, the <code class="docutils literal notranslate"><span class="pre">type</span></code>
+attribute can have the following values:</p>
+<ul class="simple">
+<li><p><strong>int</strong></p></li>
+<li><p><strong>float</strong></p></li>
+<li><p><strong>string</strong></p></li>
+<li><p><strong>unicode</strong></p></li>
+<li><p><strong>file</strong></p></li>
+<li><p><strong>directory</strong></p></li>
+<li><p><strong>enum</strong> : when this type is used, there must be a <code class="docutils literal notranslate"><span class="pre">values</span></code>
+attribute that contains a Python literal representing a list of
+possible values for the parameter.</p></li>
+<li><p><strong>list_int</strong></p></li>
+<li><p><strong>list_float</strong></p></li>
+<li><p><strong>list_string</strong></p></li>
+<li><p><strong>list_unicode</strong></p></li>
+<li><p><strong>list_file</strong></p></li>
+<li><p><strong>list_directory</strong></p></li>
+</ul>
+<p>When a parameter accepts multiple types, they must be separated by a
+<code class="docutils literal notranslate"><span class="pre">|</span></code>. For instance a parameter accepting either a file or a list of
+files would use <code class="docutils literal notranslate"><span class="pre">type=&quot;file|list_file&quot;</span></code>.</p>
+</section>
+<section id="process-roles">
+<h3>Process roles<a class="headerlink" href="#process-roles" title="Permalink to this headline">¶</a></h3>
+<p>The role of a process gives information about the expected execution
+context. It can be used to decide whether a process should be executed
+in a given context or not. The role can also be used to propose a
+specific GUI for the process. For instance the role <code class="docutils literal notranslate"><span class="pre">&quot;viewer&quot;</span></code>
+indicate that the execution of the process will display something to the
+user. There is no need to execute such a process in a remote computer
+that is disconnected from the user environment.</p>
+<p>The possible process roles are :</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">viewer</span></code>: the process is used to display something to the user.
+It cannot be executed outside the user graphical environment. A
+viewer is not supposed to be blocking. It should terminate
+immediately an let the view live independently of the rest of the
+process. If blocking is required, use the <code class="docutils literal notranslate"><span class="pre">dialog</span></code> role.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dialog</span></code>: a dialog is used to show something to the user and
+wait for a user action before ending its execution. Like a
+<code class="docutils literal notranslate"><span class="pre">viewer</span></code>, it cannot be executed outside the user graphical
+environment. The expected user action can be as simple as clicking on
+a single “ok” button ; in that case, the process should have no
+output. But it can be a complete form whose result must be returned
+via the process output parameter(s).</p></li>
+</ul>
+</section>
+<section id="association-between-a-python-function-and-an-xml-string">
+<h3>Association between a Python function and an XML string<a class="headerlink" href="#association-between-a-python-function-and-an-xml-string" title="Permalink to this headline">¶</a></h3>
+<p>There are two ways to perform the association between the function and
+the XML. The recommended method is to use a decorator to explicitly
+define the XML string associated to the function. Here is an example :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">xml_process</span>
+
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
+<span class="s1">    &lt;input name=&quot;input_image&quot; type=&quot;file&quot; desc=&quot;Path of a NIFTI-1 image file.&quot;/&gt;</span>
+<span class="s1">    &lt;input name=&quot;method&quot; type=&quot;enum&quot; values=&quot;[&#39;gt&#39;, &#39;ge&#39;, &#39;lt&#39;, &#39;le&#39;]&quot; desc=&quot;Mehod for thresolding.&quot;/&gt;</span>
+<span class="s1">    &lt;input name=&quot;threshold&quot; type=&quot;float&quot; desc=&quot;Threshold value.&quot;/&gt;</span>
+<span class="s1">    &lt;output name=&quot;output_image&quot; input_filename=&quot;output_location&quot; type=&quot;file&quot;</span>
+<span class="s1"> desc=&quot;If set, define the output file name. Otherwise, the name is generated using a &quot;threshold_&quot; prefix on the input file name.&quot;/&gt;</span>
+<span class="s1">&lt;/process&gt;</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+     <span class="k">pass</span>
+</pre></div>
+</div>
+<p>It is also possible to put the XML in the docstring of the function.
+However, this method is not recommend and should be avoided if possible.
+Example :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    &lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
+<span class="sd">        &lt;input name=&quot;input_image&quot; type=&quot;file&quot; desc=&quot;Path of a NIFTI-1 image file.&quot;/&gt;</span>
+<span class="sd">        &lt;input name=&quot;method&quot; type=&quot;enum&quot; values=&quot;[&#39;gt&#39;, &#39;ge&#39;, &#39;lt&#39;, &#39;le&#39;]&quot; desc=&quot;Mehod for thresolding.&quot;/&gt;</span>
+<span class="sd">        &lt;input name=&quot;threshold&quot; type=&quot;float&quot; desc=&quot;Threshold value.&quot;/&gt;</span>
+<span class="sd">        &lt;output name=&quot;output_image&quot; input_filename=&quot;output_location&quot; type=&quot;file&quot;</span>
+<span class="sd">          desc=&quot;If set, define the output file name. Otherwise, the name is generated using a &#39;threshold_&#39; prefix on the input file name.&quot;/&gt;</span>
+<span class="sd">    &lt;/process&gt;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+     <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="processes-examples">
+<h3>Processes examples<a class="headerlink" href="#processes-examples" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">xml_process</span>
+
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
+<span class="s1">    &lt;input name=&quot;input_image&quot; type=&quot;file&quot; doc=&quot;Path of a NIFTI-1 image file.&quot;/&gt;</span>
+<span class="s1">    &lt;input name=&quot;method&quot; type=&quot;enum&quot; values=&quot;[&#39;gt&#39;, &#39;ge&#39;, &#39;lt&#39;, &#39;le&#39;]&quot;</span>
+<span class="s1">     doc=&quot;Mehod for thresolding.&quot;/&gt;</span>
+<span class="s1">    &lt;input name=&quot;threshold&quot; type=&quot;float&quot; doc=&quot;Threshold value.&quot;/&gt;</span>
+<span class="s1">    &lt;output name=&quot;output_image&quot; input_filename=&quot;output_image&quot; type=&quot;file&quot; doc=&quot;Output file name.&quot;/&gt;</span>
+<span class="s1">&lt;/process&gt;</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+     <span class="k">pass</span>
+
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
+<span class="s1">    &lt;input name=&quot;input_image&quot; type=&quot;file&quot; doc=&quot;Path of a NIFTI-1 image file.&quot;/&gt;</span>
+<span class="s1">    &lt;input name=&quot;mask&quot; type=&quot;file&quot; doc=&quot;Path of mask binary image.&quot;/&gt;</span>
+<span class="s1">    &lt;output name=&quot;output_image&quot; input_filename=&quot;output_location&quot; type=&quot;file&quot; doc=&quot;Output file name.&quot;/&gt;</span>
+<span class="s1">&lt;/process&gt;</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mask</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+     <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="pipelines">
+<h2>Pipelines<a class="headerlink" href="#pipelines" title="Permalink to this headline">¶</a></h2>
+<p>An XML pipeline is an XML document containing a single
+<code class="docutils literal notranslate"><span class="pre">&lt;pipeline&gt;</span></code> element that may contains some global properties for
+the pipeline. Since a pipeline is also a process, the <code class="docutils literal notranslate"><span class="pre">&lt;pipeline&gt;</span></code>
+element may contain the same attributes as the <code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> element
+(see above).</p>
+<p>An XML pipeline contains a series of processes that are defined by
+<code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> elements. The input and outputs of processes are connected
+by links that are defined in <code class="docutils literal notranslate"><span class="pre">&lt;link&gt;</span></code> elements. A pipeline may
+allow a user to select one group of processes among a series of process
+groups. The processes that are not selected are disabled (they will not
+be executed) whereas the selected processes are enabled. The
+<code class="docutils literal notranslate"><span class="pre">&lt;processes_selection&gt;</span></code> element is used to define a set of
+selectable process groups.</p>
+<section id="the-doc-element">
+<h3>The <code class="docutils literal notranslate"><span class="pre">&lt;doc&gt;</span></code> element<a class="headerlink" href="#the-doc-element" title="Permalink to this headline">¶</a></h3>
+<p>This element has no attributes and contains the documentation of the
+process in a <a class="reference external" href="http://www.sphinx-doc.org">Sphinx</a> compatible format.</p>
+</section>
+<section id="the-process-element">
+<h3>The <code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> element<a class="headerlink" href="#the-process-element" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> element adds a new process instance to the pipeline.
+This instance is given a <strong>name</strong> that can be used in other XML elements
+to reference it. The process instance is referencing a <strong>module</strong> which
+is the function that is called when the instance is run. The
+<code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> element can have the following attributes:</p>
+<ul class="simple">
+<li><p><em>name</em>: a string that can be used to reference the process instance.
+This must be a valid Python variable name. It should use the variable
+naming convention of Python’s PEP 8.</p></li>
+<li><p><strong>module</strong>: a valid Capsul process identifier. This is typically a
+fully qualified (e.g. containing the absolute Python module dotted
+path) Python object name. But any string value accepted by
+<code class="docutils literal notranslate"><span class="pre">capsul.loadre.get_process_instance()</span></code> can be used.</p></li>
+<li><p><strong>role</strong> (optional): set the role of the process instance (se
+“Process roles” above). If a role has been defined on the process
+module, it is ignored and replaced be the one declared in teh
+pipeline. It is possible to use an empty string to force the process
+instance in the pipeline to have no role.</p></li>
+<li><p><strong>iteration</strong> (optional): when this attribute is used, the process
+instance will be an iteration process. The <code class="docutils literal notranslate"><span class="pre">iteration</span></code> attributes
+contains a coma separated lists of parameter names (for instance
+<code class="docutils literal notranslate"><span class="pre">&quot;input1,input2,output1&quot;</span></code>). This list indicate the process
+parameter names on which the iteration will be performed. For each of
+these parameters, the actual type of the process instance parameter
+will be replaced by a list whose elements must have the process
+parameter type.</p></li>
+<li><p><strong>enabled</strong> (optional): used to explicitly mark a node as disabled
+(value: “false”)</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> element can contain the following elements:</p>
+<section id="set">
+<h4><code class="docutils literal notranslate"><span class="pre">&lt;set&gt;</span></code><a class="headerlink" href="#set" title="Permalink to this headline">¶</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;set&gt;</span></code> element is used to set a fixed value to a parameter. It
+contains only two attributes:</p>
+<ul class="simple">
+<li><p><strong>name</strong>: the name of the parameter</p></li>
+<li><p><strong>value</strong>: The value of the parameter expressed as a Python literal.
+The use of a Python literal format enables the representation of
+structures values such as list. Some examples of values:</p></li>
+<li><p>integer: <code class="docutils literal notranslate"><span class="pre">&lt;set</span> <span class="pre">name=&quot;x&quot;</span> <span class="pre">value</span> <span class="pre">=&quot;42&quot;/&gt;</span></code></p></li>
+<li><p>float: <code class="docutils literal notranslate"><span class="pre">&lt;set</span> <span class="pre">name=&quot;x&quot;</span> <span class="pre">value</span> <span class="pre">=&quot;4.2&quot;/&gt;</span></code></p></li>
+<li><p>string: <code class="docutils literal notranslate"><span class="pre">&lt;set</span> <span class="pre">name=&quot;x&quot;</span> <span class="pre">value</span> <span class="pre">=&quot;'a</span> <span class="pre">value'&quot;/&gt;</span></code></p></li>
+<li><p>None (i.e. JSON null): <code class="docutils literal notranslate"><span class="pre">&lt;set</span> <span class="pre">name=&quot;x&quot;</span> <span class="pre">value</span> <span class="pre">=&quot;None&quot;/&gt;</span></code></p></li>
+<li><p>list: <code class="docutils literal notranslate"><span class="pre">&lt;set</span> <span class="pre">name=&quot;x&quot;</span> <span class="pre">value</span> <span class="pre">=&quot;['one',</span> <span class="pre">'two',</span> <span class="pre">'three']&quot;/&gt;</span></code></p></li>
+</ul>
+<p>When a value is set on a parameter, it becomes an optional parameter.</p>
+</section>
+<section id="nipype">
+<h4><code class="docutils literal notranslate"><span class="pre">&lt;nipype&gt;</span></code><a class="headerlink" href="#nipype" title="Permalink to this headline">¶</a></h4>
+<p>Capsul can use Nipype interfaces as process module. These interfaces
+uses <code class="docutils literal notranslate"><span class="pre">traits</span></code> types that have some parameters that need to be set in
+some contexts. The Nipype specific <code class="docutils literal notranslate"><span class="pre">&lt;nipype&gt;</span></code> element contains a
+<code class="docutils literal notranslate"><span class="pre">name</span></code> attribute to identify a process parameter. For more information
+about these parameters, see <a class="reference external" href="http://www.mit.edu/~satra/nipype-nightly/devel/interface_specs.html">Nipype interface
+specification</a>
+The following attributes can be used to customize Nipype <code class="docutils literal notranslate"><span class="pre">traits</span></code> :</p>
+<ul class="simple">
+<li><p><strong>usedefault</strong>: can be set to <code class="docutils literal notranslate"><span class="pre">&quot;true&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;false&quot;</span></code>. Omitting the
+attribute is equivalent to <code class="docutils literal notranslate"><span class="pre">&quot;False&quot;</span></code>.</p></li>
+<li><p><strong>copyfile</strong>: can be set to <code class="docutils literal notranslate"><span class="pre">&quot;true&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;false&quot;</span></code>. Omitting the
+attribute is equivalent to <code class="docutils literal notranslate"><span class="pre">&quot;False&quot;</span></code>. If the special value
+<code class="docutils literal notranslate"><span class="pre">&quot;discard&quot;</span></code> is used, the Nipype interface <code class="docutils literal notranslate"><span class="pre">copyfile</span></code> parameter
+will be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> but the copied file will be deleted when the
+process terminates. This makes it possible to avoid some software
+(such as SPM) to modify input image but to keep only the original
+image at the end of the execution (the modified copy is deleted).</p></li>
+</ul>
+</section>
+</section>
+<section id="the-switch-element">
+<h3>The <code class="docutils literal notranslate"><span class="pre">&lt;switch&gt;</span></code> element<a class="headerlink" href="#the-switch-element" title="Permalink to this headline">¶</a></h3>
+<p>Represents switch nodes. May be replaced by process selection if it
+proves to fulfill all the needs, but for now “old-style” switches still
+exist, and are the only ones which can be saved.</p>
+<p>Attributes:</p>
+<ul class="simple">
+<li><p><strong>name</strong>: node name in the pipeline (as in process elements)</p></li>
+<li><p><strong>switch_value</strong> (optional): value of the “switch” parameter: name
+of the active input</p></li>
+<li><p><strong>enabed</strong> (optional): as in process elements</p></li>
+</ul>
+<p>Children:</p>
+<section id="input">
+<h4><code class="docutils literal notranslate"><span class="pre">&lt;input&gt;</span></code><a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h4>
+<p>Input name for the switch. Input plugs will be a combination of
+input/output names <code class="docutils literal notranslate"><span class="pre">&lt;input&gt;_switch_&lt;output&gt;</span></code></p>
+<p>Attributes:</p>
+<ul class="simple">
+<li><p><strong>name</strong></p></li>
+<li><p><strong>optional</strong> (optional) <code class="docutils literal notranslate"><span class="pre">&quot;true&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;false&quot;</span></code></p></li>
+</ul>
+</section>
+<section id="output">
+<h4><code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code><a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h4>
+<p>Output plug for the switch.</p>
+<p>Attributes:</p>
+<ul class="simple">
+<li><p><strong>name</strong></p></li>
+<li><p><strong>optional</strong> (optional)</p></li>
+</ul>
+</section>
+</section>
+<section id="the-optional-output-switch-element">
+<h3>The <code class="docutils literal notranslate"><span class="pre">&lt;optional_output_switch&gt;</span></code> element<a class="headerlink" href="#the-optional-output-switch-element" title="Permalink to this headline">¶</a></h3>
+<p>Represents a specific switch node which allows to have optional output
+files in the pipeline parameters, while keeping them available for
+temporary values inside the pipeline if they are left undefined.</p>
+<p>Attributes:</p>
+<ul class="simple">
+<li><p><strong>name</strong>: node name in the pipeline (as in process elements)</p></li>
+<li><p><strong>enabed</strong> (optional): as in process elements</p></li>
+</ul>
+<p>Children:</p>
+<section id="id1">
+<h4><code class="docutils literal notranslate"><span class="pre">&lt;input&gt;</span></code><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>Input name for the switch. Input plugs will be a combination of
+input/output names <code class="docutils literal notranslate"><span class="pre">&lt;input&gt;_switch_&lt;output&gt;</span></code>. In an optional output
+switch, only one input is allowed.</p>
+<p>Attributes:</p>
+<ul class="simple">
+<li><p><strong>name</strong></p></li>
+<li><p><strong>optional</strong> (optional) <code class="docutils literal notranslate"><span class="pre">&quot;true&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;false&quot;</span></code></p></li>
+</ul>
+</section>
+<section id="id2">
+<h4><code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>Output plug for the switch. Only one output is allowed.</p>
+<p>Attributes:</p>
+<ul class="simple">
+<li><p><strong>name</strong></p></li>
+</ul>
+</section>
+</section>
+<section id="the-link-element">
+<h3>The <code class="docutils literal notranslate"><span class="pre">&lt;link&gt;</span></code> element<a class="headerlink" href="#the-link-element" title="Permalink to this headline">¶</a></h3>
+<p>This element adds a ling between an input parameter of a process and an
+output parameter of another pipeline. It can also be used to “export” a
+process parameter. Exporting a process parameter means making it visible
+in the parameters of the pipeline. Unlike, the default <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code>
+behaviour in Capsul’s API, a pipeline defined in Capsul XML 2.0 dot not
+export automatically the unconnected parameters of its processes. The
+<code class="docutils literal notranslate"><span class="pre">&lt;link&gt;</span></code> element contains no child elements and mus have exaclty two
+attributes:</p>
+<ul class="simple">
+<li><p><strong>source</strong>: the parameter where the link starts from.</p></li>
+<li><p><strong>dest</strong>: the parameter where the link ends to.</p></li>
+<li><p><strong>weak_link</strong> (optional): <code class="docutils literal notranslate"><span class="pre">&quot;true&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;false&quot;</span></code></p></li>
+</ul>
+<p>The value of these attributes can be either a single identifier (e.g.
+<code class="docutils literal notranslate"><span class="pre">&quot;parameter_name&quot;</span></code>) or two identifiers separated by a dot (e.g.
+<code class="docutils literal notranslate"><span class="pre">&quot;process_name.parameter_name&quot;</span></code>). A single identifier correspond to a
+pipeline parameter whereas two identifiers identify a process parameter,
+they must correspond to the name of a process and the name of one
+parameter of this process.</p>
+</section>
+<section id="the-processes-selection-element">
+<h3>The <code class="docutils literal notranslate"><span class="pre">&lt;processes_selection&gt;</span></code> element<a class="headerlink" href="#the-processes-selection-element" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;processes_selection&gt;</span></code> element defines a series of processes
+groups. Each processes group is composed by a series of processes added
+in the pipeline with the <code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> element. Only one of these
+processes groups can be executed in the pipeline. Therefore, a new
+parameter is added to the pipeline that allows the user to select the
+group to execute. All processes in the selected group are activated
+(<em>i.e.</em> will be executed) whereas all processes in other groups are
+disabled (<em>i.e.</em> will not be executed).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;processes_selection&gt;</span></code> has a single <code class="docutils literal notranslate"><span class="pre">name</span></code> attribute that
+is the name of the parameter that is added to the pipeline. It must
+contains two or more <code class="docutils literal notranslate"><span class="pre">&lt;processes_group&gt;</span></code> elements. Each
+<code class="docutils literal notranslate"><span class="pre">&lt;processes_group&gt;</span></code> contains one or more <code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> element having
+only a single <code class="docutils literal notranslate"><span class="pre">name</span></code> attribute. This attribute is the name of a
+process defined in the pipeline (see <cite>The ``&lt;process&gt;`</cite>
+element &lt;#the-process-element&gt;`__ above).</p>
+</section>
+<section id="the-pipeline-steps-element">
+<h3>The <code class="docutils literal notranslate"><span class="pre">&lt;pipeline_steps&gt;</span></code> element<a class="headerlink" href="#the-pipeline-steps-element" title="Permalink to this headline">¶</a></h3>
+<p>Children:</p>
+<section id="step">
+<h4><code class="docutils literal notranslate"><span class="pre">&lt;step&gt;</span></code><a class="headerlink" href="#step" title="Permalink to this headline">¶</a></h4>
+<p>Attributes:</p>
+<ul class="simple">
+<li><p><strong>name</strong>: name for the step</p></li>
+<li><p><strong>enabled</strong> (optional): <code class="docutils literal notranslate"><span class="pre">&quot;true&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;false&quot;</span></code></p></li>
+</ul>
+<p>Children:</p>
+<section id="node">
+<h5><code class="docutils literal notranslate"><span class="pre">&lt;node&gt;</span></code><a class="headerlink" href="#node" title="Permalink to this headline">¶</a></h5>
+<p>Attributes:</p>
+<ul class="simple">
+<li><p><strong>name</strong>: name of an existing pipeline node which will be part of
+this step.</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="the-gui-element">
+<h3>The <code class="docutils literal notranslate"><span class="pre">&lt;gui&gt;</span></code> element<a class="headerlink" href="#the-gui-element" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;gui&gt;</span></code> element enables to define the position of nodes for a
+graphical representation. The position of a node is given by a
+<code class="docutils literal notranslate"><span class="pre">&lt;position&gt;</span></code> element that contains three attributes :</p>
+<ul class="simple">
+<li><p><strong>name</strong>: The name of the process (as given in <a class="reference external" href="#the-process-element">the process
+element</a>).</p></li>
+<li><p><strong>x</strong>: The x coordinate of the process.</p></li>
+<li><p><strong>y</strong>: The y coordinate of the process.</p></li>
+</ul>
+<p>A single global zoom level can be given to the gui with a <code class="docutils literal notranslate"><span class="pre">&lt;zoom&gt;</span></code>
+element that contains a single <code class="docutils literal notranslate"><span class="pre">level</span></code> attributes whose value is a
+floating point.</p>
+</section>
+<section id="pipeline-example">
+<h3>Pipeline example<a class="headerlink" href="#pipeline-example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;pipeline</span> <span class="na">capsul_xml=</span><span class="s">&quot;2.0&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_gt_1&quot;</span>
+     <span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;threshold&quot;</span> <span class="na">value=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;method&quot;</span> <span class="na">value=</span><span class="s">&quot;&#39;gt&#39;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/process&gt;</span>
+    <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_gt_10&quot;</span>
+     <span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;threshold&quot;</span> <span class="na">value=</span><span class="s">&quot;10&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;method&quot;</span> <span class="na">value=</span><span class="s">&quot;&#39;gt&#39;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/process&gt;</span>
+    <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_gt_100&quot;</span>
+     <span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;threshold&quot;</span> <span class="na">value=</span><span class="s">&quot;100&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;method&quot;</span> <span class="na">value=</span><span class="s">&quot;&#39;gt&#39;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/process&gt;</span>
+    <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_lt_1&quot;</span>
+     <span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;threshold&quot;</span> <span class="na">value=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;method&quot;</span> <span class="na">value=</span><span class="s">&quot;&#39;lt&#39;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/process&gt;</span>
+    <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_lt_10&quot;</span>
+     <span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;threshold&quot;</span> <span class="na">value=</span><span class="s">&quot;10&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;method&quot;</span> <span class="na">value=</span><span class="s">&quot;&#39;lt&#39;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/process&gt;</span>
+    <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_lt_100&quot;</span>
+     <span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;threshold&quot;</span> <span class="na">value=</span><span class="s">&quot;100&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">&quot;method&quot;</span> <span class="na">value=</span><span class="s">&quot;&#39;lt&#39;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/process&gt;</span>
+    <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;mask_1&quot;</span>
+     <span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.mask&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/process&gt;</span>
+    <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;mask_10&quot;</span>
+     <span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.mask&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/process&gt;</span>
+    <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;mask_100&quot;</span>
+     <span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.mask&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/process&gt;</span>
+
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;input_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;threshold_gt_1.input_image&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;input_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;threshold_gt_10.input_image&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;input_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;threshold_gt_100.input_image&quot;</span><span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;input_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;threshold_lt_1.input_image&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;input_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;threshold_lt_10.input_image&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;input_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;threshold_lt_100.input_image&quot;</span><span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;input_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;mask_1.input_image&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;input_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;mask_10.input_image&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;input_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;mask_100.input_image&quot;</span><span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;threshold_gt_1.output_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;mask_1.mask&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;threshold_gt_10.output_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;mask_10.mask&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;threshold_gt_100.output_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;mask_100.mask&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;threshold_lt_1.output_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;mask_1.mask&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;threshold_lt_10.output_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;mask_10.mask&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;threshold_lt_100.output_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;mask_100.mask&quot;</span><span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;mask_1.output_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;output_1&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;mask_10.output_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;output_10&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">source=</span><span class="s">&quot;mask_100.output_image&quot;</span> <span class="na">dest=</span><span class="s">&quot;output_100&quot;</span><span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;processes_selection</span> <span class="na">name=</span><span class="s">&quot;select_method&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;processes_group</span> <span class="na">name=</span><span class="s">&quot;greater than&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_gt_1&quot;</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_gt_10&quot;</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_gt_100&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;/processes_group&gt;</span>
+        <span class="nt">&lt;processes_group</span> <span class="na">name=</span><span class="s">&quot;lower than&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_lt_1&quot;</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_lt_10&quot;</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;process</span> <span class="na">name=</span><span class="s">&quot;threshold_lt_100&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;/processes_group&gt;</span>
+    <span class="nt">&lt;/processes_selection&gt;</span>
+
+    <span class="nt">&lt;gui&gt;</span>
+        <span class="nt">&lt;position</span> <span class="na">name=</span><span class="s">&quot;threshold_gt_100&quot;</span> <span class="na">x=</span><span class="s">&quot;386.0&quot;</span> <span class="na">y=</span><span class="s">&quot;403.0&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;position</span> <span class="na">name=</span><span class="s">&quot;inputs&quot;</span> <span class="na">x=</span><span class="s">&quot;50.0&quot;</span> <span class="na">y=</span><span class="s">&quot;50.0&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;position</span> <span class="na">name=</span><span class="s">&quot;mask_1&quot;</span> <span class="na">x=</span><span class="s">&quot;815.0&quot;</span> <span class="na">y=</span><span class="s">&quot;153.0&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;position</span> <span class="na">name=</span><span class="s">&quot;threshold_gt_10&quot;</span> <span class="na">x=</span><span class="s">&quot;374.0&quot;</span> <span class="na">y=</span><span class="s">&quot;242.0&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;position</span> <span class="na">name=</span><span class="s">&quot;threshold_lt_100&quot;</span> <span class="na">x=</span><span class="s">&quot;556.0&quot;</span> <span class="na">y=</span><span class="s">&quot;314.0&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;position</span> <span class="na">name=</span><span class="s">&quot;threshold_gt_1&quot;</span> <span class="na">x=</span><span class="s">&quot;371.0&quot;</span> <span class="na">y=</span><span class="s">&quot;88.0&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;position</span> <span class="na">name=</span><span class="s">&quot;mask_10&quot;</span> <span class="na">x=</span><span class="s">&quot;820.0&quot;</span> <span class="na">y=</span><span class="s">&quot;293.0&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;position</span> <span class="na">name=</span><span class="s">&quot;mask_100&quot;</span> <span class="na">x=</span><span class="s">&quot;826.0&quot;</span> <span class="na">y=</span><span class="s">&quot;451.0&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;position</span> <span class="na">name=</span><span class="s">&quot;threshold_lt_1&quot;</span> <span class="na">x=</span><span class="s">&quot;570.0&quot;</span> <span class="na">y=</span><span class="s">&quot;6.0&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;position</span> <span class="na">name=</span><span class="s">&quot;threshold_lt_10&quot;</span> <span class="na">x=</span><span class="s">&quot;568.0&quot;</span> <span class="na">y=</span><span class="s">&quot;145.0&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;zoom</span> <span class="na">level=</span><span class="s">&quot;1.0&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/gui&gt;</span>
+<span class="nt">&lt;/pipeline&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<p>Definition of processes and pipelines in Capsul XML 2.0 are recognised
+by <code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_instance</span></code>. For an XML process, the identifier of
+the process is <code class="docutils literal notranslate"><span class="pre">&lt;module&gt;.&lt;function&gt;</span></code> where <code class="docutils literal notranslate"><span class="pre">&lt;module&gt;</span></code> is the fully
+qualified name of the Python module where the function is located and
+<code class="docutils literal notranslate"><span class="pre">&lt;function&gt;</span></code> is the name of the function as defined in the module. In
+order to work with <code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_instance</span></code>, the module must be in the
+Python path. For instance,
+<code class="docutils literal notranslate"><span class="pre">capsul.process.test.test_load_from_description.threshold</span></code> is the
+identifier of the function <code class="docutils literal notranslate"><span class="pre">threshold</span></code> located in the module
+<code class="docutils literal notranslate"><span class="pre">capsul.process.test.test_load_from_description</span></code>.</p>
+<p>For an XML pipeline, <code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_instance</span></code> is looking for the XML
+file defining the pipeline. The file name must ends with <code class="docutils literal notranslate"><span class="pre">.xml</span></code> and be
+located in a directory associated to a valid Python package (i.e. a
+module in a directory). The pipeline identifier is a string
+<code class="docutils literal notranslate"><span class="pre">&lt;module&gt;.&lt;name&gt;</span></code> where <code class="docutils literal notranslate"><span class="pre">&lt;module&gt;</span></code> is the fully qualified Python
+module name and <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> is the file name without the <code class="docutils literal notranslate"><span class="pre">.xml</span></code>
+extension. For instance <code class="docutils literal notranslate"><span class="pre">capsul.process.test.test_pipeline</span></code> is the
+identifier for the pipeline defined in
+<code class="docutils literal notranslate"><span class="pre">&lt;python_path&gt;/capsul/process/test/test_pipeline.xml</span></code>.</p>
+<p>One can find all the Processe and Pipeline identifiers defined in a
+module (and recursively in all its sub-modules) with the function
+<code class="docutils literal notranslate"><span class="pre">find_processes(module_name)</span></code> (in <code class="docutils literal notranslate"><span class="pre">capsul.process.finder</span></code>). For
+instance, to try to instanciate all processes and pipelines defined in
+the module <code class="docutils literal notranslate"><span class="pre">clinfmri</span></code> :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span><span class="p">,</span> <span class="n">find_processes</span>
+
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">find_processes</span><span class="p">(</span><span class="s1">&#39;clinfmri&#39;</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">get_process_instance</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;FAILED&#39;</span><span class="p">,</span> <span class="n">p</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;GOOD&#39;</span><span class="p">,</span> <span class="n">p</span>
+</pre></div>
+</div>
+<section id="xml-validation">
+<h3>XML validation<a class="headerlink" href="#xml-validation" title="Permalink to this headline">¶</a></h3>
+<p>There is no validation of the XML document in <code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_instance</span></code>.
+As a consequence, one will only get an error if the XML does not allow
+to build a process or pipeline class (for instance if a mandatory
+attribute is missing). On the other hand, misspelling of an element or
+attribute name may not raise an error (the unknown item is simply
+ignored). If there is a need for a validation feature for pipeline
+development, it will be added in separate functions that would be built
+to give precise errors and warnings to the user (including line number
+in the XML file).</p>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">XML 2.0 specification</a><ul>
+<li><a class="reference internal" href="#table-of-content">Table of content</a></li>
+<li><a class="reference internal" href="#processes">Processes</a><ul>
+<li><a class="reference internal" href="#parameter-types">Parameter types</a></li>
+<li><a class="reference internal" href="#process-roles">Process roles</a></li>
+<li><a class="reference internal" href="#association-between-a-python-function-and-an-xml-string">Association between a Python function and an XML string</a></li>
+<li><a class="reference internal" href="#processes-examples">Processes examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pipelines">Pipelines</a><ul>
+<li><a class="reference internal" href="#the-doc-element">The <code class="docutils literal notranslate"><span class="pre">&lt;doc&gt;</span></code> element</a></li>
+<li><a class="reference internal" href="#the-process-element">The <code class="docutils literal notranslate"><span class="pre">&lt;process&gt;</span></code> element</a><ul>
+<li><a class="reference internal" href="#set"><code class="docutils literal notranslate"><span class="pre">&lt;set&gt;</span></code></a></li>
+<li><a class="reference internal" href="#nipype"><code class="docutils literal notranslate"><span class="pre">&lt;nipype&gt;</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-switch-element">The <code class="docutils literal notranslate"><span class="pre">&lt;switch&gt;</span></code> element</a><ul>
+<li><a class="reference internal" href="#input"><code class="docutils literal notranslate"><span class="pre">&lt;input&gt;</span></code></a></li>
+<li><a class="reference internal" href="#output"><code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-optional-output-switch-element">The <code class="docutils literal notranslate"><span class="pre">&lt;optional_output_switch&gt;</span></code> element</a><ul>
+<li><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">&lt;input&gt;</span></code></a></li>
+<li><a class="reference internal" href="#id2"><code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-link-element">The <code class="docutils literal notranslate"><span class="pre">&lt;link&gt;</span></code> element</a></li>
+<li><a class="reference internal" href="#the-processes-selection-element">The <code class="docutils literal notranslate"><span class="pre">&lt;processes_selection&gt;</span></code> element</a></li>
+<li><a class="reference internal" href="#the-pipeline-steps-element">The <code class="docutils literal notranslate"><span class="pre">&lt;pipeline_steps&gt;</span></code> element</a><ul>
+<li><a class="reference internal" href="#step"><code class="docutils literal notranslate"><span class="pre">&lt;step&gt;</span></code></a><ul>
+<li><a class="reference internal" href="#node"><code class="docutils literal notranslate"><span class="pre">&lt;node&gt;</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-gui-element">The <code class="docutils literal notranslate"><span class="pre">&lt;gui&gt;</span></code> element</a></li>
+<li><a class="reference internal" href="#pipeline-example">Pipeline example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api">API</a><ul>
+<li><a class="reference internal" href="#xml-validation">XML validation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CAPSUL</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

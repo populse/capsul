@@ -1,0 +1,619 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.process.runprocess</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1">#  This software and supporting documentation were developed by</span>
+<span class="c1">#      CEA/DSV/SHFJ and IFR 49</span>
+<span class="c1">#      4 place du General Leclerc</span>
+<span class="c1">#      91401 Orsay cedex</span>
+<span class="c1">#      France</span>
+<span class="c1">#</span>
+<span class="c1"># This software is governed by the CeCILL license version 2 under</span>
+<span class="c1"># French law and abiding by the rules of distribution of free software.</span>
+<span class="c1"># You can  use, modify and/or redistribute the software under the</span>
+<span class="c1"># terms of the CeCILL license version 2 as circulated by CEA, CNRS</span>
+<span class="c1"># and INRIA at the following URL &quot;http://www.cecill.info&quot;.</span>
+<span class="c1">#</span>
+<span class="c1"># As a counterpart to the access to the source code and  rights to copy,</span>
+<span class="c1"># modify and redistribute granted by the license, users are provided only</span>
+<span class="c1"># with a limited warranty  and the software&#39;s author,  the holder of the</span>
+<span class="c1"># economic rights,  and the successive licensors  have only  limited</span>
+<span class="c1"># liability.</span>
+<span class="c1">#</span>
+<span class="c1"># In this respect, the user&#39;s attention is drawn to the risks associated</span>
+<span class="c1"># with loading,  using,  modifying and/or developing or reproducing the</span>
+<span class="c1"># software by the user in light of its specific status of free software,</span>
+<span class="c1"># that may mean  that it is complicated to manipulate,  and  that  also</span>
+<span class="c1"># therefore means  that it is reserved for developers  and  experienced</span>
+<span class="c1"># professionals having in-depth computer knowledge. Users are therefore</span>
+<span class="c1"># encouraged to load and test the software&#39;s suitability as regards their</span>
+<span class="c1"># requirements in conditions enabling the security of their systems and/or</span>
+<span class="c1"># data to be ensured and,  more generally, to use and operate it in the</span>
+<span class="c1"># same conditions as regards security.</span>
+<span class="c1">#</span>
+<span class="c1"># The fact that you are presently reading this means that you have had</span>
+<span class="c1"># knowledge of the CeCILL license version 2 and that you accept its terms.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">capsul.process.runprocess is not a real python module, but rather an executable script with commandline arguments and options parsing. It is provided as a module just to be easily called via the python command in a portable way::</span>
+
+<span class="sd">    python -m capsul.process.runprocess &lt;process name&gt; &lt;process arguments&gt;</span>
+
+<span class="sd">Classes</span>
+<span class="sd">-------</span>
+<span class="sd">:class:`ProcessParamError`</span>
+<span class="sd">++++++++++++++++++++++++++</span>
+
+<span class="sd">Functions</span>
+<span class="sd">---------</span>
+<span class="sd">:func:`set_process_param_from_str`</span>
+<span class="sd">++++++++++++++++++++++++++++++++++</span>
+<span class="sd">:func:`get_process_with_params`</span>
+<span class="sd">+++++++++++++++++++++++++++++++</span>
+<span class="sd">:func:`run_process_with_distribution`</span>
+<span class="sd">+++++++++++++++++++++++++++++++++++++</span>
+<span class="sd">:func:`convert_commandline_parameter`</span>
+<span class="sd">+++++++++++++++++++++++++++++++++++++</span>
+<span class="sd">:func:`main`</span>
+<span class="sd">++++++++++++</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
+<span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
+<span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="nn">capsul.attributes.completion_engine</span> <span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">types</span>
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span><span class="p">,</span> <span class="n">OptionGroup</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">List</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">yaml</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">yaml</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="c1"># Define the logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProcessParamError"><a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.ProcessParamError">[docs]</a><span class="k">class</span> <span class="nc">ProcessParamError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Exception used in the ``runprocess`` module</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="set_process_param_from_str"><a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.set_process_param_from_str">[docs]</a><span class="k">def</span> <span class="nf">set_process_param_from_str</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Set a process parameter from a string representation.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ProcessParamError</span><span class="p">(</span><span class="s2">&quot;Unknown parameter </span><span class="si">{0}</span><span class="s2"> for process </span><span class="si">{1}</span><span class="s2">&quot;</span>
+                                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">evaluate</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="o">.</span><span class="n">evaluate</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">evaluate</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">evaluate</span><span class="p">:</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_process_with_params"><a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.get_process_with_params">[docs]</a><span class="k">def</span> <span class="nf">get_process_with_params</span><span class="p">(</span><span class="n">process_name</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">iterated_params</span><span class="o">=</span><span class="p">[],</span>
+                            <span class="n">attributes</span><span class="o">=</span><span class="p">{},</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Instantiate a process, or an iteration over processes, and fill in its</span>
+<span class="sd">    parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    process_name: string</span>
+<span class="sd">        name (mosule and class) of the process to instantiate</span>
+<span class="sd">    study_config: StudyConfig instance</span>
+<span class="sd">    iterated_params: list (optional)</span>
+<span class="sd">        parameters names which should be iterated on. If this list is not</span>
+<span class="sd">        empty, an iteration process is built. All parameters values</span>
+<span class="sd">        corresponding to the selected names should be lists with the same size.</span>
+<span class="sd">    attributes: dict (optional)</span>
+<span class="sd">        dictionary of attributes for completion system.</span>
+<span class="sd">    *args:</span>
+<span class="sd">        sequential parameters for the process. In iteration, &quot;normal&quot;</span>
+<span class="sd">        parameters are set with the same value for all iterations, and iterated</span>
+<span class="sd">        parameters dispatch their values to each iteration.</span>
+<span class="sd">    **kwargs:</span>
+<span class="sd">        named parameters for the process. Same as above for iterations.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    process: Process instance</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">process</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="n">process_name</span><span class="p">)</span>
+    <span class="n">signature</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">signature</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="c1"># check for iterations</span>
+    <span class="k">if</span> <span class="n">iterated_params</span><span class="p">:</span>
+
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">)</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">add_iterative_process</span><span class="p">(</span><span class="s1">&#39;iteration&#39;</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">iterated_params</span><span class="p">)</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">autoexport_nodes_parameters</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">pipeline</span>
+
+        <span class="c1"># transform iterated attributes into lists if needed</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">attributes</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="n">value</span><span class="p">])</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># not iterated</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+            <span class="n">set_process_param_from_str</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">set_process_param_from_str</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+
+    <span class="n">completion_engine</span> <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+    <span class="n">completion_engine</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">import_from_dict</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
+    <span class="n">completion_engine</span><span class="o">.</span><span class="n">complete_parameters</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">process</span></div>
+
+
+<div class="viewcode-block" id="run_process_with_distribution"><a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.run_process_with_distribution">[docs]</a><span class="k">def</span> <span class="nf">run_process_with_distribution</span><span class="p">(</span>
+        <span class="n">study_config</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">use_soma_workflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">resource_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rsa_key_pass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">queue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_file_processing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_file_processing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">keep_workflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">keep_failed_workflow</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Run the given process, either sequentially or distributed through</span>
+<span class="sd">    Soma-Workflow.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    study_config: StudyConfig instance</span>
+<span class="sd">    process: Process instance</span>
+<span class="sd">        the process to execute (or pipeline, or iteration...)</span>
+<span class="sd">    use_soma_workflow: bool or None (default=None)</span>
+<span class="sd">        if False, run sequentially, otherwise use Soma-Workflow. Its</span>
+<span class="sd">        configuration has to be setup and valid for non-local execution, and</span>
+<span class="sd">        additional file transfer options may be used.</span>
+<span class="sd">    resource_id: string (default=None)</span>
+<span class="sd">        soma-workflow resource ID, defaults to localhost</span>
+<span class="sd">    password: string</span>
+<span class="sd">        password to access the remote computing resource. Do not specify it if</span>
+<span class="sd">        using a ssh key.</span>
+<span class="sd">    config: dict (optional)</span>
+<span class="sd">        Soma-Workflow config: Not used for now...</span>
+<span class="sd">    rsa_key_pass: string</span>
+<span class="sd">        RSA key password, for ssh key access</span>
+<span class="sd">    queue: string</span>
+<span class="sd">        Queue to use on the computing resource. If not specified, use the</span>
+<span class="sd">        default queue.</span>
+<span class="sd">    input_file_processing: brainvisa.workflow.ProcessToSomaWorkflow processing code</span>
+<span class="sd">        Input files processing: local_path (NO_FILE_PROCESSING),</span>
+<span class="sd">        transfer (FILE_TRANSFER), translate (SHARED_RESOURCE_PATH),</span>
+<span class="sd">        or translate_shared (BV_DB_SHARED_PATH).</span>
+<span class="sd">    output_file_processing: same as for input_file_processing</span>
+<span class="sd">        Output files processing: local_path (NO_FILE_PROCESSING),</span>
+<span class="sd">        transfer (FILE_TRANSFER), or translate (SHARED_RESOURCE_PATH).</span>
+<span class="sd">        The default is local_path.</span>
+<span class="sd">    keep_workflow: bool</span>
+<span class="sd">        keep the workflow in the computing resource database after execution.</span>
+<span class="sd">        By default it is removed.</span>
+<span class="sd">    keep_failed_workflow: bool</span>
+<span class="sd">        keep the workflow in the computing resource database after execution,</span>
+<span class="sd">        if it has failed. By default it is removed.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">use_soma_workflow</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">use_soma_workflow</span> <span class="o">=</span> <span class="n">use_soma_workflow</span>
+    <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">use_soma_workflow</span><span class="p">:</span>
+        <span class="n">swm</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span>
+        <span class="n">resource_id</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_resource_id</span><span class="p">(</span><span class="n">resource_id</span><span class="p">,</span> <span class="n">set_it</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">password</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">rsa_key_pass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">swm</span><span class="o">.</span><span class="n">set_computing_resource_password</span><span class="p">(</span><span class="n">resource_id</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span>
+                                                <span class="n">rsa_key_pass</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">queue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span>
+                    <span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_computing_resources_config</span><span class="p">,</span>
+                    <span class="n">resource_id</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_computing_resources_config</span><span class="p">,</span>
+                        <span class="n">resource_id</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_computing_resources_config</span><span class="p">,</span>
+                    <span class="n">resource_id</span><span class="p">)</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<span class="k">def</span> <span class="nf">convert_commandline_parameter</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">&#39;[({&#39;</span> <span class="ow">or</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span> <span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">res</span><span class="o">=</span><span class="nb">eval</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">res</span><span class="o">=</span><span class="n">i</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="k">return</span> <span class="n">res</span>
+
+
+<span class="c1"># main</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39; Run the :mod:`capsul.process.runprocess` module as a commandline</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">usage</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;Usage: python -m capsul [options] processname [arg1] [arg2] ...</span>
+<span class="s1">    [argx=valuex] [argy=valuey] ...</span>
+
+<span class="s1">    Example:</span>
+<span class="s1">    python -m capsul threshold ~/data/irm.ima /tmp/th.nii threshold1=80</span>
+
+<span class="s1">    Named arguments (in the shape argx=valuex) may address sub-processes of a</span>
+<span class="s1">    pipeline, using the dot separator:</span>
+
+<span class="s1">    PrepareSubject.t1mri=/home/myself/mymri.nii</span>
+
+<span class="s1">    For a more precise description, please look at the web documentation:</span>
+<span class="s1">    http://brainvisa.info/capsul/user_doc/user_guide_tree/index.html</span>
+<span class="s1">    &#39;&#39;&#39;</span>
+
+    <span class="c1"># Set up logging on stderr. This must be called before any logging takes</span>
+    <span class="c1"># place, to avoid &quot;No handlers could be found for logger&quot; errors.</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Run a single CAPSUL process&#39;</span><span class="p">,</span>
+        <span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">)</span>
+    <span class="n">group1</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span>
+        <span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Config&#39;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Processing configuration, database options&#39;</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--studyconfig&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;studyconfig&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;load StudyConfig configuration from the given file (JSON)&#39;</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="s1">&#39;--input&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;input_directory&#39;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input data directory (if not specified in &#39;</span>
+                      <span class="s1">&#39;studyconfig file). If not specified neither on the &#39;</span>
+                      <span class="s1">&#39;commandline nor study configfile, taken as the same as &#39;</span>
+                      <span class="s1">&#39;output.&#39;</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;--output&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;output_directory&#39;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;output data directory (if not specified in &#39;</span>
+                      <span class="s1">&#39;studyconfig file). If not specified neither on the &#39;</span>
+                      <span class="s1">&#39;commandline nor study configfile, taken as the same as &#39;</span>
+                      <span class="s1">&#39;input.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group1</span><span class="p">)</span>
+
+    <span class="n">group2</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Processing&#39;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Processing options, distributed execution&#39;</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--swf&#39;</span><span class="p">,</span> <span class="s1">&#39;--soma_workflow&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;soma_workflow&#39;</span><span class="p">,</span>
+                      <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;use soma_workflow. Soma-Workflow &#39;</span>
+                      <span class="s1">&#39;configuration has to be setup and valid for non-local &#39;</span>
+                      <span class="s1">&#39;execution, and additional file transfer options &#39;</span>
+                      <span class="s1">&#39;may be used. The default is *not* to use SWF and &#39;</span>
+                      <span class="s1">&#39;process mono-processor, sequential execution.&#39;</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="s1">&#39;--resource_id&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;resource_id&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;soma-workflow resource ID, defaults to localhost&#39;</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="s1">&#39;--password&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;password to access the remote computing resource. &#39;</span>
+                      <span class="s1">&#39;Do not specify it if using a ssh key&#39;</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--rsa-pass&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;rsa_key_pass&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;RSA key password, for ssh key access&#39;</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--queue&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;queue&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Queue to use on the computing resource. If not &#39;</span>
+                      <span class="s1">&#39;specified, use the default queue.&#39;</span><span class="p">)</span>
+    <span class="c1">#group2.add_option(&#39;--input-processing&#39;, dest=&#39;input_file_processing&#39;,</span>
+                      <span class="c1">#default=None, help=&#39;Input files processing: local_path, &#39;</span>
+                      <span class="c1">#&#39;transfer, translate, or translate_shared. The default is &#39;</span>
+                      <span class="c1">#&#39;local_path if the computing resource is the localhost, or &#39;</span>
+                      <span class="c1">#&#39;translate_shared otherwise.&#39;)</span>
+    <span class="c1">#group2.add_option(&#39;--output-processing&#39;, dest=&#39;output_file_processing&#39;,</span>
+                      <span class="c1">#default=None, help=&#39;Output files processing: local_path, &#39;</span>
+                      <span class="c1">#&#39;transfer, or translate. The default is local_path.&#39;)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--keep-succeeded-workflow&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;keep_succeded_workflow&#39;</span><span class="p">,</span>
+                      <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;keep the workflow in the computing resource &#39;</span>
+                      <span class="s1">&#39;database after execution. By default it is removed.&#39;</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--delete-failed-workflow&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;delete_failed_workflow&#39;</span><span class="p">,</span>
+                      <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;delete the workflow in the computing resource &#39;</span>
+                      <span class="s1">&#39;database after execution, if it has failed. By default &#39;</span>
+                      <span class="s1">&#39;it is kept.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group2</span><span class="p">)</span>
+
+    <span class="n">group3</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Iteration&#39;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Iteration&#39;</span><span class="p">)</span>
+    <span class="n">group3</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-I&#39;</span><span class="p">,</span> <span class="s1">&#39;--iterate&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;iterate_on&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;append&#39;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Iterate the given process, iterating over the &#39;</span>
+                      <span class="s1">&#39;given parameter(s). Multiple parameters may be &#39;</span>
+                      <span class="s1">&#39;iterated jointly using several -I options. In the &#39;</span>
+                      <span class="s1">&#39;process parameters, values are replaced by lists, all &#39;</span>
+                      <span class="s1">&#39;iterated lists should have the same size.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="s1">&#39;Ex:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="s1">&#39;python -m capsul -I par_a -I par_c a_process &#39;</span>
+                      <span class="s1">&#39;par_a=&quot;[1, 2]&quot; par_b=&quot;something&quot; &#39;</span>
+                      <span class="s1">&#39;par_c=&quot;[</span><span class="se">\\</span><span class="s1">&quot;one</span><span class="se">\\</span><span class="s1">&quot;, </span><span class="se">\\</span><span class="s1">&quot;two</span><span class="se">\\</span><span class="s1">&quot;]&quot;&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group3</span><span class="p">)</span>
+
+    <span class="n">group4</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Attributes completion&#39;</span><span class="p">)</span>
+    <span class="n">group4</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;--attribute&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;append&#39;</span><span class="p">,</span>
+                      <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;set completion (including FOM) attribute. &#39;</span>
+                      <span class="s1">&#39;Syntax: attribute=value, value the same syntax as &#39;</span>
+                      <span class="s1">&#39;process parameters (python syntax for lists, for &#39;</span>
+                      <span class="s1">&#39;instance), with proper quotes if needed for shell &#39;</span>
+                      <span class="s1">&#39;escaping.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="s1">&#39;Ex: -a acquisition=&quot;default&quot; &#39;</span>
+                      <span class="s1">&#39;-a subject=</span><span class="se">\&#39;</span><span class="s1">[&quot;s1&quot;, &quot;s2&quot;]</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group4</span><span class="p">)</span>
+
+    <span class="n">group5</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Help&#39;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Help and documentation options&#39;</span><span class="p">)</span>
+    <span class="n">group5</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--process-help&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;process_help&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;display specified process help&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group5</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">disable_interspersed_args</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">studyconfig</span><span class="p">:</span>
+        <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span>
+            <span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span>
+                <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;BrainVISAConfig&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">yaml</span><span class="p">:</span>
+            <span class="n">scdict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">studyconfig</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scdict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">studyconfig</span><span class="p">))</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">set_study_configuration</span><span class="p">(</span><span class="n">scdict</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">()</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">read_configuration</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">input_directory</span><span class="p">:</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">input_directory</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">output_directory</span><span class="p">:</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">output_directory</span>
+    <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">):</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span>
+    <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">):</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span>
+    <span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_succeeded_workflows</span> \
+        <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">keep_succeded_workflow</span>
+    <span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_failed_workflows</span> \
+        <span class="o">=</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">delete_failed_workflow</span>
+
+    <span class="n">kwre</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$&#39;</span><span class="p">)</span>
+
+    <span class="n">attributes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">kwre</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">att</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s1">&#39;syntax error in attribute definition: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">att</span><span class="p">)</span>
+        <span class="n">attributes</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">convert_commandline_parameter</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">convert_commandline_parameter</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">))</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">todel</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">kwre</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">convert_commandline_parameter</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+                <span class="n">todel</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">arg</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">arg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">todel</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_usage</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># get the main process</span>
+    <span class="n">process_name</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="n">iterated</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">iterate_on</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">get_process_with_params</span><span class="p">(</span><span class="n">process_name</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">iterated</span><span class="p">,</span>
+                                          <span class="n">attributes</span><span class="p">,</span>
+                                          <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ProcessParamError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">process_help</span><span class="p">:</span>
+        <span class="n">process</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">()</span>
+
+        <span class="n">completion_engine</span> \
+            <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+        <span class="n">attribs</span> <span class="o">=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
+        <span class="n">aval</span> <span class="o">=</span> <span class="n">attribs</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Completion attributes:&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;----------------------&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;(note: may differ depending on study config file contents, &#39;</span>
+              <span class="s1">&#39;completion rules (FOM)...)&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">()</span>
+
+        <span class="n">skipped</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;generated_by_parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;generated_by_process&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">aval</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">skipped</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">ttype</span> <span class="o">=</span> <span class="n">attribs</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribs</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
+                <span class="n">ttype</span> <span class="o">+=</span> <span class="s1">&#39;(</span><span class="si">%s</span><span class="s1">)&#39;</span> \
+                    <span class="o">%</span> <span class="n">attribs</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">[</span>
+                        <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">trait_type</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="n">ttype</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   &#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">()</span>
+        <span class="k">del</span> <span class="n">aval</span><span class="p">,</span> <span class="n">attribs</span><span class="p">,</span> <span class="n">completion_engine</span><span class="p">,</span> <span class="n">process</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">resource_id</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">resource_id</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">password</span>
+    <span class="n">rsa_key_pass</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">rsa_key_pass</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">queue</span>
+    <span class="n">file_processing</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">study_config</span><span class="o">.</span><span class="n">use_soma_workflow</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">soma_workflow</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">soma_workflow</span><span class="p">:</span>
+        <span class="n">file_processing</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">file_processing</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">run_process_with_distribution</span><span class="p">(</span>
+        <span class="n">study_config</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">soma_workflow</span><span class="p">,</span> <span class="n">resource_id</span><span class="o">=</span><span class="n">resource_id</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">rsa_key_pass</span><span class="o">=</span><span class="n">rsa_key_pass</span><span class="p">,</span>
+        <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">,</span> <span class="n">input_file_processing</span><span class="o">=</span><span class="n">file_processing</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">output_file_processing</span><span class="o">=</span><span class="n">file_processing</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

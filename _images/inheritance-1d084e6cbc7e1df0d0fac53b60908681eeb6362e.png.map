@@ -1,0 +1,20 @@
+<map id="inheritancee5a96be6ce" name="inheritancee5a96be6ce">
+<area shape="rect" id="node1" href="#capsul.attributes.attributes_factory.AttributesFactory" target="_top" title="AttributesFactory holds an attributes schema" alt="" coords="318,223,434,246"/>
+<area shape="rect" id="node2" title="*ClassFactory* is the base class for creating factories that can look" alt="" coords="63,223,154,246"/>
+<area shape="rect" id="node3" href="#capsul.attributes.attributes_schema.AttributesSchema" target="_top" title="An AttributesSchema has a name, which is used as an identifier to specify completion." alt="" coords="47,179,170,202"/>
+<area shape="rect" id="node4" href="#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory" target="_top" title="BuiltinProcessCompletionEngineFactory" alt="" coords="255,136,497,158"/>
+<area shape="rect" id="node5" href="#capsul.attributes.completion_engine.ProcessCompletionEngineFactory" target="_top" title="Get a :class:`ProcessCompletionEngine` instance" alt="" coords="5,136,213,158"/>
+<area shape="rect" id="node6" title="Base class for HasTraits." alt="" coords="69,92,148,115"/>
+<area shape="rect" id="node8" title="Enables any Python class derived from it to have trait attributes." alt="" coords="341,92,411,115"/>
+<area shape="rect" id="node7" title="A Controller contains some traits: attributes typing and observer" alt="" coords="586,48,660,71"/>
+<area shape="rect" id="node9" href="#capsul.attributes.attributes_schema.EditableAttributes" target="_top" title="A set of attributes (group) used to define process parameters" alt="" coords="795,5,916,27"/>
+<area shape="rect" id="node17" href="#capsul.attributes.attributes_schema.ProcessAttributes" target="_top" title="This is the base class for managing attributes for a process." alt="" coords="796,48,915,71"/>
+<area shape="rect" id="node13" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" target="_top" title="Parameters completion from attributes for a process or pipeline node" alt="" coords="540,115,706,137"/>
+<area shape="rect" id="node10" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine" target="_top" title="FomPathCompletionEngine" alt="" coords="290,48,462,71"/>
+<area shape="rect" id="node11" href="#capsul.attributes.completion_engine.PathCompletionEngine" target="_top" title="Implements building of a single path from a set of attributes for a" alt="" coords="35,48,182,71"/>
+<area shape="rect" id="node12" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine" target="_top" title="FOM (File Organization Model) implementation of completion engine." alt="" coords="760,92,951,115"/>
+<area shape="rect" id="node15" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration" target="_top" title=":class:`~capsul.attributes.completion_engine.ProcessCompletionEngine`" alt="" coords="749,136,962,158"/>
+<area shape="rect" id="node18" href="#capsul.attributes.completion_engine.SwitchCompletionEngine" target="_top" title="Completion engine specislization for a switch. The switch will" alt="" coords="776,179,935,202"/>
+<area shape="rect" id="node14" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration" target="_top" title="FomProcessCompletionEngineIteration" alt="" coords="1005,136,1243,158"/>
+<area shape="rect" id="node16" href="#capsul.attributes.completion_engine.PathCompletionEngineFactory" target="_top" title="Get a :class:`PathCompletionEngine` instance" alt="" coords="15,5,202,27"/>
+</map>

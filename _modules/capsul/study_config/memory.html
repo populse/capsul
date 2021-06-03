@@ -1,0 +1,1069 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.study_config.memory</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Mamory caching. Probably mostly obsolete, this code is not much used now.</span>
+
+<span class="sd">Classes</span>
+<span class="sd">=======</span>
+<span class="sd">:class:`UnMemorizedProcess`</span>
+<span class="sd">---------------------------</span>
+<span class="sd">:class:`MemorizedProcess`</span>
+<span class="sd">-------------------------</span>
+<span class="sd">:class:`CapsulResultEncoder`</span>
+<span class="sd">----------------------------</span>
+<span class="sd">:class:`Memory`</span>
+<span class="sd">---------------</span>
+
+<span class="sd">Functions</span>
+<span class="sd">=========</span>
+<span class="sd">:func:`get_process_signature`</span>
+<span class="sd">-----------------------------</span>
+<span class="sd">:func:`has_attribute`</span>
+<span class="sd">---------------------</span>
+<span class="sd">:func:`file_fingerprint`</span>
+<span class="sd">------------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># System import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">with_statement</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># CAPSUL import</span>
+<span class="kn">from</span> <span class="nn">capsul.process.process</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">ProcessResult</span>
+
+<span class="c1"># NIPYPE import</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">nipype.interfaces.base</span> <span class="kn">import</span> <span class="n">InterfaceResult</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="c1"># if nipype is not here, we will not really need this but it is used in</span>
+    <span class="c1"># object type checking in CapsulResultEncoder</span>
+    <span class="k">class</span> <span class="nc">InterfaceResult</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<span class="c1"># TRAITS import</span>
+<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Undefined</span>
+
+
+<span class="c1"># Define the logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1">###########################################################################</span>
+<span class="c1"># Proxy process objects</span>
+<span class="c1">###########################################################################</span>
+
+<div class="viewcode-block" id="UnMemorizedProcess"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.UnMemorizedProcess">[docs]</a><span class="k">class</span> <span class="nc">UnMemorizedProcess</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This class replaces MemorizedProcess when there is no cache.</span>
+<span class="sd">    It provides an identical API but does not write anything on disk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize the UnMemorizedProcess class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        process: capsul process</span>
+<span class="sd">            the process instance to wrap.</span>
+<span class="sd">        verbose: int</span>
+<span class="sd">            if different from zero, print console messages.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Call the process.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            matlab process input image headers are saved since matlab</span>
+<span class="sd">            tools may modify image headers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kwargs: dict (optional)</span>
+<span class="sd">            should correspond to the declared process parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set the process inputs early to get some argument checking</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">input_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_process_arguments</span><span class="p">()</span>
+
+        <span class="c1"># Information message</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="se">\n</span><span class="s2">[Process] Calling </span><span class="si">{1}</span><span class="s2">...</span><span class="se">\n</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="mi">80</span> <span class="o">*</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">get_process_signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">)))</span>
+
+        <span class="c1"># Start a timer</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Execute the process</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+
+        <span class="c1"># Information message</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0:.1f}</span><span class="s2">s, </span><span class="si">{1:.1f}</span><span class="s2">min&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">duration</span> <span class="o">/</span> <span class="mf">60.</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">80</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)))</span> <span class="o">*</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_get_process_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the process arguments.</span>
+
+<span class="sd">        The user process traits are accessed through the user_traits()</span>
+<span class="sd">        method that returns a sorted dictionary.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        input_parameters: dict</span>
+<span class="sd">            the process input parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Store for input parameters</span>
+        <span class="n">input_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Go through all the user traits</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+
+            <span class="c1"># Get the trait value</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="c1"># Split input and output traits</span>
+            <span class="n">is_input</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="s2">&quot;output&quot;</span> <span class="ow">in</span> <span class="n">trait</span><span class="o">.</span><span class="vm">__dict__</span> <span class="ow">and</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="n">is_input</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># Skip undefined trait attributes and outputs</span>
+            <span class="k">if</span> <span class="n">is_input</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span><span class="p">:</span>
+
+                <span class="c1"># Store the input parameter</span>
+                <span class="n">input_parameters</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">input_parameters</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to access an attribute</span>
+<span class="sd">        of a MemorizedProcess instance.</span>
+
+<span class="sd">        First check the MemorizedProcess object and then the Process object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: string</span>
+<span class="sd">            the name of the parameter we want to access.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">UnMemorizedProcess</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;UnMemorizedProcess&#39; and &#39;Process&#39; objects have no attribute &quot;</span>
+                <span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to set an attribute</span>
+<span class="sd">        of a MemorizedProcess instance.</span>
+
+<span class="sd">        First check the MemorizedProcess object and then the Process object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: string</span>
+<span class="sd">            the name of the parameter we want to set.</span>
+<span class="sd">        value: object</span>
+<span class="sd">            the parameter value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;process&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="ow">and</span>
+                <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;process&quot;</span><span class="p">]</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;process_class&quot;</span><span class="p">],</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;process&quot;</span><span class="p">])</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">UnMemorizedProcess</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; ProcessFunc class representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">(</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MemorizedProcess"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.MemorizedProcess">[docs]</a><span class="k">class</span> <span class="nc">MemorizedProcess</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Callable object decorating a capsul process for caching its return</span>
+<span class="sd">    values each time it is called.</span>
+
+<span class="sd">    All values are cached on the filesystem, in a deep directory</span>
+<span class="sd">    structure. Methods are provided to inspect the cache or clean it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">cachedir</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize the MemorizedProcess class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        process: capsul process</span>
+<span class="sd">            the process instance to wrap.</span>
+<span class="sd">        cachedir: string</span>
+<span class="sd">            the directory in which the computation will be stored</span>
+<span class="sd">        timestamp: float (optional)</span>
+<span class="sd">            The reference time from which times in tracing messages</span>
+<span class="sd">            are reported.</span>
+<span class="sd">        callback: callable (optional)</span>
+<span class="sd">            an optional callable called each time after the function</span>
+<span class="sd">            is called.</span>
+<span class="sd">        verbose: int</span>
+<span class="sd">            if different from zero, print console messages.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check the a process is passed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_class</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_class</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_class</span><span class="p">,</span> <span class="n">Process</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The &#39;process&#39; argument should be a capsul process class, &quot;</span>
+                <span class="s2">&quot;but &#39;</span><span class="si">{0}</span><span class="s2">&#39; (type &#39;</span><span class="si">{1}</span><span class="s2">&#39;) was passed.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">process_class</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_class</span><span class="p">)))</span>
+
+        <span class="c1"># Check the memory directory</span>
+        <span class="n">cachedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">cachedir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cachedir</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">cachedir</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;base_dir&#39; should be an existing directory.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cachedir</span> <span class="o">=</span> <span class="n">cachedir</span>
+
+        <span class="c1"># Define the cache time</span>
+        <span class="k">if</span> <span class="n">timestamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">timestamp</span>
+
+        <span class="c1"># Set the documentation of the class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">get_help</span><span class="p">(</span><span class="n">returnhelp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Store if some messages have to be displayed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Call wrapped process and cache result, or read cache if</span>
+<span class="sd">        available.</span>
+
+<span class="sd">        This function returns the wrapped function output and some metadata.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            matlab process input image headers are saved since matlab</span>
+<span class="sd">            tools may modify image headers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kwargs: dict (optional)</span>
+<span class="sd">            should correspond to the declared process parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set the process inputs early to get some argument checking</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># Create the destination folder and a unique id for the current</span>
+        <span class="c1"># process</span>
+        <span class="n">process_dir</span><span class="p">,</span> <span class="n">process_hash</span><span class="p">,</span> <span class="n">input_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_process_id</span><span class="p">()</span>
+
+        <span class="c1"># Execute the process</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">process_dir</span><span class="p">):</span>
+
+            <span class="c1"># Create the destination memory folder</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">process_dir</span><span class="p">)</span>
+
+            <span class="c1"># Try to execute the process and if an error occured remove the</span>
+            <span class="c1"># cache folder</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Run</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_process</span><span class="p">(</span><span class="n">process_dir</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">)</span>
+
+                <span class="c1"># Save the result files in the memory with the corresponding</span>
+                <span class="c1"># mapping</span>
+                <span class="n">output_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">traits</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="c1"># Get the trait value</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                    <span class="n">output_parameters</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">file_mapping</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_copy_files_to_memory</span><span class="p">(</span><span class="n">output_parameters</span><span class="p">,</span> <span class="n">process_dir</span><span class="p">,</span>
+                                           <span class="n">file_mapping</span><span class="p">)</span>
+                <span class="n">map_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">process_dir</span><span class="p">,</span> <span class="s2">&quot;file_mapping.json&quot;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">map_fname</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">open_file</span><span class="p">:</span>
+                    <span class="n">open_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">file_mapping</span><span class="p">))</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;error in MemorizedProcess.__call__:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">process_dir</span><span class="p">)</span>
+                <span class="k">raise</span>
+
+        <span class="c1"># Restore the process results from the cache folder</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Restore the memorized files</span>
+            <span class="n">map_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">process_dir</span><span class="p">,</span> <span class="s2">&quot;file_mapping.json&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">map_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_data</span><span class="p">:</span>
+                <span class="n">file_mapping</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+
+            <span class="c1"># Go through all mapping files</span>
+            <span class="k">for</span> <span class="n">workspace_file</span><span class="p">,</span> <span class="n">memory_file</span> <span class="ow">in</span> <span class="n">file_mapping</span><span class="p">:</span>
+
+                <span class="c1"># Determine if the workspace directory is writeable</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">workspace_file</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">):</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">memory_file</span><span class="p">,</span> <span class="n">workspace_file</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Can&#39;t restore file &#39;</span><span class="si">{0}</span><span class="s2">&#39;, access rights are &quot;</span>
+                                 <span class="s2">&quot;not sufficients.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">workspace_file</span><span class="p">))</span>
+
+            <span class="c1"># Update the process output traits</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_process_result</span><span class="p">(</span><span class="n">process_dir</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_copy_files_to_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">python_object</span><span class="p">,</span> <span class="n">process_dir</span><span class="p">,</span> <span class="n">file_mapping</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Copy file items inside the memory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        python_object: object</span>
+<span class="sd">            a generic python object.</span>
+<span class="sd">        process_dir: str</span>
+<span class="sd">            the process memory path.</span>
+<span class="sd">        file_mapping: list of 2-uplet</span>
+<span class="sd">            store in this structure the mapping between the workspace and the</span>
+<span class="sd">            memory (workspace_file, memory_file).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Deal with dictionary</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">python_object</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">python_object</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_copy_files_to_memory</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">process_dir</span><span class="p">,</span> <span class="n">file_mapping</span><span class="p">)</span>
+
+        <span class="c1"># Deal with tuple and list</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">python_object</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">python_object</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_copy_files_to_memory</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">process_dir</span><span class="p">,</span> <span class="n">file_mapping</span><span class="p">)</span>
+
+        <span class="c1"># Otherwise start the copy if the object is a file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">python_object</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span> <span class="ow">and</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">python_object</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">python_object</span><span class="p">)):</span>
+                <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">python_object</span><span class="p">)</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">process_dir</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">python_object</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+                <span class="n">file_mapping</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">python_object</span><span class="p">,</span> <span class="n">out</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_call_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_dir</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Call a process.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        process_dir: string</span>
+<span class="sd">            the directory where the cache has been written.</span>
+<span class="sd">        input_parameters: dict</span>
+<span class="sd">            the process input_parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result: dict</span>
+<span class="sd">            the process results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Information message</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="se">\n</span><span class="s2">[Memory] Calling </span><span class="si">{1}</span><span class="s2">...</span><span class="se">\n</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="mi">80</span> <span class="o">*</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">get_process_signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">)))</span>
+
+        <span class="c1"># Start a timer</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Execute the process</span>
+        <span class="n">study_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span>
+        <span class="n">caching</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">&#39;use_smart_caching&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># avoid recusrion</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">use_smart_caching</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">use_smart_caching</span> <span class="o">=</span> <span class="n">caching</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+
+        <span class="c1"># Save the result in json format</span>
+        <span class="n">cache</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;parameters&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> 
+                                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()),</span>
+                 <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">}</span>
+        <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                               <span class="n">check_circular</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                               <span class="bp">cls</span><span class="o">=</span><span class="n">CapsulResultEncoder</span><span class="p">)</span>
+        <span class="n">result_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">process_dir</span><span class="p">,</span> <span class="s2">&quot;result.json&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">result_fname</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">open_file</span><span class="p">:</span>
+            <span class="n">open_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+
+        <span class="c1"># Information message</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0:.1f}</span><span class="s2">s, </span><span class="si">{1:.1f}</span><span class="s2">min&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">duration</span> <span class="o">/</span> <span class="mf">60.</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">80</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)))</span> <span class="o">*</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_load_process_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_dir</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load the result of a process.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        process_dir: string</span>
+<span class="sd">            the directory where the cache has been written.</span>
+<span class="sd">        input_parameters: dict</span>
+<span class="sd">            the process input_parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result: ProcessResult</span>
+<span class="sd">            the process cached results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Display an information message</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[Memory]: Loading </span><span class="si">{0}</span><span class="s2">...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">get_process_signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">)))</span>
+
+        <span class="c1"># Load the process result</span>
+        <span class="n">result_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">process_dir</span><span class="p">,</span> <span class="s2">&quot;result.json&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">result_fname</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="s2">&quot;Non-existing cache value (may have been cleared).</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;File </span><span class="si">{0}</span><span class="s2"> does not exist.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result_fname</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">result_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_data</span><span class="p">:</span>
+            <span class="n">result_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">CapsulResultDecoder</span><span class="p">)</span>
+
+
+        <span class="c1">## Update the process output traits</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">result_dict</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result_dict</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_process_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the directory in which are persisted the result of the</span>
+<span class="sd">        process called with the given arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        process_dir: string</span>
+<span class="sd">            the directory where the cache should be write.</span>
+<span class="sd">        process_hash: string</span>
+<span class="sd">            the process md5 hash.</span>
+<span class="sd">        input_parameters: dict</span>
+<span class="sd">            the process input_parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the process id</span>
+        <span class="n">process_hash</span><span class="p">,</span> <span class="n">input_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_argument_hash</span><span class="p">()</span>
+        <span class="n">process_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_process_dir</span><span class="p">(),</span> <span class="n">process_hash</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">process_dir</span><span class="p">,</span> <span class="n">process_hash</span><span class="p">,</span> <span class="n">input_parameters</span>
+
+    <span class="k">def</span> <span class="nf">_get_argument_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get a hash of the process arguments.</span>
+
+<span class="sd">        The user process traits are accessed through the user_traits()</span>
+<span class="sd">        method that returns a sorted dictionary.</span>
+
+<span class="sd">        Some parameters are not considered during the hash computation:</span>
+<span class="sd">            * if the parameter value is not defined</span>
+<span class="sd">            * if the corresponding trait has an attribute &#39;nohash&#39;</span>
+
+<span class="sd">        Add the tool versions to check roughly if the running codes have</span>
+<span class="sd">        changed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        process_hash: string</span>
+<span class="sd">            the process md5 hash.</span>
+<span class="sd">        input_parameters: dict</span>
+<span class="sd">            the process input_parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Store for input parameters</span>
+        <span class="n">input_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Go through all the user traits</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+
+            <span class="c1"># Get the trait value</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="c1"># Split input and output traits</span>
+            <span class="n">is_input</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="s2">&quot;output&quot;</span> <span class="ow">in</span> <span class="n">trait</span><span class="o">.</span><span class="vm">__dict__</span> <span class="ow">and</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="n">is_input</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># Skip undefined trait attributes and outputs</span>
+            <span class="k">if</span> <span class="n">is_input</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span><span class="p">:</span>
+
+                <span class="c1"># Check specific flags before hash</span>
+                <span class="k">if</span> <span class="n">has_attribute</span><span class="p">(</span><span class="n">trait</span><span class="p">,</span> <span class="s2">&quot;nohash&quot;</span><span class="p">,</span> <span class="n">attribute_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                 <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Store the input parameter</span>
+                <span class="n">input_parameters</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Add the tool versions to check roughly if the running codes have</span>
+        <span class="c1"># changed and add file path fingerprints</span>
+        <span class="n">process_parameters</span> <span class="o">=</span> <span class="n">input_parameters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">process_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_fingerprints</span><span class="p">(</span><span class="n">process_parameters</span><span class="p">)</span>
+        <span class="n">process_parameters</span><span class="p">[</span><span class="s2">&quot;versions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">versions</span>
+
+        <span class="c1"># Generate the process hash</span>
+        <span class="n">hasher</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;md5&quot;</span><span class="p">)</span>
+        <span class="n">hasher</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">process_parameters</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">process_hash</span> <span class="o">=</span> <span class="n">hasher</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">process_hash</span><span class="p">,</span> <span class="n">input_parameters</span>
+
+    <span class="k">def</span> <span class="nf">_add_fingerprints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">python_object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add file path fingerprints.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        python_object: object</span>
+<span class="sd">            a generic python object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        out: object</span>
+<span class="sd">            the input object with fingerprint-file representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Deal with dictionary</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">python_object</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">python_object</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span><span class="p">:</span>
+                    <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_fingerprints</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+        <span class="c1"># Deal with tuple and list</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">python_object</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">python_object</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span><span class="p">:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_add_fingerprints</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">python_object</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+        <span class="c1"># Otherwise start the deletion if the object is a file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">python_object</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">python_object</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span> <span class="ow">and</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">python_object</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">python_object</span><span class="p">)):</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="n">file_fingerprint</span><span class="p">(</span><span class="n">python_object</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">def</span> <span class="nf">_get_process_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the directory corresponding to the cache for the current</span>
+<span class="sd">        process.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        process_dir: string</span>
+<span class="sd">            the directory where the cache should be write.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build the memory path from the process id</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cachedir</span><span class="p">]</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))</span>
+        <span class="n">process_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c1"># Guarantee the path exists on the disk</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">process_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">process_dir</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">process_dir</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; ProcessFunc class representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">(</span><span class="si">{1}</span><span class="s2">, base_dir=</span><span class="si">{2}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cachedir</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to access an attribute</span>
+<span class="sd">        of a MemorizedProcess instance.</span>
+
+<span class="sd">        First check the MemorizedProcess object and then the Process object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: string</span>
+<span class="sd">            the name of the parameter we want to access.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">MemorizedProcess</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;MemorizedProcess&#39; and &#39;Process&#39; objects have no attribute &quot;</span>
+                <span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to set an attribute</span>
+<span class="sd">        of a MemorizedProcess instance.</span>
+
+<span class="sd">        First check the MemorizedProcess object and then the Process object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: string</span>
+<span class="sd">            the name of the parameter we want to set.</span>
+<span class="sd">        value: object</span>
+<span class="sd">            the parameter value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;process&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="ow">and</span>
+                <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;process&quot;</span><span class="p">]</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;process_class&quot;</span><span class="p">],</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;process&quot;</span><span class="p">])</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">MemorizedProcess</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_process_signature"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.get_process_signature">[docs]</a><span class="k">def</span> <span class="nf">get_process_signature</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Generate the process signature.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    process: Process</span>
+<span class="sd">        a capsul process object</span>
+<span class="sd">    input_parameters: dict</span>
+<span class="sd">        the process input_parameters.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    signature: string</span>
+<span class="sd">        the process signature.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">=</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+              <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">input_parameters</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">(</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="has_attribute"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.has_attribute">[docs]</a><span class="k">def</span> <span class="nf">has_attribute</span><span class="p">(</span><span class="n">trait</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">,</span> <span class="n">attribute_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Checks if a given trait has an attribute and optionally if it</span>
+<span class="sd">    is set to particular value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    trait: Trait</span>
+<span class="sd">        the input trait object.</span>
+<span class="sd">    attribute_name: string</span>
+<span class="sd">        the trait attribute name that will be checked.</span>
+<span class="sd">    attribute_value: object (optional)</span>
+<span class="sd">        the trait attribute axpected value.</span>
+<span class="sd">    recursive: bool (optional, default True)</span>
+<span class="sd">        check for the attribute in the inner traits.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res: bool</span>
+<span class="sd">        True if input given trait has an attribute and optionally if it</span>
+<span class="sd">        is set to a particular value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Count the nomber of trait having the target attribute</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Check the current trait</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">attribute_name</span> <span class="ow">in</span> <span class="n">trait</span><span class="o">.</span><span class="vm">__dict__</span> <span class="ow">and</span>
+        <span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">attribute_value</span> <span class="ow">or</span>
+         <span class="n">attribute_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Check the inner traits</span>
+    <span class="k">if</span> <span class="n">recursive</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">inner_trait</span> <span class="ow">in</span> <span class="n">trait</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="n">has_attribute</span><span class="p">(</span><span class="n">inner_trait</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">,</span>
+                                       <span class="n">attribute_value</span><span class="p">,</span> <span class="n">recursive</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="file_fingerprint"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.file_fingerprint">[docs]</a><span class="k">def</span> <span class="nf">file_fingerprint</span><span class="p">(</span><span class="n">afile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Computes the file fingerprint.</span>
+
+<span class="sd">    Do not consider the file content, just the fingerprint (ie. the mtime,</span>
+<span class="sd">    the size and the file location).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    afile: string</span>
+<span class="sd">        the file to process.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fingerprint: tuple</span>
+<span class="sd">        the file location, mtime and size.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fingerprint</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">afile</span><span class="p">,</span>
+        <span class="s2">&quot;mtime&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="kc">None</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">afile</span><span class="p">):</span>
+        <span class="n">stat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">afile</span><span class="p">)</span>
+        <span class="n">fingerprint</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
+        <span class="n">fingerprint</span><span class="p">[</span><span class="s2">&quot;mtime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fingerprint</span></div>
+
+
+<div class="viewcode-block" id="CapsulResultEncoder"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.CapsulResultEncoder">[docs]</a><span class="k">class</span> <span class="nc">CapsulResultEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Deal with ProcessResult in json.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CapsulResultEncoder.default"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.CapsulResultEncoder.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">numpy</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="c1"># numpy is not here</span>
+            <span class="n">numpy</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># File special case</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">ProcessResult</span><span class="p">):</span>
+            <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;runtime&quot;</span><span class="p">,</span> <span class="s2">&quot;returncode&quot;</span><span class="p">,</span> <span class="s2">&quot;inputs&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;outputs&quot;</span><span class="p">]:</span>
+                <span class="n">result_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tuple_json_encoder</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">result_dict</span>
+
+        <span class="c1"># Undefined parameter special case</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Undefined</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;undefined_trait_value&gt;&quot;</span>
+
+        <span class="c1"># InterfaceResult special case</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">InterfaceResult</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;skip_nipype_interface_result&gt;&quot;</span>
+
+        <span class="c1"># Array special case</span>
+        <span class="k">if</span> <span class="n">numpy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># Call the base class default method</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="tuple_json_encoder"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.tuple_json_encoder">[docs]</a><span class="k">def</span> <span class="nf">tuple_json_encoder</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Encode a tuple in order to save it in json format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj: object</span>
+<span class="sd">        a python object to encode.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    encobj: object</span>
+<span class="sd">        the encoded object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;__tuple__&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">tuple_json_encoder</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">tuple_json_encoder</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">tuple_json_encoder</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">tuple_json_encoder</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">obj</span></div>
+
+
+<div class="viewcode-block" id="CapsulResultDecoder"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.CapsulResultDecoder">[docs]</a><span class="k">class</span> <span class="nc">CapsulResultDecoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecoder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Deal with ProcessResult in json.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">JSONDecoder</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">object_object</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                                  <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">object_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="c1"># Tuple special case</span>
+        <span class="k">if</span> <span class="s2">&quot;__tuple__&quot;</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">])</span>
+        <span class="c1"># Undefined parameter special case</span>
+        <span class="k">elif</span> <span class="n">obj</span> <span class="o">==</span> <span class="s2">&quot;&lt;undefined_trait_value&gt;&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Undefined</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;&lt;undefined_trait_value&gt;&quot;</span><span class="p">:</span>
+                    <span class="n">obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Undefined</span>
+            <span class="k">return</span> <span class="n">obj</span>
+        <span class="c1"># Default</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span></div>
+
+
+<span class="c1">############################################################################</span>
+<span class="c1"># Memory manager: provide some tracking about what is computed when, to</span>
+<span class="c1"># be able to flush the disk</span>
+<span class="c1">############################################################################</span>
+
+<div class="viewcode-block" id="Memory"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.Memory">[docs]</a><span class="k">class</span> <span class="nc">Memory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Memory context to provide caching for processes.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    `cachedir`: string</span>
+<span class="sd">        the location for the caching. If None is given, no caching is done.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    cache</span>
+<span class="sd">    clear</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cachedir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize the Memory class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        base_dir: string</span>
+<span class="sd">            the directory name of the location for the caching.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build the capsul memory folder</span>
+        <span class="k">if</span> <span class="n">cachedir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cachedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">cachedir</span><span class="p">),</span> <span class="s2">&quot;capsul_memory&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cachedir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cachedir</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">cachedir</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;base_dir&#39; should be a directory&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Define class parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cachedir</span> <span class="o">=</span> <span class="n">cachedir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Memory.cache"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.Memory.cache">[docs]</a>    <span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a proxy of the given process in order to only execute</span>
+<span class="sd">        the process for input parameters not cached on disk.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        process: capsul process</span>
+<span class="sd">            the capsul Process to be wrapped and cached.</span>
+<span class="sd">        verbose: int</span>
+<span class="sd">            if different from zero, print console messages.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        proxy_process: MemorizedProcess object</span>
+<span class="sd">            the returned object is a MemorizedProcess object, that behaves</span>
+<span class="sd">            as a process object, but offers extra methods for cache lookup</span>
+<span class="sd">            and management.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Create a temporary memory folder</span>
+
+<span class="sd">        &gt;&gt;&gt; from tempfile import mkdtemp</span>
+<span class="sd">        &gt;&gt;&gt; mem = Memory(mkdtemp())</span>
+
+<span class="sd">        Here we create a callable that can be used to apply an</span>
+<span class="sd">        fsl.Merge interface to files</span>
+
+<span class="sd">        &gt;&gt;&gt; from capsul.process import get_process_instance</span>
+<span class="sd">        &gt;&gt;&gt; nipype_fsl_merge = get_process_instance(</span>
+<span class="sd">        ...    &quot;nipype.interfaces.fsl.Merge&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; fsl_merge = mem.cache(nipype_fsl_merge)</span>
+
+<span class="sd">        Now we apply it to a list of files. We need to specify the</span>
+<span class="sd">        list of input files and the dimension along which the files</span>
+<span class="sd">        should be merged.</span>
+
+<span class="sd">        &gt;&gt;&gt; results = fsl_merge(in_files=[&#39;a.nii&#39;, &#39;b.nii&#39;], dimension=&#39;t&#39;)</span>
+
+<span class="sd">        We can retrieve the resulting file from the outputs:</span>
+
+<span class="sd">        &gt;&gt;&gt; results.outputs._merged_file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If a proxy process is found get the encapsulated process</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">MemorizedProcess</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">UnMemorizedProcess</span><span class="p">)):</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
+
+        <span class="c1"># If the cachedir is None no caching is done</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cachedir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">UnMemorizedProcess</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="c1"># Otherwise a proxy process is created</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MemorizedProcess</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cachedir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span>
+                                    <span class="n">verbose</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Memory.clear"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.Memory.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skips</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove all the cache appart from those given to the method</span>
+<span class="sd">        input.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        skips: list</span>
+<span class="sd">            a list of path to keep during the cache deletion.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get all memory directories to remove</span>
+        <span class="n">to_remove_folders</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">skips</span> <span class="o">=</span> <span class="n">skips</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cachedir</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;result.json&quot;</span> <span class="ow">and</span> <span class="n">files</span> <span class="ow">and</span> <span class="n">dirs</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">root</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skips</span><span class="p">:</span>
+                <span class="n">to_remove_folders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+        <span class="c1"># Delete memory directories</span>
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">to_remove_folders</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Memory class representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">(cachedir=</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">cachedir</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

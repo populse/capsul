@@ -1,0 +1,615 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.study_config.process_instance</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Process instance factory</span>
+
+<span class="sd">Functions</span>
+<span class="sd">=========</span>
+<span class="sd">:func:`is_process`</span>
+<span class="sd">------------------</span>
+<span class="sd">:func:`is_pipeline_node`</span>
+<span class="sd">------------------------</span>
+<span class="sd">:func:`get_process_instance`</span>
+<span class="sd">----------------------------</span>
+<span class="sd">:func:`get_node_class`</span>
+<span class="sd">----------------------</span>
+<span class="sd">:func:`get_node_instance`</span>
+<span class="sd">-------------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># System import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="c1"># Caspul import</span>
+<span class="kn">from</span> <span class="nn">capsul.process.process</span> <span class="kn">import</span> <span class="n">Process</span>
+<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="nn">capsul.process.nipype_process</span> <span class="kn">import</span> <span class="n">nipype_factory</span>
+<span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">create_xml_process</span>
+<span class="kn">from</span> <span class="nn">capsul.pipeline.xml</span> <span class="kn">import</span> <span class="n">create_xml_pipeline</span>
+<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">Node</span>
+<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
+
+<span class="c1"># Nipype import</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">nipype.interfaces.base</span> <span class="kn">import</span> <span class="n">Interface</span>
+<span class="c1"># If nipype is not found create a dummy Interface class</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">Interface</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s2">&quot;Interface&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="p">),</span> <span class="p">{})</span>
+
+
+<span class="n">process_xml_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&lt;process.*&lt;/process&gt;&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="is_process"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.is_process">[docs]</a><span class="k">def</span> <span class="nf">is_process</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Check if the input item is a process class or function with decorator</span>
+<span class="sd">    or XML docstring which makes it seen as a process</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Pipeline</span><span class="p">,</span> <span class="n">Process</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="p">(</span><span class="nb">issubclass</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Process</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Interface</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;capsul_xml&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">process_xml_re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="is_pipeline_node"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.is_pipeline_node">[docs]</a><span class="k">def</span> <span class="nf">is_pipeline_node</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Check if the input is an instance of pipeline Node</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Node</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Node</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_process_instance"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_process_instance">[docs]</a><span class="k">def</span> <span class="nf">get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return a Process instance given an identifier.</span>
+
+<span class="sd">    Note that it is convenient to create a process from a StudyConfig instance:</span>
+<span class="sd">    StudyConfig.get_process_instance()</span>
+
+<span class="sd">    The identifier is either:</span>
+
+<span class="sd">        * a derived Process class.</span>
+<span class="sd">        * a derived Process class instance.</span>
+<span class="sd">        * a Nipype Interface instance.</span>
+<span class="sd">        * a Nipype Interface class.</span>
+<span class="sd">        * a string description of the class `&lt;module&gt;.&lt;class&gt;`.</span>
+<span class="sd">        * a string description of a function to warp `&lt;module&gt;.&lt;function&gt;`.</span>
+<span class="sd">        * a string description of a module containing a single process</span>
+<span class="sd">          `&lt;module&gt;`</span>
+<span class="sd">        * a string description of a pipeline `&lt;module&gt;.&lt;fname&gt;.xml`.</span>
+<span class="sd">        * an XML filename for a pipeline.</span>
+<span class="sd">        * a Python (.py) filename with process name in it:</span>
+<span class="sd">          `/path/process_source.py#ProcessName`.</span>
+<span class="sd">        * a Python (.py) filename for a file containg a single process.</span>
+
+<span class="sd">    Default values of the process instance are passed as additional parameters.</span>
+
+<span class="sd">    .. note:</span>
+
+<span class="sd">        If no process is found an ImportError is raised.</span>
+
+<span class="sd">    .. note:</span>
+
+<span class="sd">        If the &#39;process_or_id&#39; parameter is not valid a ValueError is raised.</span>
+
+<span class="sd">    .. note:</span>
+
+<span class="sd">        If the function to warp does not contain a process description in its</span>
+<span class="sd">        docstring (&#39;&lt;process&gt;...&lt;/process&gt;&#39;) a ValueError is raised.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    process_or_id: instance or class description (mandatory)</span>
+<span class="sd">        a process/nipype interface instance/class or a string description.</span>
+<span class="sd">    study_config: StudyConfig instance (optional)</span>
+<span class="sd">        A Process instance belongs to a StudyConfig framework. If not specified</span>
+<span class="sd">        the study_config can be set afterwards.</span>
+<span class="sd">    kwargs:</span>
+<span class="sd">        default values of the process instance parameters.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result: Process</span>
+<span class="sd">        an initialized process instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># NOTE</span>
+    <span class="c1"># here we make a bidouille to make study_config accessible from processes</span>
+    <span class="c1"># constructors. It is used for instance in ProcessIteration.</span>
+    <span class="c1"># This is not elegant, not thread-safe, and forbids to have one pipeline</span>
+    <span class="c1"># build a second one in a different study_config context.</span>
+    <span class="c1"># I don&#39;t have a better solution, however.</span>
+    <span class="kn">import</span> <span class="nn">capsul.study_config.study_config</span> <span class="k">as</span> <span class="nn">study_cmod</span>
+    <span class="n">set_study_config</span> <span class="o">=</span> <span class="p">(</span><span class="n">study_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">and</span> <span class="n">study_cmod</span><span class="o">.</span><span class="n">_default_study_config</span>
+                            <span class="ow">is</span> <span class="ow">not</span> <span class="n">study_config</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">set_study_config</span><span class="p">:</span>
+            <span class="n">old_default_study_config</span> <span class="o">=</span> <span class="n">study_cmod</span><span class="o">.</span><span class="n">_default_study_config</span>
+            <span class="n">study_cmod</span><span class="o">.</span><span class="n">_default_study_config</span> <span class="o">=</span> <span class="n">study_config</span>
+        <span class="k">return</span> <span class="n">_get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="n">study_config</span><span class="p">,</span>
+                                     <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">set_study_config</span><span class="p">:</span>
+            <span class="n">study_cmod</span><span class="o">.</span><span class="n">_default_study_config</span> <span class="o">=</span> <span class="n">old_default_study_config</span></div>
+
+
+<span class="k">def</span> <span class="nf">_execfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="c1"># This chunk of code cannot be put inline in python 2.6</span>
+    <span class="n">glob_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">exec</span><span class="p">(</span><span class="nb">compile</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;exec&#39;</span><span class="p">),</span>
+          <span class="n">glob_dict</span><span class="p">,</span> <span class="n">glob_dict</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">glob_dict</span>
+
+
+<span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">modname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">modname</span><span class="p">:</span>
+        <span class="n">modname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">importlib.util</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">modname</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">modname</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mod</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">importlib.machinery</span> <span class="kn">import</span> <span class="n">SourceFileLoader</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">SourceFileLoader</span><span class="p">(</span><span class="n">modname</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">load_module</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">imp</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">modname</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mod</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">modname</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod</span>
+    <span class="k">return</span> <span class="n">mod</span>
+
+<span class="k">def</span> <span class="nf">_get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">_find_single_process</span><span class="p">(</span><span class="n">module_dict</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Scan objects in module_dict and find out if a single one of them is</span>
+<span class="sd">        a process</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">object_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">module_dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">is_process</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">object_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                        <span class="s1">&#39;file </span><span class="si">%s</span><span class="s1"> contains several processes. Please &#39;</span>
+                        <span class="s1">&#39;specify which one shoule be used using &#39;</span>
+                        <span class="s1">&#39;filename.py#ProcessName or &#39;</span>
+                        <span class="s1">&#39;module.submodule.ProcessName&#39;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="n">object_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="n">object_name</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># If the function &#39;process_or_id&#39; parameter is already a Process</span>
+    <span class="c1"># instance.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">Process</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">process_or_id</span>
+
+    <span class="c1"># If the function &#39;process_or_id&#39; parameter is a Process class.</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span>
+          <span class="nb">issubclass</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">Process</span><span class="p">)):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">process_or_id</span><span class="p">()</span>
+
+    <span class="c1"># If the function &#39;process_or_id&#39; parameter is already a Nipye</span>
+    <span class="c1"># interface instance, wrap this structure in a Process class</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">Interface</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">nipype_factory</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">)</span>
+
+    <span class="c1"># If the function &#39;process_or_id&#39; parameter is an Interface class.</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span>
+          <span class="nb">issubclass</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">Interface</span><span class="p">)):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">nipype_factory</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">())</span>
+
+    <span class="c1"># If the function &#39;process_or_id&#39; parameter is a function.</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">):</span>
+        <span class="n">xml</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="s1">&#39;capsul_xml&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">xml</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Check docstring</span>
+            <span class="k">if</span> <span class="n">process_or_id</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">:</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">process_xml_re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+                    <span class="n">process_or_id</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                    <span class="n">xml</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">xml</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">create_xml_process</span><span class="p">(</span><span class="n">process_or_id</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                                        <span class="n">process_or_id</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> 
+                                        <span class="n">process_or_id</span><span class="p">,</span> <span class="n">xml</span><span class="p">)()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot find XML description to make function </span><span class="si">{0}</span><span class="s1"> a process&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">))</span>
+        
+    <span class="c1"># If the function &#39;process_or_id&#39; parameter is a class string</span>
+    <span class="c1"># description</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="n">py_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+        <span class="n">object_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">as_xml</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">as_py</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">module_dict</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">py_url</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">py_url</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.py&#39;</span><span class="p">)</span> \
+                <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">py_url</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">py_url</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.py&#39;</span><span class="p">):</span>
+            <span class="c1"># python file + process name: something.py#ProcessName</span>
+            <span class="c1"># or just something.py if it contains only one process class</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">py_url</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">process_or_id</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">py_url</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">object_name</span> <span class="o">=</span> <span class="n">py_url</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">process_or_id</span>
+                <span class="n">object_name</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="n">_load_module</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">module_name</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="n">module_dict</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="n">module_dict</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="n">object_name</span> <span class="o">=</span> <span class="n">_find_single_process</span><span class="p">(</span>
+                <span class="n">module_dict</span><span class="p">,</span> <span class="n">module_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">object_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">module_name</span> <span class="o">=</span> <span class="n">process_or_id</span>
+                <span class="n">as_py</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">object_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="n">process_or_id</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">module_name</span><span class="p">,</span> <span class="n">object_name</span> <span class="o">=</span> <span class="s1">&#39;__main__&#39;</span><span class="p">,</span> <span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">module_name</span><span class="p">,</span> <span class="n">object_name</span> <span class="o">=</span> <span class="n">elements</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">object_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span> \
+                        <span class="ow">or</span> <span class="ow">not</span> <span class="n">is_process</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">object_name</span><span class="p">)):</span>
+                    <span class="c1"># maybe a module with a single process in it</span>
+                    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">)</span>
+                    <span class="n">module_dict</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span>
+                    <span class="n">object_name</span> <span class="o">=</span> <span class="n">_find_single_process</span><span class="p">(</span>
+                        <span class="n">module_dict</span><span class="p">,</span> <span class="n">module_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">object_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">module_name</span> <span class="o">=</span> <span class="n">process_or_id</span>
+                        <span class="n">as_py</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">as_py</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">as_py</span><span class="p">:</span>
+            <span class="c1"># maybe XML filename or URL</span>
+            <span class="n">xml_url</span> <span class="o">=</span> <span class="n">process_or_id</span> <span class="o">+</span> <span class="s1">&#39;.xml&#39;</span>
+            <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">xml_url</span><span class="p">):</span>
+                <span class="n">object_name</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="n">process_or_id</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.xml&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">):</span>
+                <span class="n">xml_url</span> <span class="o">=</span> <span class="n">process_or_id</span>
+                <span class="n">object_name</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># maybe XML file with pipeline name in it</span>
+                <span class="n">xml_url</span> <span class="o">=</span> <span class="n">module_name</span> <span class="o">+</span> <span class="s1">&#39;.xml&#39;</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">xml_url</span><span class="p">)</span> <span class="ow">and</span> <span class="n">module_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.xml&#39;</span><span class="p">)</span> \
+                        <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
+                    <span class="n">xml_url</span> <span class="o">=</span> <span class="n">module_name</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">xml_url</span><span class="p">):</span>
+                    <span class="c1"># try XML file in a module directory + class name</span>
+                    <span class="n">basename</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">module_name2</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">if</span> <span class="n">module_name</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+                        <span class="n">basename</span> <span class="o">=</span> <span class="n">object_name</span>
+                        <span class="n">module_name2</span> <span class="o">=</span> <span class="n">module_name</span>
+                        <span class="n">object_name</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># to allow unmatching class / xml</span>
+                        <span class="k">if</span> <span class="n">basename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.xml&#39;</span><span class="p">):</span>
+                            <span class="n">basename</span> <span class="o">=</span> <span class="n">basename</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">elements</span> <span class="o">=</span> <span class="n">module_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="n">module_name2</span><span class="p">,</span> <span class="n">basename</span> <span class="o">=</span> <span class="n">elements</span>
+                    <span class="k">if</span> <span class="n">module_name2</span> <span class="ow">and</span> <span class="n">basename</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_name2</span><span class="p">)</span>
+                            <span class="n">mod_dirname</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+                                <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module_name2</span><span class="p">]</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+                            <span class="n">xml_url</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_dirname</span><span class="p">,</span> <span class="n">basename</span> <span class="o">+</span> <span class="s1">&#39;.xml&#39;</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">xml_url</span><span class="p">):</span>
+                                <span class="c1"># if basename includes .xml extension</span>
+                                <span class="n">xml_url</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_dirname</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s1">&#39;Cannot import </span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                                              <span class="o">%</span> <span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+            <span class="n">as_xml</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">xml_url</span><span class="p">):</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">create_xml_pipeline</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">object_name</span><span class="p">,</span>
+                                             <span class="n">xml_url</span><span class="p">)()</span>
+
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">as_xml</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">module_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">module_object</span> <span class="o">=</span> <span class="n">module_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">object_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module_name</span><span class="p">]</span>
+                <span class="n">module_object</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">object_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">module_object</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">module_object</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="nb">issubclass</span><span class="p">(</span><span class="n">module_object</span><span class="p">,</span> <span class="n">Process</span><span class="p">)):</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">module_object</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_object</span><span class="p">,</span> <span class="n">Interface</span><span class="p">):</span>
+                    <span class="c1"># If we have a Nipype interface, wrap this structure in a</span>
+                    <span class="c1"># Process class</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">nipype_factory</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">module_object</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="nb">issubclass</span><span class="p">(</span><span class="n">module_object</span><span class="p">,</span> <span class="n">Interface</span><span class="p">)):</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">nipype_factory</span><span class="p">(</span><span class="n">module_object</span><span class="p">())</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_object</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">):</span>
+                    <span class="n">xml</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module_object</span><span class="p">,</span> <span class="s1">&#39;capsul_xml&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">xml</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="c1"># Check docstring</span>
+                        <span class="k">if</span> <span class="n">module_object</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">:</span>
+                            <span class="n">match</span> <span class="o">=</span> <span class="n">process_xml_re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+                                <span class="n">module_object</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                                <span class="n">xml</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">xml</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="n">create_xml_process</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">object_name</span><span class="p">,</span>
+                                                    <span class="n">module_object</span><span class="p">,</span> <span class="n">xml</span><span class="p">)()</span>
+            <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">module</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">xml_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span>
+                                    <span class="n">object_name</span> <span class="o">+</span> <span class="s1">&#39;.xml&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">xml_file</span><span class="p">):</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">create_xml_pipeline</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span>
+                                                 <span class="n">xml_file</span><span class="p">)()</span>
+
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid process_or_id argument. &quot;</span>
+                         <span class="s2">&quot;Got &#39;</span><span class="si">{0}</span><span class="s2">&#39; and expect a Process instance/string &quot;</span>
+                         <span class="s2">&quot;description or an Interface instance/string &quot;</span>
+                         <span class="s2">&quot;description&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">))</span>
+
+    <span class="c1"># Set the instance default parameters</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">study_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">study_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+                <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">study_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">study_config</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;StudyConfig mismatch in get_process_instance &quot;</span>
+                             <span class="s2">&quot;for process </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">result</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">set_study_config</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="get_node_class"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_node_class">[docs]</a><span class="k">def</span> <span class="nf">get_node_class</span><span class="p">(</span><span class="n">node_type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a custom node class from module + class string.</span>
+<span class="sd">    The class name is optional if the module contains only one node class.</span>
+<span class="sd">    It is OK to pass a Node subclass or a Node instance also.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">node_type</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">node_type</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">node_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">node_type</span>  <span class="c1"># already a Node class</span>
+        <span class="k">return</span> <span class="n">Node</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node_type</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">node_type</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">node_type</span><span class="o">.</span><span class="vm">__class__</span>
+    <span class="bp">cls</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">node_type</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">and</span> <span class="n">val</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s1">&#39;Node&#39;</span> \
+                    <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+                <span class="bp">cls</span> <span class="o">=</span> <span class="n">val</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">node_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">modname</span> <span class="o">=</span> <span class="n">node_type</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">modname</span><span class="p">)</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">name</span><span class="p">,</span> <span class="bp">cls</span></div>
+
+
+<div class="viewcode-block" id="get_node_instance"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_node_instance">[docs]</a><span class="k">def</span> <span class="nf">get_node_instance</span><span class="p">(</span><span class="n">node_type</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">conf_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a custom node instance from a module + class name (see</span>
+<span class="sd">    :func:`get_node_class`) and a configuration dict or Controller.</span>
+<span class="sd">    The configuration contains parameters needed to instantiate the node type.</span>
+<span class="sd">    Each node class may specify its parameters via its class method</span>
+<span class="sd">    `configure_node`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    node_type: str or Node subclass or Node instance</span>
+<span class="sd">        node type to be built. Either a class (Node subclass) or a Node</span>
+<span class="sd">        instance (the node will be re-instantiated), or a string</span>
+<span class="sd">        describing a module and class.</span>
+<span class="sd">    pipeline: Pipeline</span>
+<span class="sd">        pipeline in which the node will be inserted.</span>
+<span class="sd">    conf_dict: dict or Controller</span>
+<span class="sd">        configuration dict or Controller defining parameters needed to build</span>
+<span class="sd">        the node. The controller should be obtained using the node class&#39;s</span>
+<span class="sd">        `configure_node()` static method, then filled with the desired values.</span>
+<span class="sd">        If not given the node is supposed to be built with no parameters, which</span>
+<span class="sd">        will not work for every node type.</span>
+<span class="sd">    kwargs:</span>
+<span class="sd">        default values of the node instance parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cls_and_name</span> <span class="o">=</span> <span class="n">get_node_class</span><span class="p">(</span><span class="n">node_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cls_and_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not find node class </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">node_type</span><span class="p">)</span>
+    <span class="n">nname</span><span class="p">,</span> <span class="bp">cls</span> <span class="o">=</span> <span class="n">cls_and_name</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">nname</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">,</span> <span class="n">Controller</span><span class="p">):</span>
+        <span class="n">conf_controller</span> <span class="o">=</span> <span class="n">conf_dict</span>
+    <span class="k">elif</span> <span class="n">conf_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;configure_controller&#39;</span><span class="p">):</span>
+            <span class="n">conf_controller</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">configure_controller</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">conf_controller</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;node type </span><span class="si">%s</span><span class="s2"> has a configuration controller &quot;</span>
+                                 <span class="s2">&quot;problem (see </span><span class="si">%s</span><span class="s2">.configure_controller()&quot;</span>
+                                 <span class="o">%</span> <span class="p">(</span><span class="n">node_type</span><span class="p">,</span> <span class="n">node_type</span><span class="p">))</span>
+            <span class="n">conf_controller</span><span class="o">.</span><span class="n">import_from_dict</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">conf_controller</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;configure_controller&#39;</span><span class="p">):</span>
+            <span class="n">conf_controller</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">configure_controller</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">conf_controller</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;build_node&#39;</span><span class="p">):</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">build_node</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">conf_controller</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># probably bound to fail...</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+
+    <span class="c1"># Set the instance default parameters</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">node</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

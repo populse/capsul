@@ -1,0 +1,268 @@
+
+@import url("default.css");
+
+/* -- page layout ----------------------------------------------------------- */
+
+body {
+    background-color: #651022;
+    color: #FFFBBB;
+    background-image: linear-gradient(#651022, #8E1731);
+}
+
+div.document {
+    background-color: #651022;
+}
+
+div.related {
+    background-color: #502010;
+}
+
+div.sphinxsidebar input {
+    border: #FFE0B0;
+}
+
+div.body {
+    background-color: #FFF0F0;
+}
+
+/*div.footer {
+    background-color: #651022;
+}*/
+
+/*div.documentwrapper {
+    background-color: #8E1731;
+}*/
+
+/*div.container {
+    background-color: #791328;
+}*/
+
+/* -- hyperlink styles ------------------------------------------------------ */
+
+a {
+    color: #FFFdcB;
+}
+
+a:visited {
+    color: #FFFdcB;
+}
+
+/* -- body styles ----------------------------------------------------------- */
+
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6 {
+    background-color: #FFC890;
+    color: #8E1731; /*#C02042;*/
+}
+
+div.body a {
+    color: #600000;
+}
+
+div.body a:visited {
+    color: #500000;
+}
+
+dl.class dt {
+    background-color: #e0ecff;
+    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+}
+
+dl.method dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.docutils dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.staticmethod dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.data dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.attribute dt {
+    background-color: #ffffff;
+    border-bottom: none;
+    border-top: none;
+}
+
+dl.class dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+dl.method dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+dl.docutils dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+dl.staticmethod dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+dl.data dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+dl.attribute dt:target, .highlighted {
+    background-color: #fbe54e;
+}
+
+div.navbar ul {
+    background-color: #fffbbb;
+    color: white;
+    border-radius: 5px;
+    display: inline;
+    list-style: none;
+    padding: 4px 10px 5px 10px;
+    text-decoration-line: none;
+}
+
+div.navbar li {
+    display: inline;
+    list-style: none;
+    line-height: 20px;
+    padding: 4px 10px 5px 10px;
+    color: #c02042;
+    font-weight: bold;
+}
+
+div.navbar a {
+    color: #c02042;
+}
+
+.navbar .btn-li {
+    margin: 0px;
+    padding: 4px 0px 5px 0px;
+    vertical-align: middle;
+}
+
+.navbar .btn-group {
+    padding: 4px 10px 5px 10px;
+    margin: 0;
+    height: 100%;
+    overflow-wrap: break-word;
+    display: inline;
+    font-size: 16px;
+}
+
+.navbar .btn, .navbar .open > .btn, .navbar .btn:hover {
+    display: inline-block;
+    padding: 4px 12px 5px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: transparent;
+    background-image: None;
+    border: 0px solid #cccccc;    padding-left: 4px;
+
+    box-shadow: inset 0 0px 0 rgba(255,255,255,.2), 0 0px 0px rgba(0,0,0,.05);
+}
+
+.btn-group .dropdown-toggle {
+    vertical-align: middle;
+    color: #808080;
+    border-color: #808080;
+}
+
+.btn-group .dropdown-toggle:hover {
+/*     vertical-align: baseline; */
+    color: #808080;
+    border-color: #808080;
+}
+
+.btn-group.open .btn.dropdown-toggle {
+    background-color: transparent;
+}
+
+.btn-group .dropdown-menu {
+    margin: 0;
+    display: none;
+    z-index: 1000;
+    min-width: 100px;
+    padding: 5px 10px;
+}
+
+.btn-group.open .dropdown-menu {
+    display: block;
+}
+
+.btn-group.open ul.dropdown-menu li {
+    display: block;
+    padding: 0;
+}
+
+.btn-group.open ul.dropdown-menu li a {
+    padding: 0;
+}
+
+input.search-header {
+    margin-bottom: 0px;
+    height: 16px;
+    background-color: #ffe0b0;
+}
+
+label, select, button, input[type="button"], input[type="reset"], input[class="submit"], input[type="radio"], input[type="checkbox"] {
+    height: 26px;
+    background-color: #ffc890;
+    border-color: #fff0e0;
+    border-radius: 15px;
+    padding: 3px;
+}
+
+div.banner-container h1 {
+    color: #f4f44b;
+    font-size: 45px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+img.pipeline {
+    background-color: #FFF0F0;
+}
+
+pre {
+    background-color: #EBE3B1;
+    border: 1px solid #EB9271;
+    border-left: none;
+    border-right: none;
+    border-radius: 0px;
+}
+
+div.sphinxsidebar a {
+    color: #FFFBBB;
+}
+
+code {
+    color: #804020;
+/*     color: #A3562C; */
+}
+
+.section.section h4 {
+    background-color: #fff0f0;
+    font-size: 100%;
+    margin: 0px;
+    border: 0px;
+}
