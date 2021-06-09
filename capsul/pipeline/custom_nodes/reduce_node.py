@@ -55,7 +55,9 @@ class ReduceNode(Node):
         super(ReduceNode, self).__init__(pipeline, name, in_traits, out_traits)
 
         for tr, ptype in zip(output_names, ptypes):
-            self.add_trait(tr, traits.List(ptype, output=True))
+            self.add_trait(tr,
+                           traits.List(traits.Either(ptype, traits.Undefined),
+                                       output=True))
         self.add_trait('lengths', traits.List(traits.Int(), output=False,
                                               desc='lists lengths'))
         self.add_trait('skip_empty',
@@ -121,7 +123,7 @@ class ReduceNode(Node):
                 if isinstance(ptype,
                               (traits.Str, traits.File, traits.Directory)):
                     # List trait doesn't accept Undefined as items
-                    ovalue = [v if v not in (None, traits.Undefined) else ''
+                    ovalue = [v # if v not in (None, traits.Undefined) else ''
                               for v in ovalue]
                 setattr(self, self.output_names[in_index], ovalue)
 
@@ -156,7 +158,7 @@ class ReduceNode(Node):
             elif isinstance(self.input_types[in_index],
                           (traits.Str, traits.File, traits.Directory)):
                 # List trait doesn't accept Undefined as items
-                value = [v if v not in (None, traits.Undefined) else ''
+                value = [v # if v not in (None, traits.Undefined) else traits.Undefined
                          for v in value]
             setattr(self, output, value)
 
