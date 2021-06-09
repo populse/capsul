@@ -2878,8 +2878,9 @@ class PipelineDevelopperView(QGraphicsView):
             event.accept()
             try:
                 self._release_grab_link(event)
-            except Exception:
+            except Exception as e:
                 print("source to destination types are not compatible")
+                print(e)
 
         super(PipelineDevelopperView, self).mouseReleaseEvent(event)
         self.scene.update()
