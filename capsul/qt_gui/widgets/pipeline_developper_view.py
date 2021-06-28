@@ -4344,7 +4344,7 @@ class PipelineDevelopperView(QGraphicsView):
         doc_browser = self.doc_browser
         pv = self
         proxy = False
-        if isinstance(doc_browser, PipelineDevelopperView):
+        while isinstance(doc_browser, PipelineDevelopperView):
             # it's a proxy to a parent view
             pv = doc_browser
             doc_browser = pv.doc_browser

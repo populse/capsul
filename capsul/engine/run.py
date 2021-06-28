@@ -240,7 +240,12 @@ def wait(engine, execution_id, timeout=-1, pipeline=None):
                     for param in list(out_params.keys()):
                         if process.trait(param) is None:
                             del out_params[param]
-                    process.import_from_dict(out_params)
+                    try:
+                        process.import_from_dict(out_params)
+                        print('error while importing outputs in', process.name)
+                        print('outputs:', out_params)
+                    except Exception as e:
+                        print(e)
 
     # TODO: should we transfer if the WF fails ?
     swclient.Helper.transfer_output_files(wf_id, controller)
