@@ -73,7 +73,13 @@ def run_process(output_dir, process_instance,
                 if value is not Undefined and value:
                     base = os.path.dirname(value)
                     if base and not os.path.exists(base):
-                        os.makedirs(base)
+                        try:
+                            os.makedirs(base)
+                        except OSError as err:
+                            if err.errno != errno.EEXIST:
+                                raise
+                            # We have a race condition?
+                            pass
 
     if configuration_dict is None:
         configuration_dict = {}
