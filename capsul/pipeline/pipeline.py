@@ -195,6 +195,8 @@ class Pipeline(Process):
     #enable_all_pipeline_steps
     #"""
 
+    _doc_path = 'api/pipeline.html#pipeline'
+
     selection_changed = Event()
     
     # The default value for do_autoexport_nodes_parameters is stored in the
