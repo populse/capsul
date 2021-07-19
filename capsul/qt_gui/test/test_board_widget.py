@@ -115,6 +115,3 @@ if __name__ == "__main__":
 
     # Start the qt loop
     app.exec_()
-
-
-

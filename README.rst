@@ -43,7 +43,3 @@ Download
   CAPSUL is available on `pypi <https://pypi.org/project/capsul/>`_ to download:,
   
   or via the `BrainVISA distribution <http://brainvisa.info/web/download.html>`_.
-
-
-
-

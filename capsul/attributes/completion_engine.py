@@ -989,4 +989,3 @@ class PathCompletionEngineFactory(object):
     def get_path_completion_engine(self, process):
         raise RuntimeError('PathCompletionEngineFactory is pure virtual. '
                            'It must be derived to do actual work.')
-

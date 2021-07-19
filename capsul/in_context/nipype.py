@@ -93,4 +93,3 @@ def configure_freesurfer():
         env = fsrun.freesurfer_env()
         for var, value in env.items():
             os.environ[var] = value
-

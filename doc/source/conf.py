@@ -433,4 +433,3 @@ if not os.path.exists(os.path.join(out_dir, '_static/tutorial')):
     os.makedirs(os.path.join(out_dir, '_static/tutorial'))
 shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb'),
              os.path.join(out_dir, '_static/tutorial/capsul_tutorial.ipynb'))
-

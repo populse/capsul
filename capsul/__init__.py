@@ -28,4 +28,3 @@ def _init_doc_path():
     return _doc_path
 
 _init_doc_path()
-

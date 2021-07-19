@@ -167,4 +167,3 @@ for module_name in modules:
                                have_usecases=False)
     logger.info("Index: an index has been written for module '{0}' at "
                 "location {1}.".format(module_name, os.path.abspath(outdir)))
-

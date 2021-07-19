@@ -1,4 +1,5 @@
 #! /usr/bin/env python2
+# -*- coding: utf-8 -*-
 ##########################################################################
 # CAPSUL - Copyright (C) CEA, 2013
 # Distributed under the terms of the CeCILL-B license, as published by
@@ -24,7 +25,7 @@ try:
     app = PipelineViewerApp()
 
 # Print an error message if an error occured
-except:
+except Exception:
     raise
 
 # Start the qt interaction loop
@@ -32,4 +33,3 @@ else:
     QtCore.QObject.connect(app, QtCore.SIGNAL('lastWindowClosed()'), 
                            app, QtCore.SLOT('quit()'))
     sys.exit(app.exec_())
-

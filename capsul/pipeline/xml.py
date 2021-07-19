@@ -581,4 +581,3 @@ def save_xml_pipeline(pipeline, xml_file):
 
     tree = ET.ElementTree(root)
     tree.write(xml_file)
-

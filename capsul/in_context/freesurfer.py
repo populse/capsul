@@ -119,4 +119,3 @@ def freesurfer_check_output(command, **kwargs):
     '''
     cmd = freesurfer_command_with_environment(command)
     return soma.subprocess.check_output(cmd, **kwargs)
-

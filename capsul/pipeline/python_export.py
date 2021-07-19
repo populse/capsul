@@ -441,6 +441,3 @@ def save_py_pipeline(pipeline, py_file):
 
         print('\n        self.do_autoexport_nodes_parameters = False',
               file=pyf)
-
-
-

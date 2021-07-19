@@ -49,4 +49,3 @@ capsul.qt_apps.utils.window submodule
 
 .. automodule:: capsul.qt_apps.utils.window
     :members:
-

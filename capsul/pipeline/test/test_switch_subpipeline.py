@@ -260,4 +260,3 @@ if __name__ == "__main__":
         app.exec_()
         del view1
         #del view2
-

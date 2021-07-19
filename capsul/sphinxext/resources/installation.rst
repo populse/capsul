@@ -37,12 +37,3 @@ Installing the current version
 ===============================
 
 Clone the project at https://bioproj.extra.cea.fr/git/%(NAME_LOWER)s.
-
-
-
-
-
-
-
-
-

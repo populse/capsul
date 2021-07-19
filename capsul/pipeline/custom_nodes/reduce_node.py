@@ -220,4 +220,3 @@ class ReduceNode(Node):
                      referenced_output_files=referenced_output_files,
                      param_dict=param_dict)
         return job
-

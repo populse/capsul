@@ -76,4 +76,3 @@ class PipelineViewerApp(Application):
         self.window.show()
 
         return True
-

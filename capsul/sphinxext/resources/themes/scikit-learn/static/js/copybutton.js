@@ -56,4 +56,3 @@ $(document).ready(function() {
             button.attr('title', hide_text);
         });
 });
-

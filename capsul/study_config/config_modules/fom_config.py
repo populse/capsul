@@ -182,4 +182,3 @@ class FomConfig(StudyConfigModule):
                 from capsul.engine.module.fom import load_fom
                 return load_fom(self.study_config.engine, schema, config,
                                 session, environment='global')
-

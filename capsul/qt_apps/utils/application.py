@@ -165,4 +165,3 @@ class EmittingStream(Qt.QObject):
     """
     def write(self, text):
         self.textWritten.emit(str(text))
-

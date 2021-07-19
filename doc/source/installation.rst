@@ -106,13 +106,3 @@ Install with virtualenv
    sudo apt-get install python-virtualenv
    virtualenv /tmp/venv # Choose your installation directory instead of /tmp/venv
    /tmp/venv/bin/pip install capsul
-
-
-
-
-
-
-
-
-
-

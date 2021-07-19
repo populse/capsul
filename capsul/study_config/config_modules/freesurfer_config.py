@@ -132,5 +132,3 @@ class FreeSurferConfig(StudyConfigModule):
                             self.study_config.use_freesurfer = False
         finally:
             del self._syncing
-
-

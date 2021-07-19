@@ -122,4 +122,3 @@ class DatabaseEngine(object):
         Retrieve metadata associated with a path.
         '''
         raise NotImplementedError()
-

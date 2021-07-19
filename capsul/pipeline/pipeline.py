@@ -2603,5 +2603,3 @@ class Pipeline(Process):
                 self.node_dimension[new_node_name] \
                     = self.node_dimension[old_node_name]
                 del self.node_dimension[old_node_name]
-
-

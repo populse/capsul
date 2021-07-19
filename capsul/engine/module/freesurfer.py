@@ -123,4 +123,3 @@ def edition_widget(engine, environment):
     widget.accept = types.MethodType(validate_config, widget)
 
     return widget
-

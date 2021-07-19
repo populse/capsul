@@ -270,5 +270,3 @@ class ProcessIteration(Process):
         # check if it is an iterative completion engine
         if hasattr(completion_engine, 'complete_iteration_step'):
             completion_engine.complete_iteration_step(iteration)
-
-

@@ -261,4 +261,3 @@ Complete modules list
     qt_gui
     qt_apps
     sphinxext
-

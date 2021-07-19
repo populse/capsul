@@ -59,4 +59,3 @@ capsul.qt_gui.widgets.viewer_widget submodule
 
 .. automodule:: capsul.qt_gui.widgets.viewer_widget
     :members:
-

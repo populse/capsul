@@ -556,4 +556,3 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
     #def get_path_completion_engine(self, process):
         #return FomPathCompletionEngine(process)
-

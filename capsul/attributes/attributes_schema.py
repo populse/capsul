@@ -279,4 +279,3 @@ class ProcessAttributes(Controller):
                 if value is not None:
                     setattr(other, name, value)
         return other
-

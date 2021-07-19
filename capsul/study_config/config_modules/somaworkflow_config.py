@@ -276,4 +276,3 @@ class SomaWorkflowConfig(StudyConfigModule):
             del self.study_config.modules_data.somaworkflow[
                 self.study_config.somaworkflow_computing_resource
                 ].workflow_controller
-

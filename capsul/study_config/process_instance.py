@@ -472,4 +472,3 @@ def get_node_instance(node_type, pipeline, conf_dict=None, name=None,
         setattr(node, name, value)
 
     return node
-

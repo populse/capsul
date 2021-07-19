@@ -44,4 +44,3 @@ if __name__ == '__main__':
         res = 1
     print("RETURNCODE: ", res)
     sys.exit(res)
-

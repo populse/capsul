@@ -183,4 +183,3 @@ class SPMConfig(StudyConfigModule):
                             setattr(config, ceparam, val)
         finally:
             del self._syncing
-

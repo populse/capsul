@@ -19,5 +19,3 @@ capsul.subprocess.spm submodule
 
 .. automodule:: capsul.subprocess.spm
     :members:
-
-

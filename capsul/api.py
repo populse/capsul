@@ -43,5 +43,3 @@ from capsul.engine import activate_configuration
 from capsul.study_config.process_instance import get_process_instance
 from capsul.study_config.study_config import StudyConfig
 from capsul.utils.finder import find_processes
-
-

@@ -8,5 +8,3 @@
 .. currentmodule:: {{ module }}
 
 .. autofunction:: {{ objname }}
-
-

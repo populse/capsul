@@ -114,5 +114,3 @@ class BrainVISAConfig(StudyConfigModule):
                     self.study_config.user_level = config.user_level
         finally:
             del self._syncing
-
-

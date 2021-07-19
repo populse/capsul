@@ -113,4 +113,3 @@ capsul.study_config.config_modules.spm_config submodule
 
 .. automodule:: capsul.study_config.config_modules.spm_config
     :members:
-

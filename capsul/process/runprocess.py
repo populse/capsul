@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #  This software and supporting documentation were developed by
@@ -476,4 +475,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -380,4 +380,3 @@ if __name__ == '__main__':
         pc.show()
         if qapp:
             qapp.exec_()
-

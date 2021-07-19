@@ -444,4 +444,3 @@ class AttributedProcessWidget(QtGui.QWidget):
                 QtGui.qApp.processEvents()
             else:
                 self.progressdialog.hide()
-

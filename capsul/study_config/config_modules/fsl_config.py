@@ -154,6 +154,3 @@ class FSLConfig(StudyConfigModule):
             pass
         finally:
             del self._syncing
-
-
-

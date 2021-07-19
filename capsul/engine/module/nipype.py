@@ -53,5 +53,3 @@ def activate_configurations():
                 pass
 
     nipype.configure_all()
-
-

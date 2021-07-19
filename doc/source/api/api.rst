@@ -6,5 +6,3 @@ capsul.api module
 
 .. automodule:: capsul.api
     :members:
-
-

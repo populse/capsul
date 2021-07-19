@@ -259,4 +259,3 @@ class BoardWidget(QtGui.QWidget):
                     process_nodes.append(node)
 
         
-

@@ -127,4 +127,3 @@ class AttributesConfig(StudyConfigModule):
                         if value is None:
                             value = Undefined
                         setattr(self.study_config, param, value)
-

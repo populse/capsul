@@ -1351,4 +1351,3 @@ def is_node_enabled(pipeline, node_name=None, node=None):
 
     # not disabled ? OK then it's enabled
     return True
-

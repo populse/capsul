@@ -14,5 +14,3 @@ Class : {{ objname }}
 .. autoclass:: {{ objname }}InputSpec
 
 .. autoclass:: {{ objname }}OutputSpec
-
-

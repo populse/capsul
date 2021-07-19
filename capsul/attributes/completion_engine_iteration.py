@@ -250,4 +250,3 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             if len(values) > self.capsul_iteration_step:
                 parameters[parameter] = values[self.capsul_iteration_step]
         completion_engine.complete_parameters(parameters)
-

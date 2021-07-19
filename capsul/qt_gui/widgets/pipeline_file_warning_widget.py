@@ -119,4 +119,3 @@ class PipelineFileWarningWidget(Qt.QSplitter):
                     row += 1
             table.setSortingEnabled(True)
             table.resizeColumnsToContents()
-

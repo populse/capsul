@@ -107,4 +107,3 @@ class StrConvNode(Node):
             if other_end and single:
                 break
         return dest_plugs
-

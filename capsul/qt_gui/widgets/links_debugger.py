@@ -241,7 +241,3 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
         self.ui.help.setVisible(not self.ui.help.isVisible())
         if set_geom:
             self.ui.help.setGeometry(self.help_geom)
-
-
-
-

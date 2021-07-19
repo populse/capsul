@@ -68,4 +68,3 @@ class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
         # standard ProcessCompletionEngine
         return super(BuiltinProcessCompletionEngineFactory,
                      self).get_completion_engine(process, name)
-

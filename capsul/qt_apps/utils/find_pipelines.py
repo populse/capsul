@@ -200,5 +200,3 @@ def lists2dict(list_of_pipeline_description, url, d):
                 d[l[0]].update(lists2dict([l[1:]], url, d[l[0]]))
 
     return d
-
-

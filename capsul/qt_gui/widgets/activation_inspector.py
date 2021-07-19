@@ -375,5 +375,3 @@ if __name__ == "__main__":
     if QtGui.QApplication.instance() is None:
         app = ActivationInspectorApp(options.pipeline_path, options.record_file)
         sys.exit(app.exec_())
-
-
