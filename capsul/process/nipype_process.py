@@ -326,7 +326,8 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         try:
             setattr(process_instance, trait_name,
                     getattr(nipype_instance.inputs, trait_name))
-        except TraitError:
+        #except TraitError:
+        except (TraitError, AttributeError):
             # the value in the nipype trait is actually invalid...
             pass
 
