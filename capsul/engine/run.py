@@ -242,9 +242,9 @@ def wait(engine, execution_id, timeout=-1, pipeline=None):
                             del out_params[param]
                     try:
                         process.import_from_dict(out_params)
+                    except Exception as e:
                         print('error while importing outputs in', process.name)
                         print('outputs:', out_params)
-                    except Exception as e:
                         print(e)
 
     # TODO: should we transfer if the WF fails ?
