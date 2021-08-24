@@ -8,7 +8,7 @@
 ##########################################################################
 
 '''
-Utilities to lik Capsul and NiPype interfaces
+Utilities to link Capsul and NiPype interfaces
 
 Functions
 ---------
@@ -41,8 +41,8 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
     """ From a nipype class instance generate dynamically a process
     instance that encapsulate the nipype instance.
 
-    This function clone the nipye traits (also convert special traits) and
-    conect the process and nipype instances traits.
+    This function clones the nipye traits (also convert special traits) and
+    connects the process and nipype instances traits.
 
     A new 'output_directory' nipype input trait is created.
 
@@ -119,8 +119,16 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         inames = [iname for iname, pname in trait_map.items() if pname == name]
         if inames:
             name = inames[0]
-        setattr(process_instance._nipype_interface.inputs, name,
-                value)
+
+        if name.startswith("nipype_"):
+            setattr(process_instance._nipype_interface.inputs,
+                    name[7:],
+                    value)
+
+        else:
+            setattr(process_instance._nipype_interface.inputs,
+                    name,
+                    value)
 
     def _replace_dir(value, directory):
         """ Replace directory in filename(s) in value.
@@ -257,7 +265,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
 
     # The following function is not shared since it is too specific
     def clone_nipype_trait(process_instance, nipype_trait):
-        """ Create a new trait (cloned and converrted if necessary)
+        """ Create a new trait (cloned and converted if necessary)
         from a nipype trait.
 
         Parameters
@@ -308,7 +316,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         if hasattr(process_instance, trait_name):
             trait_name = "nipype_" + trait_name
 
-        # Relax nipye exists trait contrain
+        # Relax nipype exists trait constraint
         relax_exists_constraint(trait)
 
         # Clone the nipype trait
@@ -324,8 +332,16 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
 
         # initialize value with nipype interface initial value, (if we can...)
         try:
-            setattr(process_instance, trait_name,
-                    getattr(nipype_instance.inputs, trait_name))
+
+            if trait_name.startswith("nipype_"):
+                setattr(process_instance,
+                        trait_name,
+                        getattr(nipype_instance.inputs, trait_name[7:]))
+
+            else:
+                setattr(process_instance, trait_name,
+                        getattr(nipype_instance.inputs, trait_name))
+
         except TraitError:
             # the value in the nipype trait is actually invalid...
             pass
