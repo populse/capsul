@@ -275,7 +275,7 @@ def save_xml_pipeline(pipeline, xml_file):
         OptionalOutputSwitch
     from capsul.pipeline.process_iteration import ProcessIteration
     from capsul.process.process import NipypeProcess
-    from capsul.study_config.process_instance import get_process_instance
+    from capsul.process_instance import get_process_instance
 
     def _write_process(process, parent, name, dont_write_plug_values=set(),
                        init_plug_values={}):

@@ -34,17 +34,6 @@ def init_settings(capsul_engine):
                       'shared_directory': None, 'user_level': 0}
             session.new_config('axon', 'global', values)
 
-    # link with StudyConfig
-    if hasattr(capsul_engine, 'study_config'):
-        if 'BrainVISAConfig' not in capsul_engine.study_config.modules:
-            scmod = capsul_engine.study_config.load_module(
-                'BrainVISAConfig', {})
-            scmod.initialize_module()
-            scmod.initialize_callbacks()
-        else:
-            scmod = capsul_engine.study_config.modules['BrainVISAConfig']
-            scmod.sync_to_engine()
-
 def check_configurations():
     '''
     Checks if the activated configuration is valid to use BrainVisa and returns

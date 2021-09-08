@@ -25,14 +25,6 @@ def init_settings(capsul_engine):
                                 {capsul_engine.settings.config_id_field:
                                     'freesurfer'})
 
-    # link with StudyConfig
-    if hasattr(capsul_engine, 'study_config') \
-            and 'FreeSurferConfig' not in capsul_engine.study_config.modules:
-        fsmod = capsul_engine.study_config.load_module('FreeSurferConfig', {})
-        fsmod.initialize_module()
-        fsmod.initialize_callbacks()
-
-
 def check_configurations():
     '''
     Checks if the activated configuration is valid to run Freesurfer and

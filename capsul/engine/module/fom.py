@@ -77,13 +77,6 @@ def init_settings(capsul_engine):
         'capsul.engine.module.spm', []).append(
             partial(config_updated, weakref.proxy(capsul_engine), 'global'))
 
-    # link with StudyConfig
-    if hasattr(capsul_engine, 'study_config') \
-            and 'FomConfig' not in capsul_engine.study_config.modules:
-        scmod = capsul_engine.study_config.load_module('FomConfig', {})
-        scmod.initialize_module()
-        scmod.initialize_callbacks()
-
     update_fom(capsul_engine, 'global')
 
 
@@ -176,12 +169,6 @@ def update_fom(capsul_engine, environment='global', param=None, value=None):
 
         for atp in store['fom_atp']['all'].values():
             atp.directories = directories
-
-        # backward compatibility for StudyConfig
-        capsul_engine.study_config.modules_data.foms = store['foms']
-        capsul_engine.study_config.modules_data.all_foms = store['all_foms']
-        capsul_engine.study_config.modules_data.fom_atp = store['fom_atp']
-        capsul_engine.study_config.modules_data.fom_pta = store['fom_pta']
 
 
 def update_formats(capsul_engine, environment):

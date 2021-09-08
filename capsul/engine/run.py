@@ -176,14 +176,9 @@ def start(engine, process, history=True, get_pipeline=False, **kwargs):
     controller = swm.get_workflow_controller()
     resource_id = swm.get_resource_id()
     queue = None
-    if hasattr(engine.study_config.somaworkflow_computing_resources_config,
-               resource_id):
-        res_conf = getattr(
-            engine.study_config.somaworkflow_computing_resources_config,
-            resource_id)
-        queue = res_conf.queue
-        if queue is Undefined:
-            queue = None
+    import sys
+    print('WARNING: soma-workflow configuration is ignored. '
+          'This is work in progress.', file=sys.stderr)
     workflow_name = process.name
     wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name,
                                        queue=queue)

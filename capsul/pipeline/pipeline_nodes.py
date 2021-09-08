@@ -100,8 +100,7 @@ class Node(Controller):
     It is possible to define custom nodes inheriting Node. To be usable in all
     contexts (GUI construction, pipeline save / reload), custom nodes should
     define a few additional instance and class methods which will allow
-    automatic systems (such as :func:`~capsul.study_config.get_node_instance`)
-    to reinstantiate and save them:
+    automatic systems to reinstantiate and save them:
 
     * configure_controller(cls): classmethod
         return a Controller instance which specifies parameters needed to build
@@ -490,7 +489,7 @@ class Node(Controller):
         '''
         return {}
 
-    def check_requirements(self, environment='global', message_list=None):
+    def check_requirements(self, capsul_engine, environment='global', message_list=None):
         '''
         Checks the process requirements against configuration settings values
         in the attached CapsulEngine. This makes use of the
@@ -499,6 +498,9 @@ class Node(Controller):
 
         Parameters
         ----------
+        capsul_engine: CapsulEngine
+            CapsulEngine containing the execution environment in which the
+            requirements are tested.
         environment: str
             config environment id. Normally corresponds to the computing
             resource name, and defaults to "global".
@@ -517,7 +519,6 @@ class Node(Controller):
             configuration values, because different nodes may require different
             config values.
         '''
-        capsul_engine = self.get_study_config().engine
         settings = capsul_engine.settings
         req = self.requirements()
         config = settings.select_configurations(environment, uses=req)
@@ -603,21 +604,6 @@ class Node(Controller):
                 if not check_trait(self, plug, trait, value, exclude_links):
                     missing.append(name)
         return missing
-
-    def get_study_config(self):
-        ''' Get (or create) the StudyConfig this process belongs to
-        '''
-        study_config = getattr(self, 'study_config', None)
-        if study_config is None:
-            # Import cannot be done on module due to circular dependencies
-            from capsul.study_config.study_config import default_study_config
-            self.study_config = default_study_config()
-        return self.study_config
-
-    def set_study_config(self, study_config):
-        ''' Set the StudyConfig this process belongs to
-        '''
-        self.study_config = study_config
 
 
 class ProcessNode(Node):
@@ -778,37 +764,6 @@ class ProcessNode(Node):
         '''
         return self.process.check_requirements(environment,
                                                message_list=message_list)
-
-    def get_study_config(self):
-        ''' Get (or create) the StudyConfig this process belongs to
-        '''
-        return self.process.get_study_config()
-
-    def set_study_config(self, study_config):
-        ''' Get (or create) the StudyConfig this process belongs to
-        '''
-        return self.process.set_study_config(study_config)
-
-    @property
-    def study_config(self):
-        try:
-            return self.process.study_config
-        except ReferenceError:
-            return None
-
-    @study_config.setter
-    def study_config(self, value):
-        try:
-            self.process.study_config = value
-        except ReferenceError:
-            pass
-
-    @study_config.deleter
-    def study_config(self):
-        try:
-            del self.process.study_config
-        except ReferenceError:
-            pass
 
     @property
     def completion_engine(self):

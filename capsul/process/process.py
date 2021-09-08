@@ -231,7 +231,6 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         # Initialize the log file name
         self.log_file = None
-        self.study_config = None
 
         default_values = getattr(self, 'default_values', None)
         if default_values:
@@ -299,15 +298,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             contains all execution information.
         """
         # Execute the process
-        returncode = self.get_study_config().run(self, **kwargs)
-        return returncode
-
-
-    def run(self, **kwargs):
-        '''
-        Obsolete: use self.__call__ instead
-        '''
-        return self.__call__(**kwargs)
+        raise NotImplementedError('running a pipeline without using a CapsulEngine is not implemented')
 
     
     ####################################################################
@@ -353,14 +344,14 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                     self.__class__.__name__))
     
     def _before_run_process(self):
-        """This method is called by StudyConfig.run() before calling
-        _run_process(). By default it does nothing but can be overridden
+        """This method is called by CapsulEngine before calling
+        _run_process(). By default it does nothing but can be overriden
         in derived classes.
         """
         pass
 
     def _after_run_process(self, run_process_result):
-        """This method is called by StudyConfig.run() after calling
+        """This method is called by CapsulEngine after calling
         _run_process(). It is expected to return the final result of the
         process. By default it does nothing but can be overridden
         in derived classes.
@@ -727,8 +718,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                   % process.name, params, file=sys.stderr)
             raise
         # actually run the process
-        ce.study_config.use_soma_workglow = False
-        result = ce.study_config.run(process, configuration_dict=configuration)
+        process(configuration_dict=configuration)
         # collect output parameers
         out_param_file = os.environ.get('SOMAWF_OUTPUT_PARAMS')
         output_params = {}
@@ -1057,27 +1047,6 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         """
         return getattr(self, name)
 
-    def get_study_config(self):
-        ''' Get (or create) the StudyConfig this process belongs to
-        '''
-        if self.study_config is None:
-            # Import cannot be done on module due to circular dependencies
-            from capsul.study_config.study_config import default_study_config
-            self.set_study_config(default_study_config())
-        return self.study_config
-
-    def set_study_config(self, study_config):
-        ''' Set a StudyConfig for the process.
-        Note that it can only be done once: once a non-null StudyConfig has
-        been assigned to the process, it should not change.
-        '''
-        if self.study_config is not None \
-                and self.study_config is not study_config:
-            raise ValueError("A StudyConfig had already been set in the "
-                             "process %s. It cannot be changed afterwards."
-                             % self.name)
-        self.study_config = study_config
-
     def get_missing_mandatory_parameters(self):
         ''' Returns a list of parameters which are not optional, and which
         value is Undefined or None, or an empty string for a File or
@@ -1122,7 +1091,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         '''
         return {}
 
-    def check_requirements(self, environment='global', message_list=None):
+    def check_requirements(self, capsul_engine, environment='global', message_list=None):
         '''
         Checks the process requirements against configuration settings values
         in the attached CapsulEngine. This makes use of the
@@ -1131,6 +1100,9 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         Parameters
         ----------
+        capsul_engine: CapsulEngine
+            CapsulEngine containing the execution environment in which the
+            requirements are tested.
         environment: str
             config environment id. Normally corresponds to the computing
             resource name, and defaults to "global".
@@ -1149,7 +1121,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             configuration values, because different nodes may require different
             config values.
         '''
-        settings = self.get_study_config().engine.settings
+        settings = capsul_engine.settings
         req = self.requirements()
         config = settings.select_configurations(environment, uses=req)
         success = True

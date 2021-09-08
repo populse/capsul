@@ -32,8 +32,7 @@ Settings cannot be used directly to configure the execution of a software. It is
 # completeness of config values), and maybe a Controller to build a GUI ?
 #
 # How to store additional data indirectly linked with settings values ?
-# Some modules were using objects shared through StudyConfig.modules_data
-# (or CapsulEngine).
+# Some modules ar using objects shared through CapsulEngine.
 #
 # doc on modules activation / use ?
 #

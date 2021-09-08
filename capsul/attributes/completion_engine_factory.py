@@ -28,7 +28,7 @@ class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
     def get_completion_engine(self, process, name=None):
         '''
         Factory for ProcessCompletionEngine: get an ProcessCompletionEngine
-        instance for a node or process in the context of a given StudyConfig.
+        instance for a node or process in the context of a given process.
 
         The study_config should specify which completion system(s) is (are)
         used (FOM, ...)

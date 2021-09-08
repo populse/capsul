@@ -68,12 +68,6 @@ def init_settings(capsul_engine):
         'capsul.engine.module.attributes'] = [
             partial(_sync_attributes_factory, weakref.proxy(capsul_engine))]
 
-    # link with StudyConfig
-    if hasattr(capsul_engine, 'study_config') \
-            and 'AttributesConfig' not in capsul_engine.study_config.modules:
-        scmod = capsul_engine.study_config.load_module('AttributesConfig', {})
-        scmod.initialize_module()
-        scmod.initialize_callbacks()
 
 #def check_configurations():
     #'''

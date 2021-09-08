@@ -98,18 +98,6 @@ class CapsulEngine(Controller):
         activate_configuration(config)
         # Nipype is configured here
 
-    .. note::
-
-        CapsulEngine is the replacement of the older
-        :class:`~capsul.study_config.study_config.StudyConfig`, which is still
-        present in Capsul 2.2 for backward compatibility, but will disappear in
-        later versions. In Capsul 2.2 both objects exist, and are synchronized
-        internally, which means that a StudyConfig object will also create a
-        CapsulEngine, and the other way, and modifications in the StudyConfig
-        object will change the corresponding item in CapsulEngine and vice
-        versa. Functionalities of StudyConfig are moving internally to
-        CapsulEngine, StudyConfig being merely a wrapper.
-
     **Using CapsulEngine**
 
     It is used to store configuration variables, and to handle execution within
@@ -205,9 +193,6 @@ class CapsulEngine(Controller):
         self._loaded_modules = set()
         self.load_modules(require)
         
-        from capsul.study_config.study_config import StudyConfig
-        self.study_config = StudyConfig(engine=self)
-
         self._metadata_engine = from_json(database.json_value('metadata_engine'))
 
         self._connected_resource = ''
@@ -335,11 +320,8 @@ class CapsulEngine(Controller):
     def get_process_instance(self, process_or_id, **kwargs):
         '''
         The only official way to get a process instance is to use this method.
-        For now, it simply calls self.study_config.get_process_instance
-        but it will change in the future.
         '''
-        instance = self.study_config.get_process_instance(process_or_id,
-                                                          **kwargs)
+        raise NotImplementedError('get_process_instance needs a new implementation since the removal of StudyConfig')
         return instance
 
     def get_iteration_pipeline(self, pipeline_name, node_name, process_or_id,
@@ -371,7 +353,6 @@ class CapsulEngine(Controller):
 
         pipeline = Pipeline()
         pipeline.name = pipeline_name
-        pipeline.set_study_config(get_ref(self.study_config))
         pipeline.add_iterative_process(node_name, process_or_id,
                                        iterative_plugs, do_not_export,
                                        **kwargs)

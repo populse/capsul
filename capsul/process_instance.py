@@ -71,11 +71,8 @@ def is_pipeline_node(item):
     return item is not Node and isinstance(item, Node)
 
 
-def get_process_instance(process_or_id, study_config=None, **kwargs):
+def get_process_instance(process_or_id, **kwargs):
     """ Return a Process instance given an identifier.
-
-    Note that it is convenient to create a process from a StudyConfig instance:
-    StudyConfig.get_process_instance()
 
     The identifier is either:
 
@@ -112,9 +109,6 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
     ----------
     process_or_id: instance or class description (mandatory)
         a process/nipype interface instance/class or a string description.
-    study_config: StudyConfig instance (optional)
-        A Process instance belongs to a StudyConfig framework. If not specified
-        the study_config can be set afterwards.
     kwargs:
         default values of the process instance parameters.
 
@@ -123,58 +117,6 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
     result: Process
         an initialized process instance.
     """
-    # NOTE
-    # here we make a bidouille to make study_config accessible from processes
-    # constructors. It is used for instance in ProcessIteration.
-    # This is not elegant, not thread-safe, and forbids to have one pipeline
-    # build a second one in a different study_config context.
-    # I don't have a better solution, however.
-    import capsul.study_config.study_config as study_cmod
-    set_study_config = (study_config is not None
-                        and study_cmod._default_study_config
-                            is not study_config)
-
-    try:
-        if set_study_config:
-            old_default_study_config = study_cmod._default_study_config
-            study_cmod._default_study_config = study_config
-        return _get_process_instance(process_or_id, study_config=study_config,
-                                     **kwargs)
-    finally:
-        if set_study_config:
-            study_cmod._default_study_config = old_default_study_config
-
-
-def _execfile(filename):
-    # This chunk of code cannot be put inline in python 2.6
-    glob_dict = {}
-    exec(compile(open(filename, "rb").read(), filename, 'exec'),
-          glob_dict, glob_dict)
-    return glob_dict
-
-
-def _load_module(filename, modname=None):
-    if not modname:
-        modname = os.path.basename(filename).rsplit('.', 2)[0]
-    if sys.version_info >= (3, 5):
-        import importlib.util
-        spec = importlib.util.spec_from_file_location(modname, filename)
-        mod = importlib.util.module_from_spec(spec)
-        sys.modules[modname] = mod
-        spec.loader.exec_module(mod)
-        return mod
-    elif sys.version_info[0] >= 3:
-        from importlib.machinery import SourceFileLoader
-        mod = SourceFileLoader(modname, filename).load_module()
-    else:
-        import imp
-        mod = imp.load_source(modname, filename)
-    if mod is not None:
-        sys.modules[modname] = mod
-    return mod
-
-def _get_process_instance(process_or_id, study_config=None, **kwargs):
-
     def _find_single_process(module_dict, filename):
         ''' Scan objects in module_dict and find out if a single one of them is
         a process
@@ -377,6 +319,35 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                              "for process %s" % result)
         result.set_study_config(study_config)
     return result
+
+
+def _execfile(filename):
+    # This chunk of code cannot be put inline in python 2.6
+    glob_dict = {}
+    exec(compile(open(filename, "rb").read(), filename, 'exec'),
+          glob_dict, glob_dict)
+    return glob_dict
+
+
+def _load_module(filename, modname=None):
+    if not modname:
+        modname = os.path.basename(filename).rsplit('.', 2)[0]
+    if sys.version_info >= (3, 5):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(modname, filename)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[modname] = mod
+        spec.loader.exec_module(mod)
+        return mod
+    elif sys.version_info[0] >= 3:
+        from importlib.machinery import SourceFileLoader
+        mod = SourceFileLoader(modname, filename).load_module()
+    else:
+        import imp
+        mod = imp.load_source(modname, filename)
+    if mod is not None:
+        sys.modules[modname] = mod
+    return mod
 
 
 def get_node_class(node_type):

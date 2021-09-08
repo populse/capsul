@@ -23,13 +23,6 @@ def init_settings(capsul_engine):
 
     ensure_config_exists(capsul_engine)
 
-    # link with StudyConfig
-    if hasattr(capsul_engine, 'study_config') \
-            and 'NipypeConfig' not in capsul_engine.study_config.modules:
-        npmod = capsul_engine.study_config.load_module('NipypeConfig', {})
-        npmod.initialize_module()
-        npmod.initialize_callbacks()
-
 #def config_dependencies(config):
     #return {'spm': 'version == "12"'}
 

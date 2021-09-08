@@ -44,6 +44,7 @@ from .pipeline_nodes import ProcessNode
 from .pipeline_nodes import PipelineNode
 from .pipeline_nodes import Switch
 from .pipeline_nodes import OptionalOutputSwitch
+from capsul.engine import get_process_instance
 
 # Soma import
 from soma.controller import Controller
@@ -473,17 +474,11 @@ class Pipeline(Process):
             raise ValueError("Pipeline cannot have two nodes with the "
                              "same name : {0}".format(name))
 
-        # It is necessary not to import study_config.process_instance at 
-        # the module level because there are circular dependencies between
-        # modules. For instance, Pipeline class needs get_process_instance
-        # which needs create_xml_pipeline which needs Pipeline class.
-        from capsul.study_config.process_instance import get_process_instance
         if skip_invalid:
             self._skip_invalid_nodes.add(name)
         # Create a process node
         try:
             process = get_process_instance(process,
-                                           study_config=self.study_config,
                                            **kwargs)
         except Exception:
             if skip_invalid:
@@ -596,12 +591,6 @@ class Pipeline(Process):
             a list of temporary items.
         """
         if isinstance(process, str):
-            # It is necessary not to import study_config.process_instance at
-            # the module level because there are circular dependencies between
-            # modules. For instance, Pipeline class needs get_process_instance
-            # which needs create_xml_pipeline which needs Pipeline class.
-            from capsul.study_config.process_instance \
-                import get_process_instance
             process = get_process_instance(process)
         if iterative_plugs is None:
             forbidden = set(['nodes_activation', 'selection_changed',
@@ -614,7 +603,6 @@ class Pipeline(Process):
         self.add_process(
             name,
             ProcessIteration(process, iterative_plugs,
-                              study_config=self.study_config,
                               context_name=context_name),
             do_not_export, make_optional, **kwargs)
         return
@@ -715,9 +703,6 @@ class Pipeline(Process):
             node.switch = switch_value
 
         self._set_subprocess_context_name(node, name)
-        study_config = getattr(self, 'study_config', None)
-        if study_config:
-            node.set_study_config(study_config)
 
     def add_optional_output_switch(self, name, input, output=None):
         """ Add an optional output switch node in the pipeline
@@ -780,9 +765,6 @@ class Pipeline(Process):
         self.nodes[name] = node
 
         self._set_subprocess_context_name(node, name)
-        study_config = getattr(self, 'study_config', None)
-        if study_config:
-            node.set_study_config(study_config)
 
     def add_custom_node(self, name, node_type, parameters=None,
                         make_optional=(), do_not_export=None, **kwargs):
@@ -809,11 +791,7 @@ class Pipeline(Process):
             a list of plug names that we do not want to export.
         kwargs: default values of node parameters
         """
-        # It is necessary not to import study_config.process_instance at
-        # the module level because there are circular dependencies between
-        # modules. For instance, Pipeline class needs get_process_instance
-        # which needs create_xml_pipeline which needs Pipeline class.
-        from capsul.study_config.process_instance import get_node_instance
+        raise NotImplementedError('get_node_instance')
         node = get_node_instance(node_type, self, parameters, name=name,
                                  **kwargs)
         if node is None:
@@ -838,10 +816,6 @@ class Pipeline(Process):
             if (parameter_name in do_not_export or
                     parameter_name in make_optional):
                 self.do_not_export.add((name, parameter_name))
-
-        study_config = getattr(self, 'study_config', None)
-        if study_config:
-            node.set_study_config(study_config)
 
         return node
 
@@ -1835,14 +1809,6 @@ class Pipeline(Process):
                     except OSError:
                         pass
 
-    def _run_process(self):
-        '''
-        Pipeline execution is managed by StudyConfig class.
-        This method must not be called.
-        '''
-        raise NotImplementedError('Pipeline execution is managed by '
-            'StudyConfig class. This method must not be called.')
-
     def find_empty_parameters(self):
         """ Find internal File/Directory parameters not exported to the main
         input/output parameters of the pipeline with empty values. This is
@@ -2440,16 +2406,6 @@ class Pipeline(Process):
         value group
         '''
         return self.processes_selection.get(selection_parameter, {}).get(group)
-
-    def set_study_config(self, study_config):
-        ''' Set a StudyConfig for the process.
-        Note that it can only be done once: once a non-null StudyConfig has
-        been assigned to the process, it should not change.
-        '''
-        super(Pipeline, self).set_study_config(study_config)
-        for node_name, node in six.iteritems(self.nodes):
-            if node_name != "":
-                node.set_study_config(study_config)
 
     def define_groups_as_steps(self, exclusive=True):
         ''' Define parameters groups according to which steps they are

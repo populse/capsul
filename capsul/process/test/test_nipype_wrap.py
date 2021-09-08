@@ -21,7 +21,7 @@ class TestNipypeWrap(unittest.TestCase):
 
     def setUp(self):
         # output format and extensions depends on FSL config variables
-        # so may change if FSL has been setup in a StudyConfig.
+        # so may change if FSL has been setup.
         fsl_output_format = os.environ.get('FSLOUTPUTTYPE', '')
         if fsl_output_format == 'NIFTI_GZ':
             self.output_extension = '.nii.gz'

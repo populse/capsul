@@ -35,7 +35,7 @@ def save_py_pipeline(pipeline, py_file):
         OptionalOutputSwitch
     from capsul.pipeline.process_iteration import ProcessIteration
     from capsul.process.process import NipypeProcess
-    from capsul.study_config.process_instance import get_process_instance
+    from capsul.process_instance import get_process_instance
     from traits.api import Undefined
 
     def get_repr_value(value):
