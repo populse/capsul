@@ -38,7 +38,7 @@ class AttributesSchema(object):
     schema_name = None
 
     def __init__(self):
-        # Instanciate EditableAttributes classes that are defined in schema
+        # Instantiate EditableAttributes classes that are defined in schema
         sets = dict((k, getattr(self.__class__, k)()) for k in 
                     dir(self.__class__)
                     if isinstance(getattr(self.__class__, k), type) and 

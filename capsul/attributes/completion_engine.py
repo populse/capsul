@@ -785,7 +785,7 @@ class ProcessCompletionEngine(traits.HasTraits):
 class SwitchCompletionEngine(ProcessCompletionEngine):
     ''' Completion engine specislization for a switch. The switch will
     propagate attributes from its selected inputs to corresponding outputs,
-    if they can be retreived from parameters links. Otherwise the countrary
+    if they can be retrieved from parameters links. Otherwise the countrary
     will be tried (propagated from outputs to inputs).
     '''
 

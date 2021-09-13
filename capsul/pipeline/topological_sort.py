@@ -28,7 +28,7 @@ class GraphNode(object):
     meta : object
         a python object stored in the node
     links_to : list
-         object to store the graph edges: sucessor
+         object to store the graph edges: successor
     links_from : list
         object to store the graph edges: predecessor
     links_to_degree : int
@@ -247,7 +247,7 @@ if __name__ == '__main__':
     objects = ["chaussures", "chaussettes", "slip", "pantalon", "ceinture",
         "chemise", "veste", "cravate"]
 
-    dependancies = [
+    dependencies = [
         ("slip", "pantalon"),
         ("chemise", "cravate"),
         ("chemise", "pantalon"),
@@ -263,7 +263,7 @@ if __name__ == '__main__':
     for o in objects:
         g.add_node(GraphNode(o, None))
 
-    for d in dependancies:
+    for d in dependencies:
         g.add_link(d[0], d[1])
 
     r = g.topological_sort()

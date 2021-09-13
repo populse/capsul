@@ -223,7 +223,7 @@ class PipelineHelpWriter(object):
         print('relpath:', relpath)
 
         # Information message
-        logger.info("Wrting index at location '{0}'...".format(
+        logger.info("Writing index at location '{0}'...".format(
             os.path.abspath(path)))
 
         # Edit the index file
@@ -293,13 +293,13 @@ class PipelineHelpWriter(object):
         path = os.path.join(outdir, froot + rst_extension)
 
         # Information message
-        logger.info("Wrting module '{0}' index at location '{1}'...".format(
+        logger.info("Writing module '{0}' index at location '{1}'...".format(
             module_name, os.path.abspath(path)))
 
         # Open the result index file
         idx = open(path, "wt")
 
-        # Stat writting
+        # Stat writing
         w = idx.write
 
         # Add header to tell us that this documentation must not be edited
@@ -327,7 +327,7 @@ class PipelineHelpWriter(object):
             label = module_name + "_ug"
             w(".. _{0}:\n\n".format(label))
             # # Some text description
-            w("Some live exemples containing snippets of codes.\n\n")
+            w("Some live examples containing snippets of codes.\n\n")
             # # Include user guide index
             w(".. include:: use_cases/index%s\n\n" % rst_extension)
 

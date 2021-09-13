@@ -130,7 +130,7 @@ class PipelineConstructor(object):
         self._calls.append(('add_optional_output_switch', args, kwargs))
 
     def add_custom_node(self, *args, **kwargs):
-        """ Adds an custon Node subtype to the pipeline
+        """ Adds an custom Node subtype to the pipeline
         """
         self._calls.append(('add_custom_node', args, kwargs))
 
@@ -150,7 +150,7 @@ class PipelineConstructor(object):
 class ConstructedPipeline(Pipeline):
     """
     Base class of all pipelines created with PipelineConstructor. It redefines
-    pipeline_definition in order to "replay", at each instanciation, the method
+    pipeline_definition in order to "replay", at each instantiation, the method
     calls previously recorded with the PipelineConstructor.
     """
     def pipeline_definition(self):

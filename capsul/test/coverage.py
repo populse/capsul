@@ -20,7 +20,7 @@ def run_all_tests(modules=[]):
 
     Returns
     -------
-    coverge_rate: int
+    coverage_rate: int
         the total coverage rate
     coverage_report: str
     """
@@ -48,16 +48,16 @@ def run_all_tests(modules=[]):
 
 
 def clean_coverage_report(nose_coverage):
-    """ Grab coverage lines from nose output and get the coverge rate
+    """ Grab coverage lines from nose output and get the coverage rate
 
     Parameters
     ----------
     nose_coverage: str (mandatory)
-        the nose coverge report
+        the nose coverage report
 
     Returns
     -------
-    coverge_rate: int
+    coverage_rate: int
         the total coverage rate
     coverage_report: str
         the cleaned nose coverage report
@@ -105,7 +105,7 @@ def clean_coverage_report(nose_coverage):
     # Get capsul coverage rate
     if total[1] == 0:
         raise ValueError("No tests found - check Capsul installation")
-    coverge_rate = float(total[0]) * 100 / total[1]
+    coverage_rate = float(total[0]) * 100 / total[1]
     coverage_report.insert(0, header.replace("Missing", ""))
 
     # Format report
@@ -113,12 +113,12 @@ def clean_coverage_report(nose_coverage):
     coverage_report.append("-" * 70)
     coverage_report.append(
         "TOTAL {0}% ({1} / {2} statements".format(
-            int(round(coverge_rate)), total[0], total[1]))
+            int(round(coverage_rate)), total[0], total[1]))
     coverage_report.append("-" * 70)
     coverage_report.append(tcount)
     coverage_report = "\n".join(coverage_report)
 
-    return coverge_rate, coverage_report
+    return coverage_rate, coverage_report
 
 
 if __name__ == "__main__":

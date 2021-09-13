@@ -13,7 +13,7 @@ For calling FSL command with this module, the first arguent of
 command line must be the FSL executable without any path nor prefix. 
 Prefix areused  in Neurodebian install. For instance on Ubuntu 16.04 
 Neurodebian FSL commands are prefixed with "fsl5.0-".
-The appropriate path and eventualy prefix are added from the configuration
+The appropriate path and eventually prefix are added from the configuration
 of the StudyConfig instance.
 
 Classes

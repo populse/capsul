@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-A Pipeline structure viewer widget, which displays pipeline nodes as boxes and links as lines, and provides pipelin editor features.
+A Pipeline structure viewer widget, which displays pipeline nodes as boxes and links as lines, and provides pipeline editor features.
 
 The only main class you should look at is the :class:`PipelineDevelopperView` widget, the remaining is internal infrastructure::
 
@@ -3324,7 +3324,7 @@ class PipelineDevelopperView(QGraphicsView):
 
     def open_background_menu(self):
         '''
-        Open the right-click menu when triggered from the pipeline backround.
+        Open the right-click menu when triggered from the pipeline background.
         '''
         self.click_pos = QtGui.QCursor.pos()
         has_dot = distutils.spawn.find_executable('dot')

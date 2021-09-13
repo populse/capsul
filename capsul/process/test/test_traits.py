@@ -20,7 +20,7 @@ class DummyProcess(Process):
 
 
 class TestProcessUserTrait(unittest.TestCase):
-    """ Class to test that process user traits are independant between
+    """ Class to test that process user traits are independent between
     instances.
     """
     def setUp(self):
@@ -33,7 +33,7 @@ class TestProcessUserTrait(unittest.TestCase):
 
     def test_class_user_parameters(self):
         """ Method to test if class user parameters are not shared at
-        the instane level.
+        the instance level.
         """
         # Go through all traits
         for trait_name, trait in six.iteritems(self.p1.__base_traits__):

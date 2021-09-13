@@ -37,7 +37,7 @@ def run_process(output_dir, process_instance,
     ----------
     output_dir: str (mandatory)
         the folder where the process will write results.
-    process_instance: Process (madatory)
+    process_instance: Process (mandatory)
         the capsul process we want to execute.
     cachedir: str (optional, default None)
         save in the cache the current process execution.

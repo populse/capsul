@@ -115,7 +115,7 @@ class WorkflowExecutionError(Exception):
 
 def start(engine, process, history=True, get_pipeline=False, **kwargs):
     '''
-    Asynchronously start the exectution of a process or pipeline in the
+    Asynchronously start the execution of a process or pipeline in the
     connected computing environment. Returns an identifier of
     the process execution and can be used to get the status of the
     execution or wait for its termination.
@@ -144,7 +144,7 @@ def start(engine, process, history=True, get_pipeline=False, **kwargs):
     Returns
     -------
     execution_id: int
-        execution identifier (acutally a soma-workflow id)
+        execution identifier (actually a soma-workflow id)
     pipeline: Pipeline instance (optional)
         only returned if get_pipeline is True.
     '''
@@ -162,7 +162,7 @@ def start(engine, process, history=True, get_pipeline=False, **kwargs):
                           % (ptype, process.name,
                             ', '.join(missing)))
 
-    # Use soma worflow to execute the pipeline or porcess in parallel
+    # Use soma workflow to execute the pipeline or process in parallel
     # on the local machine
 
     # Create soma workflow pipeline

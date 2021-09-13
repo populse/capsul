@@ -40,7 +40,7 @@ def environment(sh_file=None, env={}):
     """
     # Use sh commands and a string instead of a list since
     # we're using shell=True
-    # Pass empty environment to get only the prgram variables
+    # Pass empty environment to get only the program variables
     command = ["bash", "-c", ". '{0}' ; /usr/bin/printenv".format(sh_file)]
     process = soma.subprocess.Popen(command, env=env,
                                stdout=soma.subprocess.PIPE, stderr=soma.subprocess.PIPE)
@@ -64,6 +64,6 @@ def environment(sh_file=None, env={}):
                 environment[name] = str(value)
 
     # Debug message
-    logger.debug("Parsed FSL environement: {0}.".format(environment))
+    logger.debug("Parsed FSL environment: {0}.".format(environment))
 
     return environment

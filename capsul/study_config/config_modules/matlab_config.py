@@ -54,7 +54,7 @@ class MatlabConfig(StudyConfigModule):
 
         # the following should be moved to CapsulEngine module
         if self.study_config.use_matlab is False:
-            # Configuration is explicitely asking not to use Matlab
+            # Configuration is explicitly asking not to use Matlab
             return
 
         if self.study_config.use_matlab is Undefined:

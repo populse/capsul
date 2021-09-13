@@ -91,7 +91,7 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
         * an XML filename for a pipeline.
         * a Python (.py) filename with process name in it:
           `/path/process_source.py#ProcessName`.
-        * a Python (.py) filename for a file containg a single process.
+        * a Python (.py) filename for a file containing a single process.
 
     Default values of the process instance are passed as additional parameters.
 
@@ -185,7 +185,7 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                 if object_name is not None:
                     raise KeyError(
                         'file %s contains several processes. Please '
-                        'specify which one shoule be used using '
+                        'specify which one should be used using '
                         'filename.py#ProcessName or '
                         'module.submodule.ProcessName' % filename)
                 object_name = name

@@ -409,7 +409,7 @@ class FomPathCompletionEngine(PathCompletionEngine):
         #allowed_attributes.discard('generated_by_process')
 
         # Select only the attributes that are discriminant for this
-        # parameter otherwise other attibutes can prevent the appropriate
+        # parameter otherwise other attributes can prevent the appropriate
         # rule to match
         parameter_attributes = atp.find_discriminant_attributes(
             fom_parameter=parameter, fom_process=name)

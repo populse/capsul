@@ -286,7 +286,7 @@ def save_xml_pipeline(pipeline, xml_file):
         else:
             mod = process.__module__
             # if process is a function with XML decorator, we need to
-            # retreive the original function name.
+            # retrieve the original function name.
             func = getattr(process, '_function', None)
             if func:
                 classname = func.__name__

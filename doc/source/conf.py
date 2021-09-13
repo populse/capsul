@@ -366,7 +366,7 @@ except Exception:
 #    but replaces them with the converted HTML page.
 #    For this reason we duplicate the NB into _static/ where NB are not
 #    processed, and links not changed
-# 3. notebooks include kernel infoemation which does not necessarily match the
+# 3. notebooks include kernel information which does not necessarily match the
 #    running/installed python and jupyter kernels.
 #    For this reason we conbert them using pupyter nbconvert, forcing the
 #    kernel to the current running python version.
@@ -420,7 +420,7 @@ shutil.copytree(os.path.join(src_dir, 'tutorial/images'), out_tuto_img_path)
 in_nb = os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb.in')
 out_nb = os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb')
 args = [sys.executable, '-m', 'jupyter', 'nbconvert', '--to', 'notebook',
-        # Comment execution until v3 API is finished and exemples are fixed
+        # Comment execution until v3 API is finished and examples are fixed
         #'--execute',
         #'--ExecutePreprocessor.kernel_name=python%d' % sys.version_info[0],
         '--output', out_nb, in_nb]

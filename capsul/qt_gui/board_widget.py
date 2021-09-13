@@ -47,7 +47,7 @@ class BoardWidget(QtGui.QWidget):
         # Class parameters
         self.controller = controller
 
-        # If possilbe, set the widget name
+        # If possible, set the widget name
         if name:
             self.setObjectName(name)
 
@@ -92,7 +92,7 @@ class BoardWidget(QtGui.QWidget):
         # Create the tree widget
         self.viewer_tree = QtGui.QTreeWidget(parent=self)
 
-        # Initilize the tree widget
+        # Initialize the tree widget
         self.viewer_tree.setColumnCount(2)
         self.viewer_tree.headerItem().setText(0, "Pipeline Name")
         self.viewer_tree.headerItem().setText(1, "Viewers")
@@ -105,7 +105,7 @@ class BoardWidget(QtGui.QWidget):
         # Create the tree widget
         self.board_tree = QtGui.QTreeWidget(parent=self)
 
-        # Initilize the tree widget
+        # Initialize the tree widget
         self.board_tree.setColumnCount(5)
         self.board_tree.headerItem().setText(0, "Processings")
         self.board_tree.headerItem().setText(1, "Status")

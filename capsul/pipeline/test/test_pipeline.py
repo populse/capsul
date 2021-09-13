@@ -61,7 +61,7 @@ class MyPipeline(Pipeline):
         self.nodes['node1'].process.name = 'MyPipeline.node1'
         self.nodes['node2'].process.name = 'MyPipeline.node2'
 
-        # intial internal values
+        # initial internal values
         self.nodes['constant'].process.other_input = 14.65
         self.nodes['constant'].process.input_image = 'blah'
 

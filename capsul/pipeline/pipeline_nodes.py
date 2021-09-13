@@ -54,7 +54,7 @@ import os
 
 
 class Plug(Controller):
-    """ Overload of the traits in oder to keep the pipeline memory.
+    """ Overload of the traits in order to keep the pipeline memory.
 
     Attributes
     ----------
@@ -105,7 +105,7 @@ class Node(Controller):
 
     * configure_controller(cls): classmethod
         return a Controller instance which specifies parameters needed to build
-        the node instance. Typically it may contain a paremeters (plugs) list
+        the node instance. Typically it may contain a parameters (plugs) list
         and other specifications.
     * configured_controller(self): instance method:
         on an instance, returns a Controller instance in the same shape as
@@ -417,7 +417,7 @@ class Node(Controller):
         value: object (mandatory)
             the plug value we want to set
         protected: None or bool (tristate)
-            if True or Fase, force the "protected" status of the plug. If None,
+            if True or False, force the "protected" status of the plug. If None,
             keep it as is.
         """
         if protected is not None:
@@ -725,7 +725,7 @@ class ProcessNode(Node):
         value: object (mandatory)
             the plug value we want to set
         protected: None or bool (tristate)
-            if True or Fase, force the "protected" status of the plug. If None,
+            if True or False, force the "protected" status of the plug. If None,
             keep it as is.
         """
         if value in ["", "<undefined>"]:
@@ -971,7 +971,7 @@ class Switch(Node):
             These outputs will be made optional in the switch output. By
             default they are mandatory.
         output_types: sequence of traits (optional)
-            If given, this sequence sould have the same size as outputs. It
+            If given, this sequence should have the same size as outputs. It
             will specify each switch output parameter type (as a standard
             trait). Input parameters for each input block will also have this
             type.

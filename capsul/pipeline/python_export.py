@@ -57,7 +57,7 @@ def save_py_pipeline(pipeline, py_file):
         else:
             mod = process.__module__
             # if process is a function with XML decorator, we need to
-            # retreive the original function name.
+            # retrieve the original function name.
             func = getattr(process, '_function', None)
             if func:
                 classname = func.__name__
@@ -92,7 +92,7 @@ def save_py_pipeline(pipeline, py_file):
             #for param in process.inputs_to_copy:
                 #elem = ET.SubElement(procnode, 'nipype')
                 #elem.set('name', param)
-                #if param in proces.inputs_to_clean:
+                #if param in process.inputs_to_clean:
                     #elem.set('copyfile', 'discard')
                 #else:
                     #elem.set('copyfile', 'true')
@@ -146,7 +146,7 @@ def save_py_pipeline(pipeline, py_file):
         else:
             mod = process.__module__
             # if process is a function with XML decorator, we need to
-            # retreive the original function name.
+            # retrieve the original function name.
             func = getattr(process, '_function', None)
             if func:
                 classname = func.__name__

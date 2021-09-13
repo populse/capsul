@@ -68,7 +68,7 @@ class Settings:
 
     def __init__(self, populse_db):
         '''
-        Create a settins instance using the given populse_db instance
+        Create a settings instance using the given populse_db instance
         '''
         self.populse_db = populse_db
         self.module_notifiers = {}

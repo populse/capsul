@@ -98,7 +98,7 @@ class Pipeline(Process):
       one
     * switch nodes (:py:class:`pipeline_nodes.Switch`) allows to select values
       between several possible inputs. The switch mechanism also allows to
-      select between several alternative processes or processing branchs.
+      select between several alternative processes or processing branches.
     * iterative process (:py:class:process_iteration.ProcessIteration`)
       represent parallel processing of the same pipeline on a set of
       parameters.
@@ -116,7 +116,7 @@ class Pipeline(Process):
     a global pipeline nodes activation step, where all nodes which do not form
     a complete chain will be inactive. This way a branch may be disabled by
     disabling one of its nodes. This process is used by the switch system,
-    which allows to select one processing branch betwen several, and disables
+    which allows to select one processing branch between several, and disables
     the unselected ones.
 
     **Pipeline steps**
@@ -284,7 +284,7 @@ class Pipeline(Process):
     def autoexport_nodes_parameters(self, include_optional=False):
         """ Automatically export nodes plugs to the pipeline.
 
-        Some parameters can be explicitely preserved from exportation if they
+        Some parameters can be explicitly preserved from exportation if they
         are listed in the pipeline "do_not_export" variable (list or set).
 
         Parameters
@@ -409,14 +409,14 @@ class Pipeline(Process):
         this, Capsul can be telled that a process node can be invalid (or
         missing) without otherwise interfering the rest of the pipeline. This is
         done using the "skip_invalid" option. When used, the process to be added
-        is tested, and if its instanciation fails, it will not be added in the
+        is tested, and if its instantiation fails, it will not be added in the
         pipeline, but will not trigger an error. Instead the missing node will
         be marked as "allowed invalid", and links and exports built using this
         node will silently do nothing. thus the pipeline will work normally,
         without the invalid node.
 
         Such nodes are generally gathered through a switch mechanism. However
-        the switch inputs shuld be restricted to actually available nodes. The
+        the switch inputs should be restricted to actually available nodes. The
         recommended method is to check that nodes have actually been added in
         the pipeline. Then links can be made normally as if the nodes were all
         present::
@@ -457,7 +457,7 @@ class Pipeline(Process):
             a list of temporary items.
         skip_invalid: bool
             if True, if the process is failing (cannot be instantiated), don't
-            throw an exception but instread don't insert the node, and mark
+            throw an exception but instead don't insert the node, and mark
             it as such in order to make add_link() to also silently do nothing.
             This option is useful for optional process nodes which may or may
             not be available depending on their dependencies, typically in a
@@ -660,7 +660,7 @@ class Pipeline(Process):
             These outputs will be made optional in the switch output. By
             default they are mandatory.
         output_types: sequence of traits (optional)
-            If given, this sequence sould have the same size as outputs. It
+            If given, this sequence should have the same size as outputs. It
             will specify each switch output parameter type (as a standard
             trait). Input parameters for each input block will also have this
             type.
@@ -669,7 +669,7 @@ class Pipeline(Process):
             Defaults to 1st input.
         opt_nodes: bool or list
             tells that switch values are node names, and some of them may be
-            optional and missing. In such a case, missing nodes are not addes
+            optional and missing. In such a case, missing nodes are not added
             as inputs. If a list is passed, then it is a list of node names
             which length should match the number of inputs, and which order
             tells nodes related to inputs (in case inputs names are not
@@ -804,7 +804,7 @@ class Pipeline(Process):
             If not given the node is supposed to be built with no parameters,
             which will not work for every node type.
         make_optional: list or tuple
-            paramters names to be made optional
+            parameters names to be made optional
         do_not_export: list of str (optional)
             a list of plug names that we do not want to export.
         kwargs: default values of node parameters
@@ -846,7 +846,7 @@ class Pipeline(Process):
         return node
 
     def parse_link(self, link):
-        """ Parse a link comming from export_parameter method.
+        """ Parse a link coming from export_parameter method.
 
         Parameters
         ----------
@@ -1499,7 +1499,7 @@ class Pipeline(Process):
             nodes_to_check = new_nodes_to_check
             iteration += 1
 
-        # Denis 2020/01/03: I don't understand the reason for hidding
+        # Denis 2020/01/03: I don't understand the reason for hiding
         # parameters of inactive plugs: they still get a value (default or
         # forced). So I comment the following out until we make it clear why
         # this was done this way.
@@ -1682,7 +1682,7 @@ class Pipeline(Process):
         ordered_list = graph.topological_sort()
 
         def walk_workflow(wokflow, workflow_list):
-            """ Recursive fonction to go through pipelines' graphs
+            """ Recursive function to go through pipelines' graphs
             """
             # Go through all the workflows
             for sub_workflow in wokflow:
@@ -2300,7 +2300,7 @@ class Pipeline(Process):
             self.add_pipeline_step(step_name, nodes)
 
     def add_pipeline_step(self, step_name, nodes, enabled=True):
-        '''Add a step definiton to the pipeline (see also define_steps).
+        '''Add a step definition to the pipeline (see also define_steps).
 
         Steps are groups of pipeline nodes, which may be disabled at runtime.
         They are normally defined in a logical order regarding the workflow
@@ -2371,7 +2371,7 @@ class Pipeline(Process):
 
     def enable_all_pipeline_steps(self):
         '''Set all defined steps (using add_step() or define_steps()) to be
-        enabled. Ueful to reset the pipeline state after it has been changed.
+        enabled. Useful to reset the pipeline state after it has been changed.
         '''
         steps = getattr(self, 'pipeline_steps', Controller())
         for step, trait in six.iteritems(steps.user_traits()):
@@ -2388,7 +2388,7 @@ class Pipeline(Process):
 
     def add_processes_selection(self, selection_parameter, selection_groups,
                                 value=None):
-        '''Add a processes selection switch definiton to the pipeline.
+        '''Add a processes selection switch definition to the pipeline.
 
         Selectors are a "different" kind of switch: one pipeline node set in a
         group is enabled, the others are disabled.

@@ -176,7 +176,7 @@ class TestSomaWorkflow(unittest.TestCase):
         swm = self.study_config.modules['SomaWorkflowConfig']
         swc = swm.get_workflow_controller()
         if swc is not None:
-            # stop workflow controler and wait for thread termination
+            # stop workflow controller and wait for thread termination
             swc.stop_engine()
 
     def test_atomic_dependencies(self):

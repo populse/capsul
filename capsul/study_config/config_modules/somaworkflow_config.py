@@ -177,7 +177,7 @@ class SomaWorkflowConfig(StudyConfigModule):
 
         Such credentials are stored in the config object, but will not be
         written when the config is saved in a file. They are thus non-
-        persistant.
+        persistent.
 
         Parameters
         ----------
