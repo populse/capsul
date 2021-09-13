@@ -111,7 +111,7 @@ class ProcessMeta(Controller.__class__):
         bases: tuple (mandatory)
             the direct base classes.
         attrs: dict (mandatory)
-            a dictionnary with the class attributes.
+            a dictionary with the class attributes.
         """
         # Update the class docstring with the full process help
         docstring = ProcessMeta.complement_doc(
@@ -184,7 +184,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     * the file (on the filesystem) is an output, but the filename (string) is
       given as an input: this is the classical "commandline" behavior, when we
       tell the program where it should write its output file.
-    * the file is an output, and the filename is also an outut: this is rather a
+    * the file is an output, and the filename is also an output: this is rather a
       "function return value" behavior: the process determines internally where
       it should write the file, and tells as an output where it did.
 
@@ -243,7 +243,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
     def __getstate__(self):
         """ Remove the _weakref attribute eventually set by 
-        soma.utils.weak_proxy beacause it prevent Process instance
+        soma.utils.weak_proxy because it prevent Process instance
         from being used with pickle.
         """
         state = super(Process, self).__getstate__()
@@ -354,7 +354,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     
     def _before_run_process(self):
         """This method is called by StudyConfig.run() before calling
-        _run_process(). By default it does nothing but can be overriden
+        _run_process(). By default it does nothing but can be overridden
         in derived classes.
         """
         pass
@@ -362,7 +362,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     def _after_run_process(self, run_process_result):
         """This method is called by StudyConfig.run() after calling
         _run_process(). It is expected to return the final result of the
-        process. By default it does nothing but can be overriden
+        process. By default it does nothing but can be overridden
         in derived classes.
         """
         return run_process_result
@@ -375,8 +375,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         Parameters
         ----------
         exec_info: dict (mandatory)
-            the execution informations,
-            the dictionnary is supposed to contain a runtime attribute.
+            the execution information,
+            the dictionary is supposed to contain a runtime attribute.
 
         Returns
         -------
@@ -403,7 +403,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         return log
 
     def _rst_table(self, data):
-        """ Create a rst formated table.
+        """ Create a rst formatted table.
 
         Parameters
         ----------
@@ -413,7 +413,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         Returns
         -------
         rsttable: list of str
-            the rst formated table containing the input data.
+            the rst formatted table containing the input data.
         """
         # Output rst table
         rsttable = []
@@ -461,7 +461,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     ####################################################################
 
     def save_log(self, returncode):
-        """ Method to save process execution informations in json format.
+        """ Method to save process execution information in json format.
 
         If the class attribute `log_file` is not set, a log.json output
         file is generated in the process call current working directory.
@@ -642,7 +642,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             Arguments are in separate elements of the list.
         '''
         if self.__class__.get_commandline != Process.get_commandline:
-            # get_commandline is overriden the old way: use it.
+            # get_commandline is overridden the old way: use it.
             return ['format_string'] + self.get_commandline()
         return ['capsul_job', self.id]
 
@@ -906,7 +906,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         Parameters
         ----------
         rst_formating: bool (optional, default False)
-            if True generate a rst table witht the input descriptions.
+            if True generate a rst table with the input descriptions.
 
         Returns
         -------
@@ -981,7 +981,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         Parameters
         ----------
         rst_formating: bool (optional, default False)
-            if True generate a rst table witht the input descriptions.
+            if True generate a rst table with the input descriptions.
 
         Returns
         -------
@@ -1030,7 +1030,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         value: object (mandatory)
             the trait value we want to set
         protected: None or bool (tristate)
-            if True or Fase, force the "protected" status of the plug. If None,
+            if True or False, force the "protected" status of the plug. If None,
             keep it as is.
         """
         # The None trait value is Undefined, do the replacement
@@ -1911,7 +1911,7 @@ class NipypeProcess(FileCopyProcess):
 
     @classmethod
     def help(cls, nipype_interface, returnhelp=False):
-        """ Method to print the full wraped nipype interface help.
+        """ Method to print the full wrapped nipype interface help.
 
         Parameters
         ----------

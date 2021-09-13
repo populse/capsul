@@ -29,7 +29,7 @@ class ReduceNode(Node):
       :class:`~capsul.pipeline.custom_nodes.map_node.MapNode`.
     * Input parameters names patterns are given as the ``input_names``
       parameter. It is a list of patterns, each containing a ``"%d"`` pattern
-      for the input number. The defaut value is ``['input_%d']``.
+      for the input number. The default value is ``['input_%d']``.
     * Output parameters names are given as the ``output_names`` parameter. The
       default is ``['outputs']``.
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Miscelaneous pipeline handling utility functions
+Miscellaneous pipeline handling utility functions
 
 Functions
 =========
@@ -592,7 +592,7 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
     Parameters
     ----------
     pipeline: Pipeline (mandatory)
-        pipeline to disbale nodes in.
+        pipeline to disable nodes in.
     '''
     steps = getattr(pipeline, 'pipeline_steps', Controller())
     for step, trait in six.iteritems(steps.user_traits()):
@@ -641,7 +641,7 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
     Parameters
     ----------
     pipeline: Pipeline (mandatory)
-        pipeline to disbale nodes in.
+        pipeline to disable nodes in.
     exclude_inactive: bool (optional)
         if this option is set, inactive nodes will not be checked
         nor returned in the list. Inactive means disabled, not active, or in a
@@ -725,7 +725,7 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
     Parameters
     ----------
     pipeline: Pipeline (mandatory)
-        pipeline to disbale nodes in.
+        pipeline to disable nodes in.
     recursive: bool (optional)
         if this option is set, sub-pipelines will not be returned as a whole
         but will be parsed recursively to select individual leaf nodes. Note

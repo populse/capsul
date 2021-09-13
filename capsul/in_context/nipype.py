@@ -9,7 +9,7 @@ def configure_all():
     '''
     Configure nipye for all known software interfaces their configuration
     is present in os.environ. This environment must have been set by the
-    CapsulEngine mecanism.
+    CapsulEngine mechanism.
     '''
     #print('!!!')
     configure_matlab()

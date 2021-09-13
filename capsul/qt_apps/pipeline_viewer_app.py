@@ -26,7 +26,7 @@ class PipelineViewerApp(Application):
     """ CAPSULVIEW Application.
     """
 
-    # Load some meta informations
+    # Load some meta information
     from capsul.info import __version__ as _version
     from capsul.info import NAME as _application_name
     from capsul.info import ORGANISATION as _organisation_name
@@ -44,7 +44,7 @@ class PipelineViewerApp(Application):
     def init_window(self):
         """ Method to initialize the main window.
         """
-        # First set some meta informations
+        # First set some meta information
         self.setApplicationName(self._application_name)
         self.setOrganizationName(self._organisation_name)
         self.setApplicationVersion(self._version)

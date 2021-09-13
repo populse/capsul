@@ -20,7 +20,7 @@ from six.moves import zip
 
 
 def a_function_to_wrap(fname, directory, value, enum, list_of_str):
-    """ A dummy fucntion that just print all its parameters.
+    """ A dummy function that just print all its parameters.
 
     <process>
         <return name="string" type="string" doc="test" />
@@ -312,7 +312,7 @@ class TestProcessWrap(unittest.TestCase):
     def setUp(self):
         """ In the setup construct set some process input parameters.
         """
-        # Get the wraped test process process
+        # Get the wrapped test process process
         self.process = get_process_instance(
             "capsul.process.test.test_load_from_description.a_function_to_wrap")
 
@@ -324,7 +324,7 @@ class TestProcessWrap(unittest.TestCase):
         self.process.list_of_str = ["a_string"]
 
     def test_process_wrap(self):
-        """ Method to test if the process has been wraped properly.
+        """ Method to test if the process has been wrapped properly.
         """
         # Execute the process
         self.process()

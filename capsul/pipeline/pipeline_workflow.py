@@ -783,7 +783,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
         is called for each iteration by build_iteration()
 
-        Jobs inserted are tuples (process, interation) because each job will be
+        Jobs inserted are tuples (process, iteration) because each job will be
         converted into as many jobs as the number of iterations.
 
         Returns
@@ -1165,7 +1165,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             shared translated paths maps (global to pipeline).
             This dict is updated when needed during the process.
         transfers: list of 2 dicts (optional)
-            File transfers dicts (input / ouput), indexed by process, then by
+            File transfers dicts (input / output), indexed by process, then by
             file path.
         shared_paths: dict (optional)
             holds information about shared resource paths from soma-worflow
@@ -1416,8 +1416,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 'configuration settings.')
 
     if not isinstance(pipeline, Pipeline):
-        # "pipeline" is actally a single process (or should, if it is not a
-        # pipeline). Get it into a pipeine (with a single node) to make the
+        # "pipeline" is actually a single process (or should, if it is not a
+        # pipeline). Get it into a pipeline (with a single node) to make the
         # workflow.
         new_pipeline = Pipeline()
         new_pipeline.set_study_config(study_config)

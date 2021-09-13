@@ -9,7 +9,7 @@ For this reason, what we call here "python jobs" have a special handling. "pytho
 
 Python jobs are handled in workflow building (:mod:`capsul.pipeline.pipeline_workflow`), and jobs on engine side should not have to bother about it.
 
-The python config module is not mandatory: if no specific configuration is needed, jobs are run using the python commnand from the path, following the client ``sys.executable`` short name (if the client runs ``/usr/bin/python3``, the engine will try to use ``python3`` from the ``PATH``.
+The python config module is not mandatory: if no specific configuration is needed, jobs are run using the python command from the path, following the client ``sys.executable`` short name (if the client runs ``/usr/bin/python3``, the engine will try to use ``python3`` from the ``PATH``.
 
 The python config module is used optionally (if there is a config, it is used, otherwise no error is produced), and automatically for all jobs: no need to declare it in jobs :meth:`~capsul.process.process.Process.requirements` method.
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Mamory caching. Probably mostly obsolete, this code is not much used now.
+Memory caching. Probably mostly obsolete, this code is not much used now.
 
 Classes
 =======
@@ -277,7 +277,7 @@ class MemorizedProcess(object):
             # Create the destination memory folder
             os.makedirs(process_dir)
 
-            # Try to execute the process and if an error occured remove the
+            # Try to execute the process and if an error occurred remove the
             # cache folder
             try:
                 # Run
@@ -903,7 +903,7 @@ class Memory(object):
                                     verbose)
 
     def clear(self, skips=None):
-        """ Remove all the cache appart from those given to the method
+        """ Remove all the cache apart from those given to the method
         input.
 
         Parameters

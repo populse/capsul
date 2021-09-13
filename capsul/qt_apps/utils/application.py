@@ -20,7 +20,7 @@ from soma.qt_gui.qt_backend import Qt
 
 
 class Application(Qt.QApplication):
-    """ Base Aplication class.
+    """ Base Application class.
 
     Used to set some user options
     """
@@ -38,7 +38,7 @@ class Application(Qt.QApplication):
         * error
         * critical
 
-        For exemple:
+        For example:
         >>> capsulview -d debug
 
         The default mode is error.

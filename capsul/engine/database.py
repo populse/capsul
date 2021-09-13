@@ -9,7 +9,7 @@ class DatabaseEngine(object):
     a key that can be either a string or a path (i.e. a file or directory
     name).
     
-    To instanciate a :py:class:`DatabaseEngine` one must use the factory 
+    To instantiate a :py:class:`DatabaseEngine` one must use the factory 
     To date, two concrete :py:class:`DatabaseEngine` implementations exist:
 
     - :py:class:`capsul.engine.database_json.JSONDBEngine`
@@ -71,7 +71,7 @@ class DatabaseEngine(object):
         Store a json value and associate it with a key given in "name".
         The value can be retrieved with method json_value().
         
-        @param name: unique key used to identify and retreive the value
+        @param name: unique key used to identify and retrieve the value
         @type name: C{string}
         @param json_value: a value to store in the database
         @type  name: any JSON compatible value

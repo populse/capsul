@@ -66,7 +66,7 @@ class NipypeConfig(StudyConfigModule):
             self.study_config.use_nipype = False
             return
         if self.study_config.use_nipype is False:
-            # Configuration is explicitely asking not to use Nipype
+            # Configuration is explicitly asking not to use Nipype
             return
         elif self.study_config.use_nipype is True:
             # If use_nipype is True configuration must be valid otherwise

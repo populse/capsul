@@ -18,7 +18,7 @@ Main features
 
 * Althrough written in Python, Capsul does not force algorithms to be written in Python language: pipeline nodes can run any software program. However Capsul provides facilities for Python: a pipeline node can be a simple Python function.
 
-* A paramters completion system helps to automatically fill parameters from a set of common attributes.
+* A parameters completion system helps to automatically fill parameters from a set of common attributes.
 
 * An iteration system allows to iterate runs, or pipeline nodes, over a set of parameters configurations.
 

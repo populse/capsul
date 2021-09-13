@@ -20,7 +20,7 @@ from traits.api import Undefined
 # of test is executed with a different context (i.e. configuration files and
 # CAPSUL_CONFIG environment variable).
 
-# StudyConfig instanciation tests and expected results when no configuration
+# StudyConfig instantiation tests and expected results when no configuration
 # file exist.
 tests_no_files = [
 
@@ -127,7 +127,7 @@ tests_no_files = [
 ]
 
 
-# StudyConfig instanciation tests and expected results using configuration 
+# StudyConfig instantiation tests and expected results using configuration 
 # files in user directory (a temporary directory is used instead of the user
 # directory for this test).
 tests_standard_files = [
@@ -226,7 +226,7 @@ tests_standard_files = [
     None]],
 ]
 
-# StudyConfig instanciation tests and expected results using configuration 
+# StudyConfig instantiation tests and expected results using configuration 
 # files defined in CAPSUL_CONFIG.
 tests_custom_files = [
 

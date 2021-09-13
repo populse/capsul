@@ -156,7 +156,7 @@ class StudyConfig(Controller):
 
     def __init__(self, study_name=None, init_config=None, modules=None,
                  engine=None, **override_config):
-        """ Initilize the StudyConfig class
+        """ Initialize the StudyConfig class
 
         Parameters
         ----------
@@ -228,7 +228,7 @@ class StudyConfig(Controller):
     def initialize_modules(self):
         """
         Modules initialization, calls initialize_module on each config module.
-        This is not done during module instanciation to allow interactions
+        This is not done during module instantiation to allow interactions
         between modules (e.g. Matlab configuration can influence Nipype
         configuration). Modules dependencies are taken into account in
         initialization.
@@ -251,7 +251,7 @@ class StudyConfig(Controller):
             if initialize_first:
                 stack = initialize_first + [module_name] + stack
                 continue
-            # Intitialize a module
+            # Initialize a module
             module.initialize_module()
             module.initialize_callbacks()
             already_initialized.add(module_name)
@@ -314,7 +314,7 @@ class StudyConfig(Controller):
             the output directory to use for process execution. This replaces
             self.output_directory but left it unchanged.
         execute_qc_nodes: bool (optional, default False)
-            if True execute process nodes that are taged as qualtity control
+            if True execute process nodes that are tagged as qualtity control
             process nodes.
         verbose: int
             if different from zero, print console messages.
@@ -323,7 +323,7 @@ class StudyConfig(Controller):
         """
 
 
-        # Use soma worflow to execute the pipeline or porcess in parallel
+        # Use soma workflow to execute the pipeline or process in parallel
         # on the local machine. This has now moved to CapsulEngine.
         if self.get_trait_value("use_soma_workflow"):
             return self.engine.check_call(process_or_pipeline, **kwargs)
@@ -618,7 +618,7 @@ class StudyConfig(Controller):
         ----------
         trait_name: str (mandatory)
             the trait name we want to modify
-        trait_value: object (madatory)
+        trait_value: object (mandatory)
             the trait value we want to set
         """
         if trait_name in self.user_traits():
@@ -752,8 +752,8 @@ _default_study_config = None
 
 def default_study_config():
     """
-    On the first call create a StudyConfig instance with defaut configuration
-    (eventualy reading configuration files). Then returns this instance on all
+    On the first call create a StudyConfig instance with default configuration
+    (eventually reading configuration files). Then returns this instance on all
     subsequent calls.
     """
     global _default_study_config
@@ -775,7 +775,7 @@ class StudyConfigModule(object):
         return self.__class__.__name__
 
     # List of modules that must be initialized before this one. It can be
-    # overrriden be derived module classes.
+    # overridden be derived module classes.
     dependencies = []
 
     def __init__(self, study_config, configuration):
@@ -783,7 +783,7 @@ class StudyConfigModule(object):
 
     def initialize_module(self):
         """Method called to initialize selected study configuration modules
-        on startup. This method does nothing but can be overriden by modules.
+        on startup. This method does nothing but can be overridden by modules.
         """
 
     def initialize_callbacks(self):

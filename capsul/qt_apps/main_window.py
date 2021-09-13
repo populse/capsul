@@ -43,7 +43,7 @@ class CapsulMainWindow(MyQUiLoader):
             the url to the documentation.
         ui_file: str (mandatory)
             a filename containing the user interface description
-        default_study_config: ordered dict (madatory)
+        default_study_config: ordered dict (mandatory)
             some parameters for the study configuration
         """
         # Inheritance: load user interface window

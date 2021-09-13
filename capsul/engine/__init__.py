@@ -53,9 +53,9 @@ from .run import WorkflowExecutionError
 #* execution:
   #* workflows are not exposed, they are running a possibly different pipeline (single process case), thus we need to keep track on it
   #* logging / history / provenance, databasing
-  #* retreiving output files with transfers: when ? currently in wait(), should it be a separate method ? should it be asynchronous ?
+  #* retrieving output files with transfers: when ? currently in wait(), should it be a separate method ? should it be asynchronous ?
   #* setting output parameters: currently in wait(), should it be a separate method ?
-  #* disconnections / reconections client / server
+  #* disconnections / reconnections client / server
   #* actually connect computing resource[s]
 #* settings / config:
   #* see comments in settings.py
@@ -84,9 +84,9 @@ class CapsulEngine(Controller):
     By default, CapsulEngine only stores necessary configuration. But it may be
     necessary to modify the Python environment globally to apply this
     configuration. For instance, Nipype must be configured globally. If SPM is
-    configured in CapsulEngine, it is necessary to explicitely activate the
+    configured in CapsulEngine, it is necessary to explicitly activate the
     configuration in order to modify the global configuration of Nipype for
-    SPM. This activation is done by explicitely activating the execution
+    SPM. This activation is done by explicitly activating the execution
     context of the capsul engine with the following code, inside a running
     process::
 
@@ -102,9 +102,9 @@ class CapsulEngine(Controller):
 
         CapsulEngine is the replacement of the older
         :class:`~capsul.study_config.study_config.StudyConfig`, which is still
-        present in Capsul 2.2 for backward compatibility, but will disapear in
+        present in Capsul 2.2 for backward compatibility, but will disappear in
         later versions. In Capsul 2.2 both objects exist, and are synchronized
-        internally, which means that a StudyConfig object will also ceate a
+        internally, which means that a StudyConfig object will also create a
         CapsulEngine, and the other way, and modifications in the StudyConfig
         object will change the corresponding item in CapsulEngine and vice
         versa. Functionalities of StudyConfig are moving internally to
@@ -114,7 +114,7 @@ class CapsulEngine(Controller):
 
     It is used to store configuration variables, and to handle execution within
     the configured context. The configuration has 2 independent axes:
-    configuration modules, which provide additional configutation variables,
+    configuration modules, which provide additional configuration variables,
     and "environments" which typically represent computing resources.
 
     *Computing resources*
@@ -132,7 +132,7 @@ class CapsulEngine(Controller):
     configuration options. It is typically used to work on the local machine,
     especially for users who only work locally.
 
-    Configuration is stored in a database (either internal or persistant),
+    Configuration is stored in a database (either internal or persistent),
     through the :class:`~capsul.engine.settings.Settings` object found in
     ``CapsulEngine.settings``.
     Access and modification of settings should occur within a session block
@@ -272,7 +272,7 @@ class CapsulEngine(Controller):
         set_environ is called in the context of the processing (i.e. on
         the, possibly remote, machine that runs the pipelines). It receives
         the configuration as a JSON compatible dictionary (for instance a
-        CapsulEngine attibute `capsul_engine.spm.directory` would be
+        CapsulEngine attribute `capsul_engine.spm.directory` would be
         config['spm']['directory']). The function must modify the environ
         dictionary to set the environment variables that must be defined
         for pipeline configuration. These variables are typically used by
@@ -380,7 +380,7 @@ class CapsulEngine(Controller):
 
     def start(self, process, history=True, get_pipeline=False, **kwargs):
         '''
-        Asynchronously start the exectution of a process or pipeline in the
+        Asynchronously start the execution of a process or pipeline in the
         connected computing environment. Returns an identifier of
         the process execution and can be used to get the status of the
         execution or wait for its termination.
@@ -408,7 +408,7 @@ class CapsulEngine(Controller):
         Returns
         -------
         execution_id: int
-            execution identifier (acutally a soma-workflow id)
+            execution identifier (actually a soma-workflow id)
         pipeline: Pipeline instance (optional)
             only returned if get_pipeline is True.
         '''
@@ -430,14 +430,14 @@ class CapsulEngine(Controller):
 
     def disconnect(self):
         '''
-        Disconnect from a computing ressource.
+        Disconnect from a computing resource.
         '''
         self._connected_resource = None
 
     def executions(self):
         '''
         List the execution identifiers of all processes that have been started
-        but not disposed in the connected computing ressource. Raises an
+        but not disposed in the connected computing resource. Raises an
         exception if the computing resource is not connected.
         '''
         raise NotImplementedError()
@@ -534,7 +534,7 @@ def capsul_engine(database_location=None, require=None):
     User facrory for creating capsul engines.
 
     If no database_location is given, it will default to an internal (in-
-    memory) database with no persistant settings or history values.
+    memory) database with no persistent settings or history values.
 
     Configuration is read from a dictionary stored in two database entries.
     The first entry has the key 'global_config' (i.e.

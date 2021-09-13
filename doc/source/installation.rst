@@ -29,7 +29,7 @@ Installing without BrainVISA
 Prerequisite
 ------------
 
-Installing Capsul on a brain new system requires that Python is installed (either Python 2 or Python 3) but also that some Python packages are installed. These dependencies are managed by `pip <https://en.wikipedia.org/wiki/Pip_%28package_manager%29>`_ or by `setup.py <https://stackoverflow.com/questions/1471994/what-is-setup-py>`_. But one of the dependency (the `traits Python module <http://code.enthought.com/projects/traits/>`_) requires some compilation during installation. Therefore, before installing Capsul is it necessary to install compilation packages as well as Python developpement package. In this document, we give the procedure for installation on a bare Debian based Linux distribution (it has been tested on Ubuntu 16.04).
+Installing Capsul on a brain new system requires that Python is installed (either Python 2 or Python 3) but also that some Python packages are installed. These dependencies are managed by `pip <https://en.wikipedia.org/wiki/Pip_%28package_manager%29>`_ or by `setup.py <https://stackoverflow.com/questions/1471994/what-is-setup-py>`_. But one of the dependency (the `traits Python module <http://code.enthought.com/projects/traits/>`_) requires some compilation during installation. Therefore, before installing Capsul is it necessary to install compilation packages as well as Python development package. In this document, we give the procedure for installation on a bare Debian based Linux distribution (it has been tested on Ubuntu 16.04).
 
 
 **Python 3 :**

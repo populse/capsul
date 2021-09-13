@@ -21,11 +21,11 @@ class EchoProcess(Process):
     """ Dummy Echo Process
     """
     def _run_process(self):
-        descripton = "{0}: ".format(self.id)
+        description = "{0}: ".format(self.id)
         for parameter in self.user_traits():
-            descripton += "{0} = {1} ".format(parameter,
+            description += "{0} = {1} ".format(parameter,
                                               repr(getattr(self, parameter)))
-        print(descripton)
+        print(description)
 
 
 class Process_1(EchoProcess):
@@ -183,7 +183,7 @@ class TestSomaWorkflow(unittest.TestCase):
         swm = self.study_config.modules['SomaWorkflowConfig']
         swc = swm.get_workflow_controller()
         if swc is not None:
-            # stop workflow controler and wait for thread termination
+            # stop workflow controller and wait for thread termination
             swc.stop_engine()
 
     def test_atomic_dependencies(self):

@@ -290,7 +290,7 @@ is the function that is called when the instance is run. The
    ``capsul.loadre.get_process_instance()`` can be used.
 -  **role** (optional): set the role of the process instance (se
    "Process roles" above). If a role has been defined on the process
-   module, it is ignored and replaced be the one declared in teh
+   module, it is ignored and replaced be the one declared in the
    pipeline. It is possible to use an empty string to force the process
    instance in the pipeline to have no role.
 -  **iteration** (optional): when this attribute is used, the process
@@ -426,7 +426,7 @@ process parameter. Exporting a process parameter means making it visible
 in the parameters of the pipeline. Unlike, the default ``Pipeline``
 behaviour in Capsul's API, a pipeline defined in Capsul XML 2.0 dot not
 export automatically the unconnected parameters of its processes. The
-``<link>`` element contains no child elements and mus have exaclty two
+``<link>`` element contains no child elements and mus have exactly two
 attributes:
 
 -  **source**: the parameter where the link starts from.
@@ -623,7 +623,7 @@ identifier for the pipeline defined in
 One can find all the Processe and Pipeline identifiers defined in a
 module (and recursively in all its sub-modules) with the function
 ``find_processes(module_name)`` (in ``capsul.process.finder``). For
-instance, to try to instanciate all processes and pipelines defined in
+instance, to try to instantiate all processes and pipelines defined in
 the module ``clinfmri`` :
 
 .. code:: python

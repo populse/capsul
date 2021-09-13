@@ -15,7 +15,7 @@ import sys
 class LeaveOneOutNode(Node):
     '''
     This "inert" node excludes one input from the list of inputs, to allow
-    leave-one-out applicatons.
+    leave-one-out applications.
     The "outputs" may be either an output trait (to serve as inputs to
     other nodes), or an input trait (to assign output values to other nodes).
     '''

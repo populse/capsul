@@ -184,7 +184,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                 print('while syncing nipype parameter', name,
                       'on', process_instance.name, file=sys.stderr)
                 # when called during exit, the traceback module might have
-                # already disapeared
+                # already disappeared
                 import traceback
                 traceback.print_exc()
                 ex_type, ex, tb = sys.exc_info()
@@ -195,7 +195,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                         ex_type, ex, "".join(traceback.format_tb(tb))))
                 nipype_outputs = {}
 
-            # Synchronize traits: check file existance
+            # Synchronize traits: check file existence
             for out_name, out_value in six.iteritems(nipype_outputs):
 
                 pname = trait_map.get(out_name, '_' + out_name)

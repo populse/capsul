@@ -50,7 +50,7 @@ class LayoutHelperWriter(object):
         Returns
         -------
         ad : string
-            the reST formated index description.
+            the reST formatted index description.
         """
         # Try to get the module description
         full_module_name = "{0}.{1}".format(self.root_module_name, module_name)
@@ -90,22 +90,22 @@ class LayoutHelperWriter(object):
         Returns
         -------
         out: str
-            the formated string.
+            the formatted string.
         """
         return title.replace("_", " ").capitalize()
 
     def rst2html(self, rst):
-        """ Convert a rst formated string to an html string.
+        """ Convert a rst formatted string to an html string.
 
         Parameters
         ----------
         rst: str (mandatory)
-            the rst formated string.
+            the rst formatted string.
 
         Returns
         -------
         out: str
-            the html formated string.
+            the html formatted string.
         """
         parts = publish_parts(rst, writer_name="html")
         return parts["body_pre_docinfo"] + parts["body"]
@@ -118,7 +118,7 @@ class LayoutHelperWriter(object):
         outdir : string
             Directory name in which to store files
         """
-        # Check if outupt dir exists
+        # Check if output dir exists
         if not os.path.exists(outdir):
             os.makedirs(outdir)
 
@@ -170,7 +170,7 @@ class LayoutHelperWriter(object):
                     "<img src=\"{{ pathto('_static/carousel/%s', 1) }}\">"
                     "</a></div>" % item)
 
-        # Create correspondance maping
+        # Create correspondence mapping
         layout_info = {
             "NAME_LOWER": self.root_module_name,
             "NAME_UPPER": self.root_module_name.upper(),
@@ -206,7 +206,7 @@ class LayoutHelperWriter(object):
         outdir : string
             Directory name in which to store files
         """
-        # Check if outupt dir exists
+        # Check if output dir exists
         if not os.path.exists(outdir):
             os.makedirs(outdir)
 
@@ -219,7 +219,7 @@ class LayoutHelperWriter(object):
         title = [self.rst_section_levels[1] * len(title), title,
                  self.rst_section_levels[1] * len(title)]
 
-        # Create correspondance mapping
+        # Create correspondence mapping
         layout_info = {
             "NAME_LOWER": self.root_module_name,
             "NAME_UPPER": self.root_module_name.upper(),

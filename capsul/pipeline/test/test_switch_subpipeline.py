@@ -156,7 +156,7 @@ class MainTestPipeline(Pipeline):
     def pipeline_definition(self):
         self.add_process('switch_pipeline',
             "capsul.pipeline.test.test_switch_subpipeline.SwitchPipeline")
-        # Export may be omited here but it is necessary to force parameters
+        # Export may be omitted here but it is necessary to force parameters
         # order.
         self.export_parameter('switch_pipeline', 'input_image')
         self.export_parameter('switch_pipeline', 'switch', 'which_way')

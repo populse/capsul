@@ -89,7 +89,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             filename_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                           QtGui.QSizePolicy.Fixed)
 
-        # groupbox area to show attributs
+        # groupbox area to show attributes
         attrib_widget = QtGui.QGroupBox('Attributes:')
         attrib_widget.setFlat(True)
         attrib_widget.setAlignment(QtCore.Qt.AlignLeft)
@@ -190,7 +190,7 @@ class AttributedProcessWidget(QtGui.QWidget):
                 Controller(), override_control_types=control_types_a,
                 user_data=user_data, userlevel=userlevel)
 
-        # Set controller of attributs and controller of process for each
+        # Set controller of attributes and controller of process for each
         # corresponding area
         param_widget.layout().addWidget(self.controller_widget)
         if separate_outputs:
@@ -315,7 +315,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             QtGui.QMessageBox.Ok, QtGui.QMessageBox.Cancel)
 
         if ret == QtGui.QMessageBox.Ok:
-            #reset attributs and trait of process
+            #reset attributes and trait of process
             process = self.attributed_process
             completion_engine = getattr(self.attributed_process,
                                        'completion_engine', None)
@@ -356,7 +356,7 @@ class AttributedProcessWidget(QtGui.QWidget):
 
     def on_use_fom_change(self, state):
         '''
-        Use completion checkbox callabck
+        Use completion checkbox callback
         '''
         if state == QtCore.Qt.Checked:
             self.set_use_fom()

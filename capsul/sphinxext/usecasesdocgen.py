@@ -62,7 +62,7 @@ class UseCasesHelperWriter(object):
         Returns
         -------
         ad : string
-            the use case reST formated documentation.
+            the use case reST formatted documentation.
         """
         # First parse the pilot function code
         code_tree = ast.parse(src_code).body
