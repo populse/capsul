@@ -1667,7 +1667,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         source_gnode_name, source_param = source
         if not source_gnode_name:
             source_gnode_name = 'inputs'
-        source_gnode = self.gnodes[source_gnode_name]
+        source_gnode = self.gnodes.get(source_gnode_name)
         dest_gnode_name, dest_param = dest
         if not dest_gnode_name:
             dest_gnode_name = 'outputs'
@@ -1803,7 +1803,9 @@ class PipelineScene(QtGui.QGraphicsScene):
         # handle removed nodes
         for node_name in removed_nodes:
             self.removeItem(self.gnodes[node_name])
-            del self.gnodes[node_name]
+            self.gnodes.pop(node_name, None)
+            self.dim.pop(node_name, None)
+            self.pos.pop(node_name, None)
 
         # check for added nodes
         added_nodes = []
@@ -1861,7 +1863,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             source_plug = source_node.plugs.get(source_param)
             dest_node = pipeline.nodes.get(dest_node_name)
             if dest_node is None:
-                to_remove.append(dest_node_name)
+                to_remove.append(source_dest)
                 continue
             dest_plug = dest_node.plugs.get(dest_param)
             remove_glink = False
