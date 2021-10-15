@@ -1153,21 +1153,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         req = self.requirements()
         config = settings.select_configurations(environment, uses=req)
         success = True
-        print('\nreq: ', req)
-        print('\nconfig: ', config)
-        print('\nmessage_list: ', message_list)
-        print('\nself: ', self)
-        print('\nself.name: ', self.name)
-
-        
         for module in req:
-
-            print('\nmodule: ', module)
-            
             module_name = settings.module_name(module)
-            
-            print('\nmodule_name: ', module_name)
-             
             if module_name not in config and message_list is not None:
                 message_list.append('requirement: %s is not met in %s'
                                     % (req, self.name))
