@@ -1,22 +1,16 @@
 # -*- coding: utf-8 -*-
-# System import
-from __future__ import absolute_import
 import unittest
 import six
 
-# Capsul import
 from capsul.api import Process
-
-# Trait import
-from traits.api import Float
 
 
 class DummyProcess(Process):
-    f = Float(output=False)
+    f : float
 
     def __init__(self):
-        super(DummyProcess, self).__init__()
-        self.add_trait("ff", Float(output=False))
+        super().__init__()
+        self.add_field('ff', float)
 
 
 class TestProcessUserTrait(unittest.TestCase):
@@ -36,24 +30,13 @@ class TestProcessUserTrait(unittest.TestCase):
         the instance level.
         """
         # Go through all traits
-        for trait_name, trait in six.iteritems(self.p1.__base_traits__):
+        for field in self.p1.fields():
+            # Check that only class fields are shared
+            # between instances
+            self.assertEqual(
+                field is self.p2.field(field.name), field.metadata['class_field'])
 
-            # Select user parameters
-            if self.p1.is_user_trait(trait):
-
-                # Check that the current parameters are not the same
-                # between instances
-                self.assertFalse(
-                    self.p1.trait(trait_name) is self.p2.trait(trait_name))
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestProcessUserTrait)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
 
 
 if __name__ == "__main__":
-    test()
+    unittest.main()

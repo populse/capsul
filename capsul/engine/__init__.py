@@ -31,12 +31,8 @@ import tempfile
 import subprocess
 import sys
 
-from traits.api import Dict, String, Undefined
-
-from soma.controller import Controller, controller_to_dict
+from soma.controller import Controller
 from soma.serialization import to_json, from_json
-from soma.sorted_dictionary import SortedDictionary
-from soma.utils.weak_proxy import get_ref
 
 from .database_json import JSONDBEngine
 from .database_populse import PopulseDBEngine

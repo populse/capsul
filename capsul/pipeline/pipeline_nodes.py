@@ -18,43 +18,16 @@ Classes
 -----------------------------
 '''
 
-from __future__ import print_function
+from typing import Literal, List
 
-# System import
-from __future__ import absolute_import
-import logging
-import six
-from six.moves import zip
-
-# Define the logger
-logger = logging.getLogger(__name__)
-
-# Trait import
-import traits.api as traits
-from traits.api import Enum
-from traits.api import Str
-from traits.api import Bool
-from traits.api import Any
-from traits.api import Undefined
-from traits.api import File
-from traits.api import Directory
-from traits.api import TraitError
-
-# Capsul import
-from soma.controller.trait_utils import trait_ids
-from soma.controller.trait_utils import is_trait_pathname
-
-# Soma import
-from soma.controller import Controller
+from soma.controller import Controller, field, is_path, field_type_str
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import weak_proxy, get_ref
-
-import os
-
+from soma.undefined import undefined
 
 class Plug(Controller):
-    """ Overload of the traits in order to keep the pipeline memory.
+    """ Overload of the fields in order to keep the pipeline memory.
 
     Attributes
     ----------
@@ -73,16 +46,16 @@ class Plug(Controller):
     links_from : set (node_name, plug_name, node, plug, is_weak)
         the predecessor plugs of this plug
     """
-    enabled = Bool(default_value=True)
-    activated = Bool(default_value=False)
-    output = Bool(default_value=False)
-    optional = Bool(default_value=False)
+    enabled : bool = True
+    activated : bool = False
+    output : bool = False
+    optional : bool = False
 
     def __init__(self, **kwargs):
-        """ Generate a Plug, i.e. a trait with the memory of the
+        """ Generate a Plug, i.e. an attribute with the memory of the
         pipeline adjacent nodes.
         """
-        super(Plug, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # The links correspond to edges in the graph theory
         # links_to = successor
         # links_from = predecessor
@@ -131,14 +104,13 @@ class Node(Controller):
     -------
     connect
     set_callback_on_plug
-    get_plug_value
     set_plug_value
-    get_trait
     """
-    name = Str(hidden=True)
-    enabled = Bool(default_value=True, hidden=True)
-    activated = Bool(default_value=False, hidden=True)
-    node_type = Enum(("processing_node", "view_node"), hidden=True)
+    name = field(type_=str, metadata={'hidden': True})
+    enabled = field(type_=bool, default=True, metadata={'hidden': True})
+    actrivated = field(type_=bool, default=True, metadata={'hidden': True})
+    node_type = field(type_=Literal['processing_node', 'view_node'],
+        default='processing_node', metadata={'hidden': True})
 
     def __init__(self, pipeline, name, inputs, outputs):
         """ Generate a Node
@@ -156,7 +128,7 @@ class Node(Controller):
             a list of output parameters containing a dictionary with default
             values (mandatory key: name)
         """
-        super(Node, self).__init__()
+        super().__init__()
         self.pipeline = weak_proxy(pipeline)
         self.name = name
         self.plugs = SortedDictionary()
@@ -193,12 +165,12 @@ class Node(Controller):
             # update plugs list
             self.plugs[plug_name] = plug
             # add an event on plug to validate the pipeline
-            plug.on_trait_change(pipeline.update_nodes_and_plugs_activation,
-                                 "enabled")
+            plug.on_attribute_change.add(pipeline.update_nodes_and_plugs_activation,
+                                         "enabled")
 
-        # add an event on the Node instance traits to validate the pipeline
-        self.on_trait_change(pipeline.update_nodes_and_plugs_activation,
-                             "enabled")
+        # add an event on the Node instance attributes to validate the pipeline
+        self.on_attribute_change(pipeline.update_nodes_and_plugs_activation,
+                                 "enabled")
     @property
     def process(self):
         try:
@@ -224,21 +196,9 @@ class Node(Controller):
                         value):
         """ Spread the source plug value to the destination plug.
         """
-        try:
-            dest_node.set_plug_value(
-                dest_plug_name, value,
-                self.is_parameter_protected(source_plug_name))
-        except traits.TraitError:
-            if isinstance(value, list) and len(value) == 1:
-                # Nipype MultiObject, when a single object is involved, looks
-                # like a single object but is actually a list. We want to
-                # allow it to be linked to a "single object" plug.
-                try:
-                    dest_node.set_plug_value(
-                        dest_plug_name, value[0],
-                        self.is_parameter_protected(source_plug_name))
-                except traits.TraitError:
-                    pass
+        dest_node.set_plug_value(
+            dest_plug_name, value,
+            self.is_parameter_protected(source_plug_name))
 
     def _value_callback_with_logging(
             self, log_stream, prefix, source_plug_name, dest_node,
@@ -349,7 +309,7 @@ class Node(Controller):
         """ Remove the callbacks from the default __getstate__ result because
         they prevent Node instance from being used with pickle.
         """
-        state = super(Node, self).__getstate__()
+        state = super().__getstate__()
         state['_callbacks'] = list(state['_callbacks'].keys())
         state['pipeline'] = get_ref(state['pipeline'])
         return state
@@ -363,8 +323,8 @@ class Node(Controller):
             state['pipeline'] = state['process'] = weak_proxy(state['pipeline'])
         else:
             state['pipeline'] = weak_proxy(state['pipeline'])
-        super(Node, self).__setstate__(state)
-        for callback_key, value_callback in six.iteritems(self._callbacks):
+        super().__setstate__(state)
+        for callback_key, value_callback in self._callbacks.items():
             self.set_callback_on_plug(callback_key[0], value_callback)
 
     def set_callback_on_plug(self, plug_name, callback):
@@ -377,7 +337,7 @@ class Node(Controller):
         callback: @f (mandatory)
             a callback function
         """
-        self.on_trait_change(callback, plug_name)
+        self.on_value_change.add(callback, plug_name)
 
     def remove_callback_from_plug(self, plug_name, callback):
         """ Remove an event when a plug change
@@ -389,22 +349,8 @@ class Node(Controller):
         callback: @f (mandatory)
             a callback function
         """
-        self.on_trait_change(callback, plug_name, remove=True)
+        self.on_value_change.delete(callback, plug_name)
 
-    def get_plug_value(self, plug_name):
-        """ Return the plug value
-
-        Parameters
-        ----------
-        plug_name: str (mandatory)
-            a plug name
-
-        Returns
-        -------
-        output: object
-            the plug value
-        """
-        return getattr(self, plug_name)
 
     def set_plug_value(self, plug_name, value, protected=None):
         """ Set the plug value
@@ -423,20 +369,6 @@ class Node(Controller):
             self.protect_parameter(plug_name, protected)
         setattr(self, plug_name, value)
 
-    def get_trait(self, trait_name):
-        """ Return the desired trait
-
-        Parameters
-        ----------
-        trait_name: str (mandatory)
-            a trait name
-
-        Returns
-        -------
-        output: trait
-            the trait named trait_name
-        """
-        return self.trait(trait_name)
 
     def get_connections_through(self, plug_name, single=False):
         """ If the node has internal links (inside a pipeline, or in a switch
@@ -541,69 +473,6 @@ class Node(Controller):
         else:
             return None
 
-    def get_missing_mandatory_parameters(self, exclude_links=False):
-        ''' Returns a list of parameters which are not optional, and which
-        value is Undefined or None, or an empty string for a File or
-        Directory parameter.
-
-        Parameters
-        ----------
-        exclude_links: bool
-            if True, an empty parameter which has a link to another node
-            will not be reported missing, since the execution
-            will assign it a temporary value which will not prevent the
-            pipeline from running.
-        '''
-        def check_trait(node, plug, trait, value, exclude_links):
-            if trait.optional:
-                return True
-            if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
-                if value is Undefined:
-                    return bool(trait.output)
-                for i, item in enumerate(value):
-                    j = min(i, len(trait.inner_traits) - 1)
-                    if not check_trait(node, plug, trait.inner_traits[j],
-                                       item, exclude_links):
-                        return False
-                return True
-            if isinstance(trait.trait_type, (File, Directory)):
-                if value not in (Undefined, None, '') \
-                        or (trait.output
-                            and trait.input_filename is not False):
-                    return True
-                if not exclude_links:
-                    return False
-                if trait.output:
-                    links = plug.links_to
-                else:
-                    links = plug.links_from
-                # check if there is a connection not going outside the
-                # current pipeline
-                end = [l for l in links if l[0] != '']
-                if len(end) != 0:
-                    return True  # it's connected.
-                # otherwise check if there is a connection outside the
-                # current pipeline
-                end = [l for l in links if l[0] == '']
-                for link in end:
-                    p = link[2].plugs[link[1]]
-                    if trait.output:
-                        relinks = p.links_to
-                    else:
-                        relinks = p.links_from
-                    if relinks:
-                        return True  # it's connected.
-                return False  # no other connection.
-            return trait.output or value not in (Undefined, None)
-
-        missing = []
-        for name, plug in six.iteritems(self.plugs):
-            trait = self.get_trait(name)
-            if not trait.optional:
-                value = self.get_plug_value(name)
-                if not check_trait(self, plug, trait, value, exclude_links):
-                    missing.append(name)
-        return missing
 
 
 class ProcessNode(Node):
@@ -617,9 +486,7 @@ class ProcessNode(Node):
     Methods
     -------
     set_callback_on_plug
-    get_plug_value
     set_plug_value
-    get_trait
     """
     def __init__(self, pipeline, name, process, **kwargs):
         """ Generate a ProcessNode
@@ -642,18 +509,19 @@ class ProcessNode(Node):
         self.kwargs = kwargs
         inputs = []
         outputs = []
-        for parameter, trait in six.iteritems(self.process.user_traits()):
-            if parameter in ('nodes_activation', 'selection_changed'):
+        for field in self.process.fields():
+            if field.name in ('nodes_activation', 'selection_changed'):
                 continue
-            if trait.output:
+            optional = field.metadata.get('optional', False)
+            if field.metadata.get('output', False):
                 outputs.append(dict(name=parameter,
-                                    optional=bool(trait.optional),
+                                    optional=optional,
                                     output=True))
             else:
                 inputs.append(dict(name=parameter,
-                                   optional=bool(trait.optional or
+                                   optional=bool(optional or
                                                  parameter in kwargs)))
-        super(ProcessNode, self).__init__(pipeline, name, inputs, outputs)
+        super().__init__(pipeline, name, inputs, outputs)
 
     def set_callback_on_plug(self, plug_name, callback):
         """ Add an event when a plug change
@@ -665,7 +533,7 @@ class ProcessNode(Node):
         callback: @f (mandatory)
             a callback function
         """
-        self.process.on_trait_change(callback, plug_name)
+        self.process.on_attribute_change.add(callback, plug_name)
 
     def remove_callback_from_plug(self, plug_name, callback):
         """ Remove an event when a plug change
@@ -677,29 +545,8 @@ class ProcessNode(Node):
         callback: @f (mandatory)
             a callback function
         """
-        self.process.on_trait_change(callback, plug_name, remove=True)
+        self.process.on_attribute_change.remove(callback, plug_name)
 
-    def get_plug_value(self, plug_name):
-        """ Return the plug value
-
-        Parameters
-        ----------
-        plug_name: str (mandatory)
-            a plug name
-
-        Returns
-        -------
-        output: object
-            the plug value
-        """
-        if not isinstance(self.get_trait(plug_name).handler,
-                          traits.Event):
-            try:
-                return getattr(self.process, plug_name)
-            except TraitError:
-                return Undefined
-        else:
-            return None
 
     def set_plug_value(self, plug_name, value, protected=None):
         """ Set the plug value
@@ -715,35 +562,19 @@ class ProcessNode(Node):
             keep it as is.
         """
         if value in ["", "<undefined>"]:
-            value = Undefined
-        elif is_trait_pathname(self.process.trait(plug_name)) and value is None:
-            value = Undefined
-        self.process.set_parameter(plug_name, value, protected)
+            value = undefined
+        elif is_path(self.process.traifield(plug_name)) and value is None:
+            value = undefined
+        super().set_plug_value(plug_name, value, protected)
 
     def is_parameter_protected(self, plug_name):
-        return self.process.is_parameter_protected(plug_name)
+        return self.process.field(plug_name).metadata.get('protected', False)
 
     def protect_parameter(self, plug_name, state=True):
-        self.process.protect_parameter(plug_name, state)
-
-    def get_trait(self, trait_name):
-        """ Return the desired trait
-
-        Parameters
-        ----------
-        trait_name: str (mandatory)
-            a trait name
-
-        Returns
-        -------
-        output: trait
-            the trait named trait_name
-        """
-        return self.process.trait(trait_name)
+        self.process.field(plug_name).metadata['protected'] = state
 
     def is_job(self):
         return True
-
 
     def requirements(self):
         '''
@@ -837,7 +668,7 @@ class Switch(Node):
     """ Switch node to select a specific Process.
 
     A switch commutes a group of inputs to its outputs, according to its
-    "switch" trait value. Each group may be typically linked to a different
+    "switch" attribute value. Each group may be typically linked to a different
     process. Processes not "selected" by the switch are disabled, if possible.
     Values are also propagated through inputs/outputs of the switch
     (see below).
@@ -894,8 +725,6 @@ class Switch(Node):
 
     See Also
     --------
-    _switch_changed
-    _anytrait_changed
     capsul.pipeline.pipeline.Pipeline.add_switch
     capsul.pipeline.pipeline.Pipeline.pipeline_definition
     """
@@ -925,10 +754,10 @@ class Switch(Node):
             list of optional outputs.
             These outputs will be made optional in the switch output. By
             default they are mandatory.
-        output_types: sequence of traits (optional)
+        output_types: sequence of types (optional)
             If given, this sequence should have the same size as outputs. It
-            will specify each switch output parameter type (as a standard
-            trait). Input parameters for each input block will also have this
+            will specify each switch output parameter type. 
+            Input parameters for each input block will also have this
             type.
         """
         # if the user pass a simple element, create a list and add this
@@ -946,7 +775,7 @@ class Switch(Node):
                 raise ValueError('output_types should have the same number of '
                                  'elements as outputs')
         else:
-            output_types = [Any(Undefined)] * len(outputs)
+            output_types = [typing.Any] * len(outputs)
 
         # check consistency
         if not isinstance(inputs, list) or not isinstance(outputs, list):
@@ -968,31 +797,36 @@ class Switch(Node):
         node_outputs = [dict(name=i, optional=(i in make_optional))
                         for i in outputs]
         # inherit from Node class
-        super(Switch, self).__init__(pipeline, name, node_inputs,
-                                     node_outputs)
+        super().__init__(pipeline, name, node_inputs,
+                         node_outputs)
         for node in node_inputs[1:]:
             plug = self.plugs[node["name"]]
             plug.enabled = False
 
-        # add switch enum trait to select the process
-        self.add_trait("switch", Enum(output=False, *inputs))
+        # add switch enum attribute to select the process
+        self.add_field("switch", Literal(*inputs))
 
-        # add a trait for each input and each output
+        # add a attribute for each input and each output
         input_types = output_types * len(inputs)
-        for i, trait in zip(flat_inputs, input_types):
-            self.add_trait(i, trait)
-            self.trait(i).output = False
-            self.trait(i).optional = self.plugs[i].optional
-        for i, trait in zip(outputs, output_types):
-            self.add_trait(i, trait)
-            self.trait(i).output = True
-            self.trait(i).optional = self.plugs[i].optional
+        for i, type_ in zip(flat_inputs, input_types):
+            self.add_field(i, type_, metadata={
+                'output': False,
+                'optional': self.plugs[i].optional
+            })
+        for i, type_ in zip(outputs, output_types):
+            self.add_field(i, type_, metadata={
+                'output': True,
+                'optional': self.plugs[i].optional
+            })
+
+        self.on_attribute_change(self._any_attribute_changed)
+        self.on_attribute_change(self._switch_changed, 'switch')
 
         # activate the switch first Process
         self._switch_changed(self._switch_values[0], self._switch_values[0])
 
-    def _switch_changed(self, old_selection, new_selection):
-        """ Add an event to the switch trait that enables us to select
+    def _switch_changed(self, new_selection, old_selection):
+        """ Add an event to the switch attribute that enables us to select
         the desired option.
 
         Parameters
@@ -1005,13 +839,13 @@ class Switch(Node):
         self.__block_output_propagation = True
         self.pipeline.delay_update_nodes_and_plugs_activation()
         # deactivate the plugs associated with the old option
-        old_plug_names = ["{0}_switch_{1}".format(old_selection, plug_name)
+        old_plug_names = [f'{old_selection}_switch_{plug_name}'
                           for plug_name in self._outputs]
         for plug_name in old_plug_names:
             self.plugs[plug_name].enabled = False
 
         # activate the plugs associated with the new option
-        new_plug_names = ["{0}_switch_{1}".format(new_selection, plug_name)
+        new_plug_names = [f'{new_selection}_switch_{plug_name}'
                           for plug_name in self._outputs]
         for plug_name in new_plug_names:
             self.plugs[plug_name].enabled = True
@@ -1022,17 +856,16 @@ class Switch(Node):
         # Refresh the links to the output plugs
         for output_plug_name in self._outputs:
             # Get the associated input name
-            corresponding_input_plug_name = "{0}_switch_{1}".format(
-                new_selection, output_plug_name)
+            corresponding_input_plug_name = f'{new_selection}_switch_{output_plug_name}'
 
             # Update the output value
             setattr(self, output_plug_name,
                     getattr(self, corresponding_input_plug_name))
 
-            # Propagate the associated trait description
-            out_trait = self.trait(output_plug_name)
-            in_trait = self.trait(corresponding_input_plug_name)
-            out_trait.desc = in_trait.desc
+            # Propagate the associated field description
+            out_field = self.field(output_plug_name)
+            in_field = self.field(corresponding_input_plug_name)
+            out_field.metadata['desc'] = in_field.metadata.get('desc')
 
         self.pipeline.restore_update_nodes_and_plugs_activation()
         self.__block_output_propagation = False
@@ -1047,12 +880,12 @@ class Switch(Node):
             list of internal connections
             [(input_plug_name, output_plug_name), ...]
         """
-        return [('{0}_switch_{1}'.format(self.switch, plug_name), plug_name)
+        return [(f'{self.switch}_switch_{plug_name}', plug_name)
                 for plug_name in self._outputs]
 
-    def _anytrait_changed(self, name, old, new):
-        """ Add an event to the switch trait that enables us to select
-        the desired option.
+    def _any_attribute_changed(self, new, old, name):
+        """Callback linked to the switch attribute modification that enables
+        the selection the desired option.
 
         Propagates value through the switch, from in put to output if the
         switch state corresponds to this input, or from output to inputs.
@@ -1060,7 +893,7 @@ class Switch(Node):
         Parameters
         ----------
         name: str (mandatory)
-            the trait name
+            the attribute name
         old: str (mandatory)
             the old value
         new: str (mandatory)
@@ -1076,7 +909,7 @@ class Switch(Node):
         if hasattr(self, '_outputs') and not self.__block_output_propagation \
                 and name in self._outputs:
             self.__block_output_propagation = True
-            flat_inputs = ["{0}_switch_{1}".format(switch_name, name)
+            flat_inputs = [f'{switch_name}_switch_{name}'
                            for switch_name in self._switch_values]
             for input_name in flat_inputs:
                 # check if input is connected to a pipeline input
@@ -1135,22 +968,22 @@ class Switch(Node):
 
     def get_switch_inputs(self):
         inputs = []
-        for plug, trait in self.user_traits().items():
-            if trait.output:
+        for field in self.fields():
+            if field.metadata.get('output', False):
                 continue
             ps = plug.split('_switch_')
-            if len(ps) == 2 and ps[1] in self.user_traits() \
-                    and self.trait(ps[1]).output:
+            if len(ps) == 2 and self.field(ps[1]) is not None \
+                    and self.field(ps[1]).metadata.get('output', False):
                 inputs.append(ps[0])
         return inputs
 
     @classmethod
     def configure_controller(cls):
         c = Controller()
-        c.add_trait('inputs', traits.List(traits.Str))
-        c.add_trait('outputs', traits.List(traits.Str))
-        c.add_trait('optional_params', traits.List(traits.Str))
-        c.add_trait('output_types', traits.List(traits.Str))
+        c.add_field('inputs', List[str])
+        c.add_field('outputs', List[str])
+        c.add_field('optional_params', List[str])
+        c.add_field('output_types', List[str])
         c.inputs = ['input_1', 'input_2']
         c.outputs = ['output']
         c.output_types = ['Any']
@@ -1158,13 +991,12 @@ class Switch(Node):
 
     def configured_controller(self):
         c = self.configure_controller()
-        c.outputs = [plug for plug, trait in self.user_traits().items()
-                     if trait.output]
+        c.outputs = [field.name for field in self.fields()
+                     if field.metadata.get('output', False)]
         c.inputs = self.get_switch_inputs()
-        c.output_types = [self.trait(p).trait_type.__class__.__name__
+        c.output_types = [field_type_str(self.field(p))
                           for p in self.outputs]
-        c.optional_params = [self.trait(p).optional for p in self.inputs]
-
+        c.optional_params = [self.field(p).metadata.get("optional", False) for p in self.inputs]
         return c
 
     @classmethod
@@ -1232,22 +1064,23 @@ class OptionalOutputSwitch(Switch):
         output: str (mandatory)
             output parameter
         """
-        super(OptionalOutputSwitch, self).__init__(
+        super().__init__(
             pipeline, name, [input, '_none'], [output], [output])
-        self.trait('switch').optional = True
+        self.field('switch').metadata['optional'] = True
         self.plugs['switch'].optional = True
         self.switch = '_none'
         pipeline.do_not_export.add((name, 'switch'))
-        none_input = '_none_switch_%s' % output
+        none_input = f'_none_switch_{output}'
         pipeline.do_not_export.add((name, none_input))
         # hide internal machinery plugs
-        self.trait('switch').hidden = True
+        self.field('switch').metadate['hidden'] = True
         self.plugs['switch'].hidden = True
-        self.trait(none_input).hidden = True
+        self.field(none_input).metadata['hidden'] = True
         self.plugs[none_input].hidden = True
+        self.on_attribute_change(self._any_attribute_changed)
 
-    def _anytrait_changed(self, name, old, new):
-        """ Add an event to the switch trait that enables us to select
+    def _any_attribute_changed(self, new, old, name):
+        """Callback linked to any attribute that enables us to select
         the desired option.
 
         Propagates value through the switch, from output to input.
@@ -1255,7 +1088,7 @@ class OptionalOutputSwitch(Switch):
         Parameters
         ----------
         name: str (mandatory)
-            the trait name
+            the attribute name
         old: str (mandatory)
             the old value
         new: str (mandatory)
@@ -1268,8 +1101,6 @@ class OptionalOutputSwitch(Switch):
         # However those inputs which are connected to a pipeline input are
         # not propagated, to avoid cyclic feedback between outputs and inputs
         # inside a pipeline
-        if name == 'trait_added':
-            return
         if hasattr(self, '_outputs') \
                 and not self._Switch__block_output_propagation \
                 and name in self._outputs:
@@ -1279,7 +1110,7 @@ class OptionalOutputSwitch(Switch):
                 self.switch = '_none'
             else:
                 self.switch = self._switch_values[0]
-            flat_inputs = ["{0}_switch_{1}".format(switch_name, name)
+            flat_inputs = [f'{switch_name}_switch_{name}'
                            for switch_name in self._switch_values]
             for input_name in flat_inputs:
                 # check if input is connected to a pipeline input
@@ -1304,16 +1135,16 @@ class OptionalOutputSwitch(Switch):
     @classmethod
     def configure_controller(cls):
         c = Controller()
-        c.add_trait('input', traits.Str)
-        c.add_trait('output', traits.Str)
+        c.add_field('input', str)
+        c.add_field('output', str)
         c.input = 'input'
         c.output = 'output'
         return c
 
     def configured_controller(self):
         c = self.configure_controller()
-        c.output = [plug for plug, trait in self.user_traits().items()
-                    if trait.output][0]
+        c.output = [field.name for field in self.fields()
+                    if field.metadata.get('output', False)][0]
         c.input = self.get_switch_inputs()[0]
 
         return c

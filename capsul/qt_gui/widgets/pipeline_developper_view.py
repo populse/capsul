@@ -2717,8 +2717,7 @@ class PipelineDevelopperView(QGraphicsView):
         self._set_pipeline(pipeline)
         if pipeline is not None:
             # Setup callback to update view when pipeline state is modified
-            pipeline.on_trait_change(self._reset_pipeline, 'selection_changed',
-                                    dispatch='ui')
+            pipeline.selection_changed.add(self._reset_pipeline)
             pipeline.on_trait_change(self._reset_pipeline,
                                      'user_traits_changed', dispatch='ui')
             if hasattr(pipeline, 'pipeline_steps'):
@@ -2740,8 +2739,7 @@ class PipelineDevelopperView(QGraphicsView):
             if hasattr(pipeline, 'pipeline_steps'):
                 pipeline.pipeline_steps.on_trait_change(
                     self._reset_pipeline, remove=True)
-            pipeline.on_trait_change(self._reset_pipeline, 'selection_changed',
-                                    remove=True)
+            pipeline.selection_changed.remove(self._reset_pipeline)
             pipeline.on_trait_change(self._reset_pipeline,
                                      'user_traits_changed', remove=True)
         if not delete and (pipeline is not None or self.scene is None):

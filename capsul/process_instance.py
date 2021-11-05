@@ -16,25 +16,23 @@ Functions
 -------------------------
 '''
 
-# System import
-from __future__ import absolute_import
+import dataclasses
 import sys
 import os.path as osp
 import importlib
 import types
 import re
-import six
 import os
 import inspect
 
-# Caspul import
 from capsul.process.process import Process
 from capsul.pipeline.pipeline import Pipeline
 from capsul.process.nipype_process import nipype_factory
-from capsul.process.xml import create_xml_process
 from capsul.pipeline.xml import create_xml_pipeline
 from capsul.pipeline.pipeline_nodes import Node
-from soma.controller import Controller
+
+from soma.controller import Controller, field
+from soma.undefined import undefined
 
 # Nipype import
 try:
@@ -156,24 +154,15 @@ def get_process_instance(process_or_id, **kwargs):
 
     # If the function 'process_or_id' parameter is a function.
     elif isinstance(process_or_id, types.FunctionType):
-        xml = getattr(process_or_id, 'capsul_xml', None)
-        if xml is None:
-            # Check docstring
-            if process_or_id.__doc__:
-                match = process_xml_re.search(
-                    process_or_id.__doc__)
-                if match:
-                    xml = match.group(0)
-        if xml:
-            result = create_xml_process(process_or_id.__module__,
-                                        process_or_id.__name__, 
-                                        process_or_id, xml)()
+        annotations = getattr(process_or_id, '__annotations__', None)
+        if annotations:
+            result = process_from_function(process_or_id)()
         else:
-            raise ValueError('Cannot find XML description to make function {0} a process'.format(process_or_id))
+            raise ValueError('Cannot find annotation description to make function {0} a process'.format(process_or_id))
         
     # If the function 'process_or_id' parameter is a class string
     # description
-    elif isinstance(process_or_id, six.string_types):
+    elif isinstance(process_or_id, str):
         py_url = os.path.basename(process_or_id).split('#')
         object_name = None
         as_xml = False
@@ -207,8 +196,7 @@ def get_process_instance(process_or_id, **kwargs):
                 module_name, object_name = elements
             try:
                 module = importlib.import_module(module_name)
-                if object_name not in module.__dict__ \
-                        or not is_process(getattr(module, object_name)):
+                if object_name not in module.__dict__:
                     # maybe a module with a single process in it
                     module = importlib.import_module(process_or_id)
                     module_dict = module.__dict__
@@ -273,28 +261,8 @@ def get_process_instance(process_or_id, **kwargs):
                 module = sys.modules[module_name]
                 module_object = getattr(module, object_name, None)
             if module_object is not None:
-                if (isinstance(module_object, type) and
-                    issubclass(module_object, Process)):
-                    result = module_object()
-                elif isinstance(module_object, Interface):
-                    # If we have a Nipype interface, wrap this structure in a
-                    # Process class
-                    result = nipype_factory(result)
-                elif (isinstance(module_object, type) and
-                    issubclass(module_object, Interface)):
-                    result = nipype_factory(module_object())
-                elif isinstance(module_object, types.FunctionType):
-                    xml = getattr(module_object, 'capsul_xml', None)
-                    if xml is None:
-                        # Check docstring
-                        if module_object.__doc__:
-                            match = process_xml_re.search(
-                                module_object.__doc__)
-                            if match:
-                                xml = match.group(0)
-                    if xml:
-                        result = create_xml_process(module_name, object_name,
-                                                    module_object, xml)()
+                result = get_process_instance(module_object)
+
             if result is None and module is not None:
                 xml_file = osp.join(osp.dirname(module.__file__),
                                     object_name + '.xml')
@@ -309,15 +277,9 @@ def get_process_instance(process_or_id, **kwargs):
                          "description".format(process_or_id))
 
     # Set the instance default parameters
-    for name, value in six.iteritems(kwargs):
+    for name, value in kwargs.items():
         result.set_parameter(name, value)
 
-    if study_config is not None:
-        if result.study_config is not None \
-                and result.study_config is not study_config:
-            raise ValueError("StudyConfig mismatch in get_process_instance "
-                             "for process %s" % result)
-        result.set_study_config(study_config)
     return result
 
 
@@ -365,7 +327,7 @@ def get_node_class(node_type):
     cls = None
     try:
         mod = importlib.import_module(node_type)
-        for name, val in six.iteritems(mod.__dict__):
+        for name, val in mod.__dict__.items():
             if inspect.isclass(val) and val.__name__ != 'Node' \
                     and issubclass(val, Node):
                 cls = val
@@ -439,7 +401,49 @@ def get_node_instance(node_type, pipeline, conf_dict=None, name=None,
         node = cls(pipeline, name, [], [])
 
     # Set the instance default parameters
-    for name, value in six.iteritems(kwargs):
+    for name, value in kwargs.items():
         setattr(node, name, value)
 
     return node
+
+def process_from_function(function):
+    annotations = {}
+    for name, type_ in getattr(function, '__annotations__', {}).items():
+        output = name == 'return'
+        if isinstance(type_, dataclasses.Field):
+            metadata = {}
+            metadata.update(type_.metadata)
+            metadata['output'] = output
+            default=type_.default
+            default_factory=type_.default_factory
+            kwargs = dict(
+                type_=type_.type,
+                default=default,
+                default_factory=default_factory,
+                repr=type_.repr,
+                hash=type_.hash,
+                init=type_.init,
+                compare=type_.compare,
+                metadata=metadata)
+        else:
+            kwargs = dict(
+                type_=type_,
+                default=undefined,
+                output=output)
+        if output:
+            # "return" cannot be used as a parameter because it is a Python keyword.
+            #  Change it to "result"
+            name = 'result'
+        annotations[name] = field(**kwargs)
+
+    def wrap(self):
+        kwargs = {i: getattr(self, i) for i in annotations if getattr(self, i, undefined) is not undefined}
+        result = function(**kwargs)
+        setattr(self, 'result', result)
+
+    namespace = {
+        '__annotations__': annotations,
+        '__call__': wrap,
+    }
+    name = f'{function.__name__}_process'
+    return type(name, (Process,), namespace)

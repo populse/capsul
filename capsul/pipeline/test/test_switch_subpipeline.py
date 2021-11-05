@@ -249,7 +249,7 @@ if __name__ == "__main__":
 
         app = QtGui.QApplication(sys.argv)
         pipeline = get_process_instance(MainTestPipeline)
-        pipeline.on_trait_change(write_state,'selection_changed')
+        pipeline.selection_changed.add(write_state)
         view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True, allow_open_controller=True)
         view1.add_embedded_subpipeline('switch_pipeline', scale=0.7)
         view1.add_embedded_subpipeline('way1_1', scale=0.4)

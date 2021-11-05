@@ -284,7 +284,7 @@ class ActivationInspector(QtGui.QWidget):
         # Refresh views relying on plugs and nodes selection
         for node in self.pipeline.all_nodes():
             if isinstance(node, PipelineNode):
-                node.process.selection_changed = True
+                node.process.selection_changed.fire()
 
     def find_next(self):
         """ Forward search for a pattern in the activation list.

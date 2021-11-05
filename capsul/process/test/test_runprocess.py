@@ -81,13 +81,5 @@ class TestRunProcess(unittest.TestCase):
 
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestRunProcess)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
-    test()
+    unittest.main()

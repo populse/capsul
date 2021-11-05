@@ -21,118 +21,20 @@ Classes
 
 '''
 
-# System import
-from __future__ import print_function
-from __future__ import absolute_import
 import os
-import operator
-from socket import getfqdn
 from datetime import datetime as datetime
-from copy import deepcopy
-import json
-import soma.subprocess
-import logging
 import shutil
-import six
 import sys
-import functools
 import glob
 import tempfile
 import traceback
 
-# Define the logger
-logger = logging.getLogger(__name__)
 
-# Trait import
-from traits.api import Directory, Undefined, Int, List, Bool, File
-from traits.api import BaseTraitHandler
 
-# Soma import
 from soma.controller import Controller
-from soma.controller import trait_ids
-from soma.controller.trait_utils import is_trait_value_defined
-from soma.controller.trait_utils import is_trait_pathname
-from soma.controller.trait_utils import get_trait_desc
-from soma.utils import json_utils
-
-# Capsul import
-from capsul.utils.version_utils import get_tool_version
 
 
-class ProcessMeta(Controller.__class__):
-    """ Class used to complete a process docstring
-
-    Use a class and not a function for inheritance.
-    """
-    @staticmethod
-    def complement_doc(name, docstr):
-        """ complement the process docstring
-        """
-        docstring = docstr.split("\n")
-
-        # we have to indent the note properly so that the docstring is
-        # properly displayed, and correctly processed by sphinx
-        indent = -1
-        for line in docstring[1:]:
-            lstrip = line.strip()
-            if not lstrip:  # empty lines do not influence indent
-                continue
-            lindent = line.index(line.strip())
-            if indent == -1 or lindent < indent:
-                indent = lindent
-        if indent < 0:
-            indent = 0
-
-        # Complete the docstring
-        docstring += [' ' * indent + line for line in [
-            "",
-            ".. note::",
-            "",
-            "    * Type '{0}.help()' for a full description of "
-            "this process parameters.".format(name),
-            "    * Type '<{0}>.get_input_spec()' for a full description of "
-            "this process input trait types.".format(name),
-            "    * Type '<{0}>.get_output_spec()' for a full description of "
-            "this process output trait types.".format(name),
-            ""
-        ]]
-
-        return "\n".join(docstring)
-
-    def __new__(mcls, name, bases, attrs):
-        """ Method to print the full help.
-
-        Parameters
-        ----------
-        mcls: meta class (mandatory)
-            a meta class.
-        name: str (mandatory)
-            the process class name.
-        bases: tuple (mandatory)
-            the direct base classes.
-        attrs: dict (mandatory)
-            a dictionary with the class attributes.
-        """
-        # Update the class docstring with the full process help
-        docstring = ProcessMeta.complement_doc(
-            name, attrs.get("__doc__", ""))
-        attrs["__doc__"] = docstring
-
-        # Find all traits definitions in the process class and ensure that
-        # it has a boolean value for attributes "output" and "optional".
-        # If no value is given at construction, False will be used.
-        for n, possible_trait_definition in six.iteritems(attrs):
-            if isinstance(possible_trait_definition, BaseTraitHandler):
-                possible_trait_definition._metadata['output'] \
-                    = bool(possible_trait_definition.output)
-                possible_trait_definition._metadata['optional'] \
-                    = bool(possible_trait_definition.optional)
-
-        return super(ProcessMeta, mcls).__new__(
-            mcls, name, bases, attrs)
-
-
-class Process(six.with_metaclass(ProcessMeta, Controller)):
+class Process(Controller):
     """ A process is an atomic component that contains a processing.
 
     A process is typically an object with typed parameters, and an execution
@@ -152,31 +54,31 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
     ::
 
-        from __future__ import print_function
         from capsul.api import Process
-        import traits.api as traits
+        from capsul.run import run
+        from soma.controller import file
 
         class MyProcess(Process):
 
-            # a class trait
-            param1 = traits.Str('def_param1')
+            # a class parameter
+            param1: str = 'def_param1'
 
             def __init__(self):
-                super(MyProcess, self).__init__()
+                super().__init__()
                 # declare an input param
-                self.add_trait('param2', traits.Int())
+                self.add_field('param2', int)
                 # declare an output param
-                self.add_trait('out_param', traits.File(output=True))
+                self.add_field('out_param', file(output=True))
 
-            def _run_process(self):
+            def run(self, context):
                 with open(self.out_param, 'w') as f:
                     print('param1:', self.param1, file=f)
                     print('param2:', self.param2, file=f)
 
         # run it with parameters
-        MyProcess()(param2=12, out_param='/tmp/log.txt')
+        run(MyProcess, param2=12, out_param='/tmp/log.txt')
 
-    **Note about the File and Directory traits**
+    **Note about the File and Directory parameters**
 
     The :class:`~traits.trait_types.File` trait type represents a file
     parameter. A file is actually two things: a filename (string), and the file itself (on the filesystem). For an input it is OK not to distinguish them, but for an output, there are two different cases:
@@ -209,139 +111,27 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         the class name.
     id: str
         the string description of the class location (ie., module.class).
-    log_file: str (default None)
-        if None, the log will be generated in the current directory
-        otherwise it will be written in log_file path.
     """
 
-    def __init__(self, **kwargs):
-        """ Initialize the Process class.
-        """
-        # Inheritance
-        super(Process, self).__init__()
+    # def __init__(self, **kwargs):
+    #     """ Initialize the Process class.
+    #     """
+    #     # Inheritance
+    #     super().__init__()
 
-        # Initialize the process identifiers
-        self.name = self.__class__.__name__
-        self.id = self.__class__.__module__ + "." + self.name
+    #     # Initialize the process identifiers
+    #     self.name = self.__class__.__name__
+    #     self.id = self.__class__.__module__ + "." + self.name
 
-        # Parameter to store which tools will be used dusring the processing
-        self.versions = {
-            "capsul": get_tool_version("capsul")
-        }
-
-        # Initialize the log file name
-        self.log_file = None
-
-        default_values = getattr(self, 'default_values', None)
-        if default_values:
-            self.default_values = default_values.copy()
-        else:
-            self.default_values = {}
-        for k, v in six.iteritems(kwargs):
-            self.default_values[k] = v
-
-    def __getstate__(self):
-        """ Remove the _weakref attribute eventually set by 
-        soma.utils.weak_proxy because it prevent Process instance
-        from being used with pickle.
-        """
-        state = super(Process, self).__getstate__()
-        state.pop('_weakref', None)
-        return state
+    # def __getstate__(self):
+    #     """ Remove the _weakref attribute eventually set by 
+    #     soma.utils.weak_proxy because it prevent Process instance
+    #     from being used with pickle.
+    #     """
+    #     state = super(Process, self).__getstate__()
+    #     state.pop('_weakref', None)
+    #     return state
     
-    def add_trait(self, name, trait):
-        """Ensure that trait.output and trait.optional are set to a
-        boolean value before calling parent class add_trait.
-        """
-        if not "_metadata" in trait.__dict__:
-            trait._metadata = {}
-        if trait._metadata is not None:
-            trait._metadata['output'] = bool(trait.output)
-            trait._metadata['optional'] = bool(trait.optional)
-        else:
-            trait.output = bool(trait.output)
-            trait.optional = bool(trait.optional)
-        super(Process, self).add_trait(name, trait)
-        
-    def __call__(self, **kwargs):
-        """ Method to execute the Process.
-
-        Keyword arguments may be passed to set process parameters.
-        This in turn will allow calling the process like a standard
-        python function.
-        In such case keyword arguments are set in the process in
-        addition to those already set before the call.
-
-        Raise a TypeError if a keyword argument do not match with a
-        process trait name.
-
-        .. note:
-
-            This method must not modify the class attributes in order
-            to be able to perform smart caching.
-
-        .. note:
-
-            This method should **not** be overloaded by Process subclasses to
-            perform actual processing. Instead, either the
-            :meth:`_run_process` method or the :meth:`get_commandline` method
-            should be overloaded.
-
-        Parameters
-        ----------
-        kwargs: dict (optional)
-            should correspond to the declared parameter traits.
-
-        Returns
-        -------
-        results:  ProcessResult object
-            contains all execution information.
-        """
-        # Execute the process
-        raise NotImplementedError('running a pipeline without using a CapsulEngine is not implemented')
-
-    
-    ####################################################################
-    # Private methods
-    ####################################################################
-
-    def _run_process(self):
-        """Runs the processings when the instance is called.
-
-        Either this _run_process() or :meth:`get_commandline` must be
-        defined in derived classes.
-
-        Note that _run_process() is called as a python function, on a Process
-        instance. When using remote processing (cluster for instance), this
-        means that the commandline which will run needs to be able to re-
-        instantiate the same process: the process thus has to be stored in a
-        file or python module which can be accessed from the remote machine,
-        and python / capsul correctly installed and available on it.
-
-        :meth:`get_commandline` at the contrary, can implement commandlines
-        which are completely inependent from Capsul, and from python.
-
-        .. note::
-
-            If both methods are not defined in the derived class a
-            NotImplementedError error is raised.
-
-            On the other side, if both methods are overloaded, the process
-            behavior in local sequential computing mode and in Soma-Workflow
-            modes may be different.
-        """
-        # Check if get_commandline() method is specialized
-        # If yes, we can make use of it to execute the process
-        if self.__class__.get_commandline != Process.get_commandline:
-            commandline = self.get_commandline()
-            soma.subprocess.check_call(commandline)
-
-        # Otherwise raise an error
-        else:
-            raise NotImplementedError(
-                "Either get_commandline() or _run_process() should be "
-                "redefined in process ({0})".format(
-                    self.__class__.__name__))
     
     def _before_run_process(self):
         """This method is called by CapsulEngine before calling
@@ -358,695 +148,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         """
         return run_process_result
         
-
-    def _get_log(self, exec_info):
-        """ Method that generate the logging structure from the execution
-        information and class attributes.
-
-        Parameters
-        ----------
-        exec_info: dict (mandatory)
-            the execution information,
-            the dictionary is supposed to contain a runtime attribute.
-
-        Returns
-        -------
-        log: dict
-            the logging information.
-        """
-        # Set all the execution runtime information in the log
-        log = exec_info.runtime
-
-        # Add the process identifiaction class attribute
-        log["process"] = self.id
-
-        # Add the process inputs and outputs
-        log["inputs"] = exec_info.inputs.copy()
-        log["outputs"] = exec_info.outputs.copy()
-
-        # Need to take the representation of undefined input or outputs
-        # traits
-        for parameter_type in ["inputs", "outputs"]:
-            for key, value in six.iteritems(log[parameter_type]):
-                if value is Undefined:
-                    log[parameter_type][key] = repr(value)
-
-        return log
-
-    def _rst_table(self, data):
-        """ Create a rst formatted table.
-
-        Parameters
-        ----------
-        data: list of list of str (mandatory)
-            the table line-cell centent.
-
-        Returns
-        -------
-        rsttable: list of str
-            the rst formatted table containing the input data.
-        """
-        # Output rst table
-        rsttable = []
-
-        for table_row in data:
-            for index, cell_row in enumerate(table_row):
-                # > set the parameter name in bold
-                if index == 0 and ":" in cell_row:
-                    delimiter_index = cell_row.index(":")
-                    cell_row = ("**" + cell_row[:delimiter_index] + "**" +
-                                cell_row[delimiter_index:])
-                rsttable.append(cell_row)
-
-        ## Get the size of the largest row in order to
-        ## format properly the rst table (do not forget the '+' and '*')
-        #row_widths = [len(item)
-                      #for item in functools.reduce(operator.add, data)]
-        #width = max(row_widths) + 11
-
-        ## Generate the rst table
-
-        ## > table synthax
-        #rsttable.append("+" + "-" * width + "+")
-        ## > go through the table lines
-        #for table_row in data:
-            ## > go through the cell lines
-            #for index, cell_row in enumerate(table_row):
-                ## > set the parameter name in bold
-                #if index == 0 and ":" in cell_row:
-                    #delimiter_index = cell_row.index(":")
-                    #cell_row = ("**" + cell_row[:delimiter_index] + "**" +
-                                #cell_row[delimiter_index:])
-                ## >  add table rst content
-                #rsttable.append(
-                    #"| | {0}".format(cell_row) +
-                    #" " * (width - len(cell_row) - 3) +
-                    #"|")
-            ## > close cell
-            #rsttable.append("+" + "-" * width + "+")
-
-        return rsttable
-
-    ####################################################################
-    # Public methods
-    ####################################################################
-
-    def save_log(self, returncode):
-        """ Method to save process execution information in json format.
-
-        If the class attribute `log_file` is not set, a log.json output
-        file is generated in the process call current working directory.
-
-        Parameters
-        ----------
-        returncode: ProcessResult
-            the process result return code.
-        """
-        # Build the logging information
-        exec_info = self._get_log(returncode)
-
-        # Generate an output log file name if necessary
-        if not self.log_file:
-            self.log_file = os.path.join(exec_info["cwd"], "log.json")
-
-        # Dump the log
-        json_struct = json.dumps(exec_info, sort_keys=True,
-                                 check_circular=True, indent=4)
-
-        # Save the json structure
-        with open(self.log_file, "w") as f:
-            f.write(six.text_type(json_struct))
-
-    @classmethod
-    def help(cls, returnhelp=False):
-        """ Method to print the full help.
-
-        Parameters
-        ----------
-        cls: process class (mandatory)
-            a process class
-        returnhelp: bool (optional, default False)
-            if True return the help string message,
-            otherwise display it on the console.
-        """
-        cls_instance = cls()
-        return cls_instance.get_help(returnhelp)
-
-    ####################################################################
-    # Accessors
-    ####################################################################
-
-    def get_commandline(self):
-        """ Method to generate a comandline representation of the process.
-
-        If not implemented, it will generate a commandline running python,
-        instaitiating the current process, and calling its
-        :meth:`_run_process` method.
-
-        Returns
-        -------
-        commandline: list of strings
-            Arguments are in separate elements of the list.
-        """
-        # Get command line arguments (ie., the process user traits)
-        # Build the python call expression, keeping apart file names.
-        # File names are given separately since they might be modified
-        # externally afterwards, typically to handle temporary files, or
-        # file transfers with Soma-Workflow.
-
-        class ArgPicker(object):
-            """ This small object is only here to have a __repr__() representation which will print sys.argv[n] in a list when writing the commandline code.
-            """
-            def __init__(self, num):
-                self.num = num
-            def __repr__(self):
-                return 'sys.argv[%d]' % self.num
-
-        reserved_params = ("nodes_activation", "selection_changed")
-        # pathslist is for files referenced from lists: a list of files will
-        # look like [sys.argv[5], sys.argv[6]...], then the corresponding
-        # path args will be in additional arguments, here stored in pathslist
-        pathslist = []
-        # argsdict is the dict of non-path arguments, and will be printed
-        # using repr()
-        argsdict = {}
-        # pathsdict is the dict of path arguments, and will be printed as a
-        # series of arg_name, path_value, all in separate commandline arguments
-        pathsdict = {}
-
-        for trait_name, trait in six.iteritems(self.user_traits()):
-            value = getattr(self, trait_name)
-            if trait_name in reserved_params \
-                    or not is_trait_value_defined(value):
-                continue
-            if is_trait_pathname(trait):
-                pathsdict[trait_name] = value
-            elif isinstance(trait.trait_type, List) \
-                    and is_trait_pathname(trait.inner_traits[0]):
-                plist = []
-                for pathname in value:
-                    if is_trait_value_defined(pathname):
-                        plist.append(ArgPicker(len(pathslist) + 1))
-                        pathslist.append(pathname)
-                    else:
-                        plist.append(pathname)
-                argsdict[trait_name] = plist
-            else:
-                argsdict[trait_name] = value
-
-        # Get the module and class names
-        if hasattr(self, '_function'):
-            # function with xml decorator
-            module_name = self._function.__module__
-            class_name = self._function.__name__
-            call_name = class_name
-        else:
-            module_name = self.__class__.__module__
-            class_name = self.name
-            call_name = '%s()' % class_name
-
-        # Construct the command line
-        python_command = os.path.basename(sys.executable)
-        commandline = [
-            python_command,
-            "-c",
-            ("import sys; from {0} import {1}; kwargs={2}; "
-             "kwargs.update(dict((sys.argv[i * 2 + {3}], "
-             "sys.argv[i * 2 + {4}]) "
-             "for i in range(int((len(sys.argv) - {3}) / 2)))); "
-             "{5}(**kwargs)").format(module_name, class_name,
-                                       repr(argsdict), len(pathslist) + 1,
-                                       len(pathslist) + 2,
-                                       call_name).replace("'", '"')
-        ] + pathslist + sum([list(x) for x in pathsdict.items()], [])
-
-        return commandline
-
-    def params_to_command(self):
-        '''
-        Generates a comandline representation of the process.
-
-        If not implemented, it will generate a commandline running python,
-        instaitiating the current process, and calling its
-        :meth:`_run_process` method.
-
-        This methood is new in Capsul v3 and is a replacement for
-        :meth:`get_commandline`.
-
-        It can be overwritten by custom Process subclasses. Actually each
-        process should overwrite either :meth:`params_to_command` or
-        :meth:`_run_process`.
-
-        The returned commandline is a list, which first element is a "method",
-        and others are the actual commandline with arguments. There are several
-        methods, the process is free to use either of the supported ones,
-        depending on how the execution is implemented.
-
-        **Methods:**
-
-        `capsul_job`: Capsul process run in python
-            The command will run the :meth:`_run_process` execution method of
-            the process, after loading input parameters from a JSON dictionary
-            file. The only second element in the commandline list is the
-            process identifier (module/class as in
-            :meth:`~capsul.engine.CapsulEngine.get_process_instance`). The
-            location of the JSON file will be passed to the job execution
-            through an environment variable `SOMAWF_INPUT_PARAMS`::
-
-                return ['capsul_job', 'morphologist.capsul.morphologist']
-
-        `format_string`: free commandline with replacements for parameters
-            Command arguments can be, or contain, format strings in the shape
-            `'%(param)s'`, where `param` is a parameter of the process. This
-            way we can map values correctly, and call a foreign command::
-
-                return ['format_string', 'ls', '%(input_dir)s']
-
-        `json_job`: free commandline with JSON file for input parameters
-            A bit like `capsul_job` but without the automatic wrapper::
-
-                return ['json_job', 'python', '-m', 'my_module']
-
-        Returns
-        -------
-        commandline: list of strings
-            Arguments are in separate elements of the list.
-        '''
-        if self.__class__.get_commandline != Process.get_commandline:
-            # get_commandline is overridden the old way: use it.
-            return ['format_string'] + self.get_commandline()
-        return ['capsul_job', self.id]
-
-    def make_commandline_argument(self, *args):
-        """This helper function may be used to build non-trivial commandline
-        arguments in get_commandline implementations.
-        Basically it concatenates arguments, but it also takes care of keeping
-        track of temporary file objects (if any), and converts non-string
-        arguments to strings (using repr()).
-
-        Ex:
-
-        >>> process.make_commandline_argument('param=', self.param)
-
-        will return the same as:
-
-        >>> 'param=' + self.param
-
-        if self.param is a string (file name) or a temporary path.
-        """
-        built_arg = ""
-        temp = None
-        for arg in args:
-            if hasattr(arg, 'pattern'): # tempfile
-                built_arg = built_arg + arg
-            elif isinstance(arg, six.string_types):
-                built_arg += arg
-            else:
-                built_arg = built_arg + repr(arg)
-        return built_arg
-
-    @staticmethod
-    def run_from_commandline(process_definition):
-        '''
-        Run a process from a commandline call. The process name (with module)
-        are given in argument, input parameters should be passed through a JSON
-        file which location is in the ``SOMAWF_INPUT_PARAMS`` environment
-        variable.
-
-        If the process has outputs, the ``SOMAWF_OUTUT_PARAMS`` environment
-        variable should contain the location of an output file which whill be
-        written with a dict containing output parameters values.
-        '''
-        from capsul.engine import capsul_engine
-
-        ce = capsul_engine()
-
-        param_file = os.environ.get('SOMAWF_INPUT_PARAMS')
-        if param_file is None:
-            print('Warning: no input parameters, the env variable '
-                  'SOMAWF_INPUT_PARAMS is not set.', file=sys.stderr)
-            params_conf = {}
-        else:
-            with open(param_file) as f:
-                params_conf = json_utils.from_json(json.load(f))
-
-        configuration = params_conf.get('configuration_dict')
-        if configuration:
-            # activation will be re-done during run() but some global configs
-            # (nipype SPM/Matlab settings) need to be done before any process
-            # is instantiated, so we must do it earlier, right now.
-
-            # clear activations for now.
-            from capsul import engine
-            engine.activated_modules = set()
-            engine.activate_configuration(configuration)
-
-        params = params_conf.get('parameters', {})
-        ## filter out undefined values -- maybe this is not OK in all cases:
-        ## we may want to manually reset a parameter, but in normal cases,
-        ## Undefined values are just not set, which means that the values are
-        ## left to defaults depending on the global config: nipype works like
-        ## this for matlab parameters.
-        #params = dict([(k, v) for k, v in params.items()
-                       #if v is not Undefined])
-
-        process = ce.get_process_instance(process_definition)
-        try:
-            process.import_from_dict(params)
-        except Exception as e:
-            print('error in setting parameters of process %s, with dict:'
-                  % process.name, params, file=sys.stderr)
-            raise
-        # actually run the process
-        process(configuration_dict=configuration)
-        # collect output parameers
-        out_param_file = os.environ.get('SOMAWF_OUTPUT_PARAMS')
-        output_params = {}
-        if out_param_file is not None:
-            if result is None:
-                result = {}
-            reserved_params = ("nodes_activation", "selection_changed")
-            for param, trait in six.iteritems(process.user_traits()):
-                if param in reserved_params or not trait.output:
-                    continue
-                if isinstance(trait.trait_type, (File, Directory)) \
-                        and trait.input_filename is not False:
-                    continue
-                elif isinstance(trait.trait_type, List) \
-                        and isinstance(trait.inner_traits[0].trait_type,
-                                       (File, Directory)) \
-                        and trait.inner_traits[0].trait_type.input_filename \
-                            is not False \
-                        and trait.input_filename is not False:
-                    continue
-                output_params[param] = getattr(process, param)
-            output_params.update(result)
-            with open(out_param_file, 'w') as f:
-                json.dump(json_utils.to_json(output_params), f)
-
-    def get_log(self):
-        """ Load the logging file.
-
-        .. note:
-
-            If no log file found, return None
-
-        Returns
-        -------
-        log: dict
-            the content of the log file.
-        """
-        if os.path.isfile(self.log_file):
-            with open(self.log_file) as json_file:
-                return json.load(json_file)
-        else:
-            return None
-
-    def get_input_spec(self):
-        """ Method to access the process input specifications.
-
-        Returns
-        -------
-        outputs: str
-            a string representation of all the input trait specifications.
-        """
-        output = "\nINPUT SPECIFICATIONS\n\n"
-        # self.traits(output=False) skips params with no output property
-        for trait_name, trait in six.iteritems(self.user_traits()):
-            if not trait.output:
-                output += "{0}: {1}\n".format(
-                    trait_name, trait_ids(self.trait(trait_name)))
-        return output
-
-    def get_output_spec(self):
-        """ Method to access the process output specifications.
-
-        Returns
-        -------
-        outputs: str
-            a string representation of all the output trait specifications.
-        """
-        output = "\nOUTPUT SPECIFICATIONS\n\n"
-        for trait_name, trait in six.iteritems(self.traits(output=True)):
-            output += "{0}: {1}\n".format(
-                trait_name, trait_ids(self.trait(trait_name)))
-        return output
-
-    def get_inputs(self):
-        """ Method to access the process inputs.
-
-        Returns
-        -------
-        outputs: dict
-            a dictionary with all the input trait names and values.
-        """
-        output = {}
-        for trait_name, trait in six.iteritems(self.user_traits()):
-            if not trait.output:
-                output[trait_name] = getattr(self, trait_name)
-        return output
-
-    def get_outputs(self):
-        """ Method to access the process outputs.
-
-        Returns
-        -------
-        outputs: dict
-            a dictionary with all the output trait names and values.
-        """
-        output = {}
-        for trait_name, trait in six.iteritems(self.traits(output=True)):
-            output[trait_name] = getattr(self, trait_name)
-        return output
-
-    def get_help(self, returnhelp=False, use_labels=False):
-        """ Generate description of a process parameters.
-
-        Parameters
-        ----------
-        returnhelp: bool (optional, default False)
-            if True return the help string message formatted in rst,
-            otherwise display the raw help string message on the console.
-        use_labels: bool
-            if True, input and output sections will get a RestructuredText
-            label to avoid ambiguities.
-        """
-        # Create the help content variable
-        doctring = [""]
-
-        # Update the documentation with a description of the pipeline
-        # when the xml to pipeline wrapper has been used
-        if returnhelp and hasattr(self, "_pipeline_desc"):
-            str_desc = "".join(["    {0}".format(line)
-                                for line in self._pipeline_desc])
-            doctring += [
-                ".. hidden-code-block:: python",
-                "    :starthidden: True",
-                "",
-                str_desc,
-                ""
-            ]
-
-        # Get the process docstring
-        if self.__doc__:
-            doctring += self.__doc__.split("\n") + [""]
-
-        # Update the documentation with a reference on the source function
-        # when the function to process wrapper has been used
-        if hasattr(self, "_func_name") and hasattr(self, "_func_module"):
-            doctring += [
-                "This process has been wrapped from {0}.{1}.".format(
-                    self._func_module, self._func_name),
-                ""
-            ]
-            if returnhelp:
-                doctring += [
-                    ".. currentmodule:: {0}".format(self._func_module),
-                    "",
-                    ".. autosummary::",
-                    "    :toctree: ./",
-                    "",
-                    "    {0}".format(self._func_name),
-                    ""
-                ]
-
-        # Append the input and output traits help
-        if use_labels:
-            in_label = ['.. _%s.%s_inputs:\n\n' % (self.__module__, self.name)]
-            out_label = ['.. _%s.%s_outputs:\n\n'
-                         % (self.__module__, self.name)]
-        else:
-            in_label = []
-            out_label = []
-        full_help = (doctring + in_label + self.get_input_help(returnhelp)
-                     + [""] + out_label
-                     + self.get_output_help(returnhelp) + [""])
-        full_help = "\n".join(full_help)
-
-        # Return the full process help
-        if returnhelp:
-            return full_help
-        # Print the full process help
-        else:
-            print(full_help)
-
-    def get_input_help(self, rst_formating=False):
-        """ Generate description for process input parameters.
-
-        Parameters
-        ----------
-        rst_formating: bool (optional, default False)
-            if True generate a rst table with the input descriptions.
-
-        Returns
-        -------
-        helpstr: str
-            the class input traits help
-        """
-        # Generate an input section
-        helpstr = ["Inputs", "~" * 6, ""]
-
-        # Markup to separate mandatory inputs
-        manhelpstr = ["[Mandatory]", ""]
-
-        # Get all the mandatory input traits
-        mandatory_items = [x for x in six.iteritems(self.user_traits())
-                           if not x[1].output and not x[1].optional]
-        #mandatory_items.update(self.traits(output=None, optional=False))
-
-        # If we have mandatory inputs, get the corresponding string
-        # descriptions
-        data = []
-        if mandatory_items:
-            for trait_name, trait in mandatory_items:
-                trait_desc = get_trait_desc(trait_name, trait,
-                                            use_wrap=not rst_formating)
-                data.append(trait_desc)
-
-        # If we want to format the output nicely (rst)
-        if data != []:
-            if rst_formating:
-                manhelpstr += self._rst_table(data)
-            # Otherwise
-            else:
-                manhelpstr += functools.reduce(operator.add, data)
-
-        # Markup to separate optional inputs
-        opthelpstr = ["", "[Optional]", ""]
-
-        # Get all optional input traits
-        optional_items = [x for x in six.iteritems(self.user_traits())
-                          if not x[1].output and x[1].optional]
-        #optional_items = self.traits(output=False, optional=True)
-        #optional_items.update(self.traits(output=None, optional=True))
-
-        # If we have optional inputs, get the corresponding string
-        # descriptions
-        data = []
-        if optional_items:
-            for trait_name, trait in optional_items:
-                data.append(
-                    get_trait_desc(trait_name, trait,
-                                   use_wrap=not rst_formating))
-
-        # If we want to format the output nicely (rst)
-        if data != []:
-            if rst_formating:
-                opthelpstr += self._rst_table(data)
-            # Otherwise
-            else:
-                opthelpstr += functools.reduce(operator.add, data)
-
-        # Add the mandatry and optional input string description if necessary
-        if mandatory_items:
-            helpstr += manhelpstr
-        if optional_items:
-            helpstr += opthelpstr
-
-        return helpstr
-
-    def get_output_help(self, rst_formating=False):
-        """ Generate description for process output parameters.
-
-        Parameters
-        ----------
-        rst_formating: bool (optional, default False)
-            if True generate a rst table with the input descriptions.
-
-        Returns
-        -------
-        helpstr: str
-            the trait output help descriptions
-        """
-        # Generate an output section
-        helpstr = ["Outputs", "~" * 7, ""]
-
-        # Get all the process output traits, keep their order
-        items = [(name, trait)
-                 for name, trait in six.iteritems(self.user_traits())
-                 if trait.output]
-
-        # If we have no output trait, return no string description
-        if not items:
-            return [""]
-
-        # If we have some outputs, get the corresponding string
-        # descriptions
-        data = []
-        for trait_name, trait in items:
-            data.append(
-                get_trait_desc(trait_name, trait, use_wrap=not rst_formating))
-
-        # If we want to format the output nicely (rst)
-        if data != []:
-            if rst_formating:
-                helpstr += self._rst_table(data)
-            # Otherwise
-            else:
-                helpstr += functools.reduce(operator.add, data)
-
-        return helpstr
-
-    def set_parameter(self, name, value, protected=None):
-        """ Method to set a process instance trait value.
-
-        For File and Directory traits the None value is replaced by the
-        special Undefined trait value.
-
-        Parameters
-        ----------
-        name: str (mandatory)
-            the trait name we want to modify
-        value: object (mandatory)
-            the trait value we want to set
-        protected: None or bool (tristate)
-            if True or False, force the "protected" status of the plug. If None,
-            keep it as is.
-        """
-        # The None trait value is Undefined, do the replacement
-        if value is None:
-            value = Undefined
-
-        if protected is not None:
-            self.protect_parameter(name, protected)
-        # Set the new trait value
-        setattr(self, name, value)
-
-    def get_parameter(self, name):
-        """ Method to access the value of a process instance.
-
-        Parameters
-        ----------
-        name: str (mandatory)
-            the trait name we want to modify
-
-        Returns
-        -------
-        value: object
-            the trait value we want to access
-        """
-        return getattr(self, name)
-
+ 
     def get_missing_mandatory_parameters(self):
         ''' Returns a list of parameters which are not optional, and which
         value is Undefined or None, or an empty string for a File or
@@ -1071,10 +173,12 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             return trait.output or value not in (Undefined, None)
 
         missing = []
-        for name, trait in six.iteritems(self.user_traits()):
-            if not trait.optional:
-                value = self.get_parameter(name)
-                if not check_trait(trait, value):
+        for field in self.fields():
+            optional = field.metadata.get('optional', False)
+            if optional:
+                output = field.metadata.get('output', False)
+                value = gatattr(self, field.name, undefined)
+                if not output and value in (undefined, None):
                     missing.append(name)
         return missing
 
@@ -1091,57 +195,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         '''
         return {}
 
-    def check_requirements(self, capsul_engine, environment='global', message_list=None):
-        '''
-        Checks the process requirements against configuration settings values
-        in the attached CapsulEngine. This makes use of the
-        :meth:`requirements` method and checks that there is one matching
-        config value for each required module.
-
-        Parameters
-        ----------
-        capsul_engine: CapsulEngine
-            CapsulEngine containing the execution environment in which the
-            requirements are tested.
-        environment: str
-            config environment id. Normally corresponds to the computing
-            resource name, and defaults to "global".
-        message_list: list
-            if not None, this list will be updated with messages for
-            unsatisfied requirements, in order to present the user with an
-            understandable error.
-
-        Returns
-        -------
-        config: dict, list, or None
-            if None is returned, requirements are not met: the process cannot
-            run. If a dict is returned, it corresponds to the matching config
-            values. When no requirements are needed, an empty dict is returned.
-            A pipeline, if its requirements are met will return a list of
-            configuration values, because different nodes may require different
-            config values.
-        '''
-        settings = capsul_engine.settings
-        req = self.requirements()
-        config = settings.select_configurations(environment, uses=req)
-        success = True
-        for module in req:
-            module_name = settings.module_name(module)
-            if module_name not in config and message_list is not None:
-                message_list.append('requirement: %s is not met in %s'
-                                    % (req, self.name))
-                success = False
-            elif module_name not in config:
-                # if no message is expected, then we can return immediately
-                # without checking further requirements. Otherwise we
-                # continue to get a full list of unsatisfied requirements.
-                print('requirement:', req, 'not met in', self.name)
-                print('config:', settings.select_configurations(environment))
-                return None
-        if success:
-            return config
-        else:
-            return None
+    def run(self, context):
+        raise NotImplementedError(f'The run method is not implemented for process {self.id}')
 
 
 class FileCopyProcess(Process):
@@ -1189,8 +244,7 @@ class FileCopyProcess(Process):
             working in the same directory and may write the same intermediate
             files (SPM does this a lot).
         """
-        # Inheritance
-        super(FileCopyProcess, self).__init__()
+        super().__init__()
 
         # Class parameters
         self.activate_copy = activate_copy
@@ -1814,13 +868,13 @@ class NipypeProcess(FileCopyProcess):
         if self._nipype_interface_name == "spm":
             # Set the spm working
             self.destination = None
-        super(NipypeProcess, self)._before_run_process()
+        super()._before_run_process()
         # configure nipype from config env variables (which should have been set
         # before now)
         from capsul.in_context import nipype as inp_npp
         inp_npp.configure_all()
 
-    def _run_process(self):
+    def run(self):
         """ Method that do the processings when the instance is called.
 
         Returns
@@ -1879,58 +933,3 @@ class NipypeProcess(FileCopyProcess):
                 shutil.move(script_file, getattr(self, script_tname))
         return super(NipypeProcess,
                      self)._after_run_process(run_process_result)
-
-    @classmethod
-    def help(cls, nipype_interface, returnhelp=False):
-        """ Method to print the full wrapped nipype interface help.
-
-        Parameters
-        ----------
-        cls: process class (mandatory)
-            a nipype process class
-        nipype_instance: nipype interface (mandatory)
-            a nipype interface object that will be documented.
-        returnhelp: bool (optional, default False)
-            if True return the help string message,
-            otherwise display it on the console.
-        """
-        from .nipype_process import nipype_factory
-        cls_instance = nipype_factory(nipype_interface)
-        return cls_instance.get_help(returnhelp)
-
-class InteractiveProcess(Process):
-    '''
-    Base class for interactive processes. The value of the is_interactive 
-    parameter determine if either the process can be run in background
-    (eventually remotely) as a standardl process (is_interactive = False)
-    or if the process must be executed interactively in the user environment
-    (is_interactive = False).
-    '''
-    is_interactive = Bool(False)
-
-class ProcessResult(object):
-    """ Object that contains running information a particular Process.
-
-    Parameters
-    ----------
-    process : Process class (mandatory)
-        A copy of the `Process` class that was called.
-    runtime : dict (mandatory)
-        Execution attributes.
-    returncode: dict (mandatory)
-        Execution raw attributes
-    inputs :  dict (optional)
-        Representation of the process inputs.
-    outputs : dict (optional)
-        Representation of the process outputs.
-    """
-
-    def __init__(self, process, runtime, returncode, inputs=None,
-                 outputs=None):
-        """ Initialize the ProcessResult class.
-        """
-        self.process = process
-        self.runtime = runtime
-        self.returncode = returncode
-        self.inputs = inputs
-        self.outputs = outputs
