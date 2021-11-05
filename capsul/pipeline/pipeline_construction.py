@@ -100,7 +100,7 @@ class PipelineConstructor(object):
         """ Sets the documentation of the pipeline
         """
         # Get and complement the process docstring
-        self.pipeline.__doc__ = doc
+        self.pipeline.__doc__ = docxœxœ
 
 
     def set_node_position(self, node_name, x, y):

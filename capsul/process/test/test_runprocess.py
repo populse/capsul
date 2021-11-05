@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-
-from __future__ import absolute_import
 import os
 import subprocess
 import sys
 import unittest
 
+
+from soma.controller import field
+
 from capsul.api import Process
-from traits.api import Float, Undefined
 
 
 class DummyProcess(Process):
     """Description of DummyProcess"""
-    f = Float(Undefined, output=False, optional=False,
-              desc="help for parameter f")
+    f: field(type_=float, desc="help for parameter f")
+    
     def _run_process(self):
         print("DummyProcess exec, f={0}".format(self.f))
 

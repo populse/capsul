@@ -563,7 +563,7 @@ class ProcessNode(Node):
         """
         if value in ["", "<undefined>"]:
             value = undefined
-        elif is_path(self.process.traifield(plug_name)) and value is None:
+        elif is_path(self.process.field(plug_name)) and value is None:
             value = undefined
         super().set_plug_value(plug_name, value, protected)
 

@@ -24,7 +24,6 @@ from capsul.process.xml import string_to_value
 from capsul.pipeline.pipeline_construction import PipelineConstructor
 from soma.controller import Controller
 
-from traits.api import Undefined
 
 
 def create_xml_pipeline(module, name, xml_file):
