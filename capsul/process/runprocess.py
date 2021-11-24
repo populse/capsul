@@ -251,7 +251,7 @@ def main():
     PrepareSubject.t1mri=/home/myself/mymri.nii
 
     For a more precise description, please look at the web documentation:
-    http://brainvisa.info/capsul/user_doc/user_guide_tree/index.html
+    https://brainvisa.info/capsul/user_guide_tree/index.html
     '''
 
     # Set up logging on stderr. This must be called before any logging takes
