@@ -166,6 +166,10 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         for parameter in process.regular_parameters:
             if not process.trait(parameter).forbid_completion:
                 parameters[parameter] = getattr(process, parameter)
+            else:
+                # if completion is blocked on this parameter, set its value
+                # from the iteration process
+                setattr(process.process, parameter, getattr(process, parameter))
 
         # attributes lists sizes
         sizes = [len(getattr(attributes_set, attribute))
@@ -198,14 +202,19 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 value = iterated_values[step]
                 setattr(step_attributes, attribute, value)
             for parameter in process.iterative_parameters:
-                if not process.trait(parameter).forbid_completion:
-                    values = getattr(process, parameter)
-                    if isinstance(values, list) and len(values) > it_step:
+                values = getattr(process, parameter)
+                if isinstance(values, list) and len(values) > it_step:
+                    if not process.trait(parameter).forbid_completion:
                         parameters[parameter] = values[it_step]
+                    else:
+                        # if completion is blocked on this parameter, set its
+                        # value from the iteration process
+                        setattr(process.process, parameter, value)
             completion_engine.complete_parameters(parameters)
             for parameter in process.iterative_parameters:
-                value = getattr(process.process, parameter)
-                iterative_parameters[parameter].append(value)
+                if not process.trait(parameter).forbid_completion:
+                    value = getattr(process.process, parameter)
+                    iterative_parameters[parameter].append(value)
             self.completion_progress = it_step + 1
         for parameter, values in six.iteritems(iterative_parameters):
             try:
