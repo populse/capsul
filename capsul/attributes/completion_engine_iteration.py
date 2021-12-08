@@ -141,7 +141,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         return self.capsul_attributes
 
 
-    def complete_parameters(self, process_inputs={}):
+    def complete_parameters(self, process_inputs={},
+                            complete_iterations=True):
         self.completion_progress = 0.
         process = self.process
         if isinstance(process, ProcessNode):
@@ -200,7 +201,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 values = getattr(process, parameter)
                 if isinstance(values, list) and len(values) > it_step:
                     parameters[parameter] = values[it_step]
-            completion_engine.complete_parameters(parameters)
+            completion_engine.complete_parameters(
+                parameters, complete_iterations=complete_iterations)
             for parameter in process.iterative_parameters:
                 value = getattr(process.process, parameter)
                 iterative_parameters[parameter].append(value)

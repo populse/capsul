@@ -41,8 +41,8 @@ from six.moves import range
 
 def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                            jobs_priority=0, create_directories=True,
-                           environment='global',
-                           check_requirements=True):
+                           environment='global', check_requirements=True,
+                           complete_parameters=False):
     """ Create a soma-workflow workflow from a Capsul Pipeline
 
     Parameters
@@ -74,6 +74,12 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         if True, check the pipeline nodes requirements in the capsul engine
         settings, and issue an exception if they are not met instead of
         proceeding with the workflow.
+    complete_parameters: bool (default: False)
+        Perform parameters completion on the input pipeline while building
+        the workflow. The default is False because we should avoid to do things
+        several times when it's already done, but in iteration nodes,
+        completion needs to be done anyway for each iteration, so this option
+        offers to do the rest of the "parent" pipeline completion.
 
     Returns
     -------
@@ -1424,6 +1430,13 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         new_pipeline.add_process('main', pipeline)
         new_pipeline.autoexport_nodes_parameters(include_optional=True)
         pipeline = new_pipeline
+
+    if complete_parameters:
+        completion = ProcessCompletionEngine.get_completion_engine(pipeline)
+        if completion:
+            attributes = completion.get_attribute_values()
+            completion.complete_parameters(complete_iterations=False)
+
     temp_map = assign_temporary_filenames(pipeline)
     temp_subst_list = [(x1, x2[0]) for x1, x2 in six.iteritems(temp_map)]
     temp_subst_map = dict(temp_subst_list)
