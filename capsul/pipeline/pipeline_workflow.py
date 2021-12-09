@@ -992,7 +992,14 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             reduce_param_dict = {}
             for param, trait in six.iteritems(it_process.user_traits()):
                 if trait.output and param not in forbidden_traits:
-                    reduce_param_dict[param] = getattr(it_process, param)
+                    value = getattr(it_process, param)
+                    reduce_param_dict[param] = value
+                    if param in out_params:
+                        # set input params of reduce node for a non-dynamic
+                        # reduce case (outputs are set from outside)
+                        for i, p in enumerate(value):
+                            reduce_param_dict['%s_%d' % (param, i)] = p
+
             reduce_param_dict.update({
                 'input_names': ['%s' % p + '_%d' for p in out_params],
                 'output_names': out_params,
