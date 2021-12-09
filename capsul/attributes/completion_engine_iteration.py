@@ -141,12 +141,57 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         return self.capsul_attributes
 
 
-    def complete_parameters(self, process_inputs={},
-                            complete_iterations=True):
-        self.completion_progress = 0.
+    def iteration_size(self, process_inputs={}):
         process = self.process
         if isinstance(process, ProcessNode):
             process = process.process
+        try:
+            attributes_set = self.get_attribute_values()
+        except AttributeError:
+            # ProcessCompletionEngine not implemented for this process:
+            # no completion
+            return
+
+        # attributes lists sizes
+        sizes = [len(getattr(attributes_set, attribute))
+                 for attribute in self.get_iterated_attributes()]
+        if sizes:
+            size = max(sizes)
+        else:
+            size = 0
+        sizes = []
+        for param in process.iterative_parameters:
+            value = process_inputs.get(param)
+            if value is not None:
+                sizes.append(len(value))
+            else:
+                value = getattr(process, param)
+                if value:
+                    sizes.append(len(value))
+
+        if sizes:
+            psize = max(sizes)
+        else:
+            psize = 0
+        size = max(size, psize)
+
+        return size
+
+
+    def complete_parameters(self, process_inputs={},
+                            complete_iterations=True):
+
+        if not complete_iterations:
+            # then do nothing...
+            return
+
+        self.completion_progress = 0.
+        size = self.iteration_size()
+
+        process = self.process
+        if isinstance(process, ProcessNode):
+            process = process.process
+
         try:
             self.set_parameters(process_inputs)
             attributes_set = self.get_attribute_values()
@@ -166,21 +211,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         parameters = {}
         for parameter in process.regular_parameters:
             parameters[parameter] = getattr(process, parameter)
-
-        # attributes lists sizes
-        sizes = [len(getattr(attributes_set, attribute))
-                 for attribute in iterated_attributes]
-        if sizes:
-            size = max(sizes)
-        else:
-            size = 0
-        sizes = [len(getattr(process, param)) if getattr(process, param) else 0
-                 for param in process.iterative_parameters]
-        if sizes:
-            psize = max(sizes)
-        else:
-            psize = 0
-        size = max(size, psize)
 
         # complete each step to get iterated parameters.
         # This is generally "too much" but it's difficult to perform a partial

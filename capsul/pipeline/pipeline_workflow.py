@@ -870,39 +870,45 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         (jobs, dependencies, groups, root_jobs, links, nodes)
         '''
         it_process = it_node.process
-        no_output_value = None
-        size = None
-        size_error = False
+        completion_engine = ProcessCompletionEngine.get_completion_engine(
+            it_process)
+        # # check if it is an iterative completion engine
+        # if hasattr(completion_engine, 'complete_iteration_step'):
+        size = completion_engine.iteration_size()
 
-        # calculate the number of iterations
-        for parameter in it_process.iterative_parameters:
-            trait = it_process.trait(parameter)
-            psize = len(getattr(it_process, parameter))
-            if psize:
-                if size is None:
-                    size = psize
-                elif size != psize:
-                    size_error = True
-                    break
-                if trait.output:
-                    if no_output_value is None:
-                        no_output_value = False
-                    elif no_output_value:
-                        size_error = True
-                        break
-            else:
-                if trait.output:
-                    if no_output_value is None:
-                        no_output_value = True
-                    elif not no_output_value:
-                        size_error = True
-                        break
+        #no_output_value = None
+        #size = None
+        #size_error = False
 
-        if size_error:
-            raise ValueError('Iterative parameter values must be lists of the '
-                'same size: %s' % ','.join('%s=%d'
-                    % (n, len(getattr(it_process, n)))
-                    for n in it_process.iterative_parameters))
+        ## calculate the number of iterations
+        #for parameter in it_process.iterative_parameters:
+            #trait = it_process.trait(parameter)
+            #psize = len(getattr(it_process, parameter))
+            #if psize:
+                #if size is None:
+                    #size = psize
+                #elif size != psize:
+                    #size_error = True
+                    #break
+                #if trait.output:
+                    #if no_output_value is None:
+                        #no_output_value = False
+                    #elif no_output_value:
+                        #size_error = True
+                        #break
+            #else:
+                #if trait.output:
+                    #if no_output_value is None:
+                        #no_output_value = True
+                    #elif not no_output_value:
+                        #size_error = True
+                        #break
+
+        #if size_error:
+            #raise ValueError('Iterative parameter values must be lists of the '
+                #'same size: %s' % ','.join('%s=%d'
+                    #% (n, len(getattr(it_process, n)))
+                    #for n in it_process.iterative_parameters))
 
         jobs = {}
         workflows = []
@@ -920,47 +926,49 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         if size == 0:
             return (jobs, dependencies, groups, root_jobs, links, nodes)
 
-        if no_output_value:
-            # this case is a "really" dynamic iteration, the number of
-            # iterations and parameters are determined in runtime, so we
-            # cannot handle it at the moment.
-            raise ValueError('Dynamic iteration is not handled in this '
-                'version of CAPSUL / Soma-Workflow')
+        #if no_output_value:
+            ## this case is a "really" dynamic iteration, the number of
+            ## iterations and parameters are determined in runtime, so we
+            ## cannot handle it at the moment.
+            #raise ValueError('Dynamic iteration is not handled in this '
+                #'version of CAPSUL / Soma-Workflow')
 
-            for parameter in it_process.iterative_parameters:
-                trait = it_process.trait(parameter)
-                if trait.output:
-                    setattr(it_process, parameter, [])
-            outputs = {}
-            for iteration in range(size):
-                for parameter in it_process.iterative_parameters:
-                    if not no_output_value \
-                            or not it_process.trait(parameter).output:
-                        values = getattr(it_process, parameter)
-                        if len(values) != 0:
-                            if len(values) > iteration:
-                                setattr(it_process.process, parameter,
-                                        values[iteration])
-                            else:
-                                setattr(it_process.process, parameter,
-                                        values[-1])
+            #for parameter in it_process.iterative_parameters:
+                #trait = it_process.trait(parameter)
+                #if trait.output:
+                    #setattr(it_process, parameter, [])
+            #outputs = {}
+            #for iteration in range(size):
+                #for parameter in it_process.iterative_parameters:
+                    #if not no_output_value \
+                            #or not it_process.trait(parameter).output:
+                        #values = getattr(it_process, parameter)
+                        #if len(values) != 0:
+                            #if len(values) > iteration:
+                                #setattr(it_process.process, parameter,
+                                        #values[iteration])
+                            #else:
+                                #setattr(it_process.process, parameter,
+                                        #values[-1])
 
-                # operate completion
-                complete_iteration(it_process, iteration)
+                ## operate completion
+                #complete_iteration(it_process, iteration)
 
-                #workflow = workflow_from_pipeline(it_process.process,
-                                                  #study_config=study_config)
-                #workflows.append(workflow)
+                ##workflow = workflow_from_pipeline(it_process.process,
+                                                  ##study_config=study_config)
+                ##workflows.append(workflow)
 
-                for parameter in it_process.iterative_parameters:
-                    trait = it_process.trait(parameter)
-                    if trait.output:
-                        outputs.setdefault(
-                            parameter,[]).append(getattr(it_process.process,
-                                                         parameter))
-            for parameter, value in six.iteritems(outputs):
-                setattr(it_process, parameter, value)
-        else:
+                #for parameter in it_process.iterative_parameters:
+                    #trait = it_process.trait(parameter)
+                    #if trait.output:
+                        #outputs.setdefault(
+                            #parameter,[]).append(getattr(it_process.process,
+                                                         #parameter))
+            #for parameter, value in six.iteritems(outputs):
+                #setattr(it_process, parameter, value)
+        #else:
+
+        if True:
 
             # iterations are built using
             # * a map job to dispatch input lists
@@ -1082,6 +1090,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
             # iterate the iterates process / pipeline
 
+            iter_values = {}
             for iteration in range(size):
                 for parameter in it_process.iterative_parameters:
                     if it_process.process.trait(parameter).input_filename \
@@ -1098,6 +1107,15 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
                 # operate completion
                 complete_iteration(it_process, iteration)
+
+                # get iteration values to set on the parent iter node
+                for parameter in it_process.iterative_parameters:
+                    if it_process.process.trait(parameter).input_filename \
+                            is False:
+                        # dynamic output has no forced value
+                        continue
+                    value = getattr(it_process.process, parameter)
+                    iter_values.setdefault(parameter, []).append(value)
 
                 # build a workflow for the job / pipeline iteration
                 process_name = it_process.process.name + '_%d' % iteration
@@ -1137,6 +1155,11 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                             links.setdefault(proc, {}) \
                                 .setdefault(dparam, []) \
                                 .append(((link[0], iteration), link[1]))
+
+        # set values on the iter node (what a full completion does, but we're
+        # doing it only partially here)
+        for param, value in iter_values.items():
+            setattr(it_process, param, value)
 
         # the iteration process is not a single job, but can be reached
         # (for links) through the map and reduce nodes. So we record a tuple
