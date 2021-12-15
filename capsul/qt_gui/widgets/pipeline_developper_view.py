@@ -3913,7 +3913,7 @@ class PipelineDevelopperView(QGraphicsView):
         if res:
             proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
-            self.add_named_process(node_name, proc_module)
+            self.add_named_process(proc_module, node_name)
 
     def add_named_process(self, proc_module, node_name=None):
             pipeline = self.scene.pipeline
