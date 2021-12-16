@@ -180,6 +180,7 @@ class TestPipelineWorkflow(unittest.TestCase):
                                #{'version': '12', 'standalone': True})
         study_config.spm_standalone = True
         study_config.spm_version = '12'
+        study_config.somaworkflow_keep_succeeded_workflows = False
 
     def tearDown(self):
         try:
@@ -208,8 +209,8 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.assertEqual(len(wf.dependencies), 4)
 
         # DEBUG
-        import soma_workflow.client as swc
-        swc.Helper.serialize('/tmp/workflow1.wf', wf)
+        #import soma_workflow.client as swc
+        #swc.Helper.serialize('/tmp/workflow1.wf', wf)
 
     def test_partial_wf1(self):
         self.pipeline.enable_all_pipeline_steps()
@@ -257,10 +258,13 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.assertTrue(osp.exists(pipeline.output1))
         self.assertTrue(osp.exists(pipeline.output2))
         self.assertTrue(osp.exists(pipeline.output3))
+        lens = [4, 5, 5]
         for o in range(3):
-            print('** output%d: **' % (o+1))
+            #print('** output%d: **' % (o+1))
             with open(getattr(pipeline, 'output%d' % (o+1))) as f:
-                print(f.read())
+                text = f.read()
+                #print(text)
+                self.assertEqual(len(text.split('\n')), lens[o])
 
     def test_iter_workflow_without_temp(self):
         engine = self.study_config.engine
@@ -278,15 +282,15 @@ class TestPipelineWorkflow(unittest.TestCase):
             create_directories=False)
         njobs = niter + 1 + 2  # 1 after + map / reduce
         self.assertEqual(len(wf.jobs), njobs)
-        for job in wf.jobs:
-            print(job.name)
-            print(job.command)
-            print('ref inputs:', job.referenced_input_files)
-            print('ref outputs:', job.referenced_output_files)
-            print()
+        #for job in wf.jobs:
+            #print(job.name)
+            #print(job.command)
+            #print('ref inputs:', job.referenced_input_files)
+            #print('ref outputs:', job.referenced_output_files)
+            #print()
 
-        import soma_workflow.client as swc
-        swc.Helper.serialize('/tmp/workflow2.wf', wf)
+        #import soma_workflow.client as swc
+        #swc.Helper.serialize('/tmp/workflow2.wf', wf)
 
         for i, filein in enumerate(pipeline.input):
             with open(filein, 'w') as f:
@@ -296,6 +300,15 @@ class TestPipelineWorkflow(unittest.TestCase):
         print('execution started')
         status = engine.wait(exec_id, pipeline=pipeline)
         print('finished:', status)
+
+        self.assertEqual(status, 'workflow_done')
+        self.assertTrue(osp.exists(pipeline.output))
+        olen = 12
+        #print('** output: **')
+        with open(pipeline.output) as f:
+            text = f.read()
+            #print(text)
+            self.assertEqual(len(text.split('\n')), olen)
 
     def test_iter_workflow(self):
         engine = self.study_config.engine
@@ -313,20 +326,36 @@ class TestPipelineWorkflow(unittest.TestCase):
             create_directories=False)
         njobs = 4*niter + 3 + 2  # 3 after + map / reduce
         self.assertEqual(len(wf.jobs), njobs)
-        for job in wf.jobs:
-            print(job.name)
-            print(job.command)
-            print('ref inputs:', job.referenced_input_files)
-            print('ref outputs:', job.referenced_output_files)
-            print()
+        #for job in wf.jobs:
+            #print(job.name)
+            #print(job.command)
+            #print('ref inputs:', job.referenced_input_files)
+            #print('ref outputs:', job.referenced_output_files)
+            #print()
 
-        import soma_workflow.client as swc
-        swc.Helper.serialize('/tmp/workflow.wf', wf)
+        #import soma_workflow.client as swc
+        #swc.Helper.serialize('/tmp/workflow.wf', wf)
 
-        #exec_id = engine.start(pipeline, workflow=wf)
-        #print('execution started')
-        #status = engine.wait(exec_id, pipeline=pipeline)
-        #print('finished:', status)
+        for i, filein in enumerate(pipeline.input):
+            with open(filein, 'w') as f:
+                print('MAIN INPUT %d' % i, file=f)
+
+        exec_id = engine.start(pipeline, workflow=wf)
+        print('execution started')
+        status = engine.wait(exec_id, pipeline=pipeline)
+        print('finished:', status)
+
+        self.assertEqual(status, 'workflow_done')
+        self.assertTrue(osp.exists(pipeline.output1))
+        self.assertTrue(osp.exists(pipeline.output2))
+        self.assertTrue(osp.exists(pipeline.output3))
+        lens = [16, 20, 20]
+        for o in range(3):
+            #print('** output%d: **' % (o+1))
+            with open(getattr(pipeline, 'output%d' % (o+1))) as f:
+                text = f.read()
+                #print(text)
+                self.assertEqual(len(text.split('\n')), lens[o])
 
 
 def test():
