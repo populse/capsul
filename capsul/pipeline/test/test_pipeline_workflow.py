@@ -181,8 +181,11 @@ class TestPipelineWorkflow(unittest.TestCase):
         study_config.spm_standalone = True
         study_config.spm_version = '12'
         study_config.somaworkflow_keep_succeeded_workflows = False
+        self.exec_ids = []
 
     def tearDown(self):
+        for exec_id in self.exec_ids:
+            self.study_config.engine.dispose(exec_id)
         try:
             shutil.rmtree(self.tmpdir)
         except Exception:
@@ -252,6 +255,7 @@ class TestPipelineWorkflow(unittest.TestCase):
             print('MAIN INPUT', file=f)
 
         exec_id = engine.start(pipeline)
+        self.exec_ids.append(exec_id)
         print('execution started')
         status = engine.wait(exec_id, pipeline=pipeline)
         print('finished:', status)
@@ -297,6 +301,7 @@ class TestPipelineWorkflow(unittest.TestCase):
                 print('MAIN INPUT %d' % i, file=f)
 
         exec_id = engine.start(pipeline, workflow=wf)
+        self.exec_ids.append(exec_id)
         print('execution started')
         status = engine.wait(exec_id, pipeline=pipeline)
         print('finished:', status)
@@ -341,6 +346,8 @@ class TestPipelineWorkflow(unittest.TestCase):
                 print('MAIN INPUT %d' % i, file=f)
 
         exec_id = engine.start(pipeline, workflow=wf)
+        self.exec_ids.append(exec_id)
+
         print('execution started')
         status = engine.wait(exec_id, pipeline=pipeline)
         print('finished:', status)
