@@ -1517,6 +1517,9 @@ class PipelineScene(QtGui.QGraphicsScene):
         for gnode in self.gnodes.values():
             gnode._release()
         del self.gnodes
+
+        self.changed.disconnect()
+
         # force delete gnodes: needs to use gc.collect()
         import gc
         gc.collect()
@@ -2745,6 +2748,14 @@ class PipelineDevelopperView(QGraphicsView):
             pipeline.on_trait_change(self._reset_pipeline,
                                      'user_traits_changed', remove=True)
         if not delete and (pipeline is not None or self.scene is None):
+            if self.scene:
+                for gnode in self.scene.gnodes.values():
+                    gnode._release()
+                del self.scene.gnodes
+                self.scene.changed.disconnect()
+                del self.scene
+                import gc
+                gc.collect()
             self.scene = PipelineScene(self, userlevel=self.userlevel)
             self.scene.set_enable_edition(self._enable_edition)
             self.scene.logical_view = self._logical_view
@@ -3902,7 +3913,7 @@ class PipelineDevelopperView(QGraphicsView):
         if res:
             proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
-            self.add_named_process(node_name, proc_module)
+            self.add_named_process(proc_module, node_name)
 
     def add_named_process(self, proc_module, node_name=None):
             pipeline = self.scene.pipeline

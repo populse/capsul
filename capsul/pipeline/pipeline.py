@@ -446,7 +446,8 @@ class Pipeline(Process):
         name: str (mandatory)
             the node name (has to be unique).
         process: Process (mandatory)
-            the process we want to add.
+            the process we want to add. May be a string ('module.process'), a
+            process instance or a class.
         do_not_export: list of str (optional)
             a list of plug names that we do not want to export.
         make_optional: list of str (optional)
