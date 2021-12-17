@@ -656,7 +656,9 @@ class ProcessCompletionEngine(traits.HasTraits):
                 except ValueError:
                     pass # not found
         if engine_factory is None:
-            engine_factory = ProcessCompletionEngineFactory()
+            from . import completion_engine_factory
+            engine_factory = completion_engine_factory. \
+                BuiltinProcessCompletionEngineFactory()
         completion_engine = engine_factory.get_completion_engine(
             process, name=name)
         # I remove the completion_engine cache because when the FOM config
