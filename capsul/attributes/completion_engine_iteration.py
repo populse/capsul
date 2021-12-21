@@ -186,7 +186,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             return
 
         self.completion_progress = 0.
-        size = self.iteration_size()
 
         process = self.process
         if isinstance(process, ProcessNode):
@@ -202,6 +201,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             # ProcessCompletionEngine not implemented for this process:
             # no completion
             return
+
+        size = self.iteration_size()
 
         iterated_attributes = self.get_iterated_attributes()
         for attribute in attributes_set.user_traits():
