@@ -126,7 +126,6 @@ class Pipeline1(Pipeline):
         self.nodes['intermediate_output'].suffix = '_interm'
 
         self.add_process('test', TestProcess())
-        self.nodes['test'].process.trait('out1').input_filename = False
 
         self.add_custom_node(
             'test_output',
@@ -148,6 +147,9 @@ class Pipeline1(Pipeline):
         self.export_parameter('output_file', 'base', 'output_directory')
         self.export_parameter('output_file', 'subject')
         self.export_parameter('test', 'out1', 'test_output', is_optional=True)
+        # test_output will be assigned internally by the cat node 'test_output'
+        # thus should not be a temporary
+        self.trait('test_output').input_filename = False
         self.add_link('LOO.train->train1.in1')
         self.add_link('main_inputs->train2.in1')
         self.add_link('train1.out1->train2.in2')
@@ -541,9 +543,14 @@ class TestCustomNodes(unittest.TestCase):
             [os.path.join(pipeline2.output_directory, 'subject%d' % i)
              for i in range(4)])
         test_jobs = [job for job in wf.jobs if job.name == 'test']
-        out = sorted([job.param_dict['out1'] for job in test_jobs])
+        self.assertEqual(len(test_jobs), 4)
+        test_outputs = [job for job in wf.jobs if job.name == 'test_output']
+        #print('test_output jobs:', test_outputs)
+        #for j in test_outputs:
+            #print('param_dict:', j.param_dict)
+        out = sorted([job.param_dict['out_file'] for job in test_outputs])
         self.assertEqual(
-            sorted([job.param_dict['out1'] for job in test_jobs]),
+            sorted([job.param_dict['out_file'] for job in test_outputs]),
             [os.path.join(pipeline2.output_directory,
                           'subject%d_test_output' % i)
              for i in range(4)])
@@ -604,9 +611,14 @@ class TestCustomNodes(unittest.TestCase):
             [os.path.join(pipeline.output_directory, '%d' % i)
              for i in range(4)])
         test_jobs = [job for job in wf.jobs if job.name == 'test']
-        out = sorted([job.param_dict['out1'] for job in test_jobs])
+        self.assertEqual(len(test_jobs), 4)
+        test_outputs = [job for job in wf.jobs if job.name == 'test_output']
+        #print('test_output jobs:', test_outputs)
+        #for j in test_outputs:
+            #print('param_dict:', j.param_dict)
+        out = sorted([job.param_dict['out_file'] for job in test_outputs])
         self.assertEqual(
-            sorted([job.param_dict['out1'] for job in test_jobs]),
+            sorted([job.param_dict['out_file'] for job in test_outputs]),
             [os.path.join(pipeline.output_directory,
                           'subject%d_test_output' % i)
              for i in range(4)])
@@ -730,7 +742,7 @@ if __name__ == '__main__':
                                        #enable_edition=True)
         #view1.show()
 
-        pipeline2 = PipelineCV()
+        pipeline2 = PipelineLOO()
         pipeline2.main_inputs = ['/tmp/file%d' % i for i in range(4)]
         pipeline2.test = pipeline2.main_inputs[2]
         pipeline2.subjects = ['subject%d' % i for i in range(4)]
