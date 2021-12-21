@@ -859,7 +859,14 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             pipeline = Pipeline()
             pipeline.set_study_config(study_config)
             pipeline.add_process('iter', process.process)
-            return build_iteration(pipeline, step_name, study_config,
+            return build_iteration(pipeline, step_name, temp_map=temp_map,
+                                   shared_map=shared_map,
+                                   transfers=transfers,
+                                   shared_paths=shared_paths,
+                                   disabled_nodes=disabled_nodes,
+                                   remove_temp=remove_temp,
+                                   steps=steps,
+                                   study_config=study_config,
                                    environment=environment)
         else:
             # single process
