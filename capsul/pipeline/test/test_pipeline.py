@@ -8,6 +8,7 @@ from capsul.api import Pipeline
 from capsul.api import get_process_instance
 import tempfile
 import os
+import os.path as osp
 import sys
 
 
@@ -83,6 +84,23 @@ class TestPipeline(unittest.TestCase):
                     pass
             self.temp_files = []
 
+    def add_py_tmpfile(self, pyfname):
+        '''
+        add the given .py file and the associated .pyc file to the list of temp
+        files to remove after testing
+        '''
+        self.temp_files.append(pyfname)
+        if sys.version_info[0] < 3:
+            self.temp_files.append(pyfname + 'c')
+        else:
+            cache_dir = osp.join(osp.dirname(pyfname), '__pycache__')
+            print('cache_dir:', cache_dir)
+            cpver = 'cpython-%d%d.pyc' % sys.version_info[:2]
+            pyfname_we = osp.basename(pyfname[:pyfname.rfind('.')])
+            pycfname = osp.join(cache_dir, '%s.%s' % (pyfname_we, cpver))
+            self.temp_files.append(pycfname)
+            print('added py tmpfile:', pyfname, pycfname)
+
     def test_constant(self):
         graph = self.pipeline.workflow_graph()
         self.assertTrue(
@@ -154,7 +172,7 @@ class TestPipeline(unittest.TestCase):
             fd, filename = tempfile.mkstemp(prefix='test_pipeline',
                                             suffix='.py')
             os.close(fd)
-            self.temp_files.append(filename)
+            self.add_py_tmpfile(filename)
         self.run_pipeline_io(filename)
 
     def test_pipeline_xml(self):
