@@ -9,6 +9,7 @@ from capsul.pipeline import python_export
 from capsul.pipeline import xml
 import traits.api as traits
 import os
+import os.path as osp
 import tempfile
 import sys
 import shutil
@@ -455,6 +456,23 @@ class TestCustomNodes(unittest.TestCase):
         else:
             print('Files not removed in %s' % self.temp_dir)
 
+    def add_py_tmpfile(self, pyfname):
+        '''
+        add the given .py file and the associated .pyc file to the list of temp
+        files to remove after testing
+        '''
+        self.temp_files.append(pyfname)
+        if sys.version_info[0] < 3:
+            self.temp_files.append(pyfname + 'c')
+        else:
+            cache_dir = osp.join(osp.dirname(pyfname), '__pycache__')
+            print('cache_dir:', cache_dir)
+            cpver = 'cpython-%d%d.pyc' % sys.version_info[:2]
+            pyfname_we = osp.basename(pyfname[:pyfname.rfind('.')])
+            pycfname = osp.join(cache_dir, '%s.%s' % (pyfname_we, cpver))
+            self.temp_files.append(pycfname)
+            print('added py tmpfile:', pyfname, pycfname)
+
     def _test_custom_nodes(self, pipeline):
         pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i)
                                 for i in range(4)]
@@ -634,7 +652,7 @@ class TestCustomNodes(unittest.TestCase):
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
-        self.temp_files.append(pyfname)
+        self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
         pipeline2 = sc.get_process_instance(pyfname)
         self._test_custom_nodes(pipeline)
@@ -656,7 +674,7 @@ class TestCustomNodes(unittest.TestCase):
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
-        self.temp_files.append(pyfname)
+        self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
         pipeline2 = sc.get_process_instance(pyfname)
         self._test_loo_pipeline(pipeline2)
@@ -697,7 +715,7 @@ class TestCustomNodes(unittest.TestCase):
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
-        self.temp_files.append(pyfname)
+        self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
         pipeline2 = sc.get_process_instance(pyfname)
         self._test_cv_pipeline(pipeline2)
