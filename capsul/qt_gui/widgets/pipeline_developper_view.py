@@ -1505,7 +1505,14 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.changed.connect(self.update_paths)
 
     def __del__(self):
-        #print('PipelineScene.__del__')
+        # print('PipelineScene.__del__')
+        try:
+            self._release()
+        except RuntimeError:
+            pass  # C++ object deleted, attributes are already destroyed
+
+    def _release(self):
+        # print('PipelineScene._release')
         if hasattr(self, 'pos'):
             del self.pos
         if hasattr(self, 'dim'):
@@ -1514,11 +1521,16 @@ class PipelineScene(QtGui.QGraphicsScene):
             del self.labels
         if hasattr(self, 'glinks'):
             del self.glinks
-        for gnode in self.gnodes.values():
-            gnode._release()
-        del self.gnodes
+        if 'gnodes' in self.__dict__:
+            for gnode in self.gnodes.values():
+                gnode._release()
+            gnode = None
+            del self.gnodes
 
-        self.changed.disconnect()
+        try:
+            self.changed.disconnect()
+        except TypeError:
+            pass  # already done
 
         # force delete gnodes: needs to use gc.collect()
         import gc
@@ -2628,7 +2640,7 @@ class PipelineDevelopperView(QGraphicsView):
         self.node_keydelete_clicked.connect(self._node_delete_clicked)
 
     def __del__(self):
-        #print('PipelineDevelopperView.__del__')
+        # print('PipelineDevelopperView.__del__')
         self.release_pipeline(delete=True)
         # super(PipelineDevelopperView, self).__del__()
 
@@ -2737,7 +2749,7 @@ class PipelineDevelopperView(QGraphicsView):
         '''
         # Setup callback to update view when pipeline state is modified
         pipeline = None
-        if self.scene is not None:
+        if self.scene is not None and hasattr(self.scene, 'pipeline'):
             pipeline = self.scene.pipeline
         if pipeline is not None:
             if hasattr(pipeline, 'pipeline_steps'):
@@ -2747,15 +2759,24 @@ class PipelineDevelopperView(QGraphicsView):
                                     remove=True)
             pipeline.on_trait_change(self._reset_pipeline,
                                      'user_traits_changed', remove=True)
+        self.setScene(None)
+        if self.scene:
+            # force destruction of scene internals now that the Qt object
+            # still exists
+            self.scene._release()
+            # the scene is not deleted after all refs are released, even
+            # after self.setScene(None). This is probably a bug in PyQt:
+            # the C++ layer keeps ownership of the scene, whereas it should
+            # not: the Qt doc specifies for QGraphicsView.setScene():
+            # "The view does not take ownership of scene.", however in PyQt it
+            # does, and only releases it when the QGraphicsView is deleted.
+            # Thus we have to force it by hand:
+            import sip
+            sip.transferback(self.scene)
+            self.scene = None
+            import gc
+            gc.collect()
         if not delete and (pipeline is not None or self.scene is None):
-            if self.scene:
-                for gnode in self.scene.gnodes.values():
-                    gnode._release()
-                del self.scene.gnodes
-                self.scene.changed.disconnect()
-                del self.scene
-                import gc
-                gc.collect()
             self.scene = PipelineScene(self, userlevel=self.userlevel)
             self.scene.set_enable_edition(self._enable_edition)
             self.scene.logical_view = self._logical_view
