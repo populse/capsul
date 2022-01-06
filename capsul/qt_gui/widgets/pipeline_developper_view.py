@@ -70,6 +70,7 @@ from soma.controller import Controller
 from soma.utils.functiontools import SomaPartial
 from six.moves import range
 from six.moves import zip
+from soma.utils.weak_proxy import proxy_method
 
 try:
     from traits import api as traits
@@ -335,7 +336,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
                                 dispatch='ui')
 
     def __del__(self):
-        #print('NodeGWidget.__del__')
+        # print('NodeGWidget.__del__')
         self._release()
         # super(NodeGWidget, self).__del__()
 
@@ -368,9 +369,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
             return "[{0}]".format(self.name)
 
     def update_parameters(self):
-        forbidden = ['nodes_activation', 'activated', 'enabled', 'name',
-                     'node_type']
-
         if isinstance(self.process, ProcessNode):
             controller = self.process.process
         else:
@@ -503,7 +501,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.sizer.wmin = self.wmin
         self.sizer.hmin = self.hmin
         self.sizer.setPos(ctr.width(), ctr.height())
-        self.sizer.posChangeCallbacks.append(self.changeSize)
+        self.sizer.posChangeCallbacks.append(proxy_method(self, 'changeSize'))
         self.sizer.setFlag(self.sizer.ItemIsSelectable, True)
 
         self.box_title = QtGui.QGraphicsRectItem(self)
@@ -990,9 +988,11 @@ class NodeGWidget(QtGui.QGraphicsItem):
             params = self.out_params
             plugs = self.out_plugs
         param_item = params[param_name]
-        self.scene().removeItem(param_item)
+        if self.scene():
+            self.scene().removeItem(param_item)
         plug = plugs[param_name]
-        self.scene().removeItem(plug)
+        if self.scene():
+            self.scene().removeItem(plug)
         del params[param_name]
         del plugs[param_name]
         self._shift_params()
@@ -1522,8 +1522,11 @@ class PipelineScene(QtGui.QGraphicsScene):
         if hasattr(self, 'glinks'):
             del self.glinks
         if 'gnodes' in self.__dict__:
+            import sip
             for gnode in self.gnodes.values():
                 gnode._release()
+                self.removeItem(gnode)
+                sip.transferback(gnode)
             gnode = None
             del self.gnodes
 
@@ -1779,8 +1782,10 @@ class PipelineScene(QtGui.QGraphicsScene):
         # normal view
         pipeline = self.pipeline
         removed_nodes = []
+
         #         print(self.gnodes)
         for node_name, gnode in six.iteritems(self.gnodes):
+            removed = False
             if gnode.logical_view:
                 gnode.clear_plugs()
                 gnode.logical_view = False
@@ -1797,6 +1802,10 @@ class PipelineScene(QtGui.QGraphicsScene):
                                          or trait.userlevel <= self.userlevel):
                                 pipeline_inputs[name] = plug
                     gnode.parameters = pipeline_inputs
+                    if len(gnode.parameters) == 0:
+                        # no inputs: remove the gnode
+                        removed_nodes.append(node_name)
+                        removed = True
                 else:
                     pipeline_outputs = SortedDictionary()
                     for name, plug in six.iteritems(node.plugs):
@@ -1807,20 +1816,32 @@ class PipelineScene(QtGui.QGraphicsScene):
                                          or trait.userlevel <= self.userlevel):
                                 pipeline_outputs[name] = plug
                     gnode.parameters = pipeline_outputs
+                    if len(gnode.parameters) == 0:
+                        # no outputs: remove the gnode
+                        removed_nodes.append(node_name)
+                        removed = True
             else:
                 node = pipeline.nodes.get(node_name)
                 if node is None:  # removed node
                     removed_nodes.append(node_name)
+                    removed = True
                     continue
-            gnode.active = node.activated
-            gnode.update_node()
+            if not removed:
+                gnode.active = node.activated
+                gnode.update_node()
 
         # handle removed nodes
         for node_name in removed_nodes:
-            self.removeItem(self.gnodes[node_name])
+            gnode = self.gnodes[node_name]
+            self.removeItem(gnode)
             self.gnodes.pop(node_name, None)
             self.dim.pop(node_name, None)
             self.pos.pop(node_name, None)
+            import sip
+            sip.transferback(gnode)
+            #import objgraph
+            #objgraph.show_backrefs(gnode)
+            del gnode
 
         # check for added nodes
         added_nodes = []
@@ -1953,6 +1974,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         # handle removed nodes
         for node_name in removed_nodes:
             self.removeItem(self.gnodes[node_name])
+            import sip
+            sip.transferback(self.gnodes[node_name])
             del self.gnodes[node_name]
 
         # check for added nodes
@@ -2308,6 +2331,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         for link in todel:
             del self.glinks[link]
         self.removeItem(gnode)
+        import sip
+        sip.transferback(self.gnodes[node_name])
         del self.gnodes[node_name]
 
     def _link_right_clicked(self, link):
