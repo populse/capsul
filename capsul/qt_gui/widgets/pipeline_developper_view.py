@@ -2,9 +2,9 @@
 '''
 A Pipeline structure viewer widget, which displays pipeline nodes as boxes and links as lines, and provides pipeline editor features.
 
-The only main class you should look at is the :class:`PipelineDevelopperView` widget, the remaining is internal infrastructure::
+The only main class you should look at is the :class:`PipelineDeveloperView` widget, the remaining is internal infrastructure::
 
-    pv = PipelineDevelopperView(pipeline, allow_open_controller=True,
+    pv = PipelineDeveloperView(pipeline, allow_open_controller=True,
                                 enable_edition=True,show_sub_pipelines=True)
     pv.show()
 
@@ -26,7 +26,7 @@ Classes
 -------------
 :class:`PipelineScene`
 ----------------------
-:class:`PipelineDevelopperView`
+:class:`PipelineDeveloperView`
 -------------------------------
 
 '''
@@ -1237,7 +1237,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 self.embedded_subpipeline.show()
                 self.resize_subpipeline_on_show()
         else:
-            sub_view = PipelineDevelopperView(
+            sub_view = PipelineDeveloperView(
                 sub_pipeline,
                 show_sub_pipelines=True,
                 allow_open_controller=allow_open_controller,
@@ -2353,7 +2353,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         return trait_type_str
 
 
-class PipelineDevelopperView(QGraphicsView):
+class PipelineDeveloperView(QGraphicsView):
     '''
     Pipeline representation as a graph, using boxes and arrows.
 
@@ -2468,7 +2468,7 @@ class PipelineDevelopperView(QGraphicsView):
         '''
         def __init__(self, parent=None,
                      class_type_check=process_instance.is_process):
-            super(PipelineDevelopperView.ProcessNameEdit,
+            super(PipelineDeveloperView.ProcessNameEdit,
                   self).__init__(parent)
             self.compl = QtGui.QCompleter([])
             self.setCompleter(self.compl)
@@ -2582,7 +2582,7 @@ class PipelineDevelopperView(QGraphicsView):
     def __init__(self, pipeline=None, parent=None, show_sub_pipelines=False,
                  allow_open_controller=False, logical_view=False,
                  enable_edition=False, userlevel=0):
-        '''PipelineDevelopperView
+        '''PipelineDeveloperView
 
         Parameters
         ----------
@@ -2609,7 +2609,7 @@ class PipelineDevelopperView(QGraphicsView):
             specified, then edition will be activated anyway.
         '''
 
-        super(PipelineDevelopperView, self).__init__(parent)
+        super(PipelineDeveloperView, self).__init__(parent)
 
         # self.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
         self.setAlignment(QtCore.Qt.AlignCenter)
@@ -2640,9 +2640,9 @@ class PipelineDevelopperView(QGraphicsView):
         self.node_keydelete_clicked.connect(self._node_delete_clicked)
 
     def __del__(self):
-        # print('PipelineDevelopperView.__del__')
+        # print('PipelineDeveloperView.__del__')
         self.release_pipeline(delete=True)
-        # super(PipelineDevelopperView, self).__del__()
+        # super(PipelineDeveloperView, self).__del__()
 
     @property
     def userlevel(self):
@@ -2888,10 +2888,10 @@ class PipelineDevelopperView(QGraphicsView):
                     self.zoom_in()
                 event.accept()
         if not done:
-            super(PipelineDevelopperView, self).wheelEvent(event)
+            super(PipelineDeveloperView, self).wheelEvent(event)
 
     def mousePressEvent(self, event):
-        super(PipelineDevelopperView, self).mousePressEvent(event)
+        super(PipelineDeveloperView, self).mousePressEvent(event)
         if not event.isAccepted():
             if event.button() == QtCore.Qt.RightButton:
                 self.open_background_menu()
@@ -2916,7 +2916,7 @@ class PipelineDevelopperView(QGraphicsView):
                 print("source to destination types are not compatible")
                 print(e)
 
-        super(PipelineDevelopperView, self).mouseReleaseEvent(event)
+        super(PipelineDeveloperView, self).mouseReleaseEvent(event)
         self.scene.update()
 
     def mouseMoveEvent(self, event):
@@ -2932,7 +2932,7 @@ class PipelineDevelopperView(QGraphicsView):
             self._move_grab_link(event)
             event.accept()
         else:
-            super(PipelineDevelopperView, self).mouseMoveEvent(event)
+            super(PipelineDeveloperView, self).mouseMoveEvent(event)
 
     def dragEnterEvent(self, event):
         """Event handler when the mouse enters the widget.
@@ -3021,7 +3021,7 @@ class PipelineDevelopperView(QGraphicsView):
                 except KeyError:
                     print('node not found in:')
                     print(list(self.scene.gnodes.keys()))
-            sub_view = PipelineDevelopperView(
+            sub_view = PipelineDeveloperView(
                 sub_pipeline,
                 show_sub_pipelines=self._show_sub_pipelines,
                 allow_open_controller=self._allow_open_controller,
@@ -3040,7 +3040,7 @@ class PipelineDevelopperView(QGraphicsView):
         '''
         window() is overloaded from QWidget.window() to handle embedded views
         cases.
-        A PipelineDevelopperView may be displayed inside a NodeGWidget.
+        A PipelineDeveloperView may be displayed inside a NodeGWidget.
         In this case, we want to go up to the parent scene's window to the
         "real" top window, where QWidget.window() will end in the current
         graphics scene.
@@ -3048,7 +3048,7 @@ class PipelineDevelopperView(QGraphicsView):
         if hasattr(self, '_graphics_item'):
             return self._graphics_item.scene().views()[0].window()
         else:
-            return super(PipelineDevelopperView, self).window()
+            return super(PipelineDeveloperView, self).window()
 
     def onOpenProcessController(self, node_name, process):
         """ Event to open a sub-process/sub-pipeline controller
@@ -3902,11 +3902,11 @@ class PipelineDevelopperView(QGraphicsView):
     class ProcessModuleInput(QtGui.QDialog):
         def __init__(self, display_str='process module/name',
                      class_type_check=process_instance.is_process):
-            super(PipelineDevelopperView.ProcessModuleInput, self).__init__()
+            super(PipelineDeveloperView.ProcessModuleInput, self).__init__()
             self.setWindowTitle('%s:' % display_str)
             layout = QtGui.QGridLayout(self)
             layout.addWidget(QtGui.QLabel('module/process:'), 0, 0)
-            self.proc_line = PipelineDevelopperView.ProcessNameEdit(
+            self.proc_line = PipelineDeveloperView.ProcessNameEdit(
                 class_type_check=class_type_check)
             layout.addWidget(self.proc_line, 0, 1)
             layout.addWidget(QtGui.QLabel('node name'), 1, 0)
@@ -3927,7 +3927,7 @@ class PipelineDevelopperView(QGraphicsView):
         module/name, and the node name before inserting.
         '''
 
-        proc_name_gui = PipelineDevelopperView.ProcessModuleInput()
+        proc_name_gui = PipelineDeveloperView.ProcessModuleInput()
         proc_name_gui.resize(800, proc_name_gui.sizeHint().height())
 
         res = proc_name_gui.exec_()
@@ -3974,7 +3974,7 @@ class PipelineDevelopperView(QGraphicsView):
         def is_pipeline_node(item):
             return item is not Node and isinstance(item, Node)
 
-        node_name_gui = PipelineDevelopperView.ProcessModuleInput(
+        node_name_gui = PipelineDeveloperView.ProcessModuleInput(
             display_str='node module/name', class_type_check=is_pipeline_node)
         node_name_gui.resize(800, node_name_gui.sizeHint().height())
 
@@ -4051,7 +4051,7 @@ class PipelineDevelopperView(QGraphicsView):
 
     class IterativeProcessInput(ProcessModuleInput):
         def __init__(self, engine):
-            super(PipelineDevelopperView.IterativeProcessInput,
+            super(PipelineDeveloperView.IterativeProcessInput,
                   self).__init__()
             # hlay = Qt.QHBoxLayout()
             # self.layout().addLayout(hlay)
@@ -4092,7 +4092,7 @@ class PipelineDevelopperView(QGraphicsView):
         '''
         pipeline = self.scene.pipeline
         engine = pipeline.get_study_config().engine
-        proc_name_gui = PipelineDevelopperView.IterativeProcessInput(engine)
+        proc_name_gui = PipelineDeveloperView.IterativeProcessInput(engine)
         proc_name_gui.resize(800, proc_name_gui.sizeHint().height())
 
         res = proc_name_gui.exec_()
@@ -4378,7 +4378,7 @@ class PipelineDevelopperView(QGraphicsView):
         doc_browser = self.doc_browser
         pv = self
         proxy = False
-        while isinstance(doc_browser, PipelineDevelopperView):
+        while isinstance(doc_browser, PipelineDeveloperView):
             # it's a proxy to a parent view
             pv = doc_browser
             doc_browser = pv.doc_browser
@@ -4609,7 +4609,7 @@ class PipelineDevelopperView(QGraphicsView):
 
     class _PlugEdit(QtGui.QDialog):
         def __init__(self, show_weak=True, parent=None):
-            super(PipelineDevelopperView._PlugEdit, self).__init__(parent)
+            super(PipelineDeveloperView._PlugEdit, self).__init__(parent)
             layout = QtGui.QVBoxLayout(self)
             hlay1 = QtGui.QHBoxLayout()
             layout.addLayout(hlay1)
@@ -4775,7 +4775,7 @@ class PipelineDevelopperView(QGraphicsView):
                 l2 = Qt.QHBoxLayout()
                 lay.addLayout(l2)
                 l2.addWidget(Qt.QLabel('Pipeline:'))
-                self.proc_edit = PipelineDevelopperView.ProcessNameEdit()
+                self.proc_edit = PipelineDeveloperView.ProcessNameEdit()
                 l2.addWidget(self.proc_edit)
                 self.loadbt = Qt.QPushButton('...')
                 l2.addWidget(self.loadbt)
@@ -5021,3 +5021,29 @@ class PipelineDevelopperView(QGraphicsView):
             else:
                 with open(filename, 'w') as file:
                     json.dump(jsonstring, file)
+
+
+class PipelineDevelopperView(PipelineDeveloperView):
+    '''
+    This is a compatibility class for the former, misspelled,
+    PipelineDevelopperView (with two "p"s) which should be spelled
+    PipelineDeveloperView now. This class issues a deprecation warning and
+    otherwise behaves the same.
+    '''
+    def __init__(self, pipeline=None, parent=None, show_sub_pipelines=False,
+                 allow_open_controller=False, logical_view=False,
+                 enable_edition=False, userlevel=0):
+
+        import warnings
+
+        warnings.warn(
+            'PipelineDevelopperView is deprecated. Please use '
+            'PipelineDeveloperView (with one "p") instead.',
+            DeprecationWarning)
+        super(PipelineDevelopperView, self).__init__(
+            pipeline=pipeline, parent=parent,
+            show_sub_pipelines=show_sub_pipelines,
+            allow_open_controller=allow_open_controller,
+            logical_view=logical_view,
+            enable_edition=enable_edition,
+            userlevel=userlevel)
