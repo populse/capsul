@@ -245,6 +245,7 @@ class boxItem(QtGui.QGraphicsRectItem):
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
             self.scene()._node_keydelete_clicked(self)
+            event.accept()
         else:
             super(boxItem, self).keyPressEvent(event)
 
@@ -330,6 +331,12 @@ class NodeGWidget(QtGui.QGraphicsItem):
             QtCore.Qt.LeftButton | QtCore.Qt.RightButton | QtCore.Qt.MiddleButton)
 
         self._build()
+
+        self._update_param_timer = Qt.QTimer()
+        self._update_param_timer.setSingleShot(True)
+        self._update_param_timer.timeout.connect(
+            proxy_method(self, 'update_parameters_now'))
+
         if colored_parameters:
             process.on_trait_change(self._repaint_parameter, dispatch='ui')
         process.on_trait_change(self.update_parameters, 'user_traits_changed',
@@ -369,6 +376,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
             return "[{0}]".format(self.name)
 
     def update_parameters(self):
+        self._update_param_timer.start(20)
+
+    def update_parameters_now(self):
         if isinstance(self.process, ProcessNode):
             controller = self.process.process
         else:
@@ -529,8 +539,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.box.setRect(0.0, 0.0, w, h)
 
         self.box_title.setRect(0.0, 0.0, w, 30)
-        self.title.setPos(w / 2 - self.title.boundingRect().size().width() / 2, 0)
-        self.infoActived.setPos(w / 2 - self.infoActived.boundingRect().size().width() / 2, h + 2)
+        self.title.setPos(w / 2 - self.title.boundingRect().size().width() / 2,
+                          0)
+        self.infoActived.setPos(
+            w / 2 - self.infoActived.boundingRect().size().width() / 2, h + 2)
 
         #         rect = self.title.mapRectToParent(self.title.boundingRect())
         #         rect.setWidth(w)
@@ -1023,6 +1035,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
         return param_text
 
     def update_node(self):
+        # this is needed before the box is resized, otherwise some bad things
+        # may happen, especially segfaults...
+        self.prepareGeometryChange()
         self._set_brush()
         self.box_title.setBrush(self.title_brush)
         self.box.setBrush(self.bg_brush)
@@ -1502,6 +1517,12 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         self.colType = ColorType()
 
+        self._update_pipeline_timer = Qt.QTimer()
+        self._update_pipeline_timer.setSingleShot(True)
+        self._update_pipeline_timer.timeout.connect(
+          proxy_method(self, 'update_pipeline_now'))
+
+
         self.changed.connect(self.update_paths)
 
     def __del__(self):
@@ -1608,7 +1629,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         ################" add by Irmage #############################################
         self.setSceneRect(QtCore.QRectF())
-        #############################################################################
+        #############################################################################_node_keydelete_clicked
 
     def add_node(self, node_name, node):
         if not isinstance(node, ProcessNode):
@@ -1773,6 +1794,9 @@ class PipelineScene(QtGui.QGraphicsScene):
                                 weak=weak_link)
 
     def update_pipeline(self):
+        self._update_pipeline_timer.start(20)
+
+    def update_pipeline_now(self):
         if self.logical_view:
             self._update_logical_pipeline()
         else:
@@ -2067,8 +2091,6 @@ class PipelineScene(QtGui.QGraphicsScene):
         #             elif Qt.QKeySequence(event.key()+int(event.modifiers())) == Qt.QKeySequence("Ctrl+Z"):
         #                 self.undoTyping_clicked.emit()
 
-        return QtGui.QGraphicsScene.keyPressEvent(self, event)
-
     def link_tooltip_text(self, source_dest):
         '''Tooltip text for the fiven link
 
@@ -2322,8 +2344,13 @@ class PipelineScene(QtGui.QGraphicsScene):
         super(PipelineScene, self).helpEvent(event)
 
     def remove_node(self, node_name):
-        gnode = self.gnodes[node_name]
+        print(self.gnodes)
+        gnode = self.gnodes.get(node_name)
+        if gnode is None:
+            # already done (possibly via a notification)
+            return
         todel = set()
+        import sip
         for link, glink in six.iteritems(self.glinks):
             if link[0][0] == node_name or link[1][0] == node_name:
                 self.removeItem(glink)
@@ -2331,7 +2358,6 @@ class PipelineScene(QtGui.QGraphicsScene):
         for link in todel:
             del self.glinks[link]
         self.removeItem(gnode)
-        import sip
         sip.transferback(self.gnodes[node_name])
         del self.gnodes[node_name]
 
@@ -3716,9 +3742,24 @@ class PipelineDeveloperView(QGraphicsView):
 
         if not node_name:
             node_name = self.current_node_name
-        node = pipeline.nodes[node_name]
-        pipeline.remove_node(node_name)
-        self.scene.remove_node(node_name)
+        if node_name not in ('inputs', 'outputs'):
+            node = pipeline.nodes[node_name]
+            pipeline.remove_node(node_name)
+        elif node_name in self.scene.gnodes:
+            # delete all input or output export plugs in the pipeline
+            if node_name == 'inputs':
+                plugs = [name
+                         for name, plug in
+                            six.iteritems(pipeline.pipeline_node.plugs)
+                         if not plug.output]
+            else:
+                plugs = [name
+                         for name, plug in
+                            six.iteritems(pipeline.pipeline_node.plugs)
+                         if plug.output]
+            for plug in plugs:
+                self.scene.pipeline.remove_trait(plug)
+
         self.scene.pipeline.update_nodes_and_plugs_activation()
 
     def export_node_plugs(self, node_name, inputs=True, outputs=True,
@@ -4317,11 +4358,9 @@ class PipelineDeveloperView(QGraphicsView):
     #         return False
 
     def _node_delete_clicked(self, name_node):
-        #
+        self.current_node_name = name_node
+        self.del_node()
 
-        if name_node not in ('inputs', 'outputs'):
-            self.current_node_name = name_node
-            self.del_node()
 
     def _link_delete_clicked(self, src_node, src_plug, dst_node, dst_plug):
         src_node = str(src_node)
@@ -4700,17 +4739,17 @@ class PipelineDeveloperView(QGraphicsView):
 
         if self._temp_plug_name[0] in ('inputs', 'outputs'):
             # print 'remove plug:', self._temp_plug_name[1]
-            print('#' * 50)
-            print(self._temp_plug_name)
-            print(self._temp_plug)
-            for trait_name, trait in self.scene.pipeline.traits().items():
-                print(trait_name, trait)
-                if trait.handler is None:
-                    print('HANDLER IS NONE')
-                else:
-                    print('HANDLER:', trait.handler)
-                    if trait.has_items:
-                        print("HANDLER HAS ITEMS")
+            #print('#' * 50)
+            #print(self._temp_plug_name)
+            #print(self._temp_plug)
+            #for trait_name, trait in self.scene.pipeline.traits().items():
+                #print(trait_name, trait)
+                #if trait.handler is None:
+                    #print('HANDLER IS NONE')
+                #else:
+                    #print('HANDLER:', trait.handler)
+                    #if trait.has_items:
+                        #print("HANDLER HAS ITEMS")
 
             self.scene.pipeline.remove_trait(self._temp_plug_name[1])
             self.scene.update_pipeline()
