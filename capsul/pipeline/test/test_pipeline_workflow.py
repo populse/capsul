@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import unittest
 import os
 import os.path as osp
@@ -385,7 +385,7 @@ if __name__ == "__main__":
         from soma.qt_gui import qt_backend
         # qt_backend.set_qt_backend('PyQt4')
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
@@ -395,7 +395,7 @@ if __name__ == "__main__":
         pipeline.output1 = '/tmp/file_out1.nii'
         pipeline.output2 = '/tmp/file_out2.nii'
         pipeline.output3 = '/tmp/file_out3.nii'
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view1.show()
 
@@ -404,7 +404,7 @@ if __name__ == "__main__":
         pipeline2.output = '/tmp/file_out.nii'
         pipeline2.intermediate = ['/tmp/file_out1',
                                   '/tmp/file_out2']
-        view2 = PipelineDevelopperView(pipeline2, show_sub_pipelines=True,
+        view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view2.show()
 
@@ -413,7 +413,7 @@ if __name__ == "__main__":
         pipeline3.output1 = '/tmp/file_out1.nii'
         pipeline3.output2 = '/tmp/file_out2.nii'
         pipeline3.output3 = '/tmp/file_out3.nii'
-        view3 = PipelineDevelopperView(pipeline3, show_sub_pipelines=True,
+        view3 = PipelineDeveloperView(pipeline3, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view3.show()
 

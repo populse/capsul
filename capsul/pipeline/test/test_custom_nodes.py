@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import unittest
 from capsul.api import Process, Pipeline, StudyConfig
 from capsul.pipeline import pipeline_workflow
@@ -744,7 +744,7 @@ if __name__ == '__main__':
     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
         import sys
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
@@ -755,7 +755,7 @@ if __name__ == '__main__':
         #pipeline.test = pipeline.main_inputs[2]
         #pipeline.subject = 'subject2'
         #pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
-        #view1 = PipelineDevelopperView(pipeline, allow_open_controller=True,
+        #view1 = PipelineDeveloperView(pipeline, allow_open_controller=True,
                                        #show_sub_pipelines=True,
                                        #enable_edition=True)
         #view1.show()
@@ -769,7 +769,7 @@ if __name__ == '__main__':
         pipeline2.fold = list(range(pipeline2.nfolds))
         #wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
                                                       #create_directories=False)
-        view2 = PipelineDevelopperView(pipeline2, allow_open_controller=True,
+        view2 = PipelineDeveloperView(pipeline2, allow_open_controller=True,
                                        show_sub_pipelines=True,
                                        enable_edition=True)
         view2.show()

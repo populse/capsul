@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import os
 import shutil
 import unittest
@@ -890,13 +890,13 @@ if __name__ == '__main__':
             
         import sys
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
         #from capsul.qt_gui.widgets.activation_inspector import ActivationInspectorApp
 
         #app = ActivationInspectorApp(ComplexPipeline)
         app = QtGui.QApplication(sys.argv)
         
-        view = PipelineDevelopperView(pipeline, allow_open_controller=True, show_sub_pipelines=True)
+        view = PipelineDeveloperView(pipeline, allow_open_controller=True, show_sub_pipelines=True)
         view.show()
         
         app.exec_()

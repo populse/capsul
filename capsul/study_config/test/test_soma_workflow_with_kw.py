@@ -290,11 +290,11 @@ if __name__ == "__main__":
             or '--verbose' in sys.argv[1:]:
         import sys
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         #app = QtGui.QApplication(sys.argv)
         #pipeline = MyCompositePipeline()
-        #view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
+        #view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True)
         #view1.show()
         #app.exec_()
         #del view1
@@ -307,7 +307,7 @@ if __name__ == "__main__":
             has_qapp = False
             app = QtGui.QApplication(sys.argv)
         pipeline = MyCompositePipeline()
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
+        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True)
         view1.show()
         view2 = PipelineUserView(pipeline)
         view2.show()

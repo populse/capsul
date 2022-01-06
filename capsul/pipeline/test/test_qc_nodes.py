@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 # System import
+from __future__ import print_function
 from __future__ import absolute_import
+
 import unittest
 import sys
 import shutil
@@ -159,14 +160,14 @@ if __name__ == "__main__":
 
     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
         pipeline = MyPipeline()
         #setattr(pipeline.nodes_activation, "node2", False)
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True)
+        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True)
         view1.show()
         app.exec_()
         del view1

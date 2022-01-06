@@ -436,7 +436,7 @@ class Pipeline(Process):
         A last note about invalid nodes:
 
         When saving a pipeline (through the :class:`graphical editor
-        <capsul.qt_gui.widgets.pipeline_developper_view.PipelineDevelopperView>`
+        <capsul.qt_gui.widgets.pipeline_developper_view.PipelineDeveloperView>`
         typically), missing nodes *will not be saved* because they are not
         actually in the pipeline. So be careful to save only pipelines with full
         features.

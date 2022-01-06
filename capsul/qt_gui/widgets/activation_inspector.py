@@ -10,9 +10,8 @@ Classes
 ----------------------------
 '''
 
-from __future__ import print_function
-
 # System import
+from __future__ import print_function
 from __future__ import absolute_import
 import os
 import re
@@ -32,7 +31,7 @@ from soma.qt_gui.controller_widget import ScrollControllerWidget
 from capsul.qt_apps.utils.application import Application
 import capsul.qt_apps.resources as resources
 from capsul.api import get_process_instance
-from capsul.qt_gui.widgets import PipelineDevelopperView
+from capsul.qt_gui.widgets import PipelineDeveloperView
 from capsul.pipeline.pipeline_nodes import PipelineNode
 
 
@@ -81,7 +80,7 @@ class ActivationInspectorApp(Application):
         #ui_file = os.path.join(resources.__path__[0], "activation_inspector.ui")
 
         # Create and show the activation/pipeline/controller windows
-        self.pipeline_window = PipelineDevelopperView(self.pipeline, show_sub_pipelines=True)
+        self.pipeline_window = PipelineDeveloperView(self.pipeline, show_sub_pipelines=True)
         self.controller_window = ScrollControllerWidget(self.pipeline,live=True)
         self.activation_window = ActivationInspector(
             self.pipeline, ui_file, self.record_file,
@@ -109,7 +108,7 @@ class ActivationInspector(QtGui.QWidget):
         record_file: str (optional)
             a file path where the activation steps are recorded.
             If not specified (None), it will create a temporary file.
-        developper_view: PipelineDevelopperView (optional)
+        developper_view: PipelineDeveloperView (optional)
             if specified it is possible to click on a plug to set a filter
             pattern and to update the pipeline activation accordingly.
         """

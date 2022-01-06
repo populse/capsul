@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 # System import
+from __future__ import print_function
 from __future__ import absolute_import
+
 import unittest
 import tempfile
 import os
@@ -348,11 +349,11 @@ if __name__ == "__main__":
 
     if True:
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication(sys.argv)
         pipeline = get_process_instance('capsul.process.test.test_pipeline')
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view1.show()
         app.exec_()

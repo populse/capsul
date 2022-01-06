@@ -237,14 +237,14 @@ if __name__ == "__main__":
         from soma.qt_gui import qt_backend
         qt_backend.set_qt_backend(compatible_qt5=True)
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication(sys.argv)
         pipeline = DummyPipeline()
         pipeline.input = '/tmp/file_in.nii'
         pipeline.output = '/tmp/file_out3.nii'
         pipeline.nb_outputs = 3
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view1.show()
         app.exec_()

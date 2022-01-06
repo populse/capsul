@@ -140,16 +140,16 @@ class TestPipeline(unittest.TestCase):
 
         if self.debug:
             from soma.qt_gui.qt_backend import QtGui
-            from capsul.qt_gui.widgets import PipelineDevelopperView
+            from capsul.qt_gui.widgets import PipelineDeveloperView
             import sys
             app = QtGui.QApplication.instance()
             if not app:
                 app = QtGui.QApplication(sys.argv)
-            view1 = PipelineDevelopperView(
+            view1 = PipelineDeveloperView(
                 pipeline, allow_open_controller=True, enable_edition=True,
                 show_sub_pipelines=True)
 
-            view2 = PipelineDevelopperView(
+            view2 = PipelineDeveloperView(
                 pipeline2, allow_open_controller=True, enable_edition=True,
                 show_sub_pipelines=True)
             view1.show()
@@ -201,14 +201,14 @@ if __name__ == "__main__":
     if '-v' in sys.argv[1:]:
         import sys
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
         pipeline = MyPipeline()
         #setattr(pipeline.nodes_activation, "node2", False)
-        view1 = PipelineDevelopperView(pipeline)
+        view1 = PipelineDeveloperView(pipeline)
         view1.show()
         app.exec_()
         del view1
