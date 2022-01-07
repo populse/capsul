@@ -3237,45 +3237,45 @@ class PipelineDeveloperView(QGraphicsView):
             doc_action = menu.addAction('Show doc')
             doc_action.triggered.connect(self.show_doc)
 
-        if self.edition_enabled() \
-                and node is not self.scene.pipeline.pipeline_node:
+        if self.edition_enabled():
             menu.addSeparator()
             del_node_action = menu.addAction('Delete node')
             del_node_action.triggered.connect(self.del_node)
-            export_mandatory_plugs = menu.addAction(
-                'Export unconnected mandatory plugs')
-            export_mandatory_plugs.triggered.connect(
-                self.export_node_unconnected_mandatory_plugs)
-            export_all_plugs = menu.addAction(
-                'Export all unconnected plugs')
-            export_all_plugs.triggered.connect(
-                self.export_node_all_unconnected_plugs)
-            export_mandatory_inputs = menu.addAction(
-                'Export unconnected mandatory inputs')
-            export_mandatory_inputs.triggered.connect(
-                self.export_node_unconnected_mandatory_inputs)
-            export_all_inputs = menu.addAction(
-                'Export all unconnected inputs')
-            export_all_inputs.triggered.connect(
-                self.export_node_all_unconnected_inputs)
-            export_mandatory_outputs = menu.addAction(
-                'Export unconnected mandatory outputs')
-            export_mandatory_outputs.triggered.connect(
-                self.export_node_unconnected_mandatory_outputs)
-            export_all_outputs = menu.addAction(
-                'Export all unconnected outputs')
-            export_all_outputs.triggered.connect(
-                self.export_node_all_unconnected_outputs)
-            step = None
-            if steps is not None:
-                my_steps = [step_name for step_name in steps.user_traits()
-                            if node.name in steps.trait(step_name).nodes]
-                if len(my_steps) == 1:
-                    step = my_steps[0]
-                elif len(my_steps) >= 2:
-                    step = repr(my_steps)
-            change_step = menu.addAction('change step: %s' % step)
-            change_step.triggered.connect(self._change_step)
+            if node is not self.scene.pipeline.pipeline_node:
+                export_mandatory_plugs = menu.addAction(
+                    'Export unconnected mandatory plugs')
+                export_mandatory_plugs.triggered.connect(
+                    self.export_node_unconnected_mandatory_plugs)
+                export_all_plugs = menu.addAction(
+                    'Export all unconnected plugs')
+                export_all_plugs.triggered.connect(
+                    self.export_node_all_unconnected_plugs)
+                export_mandatory_inputs = menu.addAction(
+                    'Export unconnected mandatory inputs')
+                export_mandatory_inputs.triggered.connect(
+                    self.export_node_unconnected_mandatory_inputs)
+                export_all_inputs = menu.addAction(
+                    'Export all unconnected inputs')
+                export_all_inputs.triggered.connect(
+                    self.export_node_all_unconnected_inputs)
+                export_mandatory_outputs = menu.addAction(
+                    'Export unconnected mandatory outputs')
+                export_mandatory_outputs.triggered.connect(
+                    self.export_node_unconnected_mandatory_outputs)
+                export_all_outputs = menu.addAction(
+                    'Export all unconnected outputs')
+                export_all_outputs.triggered.connect(
+                    self.export_node_all_unconnected_outputs)
+                step = None
+                if steps is not None:
+                    my_steps = [step_name for step_name in steps.user_traits()
+                                if node.name in steps.trait(step_name).nodes]
+                    if len(my_steps) == 1:
+                        step = my_steps[0]
+                    elif len(my_steps) >= 2:
+                        step = repr(my_steps)
+                change_step = menu.addAction('change step: %s' % step)
+                change_step.triggered.connect(self._change_step)
 
         # Added to choose to visualize optional parameters
         gnode = self.scene.gnodes[self.current_node_name]
