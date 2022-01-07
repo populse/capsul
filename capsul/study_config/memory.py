@@ -39,15 +39,6 @@ import sys
 # CAPSUL import
 from capsul.process.process import Process, ProcessResult
 
-# NIPYPE import
-try:
-    from nipype.interfaces.base import InterfaceResult
-except ImportError:
-    # if nipype is not here, we will not really need this but it is used in
-    # object type checking in CapsulResultEncoder
-    class InterfaceResult(object):
-        pass
-
 # TRAITS import
 from traits.api import Undefined
 
@@ -744,6 +735,14 @@ class CapsulResultEncoder(json.JSONEncoder):
             return "<undefined_trait_value>"
 
         # InterfaceResult special case
+        # avoid explicitely loading nipype: it takes much time...
+        nipype = sys.modules.get('nipype.interfaces.base')
+        if nipype:
+            InterfaceResult = getattr(nipype, 'InterfaceResult')
+        else:
+            class InterfaceResult(object):
+                pass
+
         if isinstance(obj, InterfaceResult):
             return "<skip_nipype_interface_result>"
 
