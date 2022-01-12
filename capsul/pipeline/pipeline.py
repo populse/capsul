@@ -995,11 +995,6 @@ class Pipeline(Process):
             (source_node_name, source_plug_name, source_node,
             source_plug, dest_node_name, dest_plug_name, dest_node,
             dest_plug) = self.parse_link(link, check=check)
-            if source_node is None \
-                    or dest_node is None or source_plug is None \
-                    or dest_plug is None:
-                # link from/to an invalid node
-                return
         else:
             (source_node, source_plug_name, dest_node, dest_plug_name) = link
             source_plug = source_node.plugs[source_plug_name]
@@ -1008,6 +1003,25 @@ class Pipeline(Process):
                                 if n is source_node][0]
             dest_node_name = [k for k, n in six.iteritems(self.nodes)
                               if n is dest_node][0]
+
+        if allow_export:
+            if source_node is self.pipeline_node \
+                    and source_plug_name not in source_node.plugs:
+                print(dest_node_name, dest_node, dest_node.plugs.keys())
+                self.export_parameter(dest_node_name, dest_plug_name,
+                                      source_plug_name)
+                return
+            elif dest_node is self.pipeline_node \
+                    and dest_plug_name not in dest_node.plugs:
+                self.export_parameter(source_node_name, source_plug_name,
+                                      dest_plug_name)
+                return
+
+        if source_node is None \
+                or dest_node is None or source_plug is None \
+                or dest_plug is None:
+            # link from/to an invalid node
+            return
 
         # Assure that pipeline plugs are not linked
         if (not source_plug.output and source_node is not self.pipeline_node):
@@ -1021,18 +1035,6 @@ class Pipeline(Process):
         if (not dest_plug.output and dest_node is self.pipeline_node):
             raise ValueError("Cannot link to a pipeline input "
                              "plug: {0}".format(link))
-
-        if allow_export:
-            if source_node is self.pipeline_node \
-                    and source_plug_name not in source_node.plugs:
-                self.export_parameter(dest_node, dest_plug_name,
-                                      source_plug_name)
-                return
-            elif dest_node is self.pipeline_node \
-                    and dest_plug_name not in dest_node.plugs:
-                self.export_parameter(source_node, source_plug_name,
-                                      dest_plug_name)
-                return
 
         # the destination of the link should not expect an already existing
         # file value, since it will come as an output from the source.
