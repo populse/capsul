@@ -49,6 +49,7 @@ import six
 import json
 import io
 import traceback
+import html
 
 # Capsul import
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
@@ -2152,7 +2153,8 @@ class PipelineScene(QtGui.QGraphicsScene):
     <td>%s</td>
   </tr>
 ''' \
-              % (source_dest[0][1], active, weak, typestr, str(value))
+              % (source_dest[0][1], active, weak, typestr,
+                 html.escape(str(value)))
         if isinstance(trait_type, traits.File) \
                 or isinstance(trait_type, traits.Directory) \
                 or isinstance(trait_type, traits.Any):
@@ -2254,7 +2256,8 @@ class PipelineScene(QtGui.QGraphicsScene):
       <td>%s</td>
     </tr>
 ''' \
-              % (name, output, optional, enabled, activated, typestr, str(value))
+              % (name, output, optional, enabled, activated, typestr,
+                 html.escape(str(value)))
         if isinstance(trait_type, traits.File) \
                 or isinstance(trait_type, traits.Directory) \
                 or isinstance(trait_type, traits.Any):
