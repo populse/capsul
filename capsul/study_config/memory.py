@@ -735,7 +735,7 @@ class CapsulResultEncoder(json.JSONEncoder):
             return "<undefined_trait_value>"
 
         # InterfaceResult special case
-        # avoid explicitely loading nipype: it takes much time...
+        # avoid explicitly loading nipype: it takes much time...
         nipype = sys.modules.get('nipype.interfaces.base')
         if nipype:
             InterfaceResult = getattr(nipype, 'InterfaceResult')
