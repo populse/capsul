@@ -3605,32 +3605,38 @@ class PipelineDeveloperView(QGraphicsView):
         pipeline_tools.save_dot_graph(dgraph, tfile_name)
         toutfile, toutfile_name = tempfile.mkstemp()
         os.close(toutfile)
-        cmd = ['dot', '-Tplain', '-o', toutfile_name, tfile_name]
-        soma.subprocess.check_call(cmd)
+        try:
+            cmd = ['dot', '-Tplain', '-o', toutfile_name, tfile_name]
+            try:
+                soma.subprocess.check_call(cmd)
+            except FileNotFoundError:
+                # dot is not installed in the PATH. Give up
+                return
 
-        nodes_pos = self._read_dot_pos(toutfile_name)
+            nodes_pos = self._read_dot_pos(toutfile_name)
 
-        rects = dict([(name, node.boundingRect())
-                      for name, node in six.iteritems(scene.gnodes)])
-        pos = dict([(name, (-rects[name].width() / 2 + pos[0] * scale,
-                            -rects[name].height() / 2 - pos[1] * scale))
-                    for id, name, pos in nodes_pos])
-        minx = min([x[0] for x in six.itervalues(pos)])
-        miny = min([x[1] for x in six.itervalues(pos)])
-        pos = dict([(name, (p[0] - minx, p[1] - miny))
-                    for name, p in six.iteritems(pos)])
-        #         print('pos:')
-        #         print(pos)
-        scene.pos = pos
-        for node, position in six.iteritems(pos):
-            gnode = scene.gnodes[node]
-            if isinstance(position, Qt.QPointF):
-                gnode.setPos(position)
-            else:
-                gnode.setPos(*position)
+            rects = dict([(name, node.boundingRect())
+                          for name, node in six.iteritems(scene.gnodes)])
+            pos = dict([(name, (-rects[name].width() / 2 + pos[0] * scale,
+                                -rects[name].height() / 2 - pos[1] * scale))
+                        for id, name, pos in nodes_pos])
+            minx = min([x[0] for x in six.itervalues(pos)])
+            miny = min([x[1] for x in six.itervalues(pos)])
+            pos = dict([(name, (p[0] - minx, p[1] - miny))
+                        for name, p in six.iteritems(pos)])
+            #         print('pos:')
+            #         print(pos)
+            scene.pos = pos
+            for node, position in six.iteritems(pos):
+                gnode = scene.gnodes[node]
+                if isinstance(position, Qt.QPointF):
+                    gnode.setPos(position)
+                else:
+                    gnode.setPos(*position)
 
-        os.unlink(tfile_name)
-        os.unlink(toutfile_name)
+        finally:
+            os.unlink(tfile_name)
+            os.unlink(toutfile_name)
 
     def _read_dot_pos(self, filename):
         '''
