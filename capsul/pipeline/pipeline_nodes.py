@@ -107,10 +107,10 @@ class Node(Controller):
     set_plug_value
     """
     name = field(type_=str, metadata={'hidden': True})
-    enabled = field(type_=bool, default=True, metadata={'hidden': True})
-    actrivated = field(type_=bool, default=True, metadata={'hidden': True})
+    enabled = field(type_=bool, default=True, hidden=True)
+    actrivated = field(type_=bool, default=True, hidden=True)
     node_type = field(type_=Literal['processing_node', 'view_node'],
-        default='processing_node', metadata={'hidden': True})
+        default='processing_node', hidden=True)
 
     def __init__(self, pipeline, name, inputs, outputs):
         """ Generate a Node

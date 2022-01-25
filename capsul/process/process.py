@@ -30,7 +30,6 @@ import tempfile
 import traceback
 
 
-
 from soma.controller import Controller
 
 
@@ -302,7 +301,7 @@ class FileCopyProcess(Process):
 
             self._recorded_params = {}
             # Set the process inputs
-            for name, value in six.iteritems(self.copied_inputs):
+            for name, value in self.copied_inputs.items():
                 self._recorded_params[name] = getattr(self, name)
                 self.set_parameter(name, value)
 
@@ -336,15 +335,15 @@ class FileCopyProcess(Process):
 
         # 1. record output values
         outputs = {}
-        for name, trait in six.iteritems(self.user_traits()):
+        for name, trait in self.user_traits().items():
             if trait.output:
                 outputs[name] = getattr(self, name)
         # 2. set again inputs to their initial values
         if hasattr(self, '_recorded_params'):
-            for name, value in six.iteritems(self._recorded_params):
+            for name, value in self._recorded_params.items():
                 self.set_parameter(name, value)
         # 3. force output values using the recorded ones
-        for name, value in six.iteritems(outputs):
+        for name, value in outputs.items():
             self.set_parameter(name, value)
         if hasattr(self, '_recorded_params'):
             del self._recorded_params
@@ -371,7 +370,7 @@ class FileCopyProcess(Process):
         dst_output = self._former_output_directory
         output_values = {}
         moved_dict = {}
-        for param, trait in six.iteritems(self.user_traits()):
+        for param, trait in self.user_traits().items():
             if trait.output:
                 new_value = self._move_files(tmp_output, dst_output,
                                              getattr(self, param),
@@ -397,11 +396,11 @@ class FileCopyProcess(Process):
             return new_value
         elif isinstance(value, dict):
             new_value = {}
-            for name, item in six.iteritems(value):
+            for name, item in value.items():
                 new_value[name] = self._move_files(
                     src_directory, dst_directory, item, moved_dict)
             return new_value
-        elif isinstance(value, six.string_types):
+        elif isinstance(value, str):
             if value in moved_dict:
                 return moved_dict[value]
             if os.path.dirname(value) == src_directory \
@@ -449,7 +448,7 @@ class FileCopyProcess(Process):
 
         # Otherwise start the deletion if the object is a file
         else:
-            if (isinstance(python_object, six.string_types) and
+            if (isinstance(python_object, str) and
                     os.path.isfile(python_object)):
                 os.remove(python_object)
 
@@ -527,7 +526,7 @@ class FileCopyProcess(Process):
         else:
             out = python_object
             if (python_object is not Undefined and
-                    isinstance(python_object, six.string_types) and
+                    isinstance(python_object, str) and
                     os.path.isfile(python_object)):
                 destdir = self._destination
                 if not os.path.exists(destdir):
@@ -590,7 +589,7 @@ class FileCopyProcess(Process):
         input_symlinks = {}
 
         # Go through all the user traits
-        for name, trait in six.iteritems(self.user_traits()):
+        for name, trait in self.user_traits().items():
             if trait.output:
                 continue
             # Check if the target parameter is in the check list

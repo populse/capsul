@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 '''
 Utilities to link Capsul and NiPype interfaces
 
@@ -15,11 +14,7 @@ from __future__ import absolute_import
 import sys
 import os
 import types
-import logging
 import six
-
-# Trait import
-from traits.api import Directory, File, List, CTrait, Undefined, TraitError
 
 # Capsul import
 from .process import NipypeProcess

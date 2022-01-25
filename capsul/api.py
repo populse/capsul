@@ -36,6 +36,4 @@ from capsul.pipeline.pipeline_nodes import PipelineNode
 from capsul.pipeline.pipeline_nodes import Switch
 from capsul.pipeline.pipeline_nodes import OptionalOutputSwitch
 from capsul.process_instance import get_process_instance
-from capsul.utils.finder import find_processes
-from capsul.engine import capsul_engine
-from capsul.engine import activate_configuration
+from .application import Capsul

@@ -5,10 +5,7 @@ Configuration module which links with `Axon <http://brainvisa.info/axon/user_doc
 '''
 
 from __future__ import absolute_import
-import os
-import six
 import capsul.engine
-import os.path as osp
 
 
 def init_settings(capsul_engine):

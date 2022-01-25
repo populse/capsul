@@ -20,44 +20,18 @@ Functions
 ------------------------------
 '''
 
-from __future__ import absolute_import
-from __future__ import print_function
 import importlib
-import json
 import os
 import os.path as osp
 import re
-import tempfile
-import subprocess
-import sys
 
 from soma.controller import Controller
 from soma.serialization import to_json, from_json
 
-from .database_json import JSONDBEngine
 from .database_populse import PopulseDBEngine
 
 from .settings import Settings
-from .module import default_modules
 from . import run
-from .run import WorkflowExecutionError
-
-# FIXME TODO: OBSOLETE
-
-#Questions about API/implementation:
-
-#* execution:
-  #* workflows are not exposed, they are running a possibly different pipeline (single process case), thus we need to keep track on it
-  #* logging / history / provenance, databasing
-  #* retrieving output files with transfers: when ? currently in wait(), should it be a separate method ? should it be asynchronous ?
-  #* setting output parameters: currently in wait(), should it be a separate method ?
-  #* disconnections / reconnections client / server
-  #* actually connect computing resource[s]
-#* settings / config:
-  #* see comments in settings.py
-  #* GUI and constraints on parameters ?
-  #* how to handle optional dependencies: ie nipype depends on spm if spm is installed / configured, otherwise we can run other nipype interfaces, but no spm ones
-  #* integrate soma-workflow config + CE.computing_resource
 
 
 class CapsulEngine(Controller):
@@ -505,32 +479,6 @@ def database_factory(database_location):
     if engine_directory:
         engine.set_named_directory('capsul_engine', engine_directory)
     return engine
-
-def capsul_engine(database_location=None, require=None):
-    '''
-    User facrory for creating capsul engines.
-
-    If no database_location is given, it will default to an internal (in-
-    memory) database with no persistent settings or history values.
-
-    Configuration is read from a dictionary stored in two database entries.
-    The first entry has the key 'global_config' (i.e.
-    database.json_value('global_config')), it contains the configuration
-    values that are shared by all processings engines. The secon entry is 
-    computing_config`. It contains a dictionary with one item per computing
-    resource where the key is the resource name and the value is configuration 
-    values that are specific to this computing resource.
-
-    Before initialization of the CapsulEngine, modules are loaded. The
-    list of loaded modules is searched in the 'modules' value in the
-    database (i.e. in database.json_value('modules')) ; if no list is
-    defined in the database, capsul.module.default_modules is used.
-    '''
-    #if database_location is None:
-        #database_location = osp.expanduser('~/.config/capsul/capsul_engine.sqlite')
-    database = database_factory(database_location)
-    capsul_engine = CapsulEngine(database_location, database, require=require)
-    return capsul_engine
 
 
 configurations = None
