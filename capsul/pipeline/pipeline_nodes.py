@@ -169,8 +169,12 @@ class Node(Controller):
                                          "enabled")
 
         # add an event on the Node instance attributes to validate the pipeline
-        self.on_attribute_change(pipeline.update_nodes_and_plugs_activation,
-                                 "enabled")
+        self.on_attribute_change.add(
+            pipeline.update_nodes_and_plugs_activation, "enabled")
+
+    def __hash__(self):
+        return id(self)
+
     @property
     def process(self):
         try:
@@ -502,14 +506,9 @@ class ProcessNode(Node):
         kwargs: dict
             process default values.
         """
-        if process is pipeline:
-            self.process = weak_proxy(process)
-        else:
-            self.process = process
-        self.kwargs = kwargs
         inputs = []
         outputs = []
-        for field in self.process.fields():
+        for field in process.fields():
             if field.name in ('nodes_activation', 'selection_changed'):
                 continue
             optional = field.metadata.get('optional', False)
@@ -521,7 +520,14 @@ class ProcessNode(Node):
                 inputs.append(dict(name=parameter,
                                    optional=bool(optional or
                                                  parameter in kwargs)))
+
         super().__init__(pipeline, name, inputs, outputs)
+
+        if process is pipeline:
+            self.process = weak_proxy(process)
+        else:
+            self.process = process
+        self.kwargs = kwargs
 
     def set_callback_on_plug(self, plug_name, callback):
         """ Add an event when a plug change

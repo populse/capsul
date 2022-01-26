@@ -112,7 +112,7 @@ class Process(Controller):
         the string description of the class location (ie., module.class).
     """
 
-    def __init__(self, definition):
+    def __init__(self, definition=None):
         super().__init__()
         self.definition = definition
     
