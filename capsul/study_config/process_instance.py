@@ -288,11 +288,18 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                 module_name, object_name = elements
             try:
                 module = importlib.import_module(module_name)
+                # update the Interface class since we may have loaded nipype
+                # during import
+                Interface = _get_interface_class()
+
                 if object_name not in module.__dict__ \
                         or not is_process(getattr(module, object_name)):
                     # maybe a module with a single process in it
                     module = importlib.import_module(process_or_id)
                     module_dict = module.__dict__
+                    # update the Interface class since we may have loaded
+                    # nipype during import
+                    Interface = _get_interface_class()
                     object_name = _find_single_process(
                         module_dict, module_name)
                     if object_name is not None:
