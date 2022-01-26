@@ -184,7 +184,7 @@ class Process(Controller):
         return {}
 
     def execute(self, context):
-        raise NotImplementedError(f'The run method is not implemented for process {self.id}')
+        raise NotImplementedError(f'The run method is not implemented for process {self.definition}')
 
 
 class FileCopyProcess(Process):

@@ -12,6 +12,7 @@ except ImportError:
     NipypeInterface = type("Interface", (object, ), {})
 
 from soma.controller import field
+from soma.undefined import undefined
 
 from ..process.process import Process
 from ..pipeline.pipeline import Pipeline
@@ -138,14 +139,14 @@ class Capsul:
                 name = 'result'
             annotations[name] = field(**kwargs)
 
-        def wrap(self):
+        def wrap(self, context):
             kwargs = {i: getattr(self, i) for i in annotations if getattr(self, i, undefined) is not undefined}
             result = function(**kwargs)
             setattr(self, 'result', result)
 
         namespace = {
             '__annotations__': annotations,
-            '__call__': wrap,
+            'execute': wrap,
         }
         name = f'{function.__name__}_process'
         return type(name, (Process,), namespace)
