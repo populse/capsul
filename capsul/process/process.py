@@ -112,41 +112,30 @@ class Process(Controller):
         the string description of the class location (ie., module.class).
     """
 
-    # def __init__(self, **kwargs):
-    #     """ Initialize the Process class.
-    #     """
-    #     # Inheritance
-    #     super().__init__()
-
-    #     # Initialize the process identifiers
-    #     self.name = self.__class__.__name__
-    #     self.id = self.__class__.__module__ + "." + self.name
-
-    # def __getstate__(self):
-    #     """ Remove the _weakref attribute eventually set by 
-    #     soma.utils.weak_proxy because it prevent Process instance
-    #     from being used with pickle.
-    #     """
-    #     state = super(Process, self).__getstate__()
-    #     state.pop('_weakref', None)
-    #     return state
+    def __init__(self, definition):
+        super().__init__()
+        self.definition = definition
     
+    def json(self):
+        result = {
+            'definition': self.definition,
+            'parameters': super().json(),
+        }
+        return result
     
-    def _before_run_process(self):
+    def before_execute(self, context):
         """This method is called by CapsulEngine before calling
-        _run_process(). By default it does nothing but can be overriden
+        execute(). By default it does nothing but can be overriden
         in derived classes.
         """
         pass
 
-    def _after_run_process(self, run_process_result):
+    def after_execute(self, context):
         """This method is called by CapsulEngine after calling
-        _run_process(). It is expected to return the final result of the
-        process. By default it does nothing but can be overridden
+        execute(). By default it does nothing but can be overridden
         in derived classes.
         """
-        return run_process_result
-        
+        pass        
  
     def get_missing_mandatory_parameters(self):
         ''' Returns a list of parameters which are not optional, and which
@@ -194,7 +183,7 @@ class Process(Controller):
         '''
         return {}
 
-    def run(self, context):
+    def execute(self, context):
         raise NotImplementedError(f'The run method is not implemented for process {self.id}')
 
 

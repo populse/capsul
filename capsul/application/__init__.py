@@ -1,4 +1,8 @@
-from ..engine.local import LocalEngine
+import dataclasses
+import importlib
+import os
+import types
+import sys
 
 # Nipype import
 try:
@@ -6,6 +10,14 @@ try:
 # If nipype is not found create a dummy Interface class
 except ImportError:
     NipypeInterface = type("Interface", (object, ), {})
+
+from soma.controller import field
+
+from ..process.process import Process
+from ..pipeline.pipeline import Pipeline
+from ..process.nipype_process import nipype_factory
+from ..engine.local import LocalEngine
+
 
 
 class Capsul:
@@ -36,212 +48,108 @@ class Capsul:
         if item.__annotations__:
             return True
         return False
-
-    @classmethod
-    def find_executable_in_module(cls, module_dict, filename):
-        ''' Scan objects in module_dict and find out if a single one of them is
-        a process
+    
+    def executable(self, definition):
         '''
-        object_name = None
-        for name, item in module_dict.items():
-            if cls.is_executable(item):
-                if object_name is not None:
-                    raise KeyError(
-                        'file %s contains several processes. Please '
-                        'specify which one should be used using '
-                        'filename.py#ProcessName or '
-                        'module.submodule.ProcessName' % filename)
-                object_name = name
-        return object_name
-    
-    def executable(self, process_or_id):
+        Build a Process instance given a definition string
+        '''
+        item = None
+        elements = definition.rsplit('.', 1)
+        if len(elements) > 1:
+            module_name, object_name = elements
+            try:
+                module = importlib.import_module(module_name)
+                item = getattr(module, object_name, None)
+            except ImportError as e:
+                pass
 
+        if item is not None:
+            return self._executable(definition, item)
+
+        raise ValueError(f'Invalid executable definition: {definition}') 
+    
+
+    def _executable(self, definition, item):
+        '''
+        Build a process instance from a Python object and its definition string.
+        '''
         result = None
-        # If the function 'process_or_id' parameter is already a Process
+        # If item is already a Process
         # instance.
-        if isinstance(process_or_id, Process):
-            result = process_or_id
+        if isinstance(item, Process):
+            result = process
 
-        # If the function 'process_or_id' parameter is a Process class.
-        elif (isinstance(process_or_id, type) and
-            issubclass(process_or_id, Process)):
-            result = process_or_id()
+        # If item is a Process class.
+        elif (isinstance(item, type) and
+            issubclass(item, Process)):
+            result = item(definition=definition)
 
-        # If the function 'process_or_id' parameter is already a Nipye
+        # If item is a Nipye
         # interface instance, wrap this structure in a Process class
-        elif isinstance(process_or_id, NipypeInterface):
-            result = nipype_factory(process_or_id)
+        elif isinstance(item, NipypeInterface):
+            result = nipype_factory(definition, item)
 
-        # If the function 'process_or_id' parameter is an Interface class.
-        elif (isinstance(process_or_id, type) and
-            issubclass(process_or_id, NipypeInterface)):
-            result = nipype_factory(process_or_id())
+        # If item is a Nipype Interface class.
+        elif (isinstance(item, type) and
+            issubclass(item, NipypeInterface)):
+            result = nipype_factory(definition, item())
 
-        # If the function 'process_or_id' parameter is a function.
-        elif isinstance(process_or_id, types.FunctionType):
-            xml = getattr(process_or_id, 'capsul_xml', None)
-            if xml is None:
-                # Check docstring
-                if process_or_id.__doc__:
-                    match = process_xml_re.search(
-                        process_or_id.__doc__)
-                    if match:
-                        xml = match.group(0)
-            if xml:
-                result = create_xml_process(process_or_id.__module__,
-                                            process_or_id.__name__, 
-                                            process_or_id, xml)()
+        # If item is a function.
+        elif isinstance(item, types.FunctionType):
+            annotations = getattr(item, '__annotations__', None)
+            if annotations:
+                result = self.process_from_function(item)(definition=definition)
             else:
-                raise ValueError('Cannot find XML description to make function {0} a process'.format(process_or_id))
-            
-        # If the function 'process_or_id' parameter is a class string
-        # description
-        elif isinstance(process_or_id, six.string_types):
-            py_url = os.path.basename(process_or_id).split('#')
-            object_name = None
-            as_xml = False
-            as_py = False
-            module_dict = None
-            module = None
-            if len(py_url) >= 2 and py_url[-2].endswith('.py') \
-                    or len(py_url) == 1 and py_url[0].endswith('.py'):
-                # python file + process name: something.py#ProcessName
-                # or just something.py if it contains only one process class
-                if len(py_url) >= 2:
-                    filename = process_or_id[:-len(py_url[-1]) - 1]
-                    object_name = py_url[-1]
-                else:
-                    filename = process_or_id
-                    object_name = None
-                module = _load_module(filename)
-                module_name = module.__name__
-                module_dict = module.__dict__
-                module_dict = module.__dict__
-                object_name = _find_single_process(
-                    module_dict, module_name)
-                if object_name is not None:
-                    module_name = process_or_id
-                    as_py = True
-            if object_name is None:
-                elements = process_or_id.rsplit('.', 1)
-                if len(elements) < 2:
-                    module_name, object_name = '__main__', elements[0]
-                else:
-                    module_name, object_name = elements
-                try:
-                    module = importlib.import_module(module_name)
-                    if object_name not in module.__dict__ \
-                            or not is_process(getattr(module, object_name)):
-                        # maybe a module with a single process in it
-                        module = importlib.import_module(process_or_id)
-                        module_dict = module.__dict__
-                        object_name = _find_single_process(
-                            module_dict, module_name)
-                        if object_name is not None:
-                            module_name = process_or_id
-                            as_py = True
-                    else:
-                        as_py = True
-                except ImportError as e:
-                    pass
-            if not as_py:
-                # maybe XML filename or URL
-                xml_url = process_or_id + '.xml'
-                if osp.exists(xml_url):
-                    object_name = None
-                elif process_or_id.endswith('.xml') and osp.exists(process_or_id):
-                    xml_url = process_or_id
-                    object_name = None
-                else:
-                    # maybe XML file with pipeline name in it
-                    xml_url = module_name + '.xml'
-                    if not osp.exists(xml_url) and module_name.endswith('.xml') \
-                            and osp.exists(module_name):
-                        xml_url = module_name
-                    if not osp.exists(xml_url):
-                        # try XML file in a module directory + class name
-                        basename = None
-                        module_name2 = None
-                        if module_name in sys.modules:
-                            basename = object_name
-                            module_name2 = module_name
-                            object_name = None # to allow unmatching class / xml
-                            if basename.endswith('.xml'):
-                                basename = basename[:-4]
-                        else:
-                            elements = module_name.rsplit('.', 1)
-                            if len(elements) == 2:
-                                module_name2, basename = elements
-                        if module_name2 and basename:
-                            try:
-                                importlib.import_module(module_name2)
-                                mod_dirname = osp.dirname(
-                                    sys.modules[module_name2].__file__)
-                                xml_url = osp.join(mod_dirname, basename + '.xml')
-                                if not osp.exists(xml_url):
-                                    # if basename includes .xml extension
-                                    xml_url = osp.join(mod_dirname, basename)
-                            except ImportError as e:
-                                raise ImportError('Cannot import %s: %s'
-                                                % (module_name, str(e)))
-                as_xml = True
-                if osp.exists(xml_url):
-                    result = create_xml_pipeline(module_name, object_name,
-                                                xml_url)()
+                raise ValueError(f'Cannot find annotation description to make function {item} a process')
 
-            if result is None and not as_xml:
-                if module_dict is not None:
-                    module_object = module_dict.get(object_name)
-                else:
-                    module = sys.modules[module_name]
-                    module_object = getattr(module, object_name, None)
-                if module_object is not None:
-                    if (isinstance(module_object, type) and
-                        issubclass(module_object, Process)):
-                        result = module_object()
-                    elif isinstance(module_object, Interface):
-                        # If we have a Nipype interface, wrap this structure in a
-                        # Process class
-                        result = nipype_factory(result)
-                    elif (isinstance(module_object, type) and
-                        issubclass(module_object, Interface)):
-                        result = nipype_factory(module_object())
-                    elif isinstance(module_object, types.FunctionType):
-                        xml = getattr(module_object, 'capsul_xml', None)
-                        if xml is None:
-                            # Check docstring
-                            if module_object.__doc__:
-                                match = process_xml_re.search(
-                                    module_object.__doc__)
-                                if match:
-                                    xml = match.group(0)
-                        if xml:
-                            result = create_xml_process(module_name, object_name,
-                                                        module_object, xml)()
-                if result is None and module is not None:
-                    xml_file = osp.join(osp.dirname(module.__file__),
-                                        object_name + '.xml')
-                    if osp.exists(xml_file):
-                        result = create_xml_pipeline(module_name, None,
-                                                    xml_file)()
+        else:
+            raise ValueError(f'Cannot create an executable from {item}')           
 
-        if result is None:
-            raise ValueError("Invalid process_or_id argument. "
-                            "Got '{0}' and expect a Process instance/string "
-                            "description or an Interface instance/string "
-                            "description".format(process_or_id))
-
-        # Set the instance default parameters
-        for name, value in six.iteritems(kwargs):
-            result.set_parameter(name, value)
-
-        if study_config is not None:
-            if result.study_config is not None \
-                    and result.study_config is not study_config:
-                raise ValueError("StudyConfig mismatch in get_process_instance "
-                                "for process %s" % result)
-            result.set_study_config(study_config)
         return result
-    
+
+
+    def process_from_function(self, function):
+        annotations = {}
+        for name, type_ in getattr(function, '__annotations__', {}).items():
+            output = name == 'return'
+            if isinstance(type_, dataclasses.Field):
+                metadata = {}
+                metadata.update(type_.metadata)
+                metadata['output'] = output
+                default=type_.default
+                default_factory=type_.default_factory
+                kwargs = dict(
+                    type_=type_.type,
+                    default=default,
+                    default_factory=default_factory,
+                    repr=type_.repr,
+                    hash=type_.hash,
+                    init=type_.init,
+                    compare=type_.compare,
+                    metadata=metadata)
+            else:
+                kwargs = dict(
+                    type_=type_,
+                    default=undefined,
+                    output=output)
+            if output:
+                # "return" cannot be used as a parameter because it is a Python keyword.
+                #  Change it to "result"
+                name = 'result'
+            annotations[name] = field(**kwargs)
+
+        def wrap(self):
+            kwargs = {i: getattr(self, i) for i in annotations if getattr(self, i, undefined) is not undefined}
+            result = function(**kwargs)
+            setattr(self, 'result', result)
+
+        namespace = {
+            '__annotations__': annotations,
+            '__call__': wrap,
+        }
+        name = f'{function.__name__}_process'
+        return type(name, (Process,), namespace)
+
+
     def engine(self):
         return LocalEngine()

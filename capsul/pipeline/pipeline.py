@@ -26,9 +26,6 @@ from .pipeline_nodes import OptionalOutputSwitch
 
 from soma.controller import (Controller, 
                              Event,
-                             set_optional, 
-                             has_default, 
-                             is_optional,
                              is_output,
                              is_path,
                              is_directory,
@@ -291,8 +288,8 @@ class Pipeline(Process):
                      (not plug.output and not plug.links_from)) and
                     (include_optional
                      or (plug.output and isinstance(node, Switch))
-                     or not is_optional(self.nodes[node_name].field(
-                          parameter_name))))):
+                     or not self.nodes[node_name].is_optional(
+                          parameter_name)))):
 
                     self.export_parameter(node_name, parameter_name)
 
@@ -312,7 +309,7 @@ class Pipeline(Process):
         if getattr(self, 'pipeline_node', False):
             field = self.field(name)
             output = is_output(field)
-            optional = is_optional(field)
+            optional = self.is_optional(field)
             plug = Plug(output=output, optional=optional)
             self.pipeline_node.plugs[name] = plug
             plug.on_attribute_change.add(
@@ -510,7 +507,7 @@ class Pipeline(Process):
                 node.plugs[parameter_name].optional = True
                 process = getattr(node, 'process')
                 if process is not None:
-                    set_optional(process.field(parameter_name),  True)
+                    process.set_optional(parameter_name,  True)
 
         # Create a field to control the node activation (enable property)
         self.nodes_activation.add_field(name, bool)
@@ -789,7 +786,7 @@ class Pipeline(Process):
                 node.plugs[parameter_name].optional = True
                 field = node.field(parameter_name)
                 if field is not None:
-                    set_optional(field, True)
+                    node.set_optional(field, True)
 
             # Do not export plug
             if (parameter_name in do_not_export or
@@ -1111,13 +1108,13 @@ class Pipeline(Process):
         if is_enabled is not None:
             f.metadata['enabled'] = bool(is_enabled)
 
-        # Change the field optional property
-        if is_optional is not None:
-            set_optional(f, bool(is_optional))
-
         # Now add the parameter to the pipeline
         if not self.field(pipeline_parameter):
             self.add_field(pipeline_parameter, f)
+
+        # Change the field optional property
+        if is_optional is not None:
+            self.set_optional(f.name, bool(is_optional))
 
         # Propagate the parameter value to the new exported one
         self.set_parameter(pipeline_parameter,
@@ -1798,7 +1795,7 @@ class Pipeline(Process):
                     # here we have null values
                 elif value != '' and value is not undefined:
                     continue # non-null value: not an empty parameter.
-                optional = is_optional(parameter)
+                optional = process.is_optional(parameter)
                 valid = True
                 links = list(plug.links_from.union(plug.links_to))
                 if len(links) == 0:
