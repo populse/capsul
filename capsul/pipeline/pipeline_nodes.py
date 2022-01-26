@@ -158,7 +158,7 @@ class Node(Controller):
             values (mandatory key: name)
         """
         super(Node, self).__init__()
-        self.pipeline = weak_proxy(pipeline)
+        self.pipeline = weak_proxy(pipeline, self._pipeline_deleted)
         self.name = name
         self.plugs = SortedDictionary()
         self.invalid_plugs = set()
@@ -200,6 +200,7 @@ class Node(Controller):
         # add an event on the Node instance traits to validate the pipeline
         self.on_trait_change(pipeline.update_nodes_and_plugs_activation,
                              "enabled")
+
     @property
     def process(self):
         try:
@@ -207,6 +208,11 @@ class Node(Controller):
         except AttributeError:
             raise AttributeError('%s object has no attribute process'
                                  % repr(self))
+        except ReferenceError:
+            raise ReferenceError(
+                'The process underlying node %s, %s has been destroyed '
+                'before the node that contains it.' % (self, self.name))
+            raise
     
     @process.setter
     def process(self, value):
@@ -329,7 +335,8 @@ class Node(Controller):
                          dest_plug_name)] = value_callback
         self.set_callback_on_plug(source_plug_name, value_callback)
 
-    def disconnect(self, source_plug_name, dest_node, dest_plug_name):
+    def disconnect(self, source_plug_name, dest_node, dest_plug_name,
+                   silent=False):
         """ disconnect linked plugs of two nodes
 
         Parameters
@@ -340,11 +347,58 @@ class Node(Controller):
             the destination node
         dest_plug_name: str (mandatory)
             the destination plug name
+        silent: bool
+            if False, do not fire an exception if the connection does not exust
+            (perhaps already disconnected
         """
         # remove the callback to spread the source plug value
-        callback = self._callbacks.pop(
-            (source_plug_name, dest_node, dest_plug_name))
-        self.remove_callback_from_plug(source_plug_name, callback)
+        try:
+            callback = self._callbacks.pop(
+                (source_plug_name, dest_node, dest_plug_name))
+            self.remove_callback_from_plug(source_plug_name, callback)
+        except Exception:
+            if not silent:
+                raise
+
+    def _pipeline_deleted(self, pipeline):
+        self.cleanup()
+
+    def cleanup(self):
+        """ cleanup before deletion
+
+        disconnects all plugs, remove internal and cyclic references
+        """
+        try:
+            pipeline = get_ref(self.pipeline)
+        except Exception:
+            pipeline = None
+
+        for plug_name, plug in self.plugs.items():
+            to_discard = []
+            for link in plug.links_from:
+                link[2].disconnect(link[1], self, plug_name, silent=True)
+                self.disconnect(plug_name, link[2], link[1], silent=True)
+                link[3].links_to.discard((self.name, plug_name,
+                                          self, plug, True))
+                to_discard.append(link)
+            for link in to_discard:
+                plug.links_from.discard(link)
+            to_discard = []
+            for link in plug.links_to:
+                self.disconnect(plug_name, link[2], link[1], silent=True)
+                link[2].disconnect(link[1], self, plug_name, silent=True)
+                to_discard.append(link)
+                link[3].links_from.discard((self.name, plug_name,
+                                            self, plug, False))
+            if pipeline:
+                plug.on_trait_change(
+                    pipeline.update_nodes_and_plugs_activation, remove=True)
+        if pipeline:
+            self.on_trait_change(pipeline.update_nodes_and_plugs_activation,
+                                 remove=True)
+        self._callbacks = {}
+        self.pipeline = None
+        self.plugs = {}
 
     def __getstate__(self):
         """ Remove the callbacks from the default __getstate__ result because
@@ -650,7 +704,7 @@ class ProcessNode(Node):
             process default values.
         """
         if process is pipeline:
-            self.process = weak_proxy(process)
+            self.process = weak_proxy(process, self._process_deleted)
         else:
             self.process = process
         self.kwargs = kwargs
@@ -691,7 +745,10 @@ class ProcessNode(Node):
         callback: @f (mandatory)
             a callback function
         """
-        self.process.on_trait_change(callback, plug_name, remove=True)
+        try:
+            self.process.on_trait_change(callback, plug_name, remove=True)
+        except ReferenceError:
+            pass  # process is deleted, just go on
 
     def get_plug_value(self, plug_name):
         """ Return the plug value
@@ -788,6 +845,9 @@ class ProcessNode(Node):
         ''' Get (or create) the StudyConfig this process belongs to
         '''
         return self.process.set_study_config(study_config)
+
+    def _process_deleted(self, process):
+        self.cleanup()
 
     @property
     def study_config(self):
