@@ -18,13 +18,14 @@ Classes
 -----------------------------
 '''
 
+import typing
 from typing import Literal, List
 
-from soma.controller import Controller, field, is_path, field_type_str
+from soma.controller import (Controller, field, is_path, field_type_str,
+                             undefined)
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import weak_proxy, get_ref
-from soma.undefined import undefined
 
 class Plug(Controller):
     """ Overload of the fields in order to keep the pipeline memory.
@@ -508,8 +509,9 @@ class ProcessNode(Node):
         """
         inputs = []
         outputs = []
-        for field in process.fields():
-            if field.name in ('nodes_activation', 'selection_changed'):
+        for field in process.fields():  # noqa: F402
+            parameter = field.name
+            if parameter in ('nodes_activation', 'selection_changed'):
                 continue
             optional = field.metadata.get('optional', False)
             if field.metadata.get('output', False):
@@ -810,7 +812,7 @@ class Switch(Node):
             plug.enabled = False
 
         # add switch enum attribute to select the process
-        self.add_field("switch", Literal(*inputs))
+        self.add_field("switch", Literal[tuple(inputs)])
 
         # add a attribute for each input and each output
         input_types = output_types * len(inputs)
@@ -825,8 +827,8 @@ class Switch(Node):
                 'optional': self.plugs[i].optional
             })
 
-        self.on_attribute_change(self._any_attribute_changed)
-        self.on_attribute_change(self._switch_changed, 'switch')
+        self.on_attribute_change.add(self._any_attribute_changed)
+        self.on_attribute_change.add(self._switch_changed, 'switch')
 
         # activate the switch first Process
         self._switch_changed(self._switch_values[0], self._switch_values[0])
@@ -866,7 +868,7 @@ class Switch(Node):
 
             # Update the output value
             setattr(self, output_plug_name,
-                    getattr(self, corresponding_input_plug_name))
+                    getattr(self, corresponding_input_plug_name, undefined))
 
             # Propagate the associated field description
             out_field = self.field(output_plug_name)
@@ -974,9 +976,10 @@ class Switch(Node):
 
     def get_switch_inputs(self):
         inputs = []
-        for field in self.fields():
+        for field in self.fields():  # noqa: F402
             if field.metadata.get('output', False):
                 continue
+            plug = self.plugs[field.name]
             ps = plug.split('_switch_')
             if len(ps) == 2 and self.field(ps[1]) is not None \
                     and self.field(ps[1]).metadata.get('output', False):
@@ -1083,7 +1086,7 @@ class OptionalOutputSwitch(Switch):
         self.plugs['switch'].hidden = True
         self.field(none_input).metadata['hidden'] = True
         self.plugs[none_input].hidden = True
-        self.on_attribute_change(self._any_attribute_changed)
+        self.on_attribute_change.add(self._any_attribute_changed)
 
     def _any_attribute_changed(self, new, old, name):
         """Callback linked to any attribute that enables us to select
@@ -1112,7 +1115,7 @@ class OptionalOutputSwitch(Switch):
                 and name in self._outputs:
             self._Switch__block_output_propagation = True
             # change the switch value according to the output value
-            if new in (None, Undefined):
+            if new in (None, undefined):
                 self.switch = '_none'
             else:
                 self.switch = self._switch_values[0]
