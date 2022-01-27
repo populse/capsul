@@ -19,6 +19,9 @@ class LocalEngine:
     def connect(self):
         if self.tmp is None:
             self.tmp = tempfile.mkdtemp(prefix='capsul_local_engine')
+        # Returnig self is necessary to allow the following statement:
+        # with capsul.connect() as capsul_engine:
+        return self
 
     def disconnect(self):
         if self.tmp is not None:
