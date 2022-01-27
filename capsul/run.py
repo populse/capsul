@@ -33,5 +33,5 @@ if __name__ == '__main__':
         executable_info['status'] = 'ended'
         executable_info['end_time'] = datetime.datetime.now().isoformat()
         executable_info.pop('pid', None)
-        executable_info['parameters'] = executable.json()
+        executable_info['parameters'] = executable.json()['parameters']
         json.dump(executable_info, open(executable_file, 'w'))
