@@ -75,50 +75,6 @@ def join(value1 : str, value2 : str, value3 : str) -> list[str]:
      return [i for i in (value1, value2, value3) if i]
 
 
-# @xml_process('''
-# <process capsul_xml="2.0">
-#     <input name="a" type="int" doc="An integer"/>
-#     <input name="b" type="int" doc="Another integer"/>
-#     <return>
-#         <output name="quotient" type="int" doc="Quotient of a / b"/>
-#         <output name="remainder" type="int" doc="Remainder of a / b"/>
-#     </return>
-# </process>
-# ''')
-# def divide_dict(a, b):
-#      return {
-#         'quotient': int(a / b),
-#         'remainder': a % b,
-#     }
-
-# @xml_process('''
-# <process capsul_xml="2.0">
-#     <input name="a" type="int" doc="An integer"/>
-#     <input name="b" type="int" doc="Another integer"/>
-#     <return>
-#         <output name="quotient" type="int" doc="Quotient of a / b"/>
-#         <output name="remainder" type="int" doc="Remainder of a / b"/>
-#     </return>
-# </process>
-# ''')
-# def divide_list(a, b):
-#      return [int(a / b), a % b]
-
-# @xml_process('''
-# <process capsul_xml="2.0">
-#     <input name="a" type="list_int" doc="An integers list"/>
-#     <input name="b" type="list_int" doc="Another integers list"/>
-#     <return>
-#         <output name="quotients" type="list_int" doc="Quotients of a / b"/>
-#         <output name="remainders" type="list_int" doc="Remainders of a / b"/>
-#     </return>
-# </process>
-# ''')
-# def divides_dict(a, b):
-#      return {
-#         'quotients': [int(i / j) for i, j in zip(a, b)],
-#         'remainders': [i % j for i, j in zip(a, b)],
-#     }
  
 
 # @xml_process('''
@@ -267,69 +223,35 @@ class TestLoadFromDescription(unittest.TestCase):
                 value1='', value2='v', value3='')
             self.assertEqual(process.result, ['v'])
 
-#     def test_named_outputs(self):
-#         process = get_process_instance(
-#             "capsul.process.test.test_load_from_description.divide_dict")
-#         print('!!!', process, type(process))
-#         process(a=42, b=3)
-#         self.assertEqual(process.quotient, 14)
-#         self.assertEqual(process.remainder, 0)
-#         process = get_process_instance(
-#             "capsul.process.test.test_load_from_description.divide_list")
-#         process(a=42, b=3)
-#         self.assertEqual(process.quotient, 14)
-#         self.assertEqual(process.remainder, 0)
         
-#         a = list(range(40, 50))
-#         b = list(range(10, 21))
-#         quotients = [int(i / j) for i, j in zip(list(range(40, 50)), list(range(10, 21)))]
-#         remainders = [i % j for i, j in zip(list(range(40, 50)), list(range(10, 21)))]
-        
-#         process = get_process_instance(
-#             "capsul.process.test.test_load_from_description.divides_dict")
-#         process(a=a, b=b)
-#         self.assertEqual(process.quotients, quotients)
-#         self.assertEqual(process.remainders, remainders)
-#         process = get_process_instance(
-#             "capsul.process.test.test_load_from_description.divides_list")
-#         process(a=a, b=b)
-#         self.assertEqual(process.quotients, quotients)
-#         self.assertEqual(process.remainders, remainders)
-        
-#         process = get_process_instance(
-#             "capsul.process.test.test_load_from_description.divides_single_dict")
-#         process(a=a, b=b)
-#         self.assertEqual(process.quotients, quotients)
-#         process = get_process_instance(
-#             "capsul.process.test.test_load_from_description.divides_single_list")
-#         process(a=a, b=b)
-#         self.assertEqual(process.quotients, quotients)
-        
-# class TestProcessWrap(unittest.TestCase):
-#     """ Class to test the function used to wrap a function to a process
-#     """
-#     def setUp(self):
-#         """ In the setup construct set some process input parameters.
-#         """
-#         # Get the wrapped test process process
-#         self.process = get_process_instance(
-#             "capsul.process.test.test_load_from_description.a_function_to_wrap")
+class TestProcessWrap(unittest.TestCase):
+    """ Class to test the function used to wrap a function to a process
+    """
+    def setUp(self):
+        """ In the setup construct set some process input parameters.
+        """
+        capsul = Capsul()
+        # Get the wrapped test process process
+        self.process = capsul.executable(
+            'capsul.process.test.test_load_from_description.a_function_to_wrap')
 
-#         # Set some input parameters
-#         self.process.fname = "fname"
-#         self.process.directory = "directory"
-#         self.process.value = 1.2
-#         self.process.enum = "choice1"
-#         self.process.list_of_str = ["a_string"]
+        # Set some input parameters
+        self.process.fname = 'fname'
+        self.process.directory = 'directory'
+        self.process.value = 1.2
+        self.process.enum = 'choice1'
+        self.process.list_of_str = ['a_string']
 
-#     def test_process_wrap(self):
-#         """ Method to test if the process has been wrapped properly.
-#         """
-#         # Execute the process
-#         self.process()
-#         self.assertEqual(
-#             getattr(self.process, "string"),
-#             "ALL FUNCTION PARAMETERS::\n\nfnamedirectory1.2choice1['a_string']")
+    def test_process_wrap(self):
+        """ Method to test if the process has been wrapped properly.
+        """
+        # Execute the process
+        capsul = Capsul()
+        with capsul.engine() as ce:
+            ce.run(self.process)
+            self.assertEqual(
+                self.process.result,
+                "ALL FUNCTION PARAMETERS::\n\nfnamedirectory1.2choice1['a_string']")
 
 
 if __name__ == "__main__":
