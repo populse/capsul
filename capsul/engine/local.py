@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -52,14 +53,18 @@ class LocalEngine:
             f.flush()
             p = subprocess.Popen(
                 [sys.executable, '-m', 'capsul.run', f.name],
-                 stdout=open(f'{f.name}.stdout', 'wb'),
-                 stderr=open(f'{f.name}.stderr', 'wb'),
+                start_new_session=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
             )
+            p.wait()
         return f.name
 
     def status(self, execution_id):
         self.assert_connected()
-        return json.load(open(execution_id))
+        with open(execution_id) as f:
+            return json.load(f)
     
     def wait(self, execution_id):
         self.assert_connected()
@@ -72,9 +77,9 @@ class LocalEngine:
                     break
             else:
                 raise SystemError('executable too slow to start')
-        pid = status.get('pid')
-        if pid:
-            os.waitpid(pid)
+        while status['status'] == 'running':
+            time.sleep(0.5)
+            status = self.status(execution_id)
 
     def raise_for_status(self, status):
         self.assert_connected()

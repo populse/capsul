@@ -8,11 +8,7 @@ from typing import List, Tuple
 
 from soma.controller import file, directory, field
 
-from capsul.api import Process
-from capsul.api import get_process_instance
-from capsul.api import Pipeline
-from capsul.process.xml import xml_process
-from capsul.pipeline.xml import save_xml_pipeline
+from capsul.api import Capsul, Process, Pipeline
 
 
 
@@ -45,138 +41,138 @@ def to_warp_func(
     return output1, output2
 
 
-@xml_process('''
-<process>
-    <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
-    <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" 
-     doc="Mehod for thresolding."/>
-    <input name="threshold" type="float" doc="Threshold value."/>
-    <return name="output_image" type="file" doc="Name of the output image."/>
-</process>
-''')
-def threshold(input_image, output_image, method='gt', threshold=0):
-     pass
+# @xml_process('''
+# <process>
+#     <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
+#     <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" 
+#      doc="Mehod for thresolding."/>
+#     <input name="threshold" type="float" doc="Threshold value."/>
+#     <return name="output_image" type="file" doc="Name of the output image."/>
+# </process>
+# ''')
+# def threshold(input_image, output_image, method='gt', threshold=0):
+#      pass
 
-@xml_process('''
-<process>
-    <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
-    <input name="mask" type="file" doc="Path of mask binary image."/>
-    <output name="output_image" type="file" doc="Output file name."/>
-</process>
-''')
-def mask(input_image, mask, output_location=None):
-     pass
-
-
-@xml_process('''
-<process>
-    <input name="value1" type="string" doc="A string value."/>
-    <input name="value2" type="string" doc="A string value."/>
-    <input name="value3" type="string" doc="A string value."/>
-    <return name="values" type="string" doc="Concatenation of non empty input values."/>
-</process>
-''')
-def cat(value1, value2, value3):
-     return '_'.join(i for i in (value1, value2, value3) if i)
-
-@xml_process('''
-<process>
-    <input name="value1" type="string" doc="A string value."/>
-    <input name="value2" type="string" doc="A string value."/>
-    <input name="value3" type="string" doc="A string value."/>
-    <return name="values" type="list_string" doc="List of non empty input values."/>
-</process>
-''')
-def join(value1, value2, value3):
-     return [i for i in (value1, value2, value3) if i]
+# @xml_process('''
+# <process>
+#     <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
+#     <input name="mask" type="file" doc="Path of mask binary image."/>
+#     <output name="output_image" type="file" doc="Output file name."/>
+# </process>
+# ''')
+# def mask(input_image, mask, output_location=None):
+#      pass
 
 
-@xml_process('''
-<process capsul_xml="2.0">
-    <input name="a" type="int" doc="An integer"/>
-    <input name="b" type="int" doc="Another integer"/>
-    <return>
-        <output name="quotient" type="int" doc="Quotient of a / b"/>
-        <output name="remainder" type="int" doc="Remainder of a / b"/>
-    </return>
-</process>
-''')
-def divide_dict(a, b):
-     return {
-        'quotient': int(a / b),
-        'remainder': a % b,
-    }
+# @xml_process('''
+# <process>
+#     <input name="value1" type="string" doc="A string value."/>
+#     <input name="value2" type="string" doc="A string value."/>
+#     <input name="value3" type="string" doc="A string value."/>
+#     <return name="values" type="string" doc="Concatenation of non empty input values."/>
+# </process>
+# ''')
+# def cat(value1, value2, value3):
+#      return '_'.join(i for i in (value1, value2, value3) if i)
 
-@xml_process('''
-<process capsul_xml="2.0">
-    <input name="a" type="int" doc="An integer"/>
-    <input name="b" type="int" doc="Another integer"/>
-    <return>
-        <output name="quotient" type="int" doc="Quotient of a / b"/>
-        <output name="remainder" type="int" doc="Remainder of a / b"/>
-    </return>
-</process>
-''')
-def divide_list(a, b):
-     return [int(a / b), a % b]
+# @xml_process('''
+# <process>
+#     <input name="value1" type="string" doc="A string value."/>
+#     <input name="value2" type="string" doc="A string value."/>
+#     <input name="value3" type="string" doc="A string value."/>
+#     <return name="values" type="list_string" doc="List of non empty input values."/>
+# </process>
+# ''')
+# def join(value1, value2, value3):
+#      return [i for i in (value1, value2, value3) if i]
 
-@xml_process('''
-<process capsul_xml="2.0">
-    <input name="a" type="list_int" doc="An integers list"/>
-    <input name="b" type="list_int" doc="Another integers list"/>
-    <return>
-        <output name="quotients" type="list_int" doc="Quotients of a / b"/>
-        <output name="remainders" type="list_int" doc="Remainders of a / b"/>
-    </return>
-</process>
-''')
-def divides_dict(a, b):
-     return {
-        'quotients': [int(i / j) for i, j in zip(a, b)],
-        'remainders': [i % j for i, j in zip(a, b)],
-    }
+
+# @xml_process('''
+# <process capsul_xml="2.0">
+#     <input name="a" type="int" doc="An integer"/>
+#     <input name="b" type="int" doc="Another integer"/>
+#     <return>
+#         <output name="quotient" type="int" doc="Quotient of a / b"/>
+#         <output name="remainder" type="int" doc="Remainder of a / b"/>
+#     </return>
+# </process>
+# ''')
+# def divide_dict(a, b):
+#      return {
+#         'quotient': int(a / b),
+#         'remainder': a % b,
+#     }
+
+# @xml_process('''
+# <process capsul_xml="2.0">
+#     <input name="a" type="int" doc="An integer"/>
+#     <input name="b" type="int" doc="Another integer"/>
+#     <return>
+#         <output name="quotient" type="int" doc="Quotient of a / b"/>
+#         <output name="remainder" type="int" doc="Remainder of a / b"/>
+#     </return>
+# </process>
+# ''')
+# def divide_list(a, b):
+#      return [int(a / b), a % b]
+
+# @xml_process('''
+# <process capsul_xml="2.0">
+#     <input name="a" type="list_int" doc="An integers list"/>
+#     <input name="b" type="list_int" doc="Another integers list"/>
+#     <return>
+#         <output name="quotients" type="list_int" doc="Quotients of a / b"/>
+#         <output name="remainders" type="list_int" doc="Remainders of a / b"/>
+#     </return>
+# </process>
+# ''')
+# def divides_dict(a, b):
+#      return {
+#         'quotients': [int(i / j) for i, j in zip(a, b)],
+#         'remainders': [i % j for i, j in zip(a, b)],
+#     }
  
 
-@xml_process('''
-<process capsul_xml="2.0">
-    <input name="a" type="list_int" doc="An integers list"/>
-    <input name="b" type="list_int" doc="Another integers list"/>
-    <return>
-        <output name="quotients" type="list_int" doc="Quotients of a / b"/>
-        <output name="remainders" type="list_int" doc="Remainders of a / b"/>
-    </return>
-</process>
-''')
-def divides_list(a, b):
-     return [[int(i / j) for i, j in zip(a, b)],
-             [i % j for i, j in zip(a, b)]]
+# @xml_process('''
+# <process capsul_xml="2.0">
+#     <input name="a" type="list_int" doc="An integers list"/>
+#     <input name="b" type="list_int" doc="Another integers list"/>
+#     <return>
+#         <output name="quotients" type="list_int" doc="Quotients of a / b"/>
+#         <output name="remainders" type="list_int" doc="Remainders of a / b"/>
+#     </return>
+# </process>
+# ''')
+# def divides_list(a, b):
+#      return [[int(i / j) for i, j in zip(a, b)],
+#              [i % j for i, j in zip(a, b)]]
  
  
-@xml_process('''
-<process capsul_xml="2.0">
-    <input name="a" type="list_int" doc="An integers list"/>
-    <input name="b" type="list_int" doc="Another integers list"/>
-    <return>
-        <output name="quotients" type="list_int" doc="Quotients of a / b"/>
-    </return>
-</process>
-''')
-def divides_single_dict(a, b):
-     return {
-        'quotients': [int(i / j) for i, j in zip(a, b)],
-    }
+# @xml_process('''
+# <process capsul_xml="2.0">
+#     <input name="a" type="list_int" doc="An integers list"/>
+#     <input name="b" type="list_int" doc="Another integers list"/>
+#     <return>
+#         <output name="quotients" type="list_int" doc="Quotients of a / b"/>
+#     </return>
+# </process>
+# ''')
+# def divides_single_dict(a, b):
+#      return {
+#         'quotients': [int(i / j) for i, j in zip(a, b)],
+#     }
 
-@xml_process('''
-<process capsul_xml="2.0">
-    <input name="a" type="list_int" doc="An integers list"/>
-    <input name="b" type="list_int" doc="Another integers list"/>
-    <return>
-        <output name="quotients" type="list_int" doc="Quotients of a / b"/>
-    </return>
-</process>
-''')
-def divides_single_list(a, b):
-     return [[int(i / j) for i, j in zip(a, b)]]
+# @xml_process('''
+# <process capsul_xml="2.0">
+#     <input name="a" type="list_int" doc="An integers list"/>
+#     <input name="b" type="list_int" doc="Another integers list"/>
+#     <return>
+#         <output name="quotients" type="list_int" doc="Quotients of a / b"/>
+#     </return>
+# </process>
+# ''')
+# def divides_single_list(a, b):
+#      return [[int(i / j) for i, j in zip(a, b)]]
 
 
 class TestLoadFromDescription(unittest.TestCase):
@@ -185,8 +181,9 @@ class TestLoadFromDescription(unittest.TestCase):
     def test_process_warpping(self):
         """ Method to test the function to process on the fly warpping.
         """
-        process = get_process_instance(
-            "capsul.process.test.test_load_from_description.to_warp_func")
+        capsul = Capsul()
+        process = capsul.executable(
+            'capsul.process.test.test_load_from_description.to_warp_func')
         self.assertTrue(isinstance(process, Process))
         for input_name in ["parameter1", "parameter2", "parameter3"]:
             field = process.field(input_name)
@@ -199,13 +196,16 @@ class TestLoadFromDescription(unittest.TestCase):
         process.parameter1 = 12.34
         process.parameter2 = 'toto'
         process.parameter3 = 4
-        process()
+        with capsul.engine() as ce:
+            ce.run(process)
         self.assertEqual(process.result, (1, 'done'))
 
     def test_pipeline_warpping(self):
         """ Method to test the xml description to pipeline on the fly warpping.
         """
-        pipeline = get_process_instance("capsul.process.test.xml_pipeline")
+        pipeline_file = os.path.join(os.path.dirname(__file__), 'pipeline.json')
+        capsul = Capsul()
+        pipeline = capsul.executable(pipeline_file)
         self.assertTrue(isinstance(pipeline, Pipeline))
         for node_name in ["", "p1", "p2"]:
             self.assertTrue(node_name in pipeline.nodes)

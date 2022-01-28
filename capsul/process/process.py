@@ -123,14 +123,14 @@ class Process(Controller):
         }
         return result
     
-    def before_execute(self, context):
+    def before_execute(self):
         """This method is called by CapsulEngine before calling
         execute(). By default it does nothing but can be overriden
         in derived classes.
         """
         pass
 
-    def after_execute(self, context):
+    def after_execute(self):
         """This method is called by CapsulEngine after calling
         execute(). By default it does nothing but can be overridden
         in derived classes.
@@ -183,7 +183,7 @@ class Process(Controller):
         '''
         return {}
 
-    def execute(self, context):
+    def execute(self):
         raise NotImplementedError(f'The run method is not implemented for process {self.definition}')
 
 

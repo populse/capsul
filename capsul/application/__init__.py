@@ -1,8 +1,9 @@
 import dataclasses
 import importlib
+import json
 import os
 import types
-import sys
+
 
 # Nipype import
 try:
@@ -49,108 +50,164 @@ class Capsul:
         if item.__annotations__:
             return True
         return False
-    
+
     def executable(self, definition):
-        '''
-        Build a Process instance given a definition string
-        '''
-        item = None
-        elements = definition.rsplit('.', 1)
-        if len(elements) > 1:
-            module_name, object_name = elements
-            try:
-                module = importlib.import_module(module_name)
-                item = getattr(module, object_name, None)
-            except ImportError as e:
-                pass
-
-        if item is not None:
-            return self._executable(definition, item)
-
-        raise ValueError(f'Invalid executable definition: {definition}') 
-    
-
-    def _executable(self, definition, item):
-        '''
-        Build a process instance from a Python object and its definition string.
-        '''
-        result = None
-        # If item is already a Process
-        # instance.
-        if isinstance(item, Process):
-            result = process
-
-        # If item is a Process class.
-        elif (isinstance(item, type) and
-            issubclass(item, Process)):
-            result = item(definition=definition)
-
-        # If item is a Nipye
-        # interface instance, wrap this structure in a Process class
-        elif isinstance(item, NipypeInterface):
-            result = nipype_factory(definition, item)
-
-        # If item is a Nipype Interface class.
-        elif (isinstance(item, type) and
-            issubclass(item, NipypeInterface)):
-            result = nipype_factory(definition, item())
-
-        # If item is a function.
-        elif isinstance(item, types.FunctionType):
-            annotations = getattr(item, '__annotations__', None)
-            if annotations:
-                result = self.process_from_function(item)(definition=definition)
-            else:
-                raise ValueError(f'Cannot find annotation description to make function {item} a process')
-
-        else:
-            raise ValueError(f'Cannot create an executable from {item}')           
-
-        return result
-
-
-    def process_from_function(self, function):
-        annotations = {}
-        for name, type_ in getattr(function, '__annotations__', {}).items():
-            output = name == 'return'
-            if isinstance(type_, dataclasses.Field):
-                metadata = {}
-                metadata.update(type_.metadata)
-                metadata['output'] = output
-                default=type_.default
-                default_factory=type_.default_factory
-                kwargs = dict(
-                    type_=type_.type,
-                    default=default,
-                    default_factory=default_factory,
-                    repr=type_.repr,
-                    hash=type_.hash,
-                    init=type_.init,
-                    compare=type_.compare,
-                    metadata=metadata)
-            else:
-                kwargs = dict(
-                    type_=type_,
-                    default=undefined,
-                    output=output)
-            if output:
-                # "return" cannot be used as a parameter because it is a Python keyword.
-                #  Change it to "result"
-                name = 'result'
-            annotations[name] = field(**kwargs)
-
-        def wrap(self, context):
-            kwargs = {i: getattr(self, i) for i in annotations if getattr(self, i, undefined) is not undefined}
-            result = function(**kwargs)
-            setattr(self, 'result', result)
-
-        namespace = {
-            '__annotations__': annotations,
-            'execute': wrap,
-        }
-        name = f'{function.__name__}_process'
-        return type(name, (Process,), namespace)
-
+        return executable(definition)
 
     def engine(self):
         return LocalEngine()
+
+
+def executable(definition):
+    '''
+    Build a Process instance given a definition string
+    '''
+    item = None
+    if definition.endswith('.json'):
+        with open(definition) as f:
+            json_executable = json.load(f)
+        return executable_from_json(definition, json_executable)
+    else:
+        elements = definition.rsplit('.', 1)
+        if len(elements) > 1:
+            module_name, object_name = elements
+            module = importlib.import_module(module_name)
+            item = getattr(module, object_name, None)
+            return executable_from_python(definition, item)
+
+    raise ValueError(f'Invalid executable definition: {definition}') 
+    
+
+def executable_from_python(definition, item):
+    '''
+    Build a process instance from a Python object and its definition string.
+    '''
+    result = None
+    # If item is already a Process
+    # instance.
+    if isinstance(item, Process):
+        result = process
+
+    # If item is a Process class.
+    elif (isinstance(item, type) and
+        issubclass(item, Process)):
+        result = item(definition=definition)
+
+    # If item is a Nipye
+    # interface instance, wrap this structure in a Process class
+    elif isinstance(item, NipypeInterface):
+        result = nipype_factory(definition, item)
+
+    # If item is a Nipype Interface class.
+    elif (isinstance(item, type) and
+        issubclass(item, NipypeInterface)):
+        result = nipype_factory(definition, item())
+
+    # If item is a function.
+    elif isinstance(item, types.FunctionType):
+        annotations = getattr(item, '__annotations__', None)
+        if annotations:
+            result = process_from_function(item)(definition=definition)
+        else:
+            raise ValueError(f'Cannot find annotation description to make function {item} a process')
+
+    else:
+        raise ValueError(f'Cannot create an executable from {item}')           
+
+    return result
+
+def executable_from_json(definition, json_executable):
+    '''
+    Build a process instance from a JSON dictionary and its definition string.
+    '''
+    type = json_executable.get('type')
+    if type == 'process':
+        result = executable(json_executable['definition'])
+        result.definition = definition
+        parameters = json_executable.get('parameters')
+        if parameters:
+            result.import_json(parameters)
+    elif type == 'pipeline':
+        result = JSONPipeline(definition, json_executable)
+    else:
+        raise ValueError(f'Invalid executable type in {definition}: {type}')
+    return result
+
+def process_from_function(function):
+    annotations = {}
+    for name, type_ in getattr(function, '__annotations__', {}).items():
+        output = name == 'return'
+        if isinstance(type_, dataclasses.Field):
+            metadata = {}
+            metadata.update(type_.metadata)
+            metadata['output'] = output
+            default=type_.default
+            default_factory=type_.default_factory
+            kwargs = dict(
+                type_=type_.type,
+                default=default,
+                default_factory=default_factory,
+                repr=type_.repr,
+                hash=type_.hash,
+                init=type_.init,
+                compare=type_.compare,
+                metadata=metadata)
+        else:
+            kwargs = dict(
+                type_=type_,
+                default=undefined,
+                output=output)
+        if output:
+            # "return" cannot be used as a parameter because it is a Python keyword.
+            #  Change it to "result"
+            name = 'result'
+        annotations[name] = field(**kwargs)
+
+    def wrap(self):
+        kwargs = {i: getattr(self, i) for i in annotations if getattr(self, i, undefined) is not undefined}
+        result = function(**kwargs)
+        setattr(self, 'result', result)
+
+    namespace = {
+        '__annotations__': annotations,
+        'execute': wrap,
+    }
+    name = f'{function.__name__}_process'
+    return type(name, (Process,), namespace)
+
+
+
+
+class JSONPipeline(Pipeline):
+    def __init__(self, definition, json_executable):
+        object.__setattr__(self, 'json_executable' , json_executable)
+        super().__init__(definition=definition)
+    
+    def pipeline_definition(self):
+        exported_parameters = set()
+        for name, ejson in self.json_executable['executables'].items():
+            e = executable_from_json(f'{self.definition}#{name}', ejson)
+            self.add_process(name, e)
+        all_links = [i + [False] for i in self.json_executable.get('links', [])]
+        all_links += [i + [True] for i in self.json_executable.get('weak_links', [])]
+        
+        for source, dest, weak_link in all_links:
+            if '.' in source:
+                if '.' in dest:
+                    self.add_link(f'{source}->{dest}',
+                                     weak_link=weak_link)
+                elif dest in exported_parameters:
+                    self.add_link(f'{source}->{dest}',
+                                     weak_link=weak_link)
+                else:
+                    node, plug = source.rsplit('.', 1)
+                    self.export_parameter(node, plug, dest,
+                                             weak_link=weak_link)
+                    exported_parameters.add(dest)
+            elif source in exported_parameters:
+                self.add_link(f'{source}->{dest}')
+            else:
+                node, plug = dest.rsplit('.', 1)
+                self.export_parameter(node, plug, source,
+                                         weak_link=weak_link)
+                exported_parameters.add(source)
