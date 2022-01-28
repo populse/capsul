@@ -106,10 +106,10 @@ class Node(Controller):
     set_callback_on_plug
     set_plug_value
     """
-    name = field(type_=str, metadata={'hidden': True})
-    enabled = field(type_=bool, default=True, hidden=True)
-    actrivated = field(type_=bool, default=True, hidden=True)
-    node_type = field(type_=Literal['processing_node', 'view_node'],
+    name: field(type_=str, metadata={'hidden': True})
+    enabled: field(type_=bool, default=True, hidden=True)
+    actrivated: field(type_=bool, default=True, hidden=True)
+    node_type: field(type_=Literal['processing_node', 'view_node'],
         default='processing_node', hidden=True)
 
     def __init__(self, pipeline, name, inputs, outputs):
@@ -513,13 +513,13 @@ class ProcessNode(Node):
                 continue
             optional = field.metadata.get('optional', False)
             if field.metadata.get('output', False):
-                outputs.append(dict(name=parameter,
+                outputs.append(dict(name=field.name,
                                     optional=optional,
                                     output=True))
             else:
-                inputs.append(dict(name=parameter,
+                inputs.append(dict(name=field.name,
                                    optional=bool(optional or
-                                                 parameter in kwargs)))
+                                                 field.name in kwargs)))
 
         super().__init__(pipeline, name, inputs, outputs)
 
@@ -574,10 +574,10 @@ class ProcessNode(Node):
         super().set_plug_value(plug_name, value, protected)
 
     def is_parameter_protected(self, plug_name):
-        return self.process.field(plug_name).metadata.get('protected', False)
+        return self.process.metadata(plug_name, 'protected', False)
 
     def protect_parameter(self, plug_name, state=True):
-        self.process.field(plug_name).metadata['protected'] = state
+        self.process.set_metadata(plug_name, 'protected', state)
 
     def is_job(self):
         return True

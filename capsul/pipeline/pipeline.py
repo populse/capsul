@@ -12,7 +12,9 @@ import tempfile
 import os
 import shutil
 import sys
-from soma.utils.weak_proxy import weak_proxy, get_ref
+
+from soma.undefined import undefined
+from soma.utils.weak_proxy import weak_proxy
 
 
 from capsul.process.process import Process, NipypeProcess
@@ -293,7 +295,7 @@ class Pipeline(Process):
 
                     self.export_parameter(node_name, parameter_name)
 
-    def add_field(self, name, **kwargs):
+    def add_field(self, name, *args, **kwargs):
         """ Add a field to the pipeline
 
         Parameters
@@ -303,7 +305,7 @@ class Pipeline(Process):
         kwargs: dictionary
             other parameters passed to Controller.add_field
         """
-        super().add_field(name, **kwargs)
+        super().add_field(name, *args, **kwargs)
 
         # Create the plug associated to the new field
         if getattr(self, 'pipeline_node', False):
@@ -351,28 +353,6 @@ class Pipeline(Process):
             pipeline_name = self.name
         context_name = '.'.join([pipeline_name, name])
         return context_name
-
-    def _set_subprocess_context_name(self, process, name):
-        ''' set full contextual name on process instance
-        '''
-        pipeline_name = getattr(self, 'context_name', None)
-        if pipeline_name is None:
-            pipeline_name = self.name
-        process.context_name = '.'.join([pipeline_name, name])
-        # do it recursively if process is a pipeline
-        if isinstance(process, Pipeline):
-            todo = [process]
-            while todo:
-                cur_proc = todo.pop(0)
-                for nname, node in cur_proc.nodes.items():
-                    if nname == '':
-                        continue
-                    sub_proc = getattr(node, 'process', None)
-                    if sub_proc is not None:
-                        sub_proc.context_name \
-                            = '.'.join([cur_proc.context_name, nname])
-                        if isinstance(sub_proc, Pipeline):
-                            todo.append(sub_proc)
 
     def add_process(self, name, process, do_not_export=None,
                     make_optional=None, inputs_to_copy=None,
@@ -464,13 +444,6 @@ class Pipeline(Process):
                 return
             else:
                 raise
-        # set full contextual name on process instance
-        self._set_subprocess_context_name(process, name)
-
-        # Update the kwargs parameters values according to process
-        # default values
-        for k, v in process.default_values.items():
-            kwargs.setdefault(k, v)
 
         # Update the list of files item to copy
         if inputs_to_copy is not None and hasattr(process, "inputs_to_copy"):
@@ -678,8 +651,6 @@ class Pipeline(Process):
         if switch_value:
             node.switch = switch_value
 
-        self._set_subprocess_context_name(node, name)
-
     def add_optional_output_switch(self, name, input, output=None):
         """ Add an optional output switch node in the pipeline
 
@@ -739,8 +710,6 @@ class Pipeline(Process):
         # Create the node
         node = OptionalOutputSwitch(self, name, input, output)
         self.nodes[name] = node
-
-        self._set_subprocess_context_name(node, name)
 
     def add_custom_node(self, name, node_type, parameters=None,
                         make_optional=(), do_not_export=None, **kwargs):
@@ -890,10 +859,13 @@ class Pipeline(Process):
                     # beginning of the plug name: probably an auto_exported one
                     # from an invalid node
                     err = True
+                    print('!1!', hasattr(node, 'process'), hasattr(node.process, '_invalid_nodes'))
                     if hasattr(node, 'process') \
                             and hasattr(node.process, '_invalid_nodes'):
                         invalid = node.process._invalid_nodes
+                        print('!2!', invalid)
                         for ip in invalid:
+                            print('!3!', plug_name)
                             if plug_name.startswith(ip + '_'):
                                 err = False
                                 node.invalid_plugs.add(plug_name)
@@ -959,7 +931,7 @@ class Pipeline(Process):
                              "plug: {0}".format(link))
 
         # Propagate the plug value from source to destination
-        value = getattr(source_node, source_plug_name)
+        value = getattr(source_node, source_plug_name, None)
         if value is not None:
             dest_node.set_plug_value(dest_plug_name, value)
 
@@ -975,13 +947,13 @@ class Pipeline(Process):
             source_field = source_node.process.field(source_plug_name)
             dest_field = dest_node.process.field(dest_plug_name)
             if is_output(source_field) and not is_output(dest_field):
-                dest_field.metadata['connected_output'] = True
+                dest_node.process.set_metadata(dest_field, 'connected_output', True)
 
         # Propagate the description in case of destination switch node
         if isinstance(dest_node, Switch):
             source_field = source_node.field(source_plug_name)
             dest_field = dest_node.field(dest_plug_name)
-            dest_field.metadata['desc'] = source_field.metadata['desc']
+            dest_node.set_metadata(dest_field, 'desc', source_node.metadata(source_field, 'desc'))
             dest_node._switch_changed(getattr(dest_node, "switch"),
                                       getattr(dest_node, "switch"))
 
@@ -1085,12 +1057,12 @@ class Pipeline(Process):
             return
 
         # Make a copy of the field
-        source_field = node.field(plug_name)
+        source_field = node.process.field(plug_name)
 
         # Check if the plug name is valid
         if source_field is None:
-            raise ValueError("Node {0} ({1}) has no parameter "
-                             "{2}".format(node_name, node.name, plug_name))
+            raise ValueError(f"Node {node_name} ({node.name}) has no parameter "
+                             f"{plug_name}")
 
         # Check the pipeline parameter name is not already used
         if (self.field(pipeline_parameter) and not allow_existing_plug):
@@ -1117,8 +1089,8 @@ class Pipeline(Process):
             self.set_optional(f.name, bool(is_optional))
 
         # Propagate the parameter value to the new exported one
-        self.set_parameter(pipeline_parameter,
-                            getattr(node, plug_name))
+        v = getattr(node, plug_name, undefined)
+        setattr(self, pipeline_parameter, v)
         # TODO: catch appropriate error type
         # except traits.TraitError:
         #     pass
@@ -1444,7 +1416,7 @@ class Pipeline(Process):
         # Execute a callback for all links that have become active.
         for node, source_plug_name, source_plug, n, pn, p in inactive_links:
             if (source_plug.activated and p.activated):
-                value = getattr(node, source_plug_name)
+                value = getattr(node, source_plug_name, undefined)
                 node._callbacks[(source_plug_name, n, pn)](value)
 
         # Refresh views relying on plugs and nodes selection
@@ -2360,7 +2332,7 @@ class Pipeline(Process):
 
         if not self.field('visible_groups'):
             # add a field without a plug
-            Controller.add_fieldt(self, 'visible_groups', set)
+            Controller.add_field(self, 'visible_groups', set)
         plugs = self.pipeline_node.plugs
         for field in self.fields():
             plug = plugs.get(field.name)

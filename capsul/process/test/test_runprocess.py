@@ -14,7 +14,7 @@ class DummyProcess(Process):
     """Description of DummyProcess"""
     f: field(type_=float, desc="help for parameter f")
     
-    def _run_process(self):
+    def execute(self):
         print("DummyProcess exec, f={0}".format(self.f))
 
 

@@ -10,12 +10,7 @@ Classes
 ----------------------------
 '''
 
-from __future__ import absolute_import
-
-import xml.etree.cElementTree as ET
-
 from capsul.pipeline.pipeline import Pipeline
-
 
 
 class PipelineConstructor(object):
@@ -100,7 +95,7 @@ class PipelineConstructor(object):
         """ Sets the documentation of the pipeline
         """
         # Get and complement the process docstring
-        self.pipeline.__doc__ = docxœxœ
+        self.pipeline.__doc__ = doc
 
 
     def set_node_position(self, node_name, x, y):
