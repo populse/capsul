@@ -10,7 +10,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from capsul.pipeline.pipeline import Pipeline
-from capsul.pipeline.pipeline_nodes import ProcessNode
+from capsul.process.process import Process
 from traits.api import Undefined
 import six
 import tempfile
@@ -218,7 +218,7 @@ def wait(engine, execution_id, timeout=-1, pipeline=None):
             if isinstance(process, Pipeline):
                 todo += [n.process for n in process.nodes.values()
                          if n is not process.pipeline_node
-                             and isinstance(n, ProcessNode)]
+                             and isinstance(n, Process)]
             else:
                 proc_map[id(process)] = process
 
