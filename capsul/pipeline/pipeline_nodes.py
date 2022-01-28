@@ -21,8 +21,8 @@ Classes
 import typing
 from typing import Literal, List
 
-from soma.controller import (Controller, field, is_path, field_type_str,
-                             undefined)
+from soma.controller import (Controller, field, is_path, field_type_str)
+from soma.undefined import undefined
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import weak_proxy, get_ref
