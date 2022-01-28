@@ -64,14 +64,6 @@ def to_warp_func(
 #      pass
 
 
-# @xml_process('''
-# <process>
-#     <input name="value1" type="string" doc="A string value."/>
-#     <input name="value2" type="string" doc="A string value."/>
-#     <input name="value3" type="string" doc="A string value."/>
-#     <return name="values" type="string" doc="Concatenation of non empty input values."/>
-# </process>
-# ''')
 def cat(
     value1: str,
     value2: str, 
@@ -79,16 +71,8 @@ def cat(
 ) -> field(type_=str, desc='Concatenation of non empty input values.'):
     return '_'.join(i for i in (value1, value2, value3) if i)
 
-# @xml_process('''
-# <process>
-#     <input name="value1" type="string" doc="A string value."/>
-#     <input name="value2" type="string" doc="A string value."/>
-#     <input name="value3" type="string" doc="A string value."/>
-#     <return name="values" type="list_string" doc="List of non empty input values."/>
-# </process>
-# ''')
-# def join(value1, value2, value3):
-#      return [i for i in (value1, value2, value3) if i]
+def join(value1 : str, value2 : str, value3 : str) -> list[str]:
+     return [i for i in (value1, value2, value3) if i]
 
 
 # @xml_process('''
@@ -264,21 +248,24 @@ class TestLoadFromDescription(unittest.TestCase):
             value3 = 'c')
         with capsul.engine() as capsul_engine:
             capsul_engine.run(process)
-        self.assertEqual(process.result, 'a_b_c')
-        with capsul.engine() as capsul_engine:
+            self.assertEqual(process.result, 'a_b_c')
             capsul_engine.run(process,
                 value1 = '',
                 value2 = 'v',
                 value3 = '')
-        self.assertEqual(process.result, 'v')
+            self.assertEqual(process.result, 'v')
         
-#     def test_return_list(self):
-#         process = get_process_instance(
-#             "capsul.process.test.test_load_from_description.join")
-#         process(value1="a", value2="b", value3="c")
-#         self.assertEqual(process.values, ["a", "b", "c"])
-#         process(value1="", value2="v", value3="")
-#         self.assertEqual(process.values, ["v"])
+    def test_return_list(self):
+        capsul = Capsul()
+        process = capsul.executable(
+            'capsul.process.test.test_load_from_description.join')
+        with capsul.engine() as capsul_engine:
+            capsul_engine.run(process,
+                value1='a', value2='b', value3='c')
+            self.assertEqual(process.result, ['a', 'b', 'c'])
+            capsul_engine.run(process,
+                value1='', value2='v', value3='')
+            self.assertEqual(process.result, ['v'])
 
 #     def test_named_outputs(self):
 #         process = get_process_instance(
