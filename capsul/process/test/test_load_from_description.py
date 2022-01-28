@@ -72,8 +72,12 @@ def to_warp_func(
 #     <return name="values" type="string" doc="Concatenation of non empty input values."/>
 # </process>
 # ''')
-# def cat(value1, value2, value3):
-#      return '_'.join(i for i in (value1, value2, value3) if i)
+def cat(
+    value1: str,
+    value2: str, 
+    value3: str
+) -> field(type_=str, desc='Concatenation of non empty input values.'):
+    return '_'.join(i for i in (value1, value2, value3) if i)
 
 # @xml_process('''
 # <process>
@@ -251,13 +255,22 @@ class TestLoadFromDescription(unittest.TestCase):
 #         sys.path.pop(-1)
 #         shutil.rmtree(tmpdir)
 
-#     def test_return_string(self):
-#         process = get_process_instance(
-#             "capsul.process.test.test_load_from_description.cat")
-#         process(value1="a", value2="b", value3="c")
-#         self.assertEqual(process.values, "a_b_c")
-#         process(value1="", value2="v", value3="")
-#         self.assertEqual(process.values, "v")
+    def test_return_string(self):
+        capsul = Capsul()
+        process = capsul.executable(
+            'capsul.process.test.test_load_from_description.cat',
+            value1='a',
+            value2='b',
+            value3 = 'c')
+        with capsul.engine() as capsul_engine:
+            capsul_engine.run(process)
+        self.assertEqual(process.result, 'a_b_c')
+        with capsul.engine() as capsul_engine:
+            capsul_engine.run(process,
+                value1 = '',
+                value2 = 'v',
+                value3 = '')
+        self.assertEqual(process.result, 'v')
         
 #     def test_return_list(self):
 #         process = get_process_instance(

@@ -52,30 +52,35 @@ class Capsul:
             return True
         return False
 
-    def executable(self, definition):
-        return executable(definition)
+    def executable(self, definition, **kwargs):
+        return executable(definition, **kwargs)
 
     def engine(self):
         return LocalEngine()
 
 
-def executable(definition):
+def executable(definition, **kwargs):
     '''
     Build a Process instance given a definition string
     '''
+    result = None
     item = None
     if definition.endswith('.json'):
         with open(definition) as f:
             json_executable = json.load(f)
-        return executable_from_json(definition, json_executable)
+        result =  executable_from_json(definition, json_executable)
     else:
         elements = definition.rsplit('.', 1)
         if len(elements) > 1:
             module_name, object_name = elements
             module = importlib.import_module(module_name)
             item = getattr(module, object_name, None)
-            return executable_from_python(definition, item)
+            result = executable_from_python(definition, item)
 
+    if result is not None:
+        for name, value in kwargs.items():
+            setattr(result, name, value)
+        return result
     raise ValueError(f'Invalid executable definition: {definition}') 
     
 
@@ -165,7 +170,7 @@ def process_from_function(function):
         annotations[name] = field(**kwargs)
 
     def wrap(self):
-        kwargs = {i: getattr(self, i) for i in annotations if getattr(self, i, undefined) is not undefined}
+        kwargs = {i: getattr(self, i) for i in annotations if i != 'result' and getattr(self, i, undefined) is not undefined}
         result = function(**kwargs)
         setattr(self, 'result', result)
 

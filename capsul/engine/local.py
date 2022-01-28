@@ -45,8 +45,10 @@ class LocalEngine:
         if not self.connected:
             raise RuntimeError('Capsul engine must be connected to perform this action')
     
-    def start(self, executable):
+    def start(self, executable, **kwargs):
         self.assert_connected()
+        for name, value in kwargs.items():
+            setattr(executable, name, value)
         with tempfile.NamedTemporaryFile(dir=self.tmp,suffix='.capsul', mode='w', delete=False) as f:
             j = executable.json()
             j['status'] = 'submited'
@@ -95,8 +97,8 @@ class LocalEngine:
     def update_executable(self, executable, status):
         executable.import_json(status['parameters'])
 
-    def run(self, executable):
-        execution_id = self.start(executable)
+    def run(self, executable, **kwargs):
+        execution_id = self.start(executable, **kwargs)
         self.wait(execution_id)
         status = self.status(execution_id)
         self.raise_for_status(status)
