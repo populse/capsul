@@ -11,4 +11,3 @@ def init_context_with_requirements(capsul_engine, execution_context,
     Configure an execution context given a capsul_engine and some requirements.
     '''
     raise NotImplementedError()
-
