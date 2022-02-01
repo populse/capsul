@@ -1037,8 +1037,7 @@ class Pipeline(Process):
                     plug_name, node_name or 'pipeline',
                     pipeline_parameter))
 
-        f = field(type_=source_field)
-        f.name = pipeline_parameter
+        f = field(pipeline_parameter, type_=source_field)
 
         # Set user enabled parameter only if specified
         # Important because this property is automatically set during
