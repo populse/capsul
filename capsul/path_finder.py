@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from typing import List
 from enum import Enum
 
@@ -109,6 +110,3 @@ class BrainVISA(PathFinder):
             return 'Select a center first'
         
         return os.listdir(osp.join(self.dataset_directory, self.center))
-
-
-
