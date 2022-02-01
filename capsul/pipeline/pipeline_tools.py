@@ -66,8 +66,8 @@ except ImportError:
     from enthought.traits import api as traits
 
 # Capsul import
-from capsul.pipeline.pipeline import Pipeline, PipelineNode, Switch, \
-    ProcessNode, OptionalOutputSwitch
+from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
+    OptionalOutputSwitch
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller
 
@@ -202,12 +202,11 @@ def pipeline_node_colors(pipeline, node):
         style = 'optional_output_switch'
     elif isinstance(node, Switch):
         style = 'switch'
-    elif isinstance(node, PipelineNode):
+    elif isinstance(node, Pipeline):
         style = 'pipeline'
-    elif isinstance(node, ProcessNode) \
-            and isinstance(node.process, ProcessIteration):
+    elif isinstance(node, ProcessIteration):
         style = 'iteration'
-    elif isinstance(node, ProcessNode):
+    elif isinstance(node, Process):
         if hasattr(node.process, 'completion_engine'):
             style = 'attributed'
         else:
@@ -833,7 +832,7 @@ def where_is_plug_value_from(plug, recursive=True):
         if not node.activated or not node.enabled:
             # disabled nodes are not influencing
             continue
-        if isinstance(node, PipelineNode):
+        if isinstance(node, Pipeline):
             if not recursive:
                 return node, param_name, parent
             else:  # recursive
@@ -873,7 +872,7 @@ def find_plug_connection_sources(plug, pipeline=None):
         if not node.activated or not node.enabled:
             # disabled nodes are not influencing
             continue
-        if isinstance(node, PipelineNode):
+        if isinstance(node, Pipeline):
             if not in_plug.links_from:
                 # get out of the pipeline: keep it
                 sources.append((node, param_name, parent))
@@ -898,10 +897,10 @@ def find_plug_connection_sources(plug, pipeline=None):
                 elif src[2] is in_plug:
                     # don't get through its node: keep the node as source
                     sources.append((src[0], src[1], node))
-                elif src[2].output and not isinstance(src[0], PipelineNode):
+                elif src[2].output and not isinstance(src[0], Pipeline):
                     # sub-pipeline output: inspect it
                     links.append((None, src[1], src[0], src[2], False, node))
-                elif not src[2].output or isinstance(src[0], PipelineNode):
+                elif not src[2].output or isinstance(src[0], Pipeline):
                     # input side of a non-opaque node: inspect its links
                     links += [link + (node,)
                               for link in src[2].links_from]
@@ -929,7 +928,7 @@ def find_plug_connection_destinations(plug, pipeline=None):
         if not node.activated or not node.enabled:
             # disabled nodes are not influencing
             continue
-        if isinstance(node, PipelineNode):
+        if isinstance(node, Pipeline):
             if not in_plug.links_to:
                 # get out of the pipeline: keep it
                 dest.append((node, param_name, parent))
@@ -955,10 +954,10 @@ def find_plug_connection_destinations(plug, pipeline=None):
                     # don't get through its node: keep the node as dest
                     dest.append((dst[0], dst[1], node))
                 elif not dst[2].output \
-                        and not isinstance(dst[0], PipelineNode):
+                        and not isinstance(dst[0], Pipeline):
                     # sub-pipeline input: inspect it
                     links.append((None, dst[1], dst[0], dst[2], False, node))
-                elif dst[2].output or isinstance(dst[0], PipelineNode):
+                elif dst[2].output or isinstance(dst[0], Pipeline):
                     # output side of a non-opaque node: inspect its links
                     links += [link + (node,)
                               for link in dst[2].links_to]
@@ -1156,7 +1155,7 @@ def get_output_directories(process):
     disabled_nodes = set()
     if isinstance(process, Pipeline):
         disabled_nodes = set(process.disabled_pipeline_steps_nodes())
-    elif isinstance(process, PipelineNode):
+    elif isinstance(process, Pipeline):
         disabled_nodes = set(process.process.disabled_pipeline_steps_nodes())
 
     while nodes:
@@ -1313,7 +1312,7 @@ def find_node(pipeline, node):
         for sk, sn in six.iteritems(n.process.nodes):
             if node is sn:
                 return names + [sk]
-            if sn is not n and isinstance(sn, PipelineNode):
+            if sn is not n and isinstance(sn, Pipeline):
                 pipelines.append((sn, names + [sk]))
 
     raise KeyError('Node %s not found in the pipeline %s'
