@@ -249,9 +249,16 @@ class Node(Controller):
 
     def add_field(self, name, type_, default=undefined, metadata=None,
                   **kwargs):
-        # overload to add the plug
-        super().add_field(name, type_, default=default, metadata=metadata,
-                          **kwargs)
+        # delay notification until we have actually added the plug.
+        enable_notif = self.enable_notification
+        self.enable_notification = False
+        try:
+            # overload to add the plug
+            super().add_field(name, type_, default=default, metadata=metadata,
+                              **kwargs)
+        finally:
+            self.enable_notification = enable_notif
+
         if name in self.nonplug_names:
             return
         field = self.field(name)
@@ -262,6 +269,9 @@ class Node(Controller):
         }
         # generate plug with input parameter and identifier name
         self._add_plug(parameter)
+        # notify now the new field/plug
+        if self.enable_notification:
+            self.on_fields_change.fire()
 
     def remove_field(self, name):
         self._remove_plug(name)
