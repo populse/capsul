@@ -123,14 +123,14 @@ class Process(Controller):
         }
         return result
     
-    def before_execute(self):
+    def before_execute(self, context):
         """This method is called by CapsulEngine before calling
         execute(). By default it does nothing but can be overriden
         in derived classes.
         """
         pass
 
-    def after_execute(self):
+    def after_execute(self, context):
         """This method is called by CapsulEngine after calling
         execute(). By default it does nothing but can be overridden
         in derived classes.

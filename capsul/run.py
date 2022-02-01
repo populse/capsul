@@ -6,7 +6,7 @@ import os
 import sys
 import traceback
 
-from capsul.api import Capsul
+from capsul.api import Capsul, ExecutionContext
 
 if __name__ == '__main__':
     # Really detach the process from the parent.
@@ -29,9 +29,10 @@ if __name__ == '__main__':
             executable_info['pid'] = os.getpid()
             json.dump(executable_info, open(executable_file, 'w'))
 
-            executable.before_execute()
-            executable.execute()
-            executable.after_execute()
+            context = ExecutionContext()
+            executable.before_execute(context)
+            executable.execute(context)
+            executable.after_execute(context)
         except Exception as e:
             executable_info['error'] = f'{e}'
             executable_info['error_detail'] = f'{traceback.format_exc()}'

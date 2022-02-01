@@ -26,14 +26,14 @@ Functions
 '''
 
 from __future__ import absolute_import
-from capsul.process.process import (Process, NipypeProcess,
-                                    FileCopyProcess,)
-from capsul.pipeline.pipeline import Pipeline
-from capsul.pipeline.pipeline_nodes import Plug
-from capsul.pipeline.pipeline_nodes import Node
-from capsul.pipeline.pipeline_nodes import ProcessNode
-from capsul.pipeline.pipeline_nodes import PipelineNode
-from capsul.pipeline.pipeline_nodes import Switch
-from capsul.pipeline.pipeline_nodes import OptionalOutputSwitch
-from capsul.process_instance import get_process_instance
 from .application import Capsul
+from .pipeline.pipeline import Pipeline
+from .pipeline.pipeline_nodes import Plug
+from .pipeline.pipeline_nodes import Node
+from .pipeline.pipeline_nodes import ProcessNode
+from .pipeline.pipeline_nodes import PipelineNode
+from .pipeline.pipeline_nodes import Switch
+from .pipeline.pipeline_nodes import OptionalOutputSwitch
+from .process.process import (Process, NipypeProcess,
+                              FileCopyProcess,)
+from .execution_context import ExecutionContext
