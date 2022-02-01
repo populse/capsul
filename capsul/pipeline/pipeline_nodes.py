@@ -13,7 +13,7 @@ Classes
 import typing
 
 from soma.controller import (Controller, field, is_path, field_type_str,
-                             undefined, Literal, List)
+                             undefined, Literal, List, type_from_str)
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import weak_proxy, get_ref
@@ -351,7 +351,7 @@ class Switch(Node):
         c = Controller()
         c.add_field('inputs', List[str])
         c.add_field('outputs', List[str])
-        c.add_field('optional_params', List[str])
+        c.add_field('optional_params', List[str], default_factory=lambda: [])
         c.add_field('output_types', List[str])
         c.inputs = ['input_1', 'input_2']
         c.outputs = ['output']
@@ -373,7 +373,7 @@ class Switch(Node):
         node = Switch(pipeline, name, conf_controller.inputs,
                       conf_controller.outputs,
                       make_optional=conf_controller.optional_params,
-                      output_types=conf_controller.output_types)
+                      output_types=[type_from_str(x) for x in conf_controller.output_types])
         return node
 
 
