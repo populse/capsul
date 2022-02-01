@@ -226,7 +226,7 @@ class Node(Controller):
         del self.plugs[plug_name]
 
     def _release_pipeline(self):
-        if self.pipeline is None:
+        if not hasattr(self, 'pipeline') or self.pipeline is None:
             return  # nothing to do
 
         for plug in self.plugs.values():
