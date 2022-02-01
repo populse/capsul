@@ -1038,6 +1038,7 @@ class Pipeline(Process):
                     pipeline_parameter))
 
         f = field(type_=source_field)
+        f.name = pipeline_parameter
 
         # Set user enabled parameter only if specified
         # Important because this property is automatically set during
