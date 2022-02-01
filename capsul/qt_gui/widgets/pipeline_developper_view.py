@@ -57,7 +57,7 @@ qt_backend.set_qt_backend(compatible_qt5=True)
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
 from soma.qt_gui.qt_backend.Qt import QMessageBox
 from soma.sorted_dictionary import SortedDictionary
-from capsul.api import Switch, OptionalOutputSwitch
+from capsul.api import Switch, OptionalOutputSwitch, Capsul
 from capsul.pipeline import pipeline_tools
 from capsul.api import Pipeline
 from capsul.api import Process
@@ -70,9 +70,11 @@ from capsul.qt_gui.widgets.pipeline_file_warning_widget \
 import capsul.pipeline.xml as capsulxml
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma import controller
-from soma.controller import Controller, undefined, file, directory
+from soma.controller import (Controller, undefined, file, directory,
+                             field_subtypes)
 from soma.utils.functiontools import SomaPartial
 
+from soma.qt_gui.controller import ControllerWidget
 #from soma.qt_gui.controller_widget import ScrollControllerWidget
 #from capsul.qt_gui.widgets.attributed_process_widget \
     #import AttributedProcessWidget
@@ -1009,7 +1011,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.box_title.setBrush(self.title_brush)
         self.box.setBrush(self.bg_brush)
         for param, pipeline_plug in six.iteritems(self.parameters):
-            print(param, pipeline_plug)
             output = (not pipeline_plug.output if self.name in (
                 'inputs', 'outputs') else pipeline_plug.output)
             if output:
@@ -2041,14 +2042,11 @@ class PipelineScene(QtGui.QGraphicsScene):
         else:
             weak = '<b>strong</b>'
         name = source_dest[0][1]
-        value = getattr(proc, name)
-        # trait = proc.user_traits()[name]
-        trait_type = proc.user_traits()[name].trait_type
-        trait_type_str = str(trait_type)
-        trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
-        trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
+        value = getattr(proc, name, undefined)
+        field = proc.field(name)
+        field_type_str = controller.type_str(field)
         inst_type = self.get_instance_type_string(value)
-        typestr = ('%s (%s)' % (inst_type, trait_type_str)).replace(
+        typestr = ('%s (%s)' % (inst_type, field_type_str)).replace(
             '<', '').replace('>', '')
         msg = '''<h3>%s</h3>
 <table cellspacing="6">
@@ -2069,16 +2067,14 @@ class PipelineScene(QtGui.QGraphicsScene):
   </tr>
 ''' \
               % (source_dest[0][1], active, weak, typestr, str(value))
-        if isinstance(trait_type, traits.File) \
-                or isinstance(trait_type, traits.Directory) \
-                or isinstance(trait_type, traits.Any):
+        if controller.is_path(field) or field.type is controller.Any:
             if self.is_existing_path(value):
                 msg += '''    <tr>
       <td></td>
       <td>existing path</td>
     </tr>
 '''
-            elif not isinstance(trait_type, traits.Any):
+            elif not field.type is controller.Any:
                 msg += '''    <tr>
       <td></td>
       <td><font color="#a0a0a0">non-existing path</font></td>
@@ -2292,22 +2288,16 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         if name_node in ('inputs', 'outputs'):
             proc = self.pipeline
-            splug = self.pipeline.pipeline_node.plugs[name_plug]
+            splug = self.pipeline.plugs[name_plug]
         else:
             src = self.pipeline.nodes[name_node]
             splug = src.plugs[name_plug]
             proc = src
-            if hasattr(src, 'process'):
-                proc = src.process
 
         value = getattr(proc, name_plug)
 
-        trait = proc.user_traits()[name_plug]
-        trait_type = trait.trait_type
-        trait_type_str = str(trait_type)
-        trait_type_str = trait_type_str[: trait_type_str.find(' object ')]
-        trait_type_str = trait_type_str[trait_type_str.rfind('.') + 1:]
-        return trait_type_str
+        field_type_str = controller.type_str(proc.field(name_plug))
+        return field_type_str
 
 
 class PipelineDevelopperView(QGraphicsView):
@@ -2403,7 +2393,7 @@ class PipelineDevelopperView(QGraphicsView):
     parameters, empty values, existing files, non-existing files...
 
     When colored_parameters is set, however, callbacks have to be installed to
-    track changes in traits values, so this actually has an overhead.
+    track changes in fields values, so this actually has an overhead.
     When colored_parameters is used, the color code is as follows:
 
     * black pamameter name: input
@@ -3067,8 +3057,9 @@ class PipelineDevelopperView(QGraphicsView):
 
         steps = getattr(self.scene.pipeline, 'pipeline_steps', None)
         if steps is not None:
-            my_steps = [step_name for step_name in steps.user_traits()
-                        if node.name in steps.trait(step_name).nodes]
+            my_steps = [step.name for step in steps.fields()
+                        if node.name in
+                            steps.metadata(step).get('nodes', set())]
             for step in my_steps:
                 step_action = menu.addAction('(enable) step: %s' % step)
                 step_action.setCheckable(True)
@@ -3106,7 +3097,7 @@ class PipelineDevelopperView(QGraphicsView):
             # allow to select switch value from the menu
             submenu = menu.addMenu('Switch value')
             agroup = QtGui.QActionGroup(submenu)
-            values = node.field('switch').type.__args__[0].__args__
+            values = field_subtypes(node.field('switch'))
             value = node.switch
             set_index = -1
             for item in values:
@@ -3153,8 +3144,9 @@ class PipelineDevelopperView(QGraphicsView):
                 self.export_node_all_unconnected_outputs)
             step = None
             if steps is not None:
-                my_steps = [step_name for step_name in steps.user_traits()
-                            if node.name in steps.trait(step_name).nodes]
+                my_steps = [step.name for step in steps.fields()
+                            if node.name in
+                                steps.metadata(step).get('nodes', set())]
                 if len(my_steps) == 1:
                     step = my_steps[0]
                 elif len(my_steps) >= 2:
@@ -3636,13 +3628,14 @@ class PipelineDevelopperView(QGraphicsView):
                           optional=False):
         pipeline = self.scene.pipeline
         node = pipeline.nodes[node_name]
-        for parameter_name, plug in six.iteritems(node.plugs):
+        for parameter_name, plug in node.plugs.items():
             if parameter_name in ("nodes_activation", "selection_changed"):
                 continue
             if (((node_name, parameter_name) not in pipeline.do_not_export and
                  ((outputs and plug.output and not plug.links_to) or
                   (inputs and not plug.output and not plug.links_from)) and
-                 (optional or not node.get_trait(parameter_name).optional))):
+                 (optional or not node.metadata(parameter_name).get(
+                      'optional', False)))):
                 pipeline.export_parameter(node_name, parameter_name)
 
     def export_plugs(self, inputs=True, outputs=True, optional=False):
@@ -3887,9 +3880,14 @@ class PipelineDevelopperView(QGraphicsView):
                     i += 1
                     node_name = '%s_%d' % (class_name.lower(), i)
 
-            engine = pipeline.get_study_config().engine
+            capsul = getattr(pipeline, 'capsul', None)
+            if capsul is None:
+                capsul = getattr(self, 'capsul', None)
+                if capsul is None:
+                    capsul = Capsul()
+                    self.capsul = capsul
             try:
-                process = engine.get_process_instance(proc_module)
+                process = capsul.executable(proc_module)
             except Exception as e:
                 traceback.print_exc()
                 return
@@ -3927,7 +3925,7 @@ class PipelineDevelopperView(QGraphicsView):
             w.setWindowTitle('Custom node parameterization')
             l = Qt.QVBoxLayout()
             w.setLayout(l)
-            c = ScrollControllerWidget(conf_controller, live=True)
+            c = ControllerWidget(conf_controller)
             l.addWidget(c)
             h = Qt.QHBoxLayout()
             l.addLayout(h)
@@ -3939,7 +3937,6 @@ class PipelineDevelopperView(QGraphicsView):
             cancel.clicked.connect(w.reject)
             res = w.exec_()
             if res:
-                c.update_controller()
                 return conf_controller
             else:
                 return None
@@ -3967,6 +3964,7 @@ class PipelineDevelopperView(QGraphicsView):
             node = get_node_instance(node_module, pipeline)
         except Exception as e:
             print(e)
+            traceback.print_exc()
             return
         if node is None:
             return
@@ -4584,7 +4582,7 @@ class PipelineDevelopperView(QGraphicsView):
             #             self.scene.gnodes.changeHmin(15)
             except Exception as e:
                 print('exception while export plug:', e)
-                traceback.print_exc()
+                # traceback.print_exc()
                 pass
 
             self.scene.update_pipeline()
