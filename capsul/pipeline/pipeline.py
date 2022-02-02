@@ -447,16 +447,15 @@ class Pipeline(Process):
             # Optional plug
             if parameter_name in make_optional:
                 node.plugs[parameter_name].optional = True
-                process = getattr(node, 'process')
-                if process is not None:
-                    process.set_optional(parameter_name,  True)
+                node.set_optional(parameter_name,  True)
 
         # Create a field to control the node activation (enable property)
         self.nodes_activation.add_field(name, bool)
         setattr(self.nodes_activation, name, node.enabled)
 
         # Observer
-        self.nodes_activation.on_attribute_change.add(self._set_node_enabled, name)
+        self.nodes_activation.on_attribute_change.add(self._set_node_enabled,
+                                                      name)
 
     def remove_node(self, node_name):
         """ Remove a node from the pipeline
@@ -476,10 +475,9 @@ class Pipeline(Process):
                                  % (node_name, plug_name, dst_node, dst_plug)
                     self.remove_link(link_descr)
         del self.nodes[node_name]
-        if hasattr(node, 'process'):
-            self.nodes_activation.on_attribute_change.remove(
-                self._set_node_enabled, node_name)
-            self.nodes_activation.remove_field(node_name)
+        self.nodes_activation.on_attribute_change.remove(
+            self._set_node_enabled, node_name)
+        self.nodes_activation.remove_field(node_name)
 
     def add_iterative_process(self, name, process, iterative_plugs=None,
                               do_not_export=None, make_optional=None,
@@ -534,8 +532,7 @@ class Pipeline(Process):
         method: str (mandatory)
             name of the method to call.
         """
-        return getattr(self.nodes[process_name].process, method)(*args,
-                                                                 **kwargs)
+        return getattr(self.nodes[process_name], method)(*args, **kwargs)
     
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=(), output_types=None, switch_value=None,
@@ -1069,15 +1066,17 @@ class Pipeline(Process):
             link_desc = f'{pipeline_parameter}->{node_name}.{plug_name}'
             self.add_link(link_desc, weak_link)
 
-    def _set_node_enabled(self, node_name, is_enabled):
+    def _set_node_enabled(self, is_enabled, _, node_name):
         """ Method to enable or disabled a node
 
         Parameters
         ----------
-        node_name: str (mandatory)
-            the node name
         is_enabled: bool (mandatory)
             the desired property
+        old_value: bool
+            former is_enabled value (not used)
+        node_name: str (mandatory)
+            the node name
         """
         node = self.nodes.get(node_name)
         if node:
