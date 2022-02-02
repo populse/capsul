@@ -2203,7 +2203,7 @@ class Pipeline(Process):
         for field in steps.fields():  # noqa: F402
             setattr(steps, field.name, True)
 
-    def _change_processes_selection(self, selection_name, selection_group):
+    def _change_processes_selection(self, selection_group, _, selection_name):
         self.delay_update_nodes_and_plugs_activation()
         for group, processes in \
                 self.processes_selection[selection_name].items():
@@ -2236,14 +2236,16 @@ class Pipeline(Process):
         value: str (optional)
             initial state of the selector (default: 1st group)
         '''
-        self.add_field(selection_parameter, Literal(*selection_groups))
+        group_names = tuple(selection_groups.keys())
+        self.add_field(selection_parameter, Literal[group_names],
+                       default=group_names[0])
         self.nodes[''].plugs[selection_parameter].has_default_value = True
         self.processes_selection = getattr(self, 'processes_selection', {})
         self.processes_selection[selection_parameter] = selection_groups
         self.on_attribute_change.add(self._change_processes_selection,
                                      selection_parameter)
-        self._change_processes_selection(selection_parameter,
-                                         getattr(self, selection_parameter))
+        self._change_processes_selection(
+            getattr(self, selection_parameter), None, selection_parameter)
         if value is not None:
             setattr(self, selection_parameter, value)
 
