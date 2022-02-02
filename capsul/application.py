@@ -2,9 +2,8 @@
 import dataclasses
 import importlib
 import json
-import os
+from pathlib import Path
 import types
-
 
 # Nipype import
 try:
@@ -16,10 +15,10 @@ except ImportError:
 from soma.controller import field
 from soma.undefined import undefined
 
-from ..process.process import Process
-from ..pipeline.pipeline import Pipeline
-from ..process.nipype_process import nipype_factory
-from ..engine.local import LocalEngine
+from .dataset import Dataset
+from .api import Process, Pipeline
+from .process.nipype_process import nipype_factory
+from .engine.local import LocalEngine
 
 
 
@@ -39,6 +38,18 @@ class Capsul:
 
     '''    
 
+    def __init__(self, config_file=None):
+        if config_file is None:
+            self.config_file = None
+            self.config = {}
+        else:
+            if isinstance(config_file, str):
+                self.config_file = Path(config_file)
+            else:
+                self.config_file = config_file
+            with self.config_file.open() as f:
+                self.config = json.load(f)
+    
     @staticmethod
     def is_executable(item):
         '''Check if the input item is a process class or function with decorator
@@ -56,8 +67,18 @@ class Capsul:
         return executable(definition, **kwargs)
 
     def engine(self):
-        return LocalEngine()
+        engine_config = self.config.get('default', {})
+        return LocalEngine(engine_config)
 
+    def dataset(self, path):
+        dataset_config_file = path / 'capsul.json'
+        with dataset_config_file.open() as f:
+            dataset_config = json.load(f)
+        path_layout = dataset_config['path_layout']
+        return Dataset(path, path_layout)
+
+    def custom_pipeline(self):
+        return Pipeline(definition='custom')
 
 def executable(definition, **kwargs):
     '''

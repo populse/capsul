@@ -1,21 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 
-from capsil.api import Capsul
+from .engine.local import LocalEngine
 
 class ExecutionContext:
-    def __init__(self):
-        capsul = Capsul()
-        config_file = os.environ.get('CAPSUL_CONFIG')
-        if config_file:
-            engine = capsul.engine(config_file=config_file)
-        else:
-            engine = capsul.engine()
-
-        requirements_file = os.environ.get('CAPSUL_REQUIREMENTS')
-        if requirements_file:
-            with open(requirements_file) as f:
-                requirements = json.load(f)
-            for module_name, module_requirements in requirements.items():
-                module = engine.module(module_name)
-                module.init_context_with_requirements(engine, self, **module_requirements)
+    def __init__(self, execution_info):
+        self.execution_info = execution_info
+        for module_name, module_config in self.execution_info['config']['modules'].items():
+            module = LocalEngine.module(module_name)
+            module.init_execution_context(self, module_config)

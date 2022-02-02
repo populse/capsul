@@ -122,13 +122,8 @@ class Process(Node):
             'parameters': super().json(),
         }
         return result
-<<<<<<< HEAD
     
     def before_execute(self, context):
-=======
-
-    def before_execute(self):
->>>>>>> origin/pipeline_definition
         """This method is called by CapsulEngine before calling
         execute(). By default it does nothing but can be overriden
         in derived classes.

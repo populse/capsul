@@ -16,29 +16,31 @@ if __name__ == '__main__':
     if pid == 0:
         os.setsid()
         if len(sys.argv) != 2:
-            raise ValueError('This command must be called with a single parameter containing a capsul executable filename')
-        executable_file = sys.argv[1]
-        executable_info = json.load(open(executable_file))
+            raise ValueError('This command must be called with a single parameter containing a capsul execution file')
+        execution_file = sys.argv[1]
+        with open(execution_file) as f:
+            execution_info = json.load(f)
         capsul = Capsul()
-        executable = capsul.executable(executable_info['definition'])
-        executable.import_json(executable_info['parameters'])
+        executable = capsul.executable(execution_info['executable']['definition'])
+        executable.import_json(execution_info['executable']['parameters'])
         
         try:
-            executable_info['status'] = 'running'
-            executable_info['start_time'] = datetime.datetime.now().isoformat()
-            executable_info['pid'] = os.getpid()
-            json.dump(executable_info, open(executable_file, 'w'))
+            execution_info['status'] = 'running'
+            execution_info['start_time'] = datetime.datetime.now().isoformat()
+            execution_info['pid'] = os.getpid()
+            json.dump(execution_info, open(execution_info, 'w'))
 
-            context = ExecutionContext()
+            context = ExecutionContext(execution_info)
             executable.before_execute(context)
             executable.execute(context)
             executable.after_execute(context)
         except Exception as e:
-            executable_info['error'] = f'{e}'
-            executable_info['error_detail'] = f'{traceback.format_exc()}'
+            execution_info['error'] = f'{e}'
+            execution_info['error_detail'] = f'{traceback.format_exc()}'
         finally:
-            executable_info['status'] = 'ended'
-            executable_info['end_time'] = datetime.datetime.now().isoformat()
-            executable_info.pop('pid', None)
-            executable_info['parameters'] = executable.json()['parameters']
-            json.dump(executable_info, open(executable_file, 'w'))
+            execution_info['status'] = 'ended'
+            execution_info['end_time'] = datetime.datetime.now().isoformat()
+            execution_info.pop('pid', None)
+            execution_info['executable']['parameters'] = executable.json()['parameters']
+            with open(execution_file, 'w') as f:
+                json.dump(execution_info, f)
