@@ -220,18 +220,13 @@ class Pipeline(Process):
         else:
             self.node_position = {}
         
-        
-        ###############add by Irmage OM ######################### 
         node_dimension = getattr(self,'node_dimension', None)
         if node_dimension:
             self.node_dimension = node_dimension.copy()
         else:
             self.node_dimension = {}
-        #########################################################
             
-            
-        self.pipeline_node = weakref.proxy(self)  ## TODO: remove this
-        self.nodes[''] = self
+        self.nodes[''] = self  # FIXME may cause memory leaks
         self.do_not_export = set()
         self.parent_pipeline = None
         self._disable_update_nodes_and_plugs_activation = 1
@@ -1054,7 +1049,7 @@ class Pipeline(Process):
         v = getattr(node, plug_name, undefined)
         setattr(self, pipeline_parameter, v)
         # TODO: catch appropriate error type
-        # except traits.TraitError:
+        # except dataclass.ValidationError:
         #     pass
 
         # Do not forget to link the node with the pipeline node
@@ -1748,8 +1743,8 @@ class Pipeline(Process):
                             # linked to the main node: keep it as is
                             valid = False
                             break
-                        if hasattr(link[2], 'process'):
-                            lproc = link[2].process
+                        if isinstance(link[2], Process):
+                            lproc = link[2]
                             lfield = lproc.field(link[1])
                             if is_output(lfield):
                                 # connected to an output file which filename
