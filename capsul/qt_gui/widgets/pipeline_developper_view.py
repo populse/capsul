@@ -49,6 +49,7 @@ import six
 import json
 import io
 import traceback
+import dataclasses
 
 # Capsul import
 from soma.qt_gui import qt_backend
@@ -70,9 +71,9 @@ from capsul.qt_gui.widgets.pipeline_file_warning_widget \
 import capsul.pipeline.xml as capsulxml
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma import controller
-from soma.controller import (Controller, undefined, file, directory,
-                             field_subtypes)
+from soma.controller import (Controller, undefined, field_subtypes)
 from soma.utils.functiontools import SomaPartial
+from soma.utils.weak_proxy import get_ref
 
 from soma.qt_gui.controller import ControllerWidget
 #from soma.qt_gui.controller_widget import ScrollControllerWidget
@@ -627,8 +628,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
             plug_name = '%s:%s' % (self.name, in_param)
 
             try:
-                #                 color = self.colorLink(trait_type_str)
-                color = self.colType.colorLink(self.process.trait(in_param))
+                #                 color = self.colorLink(field)
+                color = self.colType.colorLink(self.process.field(in_param))
             except Exception:
                 color = ORANGE_2
 
@@ -662,8 +663,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
             plug_name = '%s:%s' % (self.name, out_param)
 
             try:
-                #                 color = self.colorLink(trait_type_str)
-                color = self.colType.colorLink(self.process.trait(out_param))
+                #                 color = self.colorLink(field_type_str)
+                color = self.colType.colorLink(self.process.field(out_param))
 
             except Exception:
                 color = ORANGE_2
@@ -807,7 +808,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
     def _set_brush(self):
         pipeline = self.pipeline
         if self.name in ('inputs', 'outputs'):
-            node = pipeline.pipeline_node
+            node = pipeline
         else:
             node = pipeline.nodes[self.name]
         color_1, color_2, color_3, style = pipeline_tools.pipeline_node_colors(
@@ -1032,8 +1033,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 #                                   pipeline_plug.optional)
 
                 try:
-                    #                     color = self.colorLink(trait_type_str)
-                    color = self.colType.colorLink(self.process.trait(param))
+                    #                     color = self.colorLink(field)
+                    color = self.colType.colorLink(self.process.field(param))
 
                 except Exception:
                     color = ORANGE_2
@@ -1260,10 +1261,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             item.mousePressEvent(event)
             return
         super(NodeGWidget, self).mousePressEvent(event)
-        if isinstance(self.process, weakref.ProxyTypes):
-            process = self.process.__init__.__self__  # get the "real" object
-        else:
-            process = self.process
+        process = get_ref(self.process)
         if event.button() == QtCore.Qt.RightButton and process is not None:
             self.scene().node_right_clicked.emit(self.name, process)
             event.accept()
@@ -1752,7 +1750,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                 gnode.logical_view = False
             if node_name in ('inputs', 'outputs'):
                 node = pipeline.nodes['']
-                # in case traits have been added/removed
+                # in case fields have been added/removed
                 if node_name == 'inputs':
                     pipeline_inputs = SortedDictionary()
                     for name, plug in six.iteritems(node.plugs):
@@ -1822,7 +1820,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             elif node_name not in self.gnodes:
                 process = node
                 if isinstance(node, Pipeline):
-                    sub_pipeline = node.process
+                    sub_pipeline = node
                 else:
                     sub_pipeline = None
                 self.add_node(node_name, node)
@@ -1892,8 +1890,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             gnode = self.gnodes.get(node_name)
             if gnode is None:
                 continue
-            labels = ['step: %s' % n for n in steps.user_traits()
-                      if node_name in steps.trait(n).nodes]
+            labels = ['step: %s' % n.name for n in steps.fields()
+                      if node_name in steps.metadata(n).get('nodes', set())]
             #print('update step labels on', node_name, ':', labels)
             gnode.update_labels(labels)
 
@@ -1951,7 +1949,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             elif node_name not in self.gnodes:
                 process = node
                 if isinstance(node, Pipeline):
-                    sub_pipeline = node.process
+                    sub_pipeline = node
                 else:
                     sub_pipeline = None
                 self.add_node(node_name, node)
@@ -2026,8 +2024,6 @@ class PipelineScene(QtGui.QGraphicsScene):
         else:
             source_node = self.pipeline.nodes[source_node_name]
             proc = source_node
-            if hasattr(source_node, 'process'):
-                proc = source_node.process
         if dest_node_name in ('inputs', 'outputs'):
             dest_node_name = ''
         splug = source_node.plugs[source_dest[0][1]]
@@ -2110,15 +2106,13 @@ class PipelineScene(QtGui.QGraphicsScene):
         '''
         if node.name in ('inputs', 'outputs'):
             proc = self.pipeline
-            splug = self.pipeline.pipeline_node.plugs[name]
+            splug = self.pipeline.plugs[name]
         else:
             src = self.pipeline.nodes[node.name]
             splug = src.plugs.get(name)
             if not splug:
                 return None
             proc = src
-            if hasattr(src, 'process'):
-                proc = src.process
         if splug.output:
             output = '<font color="#d00000">output</font>'
         else:
@@ -2185,8 +2179,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             msg += self.html_doc(desc)
         return msg
 
-    def node_tooltip_text(self, node):
-        process = node.process
+    def node_tooltip_text(self, gnode):
+        process = gnode.process
         msg = getattr(process, '__doc__', '')
         # msg = self.html_doc(doc)
         return msg
@@ -2930,7 +2924,7 @@ class PipelineDevelopperView(QGraphicsView):
         gnode = self.scene.gnodes.get(str(subpipeline_name))
         if gnode is not None:
             sub_pipeline \
-                = self.scene.pipeline.nodes[str(subpipeline_name)].process
+                = self.scene.pipeline.nodes[str(subpipeline_name)]
             gnode.add_subpipeline_view(
                 sub_pipeline, self._allow_open_controller, scale=scale)
 
@@ -2988,8 +2982,6 @@ class PipelineDevelopperView(QGraphicsView):
         if node_name in ('inputs', 'outputs'):
             node_name = ''
         process = self.scene.pipeline.nodes[node_name]
-        if hasattr(process, 'process'):
-            process = process.process
         # force instantiating a completion engine (since
         # AttributedProcessWidget does not force it)
         if hasattr(process, 'get_study_config'):  # exclude custom nodes
@@ -3114,7 +3106,7 @@ class PipelineDevelopperView(QGraphicsView):
             doc_action.triggered.connect(self.show_doc)
 
         if self.edition_enabled() \
-                and node is not self.scene.pipeline.pipeline_node:
+                and node is not self.scene.pipeline:
             menu.addSeparator()
             del_node_action = menu.addAction('Delete node')
             del_node_action.triggered.connect(self.del_node)
@@ -3194,10 +3186,7 @@ class PipelineDevelopperView(QGraphicsView):
 
     def emit_edit_sub_pipeline(self):
         node = self.scene.pipeline.nodes[self.current_node_name]
-        sub_pipeline = node.process
-        if isinstance(sub_pipeline, weakref.ProxyTypes):
-            # get the "real" object
-            sub_pipeline = sub_pipeline.__init__.__self__
+        sub_pipeline = get_ref(node)
         self.edit_sub_pipeline.emit(sub_pipeline)
 
     def show_optional_inputs(self):
@@ -3399,7 +3388,8 @@ class PipelineDevelopperView(QGraphicsView):
     def disable_preceding_steps(self, step_name, dummy):
         # don't know why we get this additionall dummy parameter (False)
         steps = self.scene.pipeline.pipeline_steps
-        for step in steps.user_traits():
+        for field in steps.fields():
+            step = field.name
             if step == step_name:
                 break
             setattr(steps, step, False)
@@ -3407,7 +3397,8 @@ class PipelineDevelopperView(QGraphicsView):
     def disable_following_steps(self, step_name, dummy):
         steps = self.scene.pipeline.pipeline_steps
         found = False
-        for step in steps.user_traits():
+        for field in steps.fields():
+            step = field.name
             if found:
                 setattr(steps, step, False)
             elif step == step_name:
@@ -3415,7 +3406,8 @@ class PipelineDevelopperView(QGraphicsView):
 
     def enable_preceding_steps(self, step_name, dummy):
         steps = self.scene.pipeline.pipeline_steps
-        for step in steps.user_traits():
+        for field in steps.fields():
+            step = field.name
             if step == step_name:
                 break
             setattr(steps, step, True)
@@ -3423,7 +3415,8 @@ class PipelineDevelopperView(QGraphicsView):
     def enable_following_steps(self, step_name, dummy):
         steps = self.scene.pipeline.pipeline_steps
         found = False
-        for step in steps.user_traits():
+        for field in steps.fields():
+            step = field.name
             if found:
                 setattr(steps, step, True)
             elif step == step_name:
@@ -3702,9 +3695,10 @@ class PipelineDevelopperView(QGraphicsView):
         listw.setSelectionMode(listw.MultiSelection)
         lay.addWidget(listw)
         n = 0
-        for step in steps.user_traits():
+        for field in steps.fields():
+            step = field.name
             listw.addItem(step)
-            nodes = steps.trait(step).nodes
+            nodes = steps.metadata(step).get('nodes', set())
             if node_name in nodes:
                 item = listw.item(n)
                 item.setSelected(True)
@@ -3727,7 +3721,7 @@ class PipelineDevelopperView(QGraphicsView):
             r = d.exec_()
             if r:
                 name = l.text()
-                if name not in steps.user_traits():
+                if steps.field(name) is None:
                     n = listw.count()
                     listw.addItem(name)
                     listw.item(n).setSelected(True)
@@ -3799,29 +3793,29 @@ class PipelineDevelopperView(QGraphicsView):
                 sel = item.isSelected()
                 items.add(name)
                 sitems.append(name)
-                trait = steps.trait(name)
+                field = steps.field(name)
                 if sel:
-                    if trait is None:
+                    if field is None:
                         self.scene.pipeline.add_pipeline_step(
                             name, [node_name])
                         steps = self.scene.pipeline.pipeline_steps
                     else:
-                        nodes = steps.trait(name).nodes
+                        nodes = steps.metadata(field)['nodes']
                         if node_name not in nodes:
                             nodes.append(node_name)
-                elif trait is not None:
-                    if node_name in trait.nodes:
-                        trait.nodes.remove(node_name)
-            steps = list(steps.user_traits().keys())
+                elif field is not None:
+                    if node_name in steps.metadata(field)['nodes']:
+                        steps.metadata(field)['nodes'].remove(node_name)
+            steps = [field.name for field in steps.fields()]
             for step in steps:
                 if step not in items:
                     self.scene.pipeline.remove_pipeline_step(step)
-            # reorder traits if needed
+            # reorder fields if needed
             steps = self.scene.pipeline.pipeline_steps
-            if list(steps.user_traits().keys()) != sitems:
-                values = [steps.trait(step).nodes for step in sitems]
+            if [field.name for field in steps.fields()] != sitems:
+                values = [steps.metadata(step)['nodes'] for step in sitems]
                 for step in sitems:
-                    steps.remove_trait(step)
+                    steps.remove_field(step)
                 for step, nodes in zip(sitems, values):
                     self.scene.pipeline.add_pipeline_step(step, nodes)
 
@@ -4013,8 +4007,8 @@ class PipelineDevelopperView(QGraphicsView):
                 process = self.engine.get_process_instance(text)
             except Exception:
                 return
-            traits = list(process.user_traits().keys())
-            self.plugs.addItems(traits)
+            fields = [field.name for field in process.fields()]
+            self.plugs.addItems(fields)
 
         def iterative_plugs(self):
             return [item.text() for item in self.plugs.selectedItems()]
@@ -4040,7 +4034,7 @@ class PipelineDevelopperView(QGraphicsView):
                 print(e)
                 return
             iterative_plugs = proc_name_gui.iterative_plugs()
-            do_not_export = list(process.user_traits().keys())
+            do_not_export = [field.name for field in process.fields()]
             pipeline.add_iterative_process(node_name, process, iterative_plugs,
                                            do_not_export=do_not_export)
 
@@ -4245,13 +4239,13 @@ class PipelineDevelopperView(QGraphicsView):
             return
         if src_node in ('', 'inputs'):
             src = src_plug
-            snode = self.scene.pipeline.pipeline_node
+            snode = self.scene.pipeline
         else:
             src = '%s.%s' % (src_node, src_plug)
             snode = self.scene.pipeline.nodes[src_node]
         if dst_node in ('', 'outputs'):
             dst = dst_plug
-            dnode = self.scene.pipeline.pipeline_node
+            dnode = self.scene.pipeline
         else:
             dst = '%s.%s' % (dst_node, dst_plug)
             dnode = self.scene.pipeline.nodes[dst_node]
@@ -4270,13 +4264,13 @@ class PipelineDevelopperView(QGraphicsView):
             return
         if src_node in ('', 'inputs'):
             src = src_plug
-            snode = self.scene.pipeline.pipeline_node
+            snode = self.scene.pipeline
         else:
             src = '%s.%s' % (src_node, src_plug)
             snode = self.scene.pipeline.nodes[src_node]
         if dst_node in ('', 'outputs'):
             dst = dst_plug
-            dnode = self.scene.pipeline.pipeline_node
+            dnode = self.scene.pipeline
         else:
             dst = '%s.%s' % (dst_node, dst_plug)
             dnode = self.scene.pipeline.nodes[dst_node]
@@ -4401,7 +4395,7 @@ class PipelineDevelopperView(QGraphicsView):
         if not node_name:
             node_name = self.current_node_name
         if node_name in ('inputs', 'outputs'):
-            node = pipeline.pipeline_node
+            node = pipeline
         else:
             node = pipeline.nodes[node_name]
         doc_browser = self.get_doc_browser(create=True)
@@ -4457,13 +4451,13 @@ class PipelineDevelopperView(QGraphicsView):
         pipeline = self.scene.pipeline
         pipeline.remove_link(link_def)
         if (src_node in ('', 'inputs') and
-          len(pipeline.pipeline_node.plugs[src_plug].links_to) == 0):
+          len(pipeline.plugs[src_plug].links_to) == 0):
                 # remove orphan pipeline plug
-            pipeline.remove_trait(src_plug)
+            pipeline.remove_field(src_plug)
         elif (dst_node in ('', 'outputs') and
-          len(pipeline.pipeline_node.plugs[dst_plug].links_from) == 0):
+          len(pipeline.plugs[dst_plug].links_from) == 0):
             # remove orphan pipeline plug
-            pipeline.remove_trait(dst_plug)
+            pipeline.remove_field(dst_plug)
         self.scene.update_pipeline()
 
     def _plug_right_clicked(self, name):
@@ -4481,7 +4475,7 @@ class PipelineDevelopperView(QGraphicsView):
         node_name, plug_name = str(name).split(':')
         plug_name = str(plug_name)
         if node_name in ('inputs', 'outputs'):
-            node = self.scene.pipeline.pipeline_node
+            node = self.scene.pipeline
         else:
             node = self.scene.pipeline.nodes[node_name]
         plug = node.plugs[plug_name]
@@ -4514,7 +4508,7 @@ class PipelineDevelopperView(QGraphicsView):
                 iter_action = menu.addAction('iterative plug')
                 iter_action.setCheckable(True)
                 iter_action.setChecked(
-                    plug_name in node.process.iterative_parameters)
+                    plug_name in node.iterative_parameters)
                 iter_action.toggled[bool].connect(self._change_iterative_plug)
 
         else:
@@ -4590,7 +4584,7 @@ class PipelineDevelopperView(QGraphicsView):
     def _change_iterative_plug(self, checked):
         node = self._temp_node
         node_name, name = self._temp_plug_name
-        node.process.change_iterative_plug(name, checked)
+        node.change_iterative_plug(name, checked)
         self.scene.update_pipeline()
 
     def _protect_plug(self, checked):
@@ -4601,7 +4595,7 @@ class PipelineDevelopperView(QGraphicsView):
     def _enable_plug_completion(self, checked):
         node = self._temp_node
         node_name, name = self._temp_plug_name
-        node.get_trait(name).forbid_completion = not checked
+        node.set_metadata(name, 'forbid_completion', not checked)
 
     def _remove_plug(self):
 
@@ -4610,16 +4604,8 @@ class PipelineDevelopperView(QGraphicsView):
             print('#' * 50)
             print(self._temp_plug_name)
             print(self._temp_plug)
-            for trait_name, trait in self.scene.pipeline.traits().items():
-                print(trait_name, trait)
-                if trait.handler is None:
-                    print('HANDLER IS NONE')
-                else:
-                    print('HANDLER:', trait.handler)
-                    if trait.has_items:
-                        print("HANDLER HAS ITEMS")
 
-            self.scene.pipeline.remove_trait(self._temp_plug_name[1])
+            self.scene.pipeline.remove_field(self._temp_plug_name[1])
             self.scene.update_pipeline()
 
     def _edit_plug(self):
@@ -4637,7 +4623,7 @@ class PipelineDevelopperView(QGraphicsView):
 
     def _prune_plugs(self):
         pipeline = self.scene.pipeline
-        pnode = pipeline.pipeline_node
+        pnode = pipeline
         to_del = []
         for plug_name, plug in six.iteritems(pnode.plugs):
             if plug.output and len(plug.links_from) == 0:
@@ -4645,7 +4631,7 @@ class PipelineDevelopperView(QGraphicsView):
             elif not plug.output and len(plug.links_to) == 0:
                 to_del.append(plug_name)
         for plug_name in to_del:
-            pipeline.remove_trait(plug_name)
+            pipeline.remove_field(plug_name)
         self.scene.update_pipeline()
 
     def confirm_erase_pipeline(self):
@@ -4845,16 +4831,17 @@ class PipelineDevelopperView(QGraphicsView):
             if "pipeline_parameters" not in list(dic.keys()):
                 raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
 
-            for trait_name, trait_value in dic["pipeline_parameters"].items():
+            for field_name, field_value in dic["pipeline_parameters"].items():
                 
-                if trait_name not in list(self.scene.pipeline.user_traits().keys()):
-                    print('No "{0}" parameter in pipeline.'.format(trait_name))
+                if field_name not in [
+                    field.name for field in self.scene.pipeline.fields()]:
+                    print('No "{0}" parameter in pipeline.'.format(field_name))
                     
                 try:
-                    setattr(self.scene.pipeline, trait_name, trait_value)
+                    setattr(self.scene.pipeline, field_name, field_value)
                     
-                except traits.TraitError:
-                    print("Error for the plug {0}".format(trait_name))
+                except dataclasses.ValidationError:
+                    print("Error for the plug {0}".format(field_name))
 
             self.scene.pipeline.update_nodes_and_plugs_activation()
 
@@ -4925,21 +4912,21 @@ class PipelineDevelopperView(QGraphicsView):
             return ''
 
         if filename:
-            from traits.api import Undefined
             # Generating the dictionary
             param_dic = {}
 
-            for trait_name, trait in pipeline.user_traits().items():
+            for field in pipeline.fields():
+                field_name = field.name
 
-                if trait_name in ["nodes_activation"]:
+                if field_name in ["nodes_activation"]:
                     continue
 
-                value = getattr(pipeline, trait_name)
+                value = getattr(pipeline, field_name, undefined)
 
-                if value is Undefined:
+                if value is undefined:
                     value = ""
 
-                param_dic[trait_name] = value
+                param_dic[field_name] = value
 
             # In the future, more information may be added to this dictionary
             dic = {}
