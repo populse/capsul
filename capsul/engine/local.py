@@ -90,9 +90,9 @@ class LocalEngine:
             p = subprocess.Popen(
                 [sys.executable, '-m', 'capsul.run', f.name],
                 start_new_session=True,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                #stdin=subprocess.DEVNULL,
+                #stdout=subprocess.DEVNULL,
+                #stderr=subprocess.DEVNULL,
             )
             p.wait()
         return f.name

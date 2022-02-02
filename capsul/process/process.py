@@ -172,7 +172,6 @@ class FileCopyProcess(Process):
 
     Methods
     -------
-    __call__
     _update_input_traits
     _get_process_arguments
     _copy_input_files
