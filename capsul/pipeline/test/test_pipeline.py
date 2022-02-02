@@ -28,7 +28,7 @@ class DummyProcess(Process):
         self.add_field("output_image", file(optional=False, output=True))
         self.add_field("other_output", float, optional=True, output=True)
 
-    def _run_process(self):
+    def execute(self):
         with open(self.output_image, 'w') as f:
             f.write('dummy output.\n')
         self.other_output = 24.6

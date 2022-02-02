@@ -4,26 +4,28 @@ from __future__ import absolute_import
 import unittest
 import os
 import json
-from traits.api import Str
 from capsul.api import Process
-from capsul.api import Pipeline, PipelineNode
+from capsul.api import Pipeline
+from soma.controller import undefined
+import sys
 
 
 class DummyProcess(Process):
     """ Dummy Test Process
     """
     def __init__(self):
-        super(DummyProcess, self).__init__()
+        super(DummyProcess, self).__init__(
+            'capsul.pipeline.test.test_switch_subpipeline.DummyProcess')
 
         # inputs
-        self.add_trait("input_image", Str(optional=False))
-        self.add_trait("other_input", Str(optional=True))
+        self.add_field("input_image", str, optional=False)
+        self.add_field("other_input", str, optional=True)
 
         # outputs
-        self.add_trait("output_image", Str(optional=False, output=True))
-        self.add_trait("other_output", Str(optional=False, output=True))
+        self.add_field("output_image", str, optional=False, output=True)
+        self.add_field("other_output", str, optional=False, output=True)
 
-    def _run_process(self):
+    def execute(self):
         self.output_image = self.input_image
         self.other_output = self.other_input
 
@@ -32,31 +34,33 @@ class DummyProcess1_1(Process):
     """ Dummy Test Process with 1 input and one output
     """
     def __init__(self):
-        super(DummyProcess1_1, self).__init__()
+        super(DummyProcess1_1, self).__init__(
+            'capsul.pipeline.test.test_switch_subpipeline.DummyProcess1_1')
 
         # inputs
-        self.add_trait("input", Str(optional=False))
+        self.add_field("input", str, optional=False)
 
         # outputs
-        self.add_trait("output", Str(optional=False, output=True))
+        self.add_field("output", str, optional=False, output=True)
 
-    def _run_process(self):
+    def execute(self):
         self.output = self.input
 
 class DummyProcess2_1(Process):
     """ Dummy Test Process with 2 inputs and one output
     """
     def __init__(self):
-        super(DummyProcess2_1, self).__init__()
+        super(DummyProcess2_1, self).__init__(
+            'capsul.pipeline.test.test_switch_subpipeline.DummyProcess2_1')
 
         # inputs
-        self.add_trait("input1", Str(optional=False))
-        self.add_trait("input2", Str(optional=False))
+        self.add_field("input1", str, optional=False)
+        self.add_field("input2", str, optional=False)
 
         # outputs
-        self.add_trait("output", Str(optional=False, output=True))
+        self.add_field("output", str, optional=False, output=True)
 
-    def _run_process(self):
+    def execute(self):
         self.output = '_'.join((self.input1, self.input2))
 
 
@@ -64,18 +68,19 @@ class DummyProcess4_1(Process):
     """ Dummy Test Process with 4 inputs and one output
     """
     def __init__(self):
-        super(DummyProcess4_1, self).__init__()
+        super(DummyProcess4_1, self).__init__(
+            'capsul.pipeline.test.test_switch_subpipeline.DummyProcess4_1')
 
         # inputs
-        self.add_trait("input1", Str(optional=False))
-        self.add_trait("input2", Str(optional=False))
-        self.add_trait("input3", Str(optional=False))
-        self.add_trait("input4", Str(optional=False))
+        self.add_field("input1", str, optional=False)
+        self.add_field("input2", str, optional=False)
+        self.add_field("input3", str, optional=False)
+        self.add_field("input4", str, optional=False)
 
         # outputs
-        self.add_trait("output", Str(optional=False, output=True))
+        self.add_field("output", str, optional=False, output=True)
 
-    def _run_process(self):
+    def execute(self):
         self.output = '_'.join((self.input1, self.input2, self.input3, 
                                 self.input4))
 
@@ -231,7 +236,7 @@ def test():
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
 
-    if 0:
+    if '-v' in sys.argv[1:]:
         def write_state():
             state_file_name = '/tmp/state.json'
             with open(state_file_name,'w') as f:
@@ -241,14 +246,16 @@ if __name__ == "__main__":
         import sys
         #from PySide import QtGui
         from soma.qt_gui import qt_backend
-        qt_backend.set_qt_backend('PyQt4')
-        from soma.qt_gui.qt_backend import QtGui
+        qt_backend.set_qt_backend(compatible_qt5=True)
+        from soma.qt_gui.qt_backend import Qt
         from capsul.qt_gui.widgets import PipelineDevelopperView
         #from capsul.qt_gui.widgets import PipelineUserView
-        from capsul.process import get_process_instance
+        from capsul.api import Capsul
 
-        app = QtGui.QApplication(sys.argv)
-        pipeline = get_process_instance(MainTestPipeline)
+        app = Qt.QApplication(sys.argv)
+        capsul = Capsul()
+        # pipeline = capsul.executable(MainTestPipeline)
+        pipeline = MainTestPipeline()
         pipeline.selection_changed.add(write_state)
         view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True, allow_open_controller=True)
         view1.add_embedded_subpipeline('switch_pipeline', scale=0.7)
