@@ -40,7 +40,7 @@ class Process(Node):
     A process is typically an object with typed parameters, and an execution
     function. Parameters are described using the
     :somabase:`Controller <api.html#soma.controller.controller.Controller>`
-    API, based on the dataclass
+    API, based on the dataclasses
     module. Parameters are fields which allow typechecking and notification.
 
     In addition to describing its parameters, a Process must implement its

@@ -191,7 +191,7 @@ def pipeline_node_colors(pipeline, node):
         'custom_node': (ORANGE_1, ORANGE_2, ORANGE_3, LIGHT_ORANGE_1,
                         LIGHT_ORANGE_2, LIGHT_ORANGE_3),
     }
-    if node is pipeline.pipeline_node:
+    if node is pipeline:
         style = 'pipeline_io'
     elif isinstance(node, OptionalOutputSwitch):
         style = 'optional_output_switch'
@@ -858,8 +858,6 @@ def find_plug_connection_sources(plug, pipeline=None):
         [(node, param_name, parent_node), ...]
     '''
     sources = []
-    if isinstance(pipeline, Pipeline):
-        pipeline = pipeline.pipeline_node
     links = [link + (pipeline,) for link in plug.links_from]
     while links:
         node_name, param_name, node, in_plug, weak, parent = links.pop(0)
@@ -914,8 +912,6 @@ def find_plug_connection_destinations(plug, pipeline=None):
         [(node, param_name, parent_node), ...]
     '''
     dest = []
-    if isinstance(pipeline, Pipeline):
-        pipeline = pipeline.pipeline_node
     links = [link + (pipeline,) for link in plug.links_to]
     while links:
         node_name, param_name, node, in_plug, weak, parent = links.pop(0)
@@ -1071,7 +1067,7 @@ def dump_pipeline_state_as_dict(pipeline):
                 todo.append((current_dict, parent, parent_key, False))
 
     state_dict = {}
-    nodes = [(None, pipeline.pipeline_node, state_dict)]
+    nodes = [(None, pipeline, state_dict)]
     components = []
     while nodes:
         node_name, node, current_dict = nodes.pop(0)
