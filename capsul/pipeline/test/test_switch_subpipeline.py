@@ -7,6 +7,7 @@ import json
 from traits.api import Str
 from capsul.api import Process
 from capsul.api import Pipeline, PipelineNode
+import sys
 
 
 class DummyProcess(Process):
@@ -231,7 +232,7 @@ def test():
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
 
-    if 0:
+    if '-v' in sys.argv[1:]:
         def write_state():
             state_file_name = '/tmp/state.json'
             with open(state_file_name,'w') as f:
@@ -239,16 +240,16 @@ if __name__ == "__main__":
             print('Wrote', state_file_name)
 
         import sys
-        #from PySide import QtGui
         from soma.qt_gui import qt_backend
-        qt_backend.set_qt_backend('PyQt4')
-        from soma.qt_gui.qt_backend import QtGui
+        qt_backend.set_qt_backend(compatible_qt5=True)
+        from soma.qt_gui.qt_backend import Qt
         from capsul.qt_gui.widgets import PipelineDeveloperView
         #from capsul.qt_gui.widgets import PipelineUserView
-        from capsul.process import get_process_instance
+        from capsul.api import capsul_engine
 
-        app = QtGui.QApplication(sys.argv)
-        pipeline = get_process_instance(MainTestPipeline)
+        app = Qt.QApplication(sys.argv)
+        # pipeline = capsul_engine().get_process_instance(MainTestPipeline)
+        pipeline = MainTestPipeline()
         pipeline.on_trait_change(write_state,'selection_changed')
         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True, allow_open_controller=True)
         view1.add_embedded_subpipeline('switch_pipeline', scale=0.7)
