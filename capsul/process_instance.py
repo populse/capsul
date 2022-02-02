@@ -120,7 +120,7 @@ def get_process_instance(process_or_id, **kwargs):
         a process
         '''
         object_name = None
-        for name, item in six.iteritems(module_dict):
+        for name, item in module_dict.items():
             if is_process(item):
                 if object_name is not None:
                     raise KeyError(

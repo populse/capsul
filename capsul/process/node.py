@@ -228,6 +228,10 @@ class Node(Controller):
     def _release_pipeline(self):
         if not hasattr(self, 'pipeline') or self.pipeline is None:
             return  # nothing to do
+        try:
+            pipeline = get_ref(self.pipeline)
+        except ReferenceError:
+            return  # pipeline is deleted
 
         for plug in self.plugs.values():
             # remove the an event on plug to validate the pipeline
