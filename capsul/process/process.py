@@ -38,18 +38,18 @@ class Process(Node):
     """ A process is an atomic component that contains a processing.
 
     A process is typically an object with typed parameters, and an execution
-    function. Parameters are described using Enthought
-    `traits <http://docs.enthought.com/traits/>`_ through Soma-Base
+    function. Parameters are described using the
     :somabase:`Controller <api.html#soma.controller.controller.Controller>`
-    base class.
+    API, based on the dataclass
+    module. Parameters are fields which allow typechecking and notification.
 
     In addition to describing its parameters, a Process must implement its
     execution function, either through a python method, by overloading
-    :meth:`_run_process`, or through a commandline execution, by overloading
+    :meth:`execute`, or through a commandline execution, by overloading
     :meth:`get_commandline`. The second way allows to run on a remote
     processing machine which has not necessary capsul, nor python, installed.
 
-    Parameters are declared or queried using the traits API, and their values
+    Parameters are declared or queried using the fields API, and their values
     are in the process instance variables:
 
     ::
@@ -70,7 +70,7 @@ class Process(Node):
                 # declare an output param
                 self.add_field('out_param', file(output=True))
 
-            def run(self, context):
+            def execute(self):
                 with open(self.out_param, 'w') as f:
                     print('param1:', self.param1, file=f)
                     print('param2:', self.param2, file=f)

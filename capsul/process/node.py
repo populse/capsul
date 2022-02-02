@@ -20,7 +20,8 @@ from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import weak_proxy, get_ref
 
 class Plug(Controller):
-    """ Overload of the fields in order to keep the pipeline memory.
+    """ A Plug is a connection point in a Node. It is normally linked to a node
+    parameter (field).
 
     Attributes
     ----------
@@ -64,9 +65,18 @@ class Plug(Controller):
 
 
 class Node(Controller):
-    """ Basic Node structure of the pipeline that need to be tuned.
+    """ Basic Node structure for pipeline elements
 
-    It is possible to define custom nodes inheriting Node. To be usable in all
+    In Capsul 3.x, :class:`~capsul.process.process.Process` and
+    :class:`~capsul.pipeline.pipeline.Pipeline` classes directly inherit
+    ``Node``, whereas they used to be contained in ``Node`` subclasses before.
+
+    A Node is a :class:`~soma.controller.controller.Controller` subclass. It
+    has parameters (fields) that represent the node parameters. Each parameter
+    is associated with a :class:`Plug` which allows to connect to other nodes
+    into a pipeline graph.
+
+    Custom nodes can also be defined. To be usable in all
     contexts (GUI construction, pipeline save / reload), custom nodes should
     define a few additional instance and class methods which will allow
     automatic systems to reinstantiate and save them:
@@ -87,14 +97,22 @@ class Node(Controller):
 
     Attributes
     ----------
+    pipeline: Pipeline instance or None
+        the parent pipeline, kept as a weak proxy.
     name : str
         the node name
-    full_name : str
+    full_name : str (property)
         a unique name among all nodes and sub-nodes of the top level pipeline
+    plugs: dict
+        {plug_name: Plug instance}
+
+    Fields
+    ------
     enabled : bool
         user parameter to control the node activation
     activated : bool
         parameter describing the node status
+    node_type: str
 
     Methods
     -------
