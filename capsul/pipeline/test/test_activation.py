@@ -2,26 +2,28 @@
 from __future__ import print_function
 from __future__ import absolute_import
 import unittest
-from traits.api import File, Float
+from soma.controller import file
 from capsul.api import Process
 from capsul.api import Pipeline
+import sys
 
 
 class DummyProcess(Process):
     """ Dummy Test Process
     """
     def __init__(self):
-        super(DummyProcess, self).__init__()
+        super(DummyProcess, self).__init__(
+            'capsul.pipeline.test.test_activation.DummyProcess')
 
         # inputs
-        self.add_trait("input_image", File(optional=False))
-        self.add_trait("other_input", Float(optional=True))
+        self.add_field("input_image", file(optional=False))
+        self.add_field("other_input", float, optional=True)
 
         # outputs
-        self.add_trait("output_image", File(optional=False, output=True))
-        self.add_trait("other_output", Float(optional=True, output=True))
+        self.add_field("output_image", file(optional=False, output=True))
+        self.add_field("other_output", float, optional=True, output=True)
 
-    def __call__(self):
+    def execution(self):
         pass
 
 
@@ -61,25 +63,25 @@ class TestPipeline(unittest.TestCase):
         self.pipeline = MyPipeline()
 
     def test_partial_desactivation(self):
-        setattr(self.pipeline.nodes_activation, "way11", False)
+        self.pipeline.nodes_activation.way11 = False
         self.run_unactivation_tests_1()
-        setattr(self.pipeline.nodes_activation, "way11", True)
+        self.pipeline.nodes_activation.way11 = True
 
-        setattr(self.pipeline.nodes_activation, "way12", False)
+        self.pipeline.nodes_activation.way12 = False
         self.run_unactivation_tests_1()
-        setattr(self.pipeline.nodes_activation, "way12", True)
+        self.pipeline.nodes_activation.way12 = True
 
-        setattr(self.pipeline.nodes_activation, "way21", False)
+        self.pipeline.nodes_activation.way21 = False
         self.run_unactivation_tests_2()
-        setattr(self.pipeline.nodes_activation, "way21", True)
+        self.pipeline.nodes_activation.way21 = True
 
-        setattr(self.pipeline.nodes_activation, "way22", False)
+        self.pipeline.nodes_activation.way22 = False
         self.run_unactivation_tests_2()
-        setattr(self.pipeline.nodes_activation, "way22", True)
+        self.pipeline.nodes_activation.way22 = True
 
     def test_full_desactivation(self):
-        setattr(self.pipeline.nodes_activation, "way11", False)
-        setattr(self.pipeline.nodes_activation, "way21", False)
+        self.pipeline.nodes_activation.way11 = False
+        self.pipeline.nodes_activation.way21 = False
 
         self.assertFalse(self.pipeline.nodes["way11"].enabled)
         self.assertFalse(self.pipeline.nodes["way21"].enabled)
@@ -118,8 +120,7 @@ def test():
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
 
-    if 1:
-        import sys
+    if '-v' in sys.argv[1:]:
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDevelopperView
 
