@@ -196,7 +196,8 @@ def get_process_instance(process_or_id, **kwargs):
                 module_name, object_name = elements
             try:
                 module = importlib.import_module(module_name)
-                if object_name not in module.__dict__:
+                if object_name not in module.__dict__ \
+                        or inspect.ismodule(getattr(module, object_name)):
                     # maybe a module with a single process in it
                     module = importlib.import_module(process_or_id)
                     module_dict = module.__dict__
@@ -278,7 +279,7 @@ def get_process_instance(process_or_id, **kwargs):
 
     # Set the instance default parameters
     for name, value in kwargs.items():
-        result.set_parameter(name, value)
+        setattr(result, name, value)
 
     return result
 
@@ -412,8 +413,9 @@ def process_from_function(function):
         output = name == 'return'
         if isinstance(type_, dataclasses.Field):
             metadata = {}
-            metadata.update(type_.metadata)
+            # may be overriden by metadata
             metadata['output'] = output
+            metadata.update(type_.metadata)
             default=type_.default
             default_factory=type_.default_factory
             kwargs = dict(
