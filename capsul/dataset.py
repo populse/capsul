@@ -6,6 +6,8 @@ import re
 from soma.controller import Controller, Literal
 from soma.undefined import undefined
 
+from .api import Pipeline
+
 class PathLayout(Controller):
     def build_path(self, **kwargs):
         return self._build_path(self.asdict())
@@ -166,10 +168,19 @@ class Dataset:
                     yield result
 
     def set_output_paths(self, executable, **kwargs):
+        global_attrs = getattr(executable, 'path_layout', {}).get('*', {})
         for field in executable.fields():
             if executable.is_output(field) and executable.is_path(field):
                 layout = self.layout(**kwargs)
-                attrs = getattr(executable, 'path_layout', {}).get(self.layout_name, {})
+                attrs = global_attrs.copy()
+                process_attrs = getattr(executable, 'path_layout', {}).get(self.layout_name, {}).get(field.name)
+                if process_attrs is None and isinstance(executable, Pipeline):
+                    inner_item = next(executable.get_linked_items(field.name), None)
+                    if inner_item is not None:
+                        e, p = inner_item
+                        process_attrs = getattr(e, 'path_layout', {}).get(self.layout_name, {}).get(p)
+                if process_attrs:
+                    attrs.update(process_attrs)
                 for n, v in attrs.items():
                     setattr(layout, n, v)
                 path = functools.reduce(operator.truediv, layout.build_path(), self.path)
