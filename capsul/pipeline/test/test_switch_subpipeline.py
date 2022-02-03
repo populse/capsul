@@ -257,11 +257,13 @@ if __name__ == "__main__":
         # pipeline = capsul.executable(MainTestPipeline)
         pipeline = MainTestPipeline()
         pipeline.selection_changed.add(write_state)
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True, allow_open_controller=True)
+        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+                                       allow_open_controller=True)
         view1.add_embedded_subpipeline('switch_pipeline', scale=0.7)
         view1.add_embedded_subpipeline('way1_1', scale=0.4)
         view1.add_embedded_subpipeline('way2_1', scale=0.4)
         view1.show()
+        # pipeline._debug_activations = '/tmp/activations.log'
         #view2 = PipelineUserView(pipeline)
         #view2.show()
         app.exec_()
