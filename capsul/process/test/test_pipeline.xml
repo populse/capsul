@@ -74,6 +74,8 @@
             <process name="threshold_lt_100"/>
         </processes_group>
     </processes_selection>
+
+    <!--set name="output_1" optional="1" /-->
     
     <gui>
         <position name="threshold_gt_100" x="386.0" y="403.0"/>

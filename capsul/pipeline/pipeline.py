@@ -1291,7 +1291,7 @@ class Pipeline(Process):
         debug = getattr(self, '_debug_activations', None)
         if debug:
             debug = open(debug, 'w')
-            print(id(self), file=debug)
+            print(self.definition, file=debug)
 
         # Remember all links that are inactive (i.e. at least one of the two
         # plugs is inactive) in order to execute a callback if they become

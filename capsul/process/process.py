@@ -108,12 +108,18 @@ class Process(Node):
     ----------
     name: str
         the class name.
-    id: str
+    definition: str
         the string description of the class location (ie., module.class).
     """
 
-    def __init__(self, definition=None):
-        super().__init__(name=definition)
+    def __init__(self, definition=None, **kwargs):
+        #if definition is None:
+            #defn = []
+            #if self.__class__.__module__ != '__main__':
+                #defn.append(self.__class__.__module__)
+            #defn.append(self.__class__.__name__)
+            #definition = '.'.join(defn)
+        super().__init__(**kwargs)
         self.definition = definition
     
     def json(self):

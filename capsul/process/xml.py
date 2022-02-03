@@ -31,6 +31,7 @@ from ast import literal_eval
 from capsul.process.process import Process
 
 from soma.utils.functiontools import getArgumentsSpecification
+from soma.controller import undefined, Literal
 
 from traits.api import (Int, Float, String, Unicode, File, Directory, Enum,
                         Bool, List, Any, Undefined)
@@ -40,8 +41,9 @@ if sys.version_info[0] >= 3:
     xrange = range
 
 _known_values = {
-    'Undefined': Undefined,
-    'None': Undefined
+    'Undefined': undefined,
+    'None': undefined,
+    None: undefined,
 }
     
 def string_to_value(string):
