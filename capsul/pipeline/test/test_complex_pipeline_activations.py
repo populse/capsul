@@ -6,6 +6,7 @@ import os
 import shutil
 import unittest
 import tempfile
+import sys
 
 import six
 
@@ -883,12 +884,11 @@ def test():
 if __name__ == '__main__':
     print('Test return code:', test())
 
-    if False:
+    if '-v' in sys.argv[1:]:
         from pprint import pprint
         
         pipeline = get_process_instance(ComplexPipeline)
             
-        import sys
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDeveloperView
         #from capsul.qt_gui.widgets.activation_inspector import ActivationInspectorApp
