@@ -2470,7 +2470,41 @@ class Pipeline(Process):
                 break
         return dest_plugs
 
-
+    def get_linked_items(self, plug_name):
+        '''Return the real process(es) node and plug connected to the given plug.
+        Going through switches and inside subpipelines, ignoring nodes that are
+        not activated.
+        The result is a list of pairs (node, plug_name).
+        '''
+        stack =[(self, plug_name)]
+        while stack:
+            node, plug_name = stack.pop(0)
+            if not node.activated:
+                continue
+            plug = node.plugs.get(plug_name)
+            if plug:
+                if plug.output ^ isinstance(node, Pipeline):
+                    direction = 'links_to'
+                else:
+                    direction = 'links_from'
+                for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
+                    if isinstance(dest_node, Process):
+                        yield (dest_node, dest_plug_name)
+                    elif isinstance(dest_node, Pipeline):
+                        yield from dest_node.get_linked_items(dest_plug_name)
+                    elif isinstance(dest_node, Switch):
+                        if dest_plug_name == 'switch':
+                            yield (dest_node, dest_plug_name)
+                        else:
+                            for input_plug_name, output_plug_name in dest_node.connections():
+                                if plug.output ^ isinstance(node, Pipeline):
+                                    if dest_plug_name == input_plug_name:
+                                        stack.append((dest_node, output_plug_name))
+                                else:
+                                    if dest_plug_name == output_plug_name:
+                                        stack.append((dest_node, input_plug_name))
+        return None
+    
 # This import is at the end because get_process_instance needs Pipeline and
 #  Pipeline needs get_process instance
 from capsul.process_instance import get_process_instance
