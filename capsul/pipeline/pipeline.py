@@ -363,7 +363,7 @@ class Pipeline(Process):
         A last note about invalid nodes:
 
         When saving a pipeline (through the :class:`graphical editor
-        <capsul.qt_gui.widgets.pipeline_developper_view.PipelineDevelopperView>`
+        <capsul.qt_gui.widgets.pipeline_developper_view.PipelineDeveloperView>`
         typically), missing nodes *will not be saved* because they are not
         actually in the pipeline. So be careful to save only pipelines with full
         features.
@@ -373,7 +373,8 @@ class Pipeline(Process):
         name: str (mandatory)
             the node name (has to be unique).
         process: Process (mandatory)
-            the process we want to add.
+            the process we want to add. May be a string ('module.process'), a
+            process instance or a class.
         do_not_export: list of str (optional)
             a list of plug names that we do not want to export.
         make_optional: list of str (optional)
@@ -720,7 +721,7 @@ class Pipeline(Process):
 
         return node
 
-    def parse_link(self, link):
+    def parse_link(self, link, check=True):
         """ Parse a link coming from export_parameter method.
 
         Parameters
@@ -728,6 +729,8 @@ class Pipeline(Process):
         link: str
             the link description of the form
             'node_from.plug_name->node_to.plug_name'
+        check: bool
+            if True, check that the node and plug exist
 
         Returns
         -------
@@ -753,33 +756,35 @@ class Pipeline(Process):
         err = None
         try:
             source_node_name, source_plug_name, source_node, source_plug = \
-                self.parse_parameter(source)
+                self.parse_parameter(source, check=check)
         except ValueError:
             err = sys.exc_info()
             source_node_name, source_plug_name, source_node, source_plug \
                 = (None, None, None, None)
         try:
             dest_node_name, dest_plug_name, dest_node, dest_plug = \
-                self.parse_parameter(dest)
+                self.parse_parameter(dest, check=check)
         except ValueError:
             if err or (source_node is not None and source_plug is not None):
                 raise
             dest_node_name, dest_plug_name, dest_node, dest_plug \
                 = (None, None, None, None)
             err = None
-        if err and dest_node is not None and dest_plug is not None:
+        if err and dest_node is not None and dest_plug is not None and check:
             raise err[0].with_traceback(err[1], err[2])
 
         return (source_node_name, source_plug_name, source_node, source_plug,
                 dest_node_name, dest_plug_name, dest_node, dest_plug)
 
-    def parse_parameter(self, name):
+    def parse_parameter(self, name, check=True):
         """ Parse parameter of a node from its description.
 
         Parameters
         ----------
         name: str
             the description plug we want to load 'node.plug'
+        check: bool
+            if True, check that the node and plug exist
 
         Returns
         -------
@@ -826,7 +831,7 @@ class Pipeline(Process):
                                 err = False
                                 node.invalid_plugs.add(plug_name)
                                 break
-                    if err:
+                    if err and check:
                         raise ValueError(
                             "'{0}' is not a valid parameter name for "
                             "node '{1}'".format(
@@ -836,7 +841,7 @@ class Pipeline(Process):
                 plug = node.plugs[plug_name]
         return node_name, plug_name, node, plug
 
-    def add_link(self, link, weak_link=False):
+    def add_link(self, link, weak_link=False, allow_export=False):
         """ Add a link between pipeline nodes.
 
         If the destination node is a switch, force the source plug to be not
@@ -853,17 +858,21 @@ class Pipeline(Process):
         weak_link: bool
             this property is used when nodes are optional,
             the plug information may not be generated.
+        allow_export: bool
+            if True, if the link links from/to the pipeline node with a plug
+            name which doesn't exist, the plug will be created, and the
+            function will act exactly like export_parameter. This may be a more
+            convenient way of exporting/connecting pipeline plugs to several
+            nodes without having to export the first one, then link the others.
         """
+        check = True
+        if allow_export:
+            check = False
         if isinstance(link, str):
             # Parse the link
             (source_node_name, source_plug_name, source_node,
             source_plug, dest_node_name, dest_plug_name, dest_node,
-            dest_plug) = self.parse_link(link)
-            if source_node is None \
-                    or dest_node is None or source_plug is None \
-                    or dest_plug is None:
-                # link from/to an invalid node
-                return
+            dest_plug) = self.parse_link(link, check=check)
         else:
             (source_node, source_plug_name, dest_node, dest_plug_name) = link
             source_plug = source_node.plugs[source_plug_name]
@@ -872,6 +881,25 @@ class Pipeline(Process):
                                 if n is source_node][0]
             dest_node_name = [k for k, n in self.nodes.items()
                               if n is dest_node][0]
+
+        if allow_export:
+            if source_node is self.pipeline_node \
+                    and source_plug_name not in source_node.plugs:
+                print(dest_node_name, dest_node, dest_node.plugs.keys())
+                self.export_parameter(dest_node_name, dest_plug_name,
+                                      source_plug_name)
+                return
+            elif dest_node is self.pipeline_node \
+                    and dest_plug_name not in dest_node.plugs:
+                self.export_parameter(source_node_name, source_plug_name,
+                                      dest_plug_name)
+                return
+
+        if source_node is None \
+                or dest_node is None or source_plug is None \
+                or dest_plug is None:
+            # link from/to an invalid node
+            return
 
         # Assure that pipeline plugs are not linked
         if (not source_plug.output and source_node is not self):

@@ -21,6 +21,7 @@ from soma.utils.weak_proxy import weak_proxy, get_ref
 from ..process.node import Plug, Node
 
 
+
 class Switch(Node):
     """ Switch node to select a specific Process.
 

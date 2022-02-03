@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import unittest
 from capsul.api import Process, Pipeline, StudyConfig
 from capsul.pipeline import pipeline_workflow
@@ -9,6 +9,7 @@ from capsul.pipeline import python_export
 from capsul.pipeline import xml
 import traits.api as traits
 import os
+import os.path as osp
 import tempfile
 import sys
 import shutil
@@ -126,7 +127,6 @@ class Pipeline1(Pipeline):
         self.nodes['intermediate_output'].suffix = '_interm'
 
         self.add_process('test', TestProcess())
-        self.nodes['test'].process.trait('out1').input_filename = False
 
         self.add_custom_node(
             'test_output',
@@ -148,6 +148,9 @@ class Pipeline1(Pipeline):
         self.export_parameter('output_file', 'base', 'output_directory')
         self.export_parameter('output_file', 'subject')
         self.export_parameter('test', 'out1', 'test_output', is_optional=True)
+        # test_output will be assigned internally by the cat node 'test_output'
+        # thus should not be a temporary
+        self.trait('test_output').input_filename = False
         self.add_link('LOO.train->train1.in1')
         self.add_link('main_inputs->train2.in1')
         self.add_link('train1.out1->train2.in2')
@@ -453,6 +456,23 @@ class TestCustomNodes(unittest.TestCase):
         else:
             print('Files not removed in %s' % self.temp_dir)
 
+    def add_py_tmpfile(self, pyfname):
+        '''
+        add the given .py file and the associated .pyc file to the list of temp
+        files to remove after testing
+        '''
+        self.temp_files.append(pyfname)
+        if sys.version_info[0] < 3:
+            self.temp_files.append(pyfname + 'c')
+        else:
+            cache_dir = osp.join(osp.dirname(pyfname), '__pycache__')
+            print('cache_dir:', cache_dir)
+            cpver = 'cpython-%d%d.pyc' % sys.version_info[:2]
+            pyfname_we = osp.basename(pyfname[:pyfname.rfind('.')])
+            pycfname = osp.join(cache_dir, '%s.%s' % (pyfname_we, cpver))
+            self.temp_files.append(pycfname)
+            print('added py tmpfile:', pyfname, pycfname)
+
     def _test_custom_nodes(self, pipeline):
         pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i)
                                 for i in range(4)]
@@ -541,9 +561,14 @@ class TestCustomNodes(unittest.TestCase):
             [os.path.join(pipeline2.output_directory, 'subject%d' % i)
              for i in range(4)])
         test_jobs = [job for job in wf.jobs if job.name == 'test']
-        out = sorted([job.param_dict['out1'] for job in test_jobs])
+        self.assertEqual(len(test_jobs), 4)
+        test_outputs = [job for job in wf.jobs if job.name == 'test_output']
+        #print('test_output jobs:', test_outputs)
+        #for j in test_outputs:
+            #print('param_dict:', j.param_dict)
+        out = sorted([job.param_dict['out_file'] for job in test_outputs])
         self.assertEqual(
-            sorted([job.param_dict['out1'] for job in test_jobs]),
+            sorted([job.param_dict['out_file'] for job in test_outputs]),
             [os.path.join(pipeline2.output_directory,
                           'subject%d_test_output' % i)
              for i in range(4)])
@@ -604,9 +629,14 @@ class TestCustomNodes(unittest.TestCase):
             [os.path.join(pipeline.output_directory, '%d' % i)
              for i in range(4)])
         test_jobs = [job for job in wf.jobs if job.name == 'test']
-        out = sorted([job.param_dict['out1'] for job in test_jobs])
+        self.assertEqual(len(test_jobs), 4)
+        test_outputs = [job for job in wf.jobs if job.name == 'test_output']
+        #print('test_output jobs:', test_outputs)
+        #for j in test_outputs:
+            #print('param_dict:', j.param_dict)
+        out = sorted([job.param_dict['out_file'] for job in test_outputs])
         self.assertEqual(
-            sorted([job.param_dict['out1'] for job in test_jobs]),
+            sorted([job.param_dict['out_file'] for job in test_outputs]),
             [os.path.join(pipeline.output_directory,
                           'subject%d_test_output' % i)
              for i in range(4)])
@@ -622,7 +652,7 @@ class TestCustomNodes(unittest.TestCase):
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
-        self.temp_files.append(pyfname)
+        self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
         pipeline2 = sc.get_process_instance(pyfname)
         self._test_custom_nodes(pipeline)
@@ -644,7 +674,7 @@ class TestCustomNodes(unittest.TestCase):
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
-        self.temp_files.append(pyfname)
+        self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
         pipeline2 = sc.get_process_instance(pyfname)
         self._test_loo_pipeline(pipeline2)
@@ -685,7 +715,7 @@ class TestCustomNodes(unittest.TestCase):
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
-        self.temp_files.append(pyfname)
+        self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
         pipeline2 = sc.get_process_instance(pyfname)
         self._test_cv_pipeline(pipeline2)
@@ -714,7 +744,7 @@ if __name__ == '__main__':
     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
         import sys
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
@@ -725,12 +755,12 @@ if __name__ == '__main__':
         #pipeline.test = pipeline.main_inputs[2]
         #pipeline.subject = 'subject2'
         #pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
-        #view1 = PipelineDevelopperView(pipeline, allow_open_controller=True,
+        #view1 = PipelineDeveloperView(pipeline, allow_open_controller=True,
                                        #show_sub_pipelines=True,
                                        #enable_edition=True)
         #view1.show()
 
-        pipeline2 = PipelineCV()
+        pipeline2 = PipelineLOO()
         pipeline2.main_inputs = ['/tmp/file%d' % i for i in range(4)]
         pipeline2.test = pipeline2.main_inputs[2]
         pipeline2.subjects = ['subject%d' % i for i in range(4)]
@@ -739,7 +769,7 @@ if __name__ == '__main__':
         pipeline2.fold = list(range(pipeline2.nfolds))
         #wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
                                                       #create_directories=False)
-        view2 = PipelineDevelopperView(pipeline2, allow_open_controller=True,
+        view2 = PipelineDeveloperView(pipeline2, allow_open_controller=True,
                                        show_sub_pipelines=True,
                                        enable_edition=True)
         view2.show()

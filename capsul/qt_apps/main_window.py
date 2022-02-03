@@ -23,7 +23,7 @@ from soma.qt_gui.controller_widget import ScrollControllerWidget
 # Capsul import
 from capsul.qt_apps.utils.window import MyQUiLoader
 from capsul.qt_apps.utils.fill_treectrl import fill_treectrl
-from capsul.qt_gui.widgets import (PipelineDevelopperView, PipelineUserView)
+from capsul.qt_gui.widgets import (PipelineDeveloperView, PipelineUserView)
 from capsul.qt_gui.board_widget import BoardWidget
 from capsul.api import get_process_instance
 from capsul.pipeline.process_iteration import ProcessIteration
@@ -298,7 +298,7 @@ class CapsulMainWindow(MyQUiLoader):
             self.pipeline, pipeline_widget)
 
         # Create the widget
-        widget = PipelineDevelopperView(self.pipeline)
+        widget = PipelineDeveloperView(self.pipeline)
         self._insert_widget_in_tab(widget)
 
         # Connect the subpipeline clicked signal to the
@@ -329,7 +329,7 @@ class CapsulMainWindow(MyQUiLoader):
             self.pipeline, pipeline_widget)
 
         # Create the widget
-        widget = PipelineDevelopperView(self.pipeline)
+        widget = PipelineDeveloperView(self.pipeline)
         self._insert_widget_in_tab(widget)
 
         # Connect the subpipeline clicked signal to the
@@ -413,9 +413,9 @@ class CapsulMainWindow(MyQUiLoader):
         if self._is_active_pipeline_valid():
 
             # Check the current display mode
-            # Case PipelineDevelopperView
+            # Case PipelineDeveloperView
             if isinstance(self.ui.display.currentWidget(),
-                          PipelineDevelopperView):
+                          PipelineDeveloperView):
 
                 # Switch to PipelineUserView display mode
                 widget = PipelineUserView(self.pipeline)
@@ -424,8 +424,8 @@ class CapsulMainWindow(MyQUiLoader):
             # Case PipelineUserView
             else:
 
-                # Switch to PipelineDevelopperView display mode
-                widget = PipelineDevelopperView(self.pipeline)
+                # Switch to PipelineDeveloperView display mode
+                widget = PipelineDeveloperView(self.pipeline)
                 self._insert_widget_in_tab(widget)
 
         # No pipeline loaded error

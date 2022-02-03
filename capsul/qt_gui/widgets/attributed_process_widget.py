@@ -400,15 +400,21 @@ class AttributedProcessWidget(QtGui.QWidget):
                                     trait.inner_traits[0].trait_type,
                                     (File, Directory, Any))):
                         continue
-                    hidden = trait.hidden \
-                          or (trait.userlevel is not None
-                              and trait.userlevel > self.userlevel)
-                    control_instance.setVisible(visible and not hidden)
+                    if trait.forbid_completion:
+                        # when completion is disable, parameters are always
+                        # visible
+                        is_visible = True
+                    else:
+                        hidden = trait.hidden \
+                              or (trait.userlevel is not None
+                                  and trait.userlevel > self.userlevel)
+                        is_visible = visible and not hidden
+                    control_instance.setVisible(is_visible)
                     if isinstance(control_label, tuple):
                         for cl in control_label:
-                            cl.setVisible(visible and not hidden)
+                            cl.setVisible(is_visible)
                     else:
-                        control_label.setVisible(visible and not hidden)
+                        control_label.setVisible(is_visible)
             for group, group_widget in six.iteritems(
                     controller_widget._groups):
                 if [x for x in group_widget.hideable_widget.children()

@@ -355,7 +355,7 @@ if __name__ == '__main__':
     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
 
         from capsul.qt_gui.widgets.pipeline_developper_view \
-            import PipelineDevelopperView
+            import PipelineDeveloperView
         from capsul.qt_gui.widgets.attributed_process_widget \
             import AttributedProcessWidget
         from soma.qt_gui.qt_backend import QtGui, QtCore
@@ -370,7 +370,7 @@ if __name__ == '__main__':
         qapp = None
         if QtGui.QApplication.instance() is None:
             qapp = QtGui.QApplication(['test_app'])
-        pv = PipelineDevelopperView(process, allow_open_controller=True,
+        pv = PipelineDeveloperView(process, allow_open_controller=True,
                                     enable_edition=True,
                                     show_sub_pipelines=True)
         pc = AttributedProcessWidget(process, enable_attr_from_filename=True,
