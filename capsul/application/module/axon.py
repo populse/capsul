@@ -27,8 +27,11 @@ def init_settings(capsul_engine):
     with capsul_engine.settings as session:
         config = session.config('axon', 'global')
         if not config:
+            from soma import config as soma_config
+            shared_dir = soma_config.BRAINVISA_SHARE
+
             values = {capsul_engine.settings.config_id_field: 'axon',
-                      'shared_directory': None, 'user_level': 0}
+                      'shared_directory': shared_dir, 'user_level': 0}
             session.new_config('axon', 'global', values)
 
 def check_configurations():

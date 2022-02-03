@@ -41,8 +41,8 @@ from six.moves import range
 
 def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                            jobs_priority=0, create_directories=True,
-                           environment='global',
-                           check_requirements=True):
+                           environment='global', check_requirements=True,
+                           complete_parameters=False):
     """ Create a soma-workflow workflow from a Capsul Pipeline
 
     Parameters
@@ -74,6 +74,12 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         if True, check the pipeline nodes requirements in the capsul engine
         settings, and issue an exception if they are not met instead of
         proceeding with the workflow.
+    complete_parameters: bool (default: False)
+        Perform parameters completion on the input pipeline while building
+        the workflow. The default is False because we should avoid to do things
+        several times when it's already done, but in iteration nodes,
+        completion needs to be done anyway for each iteration, so this option
+        offers to do the rest of the "parent" pipeline completion.
 
     Returns
     -------
@@ -176,6 +182,113 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 return item
         return None
 
+    def _replace_in_list(rlist, temp_map):
+        for i, item in enumerate(rlist):
+            if isinstance(item, (list, tuple)):
+                deeperlist = list(item)
+                _replace_in_list(deeperlist, temp_map)
+                if isinstance(item, tuple):
+                    deeperlist = tuple(deeperlist)
+                elif isinstance(item, set):
+                    deeperlist = set(deeperlist)
+                rlist[i] = deeperlist
+            #elif item is Undefined:
+                #rlist[i] = ''
+            elif isinstance(item, (dict, OrderedDict, SortedDictionary)):
+                _replace_in_dict(item, temp_map)
+            elif item in temp_map:
+                value = temp_map[item]
+                value = value.__class__(value)
+                if hasattr(item, 'pattern'):
+                    # temp case (differs from shared case)
+                    value.pattern = item.pattern
+                rlist[i] = value
+
+    def _replace_in_dict(rdict, temp_map):
+        for name, item in six.iteritems(rdict):
+            if isinstance(item, (list, tuple, set)):
+                deeperlist = list(item)
+                _replace_in_list(deeperlist, temp_map)
+                if isinstance(item, tuple):
+                    deeperlist = tuple(deeperlist)
+                elif isinstance(item, set):
+                    deeperlist = set(deeperlist)
+                rdict[name] = deeperlist
+            #elif item is Undefined:
+                #rdict[name] = ''
+            elif isinstance(item, (dict, OrderedDict, SortedDictionary)):
+                _replace_in_dict(item, temp_map)
+            elif item in temp_map:
+                value = temp_map[item]
+                value = value.__class__(value)
+                if hasattr(item, 'pattern'):
+                    # temp case (differs from shared case)
+                    value.pattern = item.pattern
+                rdict[name] = value
+
+    def _get_replaced(rlist, temp_map):
+        if isinstance(rlist, (dict, OrderedDict, SortedDictionary)):
+            return _get_replaced(list(rlist.values()), temp_map)
+        if isinstance(rlist, (list, tuple)):
+            l = [x for x in [_get_replaced(y, temp_map) for y in rlist]
+                 if x is not None]
+            out = []
+            while l:
+                item = l.pop(0)
+                if isinstance(item, list):
+                    l = item + l
+                else:
+                    out.append(item)
+            return out
+        if rlist not in temp_map:
+            if isinstance(rlist, swclient.SpecialPath):
+                return rlist
+            return None
+        value = temp_map[rlist]
+        if hasattr(rlist, 'pattern'):
+            # temp case (differs from shared case)
+            value.pattern = rlist.pattern
+        return [value]
+
+    def _replace_transfers(rlist, process, itransfers, otransfers):
+        param_name = None
+        i = 3
+        for item in rlist[3:]:
+            if param_name is None:
+                param_name = item
+            else:
+                transfer = itransfers.get(param_name)
+                if transfer is None:
+                    transfer = otransfers.get(param_name)
+                if transfer is not None:
+                    value = transfer[0]
+                    if isinstance(item, (list, tuple)):
+                        # TODO: handle lists of files [transfers]
+                        #deeperlist = list(item)
+                        #_replace_in_list(deeperlist, transfers)
+                        #rlist[i] = deeperlist
+                        print('*** LIST! ***')
+                    else:
+                        rlist[i] = value
+                param_name = None
+            i += 1
+
+    def _replace_dict_transfers(rdict, process, itransfers, otransfers):
+        for param_name, item in six.iteritems(rdict):
+            transfer = itransfers.get(param_name)
+            if transfer is None:
+                transfer = otransfers.get(param_name)
+            if transfer is not None:
+                value = transfer[0]
+                if isinstance(item, (list, tuple)):
+                    # TODO: handle lists of files [transfers]
+                    #deeperlist = list(item)
+                    #_replace_in_list(deeperlist, transfers)
+                    #rdict[param_name] = deeperlist
+                    print('*** LIST! ***')
+                else:
+                    rdict[param_name] = value
+
     def build_job(process, temp_map={}, shared_map={}, transfers=[{}, {}],
                   shared_paths={}, forbidden_temp=set(), name='', priority=0,
                   step_name='', engine=None, environment='global'):
@@ -214,89 +327,6 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         job: Job
             a soma-workflow Job instance that will execute the CAPSUL process
         """
-        def _replace_in_list(rlist, temp_map):
-            for i, item in enumerate(rlist):
-                if isinstance(item, (list, tuple)):
-                    deeperlist = list(item)
-                    _replace_in_list(deeperlist, temp_map)
-                    if isinstance(item, tuple):
-                        deeperlist = tuple(deeperlist)
-                    elif isinstance(item, set):
-                        deeperlist = set(deeperlist)
-                    rlist[i] = deeperlist
-                #elif item is Undefined:
-                    #rlist[i] = ''
-                elif isinstance(item, (dict, OrderedDict, SortedDictionary)):
-                    _replace_in_dict(item, temp_map)
-                elif item in temp_map:
-                    value = temp_map[item]
-                    value = value.__class__(value)
-                    if hasattr(item, 'pattern'):
-                        # temp case (differs from shared case)
-                        value.pattern = item.pattern
-                    rlist[i] = value
-
-        def _replace_in_dict(rdict, temp_map):
-            for name, item in six.iteritems(rdict):
-                if isinstance(item, (list, tuple, set)):
-                    deeperlist = list(item)
-                    _replace_in_list(deeperlist, temp_map)
-                    if isinstance(item, tuple):
-                        deeperlist = tuple(deeperlist)
-                    elif isinstance(item, set):
-                        deeperlist = set(deeperlist)
-                    rdict[name] = deeperlist
-                #elif item is Undefined:
-                    #rdict[name] = ''
-                elif isinstance(item, (dict, OrderedDict, SortedDictionary)):
-                    _replace_in_dict(item, temp_map)
-                elif item in temp_map:
-                    value = temp_map[item]
-                    value = value.__class__(value)
-                    if hasattr(item, 'pattern'):
-                        # temp case (differs from shared case)
-                        value.pattern = item.pattern
-                    rdict[name] = value
-
-        def _replace_transfers(rlist, process, itransfers, otransfers):
-            param_name = None
-            i = 3
-            for item in rlist[3:]:
-                if param_name is None:
-                    param_name = item
-                else:
-                    transfer = itransfers.get(param_name)
-                    if transfer is None:
-                        transfer = otransfers.get(param_name)
-                    if transfer is not None:
-                        value = transfer[0]
-                        if isinstance(item, (list, tuple)):
-                            # TODO: handle lists of files [transfers]
-                            #deeperlist = list(item)
-                            #_replace_in_list(deeperlist, transfers)
-                            #rlist[i] = deeperlist
-                            print('*** LIST! ***')
-                        else:
-                            rlist[i] = value
-                    param_name = None
-                i += 1
-
-        def _replace_dict_transfers(rdict, process, itransfers, otransfers):
-            for param_name, item in six.iteritems(rdict):
-                transfer = itransfers.get(param_name)
-                if transfer is None:
-                    transfer = otransfers.get(param_name)
-                if transfer is not None:
-                    value = transfer[0]
-                    if isinstance(item, (list, tuple)):
-                        # TODO: handle lists of files [transfers]
-                        #deeperlist = list(item)
-                        #_replace_in_list(deeperlist, transfers)
-                        #rdict[param_name] = deeperlist
-                        print('*** LIST! ***')
-                    else:
-                        rdict[param_name] = value
-
         job_name = name
         if not job_name:
             job_name = process.name
@@ -829,7 +859,14 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             pipeline = Pipeline()
             pipeline.set_study_config(study_config)
             pipeline.add_process('iter', process.process)
-            return build_iteration(pipeline, step_name, study_config,
+            return build_iteration(pipeline, step_name, temp_map=temp_map,
+                                   shared_map=shared_map,
+                                   transfers=transfers,
+                                   shared_paths=shared_paths,
+                                   disabled_nodes=disabled_nodes,
+                                   remove_temp=remove_temp,
+                                   steps=steps,
+                                   study_config=study_config,
                                    environment=environment)
         else:
             # single process
@@ -864,39 +901,45 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         (jobs, dependencies, groups, root_jobs, links, nodes)
         '''
         it_process = it_node.process
-        no_output_value = None
-        size = None
-        size_error = False
+        completion_engine = ProcessCompletionEngine.get_completion_engine(
+            it_process)
+        # # check if it is an iterative completion engine
+        # if hasattr(completion_engine, 'complete_iteration_step'):
+        size = completion_engine.iteration_size()
 
-        # calculate the number of iterations
-        for parameter in it_process.iterative_parameters:
-            trait = it_process.trait(parameter)
-            psize = len(getattr(it_process, parameter))
-            if psize:
-                if size is None:
-                    size = psize
-                elif size != psize:
-                    size_error = True
-                    break
-                if trait.output:
-                    if no_output_value is None:
-                        no_output_value = False
-                    elif no_output_value:
-                        size_error = True
-                        break
-            else:
-                if trait.output:
-                    if no_output_value is None:
-                        no_output_value = True
-                    elif not no_output_value:
-                        size_error = True
-                        break
+        #no_output_value = None
+        #size = None
+        #size_error = False
 
-        if size_error:
-            raise ValueError('Iterative parameter values must be lists of the '
-                'same size: %s' % ','.join('%s=%d'
-                    % (n, len(getattr(it_process, n)))
-                    for n in it_process.iterative_parameters))
+        ## calculate the number of iterations
+        #for parameter in it_process.iterative_parameters:
+            #trait = it_process.trait(parameter)
+            #psize = len(getattr(it_process, parameter))
+            #if psize:
+                #if size is None:
+                    #size = psize
+                #elif size != psize:
+                    #size_error = True
+                    #break
+                #if trait.output:
+                    #if no_output_value is None:
+                        #no_output_value = False
+                    #elif no_output_value:
+                        #size_error = True
+                        #break
+            #else:
+                #if trait.output:
+                    #if no_output_value is None:
+                        #no_output_value = True
+                    #elif not no_output_value:
+                        #size_error = True
+                        #break
+
+        #if size_error:
+            #raise ValueError('Iterative parameter values must be lists of the '
+                #'same size: %s' % ','.join('%s=%d'
+                    #% (n, len(getattr(it_process, n)))
+                    #for n in it_process.iterative_parameters))
 
         jobs = {}
         workflows = []
@@ -914,47 +957,49 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         if size == 0:
             return (jobs, dependencies, groups, root_jobs, links, nodes)
 
-        if no_output_value:
-            # this case is a "really" dynamic iteration, the number of
-            # iterations and parameters are determined in runtime, so we
-            # cannot handle it at the moment.
-            raise ValueError('Dynamic iteration is not handled in this '
-                'version of CAPSUL / Soma-Workflow')
+        #if no_output_value:
+            ## this case is a "really" dynamic iteration, the number of
+            ## iterations and parameters are determined in runtime, so we
+            ## cannot handle it at the moment.
+            #raise ValueError('Dynamic iteration is not handled in this '
+                #'version of CAPSUL / Soma-Workflow')
 
-            for parameter in it_process.iterative_parameters:
-                trait = it_process.trait(parameter)
-                if trait.output:
-                    setattr(it_process, parameter, [])
-            outputs = {}
-            for iteration in range(size):
-                for parameter in it_process.iterative_parameters:
-                    if not no_output_value \
-                            or not it_process.trait(parameter).output:
-                        values = getattr(it_process, parameter)
-                        if len(values) != 0:
-                            if len(values) > iteration:
-                                setattr(it_process.process, parameter,
-                                        values[iteration])
-                            else:
-                                setattr(it_process.process, parameter,
-                                        values[-1])
+            #for parameter in it_process.iterative_parameters:
+                #trait = it_process.trait(parameter)
+                #if trait.output:
+                    #setattr(it_process, parameter, [])
+            #outputs = {}
+            #for iteration in range(size):
+                #for parameter in it_process.iterative_parameters:
+                    #if not no_output_value \
+                            #or not it_process.trait(parameter).output:
+                        #values = getattr(it_process, parameter)
+                        #if len(values) != 0:
+                            #if len(values) > iteration:
+                                #setattr(it_process.process, parameter,
+                                        #values[iteration])
+                            #else:
+                                #setattr(it_process.process, parameter,
+                                        #values[-1])
 
-                # operate completion
-                complete_iteration(it_process, iteration)
+                ## operate completion
+                #complete_iteration(it_process, iteration)
 
-                #workflow = workflow_from_pipeline(it_process.process,
-                                                  #study_config=study_config)
-                #workflows.append(workflow)
+                ##workflow = workflow_from_pipeline(it_process.process,
+                                                  ##study_config=study_config)
+                ##workflows.append(workflow)
 
-                for parameter in it_process.iterative_parameters:
-                    trait = it_process.trait(parameter)
-                    if trait.output:
-                        outputs.setdefault(
-                            parameter,[]).append(getattr(it_process.process,
-                                                         parameter))
-            for parameter, value in six.iteritems(outputs):
-                setattr(it_process, parameter, value)
-        else:
+                #for parameter in it_process.iterative_parameters:
+                    #trait = it_process.trait(parameter)
+                    #if trait.output:
+                        #outputs.setdefault(
+                            #parameter,[]).append(getattr(it_process.process,
+                                                         #parameter))
+            #for parameter, value in six.iteritems(outputs):
+                #setattr(it_process, parameter, value)
+        #else:
+
+        if True:
 
             # iterations are built using
             # * a map job to dispatch input lists
@@ -972,12 +1017,19 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                 'protected_parameters', )
             # copy non-iterative inputs
             for param, trait in six.iteritems(it_process.user_traits()):
-                if not trait.output and param not in forbidden_traits:
-                    map_param_dict[param] = getattr(it_process, param)
+                if param in forbidden_traits:
+                    continue  # skip
+                value = getattr(it_process, param)
+                if not trait.output:
+                    map_param_dict[param] = value
+
             in_params = [p for p in it_process.iterative_parameters
                          if not it_process.trait(p).output]
             out_params = [p for p in it_process.iterative_parameters
                           if it_process.trait(p).output]
+            in_values = [getattr(it_process, param) for param in in_params]
+            out_values = [getattr(it_process, param) for param in out_params]
+
             # build map and reduce nodes
             map_param_dict.update({
                 'input_names': in_params,
@@ -986,20 +1038,43 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             reduce_param_dict = {}
             for param, trait in six.iteritems(it_process.user_traits()):
                 if trait.output and param not in forbidden_traits:
-                    reduce_param_dict[param] = getattr(it_process, param)
+                    value = getattr(it_process, param)
+                    reduce_param_dict[param] = value
+                    if param in out_params:
+                        # set input params of reduce node for a non-dynamic
+                        # reduce case (outputs are set from outside)
+                        for i, p in enumerate(value):
+                            reduce_param_dict['%s_%d' % (param, i)] = p
+
             reduce_param_dict.update({
                 'input_names': ['%s' % p + '_%d' for p in out_params],
                 'output_names': out_params,
                 'lengths': [size] * len(out_params),
             })
+
+            # replace special paths in map/reduce parameters
+
+            _replace_in_list(in_values, temp_map)
+            in_values = _get_replaced(in_values, shared_map)
+            _replace_in_list(out_values, temp_map)
+            out_values = _get_replaced(out_values, shared_map)
+            _replace_in_dict(map_param_dict, temp_map)
+            _replace_in_dict(map_param_dict, shared_map)
+            _replace_dict_transfers(
+                map_param_dict, it_process, transfers[0], transfers[1])
+            _replace_in_dict(reduce_param_dict, temp_map)
+            _replace_in_dict(reduce_param_dict, shared_map)
+            _replace_dict_transfers(
+                reduce_param_dict, it_process, transfers[0], transfers[1])
+
             map_job = MapJob(
-                referenced_input_files=None,  # FIXME TODO
-                referenced_output_files=None,  # FIXME TODO
+                referenced_input_files=in_values,
+                referenced_output_files=in_values,
                 name=it_process.process.name + '_map',
                 param_dict=map_param_dict)
             reduce_job = ReduceJob(
-                referenced_input_files=None,  # FIXME TODO
-                referenced_output_files=None,  # FIXME TODO
+                referenced_input_files=out_values,
+                referenced_output_files=out_values,
                 name=it_process.process.name + '_reduce',
                 param_dict=reduce_param_dict)
             map_job.process_hash = id(it_process)
@@ -1076,6 +1151,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
             # iterate the iterates process / pipeline
 
+            iter_values = {}
             for iteration in range(size):
                 for parameter in it_process.iterative_parameters:
                     if it_process.process.trait(parameter).input_filename \
@@ -1092,6 +1168,15 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
                 # operate completion
                 complete_iteration(it_process, iteration)
+
+                # get iteration values to set on the parent iter node
+                for parameter in it_process.iterative_parameters:
+                    if it_process.process.trait(parameter).input_filename \
+                            is False:
+                        # dynamic output has no forced value
+                        continue
+                    value = getattr(it_process.process, parameter)
+                    iter_values.setdefault(parameter, []).append(value)
 
                 # build a workflow for the job / pipeline iteration
                 process_name = it_process.process.name + '_%d' % iteration
@@ -1131,6 +1216,11 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                             links.setdefault(proc, {}) \
                                 .setdefault(dparam, []) \
                                 .append(((link[0], iteration), link[1]))
+
+        # set values on the iter node (what a full completion does, but we're
+        # doing it only partially here)
+        for param, value in iter_values.items():
+            setattr(it_process, param, value)
 
         # the iteration process is not a single job, but can be reached
         # (for links) through the map and reduce nodes. So we record a tuple
@@ -1424,6 +1514,13 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         new_pipeline.add_process('main', pipeline)
         new_pipeline.autoexport_nodes_parameters(include_optional=True)
         pipeline = new_pipeline
+
+    if complete_parameters:
+        completion = ProcessCompletionEngine.get_completion_engine(pipeline)
+        if completion:
+            attributes = completion.get_attribute_values()
+            completion.complete_parameters(complete_iterations=False)
+
     temp_map = assign_temporary_filenames(pipeline)
     temp_subst_list = [(x1, x2[0]) for x1, x2 in six.iteritems(temp_map)]
     temp_subst_map = dict(temp_subst_list)

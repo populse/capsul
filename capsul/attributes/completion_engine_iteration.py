@@ -141,11 +141,56 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         return self.capsul_attributes
 
 
-    def complete_parameters(self, process_inputs={}):
-        self.completion_progress = 0.
+    def iteration_size(self, process_inputs={}):
         process = self.process
         if isinstance(process, ProcessNode):
             process = process.process
+        try:
+            attributes_set = self.get_attribute_values()
+        except AttributeError:
+            # ProcessCompletionEngine not implemented for this process:
+            # no completion
+            return
+
+        # attributes lists sizes
+        sizes = [len(getattr(attributes_set, attribute))
+                 for attribute in self.get_iterated_attributes()]
+        if sizes:
+            size = max(sizes)
+        else:
+            size = 0
+        sizes = []
+        for param in process.iterative_parameters:
+            value = process_inputs.get(param)
+            if value is not None:
+                sizes.append(len(value))
+            else:
+                value = getattr(process, param)
+                if value:
+                    sizes.append(len(value))
+
+        if sizes:
+            psize = max(sizes)
+        else:
+            psize = 0
+        size = max(size, psize)
+
+        return size
+
+
+    def complete_parameters(self, process_inputs={},
+                            complete_iterations=True):
+
+        if not complete_iterations:
+            # then do nothing...
+            return
+
+        self.completion_progress = 0.
+
+        process = self.process
+        if isinstance(process, ProcessNode):
+            process = process.process
+
         try:
             self.set_parameters(process_inputs)
             attributes_set = self.get_attribute_values()
@@ -157,6 +202,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             # no completion
             return
 
+        size = self.iteration_size()
+
         iterated_attributes = self.get_iterated_attributes()
         for attribute in attributes_set.user_traits():
             if attribute not in iterated_attributes:
@@ -164,23 +211,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                         getattr(attributes_set, attribute))
         parameters = {}
         for parameter in process.regular_parameters:
-            if not process.trait(parameter).forbid_completion:
-                parameters[parameter] = getattr(process, parameter)
-
-        # attributes lists sizes
-        sizes = [len(getattr(attributes_set, attribute))
-                 for attribute in iterated_attributes]
-        if sizes:
-            size = max(sizes)
-        else:
-            size = 0
-        sizes = [len(getattr(process, param)) if getattr(process, param) else 0
-                 for param in process.iterative_parameters]
-        if sizes:
-            psize = max(sizes)
-        else:
-            psize = 0
-        size = max(size, psize)
+            parameters[parameter] = getattr(process, parameter)
 
         # complete each step to get iterated parameters.
         # This is generally "too much" but it's difficult to perform a partial
@@ -198,11 +229,11 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 value = iterated_values[step]
                 setattr(step_attributes, attribute, value)
             for parameter in process.iterative_parameters:
-                if not process.trait(parameter).forbid_completion:
-                    values = getattr(process, parameter)
-                    if isinstance(values, list) and len(values) > it_step:
-                        parameters[parameter] = values[it_step]
-            completion_engine.complete_parameters(parameters)
+                values = getattr(process, parameter)
+                if isinstance(values, list) and len(values) > it_step:
+                    parameters[parameter] = values[it_step]
+            completion_engine.complete_parameters(
+                parameters, complete_iterations=complete_iterations)
             for parameter in process.iterative_parameters:
                 value = getattr(process.process, parameter)
                 iterative_parameters[parameter].append(value)

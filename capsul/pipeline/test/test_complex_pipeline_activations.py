@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import os
 import shutil
 import unittest
@@ -889,7 +889,7 @@ if __name__ == '__main__':
         pipeline = get_process_instance(ComplexPipeline)
             
         from soma.qt_gui.qt_backend import Qt
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
         from capsul.qt_gui.widgets.activation_inspector import ActivationInspectorApp
 
         app = Qt.QApplication(sys.argv)
@@ -897,8 +897,8 @@ if __name__ == '__main__':
         sys.argv = [sys.argv[0]]
         aapp = ActivationInspectorApp(ComplexPipeline)
 
-        view = PipelineDevelopperView(pipeline, allow_open_controller=True,
-                                      show_sub_pipelines=True)
+        view = PipelineDeveloperView(pipeline, allow_open_controller=True,
+                                     show_sub_pipelines=True)
         view.show()
         
         app.exec_()

@@ -9,6 +9,7 @@ from capsul.api import get_process_instance
 from soma.controller import file
 import tempfile
 import os
+import os.path as osp
 import sys
 
 
@@ -89,6 +90,23 @@ class TestPipeline(unittest.TestCase):
                     pass
             self.temp_files = []
 
+    def add_py_tmpfile(self, pyfname):
+        '''
+        add the given .py file and the associated .pyc file to the list of temp
+        files to remove after testing
+        '''
+        self.temp_files.append(pyfname)
+        if sys.version_info[0] < 3:
+            self.temp_files.append(pyfname + 'c')
+        else:
+            cache_dir = osp.join(osp.dirname(pyfname), '__pycache__')
+            print('cache_dir:', cache_dir)
+            cpver = 'cpython-%d%d.pyc' % sys.version_info[:2]
+            pyfname_we = osp.basename(pyfname[:pyfname.rfind('.')])
+            pycfname = osp.join(cache_dir, '%s.%s' % (pyfname_we, cpver))
+            self.temp_files.append(pycfname)
+            print('added py tmpfile:', pyfname, pycfname)
+
     def test_constant(self):
         graph = self.pipeline.workflow_graph()
         self.assertTrue(
@@ -132,16 +150,16 @@ class TestPipeline(unittest.TestCase):
 
         if self.debug:
             from soma.qt_gui.qt_backend import QtGui
-            from capsul.qt_gui.widgets import PipelineDevelopperView
+            from capsul.qt_gui.widgets import PipelineDeveloperView
             import sys
             app = QtGui.QApplication.instance()
             if not app:
                 app = QtGui.QApplication(sys.argv)
-            view1 = PipelineDevelopperView(
+            view1 = PipelineDeveloperView(
                 pipeline, allow_open_controller=True, enable_edition=True,
                 show_sub_pipelines=True)
 
-            view2 = PipelineDevelopperView(
+            view2 = PipelineDeveloperView(
                 pipeline2, allow_open_controller=True, enable_edition=True,
                 show_sub_pipelines=True)
             view1.show()
@@ -164,7 +182,7 @@ class TestPipeline(unittest.TestCase):
             fd, filename = tempfile.mkstemp(prefix='test_pipeline',
                                             suffix='.py')
             os.close(fd)
-            self.temp_files.append(filename)
+            self.add_py_tmpfile(filename)
         self.run_pipeline_io(filename)
 
     @unittest.skip('XML is no longer supported')
@@ -194,14 +212,14 @@ if __name__ == "__main__":
     if '-v' in sys.argv[1:]:
         import sys
         from soma.qt_gui.qt_backend import Qt
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = Qt.QApplication.instance()
         if not app:
             app = Qt.QApplication(sys.argv)
         pipeline = MyPipeline()
         #setattr(pipeline.nodes_activation, "node2", False)
-        view1 = PipelineDevelopperView(pipeline)
+        view1 = PipelineDeveloperView(pipeline)
         view1.show()
         app.exec_()
         del view1

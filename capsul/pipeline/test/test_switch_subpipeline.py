@@ -244,11 +244,10 @@ if __name__ == "__main__":
             print('Wrote', state_file_name)
 
         import sys
-        #from PySide import QtGui
         from soma.qt_gui import qt_backend
         qt_backend.set_qt_backend(compatible_qt5=True)
         from soma.qt_gui.qt_backend import Qt
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
         #from capsul.qt_gui.widgets import PipelineUserView
         from capsul.api import Capsul
 
@@ -257,8 +256,8 @@ if __name__ == "__main__":
         # pipeline = capsul.executable(MainTestPipeline)
         pipeline = MainTestPipeline()
         pipeline.selection_changed.add(write_state)
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
+        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
+                                      allow_open_controller=True)
         view1.add_embedded_subpipeline('switch_pipeline', scale=0.7)
         view1.add_embedded_subpipeline('way1_1', scale=0.4)
         view1.add_embedded_subpipeline('way2_1', scale=0.4)

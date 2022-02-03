@@ -122,14 +122,14 @@ if __name__ == "__main__":
 
     if '-v' in sys.argv[1:]:
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
         pipeline = MyPipeline()
         setattr(pipeline.nodes_activation, "way11", False)
-        view1 = PipelineDevelopperView(pipeline)
+        view1 = PipelineDeveloperView(pipeline)
         view1.show()
         app.exec_()
         del view1

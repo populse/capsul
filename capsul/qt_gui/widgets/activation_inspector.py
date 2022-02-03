@@ -10,9 +10,8 @@ Classes
 ----------------------------
 '''
 
-from __future__ import print_function
-
 # System import
+from __future__ import print_function
 from __future__ import absolute_import
 import os
 import re
@@ -32,7 +31,7 @@ from soma.qt_gui.controller import ControllerWidget
 from capsul.qt_apps.utils.application import Application
 import capsul.qt_apps.resources as resources
 from capsul.api import get_process_instance, Pipeline
-from capsul.qt_gui.widgets import PipelineDevelopperView
+from capsul.qt_gui.widgets import PipelineDeveloperView
 
 
 class ActivationInspectorApp(Application):
@@ -80,7 +79,7 @@ class ActivationInspectorApp(Application):
         #ui_file = os.path.join(resources.__path__[0], "activation_inspector.ui")
 
         # Create and show the activation/pipeline/controller windows
-        self.pipeline_window = PipelineDevelopperView(self.pipeline, show_sub_pipelines=True)
+        self.pipeline_window = PipelineDeveloperView(self.pipeline, show_sub_pipelines=True)
         self.controller_window = ControllerWidget(self.pipeline)
         self.activation_window = ActivationInspector(
             self.pipeline, ui_file, self.record_file,
@@ -108,7 +107,7 @@ class ActivationInspector(QtGui.QWidget):
         record_file: str (optional)
             a file path where the activation steps are recorded.
             If not specified (None), it will create a temporary file.
-        developper_view: PipelineDevelopperView (optional)
+        developper_view: PipelineDeveloperView (optional)
             if specified it is possible to click on a plug to set a filter
             pattern and to update the pipeline activation accordingly.
         """
@@ -221,11 +220,11 @@ class ActivationInspector(QtGui.QWidget):
             # Get the header of the file that contains the pipeline identifier
             # of the recorded activation
             record_pipeline_id = openrecord.readline().strip()
-            if record_pipeline_id != self.pipeline.definition:
+            if record_pipeline_id != str(self.pipeline.definition):
                 raise ValueError(
                     "'{0}' recorded activations for pipeline '{1}' but not for "
                     "'{2}'".format(self.record_file, record_pipeline_id, 
-                                   self.pipeline.id))
+                                   self.pipeline.definition))
 
             # Clear the list where the recorded activation is displayed
             self.ui.events.clear()

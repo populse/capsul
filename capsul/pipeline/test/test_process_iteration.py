@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 # System import
+from __future__ import print_function
 from __future__ import absolute_import
+
 import sys
 import os
 import os.path as osp
@@ -128,7 +129,7 @@ def test():
 if __name__ == "__main__":
     test()
     from soma.qt_gui.qt_backend import QtGui
-    from capsul.qt_gui.widgets import PipelineDevelopperView
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
     app = QtGui.QApplication.instance()
     if not app:
@@ -137,7 +138,7 @@ if __name__ == "__main__":
     pipeline.input_image = '/tmp/x'
     pipeline.output_image = '/tmp/y'
 
-    view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+    view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                    allow_open_controller=True)
 
     view1.show()

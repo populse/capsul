@@ -79,6 +79,9 @@ class ProcessIteration(Process):
                                           optional=trait.optional, **kw))
                 if trait.groups:
                     self.trait(name).groups = trait.groups
+                if trait.forbid_completion is not None:
+                    self.trait(name).forbid_completion \
+                        = trait.forbid_completion
             else:
                 self.regular_parameters.add(name)
                 self.add_trait(name, trait)
