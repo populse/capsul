@@ -154,10 +154,7 @@ class Switch(Node):
         node_outputs = [dict(name=i, optional=(i in make_optional))
                         for i in outputs]
         # inherit from Node class
-        super().__init__(pipeline, name, node_inputs, node_outputs)
-        for node in node_inputs[1:]:
-            plug = self.plugs[node["name"]]
-            plug.enabled = False
+        super().__init__(pipeline, name)
 
         # add switch enum attribute to select the process
         kwargs = {}
@@ -167,22 +164,30 @@ class Switch(Node):
 
         # add a attribute for each input and each output
         input_types = output_types * len(inputs)
-        for i, type_ in zip(flat_inputs, input_types):
+        for ni, type_ in zip(node_inputs[1:], input_types):
+            i = ni['name']
+            optional = ni['optional']
             self.add_field(i, type_, metadata={
                 'output': False,
-                'optional': self.plugs[i].optional
+                'optional': optional
             })
-        for i, type_ in zip(outputs, output_types):
+        for ni, type_ in zip(node_outputs, output_types):
+            i = ni['name']
+            optional = ni['optional']
             self.add_field(i, type_, metadata={
                 'output': True,
-                'optional': self.plugs[i].optional
+                'optional': optional
             })
+
+        for node in node_inputs[1:]:
+            plug = self.plugs[node["name"]]
+            plug.enabled = False
 
         self.on_attribute_change.add(self._any_attribute_changed)
         self.on_attribute_change.add(self._switch_changed, 'switch')
 
         # activate the switch first Process
-        self._switch_changed(self._switch_values[0], self._switch_values[0])
+        self._switch_changed(self._switch_values[0], undefined)
 
     def _switch_changed(self, new_selection, old_selection):
         """ Add an event to the switch attribute that enables us to select

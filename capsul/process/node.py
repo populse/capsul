@@ -131,7 +131,7 @@ class Node(Controller):
                      'nodes_activation', 'selection_changed',
                      'enabled', 'activated', 'node_type')
 
-    def __init__(self, pipeline=None, name=None, inputs={}, outputs={}):
+    def __init__(self, pipeline=None, name='', inputs={}, outputs={}):
         """ Generate a Node
 
         Parameters
@@ -222,6 +222,14 @@ class Node(Controller):
         self.on_attribute_change.add(
             pipeline.update_nodes_and_plugs_activation, "enabled")
 
+    def get_pipeline(self):
+        if self.pipeline is None:
+            return None
+        try:
+            return get_ref(self.pipeline)
+        except ReferenceError:
+            return None
+
     def _add_plug(self, parameter):
         # parameter = parameter.copy()
         plug_name = parameter.pop("name")
@@ -264,10 +272,21 @@ class Node(Controller):
 
     @property
     def full_name(self):
-        if self.pipeline is not None and self.pipeline.parent_pipeline:
-            return self.pipeline.pipeline_node.full_name + '.' + self.name
+        if self.pipeline is not None \
+                and self.pipeline.get_pipeline() is not None:
+            return self.pipeline.full_name + '.' + self.name
         else:
             return self.name
+
+    def set_optional(self, field_or_name, optional):
+        # overload to set the optional state on the plug also
+        super().set_optional(field_or_name, optional)
+        if not isinstance(field_or_name, str):
+            name = field_or_name.name
+        else:
+            name = field_or_name
+        plug = self.plugs[name]
+        plug.optional = bool(optional)
 
     def add_field(self, name, type_, default=undefined, metadata=None,
                   **kwargs):
@@ -323,13 +342,11 @@ class Node(Controller):
                        source_node_or_process):
             external = True
             sibling = False
-            # check if it is an external link: if source is not a parent of dest
-            if hasattr(source_node_or_process, 'process') \
-                    and hasattr(source_node_or_process.process, 'nodes'):
-                source_process = source_node_or_process
-                source_node = source_node_or_process.process.pipeline_node
-                children = [x for k, x in source_node.process.nodes.items()
-                            if x != '']
+            # check if it is an external link: if source is not a parent of
+            # dest
+            if hasattr(source_node_or_process, 'nodes'):
+                source_node = source_node_or_process
+                children = [x for k, x in source_node.nodes.items() if x != '']
                 if dest_node in children:
                     external = False
             # check if it is a sibling node:
@@ -337,16 +354,9 @@ class Node(Controller):
             if external:
                 sibling = True
                 #print >> open('/tmp/linklog.txt', 'a'), 'check sibling, prefix:', prefix, 'source:', source_node_or_process, ', dest_plug_name:', dest_plug_name, 'dest_node:', dest_node, dest_node.name
-                if hasattr(dest_node, 'process') \
-                        and hasattr(dest_node.process, 'nodes'):
-                    children = [x for k, x in dest_node.process.nodes.items()
+                if hasattr(dest_node, 'nodes'):
+                    children = [x for k, x in dest_node.nodes.items()
                                 if x != '']
-                    if source_node_or_process in children:
-                        sibling = False
-                    else:
-                        children = [
-                            x.process for x in children \
-                            if hasattr(x, 'process')]
                     if source_node_or_process in children:
                         sibling = False
                 #print 'sibling:', sibling
@@ -470,8 +480,8 @@ class Node(Controller):
         value: object (mandatory)
             the plug value we want to set
         protected: None or bool (tristate)
-            if True or False, force the "protected" status of the plug. If None,
-            keep it as is.
+            if True or False, force the "protected" status of the plug. If
+            None, keep it as is.
         """
         if protected is not None:
             self.protect_parameter(plug_name, protected)

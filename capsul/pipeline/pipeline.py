@@ -228,7 +228,6 @@ class Pipeline(Process):
             
         self.nodes[''] = self  # FIXME may cause memory leaks
         self.do_not_export = set()
-        self.parent_pipeline = None
         self._disable_update_nodes_and_plugs_activation = 1
         self._must_update_nodes_and_plugs_activation = False
         self.pipeline_definition()
@@ -992,8 +991,9 @@ class Pipeline(Process):
             Default None, the plug name is used
         weak_link: bool (optional)
             this property is used when nodes are weak,
-            **FIXME:** what does it exactly mean ?
-            the plug information may not be generated.
+            which means that the link will not propagate nodes activation
+            status.
+            The plug information may not be generated.
         is_enabled: bool (optional)
             a property to specify that it is not a user-parameter
             automatic generation)
@@ -1210,7 +1210,7 @@ class Pipeline(Process):
                             continue
                         output = plug.output
                         if (isinstance(node, Pipeline) and
-                          node is not self and output):
+                                node is not self and output):
                             plug_activated = (
                                 check_plug_activation(plug, plug.links_to) and
                                 check_plug_activation(plug, plug.links_from))
@@ -1247,18 +1247,20 @@ class Pipeline(Process):
         return plugs_deactivated
 
     def delay_update_nodes_and_plugs_activation(self):
-        if self.parent_pipeline is not None:
+        parent_pipeline = self.get_pipeline()
+        if parent_pipeline is not None:
             # Only the top level pipeline can manage activations
-            self.parent_pipeline.delay_update_nodes_and_plugs_activation()
+            parent_pipeline.delay_update_nodes_and_plugs_activation()
             return
         if self._disable_update_nodes_and_plugs_activation == 0:
             self._must_update_nodes_and_plugs_activation = False
         self._disable_update_nodes_and_plugs_activation += 1
 
     def restore_update_nodes_and_plugs_activation(self):
-        if self.parent_pipeline is not None:
+        parent_pipeline = self.get_pipeline()
+        if parent_pipeline is not None:
             # Only the top level pipeline can manage activations
-            self.parent_pipeline.restore_update_nodes_and_plugs_activation()
+            parent_pipeline.restore_update_nodes_and_plugs_activation()
             return
         self._disable_update_nodes_and_plugs_activation -= 1
         if self._disable_update_nodes_and_plugs_activation == 0 and \
@@ -1270,12 +1272,15 @@ class Pipeline(Process):
         state of the pipeline (i.e. switch selection, nodes disabled, etc.).
         Activations are set according to the following rules.
         """
-        if not hasattr(self, 'parent_pipeline'):
-            # self is being initialized (the call comes from self.__init__).
-            return
-        if self.parent_pipeline is not None:
+        parent_pipeline = self.get_pipeline()
+
+        #if not hasattr(self, 'pipeline'):
+            ## self is being initialized (the call comes from self.__init__).
+            #return
+
+        if parent_pipeline is not None:
             # Only the top level pipeline can manage activations
-            self.parent_pipeline.update_nodes_and_plugs_activation()
+            parent_pipeline.update_nodes_and_plugs_activation()
             return
         if self._disable_update_nodes_and_plugs_activation:
             self._must_update_nodes_and_plugs_activation = True
@@ -1286,7 +1291,7 @@ class Pipeline(Process):
         debug = getattr(self, '_debug_activations', None)
         if debug:
             debug = open(debug, 'w')
-            print(self.id, file=debug)
+            print(id(self), file=debug)
 
         # Remember all links that are inactive (i.e. at least one of the two
         # plugs is inactive) in order to execute a callback if they become
