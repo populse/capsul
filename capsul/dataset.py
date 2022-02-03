@@ -8,7 +8,7 @@ from soma.undefined import undefined
 
 class PathLayout(Controller):
     def build_path(self, **kwargs):
-        return self._build_path(self.as_dict())
+        return self._build_path(self.asdict())
 
 
 class BIDSLayout(PathLayout):
@@ -74,7 +74,7 @@ class BrainVISALayout(PathLayout):
     subject: str
     modality: str = None
     process: str = None
-    analysis:str
+    analysis:str = 'default'
     acquisition: str = None
     preprocessings: str = None
     longitudinal: list[str] = None
@@ -107,15 +107,19 @@ class BrainVISALayout(PathLayout):
         path_list.append(kwargs['analysis'])
 
         filename = []
-        if 'prefix' in kwargs:
-            filename.append(f'{kwargs["prefix"]}_')
+        prefix = kwargs.get('prefix')
+        if prefix:
+            filename.append(f'{prefix}_')
         filename.append(kwargs['subject'])
-        if 'longitudinal' in kwargs:
-            filename.append(f'_to_avg_{kwargs["longitudinal"]}')
-        if 'suffix' in kwargs:
-            filename.append(f'_{kwargs["suffix"]}')
-        if 'extension' in kwargs:
-            filename.append(f'.{kwargs["extension"]}')
+        longitudinal = kwargs.get('longitudinal')
+        if longitudinal:
+            filename.append(f'_to_avg_{longitudinal}')
+        suffix = kwargs.get('suffix')
+        if suffix:
+            filename.append(f'_{suffix}')
+        extension = kwargs.get('extension')
+        if extension:
+            filename.append(f'.{extension}')
         path_list.append(''.join(filename))
         return path_list
 
@@ -127,8 +131,8 @@ class Dataset:
     }
     def __init__(self, path, layout_str):
         self.path = path
-        name, version = layout_str.split('-', 1)
-        self.layout = self.layouts.get(name)
+        self.layout_name, self.layout_version = layout_str.split('-', 1)
+        self.layout = self.layouts.get(self.layout_name)
         if not self.layout:
             raise ValueError(f'Invalid paths layout: {layout_str}')
     
@@ -162,7 +166,11 @@ class Dataset:
                     yield result
 
     def set_output_paths(self, executable, **kwargs):
-        layout = self.layout(**kwargs)
-        # for field in executable.fields():
-        #     if executable.is_output(field) and executable.is_path(field):
-                # ...
+        for field in executable.fields():
+            if executable.is_output(field) and executable.is_path(field):
+                layout = self.layout(**kwargs)
+                attrs = getattr(executable, 'path_layout', {}).get(self.layout_name, {})
+                for n, v in attrs.items():
+                    setattr(layout, n, v)
+                path = functools.reduce(operator.truediv, layout.build_path(), self.path)
+                setattr(executable, field.name, str(path))
