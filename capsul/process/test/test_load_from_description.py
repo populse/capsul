@@ -6,7 +6,7 @@ import sys
 import shutil
 from typing import List, Tuple
 
-from soma.controller import file, directory, field
+from soma.controller import file, directory, field, Literal
 
 from capsul.api import Capsul, Process, Pipeline
 
@@ -53,6 +53,16 @@ def to_warp_func(
 # def threshold(input_image, output_image, method='gt', threshold=0):
 #      pass
 
+# temp replacement:
+def threshold(
+    input_image: file(doc='Path of a NIFTI-1 image file.'),
+    output_image: file(doc="Name of the output image.", output=True),
+    method: field(type_=Literal['gt', 'ge', 'lt', 'le'], default='gt', doc="Mehod for thresolding."),
+    threshold: field(type_=float, default=0)
+):
+
+    pass
+
 # @xml_process('''
 # <process>
 #     <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
@@ -63,6 +73,14 @@ def to_warp_func(
 # def mask(input_image, mask, output_location=None):
 #      pass
 
+# temp replacement:
+def mask(
+    input_image: file(doc='Path of a NIFTI-1 image file.'),
+    mask: file(doc='Path of mask binary image.'),
+    output_image: file(output=True, doc="Output file name.")
+):
+
+    pass
 
 def cat(
     value1: str,

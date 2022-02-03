@@ -157,4 +157,4 @@ class ConstructedPipeline(Pipeline):
                 l.extend('%s=%s' % (k, repr(v)) for k, v in kwargs.items())
                 m = '%s(%s)' % (method_name, ', '.join(l))
                 raise RuntimeError('%s: %s (in pipeline %s when calling %s)' %
-                                   (e.__class__.__name__, str(e), self.id, m))
+                                   (e.__class__.__name__, str(e), id(self), m))
