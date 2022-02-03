@@ -30,7 +30,7 @@ class ComplexPipeline(Pipeline):
             'capsul.process.test.test_pipeline',
             make_optional=['output_1', 'output_10','output_100'])
         
-        self.export_parameter('pipeline_1', 'output_1')
+        # self.export_parameter('pipeline_1', 'output_1')
         
         self.add_process('pipeline_10',
             'capsul.process.test.test_pipeline',
@@ -890,11 +890,13 @@ if __name__ == '__main__':
             
         from soma.qt_gui.qt_backend import Qt
         from capsul.qt_gui.widgets import PipelineDevelopperView
-        #from capsul.qt_gui.widgets.activation_inspector import ActivationInspectorApp
+        from capsul.qt_gui.widgets.activation_inspector import ActivationInspectorApp
 
-        #app = ActivationInspectorApp(ComplexPipeline)
         app = Qt.QApplication(sys.argv)
-        
+
+        sys.argv = [sys.argv[0]]
+        aapp = ActivationInspectorApp(ComplexPipeline)
+
         view = PipelineDevelopperView(pipeline, allow_open_controller=True,
                                       show_sub_pipelines=True)
         view.show()

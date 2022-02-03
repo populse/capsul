@@ -136,6 +136,12 @@ class PipelineConstructor(object):
         self._calls.append(('add_pipeline_step', (step_name, nodes, enabled),
                             {}))
 
+    def set_value(self, name, value):
+        self._calls.append(('set_value', (name, value), {}))
+
+    def set_optional(self, name, optional):
+        self._calls.append(('set_optional', (name, optional), {}))
+
 
 class ConstructedPipeline(Pipeline):
     """
@@ -158,3 +164,6 @@ class ConstructedPipeline(Pipeline):
                 m = '%s(%s)' % (method_name, ', '.join(l))
                 raise RuntimeError('%s: %s (in pipeline %s when calling %s)' %
                                    (e.__class__.__name__, str(e), id(self), m))
+
+    def set_value(self, name, value):
+        setattr(self, name, value)
