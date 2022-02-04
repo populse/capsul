@@ -1154,7 +1154,7 @@ def get_output_directories(process):
         dirs['directories'] = dirs_set
         for param_name in plugs:
             field = process.field(param_name)
-            if process.metadata(field).get('output', False) \
+            if process.metadata(field).get('write', False) \
                     and is_path(field):
                 value = getattr(process, param_name, undefined)
                 if value is not None and value is not undefined:

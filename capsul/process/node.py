@@ -30,7 +30,9 @@ class Plug(Controller):
     activated : bool
         parameter describing the Plug status
     output : bool
-        parameter to set the Plug type (input or output)
+        parameter to set the Plug type (input or output). For a pipeline,
+        this notion is seen from the "exterior" (the pipeline as a process
+        inserted in another pipeline).
     optional : bool
         parameter to create an optional Plug
     has_default_value : bool
@@ -161,8 +163,8 @@ class Node(Controller):
         for field in self.fields():  # noqa: F402
             if field.name in self.nonplug_names:
                 continue
-            output = field.metadata.get('output', False)
-            optional = field.metadata.get('optional', False)
+            output = self.is_output(field)
+            optional = self.is_optional(field)
             parameter = {
                 "name": field.name,
                 "output" : output,
@@ -305,7 +307,7 @@ class Node(Controller):
         field = self.field(name)
         parameter = {
             "name": name,
-            "output": field.metadata.get('output', False),
+            "output": self.is_output(field),
             "optional": field.metadata.get('optional', False),
         }
         # generate plug with input parameter and identifier name

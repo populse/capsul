@@ -121,9 +121,9 @@ class ColorType(object):
         if not isinstance(x, str):
             # x is a field
             field_type_str = controller.type_str(x)
-            if x.metadata.get('output', False) \
-                    and x.metadata.get('input_filename', None) is False:
-                field_type_str = 'file_out'
+            if field_type_str in ('file', 'directory', 'path') \
+                    and x.metadata.get('write', False):
+                field_type_str = '%s_out' % field_type_str
             x = field_type_str
         return {
             'str': PURPLE_2,
@@ -131,7 +131,11 @@ class ColorType(object):
             'int': BLUE_2,
             'list': RED_2,
             'file': ORANGE_2,
+            'directory': ORANGE_2,
+            'path': ORANGE_2,
             'file_out': GREEN_2,
+            'directory_out': GREEN_2,
+            'path_out': GREEN_2,
         }.get(x, PURPLE_2)
 
 
@@ -383,10 +387,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
         for param in self.process.fields():
             pname = param.name
             show = True
-            if self.name == 'inputs' and param.metadata.get('output', False):
+            if self.name == 'inputs' and self.process.is_output(param):
                 continue
-            elif self.name == 'outputs' \
-                    and not param.metadata.get('output', False):
+            elif self.name == 'outputs' and not self.process.is_output(param):
                 continue
             if param.metadata.get('hidden', False):
                 show = False
@@ -2198,9 +2201,9 @@ class PipelineScene(QtGui.QGraphicsScene):
             optional = 'mandatory'
         value = getattr(proc, name, undefined)
         field = proc.field(name)
-        field_type_str = controller.type_str(field)
+        field_type_str = controller.field_type_str(field)
         if proc.metadata(field).get('output', False) \
-                and proc.metadata(field).get('input_filename', None) is False:
+                and proc.metadata(field).get('write', None) is False:
             field_type_str += ', output filename'
         typestr = ('%s (%s)' % (self.get_instance_type_string(value),
                                 field_type_str)).replace(
