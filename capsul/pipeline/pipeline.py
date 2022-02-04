@@ -1614,11 +1614,9 @@ class Pipeline(Process):
             if not plug.activated or not plug.enabled:
                 continue
             field = node.field(plug_name)
-            if not node.metadata(field).get('output', False):
+            if not node.metadata(field).get('write', False) \
+                    or node.metadata(field).get('output', False):
                 continue
-            if is_path(field):
-                if node.metadata(field).get('read', True) is False:
-                    continue
             if is_list(field) and is_path(field):
                 if len([x for x in value if x in ('', undefined)]) == 0:
                     continue
