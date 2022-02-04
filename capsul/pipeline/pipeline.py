@@ -202,6 +202,8 @@ class Pipeline(Process):
             exported.
         """
         # Inheritance
+        if 'definition' not in kwargs:
+            kwargs['definition'] = 'custom'
         super(Pipeline, self).__init__(**kwargs)
         super(Pipeline, self).add_field(
             'nodes_activation',
@@ -441,8 +443,7 @@ class Pipeline(Process):
 
             # Optional plug
             if parameter_name in make_optional:
-                node.plugs[parameter_name].optional = True
-                node.set_optional(parameter_name,  True)
+                node.set_optional(parameter_name, True)
 
         # Create a field to control the node activation (enable property)
         self.nodes_activation.add_field(name, bool)
