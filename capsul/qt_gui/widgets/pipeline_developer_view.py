@@ -78,9 +78,8 @@ from soma.utils.weak_proxy import get_ref
 from soma.utils.weak_proxy import proxy_method
 
 from soma.qt_gui.controller import ControllerWidget
-#from soma.qt_gui.controller_widget import ScrollControllerWidget
-#from capsul.qt_gui.widgets.attributed_process_widget \
-    #import AttributedProcessWidget
+from capsul.qt_gui.widgets.attributed_process_widget \
+    import AttributedProcessWidget
 
 
 # -----------------------------------------------------------------------------
@@ -3086,7 +3085,7 @@ class PipelineDeveloperView(QGraphicsView):
 
         cwidget = AttributedProcessWidget(
             process, enable_attr_from_filename=True, enable_load_buttons=True,
-            userlevel=self.userlevel)
+            user_level=self.userlevel)
         sub_view.setWidget(cwidget)
         sub_view.setWidgetResizable(True)
         sub_view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
