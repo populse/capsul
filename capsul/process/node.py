@@ -308,7 +308,7 @@ class Node(Controller):
         parameter = {
             "name": name,
             "output": self.is_output(field),
-            "optional": field.metadata.get('optional', False),
+            "optional": self.is_optional(field),
         }
         # generate plug with input parameter and identifier name
         self._add_plug(parameter)
