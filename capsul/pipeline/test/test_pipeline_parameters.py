@@ -11,10 +11,9 @@ import tempfile
 from datetime import date, time, datetime
 import sys
 
-from capsul.api import Process, Pipeline
+from capsul.api import Process, Pipeline, Capsul
 from capsul.pipeline.pipeline_tools import save_pipeline_parameters, load_pipeline_parameters
-from traits.api import Float, File, String, Int, List, TraitListObject, Time, Date, Undefined, TraitError
-import six
+from soma.controller import file
 
 
 def load_pipeline_dictionary(filename):
@@ -41,11 +40,11 @@ class TestInt(Process):
     def __init__(self):
         super(TestInt, self).__init__()
 
-        self.add_trait("in_1", Int(output=False))
-        self.add_trait("in_2", Int(output=False))
-        self.add_trait("out", Int(output=True))
+        self.add_field("in_1", int, output=False)
+        self.add_field("in_2", int, output=False)
+        self.add_field("out", int, output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         self.out = self.in_1 + self.in_2
 
 
@@ -54,11 +53,11 @@ class TestFloat(Process):
     def __init__(self):
         super(TestFloat, self).__init__()
 
-        self.add_trait("in_1", Float(output=False))
-        self.add_trait("in_2", Float(output=False))
-        self.add_trait("out", Float(output=True))
+        self.add_field("in_1", float, output=False)
+        self.add_field("in_2", float, output=False)
+        self.add_field("out", float, output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         self.out = self.in_1 - self.in_2
 
 
@@ -67,11 +66,11 @@ class TestString(Process):
     def __init__(self):
         super(TestString, self).__init__()
 
-        self.add_trait("in_1", String(output=False))
-        self.add_trait("in_2", String(output=False))
-        self.add_trait("out", String(output=True))
+        self.add_field("in_1", str, output=False)
+        self.add_field("in_2", str, output=False)
+        self.add_field("out", str, output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         self.out = self.in_1 + self.in_2
 
 
@@ -80,11 +79,11 @@ class TestFile(Process):
     def __init__(self):
         super(TestFile, self).__init__()
 
-        self.add_trait("in_1", File(output=False))
-        self.add_trait("in_2", File(output=False))
-        self.add_trait("out", List(File(), output=True))
+        self.add_field("in_1", file(output=False))
+        self.add_field("in_2", file(output=False))
+        self.add_field("out", list[file(output=True)])
 
-    def _run_process(self):
+    def execute(self, context=None):
         self.out = [self.in_1, self.in_2]
 
 
@@ -93,11 +92,11 @@ class TestListInt(Process):
     def __init__(self):
         super(TestListInt, self).__init__()
 
-        self.add_trait("in_1", List(Int(), output=False))
-        self.add_trait("in_2", List(Int(), output=False))
-        self.add_trait("out", List(Int(), output=True))
+        self.add_field("in_1", list[int], output=False)
+        self.add_field("in_2", list[int], output=False)
+        self.add_field("out", list[int], output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         l = []
         for idx, i in enumerate(self.in_1):
             l.append(i + self.in_2[idx])
@@ -109,11 +108,11 @@ class TestListFloat(Process):
     def __init__(self):
         super(TestListFloat, self).__init__()
 
-        self.add_trait("in_1", List(Float(), output=False))
-        self.add_trait("in_2", List(Float(), output=False))
-        self.add_trait("out", List(Float(), output=True))
+        self.add_field("in_1", list[float], output=False)
+        self.add_field("in_2", list[float], output=False)
+        self.add_field("out", list[float], output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         l = []
         for idx, i in enumerate(self.in_1):
             l.append(i - self.in_2[idx])
@@ -125,11 +124,11 @@ class TestListString(Process):
     def __init__(self):
         super(TestListString, self).__init__()
 
-        self.add_trait("in_1", List(String(), output=False))
-        self.add_trait("in_2", List(String(), output=False))
-        self.add_trait("out", List(String(), output=True))
+        self.add_field("in_1", list[str], output=False)
+        self.add_field("in_2", list[str], output=False)
+        self.add_field("out", list[str], output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         l = []
         for idx, i in enumerate(self.in_1):
             l.append(i + self.in_2[idx])
@@ -141,11 +140,11 @@ class TestListFile(Process):
     def __init__(self):
         super(TestListFile, self).__init__()
 
-        self.add_trait("in_1", List(File(), output=False))
-        self.add_trait("in_2", List(File(), output=False))
-        self.add_trait("out", List(File(), output=True))
+        self.add_field("in_1", list[file(output=False)], output=False)
+        self.add_field("in_2", list[file()], output=False)
+        self.add_field("out", list[file(output=True)], output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         self.out = [self.in_1[0], self.in_2[0]]
 
 
@@ -154,11 +153,11 @@ class TestListList(Process):
     def __init__(self):
         super(TestListList, self).__init__()
 
-        self.add_trait("in_1", List(List(Int()), output=False))
-        self.add_trait("in_2", List(List(Int()), output=False))
-        self.add_trait("out", List(Int(), output=True))
+        self.add_field("in_1", list[list[int]], output=False)
+        self.add_field("in_2", list[list[int]], output=False)
+        self.add_field("out", list[int], output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         l = []
         for idx, i in enumerate(self.in_1):
             l.append(i[0] + self.in_2[idx][0])
@@ -170,11 +169,11 @@ class TestDateTime(Process):
     def __init__(self):
         super(TestDateTime, self).__init__()
 
-        self.add_trait("in_1", Date(output=False))
-        self.add_trait("in_2", Time(output=False))
-        self.add_trait("out", List(output=True))
+        self.add_field("in_1", datetime.datetime, output=False)
+        self.add_field("in_2", datetime.time, output=False)
+        self.add_field("out", list, output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         self.out = [self.in_1, self.in_2]
 
 
@@ -222,7 +221,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -261,7 +262,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = 2.0
         pipeline1.in_2 = 4.0
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         in_1 = 2.0
         in_2 = 4.0
@@ -270,7 +273,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -313,7 +318,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -334,9 +341,9 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(dic["pipeline_parameters"]["in_2"], in_2)
         self.assertEqual(dic["pipeline_parameters"]["out"], out)
 
-        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), six.text_type)
-        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), six.text_type)
-        self.assertEqual(type(dic["pipeline_parameters"]["out"]), six.text_type)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), str)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), str)
+        self.assertEqual(type(dic["pipeline_parameters"]["out"]), str)
 
     def test_file(self):
         class Pipeline1(Pipeline):
@@ -356,7 +363,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -367,13 +376,13 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(pipeline1.in_2, in_2)
         self.assertEqual(pipeline1.out, out)
 
-        self.assertEqual(type(pipeline1.in_1), six.text_type)
-        self.assertEqual(type(pipeline1.in_2), six.text_type)
-        self.assertEqual(type(pipeline1.out), TraitListObject)
+        self.assertEqual(type(pipeline1.in_1), str)
+        self.assertEqual(type(pipeline1.in_2), str)
+        self.assertEqual(type(pipeline1.out), list)
 
         for idx, element in enumerate(pipeline1.out):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
         # Verifying the dictionary
         dic = load_pipeline_dictionary(self.path)
@@ -381,8 +390,8 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(dic["pipeline_parameters"]["in_2"], in_2)
         self.assertEqual(dic["pipeline_parameters"]["out"], out)
 
-        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), six.text_type)
-        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), six.text_type)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), str)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), str)
         self.assertEqual(type(dic["pipeline_parameters"]["out"]), list)
 
     def test_list_int(self):
@@ -403,7 +412,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -414,9 +425,9 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(pipeline1.in_2, in_2)
         self.assertEqual(pipeline1.out, out)
 
-        self.assertEqual(type(pipeline1.in_1), TraitListObject)
-        self.assertEqual(type(pipeline1.in_2), TraitListObject)
-        self.assertEqual(type(pipeline1.out), TraitListObject)
+        self.assertEqual(type(pipeline1.in_1), list)
+        self.assertEqual(type(pipeline1.in_2), list)
+        self.assertEqual(type(pipeline1.out), list)
 
         for idx, element in enumerate(pipeline1.in_1):
             self.assertEqual(element, in_1[idx])
@@ -470,7 +481,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -481,9 +494,9 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(pipeline1.in_2, in_2)
         self.assertEqual(pipeline1.out, out)
 
-        self.assertEqual(type(pipeline1.in_1), TraitListObject)
-        self.assertEqual(type(pipeline1.in_2), TraitListObject)
-        self.assertEqual(type(pipeline1.out), TraitListObject)
+        self.assertEqual(type(pipeline1.in_1), list)
+        self.assertEqual(type(pipeline1.in_2), list)
+        self.assertEqual(type(pipeline1.out), list)
 
         for idx, element in enumerate(pipeline1.in_1):
             self.assertEqual(element, in_1[idx])
@@ -537,7 +550,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -548,9 +563,9 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(pipeline1.in_2, in_2)
         self.assertEqual(pipeline1.out, out)
 
-        self.assertEqual(type(pipeline1.in_1), TraitListObject)
-        self.assertEqual(type(pipeline1.in_2), TraitListObject)
-        self.assertEqual(type(pipeline1.out), TraitListObject)
+        self.assertEqual(type(pipeline1.in_1), list)
+        self.assertEqual(type(pipeline1.in_2), list)
+        self.assertEqual(type(pipeline1.out), list)
 
         for idx, element in enumerate(pipeline1.in_1):
             self.assertEqual(element, in_1[idx])
@@ -576,15 +591,15 @@ class TestPipelineMethods(unittest.TestCase):
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_1"]):
             self.assertEqual(element, in_1[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_2"]):
             self.assertEqual(element, in_2[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["out"]):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
     def test_list_file(self):
         class Pipeline1(Pipeline):
@@ -604,7 +619,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -615,21 +632,21 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(pipeline1.in_2, in_2)
         self.assertEqual(pipeline1.out, out)
 
-        self.assertEqual(type(pipeline1.in_1), TraitListObject)
-        self.assertEqual(type(pipeline1.in_2), TraitListObject)
-        self.assertEqual(type(pipeline1.out), TraitListObject)
+        self.assertEqual(type(pipeline1.in_1), list)
+        self.assertEqual(type(pipeline1.in_2), list)
+        self.assertEqual(type(pipeline1.out), list)
 
         for idx, element in enumerate(pipeline1.in_1):
             self.assertEqual(element, in_1[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
         for idx, element in enumerate(pipeline1.in_2):
             self.assertEqual(element, in_2[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
         for idx, element in enumerate(pipeline1.out):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
         # Verifying the dictionary
         dic = load_pipeline_dictionary(self.path)
@@ -643,15 +660,15 @@ class TestPipelineMethods(unittest.TestCase):
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_1"]):
             self.assertEqual(element, in_1[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["in_2"]):
             self.assertEqual(element, in_2[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
         for idx, element in enumerate(dic["pipeline_parameters"]["out"]):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
     def test_list_list(self):
         class Pipeline1(Pipeline):
@@ -671,7 +688,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -682,17 +701,17 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(pipeline1.in_2, in_2)
         self.assertEqual(pipeline1.out, out)
 
-        self.assertEqual(type(pipeline1.in_1), TraitListObject)
-        self.assertEqual(type(pipeline1.in_2), TraitListObject)
-        self.assertEqual(type(pipeline1.out), TraitListObject)
+        self.assertEqual(type(pipeline1.in_1), list)
+        self.assertEqual(type(pipeline1.in_2), list)
+        self.assertEqual(type(pipeline1.out), list)
 
         for idx, element in enumerate(pipeline1.in_1):
             self.assertEqual(element, in_1[idx])
-            self.assertEqual(type(element), TraitListObject)
+            self.assertEqual(type(element), list)
 
         for idx, element in enumerate(pipeline1.in_2):
             self.assertEqual(element, in_2[idx])
-            self.assertEqual(type(element), TraitListObject)
+            self.assertEqual(type(element), list)
 
         for idx, element in enumerate(pipeline1.out):
             self.assertEqual(element, out[idx])
@@ -738,7 +757,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1 = Pipeline1()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
-        pipeline1()
+
+        with Capsul().engine() as ce:
+            ce.run(pipeline1)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -749,25 +770,25 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(pipeline1.in_2, None)
         self.assertEqual(pipeline1.out, out)
 
-        self.assertEqual(type(pipeline1.out), TraitListObject)
+        self.assertEqual(type(pipeline1.out), list)
 
         for idx, element in enumerate(pipeline1.out):
             self.assertEqual(element, out[idx])
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(type(element), str)
 
         # Verifying the dictionary
         dic = load_pipeline_dictionary(self.path)
-        self.assertEqual(dic["pipeline_parameters"]["in_1"], six.text_type(in_1))
-        self.assertEqual(dic["pipeline_parameters"]["in_2"], six.text_type(in_2))
+        self.assertEqual(dic["pipeline_parameters"]["in_1"], str(in_1))
+        self.assertEqual(dic["pipeline_parameters"]["in_2"], str(in_2))
         self.assertEqual(dic["pipeline_parameters"]["out"], out)
 
-        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), six.text_type)
-        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), six.text_type)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_1"]), str)
+        self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), str)
         self.assertEqual(type(dic["pipeline_parameters"]["out"]), list)
 
         for idx, element in enumerate(pipeline1.out):
-            self.assertEqual(element, six.text_type(out[idx]))
-            self.assertEqual(type(element), six.text_type)
+            self.assertEqual(element, str(out[idx]))
+            self.assertEqual(type(element), str)
 
 
 # a function test*() has to be defined in a test module in order to be

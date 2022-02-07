@@ -3,28 +3,27 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import unittest
-from capsul.api import Process, Pipeline, StudyConfig
+from capsul.api import Process, Pipeline, Capsul
 from capsul.pipeline import pipeline_workflow
 from capsul.pipeline import python_export
 from capsul.pipeline import xml
-import traits.api as traits
+from soma.controller import file, type_str
 import os
 import os.path as osp
 import tempfile
 import sys
 import shutil
 import json
-from six.moves import range
 
 
 class TestProcess(Process):
     def __init__(self):
         super(TestProcess, self).__init__()
-        self.add_trait('in1', traits.File(output=False))
-        self.add_trait('model', traits.File(output=False))
-        self.add_trait('out1', traits.File(output=True))
+        self.add_field('in1', file(output=False))
+        self.add_field('model', file(output=False))
+        self.add_field('out1', file(write=True))
 
-    def _run_process(self):
+    def execute(self, context=None):
         print('in1:', self.in1)
         print('out1:', self.out1)
         with open(self.out1, 'w') as f:
@@ -44,10 +43,10 @@ class TestProcess(Process):
 class TrainProcess1(Process):
     def __init__(self):
         super(TrainProcess1, self).__init__()
-        self.add_trait('in1', traits.List(traits.File(), output=False))
-        self.add_trait('out1', traits.File(output=True))
+        self.add_field('in1', list[file(output=False)])
+        self.add_field('out1', file(write=True))
 
-    def _run_process(self):
+    def execute(self, context=None):
         with open(self.out1, 'w') as of:
             for fname in self.in1:
                 print('train1. File: %s' % os.path.basename(fname), file=of)
@@ -59,11 +58,11 @@ class TrainProcess1(Process):
 class TrainProcess2(Process):
     def __init__(self):
         super(TrainProcess2, self).__init__()
-        self.add_trait('in1', traits.List(traits.File(), output=False))
-        self.add_trait('in2', traits.File(output=False))
-        self.add_trait('out1', traits.File(output=True))
+        self.add_field('in1', list[file(output=False)])
+        self.add_field('in2', file(output=False))
+        self.add_field('out1', file(write=True))
 
-    def _run_process(self):
+    def execute(self, context=None):
         with open(self.out1, 'w') as of:
             for fname in self.in1:
                 print('train2, in1. File: %s' % os.path.basename(fname),
@@ -79,10 +78,10 @@ class TrainProcess2(Process):
 class CatFileProcess(Process):
     def __init__(self):
         super(CatFileProcess, self).__init__()
-        self.add_trait('files', traits.List(traits.File(), output=False))
-        self.add_trait('output', traits.File(output=True))
+        self.add_field('files', list[file(output=False)])
+        self.add_field('output', file(write=True))
 
-    def _run_process(self):
+    def execute(self, context=None):
         with open(self.output, 'w') as of:
             for fname in self.files:
                 with open(fname) as f:
@@ -150,7 +149,7 @@ class Pipeline1(Pipeline):
         self.export_parameter('test', 'out1', 'test_output', is_optional=True)
         # test_output will be assigned internally by the cat node 'test_output'
         # thus should not be a temporary
-        self.trait('test_output').input_filename = False
+        self.set_metadata('test_output', 'output', True)
         self.add_link('LOO.train->train1.in1')
         self.add_link('main_inputs->train2.in1')
         self.add_link('train1.out1->train2.in2')
@@ -223,7 +222,7 @@ class CVtest(Pipeline):
         self.export_parameter("test", "model")
         self.export_parameter("test_output", "subject")
         self.export_parameter("test", "out1")
-        self.trait('out1').input_filename = False  # don't force from outside
+        self.set_metadata('out1', 'output', True)  # don't force from outside
         self.add_link("test.out1->test_output.out_file")
         self.export_parameter("test_output", "base")
 
@@ -488,18 +487,18 @@ class TestCustomNodes(unittest.TestCase):
         self.assertEqual(pipeline.nodes['test'].process.out1,
                          os.path.join(pipeline.output_directory,
                                       '%s_test_output' % pipeline.subject))
-        out_trait_type \
-            = pipeline.nodes['test_output'].trait('out_file').trait_type
-        self.assertTrue(isinstance(out_trait_type, traits.File))
+        out_field_type \
+            = type_str(pipeline.nodes['test_output'].field('out_file'))
+        self.assertTrue(isinstance(out_field_type, 'file'))
 
     def test_custom_nodes(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(Pipeline1)
+        c = Capsul()
+        pipeline = c.executable(Pipeline1)
         self._test_custom_nodes(pipeline)
 
     def test_custom_nodes_workflow(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(Pipeline1)
+        c = Capsul()
+        pipeline = c.executable(Pipeline1)
         pipeline.main_input = os.path.join(self.temp_dir, 'file')
         pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
         wf = pipeline_workflow.workflow_from_pipeline(pipeline,
@@ -524,12 +523,11 @@ class TestCustomNodes(unittest.TestCase):
         import soma_workflow.client as swc
         swc.Helper.serialize(os.path.join(self.temp_dir,
                                           'custom_nodes.workflow'), wf)
-        import six
         #print('workflow:')
         #print('jobs:', wf.jobs)
         #print('dependencies:', sorted([(x[0].name, x[1].name) for x in wf.dependencies]))
         #print('dependencies:', wf.dependencies)
-        #print('links:', {n.name: {p: (l[0].name, l[1]) for p, l in six.iteritems(links)} for n, links in six.iteritems(wf.param_links)})
+        #print('links:', {n.name: {p: (l[0].name, l[1]) for p, l in links.items()} for n, links in wf.param_links.items()})
         self.assertEqual(len(wf.jobs), 31)
         self.assertEqual(len(wf.dependencies), 16*4 + 1)
         deps = sorted([['Pipeline1_map', 'LOO'],
@@ -585,12 +583,11 @@ class TestCustomNodes(unittest.TestCase):
         import soma_workflow.client as swc
         swc.Helper.serialize(os.path.join(self.temp_dir,
                                           'custom_nodes.workflow'), wf)
-        import six
         #print('workflow:')
         #print('jobs:', wf.jobs)
         #print('n deps:', len(wf.dependencies))
         #print('dependencies:', sorted([(x[0].name, x[1].name) for x in wf.dependencies]))
-        #print('links:', {n.name: {p: (l[0].name, l[1]) for p, l in six.iteritems(links)} for n, links in six.iteritems(wf.param_links)})
+        #print('links:', {n.name: {p: (l[0].name, l[1]) for p, l in links.items()} for n, links in wf.param_links.items()})
         self.assertEqual(len(wf.jobs), 42)
         self.assertEqual(len(wf.dependencies), 76)
         deps = sorted([
@@ -642,57 +639,57 @@ class TestCustomNodes(unittest.TestCase):
              for i in range(4)])
 
     def test_leave_one_out_pipeline(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(PipelineLOO)
+        c = Capsul()
+        pipeline = c.executable(PipelineLOO)
         self._test_loo_pipeline(pipeline)
 
     def test_custom_nodes_py_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(Pipeline1)
+        c = Capsul()
+        pipeline = c.executable(Pipeline1)
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
         self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
-        pipeline2 = sc.get_process_instance(pyfname)
+        pipeline2 = c.executable(pyfname)
         self._test_custom_nodes(pipeline)
 
     def test_custom_nodes_xml_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(Pipeline1)
+        c = Capsul()
+        pipeline = c.executable(Pipeline1)
         xml_file = tempfile.mkstemp(suffix='_capsul.xml')
         xmlfname = xml_file[1]
         os.close(xml_file[0])
         self.temp_files.append(xmlfname)
         xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = sc.get_process_instance(xmlfname)
+        pipeline2 = c.executable(xmlfname)
         self._test_custom_nodes(pipeline2)
 
     def test_loo_py_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(PipelineLOO)
+        c = Capsul()
+        pipeline = c.executable(PipelineLOO)
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
         self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
-        pipeline2 = sc.get_process_instance(pyfname)
+        pipeline2 = c.executable(pyfname)
         self._test_loo_pipeline(pipeline2)
 
     def test_loo_xml_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(PipelineLOO)
+        c = Capsul()
+        pipeline = c.executable(PipelineLOO)
         xml_file = tempfile.mkstemp(suffix='_capsul.xml')
         xmlfname = xml_file[1]
         os.close(xml_file[0])
         self.temp_files.append(xmlfname)
         xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = sc.get_process_instance(xmlfname)
+        pipeline2 = c.executable(xmlfname)
         self._test_loo_pipeline(pipeline2)
 
     def test_mapreduce(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(PipelineMapReduce)
+        c = Capsul()
+        pipeline = c.executable(PipelineMapReduce)
         pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i)
                                 for i in range(4)]
         pipeline.subjects = ['Robert', 'Gustave']
@@ -710,25 +707,25 @@ class TestCustomNodes(unittest.TestCase):
         self.assertEqual(len(wf.dependencies), 28)
 
     def test_cv_py_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(PipelineCV)
+        c = Capsul()
+        pipeline = c.executable(PipelineCV)
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
         self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
-        pipeline2 = sc.get_process_instance(pyfname)
+        pipeline2 = c.executable(pyfname)
         self._test_cv_pipeline(pipeline2)
 
     def test_cv_xml_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(PipelineCV)
+        c = Capsul()
+        pipeline = c.executable(PipelineCV)
         xml_file = tempfile.mkstemp(suffix='_capsul.xml')
         xmlfname = xml_file[1]
         os.close(xml_file[0])
         self.temp_files.append(xmlfname)
         xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = sc.get_process_instance(xmlfname)
+        pipeline2 = c.executable(xmlfname)
         self._test_cv_pipeline(pipeline2)
 
 
