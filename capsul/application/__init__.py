@@ -4,6 +4,7 @@ import importlib
 import json
 import os
 import types
+import inspect
 
 
 # Nipype import
@@ -92,7 +93,7 @@ def executable_from_python(definition, item):
     # If item is already a Process
     # instance.
     if isinstance(item, Process):
-        result = process
+        result = item
 
     # If item is a Process class.
     elif (isinstance(item, type) and
@@ -146,6 +147,9 @@ def process_from_function(function):
         if isinstance(type_, dataclasses.Field):
             metadata = {}
             metadata.update(type_.metadata)
+            metadata.update(type_.metadata.get('_metadata', {}))
+            if '_metadata' in metadata:
+                del metadata['_metadata']
             metadata['output'] = output
             default=type_.default
             default_factory=type_.default_factory
