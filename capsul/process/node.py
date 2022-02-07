@@ -13,7 +13,8 @@ Classes
 import typing
 from typing import Literal, List
 
-from soma.controller import (Controller, field, is_path, field_type_str)
+from soma.controller import (Controller, field, is_path, field_type_str,
+                             has_default)
 from soma.undefined import undefined
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
@@ -60,7 +61,7 @@ class Plug(Controller):
         self.links_from = set()
         # The has_default value flag can be set by setting a value for a
         # parameter in Pipeline.add_process
-        self.has_default_value = False
+        self.has_default_value = kwargs.get('has_default_value', False)
 
     def __hash__(self):
         return id(self)
@@ -309,6 +310,7 @@ class Node(Controller):
             "name": name,
             "output": self.is_output(field),
             "optional": self.is_optional(field),
+            "has_default_value": has_default(field),
         }
         # generate plug with input parameter and identifier name
         self._add_plug(parameter)
