@@ -161,7 +161,8 @@ def run_process_with_distribution(
         study_config, process, use_soma_workflow=False,
         resource_id=None, password=None, config=None, rsa_key_pass=None,
         queue=None, input_file_processing=None, output_file_processing=None,
-        keep_workflow=False, keep_failed_workflow=False):
+        keep_workflow=False, keep_failed_workflow=False,
+        write_workflow_only=None):
     ''' Run the given process, either sequentially or distributed through
     Soma-Workflow.
 
@@ -200,10 +201,30 @@ def run_process_with_distribution(
     keep_failed_workflow: bool
         keep the workflow in the computing resource database after execution,
         if it has failed. By default it is removed.
+    write_workflow_only: str
+        if specified, this is an output filename where the workflow file will
+        be written. The workflow will not be actually run, because int his
+        situation the user probably wants to use the workflow on his own.
     '''
+    if write_workflow_only:
+        use_soma_workflow = True
+
     if use_soma_workflow is not None:
         study_config.use_soma_workflow = use_soma_workflow
+
     if study_config.use_soma_workflow:
+
+        if write_workflow_only:
+            # Create soma workflow pipeline
+            from capsul.pipeline.pipeline_workflow \
+                import workflow_from_pipeline
+            import soma_workflow.client as swclient
+
+            workflow = workflow_from_pipeline(process)
+            swclient.Helper.serialize(write_workflow_only)
+
+            return
+
         swm = study_config.modules['SomaWorkflowConfig']
         resource_id = swm.get_resource_id(resource_id, set_it=True)
         if password is not None or rsa_key_pass is not None:
@@ -288,6 +309,13 @@ def main():
                       'process mono-processor, sequential execution.')
     group2.add_option('-r', '--resource_id', dest='resource_id', default=None,
                       help='soma-workflow resource ID, defaults to localhost')
+    group2.add_option('-w', '--write-workflow-only', dest='write_workflow',
+                      default=None,
+                      help='if specified, this is an output '
+                      'filename where the workflow file will be written. The '
+                      'workflow will not be actually run, because in this '
+                      'situation the user probably wants to use the workflow '
+                      'on his own.')
     group2.add_option('-p', '--password', dest='password', default=None,
                       help='password to access the remote computing resource. '
                       'Do not specify it if using a ssh key')
@@ -361,8 +389,10 @@ def main():
             scdict = json.load(open(options.studyconfig))
         study_config.set_study_configuration(scdict)
     else:
-        study_config = StudyConfig()
+        study_config = StudyConfig(
+            modules=StudyConfig.default_modules + ['FomConfig'])
         study_config.read_configuration()
+        study_config.use_fom = True
 
     if options.input_directory:
         study_config.input_directory = options.input_directory
@@ -467,7 +497,8 @@ def main():
         study_config, process, options.soma_workflow, resource_id=resource_id,
         password=password, rsa_key_pass=rsa_key_pass,
         queue=queue, input_file_processing=file_processing[0],
-        output_file_processing=file_processing[1])
+        output_file_processing=file_processing[1],
+        write_workflow_only=options.write_workflow)
 
 
     sys.exit(0)
