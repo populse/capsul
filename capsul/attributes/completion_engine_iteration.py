@@ -220,6 +220,15 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         iterative_parameters = dict(
             [(key, []) for key in process.iterative_parameters])
 
+        # propagate forbid_completion
+        for param, trait in six.iteritems(process.user_traits()):
+            if trait.forbid_completion:
+                if hasattr(process.process, 'propagate_metadata'):
+                    process.process.propagate_metadata(
+                        '', param, {'forbid_completion': True})
+                else:
+                    process.process.trait(param).forbid_completion = True
+
         self.completion_progress_total = size
         for it_step in range(size):
             self.capsul_iteration_step = it_step
@@ -253,6 +262,16 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         process = self.process
         if isinstance(process, ProcessNode):
             process = process.process
+
+        # propagate forbid_completion
+        for param, trait in six.iteritems(process.user_traits()):
+            if trait.forbid_completion:
+                if hasattr(process.process, 'propagate_metadata'):
+                    process.process.propagate_metadata(
+                        '', param, {'forbid_completion': True})
+                else:
+                    process.process.trait(param).forbid_completion = True
+
         try:
             attributes_set = self.get_attribute_values()
             completion_engine = ProcessCompletionEngine.get_completion_engine(

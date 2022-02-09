@@ -87,7 +87,12 @@ class ProcessIteration(Process):
                 if trait.groups:
                     self.trait(name).groups = trait.groups
                 if trait.forbid_completion is not None:
-                    self.trait(name).forbid_completion \
+                    # we don't have access to the pipeline or even the
+                    # node in self, we cannot propagate the forbid_completion
+                    # value outside of self.
+                    # However this will be done in Pipeline.add_process() when
+                    # inserting self in a pipeline, so this is OK.
+                    trait(name).forbid_completion \
                         = trait.forbid_completion
             else:
                 self.regular_parameters.add(name)

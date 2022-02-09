@@ -537,6 +537,10 @@ class Pipeline(Process):
                 process = getattr(node, 'process')
                 if process is not None:
                     process.trait(parameter_name).optional = True
+            # forbid_completion
+            if process.trait(parameter_name).forbid_completion:
+                self.propagate_metadata(node, parameter_name,
+                                        {'forbid_completion': True})
 
         # Create a trait to control the node activation (enable property)
         self.nodes_activation.add_trait(name, Bool)
@@ -1068,6 +1072,17 @@ class Pipeline(Process):
             dest_node._switch_changed(getattr(dest_node, "switch"),
                                       getattr(dest_node, "switch"))
 
+        # if completion is forbidden on source or dest, propagate the other
+        # side
+        forbid_completion \
+            = source_node.get_trait(source_plug_name).forbid_completion
+        if forbid_completion:
+            self.propagate_metadata(source_node, source_plug_name,
+                                    {'forbid_completion': True})
+        elif trait.forbid_completion:
+            self.propagate_metadata(dest_node, dest_plug_name,
+                                    {'forbid_completion': True})
+
         # Observer
         source_node.connect(source_plug_name, dest_node, dest_plug_name)
         dest_node.connect(dest_plug_name, source_node, source_plug_name)
@@ -1231,6 +1246,40 @@ class Pipeline(Process):
         node = self.nodes.get(node_name)
         if node:
             node.enabled = is_enabled
+
+    def propagate_metadata(self, node, param, metadata):
+        """
+        Set metadata on a node parameter, and propagate these values to the
+        connected plugs.
+
+        Typically needed to propagate the "forbid_completion" metadata to avoid
+        manuyally set values to be overriden by completion.
+
+        node may be a Node instance or a node name
+        """
+        if isinstance(node, str):
+            node = self.nodes[node]
+        todo = [(node, param, True)]
+        done = set()
+        while todo:
+            node, param, force = todo.pop(0)
+            done.add((node, param))
+
+            # set metadata on node param trait
+            trait = node.get_trait(param)
+            modif = False
+            for k, v in six.iteritems(metadata):
+                if getattr(trait, k) != v:
+                    setattr(trait, k, v)
+                    modif = True
+
+            if modif or force:
+                # get connected plugs
+                plug = node.plugs[param]
+                for link in list(plug.links_from) + list(plug.links_to):
+                    nn, pn, n, p, weak_link = link
+                    if (n, pn) not in done:
+                        todo.append((n, pn, False))
 
     def all_nodes(self):
         """ Iterate over all pipeline nodes including sub-pipeline nodes.
