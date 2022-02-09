@@ -1218,7 +1218,7 @@ class Pipeline(Process):
         connected plugs.
 
         Typically needed to propagate the "forbid_completion" metadata to avoid
-        manuyally set values to be overriden by completion.
+        manuyally set values to be overridden by completion.
 
         node may be a Node instance or a node name
         """
