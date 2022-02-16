@@ -202,6 +202,8 @@ class Pipeline(Process):
             exported.
         """
         # Inheritance
+        if 'definition' not in kwargs:
+            kwargs['definition'] = 'custom'
         super(Pipeline, self).__init__(**kwargs)
         super(Pipeline, self).add_field(
             'nodes_activation',
@@ -441,8 +443,7 @@ class Pipeline(Process):
 
             # Optional plug
             if parameter_name in make_optional:
-                node.plugs[parameter_name].optional = True
-                node.set_optional(parameter_name,  True)
+                node.set_optional(parameter_name, True)
 
         # Create a field to control the node activation (enable property)
         self.nodes_activation.add_field(name, bool)
@@ -1613,11 +1614,9 @@ class Pipeline(Process):
             if not plug.activated or not plug.enabled:
                 continue
             field = node.field(plug_name)
-            if not field.metadata.get('output', False):
+            if not node.metadata(field).get('write', False) \
+                    or node.metadata(field).get('output', False):
                 continue
-            if is_path(field):
-                if field.metadata.get('read', True) is False:
-                    continue
             if is_list(field) and is_path(field):
                 if len([x for x in value if x in ('', undefined)]) == 0:
                     continue

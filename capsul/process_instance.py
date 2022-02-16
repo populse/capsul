@@ -446,6 +446,9 @@ def process_from_function(function):
             # may be overriden by metadata
             metadata['output'] = output
             metadata.update(type_.metadata)
+            metadata.update(type_.metadata.get('_metadata', {}))
+            if '_metadata' in metadata:
+                del metadata['_metadata']
             default=type_.default
             default_factory=type_.default_factory
             kwargs = dict(

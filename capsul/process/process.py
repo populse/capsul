@@ -39,15 +39,12 @@ class Process(Node):
 
     A process is typically an object with typed parameters, and an execution
     function. Parameters are described using the
-    :somabase:`Controller <api.html#soma.controller.controller.Controller>`
-    API, based on the dataclasses
-    module. Parameters are fields which allow typechecking and notification.
+    :class:`~soma.controller.controller.Controller` API, based on the
+    dataclasses module. Parameters are fields which allow typechecking and
+    notification.
 
     In addition to describing its parameters, a Process must implement its
-    execution function, either through a python method, by overloading
-    :meth:`execute`, or through a commandline execution, by overloading
-    :meth:`get_commandline`. The second way allows to run on a remote
-    processing machine which has not necessary capsul, nor python, installed.
+    execution function, by overloading :meth:`execute`.
 
     Parameters are declared or queried using the fields API, and their values
     are in the process instance variables:
@@ -68,7 +65,7 @@ class Process(Node):
                 # declare an input param
                 self.add_field('param2', int)
                 # declare an output param
-                self.add_field('out_param', file(output=True))
+                self.add_field('out_param', file(write=True))
 
             def execute(self):
                 with open(self.out_param, 'w') as f:
@@ -80,27 +77,22 @@ class Process(Node):
 
     **Note about the file and directory parameters**
 
-    The :class:`~traits.trait_types.File` trait type represents a file
+    The :func:`~soma.controller.field.file` field type represents a file
     parameter. A file is actually two things: a filename (string), and the file itself (on the filesystem). For an input it is OK not to distinguish them, but for an output, there are two different cases:
 
     * the file (on the filesystem) is an output, but the filename (string) is
       given as an input: this is the classical "commandline" behavior, when we
       tell the program where it should write its output file.
-    * the file is an output, and the filename is also an output: this is rather a
-      "function return value" behavior: the process determines internally where
-      it should write the file, and tells as an output where it did.
+    * the file is an output, and the filename is also an output: this is rather
+      a "function return value" behavior: the process determines internally
+      where it should write the file, and tells as an output where it did.
 
-    To distinguish these two cases, in Capsul we normally add in the
+    To distinguish these two cases, in Capsul we use add in the
     :class:`~soma.controller.file` or :class:`~soma.controller.directory`
-    fields a metadata ``input_filename`` which is True when the filename is an
-    input, and False when the filename is an output::
+    fields a metadata ``write`` which is True when the file will be written,
+    and ``output`` is only True when the filename is an output::
 
-        self.add_field('out_file', file, output=True, input_filename=False)
-
-    However as most of our processes are based on the "commandline behavior"
-    (the filename is an input) and we often forget to specify the
-    ``input_filename`` parameter, the default is the "filename is an input"
-    behavior, when not specified.
+        self.add_field('out_file', file(output=True, write=True))
 
     **Attributes**
 
@@ -113,12 +105,12 @@ class Process(Node):
     """
 
     def __init__(self, definition=None, **kwargs):
-        #if definition is None:
-            #defn = []
-            #if self.__class__.__module__ != '__main__':
-                #defn.append(self.__class__.__module__)
-            #defn.append(self.__class__.__name__)
-            #definition = '.'.join(defn)
+        if definition is None:
+            defn = []
+            if self.__class__.__module__ != '__main__':
+                defn.append(self.__class__.__module__)
+            defn.append(self.__class__.__name__)
+            definition = '.'.join(defn)
         super().__init__(**kwargs)
         self.definition = definition
     

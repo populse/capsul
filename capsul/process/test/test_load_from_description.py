@@ -58,7 +58,7 @@ def to_warp_func(
 # temp replacement:
 def threshold(
     input_image: file(doc='Path of a NIFTI-1 image file.'),
-    output_image: file(doc="Name of the output image.", output=True),
+    output_image: file(doc="Name of the output image.", write=True),
     method: field(type_=Literal['gt', 'ge', 'lt', 'le'], default='gt', doc="Mehod for thresolding."),
     threshold: field(type_=float, default=0)
 ):
@@ -79,7 +79,7 @@ def threshold(
 def mask(
     input_image: file(doc='Path of a NIFTI-1 image file.'),
     mask: file(doc='Path of mask binary image.'),
-    output_image: file(output=True, doc="Output file name.")
+    output_image: file(write=True, doc="Output file name.")
 ):
 
     pass
@@ -152,11 +152,11 @@ class TestLoadFromDescription(unittest.TestCase):
         for input_name in ["parameter1", "parameter2", "parameter3"]:
             field = process.field(input_name)
             self.assertTrue(field is not None)
-            self.assertFalse(field.metadata.get('output', False))
+            self.assertFalse(process.metadata(field).get('output', False))
         for output_name in ["result"]:
             field = process.field(output_name)
             self.assertTrue(field is not None)
-            self.assertTrue(field.metadata.get('output', False))
+            self.assertTrue(process.metadata(field).get('output', False))
         process.parameter1 = 12.34
         process.parameter2 = 'toto'
         process.parameter3 = 4

@@ -13,7 +13,8 @@ Classes
 import typing
 from typing import Literal, List
 
-from soma.controller import (Controller, field, is_path, field_type_str)
+from soma.controller import (Controller, field, is_path, field_type_str,
+                             has_default)
 from soma.undefined import undefined
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
@@ -30,7 +31,9 @@ class Plug(Controller):
     activated : bool
         parameter describing the Plug status
     output : bool
-        parameter to set the Plug type (input or output)
+        parameter to set the Plug type (input or output). For a pipeline,
+        this notion is seen from the "exterior" (the pipeline as a process
+        inserted in another pipeline).
     optional : bool
         parameter to create an optional Plug
     has_default_value : bool
@@ -58,7 +61,7 @@ class Plug(Controller):
         self.links_from = set()
         # The has_default value flag can be set by setting a value for a
         # parameter in Pipeline.add_process
-        self.has_default_value = False
+        self.has_default_value = kwargs.get('has_default_value', False)
 
     def __hash__(self):
         return id(self)
@@ -161,8 +164,8 @@ class Node(Controller):
         for field in self.fields():  # noqa: F402
             if field.name in self.nonplug_names:
                 continue
-            output = field.metadata.get('output', False)
-            optional = field.metadata.get('optional', False)
+            output = self.is_output(field)
+            optional = self.is_optional(field)
             parameter = {
                 "name": field.name,
                 "output" : output,
@@ -305,8 +308,9 @@ class Node(Controller):
         field = self.field(name)
         parameter = {
             "name": name,
-            "output": field.metadata.get('output', False),
-            "optional": field.metadata.get('optional', False),
+            "output": self.is_output(field),
+            "optional": self.is_optional(field),
+            "has_default_value": has_default(field),
         }
         # generate plug with input parameter and identifier name
         self._add_plug(parameter)
