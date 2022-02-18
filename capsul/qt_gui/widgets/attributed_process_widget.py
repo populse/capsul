@@ -8,24 +8,19 @@ Classes
 --------------------------------
 '''
 
-from __future__ import print_function
-
-from __future__ import absolute_import
 import json
-import six
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui, QtCore
-from soma.controller import Controller
-from soma.qt_gui.controller_widget \
-    import ControllerWidget, ScrollControllerWidget
-from traits.api import File, HasTraits, Any, Directory, Undefined, List
+from soma.controller import (Controller, file, directory, Any, is_path,
+                             field_type, is_list)
+from soma.qt_gui.controller import ControllerWidget
 
 
 class AttributedProcessWidget(QtGui.QWidget):
     """Process interface with attributes completion handling"""
     def __init__(self, attributed_process, enable_attr_from_filename=False,
-                 enable_load_buttons=False, override_control_types=None,
-                 separate_outputs=True, user_data=None, userlevel=0,
+                 enable_load_buttons=False,
+                 separate_outputs=True, user_data=None, user_level=0,
                  scroll=True):
         """
         Parameters
@@ -35,17 +30,14 @@ class AttributedProcessWidget(QtGui.QWidget):
         enable_attr_from_filename: bool (optional)
             if enabled, it will be possible to specify an input filename to
             build attributes from
-        override_control_types: dict (optional)
-            if given, this is a "factory" dict assigning new controller editor
-            types to some traits types in the parameters controller.
         separate_outputs: bool
-            if True, inputs and outputs (traits with output=True set) will
+            if True, inputs and outputs (fields with output=True set) will
             be separated into two boxes.
         user_data: any type (optional)
             optional user data that can be accessed by individual control
             editors
-        userlevel: int
-            the current user level: some traits may be marked with a non-zero userlevel, and will only be visible if the ControllerWidget userlevel is more than (or equal) the trait level.
+        user_level: int
+            the current user level: some fields may be marked with a non-zero userlevel, and will only be visible if the ControllerWidget userlevel is more than (or equal) the field level.
         scroll: bool
             if True, the widget includes scrollbars in the parameters and
             attributes sections when needed, otherwise it will be a fixed size
@@ -58,7 +50,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         self._show_completion = False
         self.user_data = user_data
         self.separate_outputs = separate_outputs
-        self._userlevel = userlevel
+        self._user_level = user_level
 
         process = attributed_process
         completion_engine = getattr(process, 'completion_engine', None)
@@ -79,13 +71,12 @@ class AttributedProcessWidget(QtGui.QWidget):
         filename_widget = None
         if enable_attr_from_filename and completion_engine is not None:
             c = Controller()
-            c.add_trait('attributes_from_input_filename', File(optional=True))
-            filename_widget = ControllerWidget(c, live=True,
-                                               user_data=user_data)
+            c.add_field('attributes_from_input_filename', file(optional=True))
+            filename_widget = ControllerWidget(c)  # , user_data=user_data)
             spl_up.layout().addWidget(filename_widget)
             self.input_filename_controller = c
-            c.on_trait_change(self.on_input_filename_changed,
-                              'attributes_from_input_filename', dispatch='ui')
+            c.on_attribute_change(self.on_input_filename_changed,
+                                  'attributes_from_input_filename')
             filename_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                           QtGui.QSizePolicy.Fixed)
 
@@ -126,7 +117,7 @@ class AttributedProcessWidget(QtGui.QWidget):
                                    QtGui.QSizePolicy.Preferred)
             params.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                  QtGui.QSizePolicy.Preferred)
-            CWidgetClass = ScrollControllerWidget
+            CWidgetClass = ControllerWidget
         else:
             spl_up.layout().addWidget(params)
             CWidgetClass = ControllerWidget
@@ -151,44 +142,42 @@ class AttributedProcessWidget(QtGui.QWidget):
             out_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                      QtGui.QSizePolicy.Expanding)
 
-        # use concise shape for lists GUI
-        from  soma.qt_gui.controls import OffscreenListControlWidget
-        control_types_a = {'List': OffscreenListControlWidget}
-        control_types_p = {'List': OffscreenListControlWidget}
-        if override_control_types:
-            control_types_p.update(override_control_types)
-        #ControllerWidget._defined_controls['List'] = OffscreenListControlWidget
-
         # Create controller widget for process and object_attribute
         sel = None
         if separate_outputs:
-            sel = 'inputs'
-        self.controller_widget = ControllerWidget(process, live=True,
-            parent=param_widget, override_control_types=control_types_p,
-            user_data=user_data, userlevel=userlevel, select_controls=sel)
+            sel = False
+        self.controller_widget = ControllerWidget(process,
+            parent=param_widget,
+            # user_data=user_data,
+            user_level=user_level,
+            output=sel,
+        )
         if separate_outputs:
-            self.outputs_cwidget = ControllerWidget(process, live=True,
-            parent=out_widget, override_control_types=control_types_p,
-            user_data=user_data, userlevel=userlevel,
-            select_controls='outputs')
+            self.outputs_cwidget = ControllerWidget(process,
+                parent=out_widget,
+                # user_data=user_data,
+                user_level=user_level,
+                output=True,
+            )
 
         show_ce = (completion_engine is not None
                    and len(
-                      completion_engine.get_attribute_values().user_traits())
+                      completion_engine.get_attribute_values().fields())
                           != 0)
 
         if completion_engine is not None:
             self.controller_widget2 = CWidgetClass(
                 completion_engine.get_attribute_values(),
-                live=True, parent=attrib_widget,
-                override_control_types=control_types_a, user_data=user_data,
-                userlevel=userlevel)
-            completion_engine.get_attribute_values().on_trait_change(
-                completion_engine.attributes_changed, 'anytrait')
+                parent=attrib_widget,
+                # user_data=user_data,
+                user_level=user_level)
+            completion_engine.get_attribute_values().on_attribute_change.add(
+                completion_engine.attributes_changed)
         else:
             self.controller_widget2 = CWidgetClass(
-                Controller(), override_control_types=control_types_a,
-                user_data=user_data, userlevel=userlevel)
+                Controller(),
+                # user_data=user_data,
+                user_level=user_level)
 
         # Set controller of attributes and controller of process for each
         # corresponding area
@@ -221,36 +210,34 @@ class AttributedProcessWidget(QtGui.QWidget):
             self.show_completion(False) # hide file parts
 
         if completion_engine is not None:
-            completion_engine.on_trait_change(
-                self._completion_progress_changed, 'completion_progress',
-                dispatch='ui')
+            completion_engine.on_attribute_change.add(
+                self._completion_progress_changed, 'completion_progress')
 
     def __del__(self):
         completion_engine = getattr(self.attributed_process,
                                    'completion_engine', None)
         if completion_engine is not None:
-            completion_engine.get_attribute_values().on_trait_change(
-                completion_engine.attributes_changed, 'anytrait', remove=True)
-            completion_engine.on_trait_change(
-                self._completion_progress_changed, 'completion_progress',
-                remove=True)
+            completion_engine.get_attribute_values().on_attribute_change. \
+                remove(completion_engine.attributes_changed)
+            completion_engine.on_attribute_change.remove(
+                self._completion_progress_changed, 'completion_progress')
 
     @property
-    def userlevel(self):
-        return getattr(self, '_userlevel', 0)
+    def user_level(self):
+        return getattr(self, '_user_level', 0)
 
-    @userlevel.setter
-    def userlevel(self, value):
-        self._userlevel = value
+    @user_level.setter
+    def user_level(self, value):
+        self._user_level = value
         cw = getattr(self, 'controller_widget', None)
         if cw:
-            cw.userlevel = value
+            cw.user_level = value
         cw = getattr(self, 'outputs_cwidget', None)
         if cw:
-            cw.userlevel = value
+            cw.user_level = value
         cw = getattr(self, 'controller_widget2', None)
         if cw:
-            cw.userlevel = value
+            cw.user_level = value
         # re-hide file params if needed
         self.show_completion(self._show_completion)
 
@@ -264,7 +251,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         if completion_engine is not None:
             print('set attributes from path:', text)
             try:
-                completion_engine.path_attributes(six.text_type(text))
+                completion_engine.path_attributes(str(text))
             except ValueError as e:
                 print(e)
                 import traceback
@@ -315,21 +302,20 @@ class AttributedProcessWidget(QtGui.QWidget):
             QtGui.QMessageBox.Ok, QtGui.QMessageBox.Cancel)
 
         if ret == QtGui.QMessageBox.Ok:
-            #reset attributes and trait of process
+            #reset attributes and fields of process
             process = self.attributed_process
             completion_engine = getattr(self.attributed_process,
                                        'completion_engine', None)
             if completion_engine is None:
                 return
-            completion_engine.get_attribute_values().on_trait_change(
-                completion_engine.attributes_changed, 'anytrait')
+            completion_engine.get_attribute_values().on_attribute_change.add(
+                completion_engine.attributes_changed)
             try:
                 # WARNING: is it necessary to reset all this ?
                 # create_completion() will do the job anyway ?
-                #for name, trait in six.iteritems(process.user_traits()):
-                    #if trait.is_trait_type(File) \
-                            #or trait.is_trait_type(Directory):
-                        #setattr(process,name, Undefined)
+                #for name, field in process.fields():
+                    #if is_path(field):
+                        #setattr(process, name, undefined)
                 completion_engine.complete_parameters()
 
                 if hasattr(self, 'input_filename_controller') \
@@ -365,9 +351,8 @@ class AttributedProcessWidget(QtGui.QWidget):
             completion_engine = getattr(self.attributed_process,
                                         'completion_engine', None)
             if completion_engine is not None:
-                completion_engine.get_attribute_values().on_trait_change(
-                    completion_engine.attributes_changed, 'anytrait',
-                    remove=True)
+                completion_engine.get_attribute_values().on_attribute_change \
+                    .remove(completion_engine.attributes_changed)
                 self.btn_show_completion.setChecked(True)
 
     def show_completion(self, visible=None):
@@ -383,34 +368,42 @@ class AttributedProcessWidget(QtGui.QWidget):
         if visible is None:
             visible = not self._show_completion
         self._show_completion = visible
+
+        # FIXME TODO
+        return
+
         cwidgets = [self.controller_widget]
         if self.separate_outputs:
             cwidgets.append(self.outputs_cwidget)
         for controller_widget in cwidgets:
             for control_name, control_groups in \
-                    six.iteritems(
-                        controller_widget._controls):
-                for group, control in six.iteritems(control_groups):
-                    trait, control_class, control_instance, control_label \
+                    controller_widget._controls.items():
+                for group, control in control_groups.items():
+                    field, control_class, control_instance, control_label \
                         = control
-                    if not isinstance(trait.trait_type,
-                                      (File, Any, Directory)) \
-                            and (not isinstance(trait.trait_type, List)
-                                or not isinstance(
-                                    trait.inner_traits[0].trait_type,
-                                    (File, Directory, Any))):
+                    if not is_path(field) and field.type is not Any \
+                            and (not is_list(field)
+                                 or (not is_path(field_type(field).__args__[0])
+                                     and field_type(field).__args__[0]
+                                        is not Any)):
                         continue
-                    hidden = trait.hidden \
-                          or (trait.userlevel is not None
-                              and trait.userlevel > self.userlevel)
-                    control_instance.setVisible(visible and not hidden)
+                    if field.metadata.get('forbid_completion', False):
+                        # when completion is disable, parameters are always
+                        # visible
+                        is_visible = True
+                    else:
+                        hidden = field.metadata.get('hidden', False) \
+                              or (field.metadata.get('userlevel') is not None
+                                  and field.metadata.get('userlevel')
+                                      > self.user_level)
+                        is_visible = visible and not hidden
+                    control_instance.setVisible(is_visible)
                     if isinstance(control_label, tuple):
                         for cl in control_label:
-                            cl.setVisible(visible and not hidden)
+                            cl.setVisible(is_visible)
                     else:
-                        control_label.setVisible(visible and not hidden)
-            for group, group_widget in six.iteritems(
-                    controller_widget._groups):
+                        control_label.setVisible(is_visible)
+            for group, group_widget in controller_widget._groups.items():
                 if [x for x in group_widget.hideable_widget.children()
                     if isinstance(x, QtGui.QWidget) and not x.isHidden()]:
                     group_widget.show()

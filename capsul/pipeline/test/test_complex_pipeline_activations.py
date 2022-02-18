@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import os
 import shutil
 import unittest
 import tempfile
+import sys
 
-import six
+from soma.controller import file
 
-from traits.api import File
-
-from capsul.api import Process, Pipeline, Switch, get_process_instance
+from capsul.api import Process, Pipeline, Switch
+from capsul.process_instance import get_process_instance
 
 
 class Identity(Process):
-    input_image = File(optional=False, output=False)
-    output_image = File(optional=False, output=True)
+    input_image: file(optional=False, output=False)
+    output_image: file(optional=False, output=True)
     
 class ComplexPipeline(Pipeline):
     """Pipeline to test complex constructions behaviours
@@ -30,7 +30,7 @@ class ComplexPipeline(Pipeline):
             'capsul.process.test.test_pipeline',
             make_optional=['output_1', 'output_10','output_100'])
         
-        #self.export_parameter('pipeline_1', 'output_1')
+        # self.export_parameter('pipeline_1', 'output_1')
         
         self.add_process('pipeline_10',
             'capsul.process.test.test_pipeline',
@@ -848,11 +848,11 @@ class TestComplexPipeline(unittest.TestCase):
         for kwargs, activations_to_check in self.expected_status:
             pipeline = get_process_instance(ComplexPipeline, **kwargs)
             
-        for full_node_name, node_activations in six.iteritems(activations_to_check):
+        for full_node_name, node_activations in activations_to_check.items():
             split = full_node_name.split('.')
             node_pipeline = pipeline
             for i in split[:-1]:
-                node_pipeline = node_pipeline.nodes[i].process
+                node_pipeline = node_pipeline.nodes[i]
             node_name = split[-1]
             try:
                 node = node_pipeline.nodes[node_name]
@@ -883,20 +883,22 @@ def test():
 if __name__ == '__main__':
     print('Test return code:', test())
 
-    if False:
+    if '-v' in sys.argv[1:]:
         from pprint import pprint
         
         pipeline = get_process_instance(ComplexPipeline)
             
-        import sys
-        from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
-        #from capsul.qt_gui.widgets.activation_inspector import ActivationInspectorApp
+        from soma.qt_gui.qt_backend import Qt
+        from capsul.qt_gui.widgets import PipelineDeveloperView
+        from capsul.qt_gui.widgets.activation_inspector import ActivationInspectorApp
 
-        #app = ActivationInspectorApp(ComplexPipeline)
-        app = QtGui.QApplication(sys.argv)
-        
-        view = PipelineDevelopperView(pipeline, allow_open_controller=True, show_sub_pipelines=True)
+        app = Qt.QApplication(sys.argv)
+
+        sys.argv = [sys.argv[0]]
+        aapp = ActivationInspectorApp(ComplexPipeline)
+
+        view = PipelineDeveloperView(pipeline, allow_open_controller=True,
+                                     show_sub_pipelines=True)
         view.show()
         
         app.exec_()

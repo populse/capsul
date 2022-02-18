@@ -59,17 +59,12 @@ import io
 # Define the logger
 logger = logging.getLogger(__name__)
 
-# Trait import
-try:
-    from traits import api as traits
-except ImportError:
-    from enthought.traits import api as traits
-
 # Capsul import
-from capsul.pipeline.pipeline import Pipeline, PipelineNode, Switch, \
-    ProcessNode, OptionalOutputSwitch
+from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
+    OptionalOutputSwitch
 from capsul.pipeline.process_iteration import ProcessIteration
-from soma.controller import Controller
+from soma.controller import Controller, undefined, Any, is_path
+from pydantic import ValidationError
 
 
 def pipeline_node_colors(pipeline, node):
@@ -196,19 +191,18 @@ def pipeline_node_colors(pipeline, node):
         'custom_node': (ORANGE_1, ORANGE_2, ORANGE_3, LIGHT_ORANGE_1,
                         LIGHT_ORANGE_2, LIGHT_ORANGE_3),
     }
-    if node is pipeline.pipeline_node:
+    if node is pipeline:
         style = 'pipeline_io'
     elif isinstance(node, OptionalOutputSwitch):
         style = 'optional_output_switch'
     elif isinstance(node, Switch):
         style = 'switch'
-    elif isinstance(node, PipelineNode):
+    elif isinstance(node, Pipeline):
         style = 'pipeline'
-    elif isinstance(node, ProcessNode) \
-            and isinstance(node.process, ProcessIteration):
+    elif isinstance(node, ProcessIteration):
         style = 'iteration'
-    elif isinstance(node, ProcessNode):
-        if hasattr(node.process, 'completion_engine'):
+    elif isinstance(node, Process):
+        if hasattr(node, 'completion_engine'):
             style = 'attributed'
         else:
             style = 'default'
@@ -595,30 +589,30 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
         pipeline to disable nodes in.
     '''
     steps = getattr(pipeline, 'pipeline_steps', Controller())
-    for step, trait in six.iteritems(steps.user_traits()):
+    for field in steps.fields():
+        step = field.name
         if not getattr(steps, step):
             continue  # already inactive
-        for node_name in trait.nodes:
+        for node_name in steps.metadata(field)['nodes']:
             node = pipeline.nodes[node_name]
             if not node.enabled or not node.activated:
                 continue  # node not active anyway
-            process = node.process
+            process = node
             for param in node.plugs:
-                trait = process.trait(param)
-                if trait.output and (isinstance(trait.trait_type, traits.File)
-                                     or isinstance(trait.trait_type, traits.Directory)):
-                    value = getattr(process, param)
-                    if value is not None and value is not traits.Undefined \
+                pfield = process.field(param)
+                if process.metadata(pfield).get('output', False) \
+                        and is_path(pfield):
+                    value = getattr(process, param, undefined)
+                    if value is not None and value is not undefined \
                             and os.path.exists(value):
                         # check special case when the output is also an input
                         # (of the same node)
                         disable = True
-                        for n, t in six.iteritems(process.user_traits()):
-                            if not t.output and (isinstance(t.trait_type,
-                                                            traits.File)
-                                                 or isinstance(t.trait_type,
-                                                               traits.Directory)):
-                                v = getattr(process, n)
+                        for t in process.fields():
+                            n = t.name
+                            if not process.metadata(t).get('output', False) \
+                                    and is_path(t):
+                                v = getattr(process, n, undefined)
                                 if v == value:
                                     disable = False
                                     break  # found in inputs
@@ -671,35 +665,35 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
     if exclude_inactive:
         steps = getattr(pipeline, 'pipeline_steps', Controller())
         disabled_nodes = set()
-        for step, trait in six.iteritems(steps.user_traits()):
-            if not getattr(steps, step):
-                disabled_nodes.update(trait.nodes)
+        for field in steps.fields():
+            step = field.name
+            if not getattr(steps, step, undefined):
+                disabled_nodes.update(steps.metadata(field).get('nodes',
+                                                                set()))
 
     # nodes = pipeline.nodes.items()
     nodes = list(pipeline.nodes.items())
     while nodes:
         node_name, node = nodes.pop(0)
-        if node_name == '' or not hasattr(node, 'process'):
+        if node_name == '' or not isinstance(node, Process):
             # main pipeline node, switch...
             continue
         if not node.enabled or not node.activated \
                 or (exclude_inactive and node_name in disabled_nodes):
             continue
-        process = node.process
+        process = node
         if recursive and isinstance(process, Pipeline):
             nodes += [('%s.%s' % (node_name, new_name), new_node)
-                      for new_name, new_node in six.iteritems(process.nodes)
+                      for new_name, new_node in process.nodes.items()
                       if new_name != '']
             continue
         plug_list = []
         input_files_list = set()
-        for plug_name, plug in six.iteritems(node.plugs):
-            trait = process.trait(plug_name)
-            if isinstance(trait.trait_type, traits.File) \
-                    or isinstance(trait.trait_type, traits.Directory) \
-                    or isinstance(trait.trait_type, traits.Any):
-                value = getattr(process, plug_name)
-                if isinstance(value, six.string_types) \
+        for plug_name, plug in node.plugs.items():
+            field = process.field(plug_name)
+            if is_path(field) or field.type is Any:
+                value = getattr(process, plug_name, undefined)
+                if isinstance(value, str) \
                         and os.path.exists(value) \
                         and value not in input_files_list:
                     if plug.output:
@@ -742,10 +736,12 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
     selected_nodes = {}
     steps = getattr(pipeline, 'pipeline_steps', Controller())
     disabled_nodes = set()
-    for step, trait in six.iteritems(steps.user_traits()):
-        if not getattr(steps, step):
+    for field in steps.fields():
+        step = field.name
+        if not getattr(steps, step, undefined):
             disabled_nodes.update(
-                [pipeline.nodes[node_name] for node_name in trait.nodes])
+                [pipeline.nodes[node_name]
+                 for node_name in steps.metadata(field).get('nodes', set())])
 
     # nodes = pipeline.nodes.items()
     nodes = list(pipeline.nodes.items())
@@ -764,13 +760,11 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
             continue
         for plug_name, plug in six.iteritems(node.plugs):
             if not plug.output:
-                trait = process.trait(plug_name)
-                if isinstance(trait.trait_type, traits.File) \
-                        or isinstance(trait.trait_type, traits.Directory):
-                    value = getattr(process, plug_name)
+                if is_path(process.field(plug_name)):
+                    value = getattr(process, plug_name, undefined)
                     keep_me = False
-                    if value is None or value is traits.Undefined \
-                            or value == '' or not os.path.exists(value):
+                    if value in (None, undefined, '') \
+                            or not os.path.exists(value):
                         # check where this file comes from
                         origin_node, origin_param, origin_parent \
                             = where_is_plug_value_from(plug, recursive)
@@ -778,15 +772,14 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
                                 and (origin_node in disabled_nodes
                                      or origin_parent in disabled_nodes):
                             # file coming from another disabled node
-                            # if not value or value is traits.Undefined:
+                            # if not value or value is undefined:
                             ## temporary one
                             # print('TEMP: %s.%s' % (node_name, plug_name))
                             # value = None
                             keep_me = True
                         elif origin_node is None:
                             # unplugged: does not come from anywhere else
-                            if (value is not traits.Undefined and value) \
-                                    or not plug.optional:
+                            if value or not plug.optional:
                                 # non-empty value, non-existing file
                                 # or mandatory, empty value
                                 keep_me = True
@@ -833,7 +826,7 @@ def where_is_plug_value_from(plug, recursive=True):
         if not node.activated or not node.enabled:
             # disabled nodes are not influencing
             continue
-        if isinstance(node, PipelineNode):
+        if isinstance(node, Pipeline):
             if not recursive:
                 return node, param_name, parent
             else:  # recursive
@@ -865,15 +858,13 @@ def find_plug_connection_sources(plug, pipeline=None):
         [(node, param_name, parent_node), ...]
     '''
     sources = []
-    if isinstance(pipeline, Pipeline):
-        pipeline = pipeline.pipeline_node
     links = [link + (pipeline,) for link in plug.links_from]
     while links:
         node_name, param_name, node, in_plug, weak, parent = links.pop(0)
         if not node.activated or not node.enabled:
             # disabled nodes are not influencing
             continue
-        if isinstance(node, PipelineNode):
+        if isinstance(node, Pipeline):
             if not in_plug.links_from:
                 # get out of the pipeline: keep it
                 sources.append((node, param_name, parent))
@@ -898,10 +889,10 @@ def find_plug_connection_sources(plug, pipeline=None):
                 elif src[2] is in_plug:
                     # don't get through its node: keep the node as source
                     sources.append((src[0], src[1], node))
-                elif src[2].output and not isinstance(src[0], PipelineNode):
+                elif src[2].output and not isinstance(src[0], Pipeline):
                     # sub-pipeline output: inspect it
                     links.append((None, src[1], src[0], src[2], False, node))
-                elif not src[2].output or isinstance(src[0], PipelineNode):
+                elif not src[2].output or isinstance(src[0], Pipeline):
                     # input side of a non-opaque node: inspect its links
                     links += [link + (node,)
                               for link in src[2].links_from]
@@ -921,15 +912,13 @@ def find_plug_connection_destinations(plug, pipeline=None):
         [(node, param_name, parent_node), ...]
     '''
     dest = []
-    if isinstance(pipeline, Pipeline):
-        pipeline = pipeline.pipeline_node
     links = [link + (pipeline,) for link in plug.links_to]
     while links:
         node_name, param_name, node, in_plug, weak, parent = links.pop(0)
         if not node.activated or not node.enabled:
             # disabled nodes are not influencing
             continue
-        if isinstance(node, PipelineNode):
+        if isinstance(node, Pipeline):
             if not in_plug.links_to:
                 # get out of the pipeline: keep it
                 dest.append((node, param_name, parent))
@@ -955,10 +944,10 @@ def find_plug_connection_destinations(plug, pipeline=None):
                     # don't get through its node: keep the node as dest
                     dest.append((dst[0], dst[1], node))
                 elif not dst[2].output \
-                        and not isinstance(dst[0], PipelineNode):
+                        and not isinstance(dst[0], Pipeline):
                     # sub-pipeline input: inspect it
                     links.append((None, dst[1], dst[0], dst[2], False, node))
-                elif dst[2].output or isinstance(dst[0], PipelineNode):
+                elif dst[2].output or isinstance(dst[0], Pipeline):
                     # output side of a non-opaque node: inspect its links
                     links += [link + (node,)
                               for link in dst[2].links_to]
@@ -978,7 +967,7 @@ def dump_pipeline_state_as_dict(pipeline):
     The dict may be saved, and used to restore a pipeline state, using
     :py:func:`set_pipeline_state_from_dict`.
 
-    Note that :py:meth:`pipeline.export_to_dict <soma.controller.controller.export_to_dict>`
+    Note that :py:meth:`pipeline.asdict <soma.controller.controller.Controller.asdict>`
     would almost do the job, but does not include the recursive aspect.
 
     Parameters
@@ -1078,17 +1067,16 @@ def dump_pipeline_state_as_dict(pipeline):
                 todo.append((current_dict, parent, parent_key, False))
 
     state_dict = {}
-    nodes = [(None, pipeline.pipeline_node, state_dict)]
+    nodes = [(None, pipeline, state_dict)]
     components = []
     while nodes:
         node_name, node, current_dict = nodes.pop(0)
         proc = node
-        if hasattr(node, 'process'):
-            proc = node.process
-        node_dict = proc.export_to_dict()
+        node_dict = proc.asdict()
         # filter out forbidden and already used plugs
         for plug_name, plug in six.iteritems(node.plugs):
-            if not should_keep_value(node, plug, components):
+            if plug_name in node_dict \
+                    and not should_keep_value(node, plug, components):
                 del node_dict[plug_name]
         if node_name is None:
             if len(node_dict) != 0:
@@ -1125,15 +1113,12 @@ def set_pipeline_state_from_dict(pipeline, state_dict):
     nodes = [(pipeline, state_dict)]
     while nodes:
         node, current_dict = nodes.pop(0)
-        if hasattr(node, 'process'):
-            proc = node.process
-        else:
-            proc = node
-        proc.import_from_dict(current_dict.get('state', {}))
+        proc = node
+        proc.import_dict(current_dict.get('state', {}))
         sub_nodes = current_dict.get('nodes')
         if sub_nodes:
             nodes += [(proc.nodes[node_name], sub_dict)
-                      for node_name, sub_dict in six.iteritems(sub_nodes)]
+                      for node_name, sub_dict in sub_nodes.items()]
 
 
 def get_output_directories(process):
@@ -1156,26 +1141,23 @@ def get_output_directories(process):
     disabled_nodes = set()
     if isinstance(process, Pipeline):
         disabled_nodes = set(process.disabled_pipeline_steps_nodes())
-    elif isinstance(process, PipelineNode):
-        disabled_nodes = set(process.process.disabled_pipeline_steps_nodes())
+    elif isinstance(process, Pipeline):
+        disabled_nodes = set(process.disabled_pipeline_steps_nodes())
 
     while nodes:
         node, node_name, dirs = nodes.pop(0)
         plugs = getattr(node, 'plugs', None)
         if plugs is None:
-            plugs = node.user_traits()
-        if hasattr(node, 'process'):
-            process = node.process
-        else:
-            process = node
+            plugs = [field.name for field in node.fields()]
+        process = node
         dirs_set = set()
         dirs['directories'] = dirs_set
         for param_name in plugs:
-            trait = process.trait(param_name)
-            if trait.output and isinstance(trait.trait_type, traits.File) \
-                    or isinstance(trait.trait_type, traits.Directory):
-                value = getattr(process, param_name)
-                if value is not None and value is not traits.Undefined:
+            field = process.field(param_name)
+            if process.metadata(field).get('write', False) \
+                    and is_path(field):
+                value = getattr(process, param_name, undefined)
+                if value is not None and value is not undefined:
                     directory = os.path.dirname(value)
                     if directory not in ('', '.'):
                         all_dirs.add(directory)
@@ -1185,7 +1167,7 @@ def get_output_directories(process):
             # TODO: handle disabled steps
             sub_dict = {}
             dirs['nodes'] = sub_dict
-            for node_name, node in six.iteritems(sub_nodes):
+            for node_name, node in sub_nodes.items():
                 if node_name != '' and node.activated and node.enabled \
                         and not node in disabled_nodes:
                     sub_node_dict = {}
@@ -1214,13 +1196,13 @@ def save_pipeline(pipeline, filename):
                '.xml': save_xml_pipeline}
 
     saved = False
-    for ext, writer in six.iteritems(formats):
+    for ext, writer in formats.items():
         if filename.endswith(ext):
             writer(pipeline, filename)
             saved = True
             break
     if not saved:
-        # fallback to XML
+        # fallback to py
         save_py_pipeline(pipeline, filename)
 
 
@@ -1236,17 +1218,19 @@ def load_pipeline_parameters(filename, pipeline):
         if "pipeline_parameters" not in dic:
             raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
 
-        for trait_name, trait_value in dic["pipeline_parameters"].items():
-            if trait_name not in pipeline.user_traits():
+        for field_name, field_value in dic["pipeline_parameters"].items():
+            if pipeline.field(field_name) is None:
                 # Should we raise an error or just "continue"?
-                raise KeyError('No "{0}" parameter in pipeline.'.format(trait_name))
+                raise KeyError(
+                    'No "{0}" parameter in pipeline.'.format(field_name))
 
             try:
-                setattr(pipeline, trait_name, trait_value)
-            except traits.TraitError:
-                # This case happen when the trait type is date, time or datetime
+                setattr(pipeline, field_name, field_value)
+            except ValidationError:
+                # This case happened using traits when the type is date,
+                # time or datetime
                 # Couldn't find an other solution for now
-                setattr(pipeline, trait_name, None)
+                setattr(pipeline, field_name, None)
 
         pipeline.update_nodes_and_plugs_activation()
 
@@ -1262,12 +1246,12 @@ def save_pipeline_parameters(filename, pipeline):
         :param val: value
         :return: the serializable value
         """
-        if type(val) in [list, traits.TraitListObject, traits.List]:
+        if type(val) in [list, ]:
             for idx, element in enumerate(val):
                 new_list_value = check_value(element)
                 val[idx] = new_list_value
 
-        if val is traits.Undefined:
+        if val is undefined:
             val = ""
 
         if type(val) in [date, time, datetime]:
@@ -1278,11 +1262,12 @@ def save_pipeline_parameters(filename, pipeline):
     if filename:
         # Generating the dictionary
         param_dic = {}
-        for trait_name, trait in pipeline.user_traits().items():
-            if trait_name in ["nodes_activation"]:
+        for field in pipeline.fields():
+            field_name = field.name
+            if field_name in ["nodes_activation"]:
                 continue
-            value = check_value(getattr(pipeline, trait_name))
-            param_dic[trait_name] = value
+            value = check_value(getattr(pipeline, field_name, undefined))
+            param_dic[field_name] = value
 
         # In the future, more information may be added to this dictionary
         dic = {}
@@ -1307,13 +1292,13 @@ def find_node(pipeline, node):
         given node
     '''
     nodes = []
-    pipelines = [(pipeline.pipeline_node, [])]
+    pipelines = [(pipeline, [])]
     while pipelines:
         n, names = pipelines.pop(0)
-        for sk, sn in six.iteritems(n.process.nodes):
+        for sk, sn in n.nodes.items():
             if node is sn:
                 return names + [sk]
-            if sn is not n and isinstance(sn, PipelineNode):
+            if sn is not n and isinstance(sn, Pipeline):
                 pipelines.append((sn, names + [sk]))
 
     raise KeyError('Node %s not found in the pipeline %s'
@@ -1332,10 +1317,6 @@ def is_node_enabled(pipeline, node_name=None, node=None):
         return False
 
     elif node_name is None:
-
-        if not node.enabled or not node.activated:
-            return False
-
         # probably a node of a sub-pipeline
         names = find_node(pipeline, node)
 
@@ -1343,11 +1324,12 @@ def is_node_enabled(pipeline, node_name=None, node=None):
     for name in names:
         steps = getattr(p, 'pipeline_steps', Controller())
         disabled_nodes = set()
-        for step, trait in six.iteritems(steps.user_traits()):
-            if not getattr(steps, step) and name in trait.nodes:
+        for field in steps.fields():
+            step = field.name
+            if not getattr(steps, step, undefined) \
+                    and name in steps.metadata(field).get('nodes', set()):
                 return False
         p = p.nodes[name]
-        p = getattr(p, 'process', p)
 
     # not disabled ? OK then it's enabled
     return True

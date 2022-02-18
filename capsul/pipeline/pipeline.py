@@ -12,15 +12,16 @@ import tempfile
 import os
 import shutil
 import sys
-from soma.utils.weak_proxy import weak_proxy, get_ref
+
+from soma.undefined import undefined
+from soma.utils.weak_proxy import weak_proxy
+import weakref
 
 
 from capsul.process.process import Process, NipypeProcess
 from .topological_sort import GraphNode
 from .topological_sort import Graph
 from .pipeline_nodes import Plug
-from .pipeline_nodes import ProcessNode
-from .pipeline_nodes import PipelineNode
 from .pipeline_nodes import Switch
 from .pipeline_nodes import OptionalOutputSwitch
 
@@ -29,8 +30,10 @@ from soma.controller import (Controller,
                              is_output,
                              is_path,
                              is_directory,
+                             is_list,
                              field,
                              Literal)
+from soma.controller.field import metadata
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 
@@ -73,9 +76,9 @@ class Pipeline(Process):
 
     .. currentmodule:: capsul.pipeline
 
-    * process nodes (:py:class:`pipeline_nodes.ProcessNode`) are the leaf nodes
-      which represent actual processing bricks.
-    * pipeline nodes (:py:class:`pipeline_nodes.PipelineNode`) are
+    * process nodes (:py:class:`~capsul.process.process.Process`) are the leaf
+      nodes which represent actual processing bricks.
+    * pipeline nodes are
       sub-pipelines which allow to reuse an existing pipeline within another
       one
     * switch nodes (:py:class:`pipeline_nodes.Switch`) allows to select values
@@ -200,14 +203,14 @@ class Pipeline(Process):
             exported.
         """
         # Inheritance
+        if 'definition' not in kwargs:
+            kwargs['definition'] = 'custom'
         super(Pipeline, self).__init__(**kwargs)
         super(Pipeline, self).add_field(
             'nodes_activation',
             Controller, hidden=self.hide_nodes_activation)
 
         # Class attributes
-        # this one is only useful to maintain subprocesses/subpipelines life
-        self.list_process_in_pipeline = []
         self.nodes_activation = Controller()
         self.nodes = SortedDictionary()
         self._invalid_nodes = set()
@@ -220,20 +223,14 @@ class Pipeline(Process):
         else:
             self.node_position = {}
         
-        
-        ###############add by Irmage OM ######################### 
         node_dimension = getattr(self,'node_dimension', None)
         if node_dimension:
             self.node_dimension = node_dimension.copy()
         else:
             self.node_dimension = {}
-        #########################################################
             
-            
-        self.pipeline_node = PipelineNode(self, '', self)
-        self.nodes[''] = self.pipeline_node
+        self.nodes[''] = self  # FIXME may cause memory leaks
         self.do_not_export = set()
-        self.parent_pipeline = None
         self._disable_update_nodes_and_plugs_activation = 1
         self._must_update_nodes_and_plugs_activation = False
         self.pipeline_definition()
@@ -243,16 +240,14 @@ class Pipeline(Process):
 
         if autoexport_nodes_parameters is None:
             autoexport_nodes_parameters = self.do_autoexport_nodes_parameters
-        if autoexport_nodes_parameters:
+        else:
+            self.do_autoexport_nodes_parameters = autoexport_nodes_parameters
+        if self.do_autoexport_nodes_parameters:
             self.autoexport_nodes_parameters()
 
         # Refresh pipeline activation
         self._disable_update_nodes_and_plugs_activation -= 1
         self.update_nodes_and_plugs_activation()
-
-    ##############
-    # Methods    #
-    ##############
 
     def pipeline_definition(self):
         """ Define pipeline structure, nodes, sub-pipelines, switches, and
@@ -293,29 +288,6 @@ class Pipeline(Process):
 
                     self.export_parameter(node_name, parameter_name)
 
-    def add_field(self, name, **kwargs):
-        """ Add a field to the pipeline
-
-        Parameters
-        ----------
-        name: str (mandatory)
-            the field name
-        kwargs: dictionary
-            other parameters passed to Controller.add_field
-        """
-        super().add_field(name, **kwargs)
-
-        # Create the plug associated to the new field
-        if getattr(self, 'pipeline_node', False):
-            field = self.field(name)
-            output = is_output(field)
-            optional = self.is_optional(field)
-            plug = Plug(output=output, optional=optional)
-            self.pipeline_node.plugs[name] = plug
-            plug.on_attribute_change.add(
-                self.update_nodes_and_plugs_activation,
-                'enabled')
-
     def remove_field(self, name):
         """ Remove a field from the pipeline
 
@@ -327,8 +299,8 @@ class Pipeline(Process):
         field = self.field(name)
 
         # If we remove a field, clear/remove the associated plug
-        if name in self.pipeline_node.plugs:
-            plug = self.pipeline_node.plugs[name]
+        if name in self.plugs:
+            plug = self.plugs[name]
             links_to_remove = []
             # use intermediary links_to_remove to avoid modifying
             # the links set while iterating on it...
@@ -340,7 +312,7 @@ class Pipeline(Process):
                 links_to_remove.append(f'{src}->{name}')
             for link in links_to_remove:    
                 self.remove_link(link)
-            del self.pipeline_node.plugs[name]
+            del self.plugs[name]
         super().remove_field(name)
 
     def _make_subprocess_context_name(self, name):
@@ -351,28 +323,6 @@ class Pipeline(Process):
             pipeline_name = self.name
         context_name = '.'.join([pipeline_name, name])
         return context_name
-
-    def _set_subprocess_context_name(self, process, name):
-        ''' set full contextual name on process instance
-        '''
-        pipeline_name = getattr(self, 'context_name', None)
-        if pipeline_name is None:
-            pipeline_name = self.name
-        process.context_name = '.'.join([pipeline_name, name])
-        # do it recursively if process is a pipeline
-        if isinstance(process, Pipeline):
-            todo = [process]
-            while todo:
-                cur_proc = todo.pop(0)
-                for nname, node in cur_proc.nodes.items():
-                    if nname == '':
-                        continue
-                    sub_proc = getattr(node, 'process', None)
-                    if sub_proc is not None:
-                        sub_proc.context_name \
-                            = '.'.join([cur_proc.context_name, nname])
-                        if isinstance(sub_proc, Pipeline):
-                            todo.append(sub_proc)
 
     def add_process(self, name, process, do_not_export=None,
                     make_optional=None, inputs_to_copy=None,
@@ -414,7 +364,7 @@ class Pipeline(Process):
         A last note about invalid nodes:
 
         When saving a pipeline (through the :class:`graphical editor
-        <capsul.qt_gui.widgets.pipeline_developper_view.PipelineDevelopperView>`
+        <capsul.qt_gui.widgets.pipeline_developper_view.PipelineDeveloperView>`
         typically), missing nodes *will not be saved* because they are not
         actually in the pipeline. So be careful to save only pipelines with full
         features.
@@ -424,7 +374,8 @@ class Pipeline(Process):
         name: str (mandatory)
             the node name (has to be unique).
         process: Process (mandatory)
-            the process we want to add.
+            the process we want to add. May be a string ('module.process'), a
+            process instance or a class.
         do_not_export: list of str (optional)
             a list of plug names that we do not want to export.
         make_optional: list of str (optional)
@@ -455,43 +406,30 @@ class Pipeline(Process):
             self._skip_invalid_nodes.add(name)
         # Create a process node
         try:
-            process = get_process_instance(process,
-                                           **kwargs)
+            node = get_process_instance(process, **kwargs)
         except Exception:
             if skip_invalid:
-                process = None
+                node = None
                 self._invalid_nodes.add(name)
                 return
             else:
                 raise
-        # set full contextual name on process instance
-        self._set_subprocess_context_name(process, name)
-
-        # Update the kwargs parameters values according to process
-        # default values
-        for k, v in process.default_values.items():
-            kwargs.setdefault(k, v)
 
         # Update the list of files item to copy
-        if inputs_to_copy is not None and hasattr(process, "inputs_to_copy"):
-            process.inputs_to_copy.extend(inputs_to_copy)
-        if inputs_to_clean is not None and hasattr(process, "inputs_to_clean"):
-            process.inputs_to_clean.extend(inputs_to_clean)
+        if inputs_to_copy is not None and hasattr(node, "inputs_to_copy"):
+            node.inputs_to_copy.extend(inputs_to_copy)
+        if inputs_to_clean is not None and hasattr(node, "inputs_to_clean"):
+            node.inputs_to_clean.extend(inputs_to_clean)
 
+        node.set_pipeline(self)
         # Create the pipeline node
-        if isinstance(process, Pipeline):
-            node = process.pipeline_node
-            node.name = name
-            node.pipeline = self
-            process.parent_pipeline = weak_proxy(self)
-        else:
-            node = ProcessNode(self, name, process)
+        node.name = name
         self.nodes[name] = node
 
         # If a default value is given to a parameter, change the corresponding
         # plug so that it gets activated even if not linked
         for parameter_name in kwargs:
-            if process.field(parameter_name):
+            if node.field(parameter_name):
                 node.plugs[parameter_name].has_default_value = True
                 make_optional.add(parameter_name)
 
@@ -504,20 +442,15 @@ class Pipeline(Process):
 
             # Optional plug
             if parameter_name in make_optional:
-                node.plugs[parameter_name].optional = True
-                process = getattr(node, 'process')
-                if process is not None:
-                    process.set_optional(parameter_name,  True)
+                node.set_optional(parameter_name, True)
 
         # Create a field to control the node activation (enable property)
         self.nodes_activation.add_field(name, bool)
         setattr(self.nodes_activation, name, node.enabled)
 
         # Observer
-        self.nodes_activation.on_attribute_change.add(self._set_node_enabled, name)
-
-        # Add new node in pipeline process list to keep its life
-        self.list_process_in_pipeline.append(process)
+        self.nodes_activation.on_attribute_change.add(self._set_node_enabled,
+                                                      name)
 
     def remove_node(self, node_name):
         """ Remove a node from the pipeline
@@ -537,11 +470,9 @@ class Pipeline(Process):
                                  % (node_name, plug_name, dst_node, dst_plug)
                     self.remove_link(link_descr)
         del self.nodes[node_name]
-        if hasattr(node, 'process'):
-            self.list_process_in_pipeline.remove(node.process)
-            self.nodes_activation.on_attribute_change.remove(
-                self._set_node_enabled, node_name)
-            self.nodes_activation.remove_field(node_name)
+        self.nodes_activation.on_attribute_change.remove(
+            self._set_node_enabled, node_name)
+        self.nodes_activation.remove_field(node_name)
 
     def add_iterative_process(self, name, process, iterative_plugs=None,
                               do_not_export=None, make_optional=None,
@@ -596,8 +527,7 @@ class Pipeline(Process):
         method: str (mandatory)
             name of the method to call.
         """
-        return getattr(self.nodes[process_name].process, method)(*args,
-                                                                 **kwargs)
+        return getattr(self.nodes[process_name], method)(*args, **kwargs)
     
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=(), output_types=None, switch_value=None,
@@ -678,8 +608,6 @@ class Pipeline(Process):
         if switch_value:
             node.switch = switch_value
 
-        self._set_subprocess_context_name(node, name)
-
     def add_optional_output_switch(self, name, input, output=None):
         """ Add an optional output switch node in the pipeline
 
@@ -740,8 +668,6 @@ class Pipeline(Process):
         node = OptionalOutputSwitch(self, name, input, output)
         self.nodes[name] = node
 
-        self._set_subprocess_context_name(node, name)
-
     def add_custom_node(self, name, node_type, parameters=None,
                         make_optional=(), do_not_export=None, **kwargs):
         """
@@ -795,7 +721,7 @@ class Pipeline(Process):
 
         return node
 
-    def parse_link(self, link):
+    def parse_link(self, link, check=True):
         """ Parse a link coming from export_parameter method.
 
         Parameters
@@ -803,6 +729,8 @@ class Pipeline(Process):
         link: str
             the link description of the form
             'node_from.plug_name->node_to.plug_name'
+        check: bool
+            if True, check that the node and plug exist
 
         Returns
         -------
@@ -828,33 +756,35 @@ class Pipeline(Process):
         err = None
         try:
             source_node_name, source_plug_name, source_node, source_plug = \
-                self.parse_parameter(source)
+                self.parse_parameter(source, check=check)
         except ValueError:
             err = sys.exc_info()
             source_node_name, source_plug_name, source_node, source_plug \
                 = (None, None, None, None)
         try:
             dest_node_name, dest_plug_name, dest_node, dest_plug = \
-                self.parse_parameter(dest)
+                self.parse_parameter(dest, check=check)
         except ValueError:
             if err or (source_node is not None and source_plug is not None):
                 raise
             dest_node_name, dest_plug_name, dest_node, dest_plug \
                 = (None, None, None, None)
             err = None
-        if err and dest_node is not None and dest_plug is not None:
+        if err and dest_node is not None and dest_plug is not None and check:
             raise err[0].with_traceback(err[1], err[2])
 
         return (source_node_name, source_plug_name, source_node, source_plug,
                 dest_node_name, dest_plug_name, dest_node, dest_plug)
 
-    def parse_parameter(self, name):
+    def parse_parameter(self, name, check=True):
         """ Parse parameter of a node from its description.
 
         Parameters
         ----------
         name: str
             the description plug we want to load 'node.plug'
+        check: bool
+            if True, check that the node and plug exist
 
         Returns
         -------
@@ -867,7 +797,7 @@ class Pipeline(Process):
         # Check if its a pipeline node
         if dot < 0:
             node_name = ""
-            node = self.pipeline_node
+            node = self
             plug_name = name
         else:
             node_name = name[:dot]
@@ -890,15 +820,18 @@ class Pipeline(Process):
                     # beginning of the plug name: probably an auto_exported one
                     # from an invalid node
                     err = True
+                    print('!1!', hasattr(node, 'process'), hasattr(node, '_invalid_nodes'))
                     if hasattr(node, 'process') \
-                            and hasattr(node.process, '_invalid_nodes'):
-                        invalid = node.process._invalid_nodes
+                            and hasattr(node, '_invalid_nodes'):
+                        invalid = node._invalid_nodes
+                        print('!2!', invalid)
                         for ip in invalid:
+                            print('!3!', plug_name)
                             if plug_name.startswith(ip + '_'):
                                 err = False
                                 node.invalid_plugs.add(plug_name)
                                 break
-                    if err:
+                    if err and check:
                         raise ValueError(
                             "'{0}' is not a valid parameter name for "
                             "node '{1}'".format(
@@ -908,7 +841,7 @@ class Pipeline(Process):
                 plug = node.plugs[plug_name]
         return node_name, plug_name, node, plug
 
-    def add_link(self, link, weak_link=False):
+    def add_link(self, link, weak_link=False, allow_export=False):
         """ Add a link between pipeline nodes.
 
         If the destination node is a switch, force the source plug to be not
@@ -925,17 +858,21 @@ class Pipeline(Process):
         weak_link: bool
             this property is used when nodes are optional,
             the plug information may not be generated.
+        allow_export: bool
+            if True, if the link links from/to the pipeline node with a plug
+            name which doesn't exist, the plug will be created, and the
+            function will act exactly like export_parameter. This may be a more
+            convenient way of exporting/connecting pipeline plugs to several
+            nodes without having to export the first one, then link the others.
         """
+        check = True
+        if allow_export:
+            check = False
         if isinstance(link, str):
             # Parse the link
             (source_node_name, source_plug_name, source_node,
             source_plug, dest_node_name, dest_plug_name, dest_node,
-            dest_plug) = self.parse_link(link)
-            if source_node is None \
-                    or dest_node is None or source_plug is None \
-                    or dest_plug is None:
-                # link from/to an invalid node
-                return
+            dest_plug) = self.parse_link(link, check=check)
         else:
             (source_node, source_plug_name, dest_node, dest_plug_name) = link
             source_plug = source_node.plugs[source_plug_name]
@@ -945,21 +882,40 @@ class Pipeline(Process):
             dest_node_name = [k for k, n in self.nodes.items()
                               if n is dest_node][0]
 
+        if allow_export:
+            if source_node is self.pipeline_node \
+                    and source_plug_name not in source_node.plugs:
+                print(dest_node_name, dest_node, dest_node.plugs.keys())
+                self.export_parameter(dest_node_name, dest_plug_name,
+                                      source_plug_name)
+                return
+            elif dest_node is self.pipeline_node \
+                    and dest_plug_name not in dest_node.plugs:
+                self.export_parameter(source_node_name, source_plug_name,
+                                      dest_plug_name)
+                return
+
+        if source_node is None \
+                or dest_node is None or source_plug is None \
+                or dest_plug is None:
+            # link from/to an invalid node
+            return
+
         # Assure that pipeline plugs are not linked
-        if (not source_plug.output and source_node is not self.pipeline_node):
+        if (not source_plug.output and source_node is not self):
               raise ValueError(
                   "Cannot link from an input plug: {0}".format(link))
-        if (source_plug.output and source_node is self.pipeline_node):
+        if (source_plug.output and source_node is self):
             raise ValueError("Cannot link from a pipeline output "
                              "plug: {0}".format(link))
-        if (dest_plug.output and dest_node is not self.pipeline_node):
+        if (dest_plug.output and dest_node is not self):
             raise ValueError("Cannot link to an output plug: {0}".format(link))
-        if (not dest_plug.output and dest_node is self.pipeline_node):
+        if (not dest_plug.output and dest_node is self):
             raise ValueError("Cannot link to a pipeline input "
                              "plug: {0}".format(link))
 
         # Propagate the plug value from source to destination
-        value = getattr(source_node, source_plug_name)
+        value = getattr(source_node, source_plug_name, None)
         if value is not None:
             dest_node.set_plug_value(dest_plug_name, value)
 
@@ -970,20 +926,20 @@ class Pipeline(Process):
                                   source_node, source_plug, weak_link))
 
         # Set a connected_output property
-        if (isinstance(dest_node, ProcessNode) and
-                isinstance(source_node, ProcessNode)):
-            source_field = source_node.process.field(source_plug_name)
-            dest_field = dest_node.process.field(dest_plug_name)
+        if (isinstance(dest_node, Process) and
+                isinstance(source_node, Process)):
+            source_field = source_node.field(source_plug_name)
+            dest_field = dest_node.field(dest_plug_name)
             if is_output(source_field) and not is_output(dest_field):
-                dest_field.metadata['connected_output'] = True
+                dest_node.set_metadata(dest_field, 'connected_output', True)
 
         # Propagate the description in case of destination switch node
         if isinstance(dest_node, Switch):
             source_field = source_node.field(source_plug_name)
             dest_field = dest_node.field(dest_plug_name)
-            dest_field.metadata['desc'] = source_field.metadata['desc']
-            dest_node._switch_changed(getattr(dest_node, "switch"),
-                                      getattr(dest_node, "switch"))
+            dest_node.set_metadata(dest_field, 'desc', source_node.metadata(source_field, 'desc'))
+            dest_node._switch_changed(getattr(dest_node, "switch", undefined),
+                                      getattr(dest_node, "switch", undefined))
 
         # Observer
         source_node.connect(source_plug_name, dest_node, dest_plug_name)
@@ -1033,11 +989,11 @@ class Pipeline(Process):
                                       source_node, source_plug, False))
 
         # Set a connected_output property
-        if (isinstance(dest_node, ProcessNode) and
-                isinstance(source_node, ProcessNode)):
-            dest_field = dest_node.process.field(dest_plug_name)
-            if dest_field.metadata['connected_output']:
-                dest_field.metadata['connected_output'] = False  # FIXME
+        if (isinstance(dest_node, Process) and
+                isinstance(source_node, Process)):
+            dest_field = dest_node.field(dest_plug_name)
+            if metadata(dest_field).get('connected_output'):
+                metadata(dest_field)['connected_output'] = False  # FIXME
 
         # Observer
         source_node.disconnect(source_plug_name, dest_node, dest_plug_name)
@@ -1063,8 +1019,9 @@ class Pipeline(Process):
             Default None, the plug name is used
         weak_link: bool (optional)
             this property is used when nodes are weak,
-            **FIXME:** what does it exactly mean ?
-            the plug information may not be generated.
+            which means that the link will not propagate nodes activation
+            status.
+            The plug information may not be generated.
         is_enabled: bool (optional)
             a property to specify that it is not a user-parameter
             automatic generation)
@@ -1081,7 +1038,7 @@ class Pipeline(Process):
         node = self.nodes.get(node_name)
         if node is None and node_name in self._invalid_nodes:
             # export an invalid plug: mark it as invalid
-            self.pipeline_node.invalid_plugs.add(pipeline_parameter)
+            self.invalid_plugs.add(pipeline_parameter)
             return
 
         # Make a copy of the field
@@ -1089,24 +1046,22 @@ class Pipeline(Process):
 
         # Check if the plug name is valid
         if source_field is None:
-            raise ValueError("Node {0} ({1}) has no parameter "
-                             "{2}".format(node_name, node.name, plug_name))
+            raise ValueError(f"Node {node_name} ({node.name}) has no parameter "
+                             f"{plug_name}")
 
         # Check the pipeline parameter name is not already used
         if (self.field(pipeline_parameter) and not allow_existing_plug):
             raise ValueError(
-                "Parameter '{0}' of node '{1}' cannot be exported to pipeline "
-                "parameter '{2}'".format(
-                    plug_name, node_name or 'pipeline_node',
-                    pipeline_parameter))
+                f"Parameter '{plug_name}' of node '{node_name or 'pipeline'}' cannot be exported to pipeline "
+                f"parameter '{pipeline_parameter}'")
 
-        f = field(type_=source_field)
+        f = field(pipeline_parameter, type_=source_field)
 
         # Set user enabled parameter only if specified
         # Important because this property is automatically set during
         # the nipype interface wrappings
         if is_enabled is not None:
-            f.metadata['enabled'] = bool(is_enabled)
+            metadata(f)['enabled'] = bool(is_enabled)
 
         # Now add the parameter to the pipeline
         if not self.field(pipeline_parameter):
@@ -1117,10 +1072,10 @@ class Pipeline(Process):
             self.set_optional(f.name, bool(is_optional))
 
         # Propagate the parameter value to the new exported one
-        self.set_parameter(pipeline_parameter,
-                            getattr(node, plug_name))
+        v = getattr(node, plug_name, undefined)
+        setattr(self, pipeline_parameter, v)
         # TODO: catch appropriate error type
-        # except traits.TraitError:
+        # except dataclass.ValidationError:
         #     pass
 
         # Do not forget to link the node with the pipeline node
@@ -1132,15 +1087,17 @@ class Pipeline(Process):
             link_desc = f'{pipeline_parameter}->{node_name}.{plug_name}'
             self.add_link(link_desc, weak_link)
 
-    def _set_node_enabled(self, node_name, is_enabled):
+    def _set_node_enabled(self, is_enabled, _, node_name):
         """ Method to enable or disabled a node
 
         Parameters
         ----------
-        node_name: str (mandatory)
-            the node name
         is_enabled: bool (mandatory)
             the desired property
+        old_value: bool
+            former is_enabled value (not used)
+        node_name: str (mandatory)
+            the node name
         """
         node = self.nodes.get(node_name)
         if node:
@@ -1156,9 +1113,9 @@ class Pipeline(Process):
         """
         for node in self.nodes.values():
             yield node
-            if (isinstance(node, PipelineNode) and
-               node is not self.pipeline_node):
-                for sub_node in node.process.all_nodes():
+            if (isinstance(node, Pipeline) and
+               node is not self):
+                for sub_node in node.all_nodes():
                     if sub_node is not node:
                         yield sub_node
 
@@ -1182,7 +1139,7 @@ class Pipeline(Process):
         if node.enabled:
             # Try to activate input plugs
             node_activated = True
-            if node is self.pipeline_node:
+            if node is self:
                 # For the top-level pipeline node, all enabled plugs
                 # are activated
                 for plug_name, plug in node.plugs.items():
@@ -1278,13 +1235,13 @@ class Pipeline(Process):
                         if plug.has_default_value:
                             continue
                         output = plug.output
-                        if (isinstance(node, PipelineNode) and
-                          node is not self.pipeline_node and output):
+                        if (isinstance(node, Pipeline) and
+                                node is not self and output):
                             plug_activated = (
                                 check_plug_activation(plug, plug.links_to) and
                                 check_plug_activation(plug, plug.links_from))
                         else:
-                            if node is self.pipeline_node:
+                            if node is self:
                                 output = not output
                             if output:
                                 plug_activated = check_plug_activation(
@@ -1299,7 +1256,7 @@ class Pipeline(Process):
                             plug.activated = False
                             plugs_deactivated.append((plug_name, plug))
                             if not (plug.optional or
-                                    node is self.pipeline_node):
+                                    node is self):
                                 node.activated = False
                                 break
                 finally:
@@ -1316,18 +1273,20 @@ class Pipeline(Process):
         return plugs_deactivated
 
     def delay_update_nodes_and_plugs_activation(self):
-        if self.parent_pipeline is not None:
+        parent_pipeline = self.get_pipeline()
+        if parent_pipeline is not None:
             # Only the top level pipeline can manage activations
-            self.parent_pipeline.delay_update_nodes_and_plugs_activation()
+            parent_pipeline.delay_update_nodes_and_plugs_activation()
             return
         if self._disable_update_nodes_and_plugs_activation == 0:
             self._must_update_nodes_and_plugs_activation = False
         self._disable_update_nodes_and_plugs_activation += 1
 
     def restore_update_nodes_and_plugs_activation(self):
-        if self.parent_pipeline is not None:
+        parent_pipeline = self.get_pipeline()
+        if parent_pipeline is not None:
             # Only the top level pipeline can manage activations
-            self.parent_pipeline.restore_update_nodes_and_plugs_activation()
+            parent_pipeline.restore_update_nodes_and_plugs_activation()
             return
         self._disable_update_nodes_and_plugs_activation -= 1
         if self._disable_update_nodes_and_plugs_activation == 0 and \
@@ -1339,12 +1298,15 @@ class Pipeline(Process):
         state of the pipeline (i.e. switch selection, nodes disabled, etc.).
         Activations are set according to the following rules.
         """
-        if not hasattr(self, 'parent_pipeline'):
-            # self is being initialized (the call comes from self.__init__).
-            return
-        if self.parent_pipeline is not None:
+        parent_pipeline = self.get_pipeline()
+
+        #if not hasattr(self, 'pipeline'):
+            ## self is being initialized (the call comes from self.__init__).
+            #return
+
+        if parent_pipeline is not None:
             # Only the top level pipeline can manage activations
-            self.parent_pipeline.update_nodes_and_plugs_activation()
+            parent_pipeline.update_nodes_and_plugs_activation()
             return
         if self._disable_update_nodes_and_plugs_activation:
             self._must_update_nodes_and_plugs_activation = True
@@ -1355,7 +1317,7 @@ class Pipeline(Process):
         debug = getattr(self, '_debug_activations', None)
         if debug:
             debug = open(debug, 'w')
-            print(self.id, file=debug)
+            print(self.definition, file=debug)
 
         # Remember all links that are inactive (i.e. at least one of the two
         # plugs is inactive) in order to execute a callback if they become
@@ -1444,13 +1406,13 @@ class Pipeline(Process):
         # Execute a callback for all links that have become active.
         for node, source_plug_name, source_plug, n, pn, p in inactive_links:
             if (source_plug.activated and p.activated):
-                value = getattr(node, source_plug_name)
+                value = getattr(node, source_plug_name, undefined)
                 node._callbacks[(source_plug_name, n, pn)](value)
 
         # Refresh views relying on plugs and nodes selection
         for node in self.all_nodes():
-            if isinstance(node, PipelineNode):
-                node.process.selection_changed.fire()
+            if isinstance(node, Pipeline):
+                node.selection_changed.fire()
 
         self._disable_update_nodes_and_plugs_activation -= 1
 
@@ -1498,7 +1460,7 @@ class Pipeline(Process):
 
                     # If plug links to an inert node (switch...), we need to
                     # address the node plugs
-                    if isinstance(dest_node, ProcessNode):
+                    if isinstance(dest_node, Process):
                         dependencies.add((node_name, dest_node_name))
                         if output:
                             links.setdefault(dest_node, {})[dest_plug_name] \
@@ -1527,27 +1489,28 @@ class Pipeline(Process):
             for step_field in steps.fields():
                 if not getattr(steps, step_field.name, None):
                     disabled_nodes.update(
-                        [self.nodes[node] for node in step_field.metadata['nodes']])
+                        [self.nodes[node]
+                         for node in metadata(step_field)['nodes']])
 
         # Add activated Process nodes in the graph
         for node_name, node in self.nodes.items():
 
             # Do not consider the pipeline node
-            if node_name == "":
+            if node_name == '':
                 continue
 
             # Select only active Process nodes
             if (node.activated or not remove_disabled_nodes) \
-                    and isinstance(node, ProcessNode) \
+                    and isinstance(node, Process) \
                     and (not remove_disabled_steps
                          or node not in disabled_nodes):
 
                 # If a Pipeline is found: the meta graph node parameter
                 # contains a sub Graph
-                if isinstance(node.process, Pipeline):
+                if isinstance(node, Pipeline):
                     gnode = GraphNode(
-                        node_name, node.process.workflow_graph(False))
-                    gnode.meta.pipeline = node.process
+                        node_name, node.workflow_graph(False))
+                    gnode.meta.pipeline = node
                     graph.add_node(gnode)
 
                 # If a Process or an iterative node is found: the meta graph
@@ -1609,6 +1572,8 @@ class Pipeline(Process):
 
         # Generate the output workflow representation
         self.workflow_repr = "->".join([x[0] for x in ordered_list])
+        import logging
+        logger = logging.getLogger('capsul')
         logger.debug("Workflow: {0}". format(self.workflow_repr))
 
         # Generate the final workflow by flattenin graphs structures
@@ -1643,15 +1608,13 @@ class Pipeline(Process):
             return
 
         for plug_name, plug in node.plugs.items():
-            value = gatattr(node, plug_name)
+            value = getattr(node, plug_name, undefined)
             if not plug.activated or not plug.enabled:
                 continue
             field = node.field(plug_name)
-            if not field.metadata.get('output', False):
+            if not node.metadata(field).get('write', False) \
+                    or node.metadata(field).get('output', False):
                 continue
-            if is_path(field):
-                if field.metadata.get('read', True) is False:
-                    continue
             if is_list(field) and is_path(field):
                 if len([x for x in value if x in ('', undefined)]) == 0:
                     continue
@@ -1661,8 +1624,7 @@ class Pipeline(Process):
                 continue
             # check that it is really temporary: not exported
             # to the main pipeline
-            if self.pipeline_node in [link[2]
-                                      for link in plug.links_to]:
+            if self in [link[2] for link in plug.links_to]:
                 # it is visible out of the pipeline: not temporary
                 continue
             # if we get here, we are a temporary.
@@ -1763,7 +1725,7 @@ class Pipeline(Process):
         while nodes:
             node_name, node = nodes.pop(0)
             if hasattr(node, 'process'):
-                process = node.process
+                process = node
                 if isinstance(process, Pipeline):
                     nodes += [(cnode_name, cnode)
                         for cnode_name, cnode in process.nodes.items()
@@ -1811,8 +1773,8 @@ class Pipeline(Process):
                             # linked to the main node: keep it as is
                             valid = False
                             break
-                        if hasattr(link[2], 'process'):
-                            lproc = link[2].process
+                        if isinstance(link[2], Process):
+                            lproc = link[2]
                             lfield = lproc.field(link[1])
                             if is_output(lfield):
                                 # connected to an output file which filename
@@ -1873,23 +1835,23 @@ class Pipeline(Process):
                     for sub_node in node.nodes.values()
                     if sub_node not in nodeset and sub_node not in nodes]
                 nodes += sub_nodes
-            elif hasattr(node, 'process'):
-                if node.process in procs:
+            elif hasattr(node, 'execute'):
+                if node in procs:
                     continue
-                procs.add(node.process)
+                procs.add(node)
                 if node.enabled and node.activated:
                     enabled_procs_count += 1
                 params_count += len([param
                     for param
-                    in node.process.fields()
+                    in node.fields()
                     if param.name not in (
                         'nodes_activation', 'selection_changed')])
-                if hasattr(node.process, 'nodes'):
+                if hasattr(node, 'nodes'):
                     sub_nodes = [sub_node
-                        for sub_node in node.process.nodes.values()
+                        for sub_node in node.nodes.values()
                         if sub_node not in nodeset and sub_node not in nodes]
                     nodes += sub_nodes
-            elif hasattr(node, 'fields'):
+            else:
                 params_count += len([param
                     for param in node.fields()
                     if param.name not in (
@@ -2105,7 +2067,7 @@ class Pipeline(Process):
             sub_process = None
             sub_pipeline = False
             if hasattr(node, 'process'):
-                sub_process = node.process
+                sub_process = node
             if hasattr(sub_process, 'nodes') and sub_process is not self:
                 sub_pipeline = sub_process
             if sub_pipeline:
@@ -2136,7 +2098,7 @@ class Pipeline(Process):
             sub_process = None
             sub_pipeline = False
             if hasattr(node, 'process'):
-                sub_process = node.process
+                sub_process = node
             if hasattr(sub_process, 'nodes') and sub_process is not self:
                 sub_pipeline = sub_process
             if sub_pipeline:
@@ -2251,27 +2213,27 @@ class Pipeline(Process):
         '''
         steps = getattr(self, 'pipeline_steps', Controller())
         disabled_nodes = []
-        for field in steps.fields():
+        for field in steps.fields():  # noqa: F402
             if not getattr(steps, field.name, True):
                 # disabled step
-                nodes = field.metadata['nodes']
+                nodes = metadata(field)['nodes']
                 disabled_nodes.extend([self.nodes[node] for node in nodes])
         return disabled_nodes
 
     def get_pipeline_step_nodes(self, step_name):
         '''Get the nodes in the given pipeline step
         '''
-        return self.pipeline_steps.field(step_name).metadata['nodes']
+        return self.pipeline_steps.metadata(step_name, 'nodes')
 
     def enable_all_pipeline_steps(self):
         '''Set all defined steps (using add_step() or define_steps()) to be
         enabled. Useful to reset the pipeline state after it has been changed.
         '''
         steps = getattr(self, 'pipeline_steps', Controller())
-        for field in steps.fields():
+        for field in steps.fields():  # noqa: F402
             setattr(steps, field.name, True)
 
-    def _change_processes_selection(self, selection_name, selection_group):
+    def _change_processes_selection(self, selection_group, _, selection_name):
         self.delay_update_nodes_and_plugs_activation()
         for group, processes in \
                 self.processes_selection[selection_name].items():
@@ -2304,14 +2266,16 @@ class Pipeline(Process):
         value: str (optional)
             initial state of the selector (default: 1st group)
         '''
-        self.add_field(selection_parameter, Literal(*selection_groups))
+        group_names = tuple(selection_groups.keys())
+        self.add_field(selection_parameter, Literal[group_names],
+                       default=group_names[0])
         self.nodes[''].plugs[selection_parameter].has_default_value = True
         self.processes_selection = getattr(self, 'processes_selection', {})
         self.processes_selection[selection_parameter] = selection_groups
         self.on_attribute_change.add(self._change_processes_selection,
                                      selection_parameter)
-        self._change_processes_selection(selection_parameter,
-                                         getattr(self, selection_parameter))
+        self._change_processes_selection(
+            getattr(self, selection_parameter), None, selection_parameter)
         if value is not None:
             setattr(self, selection_parameter, value)
 
@@ -2352,7 +2316,7 @@ class Pipeline(Process):
         steps_priority = {}
         p = 0
         for step_field in steps.fields():
-            nodes = step_field.metadata['nodes']
+            nodes = metadata(step_field, 'nodes')
             steps_priority[step_field.name] = p
             p += 1
             for node in nodes:
@@ -2360,9 +2324,9 @@ class Pipeline(Process):
 
         if not self.field('visible_groups'):
             # add a field without a plug
-            Controller.add_fieldt(self, 'visible_groups', set)
-        plugs = self.pipeline_node.plugs
-        for field in self.fields():
+            Controller.add_field(self, 'visible_groups', set)
+        plugs = self.plugs
+        for field in self.fields():  # noqa: F402
             plug = plugs.get(field.name)
             if not plug:
                 continue
@@ -2380,7 +2344,7 @@ class Pipeline(Process):
                 groups = sorted(groups, key=lambda x: steps_priority[x])
                 if exclusive:
                     groups = [groups[0]]
-                field.metadata['groups'] = groups
+                metadata(field)['groups'] = groups
 
     def check_requirements(self, environment='global', message_list=None):
         '''
@@ -2400,7 +2364,7 @@ class Pipeline(Process):
         from capsul.pipeline import pipeline_tools
         success = True
         for key, node in self.nodes.items():
-            if node is self.pipeline_node:
+            if node is self:
                 continue
             if pipeline_tools.is_node_enabled(self, key, node):
                 conf = node.check_requirements(
@@ -2471,10 +2435,10 @@ class Pipeline(Process):
             # look for the node in the pipeline_steps, if any
             steps = getattr(self, 'pipeline_steps', None)
             if steps:
-                for field in steps.fields():
-                    nodes = field.metadata['nodes']
+                for field in steps.fields():  # noqa: F402
+                    nodes = metadata(field, 'nodes')
                     if old_node_name in nodes:
-                        field.metadata['nodes'] = [
+                        metadata(field)['nodes'] = [
                             n if n != old_node_name
                             else new_node_name
                             for n in nodes]
@@ -2488,6 +2452,182 @@ class Pipeline(Process):
                 self.node_dimension[new_node_name] \
                     = self.node_dimension[old_node_name]
                 del self.node_dimension[old_node_name]
+
+    def get_connections_through(self, plug_name, single=False):
+        if not self.activated or not self.enabled:
+            return []
+
+        plug = self.plugs[plug_name]
+        if plug.output:
+            links = plug.links_from
+        else:
+            links = plug.links_to
+        dest_plugs = []
+        for link in links:
+            done = False
+            if not link[2].activated or not link[2].enabled:
+                continue  # skip disabled nodes
+            if link[2] is self:
+                # other side of the pipeline
+                if link[3].output:
+                    more_links = link[3].links_to
+                else:
+                    more_links = link[3].links_from
+                if not more_links:
+                    # going outside the pipeline which seems to be top-level:
+                    # keep it
+                    dest_plugs.append((link[2], link[1], link[3]))
+                    if single:
+                        done = True
+                for other_link in more_links:
+                    other_end = other_link[2].get_connections_through(
+                        other_link[1], single)
+                    dest_plugs += other_end
+                    if other_end and single:
+                        done = True
+                        break
+            else:
+                other_end = link[2].get_connections_through(link[1], single)
+                dest_plugs += other_end
+                if other_end and single:
+                    done = True
+            if done:
+                break
+        return dest_plugs
+
+    def get_linked_items(self, node, plug_name=None):
+        '''Return the real process(es) node and plug connected to the given plug.
+        Going through switches and inside subpipelines, ignoring nodes that are
+        not activated.
+        The result is a generator of pairs (node, plug_name).
+        '''
+        if plug_name is None:
+            stack =[(node, plug) for plug in node.plugs]
+        else:
+            stack =[(node, plug_name)]
+        while stack:
+            node, plug_name = stack.pop(0)
+            if not node.activated:
+                continue
+            plug = node.plugs.get(plug_name)
+            if plug:
+                if plug.output ^ isinstance(node, Pipeline):
+                    direction = 'links_to'
+                else:
+                    direction = 'links_from'
+                for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
+                    if isinstance(dest_node, Process):
+                        yield (dest_node, dest_plug_name)
+                    elif isinstance(dest_node, Pipeline):
+                        yield from dest_node.get_linked_items(dest_plug_name)
+                    elif isinstance(dest_node, Switch):
+                        if dest_plug_name == 'switch':
+                            yield (dest_node, dest_plug_name)
+                        else:
+                            for input_plug_name, output_plug_name in dest_node.connections():
+                                if plug.output ^ isinstance(node, Pipeline):
+                                    if dest_plug_name == input_plug_name:
+                                        stack.append((dest_node, output_plug_name))
+                                else:
+                                    if dest_plug_name == output_plug_name:
+                                        stack.append((dest_node, input_plug_name))
+
+    def json(self):
+        if self.definition == 'custom':
+            return {
+                'type': 'custom_pipeline',
+                'definition': self.json_definition(),
+                'parameters': super(Process, self).json(),
+            }
+        else:
+            result = super().json()
+            result['type'] = 'pipeline'
+            return result
+
+    def json_definition(self):
+        result = {}
+
+        if hasattr(self, "__doc__"):
+            docstr = self.__doc__
+            if docstr == Pipeline.__doc__:
+                docstr = ''  # don't use the builtin Pipeline help
+            else:
+                # remove automatically added doc
+                splitdoc = docstr.split('\n')
+                notepos = [i for i, x in enumerate(splitdoc[:-2])
+                              if x.endswith('.. note::')]
+                autodocpos = None
+                if notepos:
+                    for i in notepos:
+                        if splitdoc[i+2].find(
+                                f"* Type '{self.__class__.__name__}.help()'") != -1:
+                            autodocpos = i
+                if autodocpos is not None:
+                    # strip empty trailing lines
+                    while autodocpos >= 1 \
+                            and splitdoc[autodocpos - 1].strip() == '':
+                        autodocpos -= 1
+                    docstr = '\n'.join(splitdoc[:autodocpos]) + '\n'
+        else:
+            docstr = ''
+        if docstr.strip() == '':
+            docstr = ''
+        result['doc'] = docstr
+
+        for node_name, node in self.nodes.items():
+            if node_name == "":
+                continue
+            if isinstance(node, Switch):
+                raise NotImplementedError('Serialization of Switch not implemented')
+            elif isinstance(node, Process):
+                node_json = node.json()
+                result.setdefault('executables', {})[node_name] = node_json
+            else:
+                raise NotImplementedError(f'Serialization of {type(node)} not implemented')
+            if not node.enabled:
+                node_json['enabled'] = False
+        return result
+
+
+
+    #     "executables": {
+    #         "p1": {
+    #             "type": "process",
+    #             "definition": "capsul.process.test.test_load_from_description.a_function_to_wrap",
+    #             "parameters": {
+    #                 "list_of_str": ["test"]
+    #             }
+    #         },
+    #         "p2": {
+    #             "type": "process",
+    #             "definition": "capsul.process.test.test_load_from_description.a_function_to_wrap"
+    #         }
+    #     },
+    #     "links": [
+    #         ["p1.result", "p2.fname"],
+    #         ["pdirectory", "p2.directory"],
+    #         ["value", "p2.value"],
+    #         ["enum", "p2.enum"],
+    #         ["list_of_str", "p2.list_of_str"],
+    #         ["value", "p1.value"],
+    #         ["enum", "p1.enum"],
+    #         ["fname", "p1.fname"],
+    #         ["list_of_str", "p1.list_of_str"],
+    #         ["pdirectory", "p1.directory"],
+    #         ["p2.result", "out1"]
+    #     ],
+    #     "gui": {
+    #         "position": {
+    #             "inputs": [0, 0],
+    #             "p1": [200, 200],
+    #             "p2": [400, -200],
+    #             "outputs": [600, 0]
+    #         },
+    #         "zoom": {
+    #             "level": 1
+    #         }
+    #     }
+    # }
 
 # This import is at the end because get_process_instance needs Pipeline and
 #  Pipeline needs get_process instance

@@ -10,9 +10,8 @@ Classes
 ----------------------------
 '''
 
-from __future__ import print_function
-
 # System import
+from __future__ import print_function
 from __future__ import absolute_import
 import os
 import re
@@ -26,14 +25,13 @@ logger = logging.getLogger(__name__)
 # Soma import
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui
-from soma.qt_gui.controller_widget import ScrollControllerWidget
+from soma.qt_gui.controller import ControllerWidget
 
 # Capsul import
 from capsul.qt_apps.utils.application import Application
 import capsul.qt_apps.resources as resources
-from capsul.api import get_process_instance
-from capsul.qt_gui.widgets import PipelineDevelopperView
-from capsul.pipeline.pipeline_nodes import PipelineNode
+from capsul.api import get_process_instance, Pipeline
+from capsul.qt_gui.widgets import PipelineDeveloperView
 
 
 class ActivationInspectorApp(Application):
@@ -81,8 +79,8 @@ class ActivationInspectorApp(Application):
         #ui_file = os.path.join(resources.__path__[0], "activation_inspector.ui")
 
         # Create and show the activation/pipeline/controller windows
-        self.pipeline_window = PipelineDevelopperView(self.pipeline, show_sub_pipelines=True)
-        self.controller_window = ScrollControllerWidget(self.pipeline,live=True)
+        self.pipeline_window = PipelineDeveloperView(self.pipeline, show_sub_pipelines=True)
+        self.controller_window = ControllerWidget(self.pipeline)
         self.activation_window = ActivationInspector(
             self.pipeline, ui_file, self.record_file,
             developper_view=self.pipeline_window)
@@ -109,7 +107,7 @@ class ActivationInspector(QtGui.QWidget):
         record_file: str (optional)
             a file path where the activation steps are recorded.
             If not specified (None), it will create a temporary file.
-        developper_view: PipelineDevelopperView (optional)
+        developper_view: PipelineDeveloperView (optional)
             if specified it is possible to click on a plug to set a filter
             pattern and to update the pipeline activation accordingly.
         """
@@ -222,11 +220,11 @@ class ActivationInspector(QtGui.QWidget):
             # Get the header of the file that contains the pipeline identifier
             # of the recorded activation
             record_pipeline_id = openrecord.readline().strip()
-            if record_pipeline_id != self.pipeline.id:
+            if record_pipeline_id != str(self.pipeline.definition):
                 raise ValueError(
                     "'{0}' recorded activations for pipeline '{1}' but not for "
                     "'{2}'".format(self.record_file, record_pipeline_id, 
-                                   self.pipeline.id))
+                                   self.pipeline.definition))
 
             # Clear the list where the recorded activation is displayed
             self.ui.events.clear()
@@ -283,8 +281,8 @@ class ActivationInspector(QtGui.QWidget):
 
         # Refresh views relying on plugs and nodes selection
         for node in self.pipeline.all_nodes():
-            if isinstance(node, PipelineNode):
-                node.process.selection_changed.fire()
+            if isinstance(node, Pipeline):
+                node.selection_changed.fire()
 
     def find_next(self):
         """ Forward search for a pattern in the activation list.

@@ -34,21 +34,43 @@ from capsul.pipeline.pipeline_nodes import Node
 from soma.controller import Controller, field
 from soma.undefined import undefined
 
-# Nipype import
-try:
-    from nipype.interfaces.base import Interface
-# If nipype is not found create a dummy Interface class
-except ImportError:
-    Interface = type("Interface", (object, ), {})
-
-
 process_xml_re = re.compile(r'<process.*</process>', re.DOTALL)
+
+
+_interface = None
+_nipype_loaded = False
+
+def _get_interface_class():
+    '''
+    returns the nypype Interface type, or a custom type if it cannot be
+    imported.
+
+    We use this function on demand because importing nipype is long (it
+    sometimes takes several seconds) and it's not always needed.
+
+    We don't really import nipype, but use sys.modules to get it instead,
+    because here we only use Interface to check if a given object is an
+    instance of Interface.
+    '''
+    global _interface, _nipype_loaded
+    if _interface is not None and _nipype_loaded:
+        return _interface
+    if not _nipype_loaded:
+        # Nipype import
+        nipype = sys.modules.get('nipype.interfaces.base')
+        if nipype is None:
+            _interface = type("Interface", (object, ), {})
+        else:
+            _interface = getattr(nipype, 'Interface')
+            _nipype_loaded = True
+    return _interface
 
 
 def is_process(item):
     """ Check if the input item is a process class or function with decorator
     or XML docstring which makes it seen as a process
     """
+    Interface = _get_interface_class()
     if inspect.isclass(item) and item not in (Pipeline, Process) \
             and (issubclass(item, Process) or issubclass(item, Interface)):
         return True
@@ -120,7 +142,7 @@ def get_process_instance(process_or_id, **kwargs):
         a process
         '''
         object_name = None
-        for name, item in six.iteritems(module_dict):
+        for name, item in module_dict.items():
             if is_process(item):
                 if object_name is not None:
                     raise KeyError(
@@ -132,6 +154,7 @@ def get_process_instance(process_or_id, **kwargs):
         return object_name
 
     result = None
+    Interface = _get_interface_class()
     # If the function 'process_or_id' parameter is already a Process
     # instance.
     if isinstance(process_or_id, Process):
@@ -196,10 +219,18 @@ def get_process_instance(process_or_id, **kwargs):
                 module_name, object_name = elements
             try:
                 module = importlib.import_module(module_name)
-                if object_name not in module.__dict__:
+                # update the Interface class since we may have loaded nipype
+                # during import
+                Interface = _get_interface_class()
+
+                if object_name not in module.__dict__ \
+                        or inspect.ismodule(getattr(module, object_name)):
                     # maybe a module with a single process in it
                     module = importlib.import_module(process_or_id)
                     module_dict = module.__dict__
+                    # update the Interface class since we may have loaded
+                    # nipype during import
+                    Interface = _get_interface_class()
                     object_name = _find_single_process(
                         module_dict, module_name)
                     if object_name is not None:
@@ -278,7 +309,7 @@ def get_process_instance(process_or_id, **kwargs):
 
     # Set the instance default parameters
     for name, value in kwargs.items():
-        result.set_parameter(name, value)
+        setattr(result, name, value)
 
     return result
 
@@ -412,8 +443,12 @@ def process_from_function(function):
         output = name == 'return'
         if isinstance(type_, dataclasses.Field):
             metadata = {}
-            metadata.update(type_.metadata)
+            # may be overriden by metadata
             metadata['output'] = output
+            metadata.update(type_.metadata)
+            metadata.update(type_.metadata.get('_metadata', {}))
+            if '_metadata' in metadata:
+                del metadata['_metadata']
             default=type_.default
             default_factory=type_.default_factory
             kwargs = dict(

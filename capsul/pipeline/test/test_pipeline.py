@@ -2,30 +2,33 @@
 from __future__ import print_function
 from __future__ import absolute_import
 import unittest
-from traits.api import File, Float
+from capsul.api import Capsul
 from capsul.api import Process
 from capsul.api import Pipeline
-from capsul.api import get_process_instance
+from soma.controller import file
 import tempfile
 import os
+import os.path as osp
 import sys
 
 
 class DummyProcess(Process):
     """ Dummy Test Process
     """
-    def __init__(self):
-        super(DummyProcess, self).__init__()
+    def __init__(self, definition=None):
+        if definition is None:
+            definition = 'capsul.pipeline.test.test_pipeline.DummyProcess'
+        super(DummyProcess, self).__init__(definition)
 
         # inputs
-        self.add_trait("input_image", File(optional=False))
-        self.add_trait("other_input", Float(optional=True))
+        self.add_field("input_image", file(optional=False))
+        self.add_field("other_input", float, optional=True)
 
         # outputs
-        self.add_trait("output_image", File(optional=False, output=True))
-        self.add_trait("other_output", Float(optional=True, output=True))
+        self.add_field("output_image", file(optional=False, output=True))
+        self.add_field("other_output", float, optional=True, output=True)
 
-    def _run_process(self):
+    def execute(self):
         with open(self.output_image, 'w') as f:
             f.write('dummy output.\n')
         self.other_output = 24.6
@@ -35,6 +38,9 @@ class MyPipeline(Pipeline):
     """ Simple Pipeline to test the Switch Node
     """
     def pipeline_definition(self):
+
+        if self.definition is None:
+            self.definition = 'capsul.pipeline.test.test_pipeline.MyPipeline'
 
         # Create processes
         self.add_process("constant",
@@ -57,13 +63,13 @@ class MyPipeline(Pipeline):
         self.export_parameter("node2", "output_image", "output")
         self.export_parameter("node2", "other_output")
 
-        self.nodes['constant'].process.name = 'MyPipeline.constant'
-        self.nodes['node1'].process.name = 'MyPipeline.node1'
-        self.nodes['node2'].process.name = 'MyPipeline.node2'
+        self.nodes['constant'].name = 'MyPipeline.constant'
+        self.nodes['node1'].name = 'MyPipeline.node1'
+        self.nodes['node2'].name = 'MyPipeline.node2'
 
         # initial internal values
-        self.nodes['constant'].process.other_input = 14.65
-        self.nodes['constant'].process.input_image = 'blah'
+        self.nodes['constant'].other_input = 14.65
+        self.nodes['constant'].input_image = 'blah'
 
 
 class TestPipeline(unittest.TestCase):
@@ -83,11 +89,28 @@ class TestPipeline(unittest.TestCase):
                     pass
             self.temp_files = []
 
+    def add_py_tmpfile(self, pyfname):
+        '''
+        add the given .py file and the associated .pyc file to the list of temp
+        files to remove after testing
+        '''
+        self.temp_files.append(pyfname)
+        if sys.version_info[0] < 3:
+            self.temp_files.append(pyfname + 'c')
+        else:
+            cache_dir = osp.join(osp.dirname(pyfname), '__pycache__')
+            print('cache_dir:', cache_dir)
+            cpver = 'cpython-%d%d.pyc' % sys.version_info[:2]
+            pyfname_we = osp.basename(pyfname[:pyfname.rfind('.')])
+            pycfname = osp.join(cache_dir, '%s.%s' % (pyfname_we, cpver))
+            self.temp_files.append(pycfname)
+            print('added py tmpfile:', pyfname, pycfname)
+
     def test_constant(self):
         graph = self.pipeline.workflow_graph()
         self.assertTrue(
-            self.pipeline.nodes['constant'].process.trait(
-                'input_image').optional)
+            self.pipeline.nodes['constant'].metadata('input_image').get(
+                'optional'))
         ordered_list = graph.topological_sort()
         self.pipeline.workflow_ordered_nodes()
         self.assertTrue(
@@ -97,18 +120,22 @@ class TestPipeline(unittest.TestCase):
                 % self.pipeline.workflow_repr)
 
     def test_enabled(self):
-        setattr(self.pipeline.nodes_activation, "node2", False)
+        self.pipeline.nodes_activation.node2 = False
         self.pipeline.workflow_ordered_nodes()
         self.assertEqual(self.pipeline.workflow_repr, "")
 
+    @unittest.skip('run() is not reimplemented yet.')
     def test_run_pipeline(self):
         setattr(self.pipeline.nodes_activation, "node2", True)
         tmp = tempfile.mkstemp('', prefix='capsul_test_pipeline')
         ofile = tmp[1]
         os.close(tmp[0])
         os.unlink(tmp[1])
+        capsul = Capsul()
         try:
-            self.pipeline(input_image='/tmp/bloup', output=ofile)
+            with capsul.engine() as engine:
+                engine.run(self.pipeline, input_image='/tmp/bloup',
+                           output=ofile)
         finally:
             if os.path.exists(tmp[1]):
                 os.unlink(tmp[1])
@@ -117,21 +144,21 @@ class TestPipeline(unittest.TestCase):
         pipeline = MyPipeline()
         from capsul.pipeline import pipeline_tools
         pipeline_tools.save_pipeline(pipeline, filename)
-        pipeline2 = get_process_instance(filename)
+        pipeline2 = Capsul().executable(filename)
         pipeline2.workflow_ordered_nodes()
 
         if self.debug:
             from soma.qt_gui.qt_backend import QtGui
-            from capsul.qt_gui.widgets import PipelineDevelopperView
+            from capsul.qt_gui.widgets import PipelineDeveloperView
             import sys
             app = QtGui.QApplication.instance()
             if not app:
                 app = QtGui.QApplication(sys.argv)
-            view1 = PipelineDevelopperView(
+            view1 = PipelineDeveloperView(
                 pipeline, allow_open_controller=True, enable_edition=True,
                 show_sub_pipelines=True)
 
-            view2 = PipelineDevelopperView(
+            view2 = PipelineDeveloperView(
                 pipeline2, allow_open_controller=True, enable_edition=True,
                 show_sub_pipelines=True)
             view1.show()
@@ -154,9 +181,10 @@ class TestPipeline(unittest.TestCase):
             fd, filename = tempfile.mkstemp(prefix='test_pipeline',
                                             suffix='.py')
             os.close(fd)
-            self.temp_files.append(filename)
+            self.add_py_tmpfile(filename)
         self.run_pipeline_io(filename)
 
+    @unittest.skip('XML is no longer supported')
     def test_pipeline_xml(self):
         if self.debug:
             filename = '/tmp/pipeline.xml'
@@ -182,15 +210,15 @@ if __name__ == "__main__":
 
     if '-v' in sys.argv[1:]:
         import sys
-        from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from soma.qt_gui.qt_backend import Qt
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
-        app = QtGui.QApplication.instance()
+        app = Qt.QApplication.instance()
         if not app:
-            app = QtGui.QApplication(sys.argv)
+            app = Qt.QApplication(sys.argv)
         pipeline = MyPipeline()
         #setattr(pipeline.nodes_activation, "node2", False)
-        view1 = PipelineDevelopperView(pipeline)
+        view1 = PipelineDeveloperView(pipeline)
         view1.show()
         app.exec_()
         del view1

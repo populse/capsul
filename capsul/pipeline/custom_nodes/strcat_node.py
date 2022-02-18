@@ -128,6 +128,8 @@ class StrCatNode(Node):
         # transmit values
         for param in self._concat_sequence:
             param_dict[param] = getattr(self, param)
+        # [re] build the concatenated output
+        self.cat_callback()
         param_dict[self._concat_plug] = getattr(self, self._concat_plug)
         job = StrCatJob(name=name,
                         referenced_input_files=referenced_input_files,

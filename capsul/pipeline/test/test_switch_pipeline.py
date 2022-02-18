@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import sys
 import unittest
 import os
@@ -201,14 +201,14 @@ if __name__ == "__main__":
         from soma.qt_gui import qt_backend
         qt_backend.set_qt_backend('PyQt4')
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
         pipeline = SwitchPipeline()
         pipeline.switch = "one"
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view1.show()
         app.exec_()

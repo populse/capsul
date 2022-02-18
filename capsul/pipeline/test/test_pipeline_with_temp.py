@@ -177,7 +177,7 @@ if __name__ == "__main__":
     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
         import sys
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
@@ -185,14 +185,14 @@ if __name__ == "__main__":
         pipeline = MyPipeline()
         pipeline.input_image = '/data/file.txt'
         pipeline.output_image = '/data/output_file.txt'
-        view1 = PipelineDevelopperView(pipeline)
+        view1 = PipelineDeveloperView(pipeline)
         view1.show()
 
         pipeline2 = MyIterativePipeline()
         pipeline2.input_images = ['/data/file.txt', '/data/file.txt',
                                   '/data/file.txt']
         pipeline2.output = '/data/output_file.txt'
-        view2 = PipelineDevelopperView(pipeline2)
+        view2 = PipelineDeveloperView(pipeline2)
         view2.show()
         app.exec_()
 

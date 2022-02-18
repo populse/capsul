@@ -363,7 +363,7 @@ if __name__ == "__main__":
 
     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
@@ -377,14 +377,14 @@ if __name__ == "__main__":
         pipeline2 = pipeline.nodes["iterative"].process
         pipeline2.scene_scale_factor = 0.5
 
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view1.add_embedded_subpipeline('iterative')
         view1.auto_dot_node_positions()
         view1.show()
 
         pipeline2 = MyBigPipeline()
-        view2 = PipelineDevelopperView(pipeline2, show_sub_pipelines=True,
+        view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view2.add_embedded_subpipeline('iterative')
         view2.auto_dot_node_positions()

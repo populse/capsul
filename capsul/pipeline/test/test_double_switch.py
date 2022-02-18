@@ -3,9 +3,8 @@ from __future__ import print_function
 from __future__ import absolute_import
 import unittest
 import os
-from traits.api import Str, Float
 from capsul.api import Process
-from capsul.api import Pipeline, PipelineNode
+from capsul.api import Pipeline
 
 
 class DummyProcess(Process):
@@ -15,10 +14,10 @@ class DummyProcess(Process):
         super(DummyProcess, self).__init__()
 
         # inputs
-        self.add_trait("input_image", Str(optional=False))
+        self.add_field("input_image", str, optional=False)
 
         # outputs
-        self.add_trait("output_image", Str(optional=False, output=True))
+        self.add_field("output_image", str, optional=False, output=True)
 
     def _run_process(self):
         self.output_image = self.input_image
@@ -112,7 +111,7 @@ if __name__ == "__main__":
         from soma.qt_gui import qt_backend
         qt_backend.set_qt_backend('PyQt4')
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
@@ -120,7 +119,7 @@ if __name__ == "__main__":
         pipeline = DoubleSwitchPipeline1()
         pipeline.switch1 = "one"
         pipeline.switch2 = "one"
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view1.show()
 

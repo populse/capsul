@@ -30,25 +30,23 @@ import tempfile
 import traceback
 
 
-from soma.controller import Controller
+from soma.controller import (Controller, undefined, file, directory)
+from .node import Node
 
 
-class Process(Controller):
+class Process(Node):
     """ A process is an atomic component that contains a processing.
 
     A process is typically an object with typed parameters, and an execution
-    function. Parameters are described using Enthought
-    `traits <http://docs.enthought.com/traits/>`_ through Soma-Base
-    :somabase:`Controller <api.html#soma.controller.controller.Controller>`
-    base class.
+    function. Parameters are described using the
+    :class:`~soma.controller.controller.Controller` API, based on the
+    dataclasses module. Parameters are fields which allow typechecking and
+    notification.
 
     In addition to describing its parameters, a Process must implement its
-    execution function, either through a python method, by overloading
-    :meth:`_run_process`, or through a commandline execution, by overloading
-    :meth:`get_commandline`. The second way allows to run on a remote
-    processing machine which has not necessary capsul, nor python, installed.
+    execution function, by overloading :meth:`execute`.
 
-    Parameters are declared or queried using the traits API, and their values
+    Parameters are declared or queried using the fields API, and their values
     are in the process instance variables:
 
     ::
@@ -67,9 +65,9 @@ class Process(Controller):
                 # declare an input param
                 self.add_field('param2', int)
                 # declare an output param
-                self.add_field('out_param', file(output=True))
+                self.add_field('out_param', file(write=True))
 
-            def run(self, context):
+            def execute(self):
                 with open(self.out_param, 'w') as f:
                     print('param1:', self.param1, file=f)
                     print('param2:', self.param2, file=f)
@@ -77,30 +75,24 @@ class Process(Controller):
         # run it with parameters
         run(MyProcess, param2=12, out_param='/tmp/log.txt')
 
-    **Note about the File and Directory parameters**
+    **Note about the file and directory parameters**
 
-    The :class:`~traits.trait_types.File` trait type represents a file
+    The :func:`~soma.controller.field.file` field type represents a file
     parameter. A file is actually two things: a filename (string), and the file itself (on the filesystem). For an input it is OK not to distinguish them, but for an output, there are two different cases:
 
     * the file (on the filesystem) is an output, but the filename (string) is
       given as an input: this is the classical "commandline" behavior, when we
       tell the program where it should write its output file.
-    * the file is an output, and the filename is also an output: this is rather a
-      "function return value" behavior: the process determines internally where
-      it should write the file, and tells as an output where it did.
+    * the file is an output, and the filename is also an output: this is rather
+      a "function return value" behavior: the process determines internally
+      where it should write the file, and tells as an output where it did.
 
-    To distinguish these two cases, in Capsul we normally add in the
-    :class:`~traits.trait_types.File` or :class:`~traits.trait_types.Directory`
-    trait a property ``input_filename`` which is True when the filename is an
-    input, and False when the filename is an output::
+    To distinguish these two cases, in Capsul we use add in the
+    :class:`~soma.controller.file` or :class:`~soma.controller.directory`
+    fields a metadata ``write`` which is True when the file will be written,
+    and ``output`` is only True when the filename is an output::
 
-        self.add_trait('out_file',
-                       traits.File(output=True, input_filename=False))
-
-    However as most of our processes are based on the "commandline behavior"
-    (the filename is an input) and we often forget to specify the
-    ``input_filename`` parameter, the default is the "filename is an input"
-    behavior, when not specified.
+        self.add_field('out_file', file(output=True, write=True))
 
     **Attributes**
 
@@ -108,16 +100,23 @@ class Process(Controller):
     ----------
     name: str
         the class name.
-    id: str
+    definition: str
         the string description of the class location (ie., module.class).
     """
 
-    def __init__(self, definition=None):
-        super().__init__()
+    def __init__(self, definition=None, **kwargs):
+        if definition is None:
+            defn = []
+            if self.__class__.__module__ != '__main__':
+                defn.append(self.__class__.__module__)
+            defn.append(self.__class__.__name__)
+            definition = '.'.join(defn)
+        super().__init__(**kwargs)
         self.definition = definition
     
     def json(self):
         result = {
+            'type': 'process',
             'definition': self.definition,
             'parameters': super().json(),
         }
@@ -139,49 +138,22 @@ class Process(Controller):
  
     def get_missing_mandatory_parameters(self):
         ''' Returns a list of parameters which are not optional, and which
-        value is Undefined or None, or an empty string for a File or
+        value is Undefined or None, or an empty string for a file or
         Directory parameter.
         '''
-        def check_trait(trait, value):
-            if trait.optional:
-                return True
-            if hasattr(trait, 'inner_traits') and len(trait.inner_traits) != 0:
-                if value is Undefined:
-                    return bool(trait.output)
-                for i, item in enumerate(value):
-                    j = min(i, len(trait.inner_traits) - 1)
-                    if not check_trait(trait.inner_traits[j], item):
-                        return False
-                return True
-            if isinstance(trait.trait_type, (File, Directory)):
-                if trait.output and trait.input_filename is False:
-                    # filename is an output
-                    return True
-                return value not in (Undefined, None, '')
-            return trait.output or value not in (Undefined, None)
 
         missing = []
         for field in self.fields():
             optional = field.metadata.get('optional', False)
             if optional:
                 output = field.metadata.get('output', False)
-                value = gatattr(self, field.name, undefined)
+                value = getattr(self, field.name, undefined)
                 if not output and value in (undefined, None):
-                    missing.append(name)
+                    missing.append(field.name)
         return missing
 
-    def requirements(self):
-        '''
-        Requirements needed to run the process. It is a dictionary which keys are config/settings modules and values are requests for them.
-
-        The default implementation returns an empty dict (no requirements), and
-        should be overloaded by processes which actually have requirements.
-
-        Ex::
-
-            {'spm': 'version >= "12" and standalone == "True"')
-        '''
-        return {}
+    def is_job(self):
+        return True
 
     def execute(self, context):
         raise NotImplementedError(f'The run method is not implemented for process {self.definition}')
@@ -199,7 +171,6 @@ class FileCopyProcess(Process):
 
     Methods
     -------
-    __call__
     _update_input_traits
     _get_process_arguments
     _copy_input_files
@@ -261,7 +232,7 @@ class FileCopyProcess(Process):
 
         if self.destination is None:
             output_directory = getattr(self, 'output_directory', None)
-            if output_directory in (None, Undefined, ''):
+            if output_directory in (None, undefined, ''):
                 output_directory = None
             if self.use_temp_output_dir:
                 workspace = tempfile.mkdtemp(dir=output_directory,
@@ -278,7 +249,7 @@ class FileCopyProcess(Process):
         output_directory = self.destination
         if output_directory is None:
             output_directory = getattr(self, 'output_directory', None)
-        if output_directory not in (None, Undefined, ''):
+        if output_directory not in (None, undefined, ''):
             self._former_output_directory = output_directory
             self.output_directory = destdir
 
@@ -489,7 +460,7 @@ class FileCopyProcess(Process):
         if isinstance(python_object, dict):
             out = {}
             for key, val in python_object.items():
-                if val is not Undefined:
+                if val is not undefined:
                     if isinstance(files_list, dict):
                         sub_files_list = files_list.setdefault(key, [])
                     else:
@@ -504,7 +475,7 @@ class FileCopyProcess(Process):
         elif isinstance(python_object, (list, tuple)):
             out = []
             for val in python_object:
-                if val is not Undefined:
+                if val is not undefined:
                     out.append(self._copy_input_files(val, use_symlink,
                                                       files_list, copy=copy))
             if isinstance(python_object, tuple):
@@ -514,7 +485,7 @@ class FileCopyProcess(Process):
         # a file
         else:
             out = python_object
-            if (python_object is not Undefined and
+            if (python_object is not undefined and
                     isinstance(python_object, str) and
                     os.path.isfile(python_object)):
                 destdir = self._destination
@@ -586,9 +557,9 @@ class FileCopyProcess(Process):
             s = name in self.inputs_to_symlink
             if c or s:
                 # Get the trait value
-                value = self.get_parameter(name)
-                # Skip undefined trait attributes and outputs
-                if value is not Undefined:
+                value = getattr(self, name, undefined)
+                # Skip undefined field attributes and outputs
+                if value is not undefined:
                     # Store the input parameter
                     if c:
                         input_parameters[name] = value
@@ -798,12 +769,13 @@ class NipypeProcess(FileCopyProcess):
 
         # Add a new trait to store the processing output directory
         super(Process, self).add_trait(
-            "output_directory", Directory(Undefined, exists=True,
+            "output_directory", directory(undefined, exists=True,
                                           optional=True))
 
         # Add a 'synchronize' nipype input trait that will be used to trigger
         # manually the output nipype/capsul traits sync.
-        super(Process, self).add_trait("synchronize", Int(0, optional=True))
+        super(Process, self).add_field("synchronize", int, default=0,
+                                       optional=True)
 
         # use the nipype doc for help
         doc = getattr(nipype_instance, '__doc__')
@@ -874,7 +846,7 @@ class NipypeProcess(FileCopyProcess):
             cwd = os.getcwd()
         except OSError:
             cwd = None
-        if self.output_directory is None or self.output_directory is Undefined:
+        if self.output_directory is None or self.output_directory is undefined:
             raise ValueError('output_directory is not set but is mandatory '
                              'to run a NipypeProcess')
         os.chdir(self.output_directory)
@@ -885,7 +857,7 @@ class NipypeProcess(FileCopyProcess):
             if trait_name in self.user_traits():
                 old = getattr(self._nipype_interface.inputs, trait_name)
                 new = getattr(self, trait_name)
-                if old is Undefined and old != new:
+                if old is undefined and old != new:
                     setattr(self._nipype_interface.inputs, trait_name, new)
 
         results = self._nipype_interface.run()
@@ -913,7 +885,7 @@ class NipypeProcess(FileCopyProcess):
     def _after_run_process(self, run_process_result):
         trait_map = getattr(self, '_nipype_trait_mapping', {})
         script_tname = trait_map.get('_spm_script_file', '_spm_script_file')
-        if getattr(self, script_tname, None) not in (None, Undefined, ''):
+        if getattr(self, script_tname, None) not in (None, undefined, ''):
             script_file = os.path.join(
                 self.output_directory,
                 self._nipype_interface.mlab.inputs.script_file)

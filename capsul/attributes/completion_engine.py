@@ -276,7 +276,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                     break
 
 
-    def complete_parameters(self, process_inputs={}):
+    def complete_parameters(self, process_inputs={}, complete_iterations=True):
         ''' Completes file parameters from given inputs parameters, which may
         include both "regular" process parameters (file names) and attributes.
 
@@ -286,6 +286,14 @@ class ProcessCompletionEngine(traits.HasTraits):
             parameters to be set on the process. It may include "regular"
             process parameters, and attributes used for completion. Attributes
             should be in a sub-dictionary under the key "capsul_attributes".
+        complete_iterations: bool (optional)
+            if False, iteration nodes inside the pipeline will not run their
+            own completion. Thus parameters for the iterations will not be
+            correctly completed. However this has 2 advantages: 1. it prevents
+            modification of the input pipeline, 2. it will not do iterations
+            completion which will anyway be done (again) when building a
+            workflow in
+            `~capsul.pipeline.pipeline_workflow.workflow_from_pipeline`.
         '''
         self.completion_progress = 0.
         self.completion_progress_total = 1.
@@ -350,11 +358,13 @@ class ProcessCompletionEngine(traits.HasTraits):
                 self._install_subprogress_moniotoring(subprocess_compl)
                 try:
                     subprocess_compl.complete_parameters(
-                        {'capsul_attributes': attrib_values})
+                        {'capsul_attributes': attrib_values},
+                        complete_iterations=complete_iterations)
                 except Exception:
                     try:
                         self.__class__(node).complete_parameters(
-                            {'capsul_attributes': attrib_values})
+                            {'capsul_attributes': attrib_values},
+                            complete_iterations=complete_iterations)
                     except Exception:
                         pass
                 self._remove_subprogress_moniotoring(subprocess_compl)
@@ -646,7 +656,9 @@ class ProcessCompletionEngine(traits.HasTraits):
                 except ValueError:
                     pass # not found
         if engine_factory is None:
-            engine_factory = ProcessCompletionEngineFactory()
+            from . import completion_engine_factory
+            engine_factory = completion_engine_factory. \
+                BuiltinProcessCompletionEngineFactory()
         completion_engine = engine_factory.get_completion_engine(
             process, name=name)
         # I remove the completion_engine cache because when the FOM config

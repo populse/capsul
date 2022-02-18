@@ -10,7 +10,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from capsul.pipeline.pipeline import Pipeline
-from capsul.pipeline.pipeline_nodes import ProcessNode
+from capsul.process.process import Process
 from traits.api import Undefined
 import six
 import tempfile
@@ -113,7 +113,7 @@ class WorkflowExecutionError(Exception):
             % (status, wk, wc, precisions))
 
 
-def start(engine, process, history=True, get_pipeline=False, **kwargs):
+def start(engine, process, workflow=None, history=True, get_pipeline=False, **kwargs):
     '''
     Asynchronously start the execution of a process or pipeline in the
     connected computing environment. Returns an identifier of
@@ -131,6 +131,7 @@ def start(engine, process, history=True, get_pipeline=False, **kwargs):
     ----------
     engine: CapsulEngine
     process: Process or Pipeline instance
+    workflow: Workflow instance (optional - if already defined before call)
     history: bool (optional)
         TODO: not implemented yet.
     get_pipeline: bool (optional)
@@ -169,7 +170,8 @@ def start(engine, process, history=True, get_pipeline=False, **kwargs):
     from capsul.pipeline.pipeline_workflow import workflow_from_pipeline
     import soma_workflow.client as swclient
 
-    workflow = workflow_from_pipeline(process)
+    if workflow is None:
+        workflow = workflow_from_pipeline(process)
 
     swm = engine.study_config.modules['SomaWorkflowConfig']
     swm.connect_resource(engine.connected_to())
@@ -218,7 +220,7 @@ def wait(engine, execution_id, timeout=-1, pipeline=None):
             if isinstance(process, Pipeline):
                 todo += [n.process for n in process.nodes.values()
                          if n is not process.pipeline_node
-                             and isinstance(n, ProcessNode)]
+                             and isinstance(n, Process)]
             else:
                 proc_map[id(process)] = process
 
@@ -326,7 +328,7 @@ def dispose(engine, execution_id, conditional=False):
 
 
 def call(engine, process, history=True, **kwargs):
-    eid, pipeline = engine.start(process, history=history, get_pipeline=True,
+    eid, pipeline = engine.start(process, workflow=None, history=history, get_pipeline=True,
                                  **kwargs)
     status = engine.wait(eid, pipeline=pipeline)
     engine.dispose(eid, conditional=True)
@@ -334,7 +336,7 @@ def call(engine, process, history=True, **kwargs):
 
 
 def check_call(engine, process, history=True, **kwargs):
-    eid, pipeline = engine.start(process, history=history, get_pipeline=True,
+    eid, pipeline = engine.start(process, workflow=None, history=history, get_pipeline=True,
                                  **kwargs)
     status = engine.wait(eid, pipeline=pipeline)
     try:

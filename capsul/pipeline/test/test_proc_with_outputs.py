@@ -489,27 +489,27 @@ if __name__ == "__main__":
         from soma.qt_gui import qt_backend
         qt_backend.set_qt_backend(compatible_qt5=True)
         from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDevelopperView
+        from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication(sys.argv)
         pipeline = DummyPipeline()
         pipeline.input = '/tmp/file_in.nii'
         pipeline.output = '/tmp/file_out3.nii'
         pipeline.node2_switch = 'node2alt'
-        view1 = PipelineDevelopperView(pipeline, show_sub_pipelines=True,
+        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view1.show()
 
         pipeline2 = PipelineWithSubpipeline()
         pipeline2.input = '/tmp/file_in.nii'
-        view2 = PipelineDevelopperView(pipeline2, show_sub_pipelines=True,
+        view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view2.show()
 
         pipeline3 = PipelineWithIteration()
         pipeline3.input = '/tmp/file_in.nii'
         pipeline3.output = '/tmp/file_out4.nii'
-        view3 = PipelineDevelopperView(pipeline3, show_sub_pipelines=True,
+        view3 = PipelineDeveloperView(pipeline3, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view3.show()
 

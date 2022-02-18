@@ -252,6 +252,22 @@ def create_xml_pipeline(module, name, xml_file):
                 else:
                     raise ValueError('Invalid tag in <gui>: %s' %
                                      gui_child.tag)
+        elif child.tag == 'set':
+            name = child.get('name')
+            optional = child.get('optional')
+            if optional is not None:
+                if optional in ('true', 'True', 'True', '1'):
+                    optional = True
+                else:
+                    optional = False
+            value = child.get('value')
+            if value is not None:
+                optional = True
+                value = string_to_value(value)
+                if value is not None:
+                    builder.set_value(name, value)
+            if optional:
+                builder.set_optional(name, optional)
         else:
             raise ValueError('Invalid tag in <pipeline>: %s' % child.tag)
     return builder.pipeline
