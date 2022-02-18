@@ -33,6 +33,7 @@ from soma.controller import (Controller,
                              is_list,
                              field,
                              Literal)
+from soma.controller.field import metadata
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 
@@ -991,8 +992,8 @@ class Pipeline(Process):
         if (isinstance(dest_node, Process) and
                 isinstance(source_node, Process)):
             dest_field = dest_node.field(dest_plug_name)
-            if dest_field.metadata.get('connected_output'):
-                dest_field.metadata['connected_output'] = False  # FIXME
+            if metadata(dest_field).get('connected_output'):
+                metadata(dest_field)['connected_output'] = False  # FIXME
 
         # Observer
         source_node.disconnect(source_plug_name, dest_node, dest_plug_name)
@@ -1060,7 +1061,7 @@ class Pipeline(Process):
         # Important because this property is automatically set during
         # the nipype interface wrappings
         if is_enabled is not None:
-            f.metadata['enabled'] = bool(is_enabled)
+            metadata(f)['enabled'] = bool(is_enabled)
 
         # Now add the parameter to the pipeline
         if not self.field(pipeline_parameter):
@@ -1488,7 +1489,8 @@ class Pipeline(Process):
             for step_field in steps.fields():
                 if not getattr(steps, step_field.name, None):
                     disabled_nodes.update(
-                        [self.nodes[node] for node in step_field.metadata['nodes']])
+                        [self.nodes[node]
+                         for node in metadata(step_field)['nodes']])
 
         # Add activated Process nodes in the graph
         for node_name, node in self.nodes.items():
@@ -2214,14 +2216,14 @@ class Pipeline(Process):
         for field in steps.fields():  # noqa: F402
             if not getattr(steps, field.name, True):
                 # disabled step
-                nodes = field.metadata['nodes']
+                nodes = metadata(field)['nodes']
                 disabled_nodes.extend([self.nodes[node] for node in nodes])
         return disabled_nodes
 
     def get_pipeline_step_nodes(self, step_name):
         '''Get the nodes in the given pipeline step
         '''
-        return self.pipeline_steps.field(step_name).metadata['nodes']
+        return self.pipeline_steps.metadata(step_name, 'nodes')
 
     def enable_all_pipeline_steps(self):
         '''Set all defined steps (using add_step() or define_steps()) to be
@@ -2314,7 +2316,7 @@ class Pipeline(Process):
         steps_priority = {}
         p = 0
         for step_field in steps.fields():
-            nodes = step_field.metadata['nodes']
+            nodes = metadata(step_field, 'nodes')
             steps_priority[step_field.name] = p
             p += 1
             for node in nodes:
@@ -2342,7 +2344,7 @@ class Pipeline(Process):
                 groups = sorted(groups, key=lambda x: steps_priority[x])
                 if exclusive:
                     groups = [groups[0]]
-                field.metadata['groups'] = groups
+                metadata(field)['groups'] = groups
 
     def check_requirements(self, environment='global', message_list=None):
         '''
@@ -2434,9 +2436,9 @@ class Pipeline(Process):
             steps = getattr(self, 'pipeline_steps', None)
             if steps:
                 for field in steps.fields():  # noqa: F402
-                    nodes = field.metadata['nodes']
+                    nodes = metadata(field, 'nodes')
                     if old_node_name in nodes:
-                        field.metadata['nodes'] = [
+                        metadata(field)['nodes'] = [
                             n if n != old_node_name
                             else new_node_name
                             for n in nodes]
