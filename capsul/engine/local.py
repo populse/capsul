@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import importlib
 import json
-import os
 import shutil
 import subprocess
 import sys
@@ -57,7 +56,7 @@ class LocalEngine:
     def executable_requirements(self, executable):
         return getattr(executable, 'requirements', {})
 
-    def modules_config(executable):
+    def modules_config(self, executable):
         result = {}
         for module_name, requirements in self.executable_requirements(executable):
             module = self.module(module_name)
@@ -128,7 +127,7 @@ class LocalEngine:
                 raise RuntimeError(error)
 
     def update_executable(self, executable, status):
-        executable.import_json(status['parameters'])
+        executable.import_json(status.get('executable', {}).get('parameters', {}))
 
     def run(self, executable, **kwargs):
         execution_id = self.start(executable, **kwargs)

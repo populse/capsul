@@ -116,6 +116,7 @@ class Process(Node):
     
     def json(self):
         result = {
+            'type': 'process',
             'definition': self.definition,
             'parameters': super().json(),
         }
@@ -154,7 +155,7 @@ class Process(Node):
     def is_job(self):
         return True
 
-    def execute(self):
+    def execute(self, context):
         raise NotImplementedError(f'The run method is not implemented for process {self.definition}')
 
 

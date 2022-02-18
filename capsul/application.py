@@ -78,26 +78,30 @@ class Capsul:
         path_layout = dataset_config['path_layout']
         return Dataset(path, path_layout)
 
-    def custom_pipeline(self):
-        return Pipeline(definition='custom')
+    def custom_pipeline(self, *args, **kwargs):
+        return Pipeline(definition='custom', *args, **kwargs)
 
 def executable(definition, **kwargs):
     '''
     Build a Process instance given a definition string
     '''
+        
     result = None
     item = None
-    if definition.endswith('.json'):
-        with open(definition) as f:
-            json_executable = json.load(f)
-        result =  executable_from_json(definition, json_executable)
+    if isinstance(definition, dict):
+        result = executable_from_json(None, definition)
     else:
-        elements = definition.rsplit('.', 1)
-        if len(elements) > 1:
-            module_name, object_name = elements
-            module = importlib.import_module(module_name)
-            item = getattr(module, object_name, None)
-            result = executable_from_python(definition, item)
+        if definition.endswith('.json'):
+            with open(definition) as f:
+                json_executable = json.load(f)
+            result =  executable_from_json(definition, json_executable)
+        else:
+            elements = definition.rsplit('.', 1)
+            if len(elements) > 1:
+                module_name, object_name = elements
+                module = importlib.import_module(module_name)
+                item = getattr(module, object_name, None)
+                result = executable_from_python(definition, item)
 
     if result is not None:
         for name, value in kwargs.items():
@@ -149,14 +153,23 @@ def executable_from_json(definition, json_executable):
     Build a process instance from a JSON dictionary and its definition string.
     '''
     type = json_executable.get('type')
-    if type == 'process':
-        result = executable(json_executable['definition'])
-        result.definition = definition
+    if type is None:
+        raise ValueError(f'type missing from pipeline defined in {definition}')
+    pipeline_definition = json_executable.get('definition')
+    if pipeline_definition is None:
+        raise ValueError(f'definition missing from pipeline defined in {definition}')
+    if type in ('process', 'pipeline'):
+        result = executable(pipeline_definition)
+        if definition is not None:
+            result.definition = definition
         parameters = json_executable.get('parameters')
         if parameters:
             result.import_json(parameters)
-    elif type == 'pipeline':
-        result = JSONPipeline(definition, json_executable)
+    elif type == 'custom_pipeline':
+        result = JSONPipeline(definition, pipeline_definition)
+        parameters = json_executable.get('parameters')
+        if parameters:
+            result.import_json(parameters)
     else:
         raise ValueError(f'Invalid executable type in {definition}: {type}')
     return result
@@ -194,7 +207,7 @@ def process_from_function(function):
             name = 'result'
         annotations[name] = field(**kwargs)
 
-    def wrap(self):
+    def wrap(self, context):
         kwargs = {i: getattr(self, i) for i in annotations if i != 'result' and getattr(self, i, undefined) is not undefined}
         result = function(**kwargs)
         setattr(self, 'result', result)
@@ -211,8 +224,10 @@ def process_from_function(function):
 
 class JSONPipeline(Pipeline):
     def __init__(self, definition, json_executable):
+        if definition is None:
+            definition = 'custom_pipeline'
         object.__setattr__(self, 'json_executable' , json_executable)
-        super().__init__(definition=definition)
+        super().__init__(definition=definition, autoexport_nodes_parameters=json_executable.get('export_parameters', False))
     
     def pipeline_definition(self):
         exported_parameters = set()

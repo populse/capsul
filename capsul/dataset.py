@@ -175,7 +175,7 @@ class Dataset:
                 attrs = global_attrs.copy()
                 process_attrs = getattr(executable, 'path_layout', {}).get(self.layout_name, {}).get(field.name)
                 if process_attrs is None and isinstance(executable, Pipeline):
-                    inner_item = next(executable.get_linked_items(field.name), None)
+                    inner_item = next(executable.get_linked_items(executable, field.name), None)
                     if inner_item is not None:
                         e, p = inner_item
                         process_attrs = getattr(e, 'path_layout', {}).get(self.layout_name, {}).get(p)

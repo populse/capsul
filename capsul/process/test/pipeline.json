@@ -1,41 +1,43 @@
 {
-    "type": "pipeline",
-    "doc": "Auto Generated Pipeline Test",
-    "executables": {
-        "p1": {
-            "type": "process",
-            "definition": "capsul.process.test.test_load_from_description.a_function_to_wrap",
-            "parameters": {
-                "list_of_str": ["test"]
+    "type": "custom_pipeline",
+    "definition": {
+        "doc": "Auto Generated Pipeline Test",
+        "executables": {
+            "p1": {
+                "type": "process",
+                "definition": "capsul.process.test.test_load_from_description.a_function_to_wrap",
+                "parameters": {
+                    "list_of_str": ["test"]
+                }
+            },
+            "p2": {
+                "type": "process",
+                "definition": "capsul.process.test.test_load_from_description.a_function_to_wrap"
             }
         },
-        "p2": {
-            "type": "process",
-            "definition": "capsul.process.test.test_load_from_description.a_function_to_wrap"
-        }
-    },
-    "links": [
-        ["p1.result", "p2.fname"],
-        ["pdirectory", "p2.directory"],
-        ["value", "p2.value"],
-        ["enum", "p2.enum"],
-        ["list_of_str", "p2.list_of_str"],
-        ["value", "p1.value"],
-        ["enum", "p1.enum"],
-        ["fname", "p1.fname"],
-        ["list_of_str", "p1.list_of_str"],
-        ["pdirectory", "p1.directory"],
-        ["p2.result", "out1"]
-    ],
-    "gui": {
-        "position": {
-            "inputs": [0, 0],
-            "p1": [200, 200],
-            "p2": [400, -200],
-            "outputs": [600, 0]
-        },
-        "zoom": {
-            "level": 1
+        "links": [
+            ["p1.result", "p2.fname"],
+            ["pdirectory", "p2.directory"],
+            ["value", "p2.value"],
+            ["enum", "p2.enum"],
+            ["list_of_str", "p2.list_of_str"],
+            ["value", "p1.value"],
+            ["enum", "p1.enum"],
+            ["fname", "p1.fname"],
+            ["list_of_str", "p1.list_of_str"],
+            ["pdirectory", "p1.directory"],
+            ["p2.result", "out1"]
+        ],
+        "gui": {
+            "position": {
+                "inputs": [0, 0],
+                "p1": [200, 200],
+                "p2": [400, -200],
+                "outputs": [600, 0]
+            },
+            "zoom": {
+                "level": 1
+            }
         }
     }
 }

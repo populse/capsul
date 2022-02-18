@@ -239,16 +239,14 @@ class Pipeline(Process):
 
         if autoexport_nodes_parameters is None:
             autoexport_nodes_parameters = self.do_autoexport_nodes_parameters
-        if autoexport_nodes_parameters:
+        else:
+            self.do_autoexport_nodes_parameters = autoexport_nodes_parameters
+        if self.do_autoexport_nodes_parameters:
             self.autoexport_nodes_parameters()
 
         # Refresh pipeline activation
         self._disable_update_nodes_and_plugs_activation -= 1
         self.update_nodes_and_plugs_activation()
-
-    ##############
-    # Methods    #
-    ##############
 
     def pipeline_definition(self):
         """ Define pipeline structure, nodes, sub-pipelines, switches, and
@@ -1053,10 +1051,8 @@ class Pipeline(Process):
         # Check the pipeline parameter name is not already used
         if (self.field(pipeline_parameter) and not allow_existing_plug):
             raise ValueError(
-                "Parameter '{0}' of node '{1}' cannot be exported to pipeline "
-                "parameter '{2}'".format(
-                    plug_name, node_name or 'pipeline',
-                    pipeline_parameter))
+                f"Parameter '{plug_name}' of node '{node_name or 'pipeline'}' cannot be exported to pipeline "
+                f"parameter '{pipeline_parameter}'")
 
         f = field(pipeline_parameter, type_=source_field)
 
@@ -1498,7 +1494,7 @@ class Pipeline(Process):
         for node_name, node in self.nodes.items():
 
             # Do not consider the pipeline node
-            if node_name == "":
+            if node_name == '':
                 continue
 
             # Select only active Process nodes
@@ -2497,13 +2493,16 @@ class Pipeline(Process):
                 break
         return dest_plugs
 
-    def get_linked_items(self, plug_name):
+    def get_linked_items(self, node, plug_name=None):
         '''Return the real process(es) node and plug connected to the given plug.
         Going through switches and inside subpipelines, ignoring nodes that are
         not activated.
-        The result is a list of pairs (node, plug_name).
+        The result is a generator of pairs (node, plug_name).
         '''
-        stack =[(self, plug_name)]
+        if plug_name is None:
+            stack =[(node, plug) for plug in node.plugs]
+        else:
+            stack =[(node, plug_name)]
         while stack:
             node, plug_name = stack.pop(0)
             if not node.activated:
@@ -2530,8 +2529,104 @@ class Pipeline(Process):
                                 else:
                                     if dest_plug_name == output_plug_name:
                                         stack.append((dest_node, input_plug_name))
-        return None
-    
+
+    def json(self):
+        if self.definition == 'custom':
+            return {
+                'type': 'custom_pipeline',
+                'definition': self.json_definition(),
+                'parameters': super(Process, self).json(),
+            }
+        else:
+            result = super().json()
+            result['type'] = 'pipeline'
+            return result
+
+    def json_definition(self):
+        result = {}
+
+        if hasattr(self, "__doc__"):
+            docstr = self.__doc__
+            if docstr == Pipeline.__doc__:
+                docstr = ''  # don't use the builtin Pipeline help
+            else:
+                # remove automatically added doc
+                splitdoc = docstr.split('\n')
+                notepos = [i for i, x in enumerate(splitdoc[:-2])
+                              if x.endswith('.. note::')]
+                autodocpos = None
+                if notepos:
+                    for i in notepos:
+                        if splitdoc[i+2].find(
+                                f"* Type '{self.__class__.__name__}.help()'") != -1:
+                            autodocpos = i
+                if autodocpos is not None:
+                    # strip empty trailing lines
+                    while autodocpos >= 1 \
+                            and splitdoc[autodocpos - 1].strip() == '':
+                        autodocpos -= 1
+                    docstr = '\n'.join(splitdoc[:autodocpos]) + '\n'
+        else:
+            docstr = ''
+        if docstr.strip() == '':
+            docstr = ''
+        result['doc'] = docstr
+
+        for node_name, node in self.nodes.items():
+            if node_name == "":
+                continue
+            if isinstance(node, Switch):
+                raise NotImplementedError('Serialization of Switch not implemented')
+            elif isinstance(node, Process):
+                node_json = node.json()
+                result.setdefault('executables', {})[node_name] = node_json
+            else:
+                raise NotImplementedError(f'Serialization of {type(node)} not implemented')
+            if not node.enabled:
+                node_json['enabled'] = False
+        return result
+
+
+
+    #     "executables": {
+    #         "p1": {
+    #             "type": "process",
+    #             "definition": "capsul.process.test.test_load_from_description.a_function_to_wrap",
+    #             "parameters": {
+    #                 "list_of_str": ["test"]
+    #             }
+    #         },
+    #         "p2": {
+    #             "type": "process",
+    #             "definition": "capsul.process.test.test_load_from_description.a_function_to_wrap"
+    #         }
+    #     },
+    #     "links": [
+    #         ["p1.result", "p2.fname"],
+    #         ["pdirectory", "p2.directory"],
+    #         ["value", "p2.value"],
+    #         ["enum", "p2.enum"],
+    #         ["list_of_str", "p2.list_of_str"],
+    #         ["value", "p1.value"],
+    #         ["enum", "p1.enum"],
+    #         ["fname", "p1.fname"],
+    #         ["list_of_str", "p1.list_of_str"],
+    #         ["pdirectory", "p1.directory"],
+    #         ["p2.result", "out1"]
+    #     ],
+    #     "gui": {
+    #         "position": {
+    #             "inputs": [0, 0],
+    #             "p1": [200, 200],
+    #             "p2": [400, -200],
+    #             "outputs": [600, 0]
+    #         },
+    #         "zoom": {
+    #             "level": 1
+    #         }
+    #     }
+    # }
+
 # This import is at the end because get_process_instance needs Pipeline and
 #  Pipeline needs get_process instance
 from capsul.process_instance import get_process_instance
