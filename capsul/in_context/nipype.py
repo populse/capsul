@@ -16,6 +16,7 @@ def configure_all():
     configure_spm()
     configure_fsl()
     configure_freesurfer()
+    configure_afni()
 
 
 def configure_spm():
@@ -91,5 +92,18 @@ def configure_freesurfer():
             freesurfer.FSCommand.set_default_subjects_dir(subjects_dir)
         from capsul.in_context import freesurfer as fsrun
         env = fsrun.freesurfer_env()
+        for var, value in env.items():
+            os.environ[var] = value
+
+
+def configure_afni():
+    '''
+    Configure AFNI for nipype
+    '''
+    from capsul import engine
+    conf = engine.configurations.get('capsul.engine.module.afni')
+    if conf:
+        from capsul.in_context import afni as afnirun
+        env = afnirun.afni_env()
         for var, value in env.items():
             os.environ[var] = value

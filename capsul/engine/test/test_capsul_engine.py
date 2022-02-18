@@ -133,7 +133,16 @@ class TestCapsulEngine(unittest.TestCase):
                                         getattr(config, cif))
             fsl = settings.new_config('fsl', 'global', {cif:'5'})
             fsl.directory = '/there'
-            
+
+            # Create a global AFNI configuration
+            config = settings.config('afni', 'global')
+            if config:
+                settings.remove_config('afni', 'global',
+                                        getattr(config, cif))
+            settings.new_config('afni', 'global', {'directory': '/there',
+                                                   cif: '22'})
+
+
             # Create two global SPM configurations
             settings.new_config('spm', 'global', {'version': '8',
                                                   'standalone': True,
@@ -149,11 +158,15 @@ class TestCapsulEngine(unittest.TestCase):
         self.assertEqual(
             self.ce.settings.select_configurations('my_machine'),
             {'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'ALL',
-                               'capsul.engine.module.matlab': 'ALL',
-                               'capsul.engine.module.spm': 'ALL'}},
+                                        'capsul.engine.module.matlab': 'ALL',
+                                        'capsul.engine.module.spm': 'ALL',
+                                        'capsul.engine.module.afni': 'ALL'}},
              'capsul.engine.module.fsl': {'config_environment': 'global',
                                           'directory': '/there',
                                           cif: '5'},
+             'capsul.engine.module.afni': {
+                'config_environment': 'global','directory': '/there',
+                cif: '22'},
              'capsul.engine.module.spm': {'config_environment': 'my_machine',
                                            'version': '20',
                                            'standalone': True,
@@ -169,6 +182,15 @@ class TestCapsulEngine(unittest.TestCase):
                  cif:'5'},
              'capsul_engine':
                 {'uses': {'capsul.engine.module.fsl': 'any'}}})
+
+        self.assertEqual(
+            self.ce.settings.select_configurations('global',
+                                                   uses={'afni': 'any'}),
+            {'capsul.engine.module.afni':
+                 {'config_environment': 'global', 'directory': '/there',
+                  cif: '22'},
+             'capsul_engine':
+                 {'uses': {'capsul.engine.module.afni': 'any'}}})
 
         self.assertEqual(
             self.ce.settings.select_configurations('global',

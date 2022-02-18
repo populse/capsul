@@ -57,7 +57,7 @@ class StudyConfig(Controller):
 
     This in turn is used to evaluate a Process instance or a Pipeline.
 
-    StudyConfig has modules (see BrainVISAConfig, FSLConfig, MatlabConfig,
+    StudyConfig has modules (see BrainVISAConfig, AFNIConfig, FSLConfig, MatlabConfig,
     SmartCachingConfig, SomaWorkflowConfig, SPMConfig, FOMConfig).
     Modules are initialized in the constructor, so their list has to be setup
     before instantiating StudyConfig. A default modules list is used when no
@@ -107,7 +107,7 @@ class StudyConfig(Controller):
     set_study_configuration
     """
 
-    default_modules = ['FSLConfig', 'MatlabConfig', 'SmartCachingConfig',
+    default_modules = ['AFNIConfig', 'FSLConfig', 'MatlabConfig', 'SmartCachingConfig',
                        'SomaWorkflowConfig', 'SPMConfig']
     _user_config_directory = os.path.join("~", ".config", "capsul")
 

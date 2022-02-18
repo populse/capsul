@@ -2,4 +2,5 @@
 
 default_modules = ['fsl',
                    'matlab',
-                   'spm']
+                   'spm',
+                   'afni']
