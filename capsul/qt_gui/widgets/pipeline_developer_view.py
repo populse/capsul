@@ -69,6 +69,7 @@ import capsul.pipeline.xml as capsulxml
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma import controller
 from soma.controller import (Controller, undefined, field_subtypes)
+from soma.controller.field import metadata
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import get_ref
 from soma.utils.weak_proxy import proxy_method
@@ -310,7 +311,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         if steps:
             for step in steps.fields():
                 step_name = step.name
-                step_nodes = step.nodes
+                step_nodes = metadata(step)['nodes']
                 if name in step_nodes:
                     my_labels.append('step: %s' % step_name)
         selects = pipeline.get_processes_selections()
@@ -2748,7 +2749,7 @@ class PipelineDeveloperView(QGraphicsView):
             pipeline.selection_changed.add(self._reset_pipeline)
             pipeline.on_fields_change.add(self._reset_pipeline)
             if hasattr(pipeline, 'pipeline_steps'):
-                pipeline.pipeline_steps.on_attributes_change(
+                pipeline.pipeline_steps.on_attribute_change.add(
                     self._reset_pipeline)
 
     def release_pipeline(self, delete=False):
