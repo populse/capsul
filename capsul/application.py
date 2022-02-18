@@ -95,6 +95,17 @@ def executable(definition, **kwargs):
             with open(definition) as f:
                 json_executable = json.load(f)
             result =  executable_from_json(definition, json_executable)
+        elif definition.endswith('.py'):
+            d = {}
+            with open(definition) as f:
+                exec(f.read(), d, d)
+            processes = [i for i in d.values() if isinstance(i, type) and issubclass(i, Process) and i not in (Process, Pipeline)]
+            if not processes:
+                # TODO: try to find a function process
+                raise ValueError(f'No process class found in {definition}')
+            if len(processes) > 1:
+                raise ValueError(f'Several process classes found in {definition}')
+            result = executable_from_python(definition, processes[0])
         else:
             elements = definition.rsplit('.', 1)
             if len(elements) > 1:
