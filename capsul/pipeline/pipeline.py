@@ -993,7 +993,7 @@ class Pipeline(Process):
         if (isinstance(dest_node, Process) and
                 isinstance(source_node, Process)):
             dest_field = dest_node.field(dest_plug_name)
-            if dest_field.metadata['connected_output']:
+            if dest_field.metadata.get('connected_output'):
                 dest_field.metadata['connected_output'] = False  # FIXME
 
         # Observer
