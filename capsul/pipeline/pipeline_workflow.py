@@ -25,7 +25,7 @@ import weakref
 import soma_workflow.client as swclient
 import soma_workflow.info as swinfo
 
-from capsul.pipeline.pipeline import Pipeline, Switch, PipelineNode
+from capsul.pipeline.pipeline import Pipeline, Switch
 from capsul.pipeline import pipeline_tools
 from capsul.process.process import Process
 from capsul.pipeline.topological_sort import Graph

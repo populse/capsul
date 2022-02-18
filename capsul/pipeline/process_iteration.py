@@ -10,19 +10,15 @@ Classes
 '''
 
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import sys
-import six
-from traits.api import List, Undefined
+from soma.controller import undefined, is_path
+from soma.controller.field import field_type, default_value, Union
 
 from capsul.process.process import Process
 from capsul.process_instance import get_process_instance
-from traits.api import File, Directory
-from six.moves import range
 
-if sys.version_info[0] >= 3:
-    xrange = range
 
 class ProcessIteration(Process):
 
@@ -42,70 +38,68 @@ class ProcessIteration(Process):
         # use the completion system (if any) to get induced (additional)
         # iterated parameters
 
-        # don't import this at module level to avoid cyclic imports
-        from capsul.attributes.completion_engine \
-            import ProcessCompletionEngine
+        # FIXME
+        ## don't import this at module level to avoid cyclic imports
+        #from capsul.attributes.completion_engine \
+            #import ProcessCompletionEngine
 
-        completion_engine \
-            = ProcessCompletionEngine.get_completion_engine(self)
-        if hasattr(completion_engine, 'get_induced_iterative_parameters'):
-            induced_iterative_parameters \
-                = completion_engine.get_induced_iterative_parameters()
-            self.iterative_parameters.update(induced_iterative_parameters)
-            iterative_parameters = self.iterative_parameters
+        #completion_engine \
+            #= ProcessCompletionEngine.get_completion_engine(self)
+        #if hasattr(completion_engine, 'get_induced_iterative_parameters'):
+            #induced_iterative_parameters \
+                #= completion_engine.get_induced_iterative_parameters()
+            #self.iterative_parameters.update(induced_iterative_parameters)
+            #iterative_parameters = self.iterative_parameters
 
         # Check that all iterative parameters are valid process parameters
-        user_traits = self.process.user_traits()
         has_output = False
         inputs = []
         for parameter in self.iterative_parameters:
-            if parameter not in user_traits:
+            if self.process.field(parameter) is None:
                 raise ValueError('Cannot iterate on parameter %s '
                   'that is not a parameter of process %s'
                   % (parameter, self.process.id))
-            if user_traits[parameter].output:
+            if self.process.is_output(parameter):
                 has_output = True
             else:
                 inputs.append(parameter)
 
         # Create iterative process parameters by copying process parameter
         # and changing iterative parameters to list
-        for name, trait in six.iteritems(user_traits):
+        for field in self.process.fields():
+            name = field.name
             if name in iterative_parameters:
-                kw = {}
-                if trait.input_filename is False:
-                    kw['input_filename'] = False
-                self.add_trait(name, List(trait, output=trait.output,
-                                          optional=trait.optional, **kw))
-                if trait.groups:
-                    self.trait(name).groups = trait.groups
-                if trait.forbid_completion is not None:
-                    self.trait(name).forbid_completion \
-                        = trait.forbid_completion
+                meta = self.process.metadata(name)
+                # allow undefined values in this list
+                self.add_field(
+                    name,
+                    list[Union[field_type(field), type(undefined)]],
+                    metadata=meta,
+                    default_factory=list)
+
             else:
                 self.regular_parameters.add(name)
-                self.add_trait(name, trait)
+                self.add_field(name, field)
                 # copy initial value of the underlying process to self
                 # Note: should be this be done via a links system ?
-                setattr(self, name, getattr(self.process, name))
+                setattr(self, name, getattr(self.process, name, undefined))
 
         # if the process has iterative outputs, the output lists have to be
         # resized according to inputs
         if has_output:
-            self.on_trait_change(self._resize_outputs, inputs)
+            self.on_attribute_change.add(self._resize_outputs, inputs)
 
     def _resize_outputs(self):
         num = 0
         outputs = []
         for param in self.iterative_parameters:
-            if self.process.trait(param).output:
-                if isinstance(self.process.trait(param).trait_type,
-                              (File, Directory)):
+            if self.process.is_output(param):
+                if is_path(self.process.field(param)):
                     outputs.append(param)
             else:
-                num = max(num, len(getattr(self, param)))
+                num = max(num, len(getattr(self, param, [])))
         for param in outputs:
-            value = getattr(self, param)
+            value = getattr(self, param, undefined)
             mod = False
             if len(value) > num:
                 new_value = value[:num]
@@ -113,11 +107,16 @@ class ProcessIteration(Process):
             else:
                 if len(value) < num:
                     new_value = value \
-                        + [self.process.trait(param).default] \
+                        + [default_value(self.process.field(param))] \
                             * (num - len(value))
                     mod = True
             if mod:
-                setattr(self, param, new_value)
+                try:
+                    setattr(self, param, new_value)
+                except Exception as e:
+                    print('exc:', e)
+                    print('could not set iteration value:', param, ':',
+                          new_value)
 
     def change_iterative_plug(self, parameter, iterative=None):
         '''
@@ -131,7 +130,7 @@ class ProcessIteration(Process):
             if None, the iterative state will be toggled. If True or False, the
             parameter state will be set accordingly.
         '''
-        if parameter not in self.process.user_traits():
+        if self.process.field(parameter) is None:
             raise ValueError('Cannot iterate on parameter %s '
               'that is not a parameter of process %s'
               % (parameter, self.process.id))
@@ -142,64 +141,65 @@ class ProcessIteration(Process):
         if iterative is None:
             iterative = not is_iterative
 
-        trait = self.process.trait(parameter)
+        field = self.process.field(parameter)
         if iterative:
 
             # switch to iterative
             self.regular_parameters.remove(parameter)
             self.iterative_parameters.add(parameter)
-            self.remove_trait(parameter)
+            self.remove_field(parameter)
             # Create iterative process parameter by copying process parameter
             # and changing iterative parameter to list
-            self.add_trait(parameter, List(trait, output=trait.output,
-                                      optional=trait.optional))
-            if trait.groups:
-                self.trait(parameter).groups = trait.groups
+            self.add_field(parameter,
+                           Union[list[field_type(field)], type(undefined)],
+                           metadata=self.process.metadata(field),
+                           default_factory=list)
 
             # if it is an output, the output list has to be
             # resized according to inputs
-            if trait.output:
+            if self.process.is_output(field):
                 inputs = []
                 for param in self.iterative_parameters:
-                    if not self.process.trait(param).output:
+                    if not self.process.is_output(param):
                         inputs.append(param)
-                self.on_trait_change(self._resize_outputs, inputs)
+                self.on_attribute_change(self._resize_outputs, inputs)
 
         else:
 
             # switch to non-iterative
-            self.remove_trait(parameter)
+            self.remove_field(parameter)
             self.iterative_parameters.remove(parameter)
             self.regular_parameters.add(parameter)
-            self.add_trait(parameter, trait)
+            self.add_field(parameter, field)
             # copy initial value of the underlying process to self
-            setattr(self, parameter, getattr(self.process, parameter))
+            setattr(self, parameter,
+                    getattr(self.process, parameter, undefined))
 
-    def _run_process(self):
+    def execute(self, context):
         # Check that all iterative parameter value have the same size
         no_output_value = None
         size = None
         size_error = False
         for parameter in self.iterative_parameters:
-            trait = self.trait(parameter)
-            value = getattr(self, parameter)
+            field = self.field(parameter)
+            value = getattr(self, parameter, undefined)
             psize = len(value)
-            if psize and (not trait.output
+            if psize and (not self.is_output(field)
                           or len([x for x in value
-                                  if x in ('', Undefined, None)]) == 0):
+                                  if x in ('', undefined, None)]) == 0):
                 if size is None:
                     size = psize
                 elif size != psize:
                     size_error = True
                     break
-                if trait.output:
+                if self.is_output(field):
                     if no_output_value is None:
                         no_output_value = False
                     elif no_output_value:
                         size_error = True
                         break
             else:
-                if trait.output:
+                if self.is_output(field):
                     if no_output_value is None:
                         no_output_value = True
                     elif not no_output_value:
@@ -221,13 +221,13 @@ class ProcessIteration(Process):
             setattr(self.process, parameter, getattr(self, parameter))
         if no_output_value:
             for parameter in self.iterative_parameters:
-                trait = self.trait(parameter)
-                if trait.output:
+                field = self.field(parameter)
+                if self.is_output(field):
                     setattr(self, parameter, [])
             outputs = {}
             for iteration in range(size):
                 for parameter in self.iterative_parameters:
-                    #if not no_output_value or not self.trait(parameter).output:
+                    #if not no_output_value or not self.is_output(parameter):
                     value = getattr(self, parameter)
                     if len(value) > iteration:
                         setattr(self.process, parameter,
@@ -236,13 +236,13 @@ class ProcessIteration(Process):
                 self.complete_iteration(iteration)
                 self.process()
                 for parameter in self.iterative_parameters:
-                    trait = self.trait(parameter)
-                    if trait.output:
+                    field = self.field(parameter)
+                    if self.is_output(field):
                         outputs.setdefault(parameter,[]).append(
                             getattr(self.process, parameter))
                         # reset empty value
-                        setattr(self.process, parameter, Undefined)
-            for parameter, value in six.iteritems(outputs):
+                        setattr(self.process, parameter, undefined)
+            for parameter, value in outputs.items():
                 setattr(self, parameter, value)
         else:
             for iteration in range(size):

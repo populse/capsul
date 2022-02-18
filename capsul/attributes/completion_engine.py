@@ -19,18 +19,17 @@ Classes
 from __future__ import print_function
 from __future__ import absolute_import
 from soma.singleton import Singleton
-from soma.controller import Controller, ControllerTrait
+from soma.controller import Controller
 from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline import Graph
-from capsul.pipeline.pipeline_nodes import (
-    Node, ProcessNode, Switch, PipelineNode)
+from capsul.pipeline.pipeline_nodes import (Node, Switch)
 from capsul.attributes.attributes_schema import ProcessAttributes, \
     EditableAttributes
 from capsul.pipeline import pipeline_tools
 import traits.api as traits
 from soma.utils.weak_proxy import weak_proxy, get_ref
 from soma.functiontools import SomaPartial
-from soma.controller.trait_utils import relax_exists_constraint
+#from soma.controller.trait_utils import relax_exists_constraint  # FIXME
 import six
 import sys
 import copy
@@ -168,11 +167,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         # if no specialized attributes set and process is a pipeline,
         # try building from children nodes
         if proc_attr_cls is ProcessAttributes \
-                and isinstance(self.process, (PipelineNode, Pipeline)):
+                and isinstance(self.process, (Pipeline, Pipeline)):
             attributes = self.capsul_attributes
-            pipeline = self.process
-            if isinstance(pipeline, PipelineNode):
-                pipeline = pipeline.process
             name = getattr(pipeline, 'context_name',
                            getattr(self.process, 'context_name',
                                    getattr(pipeline, 'context_name',
@@ -231,8 +227,6 @@ class ProcessCompletionEngine(traits.HasTraits):
         traits_types = {str: traits.Str, six.text_type: traits.Str, int: traits.Int,
                         float: traits.Float, list: traits.List}
         pipeline = self.process
-        if isinstance(pipeline, PipelineNode):
-            pipeline = pipeline.process
         name = pipeline.name
         for pname, trait in six.iteritems(pipeline.user_traits()):
             if pname in done_parameters:
@@ -323,12 +317,8 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         verbose = False
 
-        pipeline = None
-        if isinstance(self.process, PipelineNode):
-            pipeline = self.process.process
-        elif isinstance(self.process, Pipeline):
+        if isinstance(self.process, Pipeline):
             pipeline = self.process
-        if pipeline:
             attrib_values = self.get_attribute_values().export_to_dict()
             name = getattr(pipeline, 'context_name', pipeline.name)
 
@@ -428,8 +418,6 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         # now complete process parameters:
         process = self.process
-        if isinstance(process, ProcessNode):
-            process = process.process
         for pname, trait in six.iteritems(process.user_traits()):
             if trait.forbid_completion \
                     or process.is_parameter_protected(pname):
@@ -527,8 +515,6 @@ class ProcessCompletionEngine(traits.HasTraits):
                               in six.iteritems(process_inputs)
                               if k != 'capsul_attributes')
         process = self.process
-        if isinstance(process, ProcessNode):
-            process = self.process.process
         process.import_from_dict(process_inputs)
 
 
@@ -575,8 +561,6 @@ class ProcessCompletionEngine(traits.HasTraits):
             self.attributes_changed, 'anytrait')
 
         process = self.process
-        if isinstance(process, ProcessNode):
-            process = process.process
         if isinstance(process, Pipeline):
             for node_name, node in six.iteritems(process.nodes):
                 if isinstance(node, Switch):
@@ -600,8 +584,6 @@ class ProcessCompletionEngine(traits.HasTraits):
                 self.attributes_changed, 'anytrait', remove=True)
 
             process = self.process
-            if isinstance(process, PipelineNode):
-                process = process.process
             if isinstance(process, Pipeline):
                 for node_name, node in six.iteritems(process.nodes):
                     if isinstance(node, Switch):
@@ -781,8 +763,6 @@ class ProcessCompletionEngine(traits.HasTraits):
         '''
         try:
             process = self.process
-            if isinstance(process, PipelineNode):
-                process = process.process
             if isinstance(process, Pipeline):
                 for name, node in six.iteritems(process.nodes):
                     if isinstance(node, Switch) \

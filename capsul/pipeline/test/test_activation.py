@@ -23,7 +23,7 @@ class DummyProcess(Process):
         self.add_field("output_image", file(optional=False, output=True))
         self.add_field("other_output", float, optional=True, output=True)
 
-    def execution(self):
+    def execute(self, context):
         pass
 
 

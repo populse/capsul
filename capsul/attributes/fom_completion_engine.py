@@ -14,8 +14,8 @@ Classes
 '''
 
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import os
 import six
 try:
@@ -23,9 +23,9 @@ try:
 except ImportError:
     from enthought.traits.api import Str, HasTraits, List
 
-from soma.controller import Controller, ControllerTrait
+from soma.controller import Controller  # , ControllerTrait  FIXME
 from capsul.pipeline.pipeline import Pipeline
-from capsul.pipeline.pipeline_nodes import Node, Switch, ProcessNode
+from capsul.pipeline.pipeline_nodes import Node, Switch
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory, PathCompletionEngine, \
     PathCompletionEngineFactory
@@ -116,8 +116,6 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         """To get useful attributes by the fom"""
 
         process = self.process
-        if isinstance(process, ProcessNode):
-            process = process.process
 
         study_config = process.study_config
         modules_data = study_config.modules_data
@@ -505,8 +503,6 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
     def get_iterated_attributes(self):
         process = self.process
-        if isinstance(process, ProcessNode):
-            process = process.process
         subprocess = process.process
 
         FomProcessCompletionEngine.setup_fom(subprocess)

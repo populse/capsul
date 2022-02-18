@@ -26,7 +26,6 @@ from soma.sorted_dictionary import OrderedDict
 from soma.controller import Controller
 from soma.functiontools import partial, SomaPartial
 import traits.api as traits
-from capsul.pipeline.pipeline_nodes import ProcessNode
 
 
 class AttributesSchema(object):
@@ -117,8 +116,6 @@ class ProcessAttributes(Controller):
             raise KeyError('Attributes already set for parameter %s'
                            % parameter)
         process = self._process
-        if isinstance(process, ProcessNode):
-            process = process.process
         if parameter not in process._instance_traits():
             print('WARNING: parameter', parameter,
                   'not in process', process.name)
@@ -184,8 +181,6 @@ class ProcessAttributes(Controller):
         '''
         pa = {}
         process = self._process
-        if isinstance(process, ProcessNode):
-            process = process.process
         for parameter, trait in six.iteritems(process.user_traits()):
             if trait.output:
                 if hasattr(process, 'id'):

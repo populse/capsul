@@ -67,7 +67,7 @@ class Process(Node):
                 # declare an output param
                 self.add_field('out_param', file(write=True))
 
-            def execute(self):
+            def execute(self, context):
                 with open(self.out_param, 'w') as f:
                     print('param1:', self.param1, file=f)
                     print('param2:', self.param2, file=f)

@@ -15,9 +15,8 @@ from __future__ import absolute_import
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory
-from capsul.pipeline.pipeline_nodes import ProcessNode
 from capsul.attributes.attributes_schema import ProcessAttributes
-from soma.controller import Controller,ControllerTrait
+from soma.controller import Controller  # ,ControllerTrait  FIXME
 import traits.api as traits
 import six
 import sys
@@ -48,8 +47,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         '''
         '''
         process = self.process
-        if isinstance(process, ProcessNode):
-            process = process.process
         try:
             pattributes = ProcessCompletionEngine.get_completion_engine(
                 process.process).get_attribute_values()
@@ -84,8 +81,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         attributes = self.get_iterated_attributes()
         # now look on which parameters they are acting
         process = self.process
-        if isinstance(process, ProcessNode):
-            process = process.process
         pattributes = ProcessCompletionEngine.get_completion_engine(
             process.process).get_attribute_values()
         param_attributes = pattributes.get_parameters_attributes()
@@ -111,8 +106,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         '''
         if 'capsul_attributes' not in self._instance_traits():
             process = self.process
-            if isinstance(process, ProcessNode):
-                process = process.process
             try:
                 pattributes = ProcessCompletionEngine.get_completion_engine(
                     process.process).get_attribute_values()
@@ -143,8 +136,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
 
     def iteration_size(self, process_inputs={}):
         process = self.process
-        if isinstance(process, ProcessNode):
-            process = process.process
         try:
             attributes_set = self.get_attribute_values()
         except AttributeError:
@@ -188,8 +179,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         self.completion_progress = 0.
 
         process = self.process
-        if isinstance(process, ProcessNode):
-            process = process.process
 
         try:
             self.set_parameters(process_inputs)
@@ -251,8 +240,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         iteration step.
         '''
         process = self.process
-        if isinstance(process, ProcessNode):
-            process = process.process
         try:
             attributes_set = self.get_attribute_values()
             completion_engine = ProcessCompletionEngine.get_completion_engine(

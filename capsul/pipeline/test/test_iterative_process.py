@@ -10,17 +10,16 @@ import os
 import tempfile
 import shutil
 
-# Trait import
-from traits.api import String, Float, Undefined, List, File
+from soma.controller import undefined, file, field, List
+from soma.controller.field import metadata
 
 # Capsul import
 from capsul.api import Process
 from capsul.api import Pipeline
-from capsul.api import StudyConfig
-from capsul.pipeline import pipeline_workflow
+from capsul.api import Capsul
+#from capsul.pipeline import pipeline_workflow
 from soma.controller import Controller
 from soma_workflow import configuration as swconfig
-from six.moves import zip
 
 debug = False
 
@@ -56,31 +55,19 @@ def tearDownModule():
 class DummyProcess(Process):
     """ Dummy Test Process
     """
-    def __init__(self):
-        """Initialize the DummyProcess.
-        """
-        # Inheritance
-        super(DummyProcess, self).__init__()
+    # Inputs
+    input_image: file(optional=False, output=False)
+    other_input: float = field(optional=False, output=False)
+    dynamic_parameter: float = field(optional=False, output=False)
+    # Outputs
+    output_image: file(optional=False, output=True, write=True)
+    other_output: float = field(optional=False, output=True, default=6)
 
-        # Inputs
-        self.add_trait("input_image", File(optional=False, output=False))
-        self.add_trait("other_input", Float(optional=False, output=False))
-        self.add_trait("dynamic_parameter",
-                       Float(optional=False, output=False))
-
-        # Outputs
-        self.add_trait("output_image", File(optional=False, output=True,
-                                            input_filename=False))
-        self.add_trait("other_output", Float(optional=False, output=True))
-
-        # Set default parameter
-        self.other_input = 6
-
-    def _run_process(self):
+    def execute(self, context=None):
         """ Execute the process.
         """
         print('run: %s -> %s' % (self.input_image, str(self.output_image)))
-        if self.output_image in (None, Undefined, ''):
+        if self.output_image in (None, undefined, ''):
             # Just join the input values
             value = "{0}-{1}-{2}".format(
                 self.input_image, self.other_input, self.dynamic_parameter)
@@ -94,22 +81,18 @@ class DummyProcess(Process):
 
 
 class CreateFilesProcess(Process):
-    def __init__(self):
-        super(CreateFilesProcess, self).__init__()
-        self.add_trait("output_file", List(File(output=True), output=True))
+    output_file: List[file(output=True)] = field(output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         print('create: %s' % self.output_file)
         for fname in self.output_file:
             open(fname, "w").write("file: %s\n" % fname)
 
 
 class CheckFilesProcess(Process):
-    def __init__(self):
-        super(CheckFilesProcess, self).__init__()
-        self.add_trait("input_files", List(File(output=False)))
+    input_files: list[str] = field(metadata=metadata(file()))
 
-    def _run_process(self):
+    def execute(self, context=None):
         for f in self.input_files:
             open(f)
 
@@ -189,10 +172,11 @@ class TestPipeline(unittest.TestCase):
         """
         self.directory = tempfile.mkdtemp(prefix="capsul_test")
 
-        self.study_config = StudyConfig()
+        self.capsul = Capsul()
 
         # Construct the pipeline
-        self.pipeline = self.study_config.get_process_instance(MyPipeline)
+        self.pipeline = self.capsul.executable(
+            '.'.join((__name__, 'MyPipeline')))
 
         # Set some input parameters
         self.pipeline.input_image = [os.path.join(self.directory, "toto"),
@@ -202,7 +186,7 @@ class TestPipeline(unittest.TestCase):
 
         # build a pipeline with dependencies
         self.small_pipeline \
-            = self.study_config.get_process_instance(MySmallPipeline)
+            = self.capsul.executable('.'.join((__name__, 'MySmallPipeline')))
         self.small_pipeline.files_to_create = [
             os.path.join(self.directory, "toto"),
             os.path.join(self.directory, "tutu")]
@@ -211,11 +195,13 @@ class TestPipeline(unittest.TestCase):
 
         # build a bigger pipeline with several levels
         self.big_pipeline \
-            = self.study_config.get_process_instance(MyBigPipeline)
+            = self.capsul.executable('.'.join((__name__, 'MyBigPipeline')))
 
     def tearDown(self):
-        swm = self.study_config.modules['SomaWorkflowConfig']
-        swc = swm.get_workflow_controller()
+        # FIXME
+        #swm = self.capsul.engine().modules['soma_workflow']
+        #swc = swm.get_workflow_controller()
+        swc = None  # FIXME
         if swc is not None:
             # stop workflow controller and wait for thread termination
             swc.stop_engine()
@@ -314,7 +300,8 @@ class TestPipeline(unittest.TestCase):
         swclient.Helper.serialize(
             os.path.join(self.directory, 'smallpipeline.workflow'), workflow)
 
-        self.study_config.use_soma_workflow = True
+        # FIXME
+        #self.capsul.use_soma_workflow = True
 
         #controller = swclient.WorkflowController(config=config)
         #try:
@@ -322,7 +309,8 @@ class TestPipeline(unittest.TestCase):
         #wf_id = controller.submit_workflow(workflow)
         print('* running pipeline...')
         #swclient.Helper.wait_workflow(wf_id, controller)
-        self.study_config.run(self.small_pipeline)
+        with self.capsul.engine() as c:
+            c.run(self.small_pipeline)
         print('* finished.')
         #workflow_status = controller.workflow_status(wf_id)
         #elements_status = controller.workflow_elements_status(wf_id)

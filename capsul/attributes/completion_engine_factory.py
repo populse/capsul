@@ -17,7 +17,6 @@ from capsul.attributes.fom_completion_engine \
     import FomProcessCompletionEngine, FomPathCompletionEngine, \
     FomProcessCompletionEngineIteration
 from capsul.pipeline.process_iteration import ProcessIteration
-from capsul.pipeline.pipeline_nodes import ProcessNode
 
 
 class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
@@ -54,8 +53,6 @@ class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
 
         # iteration
         in_process = process
-        if isinstance(process, ProcessNode):
-            in_process = process.process
         if isinstance(in_process, ProcessIteration):
             if isinstance(
                     ProcessCompletionEngine.get_completion_engine(
