@@ -60,7 +60,6 @@ from capsul.api import Switch, OptionalOutputSwitch, Capsul
 from capsul.pipeline import pipeline_tools
 from capsul.api import Pipeline
 from capsul.api import Process
-from capsul.api import get_process_instance
 from capsul import process_instance
 from capsul.pipeline.pipeline_nodes import Node
 from soma.qt_gui.qt_backend.Qt import QGraphicsView
@@ -2998,7 +2997,7 @@ class PipelineDeveloperView(QGraphicsView):
                         print(e)
                         return
                 try:
-                    process = get_process_instance(instance)
+                    process = Capsul().executable(instance)
                 except Exception as e:
                     print(e)
                     return
@@ -4115,7 +4114,7 @@ class PipelineDeveloperView(QGraphicsView):
         def set_plugs(self, text):
             self.plugs.clear()
             try:
-                process = self.engine.get_process_instance(text)
+                process = Capsul().executable(text)
             except Exception:
                 return
             fields = [field.name for field in process.fields()]
@@ -4139,7 +4138,7 @@ class PipelineDeveloperView(QGraphicsView):
             proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
             try:
-                process = engine.get_process_instance(
+                process = Capsul().executable(
                     six.text_type(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
@@ -4843,12 +4842,7 @@ class PipelineDeveloperView(QGraphicsView):
                 return filename
             else:
                 try:
-                    if self.scene.pipeline:
-                        # keep the same engine
-                        engine = self.scene.pipeline.get_study_config().engine
-                        pipeline = engine.get_process_instance(filename)
-                    else:
-                        pipeline = get_process_instance(filename)
+                    pipeline = Capsul().executable(filename)
                 except Exception as e:
                     print(e)
                     pipeline = None
