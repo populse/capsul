@@ -5,7 +5,6 @@ import unittest
 from capsul.api import Capsul
 from capsul.api import Process
 from capsul.api import Pipeline
-from capsul.api import get_process_instance
 from soma.controller import file
 import tempfile
 import os
@@ -145,7 +144,7 @@ class TestPipeline(unittest.TestCase):
         pipeline = MyPipeline()
         from capsul.pipeline import pipeline_tools
         pipeline_tools.save_pipeline(pipeline, filename)
-        pipeline2 = get_process_instance(filename)
+        pipeline2 = Capsul().executable(filename)
         pipeline2.workflow_ordered_nodes()
 
         if self.debug:
