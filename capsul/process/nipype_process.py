@@ -14,10 +14,11 @@ from __future__ import absolute_import
 import sys
 import os
 import types
-import six
+import inspect
 
 # Capsul import
 from .process import NipypeProcess
+import soma.controller as sc
 
 
 def nipype_factory(nipype_instance, base_class=NipypeProcess):
@@ -179,7 +180,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                 nipype_outputs = {}
 
             # Synchronize traits: check file existence
-            for out_name, out_value in six.iteritems(nipype_outputs):
+            for out_name, out_value in nipype_outputs.items():
 
                 pname = trait_map.get(out_name, '_' + out_name)
 
@@ -258,12 +259,12 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
 
         Returns
         -------
-        process_trait: trait
+        process_field: Field
             the cloned/converted trait that will be used in the process
             instance.
         """
         # Clone the nipype trait
-        process_trait = process_instance._clone_trait(nipype_trait)
+        field = trait_to_field(nipype_trait)
 
         # Copy some information from the nipype trait
         process_trait.desc = nipype_trait.desc
@@ -392,3 +393,93 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                                    File(output=True, optional=True))
 
     return process_instance
+
+
+t_f = {
+    'InputMultiObject': (sc.List, None),
+    'OutputMultiObject': (sc.List, {'write': True}),
+    'ImageFileSPM': (sc.file,
+                      {'allowed_extensions': ['.nii', '.img', '.hdr',
+                                              '.mnc']}),
+    'Int': (int, None),
+    'Float': (float, None),
+    'Str': (str, None),
+    'String': (str, None),
+    'Bool': (bool, None),
+    'File': (sc.file, None),
+    'Directory': (sc.directory, None),
+    'TraitCompound': (sc.Union, None),
+    'InputMultiPath_TraitCompound': (sc.List, None),
+    'InputMultiPath': (sc.List, None),
+    'InputMultiObject': (sc.List, None),
+    'MultiPath': (sc.List, None),
+    'Dict_Str_Str': (dict, None),
+    'OutputMultiPath_TraitCompound': (sc.List, {'write': True}),
+    'OutputMultiPath': (sc.List, {'write': True}),
+    'OutputList': (sc.List, {'write': True}),
+}
+
+
+def parse_trait(trait):
+    tree = {}
+
+    handler = trait
+    if trait.handler is not None:
+        handler = trait.handler
+
+    ttype = handler.__class__.__name__
+    ftype = t_f.get(ttype)
+    if ftype is None:
+        print('trait type', ttype, 'not found')
+        return tree
+
+    ftype, args = ftype
+    tree['trait'] = handler
+    tree['field'] = ftype
+    tree['args'] = args
+
+    if handler.has_items:
+        if handler.handlers:
+            sub_traits = handler.handlers
+        else:
+            sub_traits = handler.inner_traits()
+        tree['children'] = [parse_trait(t) for t in sub_traits]
+
+    return tree
+
+
+def parsed_trait_to_field(ptrait):
+    ftype = ptrait['field']
+    children = ptrait.get('children', [])
+    chtypes = []
+    args = ptrait.get('args')
+    if args is None:
+        args = {}
+    for child in children:
+        stype, sargs = parsed_trait_to_field(child)
+        chtypes.append(stype)
+        # FIXME: what about sargs ?
+
+    if inspect.isfunction(ftype):
+        #f = ftype
+        f = ftype(*chtypes, **args)
+        print('f:', f)
+        args = {}
+    elif children:
+        if len(chtypes) == 1:
+            f = ftype[chtypes[0]]
+        else:
+            # this syntax doas not work for List
+            f = ftype[tuple(chtypes)]
+    else:
+        f = ftype
+
+    return f, args
+
+
+def trait_to_field(trait):
+    ptrait = parse_trait(trait)
+    ftype, args = parsed_trait_to_field(ptrait)
+    return sc.field(type_=ftype, **args)
+
+
