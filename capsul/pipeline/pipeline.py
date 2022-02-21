@@ -29,6 +29,7 @@ from soma.controller import (Controller,
                              Event,
                              is_output,
                              is_path,
+                             has_path,
                              is_directory,
                              is_list,
                              field,
@@ -1615,11 +1616,11 @@ class Pipeline(Process):
             if not node.metadata(field).get('write', False) \
                     or node.metadata(field).get('output', False):
                 continue
-            if is_list(field) and is_path(field):
+            if is_list(field) and has_path(field):
                 if len([x for x in value if x in ('', undefined)]) == 0:
                     continue
             elif value not in (undefined, '') \
-                    or (not is_path(field)
+                    or (not has_path(field)
                          or len(plug.links_to) == 0):
                 continue
             # check that it is really temporary: not exported
@@ -1742,7 +1743,7 @@ class Pipeline(Process):
                     continue
                 parameter = process.field(plug_name)
                 if is_list(parameter):
-                    if not is_path(parameter):
+                    if not has_path(parameter):
                         continue
                 elif not is_path(parameter) \
                         or is_output(parameter):

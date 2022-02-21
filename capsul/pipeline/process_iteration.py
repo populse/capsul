@@ -13,7 +13,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import sys
-from soma.controller import undefined, is_path
+from soma.controller import undefined, has_path
 from soma.controller.field import field_type, default_value, Union
 
 from capsul.process.process import Process
@@ -94,7 +94,7 @@ class ProcessIteration(Process):
         outputs = []
         for param in self.iterative_parameters:
             if self.process.is_output(param):
-                if is_path(self.process.field(param)):
+                if has_path(self.process.field(param)):
                     outputs.append(param)
             else:
                 num = max(num, len(getattr(self, param, [])))

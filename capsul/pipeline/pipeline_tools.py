@@ -63,7 +63,7 @@ logger = logging.getLogger(__name__)
 from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
     OptionalOutputSwitch
 from capsul.pipeline.process_iteration import ProcessIteration
-from soma.controller import Controller, undefined, Any, is_path
+from soma.controller import Controller, undefined, Any, is_path, field_type
 from pydantic import ValidationError
 
 
@@ -600,7 +600,7 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
             process = node
             for param in node.plugs:
                 pfield = process.field(param)
-                if process.metadata(pfield).get('output', False) \
+                if process.metadata(pfield).get('write', False) \
                         and is_path(pfield):
                     value = getattr(process, param, undefined)
                     if value is not None and value is not undefined \
@@ -610,7 +610,7 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
                         disable = True
                         for t in process.fields():
                             n = t.name
-                            if not process.metadata(t).get('output', False) \
+                            if not process.metadata(t).get('write', False) \
                                     and is_path(t):
                                 v = getattr(process, n, undefined)
                                 if v == value:
@@ -691,7 +691,7 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
         input_files_list = set()
         for plug_name, plug in node.plugs.items():
             field = process.field(plug_name)
-            if is_path(field) or field.type is Any:
+            if is_path(field) or field_type(field) is Any:
                 value = getattr(process, plug_name, undefined)
                 if isinstance(value, str) \
                         and os.path.exists(value) \

@@ -68,7 +68,8 @@ from capsul.qt_gui.widgets.pipeline_file_warning_widget \
 import capsul.pipeline.xml as capsulxml
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma import controller
-from soma.controller import (Controller, undefined, field_subtypes, is_list)
+from soma.controller import (Controller, undefined, field_subtypes, is_list,
+                             field_type)
 from soma.controller.field import metadata
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import get_ref
@@ -1020,8 +1021,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_text = '<em>%s</em>' % param_text
         else:
             field = self.process.field(param_name)
-            if controller.is_path(field) and not is_list(field) \
-                    and os.path.exists(value):
+            if controller.is_path(field) and os.path.exists(value):
                 param_text = '<b>%s</b>' % param_text
         return param_text
 
@@ -2130,7 +2130,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 ''' \
               % (source_dest[0][1], active, weak, typestr,
                  html.escape(str(value)))
-        if controller.is_path(field) or field.type is controller.Any:
+        if controller.is_path(field) or field_type(field) is controller.Any:
             if self.is_existing_path(value):
                 msg += '''    <tr>
       <td></td>
@@ -2227,7 +2227,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 ''' \
               % (name, output, optional, enabled, activated, typestr,
                  html.escape(str(value)))
-        if controller.is_path(field) or field.type is controller.Any:
+        if controller.is_path(field) or field_type(field) is controller.Any:
             if self.is_existing_path(value):
                 msg += '''    <tr>
       <td></td>
