@@ -66,7 +66,7 @@ class ProcessIteration(Process):
 
         # Create iterative process parameters by copying process parameter
         # and changing iterative parameters to list
-        for field in self.process.fields():
+        for field in self.process.user_fields():
             name = field.name
             if name in iterative_parameters:
                 meta = self.process.metadata(name)
