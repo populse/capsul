@@ -7,8 +7,8 @@ import sys
 '''
 
 # Capsul current version
-version_major = 2
-version_minor = 3
+version_major = 3
+version_minor = 0
 version_micro = 0
 version_extra = ""
 
@@ -51,7 +51,7 @@ CAPSUL is a powerful tool to define and share processing pipelines.
 
 # Capsul dependencies
 SPHINX_MIN_VERSION = 1.0
-SOMA_MIN_VERSION = "4.6.1"
+SOMA_MIN_VERSION = "5.1.0"
 
 # dependencies
 SOMA_WORKFLOW_MIN_VERSION = "2.9.0"
