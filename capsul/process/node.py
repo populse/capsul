@@ -134,7 +134,7 @@ class Node(Controller):
                      'nodes_activation', 'selection_changed',
                      'enabled', 'activated', 'node_type')
 
-    def __init__(self, pipeline=None, name='', inputs={}, outputs={}):
+    def __init__(self, pipeline=None, name=None, inputs={}, outputs={}):
         """ Generate a Node
 
         Parameters
@@ -151,6 +151,8 @@ class Node(Controller):
             values (mandatory key: name)
         """
         super().__init__()
+        if name is None:
+            name = self.__class__.__name__
         self.name = name
         self.pipeline = None
         self.plugs = SortedDictionary()
