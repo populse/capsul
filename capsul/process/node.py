@@ -124,7 +124,7 @@ class Node(Controller):
     set_plug_value
     """
     # name: field(type_=str, metadata={'hidden': True})
-    name = ''  # doesn(t need to be a field ?
+    name = ''  # doesn't need to be a field ?
     enabled: field(type_=bool, default=True, hidden=True)
     activated: field(type_=bool, default=True, hidden=True)
     node_type: field(type_=Literal['processing_node', 'view_node'],
@@ -205,6 +205,17 @@ class Node(Controller):
 
     def __hash__(self):
         return id(self)
+
+    def user_fields(self):
+        '''
+        Iterates over fields, excluding internal machinery fields such
+        as "activated", "enabled", "node_type"...
+
+        User fields normally correspond to plugs.
+        '''
+        for f in self.fields():
+            if f.name not in self.nonplug_names:
+                yield f
 
     def set_pipeline(self, pipeline):
 
