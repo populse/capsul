@@ -68,7 +68,7 @@ from capsul.qt_gui.widgets.pipeline_file_warning_widget \
 import capsul.pipeline.xml as capsulxml
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma import controller
-from soma.controller import (Controller, undefined, field_subtypes)
+from soma.controller import (Controller, undefined, field_subtypes, is_list)
 from soma.controller.field import metadata
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import get_ref
@@ -1020,7 +1020,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_text = '<em>%s</em>' % param_text
         else:
             field = self.process.field(param_name)
-            if controller.is_path(field) and os.path.exists(value):
+            if controller.is_path(field) and not is_list(field) \
+                    and os.path.exists(value):
                 param_text = '<b>%s</b>' % param_text
         return param_text
 
@@ -2683,7 +2684,7 @@ class PipelineDeveloperView(QGraphicsView):
             if isinstance(pipeline, Process):
                 process = pipeline
                 pipeline = Pipeline()
-                pipeline.set_study_config(process.get_study_config())
+                #pipeline.set_study_config(process.get_study_config())
                 pipeline.add_process(process.name, process)
                 pipeline.autoexport_nodes_parameters()
                 pipeline.node_position["inputs"] = (0., 0.)
@@ -4130,7 +4131,8 @@ class PipelineDeveloperView(QGraphicsView):
         module/name, the node name, and iterative plugs before inserting.
         '''
         pipeline = self.scene.pipeline
-        engine = pipeline.get_study_config().engine
+        #engine = pipeline.get_study_config().engine
+        engine = None
         proc_name_gui = PipelineDeveloperView.IterativeProcessInput(engine)
         proc_name_gui.resize(800, proc_name_gui.sizeHint().height())
 
