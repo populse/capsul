@@ -19,7 +19,6 @@ from __future__ import absolute_import
 import os
 import socket
 import sys
-import six
 import weakref
 
 import soma_workflow.client as swclient
@@ -29,14 +28,14 @@ from capsul.pipeline.pipeline import Pipeline, Switch
 from capsul.pipeline import pipeline_tools
 from capsul.process.process import Process
 from capsul.pipeline.topological_sort import Graph
-from traits.api import Directory, Undefined, File, Str, Any, List
+from soma.controller import directory, undefined, file, Any, List
+from soma.controller.field import (is_directory, field_type, is_path, is_list,
+                                   is_file)
 from soma.sorted_dictionary import OrderedDict, SortedDictionary
 from .process_iteration import ProcessIteration
 from capsul.attributes import completion_engine_iteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine
-from capsul.pipeline.pipeline_nodes import ProcessNode
 from soma_workflow.custom_jobs import MapJob, ReduceJob
-from six.moves import range
 
 
 def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
@@ -89,7 +88,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
     class TempFile(str):
         # class needed temporary to identify temporary paths in the pipeline.
-        # must inherit a string type since it is used as a trait value
+        # must inherit a string type since it is used as a field value
         def __init__(self, string=''):
             # in python3 super(..).__init__() cannot take an argument
             # moreover the str value is assigned anyway.
@@ -160,19 +159,18 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         paths.append(path + '.minf')
         return paths
 
-    def _translated_path(path, shared_map, shared_paths, trait=None):
-        if path is None or path is Undefined \
+    def _translated_path(path, shared_map, shared_paths, field=None):
+        if path is None or path is undefined \
                 or not shared_paths \
-                or (trait is not None
-                    and not isinstance(trait.trait_type, File) \
-                    and not isinstance(trait.trait_type, Directory)):
+                or (field is not None
+                    and not is_path(field)):
             return None # not a path
         item = shared_map.get(path)
         if item is not None:
             # already in map
             return item
 
-        for base_dir, (namespace, uuid) in six.iteritems(shared_paths):
+        for base_dir, (namespace, uuid) in shared_paths.items():
             if path.startswith(base_dir + os.sep):
                 rel_path = path[len(base_dir)+1:]
                 #uuid = path
@@ -192,7 +190,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 elif isinstance(item, set):
                     deeperlist = set(deeperlist)
                 rlist[i] = deeperlist
-            #elif item is Undefined:
+            #elif item is undefined:
                 #rlist[i] = ''
             elif isinstance(item, (dict, OrderedDict, SortedDictionary)):
                 _replace_in_dict(item, temp_map)
@@ -205,7 +203,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 rlist[i] = value
 
     def _replace_in_dict(rdict, temp_map):
-        for name, item in six.iteritems(rdict):
+        for name, item in rdict.items():
             if isinstance(item, (list, tuple, set)):
                 deeperlist = list(item)
                 _replace_in_list(deeperlist, temp_map)
@@ -214,7 +212,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 elif isinstance(item, set):
                     deeperlist = set(deeperlist)
                 rdict[name] = deeperlist
-            #elif item is Undefined:
+            #elif item is undefined:
                 #rdict[name] = ''
             elif isinstance(item, (dict, OrderedDict, SortedDictionary)):
                 _replace_in_dict(item, temp_map)
@@ -274,7 +272,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             i += 1
 
     def _replace_dict_transfers(rdict, process, itransfers, otransfers):
-        for param_name, item in six.iteritems(rdict):
+        for param_name, item in rdict.items():
             transfer = itransfers.get(param_name)
             if transfer is None:
                 transfer = otransfers.get(param_name)
@@ -336,43 +334,36 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         output_replaced_paths = []
         param_dict = {}
         has_outputs = False
-        forbidden_traits = ('nodes_activation', 'selection_changed',
-                            'activated', 'enabled', 'name', 'node_type', )
-        for param_name, parameter in six.iteritems(process.user_traits()):
-            if param_name not in forbidden_traits:
-                if parameter.output \
-                        and (parameter.input_filename is False
-                             or not (isinstance(parameter.trait_type,
-                                                (File, Directory))
-                                     or (isinstance(parameter.trait_type,
-                                                    List)
-                                         and isinstance(
-                                              parameter.inner_traits[0].trait_type,
-                                              (File, Directory))))):
-                    has_outputs = True
-                value = getattr(process, param_name)
-                if isinstance(value, list):
-                    values = value
-                else:
-                    values = [value]
-                for value in values:
-                    if isinstance(value, TempFile):
-                        # duplicate swf temp and copy pattern into it
-                        tval = temp_map[value]
-                        tval = tval.__class__(tval)
-                        tval.pattern = value.pattern
-                        if parameter.output:
-                            output_replaced_paths.append(tval)
-                        else:
-                            if value in forbidden_temp:
-                                raise ValueError(
-                                    'Temporary value used cannot be generated '
-                                    'in the workflkow: %s.%s'
-                                    % (job_name, param_name))
-                            input_replaced_paths.append(tval)
+        for parameter in process.user_fields():
+            param_name = parameter.name
+            if process.metadata(parameter, 'write', False) \
+                    and (process.metadata(parameter, 'output', False)
+                          or not process.metadata(
+                            parameter, 'format', '').startswith('path/')):
+                has_outputs = True
+            value = getattr(process, param_name, undefined)
+            if isinstance(value, list):
+                values = value
+            else:
+                values = [value]
+            for value in values:
+                if isinstance(value, TempFile):
+                    # duplicate swf temp and copy pattern into it
+                    tval = temp_map[value]
+                    tval = tval.__class__(tval)
+                    tval.pattern = value.pattern
+                    if parameter.output:
+                        output_replaced_paths.append(tval)
                     else:
-                        _translated_path(value, shared_map, shared_paths,
-                                        parameter)
+                        if value in forbidden_temp:
+                            raise ValueError(
+                                'Temporary value used cannot be generated '
+                                'in the workflkow: %s.%s'
+                                % (job_name, param_name))
+                        input_replaced_paths.append(tval)
+                else:
+                    _translated_path(value, shared_map, shared_paths,
+                                    parameter)
 
         # Get the process command line
         #process_cmdline = process.get_commandline()
@@ -431,11 +422,11 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 'Process.run_from_commandline("%s")'
                 % (path_trick, process_cmdline[1])]
             use_input_params_file = True
-            param_dict = process.export_to_dict(exclude_undefined=True)
+            param_dict = process.asdict(exclude_undefined=True)
         elif process_cmdline[0] in ('json_job', 'custom_job'):
             use_input_params_file = True
-            param_dict = process.export_to_dict(exclude_undefined=True)
-        for name in forbidden_traits:
+            param_dict = process.asdict(exclude_undefined=True)
+        for name in Process.nonplug_names:
             if name in param_dict:
                 del param_dict[name]
 
@@ -543,48 +534,48 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 process = node.process
             else:
                 process = node
-            trait = process.trait(plug_name)
-            if trait.input_filename is False:
-                # filename is explicitly an output: not a temporary.
+            field = process.field(plug_name)
+            if process.metadata(field, 'output', False):
+               # filename is explicitly an output: not a temporary.
                 continue
-            is_list = isinstance(trait.trait_type, List)
+            is_list_ = is_list(field)
             values = []
-            if is_list:
-                todo = getattr(process, plug_name)
-                trait = trait.inner_traits[0]
-                if trait.input_filename is False:
-                    # filename is explicitly an output: not a temporary.
-                    continue
+            if is_list_:
+                todo = getattr(process, plug_name, undefined)
+                # FIXME for now this test is redundant and useless
+                #if process.metadata(field).get('output', False):
+                    ## filename is explicitly an output: not a temporary.
+                    #continue
             else:
-                todo = [Undefined]
+                todo = [undefined]
             for item in todo:
-                if item not in (Undefined, '', None):
+                if item not in (undefined, '', None):
                     # non-empty list element
                     values.append(item)
                     continue
-                is_directory = isinstance(trait.trait_type, Directory)
-                if trait.allowed_extensions:
-                    suffix = trait.allowed_extensions[0]
+                is_directory_ = is_directory(field)
+                if process.metadata(field, 'allowed_extensions', None):
+                    suffix = process.metadata(field, 'allowed_extensions')[0]
                 else:
                     suffix = ''
-                swf_tmp = swclient.TemporaryPath(is_directory=is_directory,
+                swf_tmp = swclient.TemporaryPath(is_directory=is_directory_,
                     suffix=suffix, name='temporary_%d' % count)
                 tmp_file = TempFile('%d' % count)
                 count += 1
                 temp_map[tmp_file] = (swf_tmp, node, plug_name, optional)
                 values.append(tmp_file)
             # set a TempFile value to identify the params / value
-            if is_list:
+            if is_list_:
                 setattr(process, plug_name, values)
             else:
                 setattr(process, plug_name, values[0])
         return temp_map
 
     def restore_empty_filenames(temporary_map):
-      ''' Set back Undefined values to temporarily assigned file names (using
+      ''' Set back undefined values to temporarily assigned file names (using
       assign_temporary_filenames()
       '''
-      for tmp_file, item in six.iteritems(temporary_map):
+      for tmp_file, item in temporary_map.items():
           node, plug_name = item[1:3]
           if hasattr(node, 'process'):
               process = node.process
@@ -598,23 +589,23 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
               # FIXME: several temp items can be part of the same list,
               # so this assignment is likely to be done several times.
               # It could probably be optimized.
-              # WARNING: we set "" values instead of Undefined because they may
+              # WARNING: we set "" values instead of undefined because they may
               # be mandatory
               setattr(process, plug_name, [''] * len(value))
           else:
-              setattr(process, plug_name, Undefined)
+              setattr(process, plug_name, undefined)
 
     def _get_swf_paths(study_config):
         computing_resource = getattr(
             study_config, 'somaworkflow_computing_resource', None)
-        if computing_resource in (None, Undefined):
+        if computing_resource in (None, undefined):
             return [], {}
         resources_conf = getattr(
             study_config, 'somaworkflow_computing_resources_config', None)
-        if resources_conf in (None, Undefined):
+        if resources_conf in (None, undefined):
             return [], {}
         resource_conf = getattr(resources_conf, computing_resource, None)
-        if resource_conf in (None, Undefined):
+        if resource_conf in (None, undefined):
             return [], {}
         return (resource_conf.transfer_paths,
                 resource_conf.path_translations.export_to_dict())
@@ -647,13 +638,14 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     #plug = process.nodes[''].plugs.get(param)
                 else:
                     # process: replace its param
-                    # check trait type (must be File or Directory, not Any)
-                    trait = process.user_traits()[param]
+                    # check field type (must be path, not Any)
+                    field = process.field(param)
                     #plug = node.plugs[param]
-                    if isinstance(trait.trait_type, File) \
-                            or isinstance(trait.trait_type, Directory):
-                        transfers[bool(trait.output)].setdefault(process, {})[
-                            param] = (transfer_item, path)
+                    if process.is_path(field):
+                        transfers[
+                            bool(process.metadata(field, 'write'))
+                        ].setdefault(process, {})[param] = (transfer_item,
+                                                            path)
                     #output = not output # invert IO status
 
             #if plug is None or not plug.enabled or not plug.activated \
@@ -710,15 +702,14 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 process = node.process
             else:
                 process = node
-            for param, trait in six.iteritems(process.user_traits()):
-                if isinstance(trait.trait_type, File) \
-                        or isinstance(trait.trait_type, Directory) \
-                        or type(trait.trait_type) is Any:
+            for field in process.fields():
+                param = field.name
+                if is_file(field) or field_type(field) is Any:
                     # is value in paths
-                    path = getattr(process, param)
-                    if path is None or path is Undefined:
+                    path = getattr(process, param, undefined)
+                    if path is None or path is undefined:
                         continue
-                    output = bool(trait.output)
+                    output = bool(process.metadata(field, 'write'))
                     existing_transfers = transfers[output].get(process, {})
                     existing_transfer = existing_transfers.get(param)
                     if existing_transfer:
@@ -736,8 +727,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                             break
             if hasattr(process, 'nodes'):
                 todo_nodes += [sub_node
-                               for name, sub_node
-                                  in six.iteritems(process.nodes)
+                               for name, sub_node in process.nodes.items()
                                if name != ''
                                   and not isinstance(sub_node, Switch)]
         return transfers
@@ -758,7 +748,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 continue # switch or something
             if isinstance(node.process, Pipeline):
                 nodes_list.extend([p for p
-                                   in six.itervalues(node.process.nodes)
+                                   in node.process.nodes.values()
                                    if p is not node])
             else:
                 expanded_nodes.add(node)
@@ -781,11 +771,11 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 continue # switch or something else
             process = node.process
             otrans = transfers[1].get(process, None)
-            for param, trait in six.iteritems(process.user_traits()):
-                if trait.output and (isinstance(trait.trait_type, File) \
-                        or isinstance(trait.trait_type, Directory) \
-                        or type(trait.trait_type) is Any):
-                    path = getattr(process, param)
+            for field in process.fields():
+                param = field.name
+                if field.metadata(field, 'write') and (
+                    process.is_path(field) or field_type(field) is Any):
+                    path = getattr(process, param, undefined)
                     if otrans is not None:
                         transfer, path2 = otrans.get(param, (None, None))
                     else:
@@ -822,8 +812,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         '''
         if isinstance(process, Pipeline):
             temp_map2 = assign_temporary_filenames(process, len(temp_map))
-            temp_subst_list = [(x1, x2[0]) for x1, x2
-                                  in six.iteritems(temp_map2)]
+            temp_subst_list = [(x1, x2[0]) for x1, x2 in temp_map2.items()]
             temp_subst_map = dict(temp_subst_list)
             temp_subst_map.update(temp_map)
             try:
@@ -834,7 +823,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         forbidden_temp=remove_temp, steps=steps,
                         study_config=study_config, environment=environment)
                 jobs = {}
-                for proc, job in six.iteritems(jobs1):
+                for proc, job in jobs1.items():
                     jobs[(proc, iteration)] = job
                 groot = []
                 for j in list(sub_root_jobs.values()):
@@ -843,10 +832,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     else:
                         groot.append(j)
                 links = {}
-                for dproc, dplink in six.iteritems(plinks):
+                for dproc, dplink in plinks.items():
                     dlink = {}
                     links[(dproc, iteration)] = dlink
-                    for param, linkl in six.iteritems(dplink):
+                    for param, linkl in dplink.items():
                         dlink[param] = [((link[0], iteration), link[1])
                                         for link in linkl]
                 group = build_group(node_name, groot)
@@ -913,7 +902,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
         ## calculate the number of iterations
         #for parameter in it_process.iterative_parameters:
-            #trait = it_process.trait(parameter)
+            #field = it_process.field(parameter)
             #psize = len(getattr(it_process, parameter))
             #if psize:
                 #if size is None:
@@ -921,14 +910,14 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 #elif size != psize:
                     #size_error = True
                     #break
-                #if trait.output:
+                #if it_process.is_output(field):
                     #if no_output_value is None:
                         #no_output_value = False
                     #elif no_output_value:
                         #size_error = True
                         #break
             #else:
-                #if trait.output:
+                #if it_process.is_output(field):
                     #if no_output_value is None:
                         #no_output_value = True
                     #elif not no_output_value:
@@ -995,7 +984,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         #outputs.setdefault(
                             #parameter,[]).append(getattr(it_process.process,
                                                          #parameter))
-            #for parameter, value in six.iteritems(outputs):
+            #for parameter, value in outputs.items():
                 #setattr(it_process, parameter, value)
         #else:
 
@@ -1012,21 +1001,17 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
             # collect iterated inputs / outputs
             map_param_dict = {}
-            forbidden_traits = ('nodes_activation', 'selection_changed',
-                                'pipeline_steps', 'visible_groups',
-                                'protected_parameters', )
             # copy non-iterative inputs
-            for param, trait in six.iteritems(it_process.user_traits()):
-                if param in forbidden_traits:
-                    continue  # skip
-                value = getattr(it_process, param)
-                if not trait.output:
+            for field in it_process.user_fields():
+                param = field.name
+                value = getattr(it_process, param, undefined)
+                if not process.is_output(field):
                     map_param_dict[param] = value
 
             in_params = [p for p in it_process.iterative_parameters
-                         if not it_process.trait(p).output]
+                         if not it_process.is_output(p)]
             out_params = [p for p in it_process.iterative_parameters
-                          if it_process.trait(p).output]
+                          if it_process.is_output(p)]
             in_values = [getattr(it_process, param) for param in in_params]
             out_values = [getattr(it_process, param) for param in out_params]
 
@@ -1036,9 +1021,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 'output_names': ['%s' % p + '_%d' for p in in_params],
             })
             reduce_param_dict = {}
-            for param, trait in six.iteritems(it_process.user_traits()):
-                if trait.output and param not in forbidden_traits:
-                    value = getattr(it_process, param)
+            for field in it_process.user_fields():
+                param = field.name
+                if it_process.is_output(field):
+                    value = getattr(it_process, param, undefined)
                     reduce_param_dict[param] = value
                     if param in out_params:
                         # set input params of reduce node for a non-dynamic
@@ -1086,8 +1072,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             map_iter_links = {}
             reduce_iter_links = {}
             red_iter_links = {}
-            for param, plug in six.iteritems(it_node.plugs):
-                if param in forbidden_traits:
+            for param, plug in it_node.plugs.items():
+                if param in Process.nonplug_names:
                     continue
                 if not plug.output:
                     # connect inputs of the map node
@@ -1154,11 +1140,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             iter_values = {}
             for iteration in range(size):
                 for parameter in it_process.iterative_parameters:
-                    if it_process.process.trait(parameter).input_filename \
-                            is False:
+                    if it_process.process.metadata(parameter, 'output'):
                         # dynamic output has no forced value
                         continue
-                    values = getattr(it_process, parameter)
+                    values = getattr(it_process, parameter, [])
                     if len(values) != 0:
                         if len(values) > iteration:
                             setattr(it_process.process, parameter,
@@ -1171,11 +1156,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
                 # get iteration values to set on the parent iter node
                 for parameter in it_process.iterative_parameters:
-                    if it_process.process.trait(parameter).input_filename \
-                            is False:
+                    if it_process.process.metadata(parameter, 'output'):
                         # dynamic output has no forced value
                         continue
-                    value = getattr(it_process.process, parameter)
+                    value = getattr(it_process.process, parameter, [])
                     iter_values.setdefault(parameter, []).append(value)
 
                 # build a workflow for the job / pipeline iteration
@@ -1196,9 +1180,9 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 links.update(sub_links)
 
                 # connect map / reduce nodes to iterated jobs
-                for proc, dlink in six.iteritems(map_iter_links):
+                for proc, dlink in map_iter_links.items():
                     slink = links.setdefault((proc, iteration), {})
-                    for dparam, linkl in six.iteritems(dlink):
+                    for dparam, linkl in dlink.items():
                         l = slink.setdefault(dparam, [])
                         for link in linkl:
                             if link[1] in in_params:
@@ -1207,8 +1191,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                           '%s_%d' % (link[1], iteration)))
                             else:
                                 l.append(link)
-                for proc, dlink in six.iteritems(reduce_iter_links):
-                    for dparam, linkl in six.iteritems(dlink):
+                for proc, dlink in reduce_iter_links.items():
+                    for dparam, linkl in dlink.items():
                         if dparam in out_params:
                             # iterative param
                             dparam = '%s_%d' % (dparam, iteration)
@@ -1281,7 +1265,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             to Workflow constructor)
         """
         def _update_links(links1, links2):
-            for dest_node, slink in six.iteritems(links2):
+            for dest_node, slink in links2.items():
                 nlink = links1.setdefault(dest_node, {})
                 nlink.update(slink)
 
@@ -1293,7 +1277,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         links = {}
 
         nodes = [(pipeline, node_name, node)
-                 for node_name, node in six.iteritems(pipeline.nodes)
+                 for node_name, node in pipeline.nodes.items()
                  if node.activated and node.enabled
                     and node is not pipeline.pipeline_node]
         all_nodes = []
@@ -1316,7 +1300,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
             all_nodes.append(node_desc)
 
-            if isinstance(node, PipelineNode):
+            if isinstance(node, Pipeline):
                 # sub-pipeline
                 group_nodes[node_name] = node
 
@@ -1389,7 +1373,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 dproc = getattr(node, 'process', node)
                 if isinstance(dproc, Pipeline):
                     continue  # pipeline nodes are virtual
-                for param, plug in six.iteritems(node.plugs):
+                for param, plug in node.plugs.items():
                     sources = pipeline_tools.find_plug_connection_sources(
                         plug, True)
                     for source in sources:
@@ -1399,7 +1383,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                     pipeline, node=snode):
                             continue
                         process = getattr(snode, 'process', snode)
-                        if not isinstance(snode, ProcessNode) \
+                        if not isinstance(snode, Process) \
                                 and snode not in jobs:
                             # the node is a phantom node (switch). Add deps to
                             # all upstream nodes
@@ -1416,14 +1400,14 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                 dependencies.update(
                                     [(x[0].process, node.process)
                                      for x in moredep
-                                     if isinstance(x[0], ProcessNode)])
+                                     if isinstance(x[0], Process)])
                                 new_nodes += [x[0] for x in moredep
                                               if x[0] is not None
                                                   and not isinstance(
-                                                      x[0], ProcessNode)]
+                                                      x[0], Process)]
                         elif process is pipeline:
                             continue  # from main input: no dependency link
-                        else:  # ProcessNode
+                        else:  # Process
                             sjob = jobs[process]
                             if isinstance(sjob, tuple):  # iteration
                                 sjob = sjob[1]  # source
@@ -1431,15 +1415,11 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                             if isinstance(djob, tuple):  # iteration
                                 djob = djob[0]  # destination
                             dependencies.add((sjob, djob))
-                            trait = process.trait(param_name)
-                            if trait.input_filename is False \
-                                    or (not isinstance(trait.trait_type,
-                                                      (File, Directory)) \
-                                        and (not isinstance(trait.trait_type,
-                                                            List)
-                                            or not isinstance(
-                                                trait.inner_traits[0],
-                                                (File, Directory)))):
+                            field = process.field(param_name)
+                            if process.metadata(field, 'output', False) \
+                                    or not process.metadfata(
+                                        field, 'format',
+                                        '').startswith('path/'):
                                 links.setdefault(dproc, {}).setdefault(
                                     param, []).append((process, param_name))
 
@@ -1493,7 +1473,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     # merged_formats: {ext: [dependent_exts]}
     # (formats names are lost here)
     merged_formats = {}
-    for format, values in six.iteritems(formats):
+    for format, values in formats.items():
         merged_formats.update(values)
 
     if study_config is None:
@@ -1522,7 +1502,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             completion.complete_parameters(complete_iterations=False)
 
     temp_map = assign_temporary_filenames(pipeline)
-    temp_subst_list = [(x1, x2[0]) for x1, x2 in six.iteritems(temp_map)]
+    temp_subst_list = [(x1, x2[0]) for x1, x2 in temp_map.items()]
     temp_subst_map = dict(temp_subst_list)
     shared_map = {}
 
@@ -1532,7 +1512,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     if disabled_nodes is None:
         disabled_nodes = pipeline.disabled_pipeline_steps_nodes()
     disabled_nodes = disabled_nodes \
-        + [name for name, node in six.iteritems(pipeline.nodes)
+        + [name for name, node in pipeline.nodes.items()
            if node.node_type != 'processing_node'
               and name not in disabled_nodes]
     disabled_nodes = _expand_nodes(disabled_nodes)
@@ -1553,8 +1533,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     # build steps map
     steps = {}
     if hasattr(pipeline, 'pipeline_steps'):
-        for step_name, step \
-                in six.iteritems(pipeline.pipeline_steps.user_traits()):
+        for step in pipeline.pipeline_steps.user_fields():
+            step_name = step.name
             nodes = step.nodes
             steps.update(dict([(node, step_name) for node in nodes]))
 
@@ -1574,17 +1554,17 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     param_links = {}
     # expand jobs map because jobs keys may be tuples (for iterations)
     jobs_map = {}
-    for process, job in six.iteritems(jobs):
+    for process, job in jobs.items():
         while isinstance(process, tuple):
             process = process[0]
         jobs_map.setdefault(process, []).append(job)
-    for dnode, dlinks in six.iteritems(links):
+    for dnode, dlinks in links.items():
         if isinstance(dnode, (Pipeline, ProcessIteration)) \
                 or (isinstance(dnode, tuple)
                     and isinstance(dnode[0], (Pipeline, ProcessIteration))):
             continue  # FIXME handle this
         djlinks = {}
-        for param, linkl in six.iteritems(dlinks):
+        for param, linkl in dlinks.items():
             for link in linkl:
                 if link[0] is not pipeline \
                         and not isinstance(link[0],
@@ -1656,8 +1636,8 @@ def workflow_run(workflow_name, workflow, study_config):
                resource_id):
         res_conf = getattr(
             study_config.somaworkflow_computing_resources_config, resource_id)
-        queue = res_conf.queue
-        if queue is Undefined:
+        queue = getattr(res_conf, 'queue', undefined)
+        if queue is undefined:
             queue = None
     wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name,
                                        queue=queue)
@@ -1675,7 +1655,7 @@ def workflow_run(workflow_name, workflow, study_config):
             if isinstance(process, Pipeline):
                 todo += [n.process for n in process.nodes.values()
                          if n is not process.pipeline_node
-                             and isinstance(n, ProcessNode)]
+                             and isinstance(n, Process)]
             else:
                 proc_map[id(process)] = process
 
@@ -1690,9 +1670,9 @@ def workflow_run(workflow_name, workflow, study_config):
                         # iteration or non-process job
                         continue
                     for param in list(out_params.keys()):
-                        if process.trait(param) is None:
+                        if process.field(param) is None:
                             del out_params[param]
-                    process.import_from_dict(out_params)
+                    process.import_dict(out_params)
 
     # TODO: should we transfer if the WF fails ?
     swclient.Helper.transfer_output_files(wf_id, controller)
