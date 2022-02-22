@@ -31,6 +31,7 @@ import traceback
 
 
 from soma.controller import (Controller, undefined, file, directory)
+import soma.controller as sc
 from .node import Node
 
 
@@ -767,15 +768,14 @@ class NipypeProcess(FileCopyProcess):
         self.id = ".".join([self._nipype_module, self._nipype_class])
         self.name = self._nipype_interface.__class__.__name__
 
-        # Add a new trait to store the processing output directory
-        super(Process, self).add_trait(
-            "output_directory", directory(undefined, exists=True,
+        # Add a new field to store the processing output directory
+        self.add_field(
+            "output_directory", directory(default=undefined, exists=True,
                                           optional=True))
 
         # Add a 'synchronize' nipype input trait that will be used to trigger
-        # manually the output nipype/capsul traits sync.
-        super(Process, self).add_field("synchronize", int, default=0,
-                                       optional=True)
+        # manually the output nipype/capsul fields sync.
+        self.synchronize = sc.Event()
 
         # use the nipype doc for help
         doc = getattr(nipype_instance, '__doc__')
@@ -850,7 +850,7 @@ class NipypeProcess(FileCopyProcess):
             raise ValueError('output_directory is not set but is mandatory '
                              'to run a NipypeProcess')
         os.chdir(self.output_directory)
-        self.synchronize += 1
+        self.synchronize.fire()
 
         # Force nipype update
         for trait_name in self._nipype_interface.inputs.traits().keys():
@@ -861,7 +861,7 @@ class NipypeProcess(FileCopyProcess):
                     setattr(self._nipype_interface.inputs, trait_name, new)
 
         results = self._nipype_interface.run()
-        self.synchronize += 1
+        self.synchronize.fire()
 
         # For spm, need to move the batch
         # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)

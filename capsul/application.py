@@ -144,7 +144,7 @@ def executable_from_python(definition, item):
     # If item is a Nipype Interface class.
     elif (isinstance(item, type) and
         issubclass(item, NipypeInterface)):
-        result = nipype_factory(definition, item())
+        result = nipype_factory(item())
 
     # If item is a function.
     elif isinstance(item, types.FunctionType):
