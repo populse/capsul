@@ -3725,7 +3725,7 @@ class PipelineDeveloperView(QGraphicsView):
                             six.iteritems(pipeline.pipeline_node.plugs)
                          if plug.output]
             for plug in plugs:
-                self.scene.pipeline.remove_trait(plug)
+                self.scene.pipeline.remove_field(plug)
 
         self.scene.pipeline.update_nodes_and_plugs_activation()
 
