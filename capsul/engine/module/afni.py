@@ -49,7 +49,7 @@ def edition_widget(engine, environment):
         with widget.engine.settings as session:
             conf = session.config('afni', widget.environment)
             values = {'config_id': 'afni'}
-            for k in ('directory'):
+            for k in ['directory']:
                 value = getattr(controller, k)
                 if value is traits.Undefined:
                     value = None
