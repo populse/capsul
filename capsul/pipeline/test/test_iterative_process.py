@@ -11,13 +11,12 @@ import tempfile
 import shutil
 
 from soma.controller import undefined, file, field, List
-from soma.controller.field import metadata
 
 # Capsul import
 from capsul.api import Process
 from capsul.api import Pipeline
 from capsul.api import Capsul
-#from capsul.pipeline import pipeline_workflow
+from capsul.pipeline import pipeline_workflow
 from soma.controller import Controller
 from soma_workflow import configuration as swconfig
 
@@ -90,7 +89,7 @@ class CreateFilesProcess(Process):
 
 
 class CheckFilesProcess(Process):
-    input_files: list[str] = field(metadata=metadata(file()))
+    input_files: list[str] = field(metadata=file().metadata())
 
     def execute(self, context=None):
         for f in self.input_files:

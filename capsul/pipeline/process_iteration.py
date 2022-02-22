@@ -58,7 +58,7 @@ class ProcessIteration(Process):
                 raise ValueError('Cannot iterate on parameter %s '
                   'that is not a parameter of process %s'
                   % (parameter, self.process.id))
-            if self.process.is_output(parameter):
+            if self.process.field(parameter).is_output():
                 has_output = True
             else:
                 inputs.append(parameter)
@@ -68,7 +68,7 @@ class ProcessIteration(Process):
         for field in self.process.user_fields():
             name = field.name
             if name in iterative_parameters:
-                meta = self.process.metadata(name)
+                meta = field.metadata()
                 # allow undefined values in this list
                 self.add_field(
                     name,
@@ -92,7 +92,7 @@ class ProcessIteration(Process):
         num = 0
         outputs = []
         for param in self.iterative_parameters:
-            if self.process.is_output(param):
+            if self.process.field(param).is_output():
                 if self.process.field(param).has_path():
                     outputs.append(param)
             else:
@@ -151,15 +151,15 @@ class ProcessIteration(Process):
             # and changing iterative parameter to list
             self.add_field(parameter,
                            Union[list[field.type], type(undefined)],
-                           metadata=self.process.metadata(field),
+                           metadata=field.metadata(),
                            default_factory=list)
 
             # if it is an output, the output list has to be
             # resized according to inputs
-            if self.process.is_output(field):
+            if field.is_output():
                 inputs = []
                 for param in self.iterative_parameters:
-                    if not self.process.is_output(param):
+                    if not self.process.field(param).is_output():
                         inputs.append(param)
                 self.on_attribute_change(self._resize_outputs, inputs)
 
@@ -183,7 +183,7 @@ class ProcessIteration(Process):
             field = self.field(parameter)
             value = getattr(self, parameter, undefined)
             psize = len(value)
-            if psize and (not self.is_output(field)
+            if psize and (not field.is_output()
                           or len([x for x in value
                                   if x in ('', undefined, None)]) == 0):
                 if size is None:
@@ -191,14 +191,14 @@ class ProcessIteration(Process):
                 elif size != psize:
                     size_error = True
                     break
-                if self.is_output(field):
+                if field.is_output():
                     if no_output_value is None:
                         no_output_value = False
                     elif no_output_value:
                         size_error = True
                         break
             else:
-                if self.is_output(field):
+                if field.is_output():
                     if no_output_value is None:
                         no_output_value = True
                     elif not no_output_value:
@@ -221,12 +221,12 @@ class ProcessIteration(Process):
         if no_output_value:
             for parameter in self.iterative_parameters:
                 field = self.field(parameter)
-                if self.is_output(field):
+                if field.is_output():
                     setattr(self, parameter, [])
             outputs = {}
             for iteration in range(size):
                 for parameter in self.iterative_parameters:
-                    #if not no_output_value or not self.is_output(parameter):
+                    #if not no_output_value or not field.is_output():
                     value = getattr(self, parameter)
                     if len(value) > iteration:
                         setattr(self.process, parameter,
@@ -236,7 +236,7 @@ class ProcessIteration(Process):
                 self.process()
                 for parameter in self.iterative_parameters:
                     field = self.field(parameter)
-                    if self.is_output(field):
+                    if field.is_output():
                         outputs.setdefault(parameter,[]).append(
                             getattr(self.process, parameter))
                         # reset empty value

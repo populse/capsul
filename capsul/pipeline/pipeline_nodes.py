@@ -236,8 +236,7 @@ class Switch(Node):
             # Propagate the associated field description
             out_field = self.field(output_plug_name)
             in_field = self.field(corresponding_input_plug_name)
-            self.set_metadata(output_plug_name, 'desc',
-                              in_field.metadata.get('desc'))
+            out_field.set_metadata('desc', in_field.metadata('desc'))
 
         self.pipeline.restore_update_nodes_and_plugs_activation()
         self.__block_output_propagation = False
@@ -343,12 +342,12 @@ class Switch(Node):
     def get_switch_inputs(self):
         inputs = []
         for field in self.fields():  # noqa: F402
-            if field.metadata.get('output', False):
+            if field.metadata('output', False):
                 continue
             plug = self.plugs[field.name]
             ps = plug.split('_switch_')
             if len(ps) == 2 and self.field(ps[1]) is not None \
-                    and self.field(ps[1]).metadata.get('output', False):
+                    and self.field(ps[1]).metadata('output', False):
                 inputs.append(ps[0])
         return inputs
 
@@ -367,11 +366,11 @@ class Switch(Node):
     def configured_controller(self):
         c = self.configure_controller()
         c.outputs = [field.name for field in self.fields()  # noqa: F811
-                     if field.metadata.get('output', False)]
+                     if field.metadata('output', False)]
         c.inputs = self.get_switch_inputs()
         c.output_types = [self.field(p).type_str()
                           for p in self.outputs]
-        c.optional_params = [self.field(p).metadata.get("optional", False) for p in self.inputs]
+        c.optional_params = [self.field(p).metadata("optional", False) for p in self.inputs]
         return c
 
     @classmethod
@@ -441,7 +440,7 @@ class OptionalOutputSwitch(Switch):
         """
         super().__init__(
             pipeline, name, [input, '_none'], [output], [output])
-        self.field('switch').metadata['optional'] = True
+        self.field('switch').set_metadata('optional', True)
         self.plugs['switch'].optional = True
         self.switch = '_none'
         pipeline.do_not_export.add((name, 'switch'))
@@ -450,7 +449,7 @@ class OptionalOutputSwitch(Switch):
         # hide internal machinery plugs
         self.field('switch').metadate['hidden'] = True
         self.plugs['switch'].hidden = True
-        self.field(none_input).metadata['hidden'] = True
+        self.field(none_input).set_metadata('hidden', True)
         self.plugs[none_input].hidden = True
         self.on_attribute_change.add(self._any_attribute_changed)
 
@@ -521,7 +520,7 @@ class OptionalOutputSwitch(Switch):
     def configured_controller(self):
         c = self.configure_controller()
         c.output = [field.name for field in self.fields()  # noqa: F811
-                    if field.metadata.get('output', False)][0]
+                    if field.metadata('output', False)][0]
         c.input = self.get_switch_inputs()[0]
 
         return c
