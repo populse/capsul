@@ -29,8 +29,6 @@ from capsul.pipeline import pipeline_tools
 from capsul.process.process import Process
 from capsul.pipeline.topological_sort import Graph
 from soma.controller import directory, undefined, file, Any, List
-from soma.controller.field import (is_directory, field_type, is_path, is_list,
-                                   is_file)
 from soma.sorted_dictionary import OrderedDict, SortedDictionary
 from .process_iteration import ProcessIteration
 from capsul.attributes import completion_engine_iteration
@@ -163,7 +161,7 @@ def workflow_from_pipeline(pipeline, engine=None, disabled_nodes=None,
         if path is None or path is undefined \
                 or not shared_paths \
                 or (field is not None
-                    and not is_path(field)):
+                    and not field.is_path()):
             return None # not a path
         item = shared_map.get(path)
         if item is not None:
@@ -538,9 +536,9 @@ def workflow_from_pipeline(pipeline, engine=None, disabled_nodes=None,
             if process.metadata(field, 'output', False):
                # filename is explicitly an output: not a temporary.
                 continue
-            is_list_ = is_list(field)
+            is_list = field.is_list()
             values = []
-            if is_list_:
+            if is_list:
                 todo = getattr(process, plug_name, undefined)
                 # FIXME for now this test is redundant and useless
                 #if process.metadata(field).get('output', False):
@@ -553,19 +551,19 @@ def workflow_from_pipeline(pipeline, engine=None, disabled_nodes=None,
                     # non-empty list element
                     values.append(item)
                     continue
-                is_directory_ = is_directory(field)
+                is_directory = field.is_directory()
                 if process.metadata(field, 'allowed_extensions', None):
                     suffix = process.metadata(field, 'allowed_extensions')[0]
                 else:
                     suffix = ''
-                swf_tmp = swclient.TemporaryPath(is_directory=is_directory_,
+                swf_tmp = swclient.TemporaryPath(is_directory=is_directory,
                     suffix=suffix, name='temporary_%d' % count)
                 tmp_file = TempFile('%d' % count)
                 count += 1
                 temp_map[tmp_file] = (swf_tmp, node, plug_name, optional)
                 values.append(tmp_file)
             # set a TempFile value to identify the params / value
-            if is_list_:
+            if is_list:
                 setattr(process, plug_name, values)
             else:
                 setattr(process, plug_name, values[0])
@@ -642,7 +640,7 @@ def workflow_from_pipeline(pipeline, engine=None, disabled_nodes=None,
                     # check field type (must be path, not Any)
                     field = process.field(param)
                     #plug = node.plugs[param]
-                    if process.is_path(field):
+                    if field.is_path():
                         transfers[
                             bool(process.metadata(field, 'write'))
                         ].setdefault(process, {})[param] = (transfer_item,
@@ -705,7 +703,7 @@ def workflow_from_pipeline(pipeline, engine=None, disabled_nodes=None,
                 process = node
             for field in process.fields():
                 param = field.name
-                if is_file(field) or field_type(field) is Any:
+                if field.is_file() or field.type is Any:
                     # is value in paths
                     path = getattr(process, param, undefined)
                     if path is None or path is undefined:
@@ -775,7 +773,7 @@ def workflow_from_pipeline(pipeline, engine=None, disabled_nodes=None,
             for field in process.fields():
                 param = field.name
                 if field.metadata(field, 'write') and (
-                    process.is_path(field) or field_type(field) is Any):
+                    field.is_path() or field.type is Any):
                     path = getattr(process, param, undefined)
                     if otrans is not None:
                         transfer, path2 = otrans.get(param, (None, None))

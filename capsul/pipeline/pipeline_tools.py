@@ -63,7 +63,7 @@ logger = logging.getLogger(__name__)
 from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
     OptionalOutputSwitch
 from capsul.pipeline.process_iteration import ProcessIteration
-from soma.controller import Controller, undefined, Any, is_path, field_type
+from soma.controller import Controller, undefined, Any
 from pydantic import ValidationError
 
 
@@ -601,7 +601,7 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
             for param in node.plugs:
                 pfield = process.field(param)
                 if process.metadata(pfield).get('write', False) \
-                        and is_path(pfield):
+                        and pfield.is_path():
                     value = getattr(process, param, undefined)
                     if value is not None and value is not undefined \
                             and os.path.exists(value):
@@ -611,7 +611,7 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
                         for t in process.fields():
                             n = t.name
                             if not process.metadata(t).get('write', False) \
-                                    and is_path(t):
+                                    and t.is_path():
                                 v = getattr(process, n, undefined)
                                 if v == value:
                                     disable = False
@@ -691,7 +691,7 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
         input_files_list = set()
         for plug_name, plug in node.plugs.items():
             field = process.field(plug_name)
-            if is_path(field) or field_type(field) is Any:
+            if field.is_path() or field.type is Any:
                 value = getattr(process, plug_name, undefined)
                 if isinstance(value, str) \
                         and os.path.exists(value) \
@@ -760,7 +760,7 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
             continue
         for plug_name, plug in six.iteritems(node.plugs):
             if not plug.output:
-                if is_path(process.field(plug_name)):
+                if process.field(plug_name).is_path():
                     value = getattr(process, plug_name, undefined)
                     keep_me = False
                     if value in (None, undefined, '') \
@@ -1155,7 +1155,7 @@ def get_output_directories(process):
         for param_name in plugs:
             field = process.field(param_name)
             if process.metadata(field).get('write', False) \
-                    and is_path(field):
+                    and field.is_path():
                 value = getattr(process, param_name, undefined)
                 if value is not None and value is not undefined:
                     directory = os.path.dirname(value)

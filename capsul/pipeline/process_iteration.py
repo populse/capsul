@@ -13,8 +13,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import sys
-from soma.controller import undefined, has_path
-from soma.controller.field import field_type, default_value, Union
+from soma.controller import undefined, Union
 
 from capsul.process.process import Process
 from capsul.process_instance import get_process_instance
@@ -73,7 +72,7 @@ class ProcessIteration(Process):
                 # allow undefined values in this list
                 self.add_field(
                     name,
-                    list[Union[field_type(field), type(undefined)]],
+                    list[Union[field.type, type(undefined)]],
                     metadata=meta,
                     default_factory=list)
 
@@ -94,7 +93,7 @@ class ProcessIteration(Process):
         outputs = []
         for param in self.iterative_parameters:
             if self.process.is_output(param):
-                if has_path(self.process.field(param)):
+                if self.process.field(param).has_path():
                     outputs.append(param)
             else:
                 num = max(num, len(getattr(self, param, [])))
@@ -107,7 +106,7 @@ class ProcessIteration(Process):
             else:
                 if len(value) < num:
                     new_value = value \
-                        + [default_value(self.process.field(param))] \
+                        + [self.process.field(param).default_value()] \
                             * (num - len(value))
                     mod = True
             if mod:
@@ -151,7 +150,7 @@ class ProcessIteration(Process):
             # Create iterative process parameter by copying process parameter
             # and changing iterative parameter to list
             self.add_field(parameter,
-                           Union[list[field_type(field)], type(undefined)],
+                           Union[list[field.type], type(undefined)],
                            metadata=self.process.metadata(field),
                            default_factory=list)
 

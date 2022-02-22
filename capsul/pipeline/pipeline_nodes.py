@@ -12,7 +12,7 @@ Classes
 
 import typing
 
-from soma.controller import (Controller, field, is_path, field_type_str,
+from soma.controller import (Controller, field,
                              undefined, Literal, List, type_from_str)
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
@@ -369,7 +369,7 @@ class Switch(Node):
         c.outputs = [field.name for field in self.fields()  # noqa: F811
                      if field.metadata.get('output', False)]
         c.inputs = self.get_switch_inputs()
-        c.output_types = [field_type_str(self.field(p))
+        c.output_types = [self.field(p).type_str()
                           for p in self.outputs]
         c.optional_params = [self.field(p).metadata.get("optional", False) for p in self.inputs]
         return c
