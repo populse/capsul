@@ -67,9 +67,8 @@ from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
 import capsul.pipeline.xml as capsulxml
 from capsul.pipeline.process_iteration import ProcessIteration
-from soma import controller
-from soma.controller import (Controller, undefined, field_subtypes, is_list,
-                             field_type)
+from soma import controller as sc
+from soma.controller import Controller, undefined
 from soma.controller.field import metadata
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import get_ref
@@ -117,7 +116,7 @@ class ColorType(object):
     def colorLink(self, x):
         if not isinstance(x, str):
             # x is a field
-            field_type_str = controller.type_str(x)
+            field_type_str = sc.type_str(x)
             if field_type_str in ('file', 'directory', 'path') \
                     and x.metadata.get('write', False):
                 field_type_str = '%s_out' % field_type_str
@@ -277,12 +276,12 @@ class NodeGWidget(QtGui.QGraphicsItem):
         for pname, param in six.iteritems(parameters):
             show = True
             if controller:
-                field = controller.field(pname)
-                if controller.metadata(field).get('hidden', False):
+                field = sc.field(pname)
+                if sc.metadata(field).get('hidden', False):
                     show = False
-                elif controller.metadata(field).get('userlevel', None) \
+                elif sc.metadata(field).get('userlevel', None) \
                         is not None:
-                    if controller.metadata(field).get('userlevel') \
+                    if sc.metadata(field).get('userlevel') \
                             > self.userlevel:
                         show = False
             if show:
@@ -1021,7 +1020,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_text = '<em>%s</em>' % param_text
         else:
             field = self.process.field(param_name)
-            if controller.is_path(field) and os.path.exists(value):
+            if sc.is_path(field) and os.path.exists(value):
                 param_text = '<b>%s</b>' % param_text
         return param_text
 
@@ -2106,7 +2105,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         name = source_dest[0][1]
         value = getattr(proc, name, undefined)
         field = proc.field(name)
-        field_type_str = controller.type_str(field)
+        field_type_str = sc.type_str(field)
         inst_type = self.get_instance_type_string(value)
         typestr = ('%s (%s)' % (inst_type, field_type_str)).replace(
             '<', '').replace('>', '')
@@ -2130,14 +2129,14 @@ class PipelineScene(QtGui.QGraphicsScene):
 ''' \
               % (source_dest[0][1], active, weak, typestr,
                  html.escape(str(value)))
-        if controller.is_path(field) or field_type(field) is controller.Any:
+        if field.is_path() or field.type is sc.Any:
             if self.is_existing_path(value):
                 msg += '''    <tr>
       <td></td>
       <td>existing path</td>
     </tr>
 '''
-            elif not field.type is controller.Any:
+            elif not field.type is sc.Any:
                 msg += '''    <tr>
       <td></td>
       <td><font color="#a0a0a0">non-existing path</font></td>
@@ -2198,7 +2197,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             optional = 'mandatory'
         value = getattr(proc, name, undefined)
         field = proc.field(name)
-        field_type_str = controller.field_type_str(field)
+        field_type_str = field.type_str()
         if proc.metadata(field).get('output', False) \
                 and proc.metadata(field).get('write', None) is False:
             field_type_str += ', output filename'
@@ -2227,14 +2226,14 @@ class PipelineScene(QtGui.QGraphicsScene):
 ''' \
               % (name, output, optional, enabled, activated, typestr,
                  html.escape(str(value)))
-        if controller.is_path(field) or field_type(field) is controller.Any:
+        if field.is_path() or field.type is sc.Any:
             if self.is_existing_path(value):
                 msg += '''    <tr>
       <td></td>
       <td>existing path</td>
     </tr>
 '''
-            elif not field.type is controller.Any:
+            elif not field.type is sc.Any:
                 msg += '''    <tr>
       <td></td>
       <td><font color="#a0a0a0">non-existing path</font></td>
@@ -2364,7 +2363,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         value = getattr(proc, name_plug)
 
-        field_type_str = controller.type_str(proc.field(name_plug))
+        field_type_str = proc.field(name_plug).type_str()
         return field_type_str
 
 
@@ -3180,7 +3179,7 @@ class PipelineDeveloperView(QGraphicsView):
             # allow to select switch value from the menu
             submenu = menu.addMenu('Switch value')
             agroup = QtGui.QActionGroup(submenu)
-            values = field_subtypes(node.field('switch'))
+            values = node.field('switch').subtypes()
             value = node.switch
             set_index = -1
             for item in values:
