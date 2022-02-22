@@ -297,11 +297,9 @@ class Node(Controller):
 
     def set_optional(self, field_or_name, optional):
         # overload to set the optional state on the plug also
-        super().set_optional(field_or_name, optional)
-        if not isinstance(field_or_name, str):
-            name = field_or_name.name
-        else:
-            name = field_or_name
+        field = self.ensure_field(field_or_name)
+        field.set_optional(optional)
+        name = field.name
         plug = self.plugs[name]
         plug.optional = bool(optional)
 

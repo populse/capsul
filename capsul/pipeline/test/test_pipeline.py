@@ -109,7 +109,7 @@ class TestPipeline(unittest.TestCase):
     def test_constant(self):
         graph = self.pipeline.workflow_graph()
         self.assertTrue(
-            self.pipeline.nodes['constant'].metadata('input_image').get(
+            self.pipeline.nodes['constant'].field('input_image').metadata(
                 'optional'))
         ordered_list = graph.topological_sort()
         self.pipeline.workflow_ordered_nodes()

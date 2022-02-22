@@ -273,13 +273,13 @@ class Pipeline(Process):
             for parameter_name, plug in node.plugs.items():
                 if parameter_name in ("nodes_activation", "selection_changed"):
                     continue
-                if (((node_name, parameter_name) not in self.do_not_export and
+                if ((node_name, parameter_name) not in self.do_not_export and
                     ((plug.output and not plug.links_to) or
                      (not plug.output and not plug.links_from)) and
                     (include_optional
                      or (plug.output and isinstance(node, Switch))
-                     or not self.nodes[node_name].is_optional(
-                          parameter_name)))):
+                     or not self.nodes[node_name].field(
+                          parameter_name).is_optional())):
 
                     self.export_parameter(node_name, parameter_name)
 

@@ -11,9 +11,8 @@ Functions
 from __future__ import print_function
 from __future__ import absolute_import
 
-from soma.controller import Controller, undefined, default_value
+from soma.controller import Controller, undefined
 import os
-import six
 import sys
 
 
@@ -65,8 +64,8 @@ def save_py_pipeline(pipeline, py_file):
         make_opt = []
         for field in proc_copy.fields():
             fname = field.name
-            if process.metadata(fname).get('optional', False) \
-                    and not proc_copy.metadata(field).get('optional', False):
+            if process.field(fname).metadata('optional', False) \
+                    and not field.metadata('optional', False):
                 make_opt.append(fname)
         node_options = ''
         if len(make_opt) != 0:
@@ -101,7 +100,7 @@ def save_py_pipeline(pipeline, py_file):
                     #if use_default:
                         #elem.set('use_default', 'true')
             #for param, np_input in \
-                    #six.iteritems(process._nipype_interface.inputs.__dict__):
+                    #process._nipype_interface.inputs.__dict__.items():
                 #use_default = getattr(np_input, 'usedefault', False) # is it that?
                 #if use_default and param not in process.inputs_to_copy:
                     #elem = ET.SubElement(procnode, 'nipype')
@@ -132,7 +131,7 @@ def save_py_pipeline(pipeline, py_file):
             if len(plug.links_from) == 0 and len(plug.links_to) == 0 \
                     and node.field(plug_name) is not None \
                     and getattr(node, plug_name, undefined) \
-                        != default_value(node.field(plug_name)):
+                        != node.field(plug_name).default_value():
                 value = getattr(node, plug_name, undefined)
                 print('        self.nodes["%s"].%s = %s'
                       % (name, plug_name, get_repr_value(value)), file=pyf)
@@ -166,7 +165,7 @@ def save_py_pipeline(pipeline, py_file):
         optional = []
         opt_in = []
         options = ''
-        for plug_name, plug in six.iteritems(switch.plugs):
+        for plug_name, plug in switch.plugs.items():
             if plug.output:
                 outputs.append(plug_name)
                 if plug.optional:
@@ -199,7 +198,7 @@ def save_py_pipeline(pipeline, py_file):
     def _write_optional_output_switch(switch, pyf, name, enabled):
         output = None
         input = None
-        for plug_name, plug in six.iteritems(switch.plugs):
+        for plug_name, plug in switch.plugs.items():
             if plug.output:
                 output = plug_name
             else:
@@ -220,7 +219,7 @@ def save_py_pipeline(pipeline, py_file):
         nodes = []
         proc_nodes = []
         # sort nodes, processes first
-        for node_name, node in six.iteritems(pipeline.nodes):
+        for node_name, node in pipeline.nodes.items():
             if node_name == "":
                 continue
             if isinstance(node, Process):
@@ -248,7 +247,7 @@ def save_py_pipeline(pipeline, py_file):
         if hasattr(pipeline, 'processes_selection'):
             print('\n        # processes selection', file=pyf)
             for selector_name, groups \
-                    in six.iteritems(pipeline.processes_selection):
+                    in pipeline.processes_selection.items():
                 print('        self.add_processes_selection("%s", %s)'
                       % (selector_name, repr(groups)), file=pyf)
         return selection_parameters
@@ -274,8 +273,8 @@ def save_py_pipeline(pipeline, py_file):
     def _write_links(pipeline, pyf):
         exported = set()
         print('\n        # links', file=pyf)
-        for node_name, node in six.iteritems(pipeline.nodes):
-            for plug_name, plug in six.iteritems(node.plugs):
+        for node_name, node in pipeline.nodes.items():
+            for plug_name, plug in node.plugs.items():
                 if (node_name == "" and not plug.output) \
                         or (node_name != "" and plug.output):
                     links = plug.links_to
@@ -315,7 +314,7 @@ def save_py_pipeline(pipeline, py_file):
                 enabled_str = ''
                 if not enabled:
                     enabled_str = ', enabled=false'
-                nodes = pipeline.pipeline_steps.metadata(step).get(
+                nodes = pipeline.pipeline_steps.field(step).metadata(
                     'nodes', set())
                 print('        self.add_pipeline_step("%s", %s%s)'
                       % (step_name, repr(nodes), enabled_str), file=pyf)
@@ -325,7 +324,7 @@ def save_py_pipeline(pipeline, py_file):
         if node_position:
             print('\n        # nodes positions', file=pyf)
             print('        self.node_position = {', file=pyf)
-            for node_name, pos in six.iteritems(pipeline.node_position):
+            for node_name, pos in pipeline.node_position.items():
                 if not isinstance(pos, (list, tuple)):
                     # pos is probably a QPointF
                     pos = (pos.x(), pos.y())
@@ -342,7 +341,7 @@ def save_py_pipeline(pipeline, py_file):
         if node_dimension:
             print('\n        # nodes dimensions', file=pyf)
             print('        self.node_dimension = {', file=pyf)
-            for node_name, dim in six.iteritems(pipeline.node_dimension):
+            for node_name, dim in pipeline.node_dimension.items():
                 if not isinstance(dim, (list, tuple)):
                     dim = (dim.width(), dim.height())
                 print('            "%s": %s,' % (node_name, repr(dim)),
@@ -387,7 +386,7 @@ def save_py_pipeline(pipeline, py_file):
             if param_name not in pipeline.plugs:
                 continue
             value = getattr(pipeline, param_name, undefined)
-            if value != default_value(field) \
+            if value != field.default_value() \
                     and value not in (None, '', undefined):
                 if isinstance(value, Controller):
                     value_repr = repr(dict(value.asdict()))
