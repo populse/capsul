@@ -27,14 +27,8 @@ from .pipeline_nodes import OptionalOutputSwitch
 
 from soma.controller import (Controller, 
                              Event,
-                             is_output,
-                             is_path,
-                             has_path,
-                             is_directory,
-                             is_list,
                              field,
                              Literal)
-from soma.controller.field import metadata
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 
@@ -931,14 +925,14 @@ class Pipeline(Process):
                 isinstance(source_node, Process)):
             source_field = source_node.field(source_plug_name)
             dest_field = dest_node.field(dest_plug_name)
-            if is_output(source_field) and not is_output(dest_field):
-                dest_node.set_metadata(dest_field, 'connected_output', True)
+            if source_field.is_output() and not dest_field.is_output():
+                dest_field.set_metadata('connected_output', True)
 
         # Propagate the description in case of destination switch node
         if isinstance(dest_node, Switch):
             source_field = source_node.field(source_plug_name)
             dest_field = dest_node.field(dest_plug_name)
-            dest_node.set_metadata(dest_field, 'desc', source_node.metadata(source_field, 'desc'))
+            dest_field.set_metadata('desc', source_field.metadata('desc'))
             dest_node._switch_changed(getattr(dest_node, "switch", undefined),
                                       getattr(dest_node, "switch", undefined))
 
@@ -993,8 +987,8 @@ class Pipeline(Process):
         if (isinstance(dest_node, Process) and
                 isinstance(source_node, Process)):
             dest_field = dest_node.field(dest_plug_name)
-            if metadata(dest_field).get('connected_output'):
-                metadata(dest_field)['connected_output'] = False  # FIXME
+            if dest_field.metadata('connected_output', None):
+                dest_field.set_metadata('connected_output', False)  # FIXME
 
         # Observer
         source_node.disconnect(source_plug_name, dest_node, dest_plug_name)
@@ -1062,7 +1056,7 @@ class Pipeline(Process):
         # Important because this property is automatically set during
         # the nipype interface wrappings
         if is_enabled is not None:
-            metadata(f)['enabled'] = bool(is_enabled)
+            f.set_metadata('enabled', bool(is_enabled))
 
         # Now add the parameter to the pipeline
         if not self.field(pipeline_parameter):
@@ -1081,7 +1075,7 @@ class Pipeline(Process):
 
         # Do not forget to link the node with the pipeline node
 
-        if is_output(f):
+        if f.is_output():
             link_desc = f'{node_name}.{plug_name}->{pipeline_parameter}'
             self.add_link(link_desc,  weak_link)
         else:
@@ -1445,7 +1439,7 @@ class Pipeline(Process):
             if output is None:
                 process = getattr(node, 'process', node)
                 field = process.field(plug_name)
-                output = is_output(field)
+                output = field.is_output()
 
             # Main loop
             for (dest_node_name, dest_plug_name, dest_node, dest_plug,
@@ -1491,7 +1485,7 @@ class Pipeline(Process):
                 if not getattr(steps, step_field.name, None):
                     disabled_nodes.update(
                         [self.nodes[node]
-                         for node in metadata(step_field)['nodes']])
+                         for node in step_field.metadata('nodes')])
 
         # Add activated Process nodes in the graph
         for node_name, node in self.nodes.items():
@@ -1613,14 +1607,14 @@ class Pipeline(Process):
             if not plug.activated or not plug.enabled:
                 continue
             field = node.field(plug_name)
-            if not node.metadata(field).get('write', False) \
-                    or node.metadata(field).get('output', False):
+            if not field.metadata('write', False) \
+                    or field.metadata('output', False):
                 continue
-            if is_list(field) and has_path(field):
+            if field.is_list() and field.has_path():
                 if len([x for x in value if x in ('', undefined)]) == 0:
                     continue
             elif value not in (undefined, '') \
-                    or (not has_path(field)
+                    or (not field.has_path()
                          or len(plug.links_to) == 0):
                 continue
             # check that it is really temporary: not exported
@@ -1630,7 +1624,7 @@ class Pipeline(Process):
                 continue
             # if we get here, we are a temporary.
             if isinstance(value, list):
-                if is_directory(field):
+                if field.is_directory():
                     new_value = []
                     tmpdirs = []
                     for i in range(len(value)):
@@ -1645,7 +1639,7 @@ class Pipeline(Process):
                 else:
                     new_value = []
                     tmpfiles = []
-                    e = field.metadata.get('allowed_extensions')
+                    e = field.metadata('allowed_extensions')
                     if e:
                         suffix = 'capsul' + e[0]
                     else:
@@ -1661,7 +1655,7 @@ class Pipeline(Process):
                     node.set_plug_value(plug_name, new_value)
                     temp_files.append((node, plug_name, tmpfiles, value))
             else:
-                if is_directory(field):
+                if field.is_directory():
                     tmpdir = tempfile.mkdtemp(suffix='capsul_run')
                     temp_files.append((node, plug_name, tmpdir, value))
                     node.set_plug_value(plug_name, tmpdir)
@@ -1742,14 +1736,14 @@ class Pipeline(Process):
                         (not plug.activated and plug.optional):
                     continue
                 parameter = process.field(plug_name)
-                if is_list(parameter):
-                    if not has_path(parameter):
+                if parameter.is_list():
+                    if not parameter.has_path():
                         continue
-                elif not is_path(parameter) \
-                        or is_output(parameter):
+                elif not parameter.is_path() \
+                        or parameter.is_output():
                     # a file with its filename as an output is OK
                     continue
-                value = getattr(process, plug_name)
+                value = getattr(process, plug_name, undefined)
                 if isinstance(value, list):
                     if len(value) == 0 \
                             or len([item for item in value
@@ -1777,7 +1771,7 @@ class Pipeline(Process):
                         if isinstance(link[2], Process):
                             lproc = link[2]
                             lfield = lproc.field(link[1])
-                            if is_output(lfield):
+                            if lfield.is_output():
                                 # connected to an output file which filename
                                 # is actually an output: it will be generated
                                 # by the process, thus is not a temporary
@@ -2217,7 +2211,7 @@ class Pipeline(Process):
         for field in steps.fields():  # noqa: F402
             if not getattr(steps, field.name, True):
                 # disabled step
-                nodes = metadata(field)['nodes']
+                nodes = field.metadata('nodes')
                 disabled_nodes.extend([self.nodes[node] for node in nodes])
         return disabled_nodes
 
@@ -2317,7 +2311,7 @@ class Pipeline(Process):
         steps_priority = {}
         p = 0
         for step_field in steps.fields():
-            nodes = metadata(step_field, 'nodes')
+            nodes = step_field.metadata('nodes')
             steps_priority[step_field.name] = p
             p += 1
             for node in nodes:
@@ -2331,7 +2325,7 @@ class Pipeline(Process):
             plug = plugs.get(field.name)
             if not plug:
                 continue
-            if is_output(field):
+            if field.is_output():
                 links = plug.links_from
             else:
                 links = plug.links_to
@@ -2345,7 +2339,7 @@ class Pipeline(Process):
                 groups = sorted(groups, key=lambda x: steps_priority[x])
                 if exclusive:
                     groups = [groups[0]]
-                metadata(field)['groups'] = groups
+                field.set_metadata('groups', groups)
 
     def check_requirements(self, environment='global', message_list=None):
         '''
@@ -2437,12 +2431,13 @@ class Pipeline(Process):
             steps = getattr(self, 'pipeline_steps', None)
             if steps:
                 for field in steps.fields():  # noqa: F402
-                    nodes = metadata(field, 'nodes')
+                    nodes = field.metadata('nodes')
                     if old_node_name in nodes:
-                        metadata(field)['nodes'] = [
-                            n if n != old_node_name
-                            else new_node_name
-                            for n in nodes]
+                        field.set_metadata(
+                            'nodes',
+                            [n if n != old_node_name
+                             else new_node_name
+                             for n in nodes])
 
             # nodes positions and dimensions
             if old_node_name in getattr(self, 'node_position', {}):

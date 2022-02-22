@@ -298,7 +298,7 @@ class FileCopyProcess(Process):
         outputs = {}
         for field in self.user_fields():
             name = field.name
-            if sc.is_output(field):
+            if field.is_output():
                 outputs[name] = getattr(self, name, undefined)
         # 2. set again inputs to their initial values
         if hasattr(self, '_recorded_params'):
@@ -551,7 +551,7 @@ class FileCopyProcess(Process):
         # Go through all the user fields
         for field in self.user_fields():
             name = field.name
-            if sc.is_output(field):
+            if field.is_output():
                 continue
             # Check if the target parameter is in the check list
             c = name in self.inputs_to_copy
