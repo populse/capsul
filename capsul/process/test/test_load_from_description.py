@@ -152,11 +152,11 @@ class TestLoadFromDescription(unittest.TestCase):
         for input_name in ["parameter1", "parameter2", "parameter3"]:
             field = process.field(input_name)
             self.assertTrue(field is not None)
-            self.assertFalse(process.metadata(field).get('output', False))
+            self.assertFalse(field.metadata('output', False))
         for output_name in ["result"]:
             field = process.field(output_name)
             self.assertTrue(field is not None)
-            self.assertTrue(process.metadata(field).get('output', False))
+            self.assertTrue(field.metadata('output', False))
         process.parameter1 = 12.34
         process.parameter2 = 'toto'
         process.parameter3 = 4

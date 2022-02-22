@@ -167,8 +167,8 @@ class Node(Controller):
         for field in self.fields():  # noqa: F402
             if field.name in self.nonplug_names:
                 continue
-            output = self.is_output(field)
-            optional = self.is_optional(field)
+            output = field.is_output()
+            optional = field.is_optional()
             parameter = {
                 "name": field.name,
                 "output" : output,
@@ -322,8 +322,8 @@ class Node(Controller):
         field = self.field(name)
         parameter = {
             "name": name,
-            "output": self.is_output(field),
-            "optional": self.is_optional(field),
+            "output": field.is_output(),
+            "optional": field.is_optional(),
             "has_default_value": field.has_default(),
         }
         # generate plug with input parameter and identifier name
@@ -588,7 +588,7 @@ class Node(Controller):
       return hasattr(self, 'build_job')
 
     def is_parameter_protected(self, plug_name):
-        return self.metadata(plug_name, 'protected', False)
+        return self.field(plug_name).metadata('protected', False)
 
     def protect_parameter(self, plug_name, state=True):
-        self.set_metadata(plug_name, 'protected', state)
+        self.field(plug_name).set_metadata('protected', state)
