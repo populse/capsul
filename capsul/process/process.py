@@ -172,7 +172,7 @@ class FileCopyProcess(Process):
 
     Methods
     -------
-    _update_input_traits
+    _update_input_fields
     _get_process_arguments
     _copy_input_files
     """
@@ -212,12 +212,12 @@ class FileCopyProcess(Process):
         if self.activate_copy:
             self.inputs_to_clean = inputs_to_clean
             if inputs_to_symlink is None:
-                self.inputs_to_symlink = list(self.user_traits().keys())
+                self.inputs_to_symlink = [f.name for f in self.user_fields()]
             else:
                 self.inputs_to_symlink = inputs_to_symlink
             if inputs_to_copy is None:
-                self.inputs_to_copy = [k for k in self.user_traits().keys()
-                                       if k not in self.inputs_to_symlink]
+                self.inputs_to_copy = [f.name for f in self.user_fields()
+                                       if f.name not in self.inputs_to_symlink]
             else:
                 self.inputs_to_copy = inputs_to_copy
                 self.inputs_to_symlink = [k for k in self.inputs_to_symlink
@@ -258,13 +258,13 @@ class FileCopyProcess(Process):
         if self.activate_copy:
 
             # Copy the desired items
-            self._update_input_traits()
+            self._update_input_fields()
 
             self._recorded_params = {}
             # Set the process inputs
             for name, value in self.copied_inputs.items():
-                self._recorded_params[name] = getattr(self, name)
-                self.set_parameter(name, value)
+                self._recorded_params[name] = getattr(self, name, undefined)
+                setattr(self, name, value)
 
     def _after_run_process(self, run_process_result):
         """ Method to clean-up temporary workspace after process
@@ -296,16 +296,17 @@ class FileCopyProcess(Process):
 
         # 1. record output values
         outputs = {}
-        for name, trait in self.user_traits().items():
-            if trait.output:
-                outputs[name] = getattr(self, name)
+        for field in self.user_fields():
+            name = field.name
+            if sc.is_output(field):
+                outputs[name] = getattr(self, name, undefined)
         # 2. set again inputs to their initial values
         if hasattr(self, '_recorded_params'):
             for name, value in self._recorded_params.items():
-                self.set_parameter(name, value)
+                setattr(self, name, value)
         # 3. force output values using the recorded ones
         for name, value in outputs.items():
-            self.set_parameter(name, value)
+            setattr(self, name, value)
         if hasattr(self, '_recorded_params'):
             del self._recorded_params
 
@@ -331,13 +332,14 @@ class FileCopyProcess(Process):
         dst_output = self._former_output_directory
         output_values = {}
         moved_dict = {}
-        for param, trait in self.user_traits().items():
-            if trait.output:
+        for field in self.user_fields():
+            param = field.name
+            if self.metadata(field, 'output', False):
                 new_value = self._move_files(tmp_output, dst_output,
                                              getattr(self, param),
                                              moved_dict=moved_dict)
                 output_values[param] = new_value
-                self.set_parameter(param, new_value)
+                setattr(self, param, new_value)
 
         shutil.rmtree(tmp_output)
         del self._destination
@@ -413,10 +415,10 @@ class FileCopyProcess(Process):
                     os.path.isfile(python_object)):
                 os.remove(python_object)
 
-    def _update_input_traits(self, copy=True):
-        """ Update the process input traits: input files are copied.
+    def _update_input_fields(self, copy=True):
+        """ Update the process input fields: input files are copied.
         """
-        # Get the new trait values
+        # Get the new field values
         input_parameters, input_symlinks = self._get_process_arguments()
         self.copied_files = {}
         self.copied_inputs \
@@ -535,9 +537,6 @@ class FileCopyProcess(Process):
     def _get_process_arguments(self):
         """ Get the process arguments.
 
-        The user process traits are accessed through the user_traits()
-        method that returns a sorted dictionary.
-
         Returns
         -------
         input_parameters: dict
@@ -549,15 +548,16 @@ class FileCopyProcess(Process):
         input_parameters = {}
         input_symlinks = {}
 
-        # Go through all the user traits
-        for name, trait in self.user_traits().items():
-            if trait.output:
+        # Go through all the user fields
+        for field in self.user_fields():
+            name = field.name
+            if sc.is_output(field):
                 continue
             # Check if the target parameter is in the check list
             c = name in self.inputs_to_copy
             s = name in self.inputs_to_symlink
             if c or s:
-                # Get the trait value
+                # Get the field value
                 value = getattr(self, name, undefined)
                 # Skip undefined field attributes and outputs
                 if value is not undefined:
@@ -642,7 +642,7 @@ class NipypeProcess(FileCopyProcess):
                  *args, **kwargs):
         """ Initialize the NipypeProcess class.
 
-        NipypeProcess instance gets automatically an additional user trait
+        NipypeProcess instance gets automatically an additional user field
         'output_directory'.
 
         This class also fix also some lacks of the nipye version '0.10.0'.
@@ -673,7 +673,7 @@ class NipypeProcess(FileCopyProcess):
         names they will get in the Process instance. By default inputs get the
         same name as in their nipype interface, and outputs are prefixed with
         an underscore ('_') to avoid names collisions when a trait exists both
-        in inputs and outputs in nipype. A special trait name
+        in inputs and outputs in nipype. A special field name
         `_spm_script_file` is also used in SPM interfaces to write the matlab
         script. It can also be translated to a different name in this dict.
 
@@ -854,9 +854,11 @@ class NipypeProcess(FileCopyProcess):
 
         # Force nipype update
         for trait_name in self._nipype_interface.inputs.traits().keys():
-            if trait_name in self.user_traits():
+            field_name = self.getattr(
+                '_nipype_trait_mapping', {}).get(trait_name, trait_name)
+            if field_name in self.user_fields():
                 old = getattr(self._nipype_interface.inputs, trait_name)
-                new = getattr(self, trait_name)
+                new = getattr(self, field_name)
                 if old is undefined and old != new:
                     setattr(self._nipype_interface.inputs, trait_name, new)
 
