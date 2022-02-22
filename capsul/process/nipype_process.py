@@ -156,7 +156,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         """
         # Get all the input fields
         input_fields = {f.name for f in process_instance.fields()
-                        if sc.is_input(f)}
+                        if f.is_input()}
         output_directory \
             = getattr(process_instance, 'output_directory', sc.undefined)
 
@@ -199,7 +199,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                 try:
                     # if we have an output directory, replace it
                     if output_directory not in (sc.undefined, None) \
-                            and sc.has_path(process_instance.field(pname)):
+                            and process_instance.field(pname).has_path():
                         out_value = _replace_dir(out_value, output_directory)
                         # Set the output process trait value
                         setattr(process_instance, pname, out_value)
@@ -371,7 +371,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             'enabled': False,
             'desc': trait.desc,
         }
-        if sc.has_path(process_field):
+        if process_field.has_path():
             kwargs['write'] = True
         else:
             kwargs['output'] = True

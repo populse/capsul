@@ -13,8 +13,7 @@ Classes
 import typing
 from typing import Literal, List
 
-from soma.controller import (Controller, field, is_path, field_type_str,
-                             has_default)
+from soma.controller import (Controller, field)
 from soma.undefined import undefined
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
@@ -325,7 +324,7 @@ class Node(Controller):
             "name": name,
             "output": self.is_output(field),
             "optional": self.is_optional(field),
-            "has_default_value": has_default(field),
+            "has_default_value": field.has_default(),
         }
         # generate plug with input parameter and identifier name
         self._add_plug(parameter)
