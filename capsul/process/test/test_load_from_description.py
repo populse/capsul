@@ -8,7 +8,7 @@ import sys
 import shutil
 from typing import List, Tuple
 
-from soma.controller import file, directory, field, Literal
+from soma.controller import file, directory, field, Literal, File, Directory
 
 from capsul.api import Capsul, Process, Pipeline
 
@@ -16,9 +16,9 @@ from capsul.api import Capsul, Process, Pipeline
 
 
 def a_function_to_wrap(
-    fname: file(doc='test'), 
-    directory: directory(doc='test'), 
-    value: field(type_=float, doc='test'), 
+    fname: field(type_=File, doc='test'),
+    directory: field(type_=Directory, doc='test'),
+    value: field(type_=float, doc='test'),
     enum: field(type_=str, doc='test'), 
     list_of_str: field(type_=List[str], doc='test')
 ) -> field(type_=str, doc='test'):
@@ -57,8 +57,8 @@ def to_warp_func(
 
 # temp replacement:
 def threshold(
-    input_image: file(doc='Path of a NIFTI-1 image file.'),
-    output_image: file(doc="Name of the output image.", write=True),
+    input_image: field(type_=File, doc='Path of a NIFTI-1 image file.'),
+    output_image: field(type_=file(write=True), doc="Name of the output image."),
     method: field(type_=Literal['gt', 'ge', 'lt', 'le'], default='gt', doc="Mehod for thresolding."),
     threshold: field(type_=float, default=0)
 ):
@@ -77,9 +77,9 @@ def threshold(
 
 # temp replacement:
 def mask(
-    input_image: file(doc='Path of a NIFTI-1 image file.'),
-    mask: file(doc='Path of mask binary image.'),
-    output_image: file(write=True, doc="Output file name.")
+    input_image: field(type_=File, doc='Path of a NIFTI-1 image file.'),
+    mask: field(type_=File, doc='Path of mask binary image.'),
+    output_image: field(type_=File[{'write': True}], doc="Output file name.")
 ):
 
     pass

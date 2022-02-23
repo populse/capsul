@@ -8,15 +8,15 @@ import unittest
 import tempfile
 import sys
 
-from soma.controller import file
+from soma.controller import file, File, field
 
 from capsul.api import Process, Pipeline, Switch
 from capsul.process_instance import get_process_instance
 
 
 class Identity(Process):
-    input_image: file(optional=False, output=False)
-    output_image: file(optional=False, output=True)
+    input_image: File = field(optional=False, output=False)
+    output_image: File = field(optional=False, output=True)
     
 class ComplexPipeline(Pipeline):
     """Pipeline to test complex constructions behaviours

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 from __future__ import absolute_import
+
 import unittest
 from capsul.api import Capsul
 from capsul.api import Process
 from capsul.api import Pipeline
-from soma.controller import file
+from soma.controller import file, File
 import tempfile
 import os
 import os.path as osp
@@ -21,11 +22,11 @@ class DummyProcess(Process):
         super(DummyProcess, self).__init__(definition)
 
         # inputs
-        self.add_field("input_image", file(optional=False))
+        self.add_field("input_image", File, optional=False)
         self.add_field("other_input", float, optional=True)
 
         # outputs
-        self.add_field("output_image", file(optional=False, output=True))
+        self.add_field("output_image", File, optional=False, output=True)
         self.add_field("other_output", float, optional=True, output=True)
 
     def execute(self):
