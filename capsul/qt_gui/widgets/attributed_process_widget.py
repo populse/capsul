@@ -11,8 +11,7 @@ Classes
 import json
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui, QtCore
-from soma.controller import (Controller, file, directory, Any, is_path,
-                             field_type, is_list)
+from soma.controller import (Controller, file, Any)
 from soma.qt_gui.controller import ControllerWidget
 
 
@@ -71,7 +70,8 @@ class AttributedProcessWidget(QtGui.QWidget):
         filename_widget = None
         if enable_attr_from_filename and completion_engine is not None:
             c = Controller()
-            c.add_field('attributes_from_input_filename', file(optional=True))
+            c.add_field('attributes_from_input_filename', file(),
+                        optional=True)
             filename_widget = ControllerWidget(c)  # , user_data=user_data)
             spl_up.layout().addWidget(filename_widget)
             self.input_filename_controller = c
@@ -314,7 +314,7 @@ class AttributedProcessWidget(QtGui.QWidget):
                 # WARNING: is it necessary to reset all this ?
                 # create_completion() will do the job anyway ?
                 #for name, field in process.fields():
-                    #if is_path(field):
+                    #if field.is_path():
                         #setattr(process, name, undefined)
                 completion_engine.complete_parameters()
 
@@ -381,11 +381,7 @@ class AttributedProcessWidget(QtGui.QWidget):
                 for group, control in control_groups.items():
                     field, control_class, control_instance, control_label \
                         = control
-                    if not is_path(field) and field.type is not Any \
-                            and (not is_list(field)
-                                 or (not is_path(field_type(field).__args__[0])
-                                     and field_type(field).__args__[0]
-                                        is not Any)):
+                    if not field.has_path() and field.type is not Any:
                         continue
                     if field.metadata.get('forbid_completion', False):
                         # when completion is disable, parameters are always

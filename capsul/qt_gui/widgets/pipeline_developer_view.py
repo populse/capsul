@@ -69,7 +69,6 @@ import capsul.pipeline.xml as capsulxml
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma import controller as sc
 from soma.controller import Controller, undefined
-from soma.controller.field import metadata
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import get_ref
 from soma.utils.weak_proxy import proxy_method
@@ -116,7 +115,7 @@ class ColorType(object):
     def colorLink(self, x):
         if not isinstance(x, str):
             # x is a field
-            field_type_str = sc.type_str(x)
+            field_type_str = x.type_str(x)
             if field_type_str in ('file', 'directory', 'path') \
                     and x.metadata.get('write', False):
                 field_type_str = '%s_out' % field_type_str
@@ -273,16 +272,14 @@ class NodeGWidget(QtGui.QGraphicsItem):
                   #or param.userlevel <= self.userlevel)]
         controller = process
         self.parameters = SortedDictionary()
-        for pname, param in six.iteritems(parameters):
+        for pname, param in parameters.items():
             show = True
             if controller:
-                field = sc.field(pname)
-                if sc.metadata(field).get('hidden', False):
+                field = controller.field(pname)
+                if field.metadata('hidden', False):
                     show = False
-                elif sc.metadata(field).get('userlevel', None) \
-                        is not None:
-                    if sc.metadata(field).get('userlevel') \
-                            > self.userlevel:
+                elif field.metadata('userlevel', None) is not None:
+                    if field.metadata('userlevel') > self.userlevel:
                         show = False
             if show:
                 self.parameters[pname] = param
@@ -311,7 +308,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         if steps:
             for step in steps.fields():
                 step_name = step.name
-                step_nodes = metadata(step)['nodes']
+                step_nodes = step.metadata('nodes')
                 if name in step_nodes:
                     my_labels.append('step: %s' % step_name)
         selects = pipeline.get_processes_selections()
@@ -387,10 +384,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 continue
             elif self.name == 'outputs' and not self.process.is_output(param):
                 continue
-            if param.metadata.get('hidden', False):
+            if param.metadata('hidden', False):
                 show = False
-            elif param.metadata.get('userlevel', None) is not None:
-                if param.metadata.get('userlevel') > self.userlevel:
+            elif param.metadata('userlevel', None) is not None:
+                if param.metadata('userlevel') > self.userlevel:
                     show = False
             if show:
                 self.parameters[pname] = self.process.plugs[pname]
@@ -1020,7 +1017,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             param_text = '<em>%s</em>' % param_text
         else:
             field = self.process.field(param_name)
-            if sc.is_path(field) and os.path.exists(value):
+            if field.is_path() and os.path.exists(value):
                 param_text = '<b>%s</b>' % param_text
         return param_text
 
@@ -1804,7 +1801,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                     pipeline_inputs = SortedDictionary()
                     for name, plug in six.iteritems(node.plugs):
                         if not plug.output:
-                            field_meta = node.metadata(name)
+                            field_meta = node.field(name).metadata()
                             if not field_meta.get('hidden', False) \
                                     and (field_meta.get('userlevel', None)
                                             is None
@@ -1820,7 +1817,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                     pipeline_outputs = SortedDictionary()
                     for name, plug in six.iteritems(node.plugs):
                         if plug.output:
-                            field_meta = node.metadata(name)
+                            field_meta = node.field(name).metadata()
                             if not field_meta.get('hidden', False) \
                                     and (field_meta.get('userlevel', None)
                                             is None
@@ -2105,7 +2102,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         name = source_dest[0][1]
         value = getattr(proc, name, undefined)
         field = proc.field(name)
-        field_type_str = sc.type_str(field)
+        field_type_str = field.type_str()
         inst_type = self.get_instance_type_string(value)
         typestr = ('%s (%s)' % (inst_type, field_type_str)).replace(
             '<', '').replace('>', '')
@@ -2198,8 +2195,8 @@ class PipelineScene(QtGui.QGraphicsScene):
         value = getattr(proc, name, undefined)
         field = proc.field(name)
         field_type_str = field.type_str()
-        if proc.metadata(field).get('output', False) \
-                and proc.metadata(field).get('write', None) is False:
+        if field.metadata('output', False) \
+                and field.metadata('write', None) is False:
             field_type_str += ', output filename'
         typestr = ('%s (%s)' % (self.get_instance_type_string(value),
                                 field_type_str)).replace(
@@ -2240,7 +2237,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     </tr>
 '''
         msg += '</table>'
-        desc = proc.metadata(field).get('desc', None)
+        desc = field.metadata('desc', None)
         if desc:
             msg += '\n<h3>Description:</h3>\n'
             msg += self.html_doc(desc)
@@ -3141,7 +3138,7 @@ class PipelineDeveloperView(QGraphicsView):
         if steps is not None:
             my_steps = [step.name for step in steps.fields()
                         if node.name in
-                            steps.metadata(step).get('nodes', set())]
+                            step.metadata('nodes', set())]
             for step in my_steps:
                 step_action = menu.addAction('(enable) step: %s' % step)
                 step_action.setCheckable(True)
@@ -3228,7 +3225,7 @@ class PipelineDeveloperView(QGraphicsView):
                 if steps is not None:
                     my_steps = [step.name for step in steps.fields()
                                 if node.name in
-                                steps.metadata(step).get('nodes', set())]
+                                step.metadata('nodes', set())]
                     if len(my_steps) == 1:
                         step = my_steps[0]
                     elif len(my_steps) >= 2:
@@ -3738,7 +3735,7 @@ class PipelineDeveloperView(QGraphicsView):
             if (((node_name, parameter_name) not in pipeline.do_not_export and
                  ((outputs and plug.output and not plug.links_to) or
                   (inputs and not plug.output and not plug.links_from)) and
-                 (optional or not node.metadata(parameter_name).get(
+                 (optional or not node.field(parameter_name).metadata(
                       'optional', False)))):
                 pipeline.export_parameter(node_name, parameter_name)
 
@@ -3809,7 +3806,7 @@ class PipelineDeveloperView(QGraphicsView):
         for field in steps.fields():
             step = field.name
             listw.addItem(step)
-            nodes = steps.metadata(step).get('nodes', set())
+            nodes = step.metadata('nodes', set())
             if node_name in nodes:
                 item = listw.item(n)
                 item.setSelected(True)
@@ -3911,12 +3908,12 @@ class PipelineDeveloperView(QGraphicsView):
                             name, [node_name])
                         steps = self.scene.pipeline.pipeline_steps
                     else:
-                        nodes = steps.metadata(field)['nodes']
+                        nodes = field.metadata('nodes')
                         if node_name not in nodes:
                             nodes.append(node_name)
                 elif field is not None:
-                    if node_name in steps.metadata(field)['nodes']:
-                        steps.metadata(field)['nodes'].remove(node_name)
+                    if node_name in field.metadata('nodes'):
+                        field.metadata('nodes').remove(node_name)
             steps = [field.name for field in steps.fields()]
             for step in steps:
                 if step not in items:
@@ -3924,7 +3921,7 @@ class PipelineDeveloperView(QGraphicsView):
             # reorder fields if needed
             steps = self.scene.pipeline.pipeline_steps
             if [field.name for field in steps.fields()] != sitems:
-                values = [steps.metadata(step)['nodes'] for step in sitems]
+                values = [step.metadata('nodes') for step in sitems]
                 for step in sitems:
                     steps.remove_field(step)
                 for step, nodes in zip(sitems, values):
@@ -4634,7 +4631,7 @@ class PipelineDeveloperView(QGraphicsView):
         complete_action = menu.addAction('completion enabled')
         complete_action.setCheckable(True)
         complete_action.setChecked(
-            not node.metadata(plug_name).get('forbid_completion', False))
+            not node.field(plug_name).metadata('forbid_completion', False))
         complete_action.toggled[bool].connect(self._enable_plug_completion)
 
         menu.exec_(QtGui.QCursor.pos())
@@ -4705,7 +4702,7 @@ class PipelineDeveloperView(QGraphicsView):
     def _enable_plug_completion(self, checked):
         node = self._temp_node
         node_name, name = self._temp_plug_name
-        node.set_metadata(name, 'forbid_completion', not checked)
+        node.field(name).set_metadata('forbid_completion', not checked)
 
     def _remove_plug(self):
 

@@ -6,11 +6,10 @@ import unittest
 import os
 import sys
 import tempfile
-from traits.api import File, List, Int, Undefined
+from soma.controller import File, file, field, undefined
 from capsul.api import Process
-from capsul.api import Pipeline, PipelineNode
+from capsul.api import Pipeline
 from capsul.pipeline import pipeline_workflow
-from capsul.study_config.study_config import StudyConfig
 from soma_workflow import configuration as swconfig
 import socket
 import shutil
@@ -19,17 +18,14 @@ from six.moves import zip
 class DummyProcess1(Process):
     """ Dummy Test Process
     """
+    input: File
+    nb_outputs: int = 0
+    output: list[file(write=True)] = field(output=True, default_factory=list)
+
     def __init__(self):
         super(DummyProcess1, self).__init__()
 
-        # inputs
-        self.add_trait("input", File(optional=False))
-        self.add_trait("nb_outputs", Int())
-
-        # outputs
-        self.add_trait("output", List(File(output=True), output=True))
-
-        self.on_trait_change(self.nb_outputs_changed, "nb_outputs")
+        self.on_attribute_change.add(self.nb_outputs_changed, "nb_outputs")
 
     def nb_outputs_changed(self):
         if len(self.output) != self.nb_outputs:
@@ -39,22 +35,19 @@ class DummyProcess1(Process):
                 self.output \
                     = self.output + [""] * (self.nb_outputs - len(self.output))
 
-    def _run_process(self):
+    def execute(self, context=None):
         pass
 
 class DummyProcess2(Process):
     """ Dummy Test Process
     """
+    input: list[File] = field(default_factory=list)
+    output: list[file(write=True)] = field(default_factory=list)
+
     def __init__(self):
         super(DummyProcess2, self).__init__()
 
-        # inputs
-        self.add_trait("input", List(File(optional=False)))
-
-        # outputs
-        self.add_trait("output", List(File(output=True), output=True))
-
-        self.on_trait_change(self.inputs_changed, "input")
+        self.on_attribute_change.add(self.inputs_changed, "input")
 
     def inputs_changed(self):
         nout = len(self.output)
@@ -65,7 +58,7 @@ class DummyProcess2(Process):
             else:
                 self.output = self.output + [""] * (nin - nout)
 
-    def _run_process(self):
+    def execute(self, context=None):
         for in_filename, out_filename in zip(self.input, self.output):
             with open(out_filename, 'w') as f:
                 f.write(in_filename + '\n')
@@ -73,16 +66,13 @@ class DummyProcess2(Process):
 class DummyProcess3(Process):
     """ Dummy Test Process
     """
+    input: list[File] = field(default_factory=list)
+    output: file(write=True)
+
     def __init__(self):
         super(DummyProcess3, self).__init__()
 
-        # inputs
-        self.add_trait("input", List(File(optional=False)))
-
-        # outputs
-        self.add_trait("output", File(output=True))
-
-    def _run_process(self):
+    def execute(self, context=None):
         with open(self.output, 'w') as f:
             for in_filename in self.input:
                 with open(in_filename) as g:
