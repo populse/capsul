@@ -30,7 +30,7 @@ import tempfile
 import traceback
 
 
-from soma.controller import (Controller, undefined, file, directory)
+from soma.controller import (Controller, undefined, Directory)
 import soma.controller as sc
 from .node import Node
 
@@ -54,7 +54,7 @@ class Process(Node):
 
         from capsul.api import Process
         from capsul.run import run
-        from soma.controller import file
+        from soma.controller import File
 
         class MyProcess(Process):
 
@@ -66,7 +66,7 @@ class Process(Node):
                 # declare an input param
                 self.add_field('param2', int)
                 # declare an output param
-                self.add_field('out_param', file(write=True))
+                self.add_field('out_param', File, write=True)
 
             def execute(self, context):
                 with open(self.out_param, 'w') as f:
@@ -78,7 +78,7 @@ class Process(Node):
 
     **Note about the file and directory parameters**
 
-    The :func:`~soma.controller.field.file` field type represents a file
+    The :func:`~soma.controller.field.File` field type represents a file
     parameter. A file is actually two things: a filename (string), and the file itself (on the filesystem). For an input it is OK not to distinguish them, but for an output, there are two different cases:
 
     * the file (on the filesystem) is an output, but the filename (string) is
@@ -88,12 +88,12 @@ class Process(Node):
       a "function return value" behavior: the process determines internally
       where it should write the file, and tells as an output where it did.
 
-    To distinguish these two cases, in Capsul we use add in the
-    :class:`~soma.controller.file` or :class:`~soma.controller.directory`
+    To distinguish these two cases, in Capsul we use in the
+    :class:`~soma.controller.File` or :class:`~soma.controller.Directory`
     fields a metadata ``write`` which is True when the file will be written,
     and ``output`` is only True when the filename is an output::
 
-        self.add_field('out_file', file(output=True, write=True))
+        self.add_field('out_file', File, output=True, write=True)
 
     **Attributes**
 
@@ -770,8 +770,8 @@ class NipypeProcess(FileCopyProcess):
 
         # Add a new field to store the processing output directory
         self.add_field(
-            "output_directory", directory(default=undefined, exists=True,
-                                          optional=True))
+            "output_directory", Directory, default=undefined, read=True,
+            optional=True)
 
         # Add a 'synchronize' nipype input trait that will be used to trigger
         # manually the output nipype/capsul fields sync.

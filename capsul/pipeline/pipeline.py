@@ -279,7 +279,7 @@ class Pipeline(Process):
                     (include_optional
                      or (plug.output and isinstance(node, Switch))
                      or not self.nodes[node_name].field(
-                          parameter_name).is_optional())):
+                          parameter_name).optional)):
 
                     self.export_parameter(node_name, parameter_name)
 
@@ -926,13 +926,13 @@ class Pipeline(Process):
             source_field = source_node.field(source_plug_name)
             dest_field = dest_node.field(dest_plug_name)
             if source_field.is_output() and not dest_field.is_output():
-                dest_field.set_metadata('connected_output', True)
+                dest_field.connected_output = True
 
         # Propagate the doc in case of destination switch node
         if isinstance(dest_node, Switch):
             source_field = source_node.field(source_plug_name)
             dest_field = dest_node.field(dest_plug_name)
-            dest_field.set_metadata('doc', source_field.metadata('doc'))
+            dest_field.doc = source_field.metadata('doc')
             dest_node._switch_changed(getattr(dest_node, "switch", undefined),
                                       getattr(dest_node, "switch", undefined))
 
@@ -987,8 +987,8 @@ class Pipeline(Process):
         if (isinstance(dest_node, Process) and
                 isinstance(source_node, Process)):
             dest_field = dest_node.field(dest_plug_name)
-            if dest_field.metadata('connected_output', None):
-                dest_field.set_metadata('connected_output', False)  # FIXME
+            if dest_field.metadata('connected_output'):
+                dest_field.connected_output = False  # FIXME
 
         # Observer
         source_node.disconnect(source_plug_name, dest_node, dest_plug_name)
@@ -1056,7 +1056,7 @@ class Pipeline(Process):
         # Important because this property is automatically set during
         # the nipype interface wrappings
         if is_enabled is not None:
-            f.set_metadata('enabled', bool(is_enabled))
+            f.enabled = bool(is_enabled)
 
         # Now add the parameter to the pipeline
         if not self.field(pipeline_parameter):
@@ -1485,7 +1485,7 @@ class Pipeline(Process):
                 if not getattr(steps, step_field.name, None):
                     disabled_nodes.update(
                         [self.nodes[node]
-                         for node in step_field.metadata('nodes')])
+                         for node in step_field.nodes])
 
         # Add activated Process nodes in the graph
         for node_name, node in self.nodes.items():
@@ -1607,8 +1607,7 @@ class Pipeline(Process):
             if not plug.activated or not plug.enabled:
                 continue
             field = node.field(plug_name)
-            if not field.metadata('write', False) \
-                    or field.metadata('output', False):
+            if not field.metadata('write', False) or field.output:
                 continue
             if field.is_list() and field.has_path():
                 if len([x for x in value if x in ('', undefined)]) == 0:
@@ -1752,7 +1751,7 @@ class Pipeline(Process):
                     # here we have null values
                 elif value != '' and value is not undefined:
                     continue # non-null value: not an empty parameter.
-                optional = process.is_optional(parameter)
+                optional = process.field(parameter).optional
                 valid = True
                 links = list(plug.links_from.union(plug.links_to))
                 if len(links) == 0:
@@ -2211,14 +2210,14 @@ class Pipeline(Process):
         for field in steps.fields():  # noqa: F402
             if not getattr(steps, field.name, True):
                 # disabled step
-                nodes = field.metadata('nodes')
+                nodes = field.nodes
                 disabled_nodes.extend([self.nodes[node] for node in nodes])
         return disabled_nodes
 
     def get_pipeline_step_nodes(self, step_name):
         '''Get the nodes in the given pipeline step
         '''
-        return self.pipeline_steps.metadata(step_name, 'nodes')
+        return self.pipeline_steps.field(step_name).nodes
 
     def enable_all_pipeline_steps(self):
         '''Set all defined steps (using add_step() or define_steps()) to be
@@ -2311,7 +2310,7 @@ class Pipeline(Process):
         steps_priority = {}
         p = 0
         for step_field in steps.fields():
-            nodes = step_field.metadata('nodes')
+            nodes = step_field.nodes
             steps_priority[step_field.name] = p
             p += 1
             for node in nodes:
@@ -2339,7 +2338,7 @@ class Pipeline(Process):
                 groups = sorted(groups, key=lambda x: steps_priority[x])
                 if exclusive:
                     groups = [groups[0]]
-                field.set_metadata('groups', groups)
+                field.groups = groups
 
     def check_requirements(self, environment='global', message_list=None):
         '''
@@ -2431,13 +2430,12 @@ class Pipeline(Process):
             steps = getattr(self, 'pipeline_steps', None)
             if steps:
                 for field in steps.fields():  # noqa: F402
-                    nodes = field.metadata('nodes')
+                    nodes = field.nodes
                     if old_node_name in nodes:
-                        field.set_metadata(
-                            'nodes',
+                        field.nodes = \
                             [n if n != old_node_name
                              else new_node_name
-                             for n in nodes])
+                             for n in nodes]
 
             # nodes positions and dimensions
             if old_node_name in getattr(self, 'node_position', {}):

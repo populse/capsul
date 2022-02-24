@@ -168,7 +168,7 @@ class Node(Controller):
             if field.name in self.nonplug_names:
                 continue
             output = field.is_output()
-            optional = field.is_optional()
+            optional = field.optional
             parameter = {
                 "name": field.name,
                 "output" : output,
@@ -298,7 +298,7 @@ class Node(Controller):
     def set_optional(self, field_or_name, optional):
         # overload to set the optional state on the plug also
         field = self.ensure_field(field_or_name)
-        field.set_optional(optional)
+        field.optional = optional
         name = field.name
         plug = self.plugs[name]
         plug.optional = bool(optional)
@@ -321,7 +321,7 @@ class Node(Controller):
         parameter = {
             "name": name,
             "output": field.is_output(),
-            "optional": field.is_optional(),
+            "optional": field.optional,
             "has_default_value": field.has_default(),
         }
         # generate plug with input parameter and identifier name
@@ -589,4 +589,4 @@ class Node(Controller):
         return self.field(plug_name).metadata('protected', False)
 
     def protect_parameter(self, plug_name, state=True):
-        self.field(plug_name).set_metadata('protected', state)
+        self.field(plug_name).protected = state

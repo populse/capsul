@@ -389,8 +389,8 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             'nipype.interfaces.spm.'):
         script_name = trait_map.get('_spm_script_file', '_spm_script_file')
 
-        process_instance.add_field(script_name,
-                                   sc.file(write=True, optional=True))
+        process_instance.add_field(script_name, sc.File, write=True,
+                                   optional=True)
 
     return process_instance
 
@@ -401,9 +401,9 @@ t_f = {
     'Str': (str, None),
     'String': (str, None),
     'Bool': (bool, None),
-    'File': (sc.file, None),
+    'File': (sc.File, None),
     'List': (list, None),
-    'Directory': (sc.directory, None),
+    'Directory': (sc.Directory, None),
     'TraitCompound': (sc.Union, None),
     'InputMultiPath_TraitCompound': (sc.List, None),
     'InputMultiPath': (sc.List, None),
@@ -414,7 +414,7 @@ t_f = {
     'OutputMultiPath_TraitCompound': (sc.List, {'write': True}),
     'OutputMultiPath': (sc.List, {'write': True}),
     'OutputList': (sc.List, {'write': True}),
-    'ImageFileSPM': (sc.file,
+    'ImageFileSPM': (sc.File,
                       {'allowed_extensions': ['.nii', '.img', '.hdr',
                                               '.mnc']}),
 }

@@ -11,7 +11,7 @@ Classes
 import json
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui, QtCore
-from soma.controller import (Controller, file, Any)
+from soma.controller import (Controller, File, Any)
 from soma.qt_gui.controller import ControllerWidget
 
 
@@ -70,7 +70,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         filename_widget = None
         if enable_attr_from_filename and completion_engine is not None:
             c = Controller()
-            c.add_field('attributes_from_input_filename', file(),
+            c.add_field('attributes_from_input_filename', File,
                         optional=True)
             filename_widget = ControllerWidget(c)  # , user_data=user_data)
             spl_up.layout().addWidget(filename_widget)

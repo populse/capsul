@@ -6,7 +6,7 @@ import unittest
 from capsul.api import Capsul
 from capsul.api import Process
 from capsul.api import Pipeline
-from soma.controller import file, File
+from soma.controller import File
 import tempfile
 import os
 import os.path as osp
@@ -219,7 +219,7 @@ if __name__ == "__main__":
             app = Qt.QApplication(sys.argv)
         pipeline = MyPipeline()
         #setattr(pipeline.nodes_activation, "node2", False)
-        view1 = PipelineDeveloperView(pipeline)
+        view1 = PipelineDeveloperView(pipeline, allow_open_controller=True)
         view1.show()
         app.exec_()
         del view1

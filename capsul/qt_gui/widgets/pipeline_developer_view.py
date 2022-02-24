@@ -276,10 +276,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
             show = True
             if controller:
                 field = controller.field(pname)
-                if field.metadata('hidden', False):
+                if getattr(field, 'hidden', False):
                     show = False
-                elif field.metadata('userlevel', None) is not None:
-                    if field.metadata('userlevel') > self.userlevel:
+                elif getattr(field, 'userlevel', None) is not None:
+                    if getattr(field, 'userlevel') > self.userlevel:
                         show = False
             if show:
                 self.parameters[pname] = param
@@ -308,7 +308,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         if steps:
             for step in steps.fields():
                 step_name = step.name
-                step_nodes = step.metadata('nodes')
+                step_nodes = step.nodes
                 if name in step_nodes:
                     my_labels.append('step: %s' % step_name)
         selects = pipeline.get_processes_selections()
@@ -384,10 +384,10 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 continue
             elif self.name == 'outputs' and not param.is_output():
                 continue
-            if param.metadata('hidden', False):
+            if getattr(param, 'hidden', False):
                 show = False
-            elif param.metadata('userlevel', None) is not None:
-                if param.metadata('userlevel') > self.userlevel:
+            elif getattr(param, 'userlevel', None) is not None:
+                if getattr(param, 'userlevel') > self.userlevel:
                     show = False
             if show:
                 self.parameters[pname] = self.process.plugs[pname]
@@ -1801,11 +1801,11 @@ class PipelineScene(QtGui.QGraphicsScene):
                     pipeline_inputs = SortedDictionary()
                     for name, plug in six.iteritems(node.plugs):
                         if not plug.output:
-                            field_meta = node.field(name).metadata()
-                            if not field_meta.get('hidden', False) \
-                                    and (field_meta.get('userlevel', None)
+                            field = node.field(name)
+                            if not getattr(field, 'hidden', False) \
+                                    and (getattr(field, 'userlevel', None)
                                             is None
-                                         or field_meta.get('userlevel')
+                                         or field. userlevel
                                             <= self.userlevel):
                                 pipeline_inputs[name] = plug
                     gnode.parameters = pipeline_inputs
@@ -1817,12 +1817,11 @@ class PipelineScene(QtGui.QGraphicsScene):
                     pipeline_outputs = SortedDictionary()
                     for name, plug in six.iteritems(node.plugs):
                         if plug.output:
-                            field_meta = node.field(name).metadata()
-                            if not field_meta.get('hidden', False) \
-                                    and (field_meta.get('userlevel', None)
+                            field = node.field(name)
+                            if not getattr(field, 'hidden', False) \
+                                    and (getattr(field, 'userlevel', None)
                                             is None
-                                         or field_meta.get('userlevel')
-                                            <= self.userlevel):
+                                         or field.userlevel <= self.userlevel):
                                 pipeline_outputs[name] = plug
                     gnode.parameters = pipeline_outputs
                     if len(gnode.parameters) == 0:
@@ -1953,7 +1952,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             if gnode is None:
                 continue
             labels = ['step: %s' % n.name for n in steps.fields()
-                      if node_name in steps.metadata(n).get('nodes', set())]
+                      if node_name in getattr(n, 'nodes', set())]
             #print('update step labels on', node_name, ':', labels)
             gnode.update_labels(labels)
 
@@ -4702,7 +4701,7 @@ class PipelineDeveloperView(QGraphicsView):
     def _enable_plug_completion(self, checked):
         node = self._temp_node
         node_name, name = self._temp_plug_name
-        node.field(name).set_metadata('forbid_completion', not checked)
+        node.field(name).forbid_completion = not checked
 
     def _remove_plug(self):
 
