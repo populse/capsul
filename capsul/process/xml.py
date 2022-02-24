@@ -129,7 +129,7 @@ def trait_from_xml(element, order=None):
     trait_kwargs['output'] = (element.tag != 'input')
     doc = element.get('doc')
     if doc:
-        trait_kwargs['desc'] = doc
+        trait_kwargs['doc'] = doc
     optional = element.get('optional')
     if optional is not None:
         trait_kwargs['optional'] = bool(optional == 'true')

@@ -313,7 +313,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         process_instance.add_field(field_name, process_field,
                                    optional=not trait.mandatory,
                                    output=False,
-                                   desc=trait.desc)
+                                   doc=trait.desc)
 
         # initialize value with nipype interface initial value, (if we can...)
         try:
@@ -369,7 +369,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         kwargs = {
             'optional': not trait.mandatory,
             'enabled': False,
-            'desc': trait.desc,
+            'doc': trait.desc,
         }
         if process_field.has_path():
             kwargs['write'] = True

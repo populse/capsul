@@ -2237,10 +2237,10 @@ class PipelineScene(QtGui.QGraphicsScene):
     </tr>
 '''
         msg += '</table>'
-        desc = field.metadata('desc', None)
-        if desc:
+        doc = field.metadata('doc', None)
+        if doc:
             msg += '\n<h3>Description:</h3>\n'
-            msg += self.html_doc(desc)
+            msg += self.html_doc(doc)
         return msg
 
     def node_tooltip_text(self, gnode):

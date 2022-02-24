@@ -928,11 +928,11 @@ class Pipeline(Process):
             if source_field.is_output() and not dest_field.is_output():
                 dest_field.set_metadata('connected_output', True)
 
-        # Propagate the description in case of destination switch node
+        # Propagate the doc in case of destination switch node
         if isinstance(dest_node, Switch):
             source_field = source_node.field(source_plug_name)
             dest_field = dest_node.field(dest_plug_name)
-            dest_field.set_metadata('desc', source_field.metadata('desc'))
+            dest_field.set_metadata('doc', source_field.metadata('doc'))
             dest_node._switch_changed(getattr(dest_node, "switch", undefined),
                                       getattr(dest_node, "switch", undefined))
 
@@ -2175,7 +2175,7 @@ class Pipeline(Process):
         if not self.field('pipeline_steps'):
             super().add_field(
                 'pipeline_steps',
-                Controller, desc=
+                Controller, doc=
                     'Steps are groups of pipeline nodes, which may be '
                     'disabled at runtime. They are normally defined in a '
                     'logical order regarding the workflow streams. They are '

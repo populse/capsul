@@ -237,10 +237,10 @@ class Switch(Node):
             setattr(self, output_plug_name,
                     getattr(self, corresponding_input_plug_name, undefined))
 
-            # Propagate the associated field description
+            # Propagate the associated field documentation
             out_field = self.field(output_plug_name)
             in_field = self.field(corresponding_input_plug_name)
-            out_field.set_metadata('desc', in_field.metadata('desc'))
+            out_field.set_metadata('doc', in_field.metadata('doc'))
 
         self.pipeline.restore_update_nodes_and_plugs_activation()
         self.__block_output_propagation = False
