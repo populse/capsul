@@ -380,9 +380,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
         for param in self.process.fields():
             pname = param.name
             show = True
-            if self.name == 'inputs' and self.process.is_output(param):
+            if self.name == 'inputs' and param.is_output():
                 continue
-            elif self.name == 'outputs' and not self.process.is_output(param):
+            elif self.name == 'outputs' and not param.is_output():
                 continue
             if param.metadata('hidden', False):
                 show = False

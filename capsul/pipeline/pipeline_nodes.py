@@ -172,6 +172,10 @@ class Switch(Node):
                 'output': False,
                 'optional': optional
             })
+            if 'write' in self.field(i).metadata():
+                # fix output state for write items
+                del self.field(i).metadata()['write']
+                self.plugs[i].output = False
         for ni, type_ in zip(node_outputs, output_types):
             i = ni['name']
             optional = ni['optional']
