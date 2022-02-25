@@ -1558,7 +1558,6 @@ class Pipeline(Process):
         Temporary files or directories will be appended to the temp_files list,
         and the node parameters will be set to temp file names.
         """
-        print('!tmp!', self)
         for node in self.nodes.values():
             prefix = f'!{{tmp}}/{node.full_name}'
             if isinstance(node, NipypeProcess):
@@ -1587,7 +1586,6 @@ class Pipeline(Process):
                     # it is visible out of the pipeline: not temporary
                     continue
                 # if we get here, we are a temporary.
-                print(f'!tmp! temporary')
                 e = field.metadata('extensions')
                 if e:
                     suffix = e[0]
