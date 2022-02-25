@@ -199,7 +199,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                 try:
                     # if we have an output directory, replace it
                     if output_directory not in (sc.undefined, None) \
-                            and process_instance.field(pname).has_path():
+                            and process_instance.field(pname).path_type:
                         out_value = _replace_dir(out_value, output_directory)
                         # Set the output process trait value
                         setattr(process_instance, pname, out_value)
@@ -371,7 +371,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             'enabled': False,
             'doc': trait.desc,
         }
-        if process_field.has_path():
+        if process_field.path_type:
             kwargs['write'] = True
         else:
             kwargs['output'] = True
@@ -395,6 +395,10 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
     return process_instance
 
 
+def parse_enum(handler):
+    return (sc.Literal[handler.values], None)
+
+
 t_f = {
     'Int': (int, None),
     'Float': (float, None),
@@ -403,8 +407,11 @@ t_f = {
     'Bool': (bool, None),
     'File': (sc.File, None),
     'List': (list, None),
+    'Dict': (dict, None),
     'Directory': (sc.Directory, None),
     'TraitCompound': (sc.Union, None),
+    'Either': (sc.Union, None),
+    'Enum': parse_enum,
     'InputMultiPath_TraitCompound': (sc.List, None),
     'InputMultiPath': (sc.List, None),
     'InputMultiObject': (sc.List, None),
@@ -424,25 +431,34 @@ def parse_trait(trait):
     tree = {}
 
     handler = trait
-    if trait.handler is not None:
+    if hasattr(trait, 'handler') and trait.handler is not None:
         handler = trait.handler
 
     ttype = handler.__class__.__name__
     ftype = t_f.get(ttype)
     if ftype is None:
-        print('trait type', ttype, 'not found')
-        return tree
+        if getattr(handler, 'aClass', None):
+            ftype = (handler.aClass, None)
+        elif getattr(handler, 'aType', None):
+            ftype = (handler.aType, None)
+        else:
+            print('trait type', ttype, 'not found')
+            return tree
+
+    if inspect.isfunction(ftype):
+        ftype = ftype(handler)
 
     ftype, args = ftype
     tree['trait'] = handler
     tree['field'] = ftype
     tree['args'] = args
 
-    if handler.has_items:
-        if handler.handlers:
-            sub_traits = handler.handlers
-        else:
-            sub_traits = handler.inner_traits()
+    sub_traits = None
+    if getattr(handler, 'handlers', None):
+        sub_traits = handler.handlers
+    elif handler.has_items:
+        sub_traits = handler.inner_traits()
+    if sub_traits:
         tree['children'] = [parse_trait(t) for t in sub_traits]
 
     return tree
