@@ -6,12 +6,8 @@
 
 
 from __future__ import absolute_import
-from capsul.pipeline.pipeline_nodes import Node, Plug
-from soma.controller import Controller
-import traits.api as traits
-import sys
-from six.moves import range
-from six.moves import zip
+from capsul.process.node import Node, Plug
+from soma.controller import Controller, File, undefined, field, type_from_str
 
 
 class MapNode(Node):
@@ -42,25 +38,25 @@ class MapNode(Node):
 
     def __init__(self, pipeline, name, input_names=['inputs'],
                  output_names=['output_%d'], input_types=None):
-        in_traits = []
-        out_traits = [{'name': 'lengths', 'optional': True}]
+        in_fields = []
+        out_fields = [{'name': 'lengths', 'optional': True}]
 
         if input_types:
             ptypes = input_types
         else:
-            ptypes = [traits.File(traits.Undefined, output=False)] \
-                * len(input_names)
+            ptypes = [File] * len(input_names)
         self.input_types  = ptypes
 
         for tr in input_names:
-            in_traits.append({'name': tr, 'optional': False})
-        super(MapNode, self).__init__(pipeline, name, in_traits, out_traits)
+            in_fields.append({'name': tr, 'optional': False})
+        super(MapNode, self).__init__(pipeline, name, in_fields, out_fields)
 
         for tr, ptype in zip(input_names, ptypes):
-            self.add_trait(tr, traits.List(ptype, output=False))
-        self.add_trait('lengths',
-                       traits.List(traits.Int(), output=True, optional=True,
-                                   desc='lists lengths'))
+            self.add_field(tr, list[ptype], output=False, default_factory=list)
+        self.add_field('lengths',
+                       list[int], output=True, optional=True,
+                       default_factory=list,
+                       doc='lists lengths')
         self.input_names = input_names
         self.output_names = output_names
         self.lengths = [0] * len(input_names)
@@ -68,20 +64,20 @@ class MapNode(Node):
         self.set_callbacks()
 
     def set_callbacks(self):
-        self.on_trait_change(self.map_callback, self.input_names)
+        self.on_attribute_change.add(self.map_callback, self.input_names)
 
-    def map_callback(self, obj, name, old_value, value):
+    def map_callback(self, value, old_value, name, obj):
         index = self.input_names.index(name)
         output = self.output_names[index]
         ptype = self.input_types[index]
-        if old_value in (None, traits.Undefined):
+        if old_value in (None, undefined):
             old_value = []
-        if value in (None, traits.Undefined):
+        if value in (None, undefined):
             value = []
         if len(old_value) > len(value):
             for i in range(len(old_value) - 1, len(value) - 1, -1):
                 pname = output % i
-                self.remove_trait(pname)
+                self.remove_field(pname)
                 if pname in self.plugs:
                     # remove links to this plug
                     plug = self.plugs[pname]
@@ -94,12 +90,10 @@ class MapNode(Node):
                     del self.plugs[pname]
         for i in range(len(old_value), len(value)):
             pname = output % i
-            ptype = self._clone_trait(ptype,
-                                      {'output': True, 'optional': True})
-            self.add_trait(pname, ptype)
-            plug = Plug(name=output % i, optional=True, output=True)
-            self.plugs[pname] = plug
-            plug.on_trait_change(
+            ptype = field(type_=ptype, output=True, optional=True)
+            self.add_field(pname, ptype)
+            plug = self.plugs[pname]
+            plug.on_attribute_change.add(
                 self.pipeline.update_nodes_and_plugs_activation, "enabled")
         for i, val in enumerate(value):
             setattr(self, output % i, val)
@@ -116,16 +110,15 @@ class MapNode(Node):
         c = self.configure_controller()
         c.input_names = self.input_names
         c.output_names = self.output_names
-        c.input_types = [p.trait_type.__class__.__name__
-                         for p in self.input_types]
+        c.input_types = [p.type_str() for p in self.input_types]
         return c
 
     @classmethod
     def configure_controller(cls):
         c = Controller()
-        c.add_trait('input_types', traits.List(traits.Str))
-        c.add_trait('input_names', traits.List(traits.Str))
-        c.add_trait('output_names', traits.List(traits.Str))
+        c.add_field('input_types', list[str], default_factory=list)
+        c.add_field('input_names', list[str], default_factory=list)
+        c.add_field('output_names', list[str], default_factory=list)
         c.input_names = ['inputs']
         c.output_names = ['output_%d']
         c.input_types = ['File']
@@ -135,12 +128,7 @@ class MapNode(Node):
     def build_node(cls, pipeline, name, conf_controller):
         t = []
         for ptype in conf_controller.input_types:
-            if ptype == 'Str':
-                t.append(traits.Str(traits.Undefined))
-            elif ptype == 'File':
-                t.append(traits.File(traits.Undefined))
-            elif ptype not in (None, traits.Undefined):
-                t.append(getattr(traits, ptype)())
+            t.append(type_from_str(ptype))
         node = MapNode(pipeline, name, conf_controller.input_names,
                        conf_controller.output_names, input_types=t)
         return node
@@ -155,10 +143,10 @@ class MapNode(Node):
         param_dict['input_names'] = self.input_names
         param_dict['output_names'] = self.output_names
         for index, pname in enumerate(self.input_names):
-            value = getattr(self, pname)
+            value = getattr(self, pname, undefined)
             param_dict[pname] = value
             output_name = self.output_names[index]
-            if value not in (None, traits.Undefined):
+            if value not in (None, undefined):
                 for i in range(len(value)):
                     opname = output_name % i
                     param_dict[opname] = getattr(self, opname)

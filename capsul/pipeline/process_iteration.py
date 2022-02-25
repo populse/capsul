@@ -93,7 +93,7 @@ class ProcessIteration(Process):
         outputs = []
         for param in self.iterative_parameters:
             if self.process.field(param).is_output():
-                if self.process.field(param).has_path():
+                if self.process.field(param).path_type:
                     outputs.append(param)
             else:
                 num = max(num, len(getattr(self, param, [])))

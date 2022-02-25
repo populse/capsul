@@ -4,45 +4,45 @@
 --------------------------------
 '''
 
+from capsul.process.node import Node
+from soma.controller import Controller, Any, type_from_str, undefined
 
-from __future__ import absolute_import
-from capsul.pipeline.pipeline_nodes import Node
-from soma.controller import Controller
-import traits.api as traits
-import sys
 
 class CrossValidationFoldNode(Node):
     '''
     This "inert" node filters a list to separate it into (typically) learn and
     test sublists.
 
-    The "outputs" are "train" and "test" output traits.
+    The "outputs" are "train" and "test" output fields.
     '''
 
     _doc_path = 'api/pipeline.html#crossvalidationfoldnode'
 
     def __init__(self, pipeline, name, input_type=None):
-        in_traitsl = ['inputs', 'fold', 'nfolds']
-        out_traitsl = ['train', 'test']
-        in_traits = []
-        out_traits = []
-        for tr in in_traitsl:
-            in_traits.append({'name': tr, 'optional': True})
-        for tr in out_traitsl:
-            out_traits.append({'name': tr, 'optional': True})
+        in_fieldsl = ['inputs', 'fold', 'nfolds']
+        out_fieldsl = ['train', 'test']
+        in_fields = []
+        out_fields = []
+        for tr in in_fieldsl:
+            in_fields.append({'name': tr, 'optional': True})
+        for tr in out_fieldsl:
+            out_fields.append({'name': tr, 'optional': True})
         super(CrossValidationFoldNode, self).__init__(
-            pipeline, name, in_traits, out_traits)
+            pipeline, name, in_fields, out_fields)
         if input_type:
             ptype = input_type
         else:
-            ptype = traits.Any(traits.Undefined)
+            ptype = Any
 
-        self.add_trait('inputs', traits.List(ptype, output=False))
-        self.add_trait('fold', traits.Int())
-        self.add_trait('nfolds', traits.Int(10))
+        self.add_field('inputs', list[ptype], output=False,
+                       default_factory=list)
+        self.add_field('fold', int, default=0)
+        self.add_field('nfolds', int, default=10)
         is_output = True  # not a choice for now.
-        self.add_trait('train', traits.List(ptype, output=is_output))
-        self.add_trait('test', traits.List(ptype, output=is_output))
+        self.add_field('train', list[ptype], output=is_output,
+                       default_factory=list)
+        self.add_field('test', list[ptype], output=is_output,
+                       default_factory=list)
 
         self.set_callbacks()
 
@@ -51,7 +51,7 @@ class CrossValidationFoldNode(Node):
         if update_callback is None:
             update_callback = self.filter_callback
         for name in inputs:
-            self.on_trait_change(update_callback, name)
+            self.on_attribute_change.add(update_callback, name)
 
     def filter_callback(self):
         n = len(self.inputs) // self.nfolds
@@ -64,24 +64,20 @@ class CrossValidationFoldNode(Node):
 
     def configured_controller(self):
         c = self.configure_controller()
-        c.param_type = self.trait('inputs').inner_traits[0].trait_type.__class__.__name__
+        c.param_type = self.field('inputs').type.__args__[0].__name__
         return c
 
     @classmethod
     def configure_controller(cls):
         c = Controller()
-        c.add_trait('param_type', traits.Str('Str'))
+        c.add_field('param_type', str, default='str')
         return c
 
     @classmethod
     def build_node(cls, pipeline, name, conf_controller):
         t = None
-        if conf_controller.param_type == 'Str':
-            t = traits.Str(traits.Undefined)
-        elif conf_controller.param_type == 'File':
-            t = traits.File(traits.Undefined)
-        elif conf_controller.param_type not in (None, traits.Undefined):
-            t = getattr(traits, conf_controller.param_type)()
+        if conf_controller.param_type not in (None, undefined):
+            t = type_from_str(conf_controller.param_type)
         node = CrossValidationFoldNode(pipeline, name, input_type=t)
         return node
 

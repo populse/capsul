@@ -5,12 +5,8 @@
 '''
 
 from __future__ import absolute_import
-from capsul.pipeline.pipeline_nodes import Node
-from soma.controller import Controller
-import traits.api as traits
-import sys
-import six
-from six.moves import zip
+from capsul.process.node import Node
+from soma.controller import Controller, Any, type_from_str
 
 
 class StrCatNode(Node):
@@ -40,7 +36,7 @@ class StrCatNode(Node):
         make_optional: list
             list of plug names which should be optional.
         param_types: dict
-            parameters types dict: {param_name: trait_type_as_string}
+            parameters types dict: {param_name: field_type_as_string}
 
         '''
         node_inputs = [dict(name=i, optional=(i in make_optional))
@@ -62,23 +58,22 @@ class StrCatNode(Node):
         self.set_callbacks()
 
     def add_parameters(self, param_types={}):
-        added_traits = [self._concat_plug]
-        for name in self._concat_sequence + added_traits:
+        added_fields = [self._concat_plug]
+        for name in self._concat_sequence + added_fields:
             plug = self.plugs[name]
             ptype = param_types.get(name)
             if ptype is None:
-                ptype = traits.Any(traits.Undefined)
-            self.add_trait(name, ptype)
-            self.trait(name).output = plug.output
-            self.trait(name).optional = plug.optional
+                ptype = Any
+            self.add_field(name, ptype, output=plug.output,
+                           optional=plug.optional)
 
     def set_callbacks(self, update_callback=None):
         if update_callback is None:
             update_callback = self.cat_callback
-        self.on_trait_change(update_callback, self._concat_sequence)
+        self.on_attribute_change.add(update_callback, self._concat_sequence)
 
     def cat_callback(self):
-        result = ''.join([six.text_type(getattr(self, name))
+        result = ''.join([getattr(self, name, '')
                           for name in self._concat_sequence])
         setattr(self, self._concat_plug, result)
 
@@ -86,20 +81,20 @@ class StrCatNode(Node):
         c = self.configure_controller()
         c.parameters = self._concat_sequence
         c.concat_plug = self._concat_plug
-        param_types = [self.trait(x).trait_type.__class__.__name__
+        param_types = [self.field(x).type_str()
                        for x in c.parameters + [c.concat_plug]]
         c.outputs = [x for x in c.parameters + [c.concat_plug]
-                     if self.trait(x).output]
+                     if self.field(x).is_output()]
         c.param_types = param_types
         return c
 
     @classmethod
     def configure_controller(cls):
         c = Controller()
-        c.add_trait('parameters', traits.List(traits.Str()))
-        c.add_trait('concat_plug', traits.Str())
-        c.add_trait('outputs', traits.List(traits.Str()))
-        c.add_trait('param_types', traits.List(traits.Str('Str')))
+        c.add_field('parameters', list[str], default_factory=list)
+        c.add_field('concat_plug', str)
+        c.add_field('outputs', list[str], default_factory=list)
+        c.add_field('param_types', list[str], default_factory=lambda: ['str'])
         return c
 
     @classmethod
@@ -110,7 +105,7 @@ class StrCatNode(Node):
             for pname, ptype in zip(conf_controller.parameters
                                     + [conf_controller.concat_plug],
                                     conf_controller.param_types):
-                t[pname] = getattr(traits, ptype)()
+                t[pname] = type_from_str(ptype)
         node = StrCatNode(pipeline, name, conf_controller.parameters,
                           conf_controller.concat_plug,
                           conf_controller.outputs,

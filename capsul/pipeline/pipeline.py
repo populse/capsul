@@ -687,7 +687,8 @@ class Pipeline(Process):
             a list of plug names that we do not want to export.
         kwargs: default values of node parameters
         """
-        raise NotImplementedError('get_node_instance')
+        from capsul.application import get_node_instance
+
         node = get_node_instance(node_type, self, parameters, name=name,
                                  **kwargs)
         if node is None:

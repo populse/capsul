@@ -352,7 +352,7 @@ def save_py_pipeline(pipeline, py_file):
     def _write_doc(pipeline, pyf):
         if hasattr(pipeline, "__doc__"):
             docstr = pipeline.__doc__
-            if docstr == Pipeline.__doc__:
+            if docstr is None or docstr == Pipeline.__doc__:
                 docstr = ""  # don't use the builtin Pipeline help
             else:
                 # remove automatically added doc

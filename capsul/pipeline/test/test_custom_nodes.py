@@ -6,8 +6,7 @@ import unittest
 from capsul.api import Process, Pipeline, Capsul
 from capsul.pipeline import pipeline_workflow
 from capsul.pipeline import python_export
-from capsul.pipeline import xml
-from soma.controller import file, type_str
+from soma.controller import File
 import os
 import os.path as osp
 import tempfile
@@ -19,9 +18,9 @@ import json
 class TestProcess(Process):
     def __init__(self):
         super(TestProcess, self).__init__()
-        self.add_field('in1', file(output=False))
-        self.add_field('model', file(output=False))
-        self.add_field('out1', file(write=True))
+        self.add_field('in1', File, output=False)
+        self.add_field('model', File, output=False)
+        self.add_field('out1', File, write=True)
 
     def execute(self, context=None):
         print('in1:', self.in1)
@@ -43,8 +42,8 @@ class TestProcess(Process):
 class TrainProcess1(Process):
     def __init__(self):
         super(TrainProcess1, self).__init__()
-        self.add_field('in1', list[file(output=False)])
-        self.add_field('out1', file(write=True))
+        self.add_field('in1', list[File], output=False)
+        self.add_field('out1', File, write=True)
 
     def execute(self, context=None):
         with open(self.out1, 'w') as of:
@@ -58,9 +57,9 @@ class TrainProcess1(Process):
 class TrainProcess2(Process):
     def __init__(self):
         super(TrainProcess2, self).__init__()
-        self.add_field('in1', list[file(output=False)])
-        self.add_field('in2', file(output=False))
-        self.add_field('out1', file(write=True))
+        self.add_field('in1', list[File], output=False)
+        self.add_field('in2', File, output=False)
+        self.add_field('out1', File, write=True)
 
     def execute(self, context=None):
         with open(self.out1, 'w') as of:
@@ -78,8 +77,8 @@ class TrainProcess2(Process):
 class CatFileProcess(Process):
     def __init__(self):
         super(CatFileProcess, self).__init__()
-        self.add_field('files', list[file(output=False)])
-        self.add_field('output', file(write=True))
+        self.add_field('files', list[File], output=False)
+        self.add_field('output', File, write=True)
 
     def execute(self, context=None):
         with open(self.output, 'w') as of:
@@ -102,8 +101,8 @@ class Pipeline1(Pipeline):
             'capsul.pipeline.custom_nodes.strcat_node.StrCatNode',
             parameters={'parameters': ['base', 'separator', 'subject'],
                         'concat_plug': 'out_file',
-                        'param_types': ['Directory', 'Str',
-                                        'Str'],
+                        'param_types': ['Directory', 'str',
+                                        'str'],
                         'outputs': ['base'],
             },
             make_optional=['subject', 'separator'])
@@ -117,8 +116,8 @@ class Pipeline1(Pipeline):
                                       'subject', 'suffix'],
                         'concat_plug': 'out_file',
                         'outputs': ['base'],
-                        'param_types': ['Directory', 'Str',
-                                        'Str', 'Str', 'File']
+                        'param_types': ['Directory', 'str',
+                                        'str', 'str', 'File']
                         },
             make_optional=['subject', 'sep', 'suffix'])
         self.nodes['intermediate_output'].sep = os.sep
@@ -134,8 +133,8 @@ class Pipeline1(Pipeline):
                                       'subject', 'suffix'],
                         'concat_plug': 'out_file',
                         'outputs': ['base'],
-                        'param_types': ['Directory', 'Str',
-                                        'Str', 'Str', 'File']
+                        'param_types': ['Directory', 'str',
+                                        'str', 'str', 'File']
                         },
             make_optional=['subject', 'sep', 'suffix'])
         self.nodes['test_output'].sep = os.path.sep
@@ -149,7 +148,7 @@ class Pipeline1(Pipeline):
         self.export_parameter('test', 'out1', 'test_output', is_optional=True)
         # test_output will be assigned internally by the cat node 'test_output'
         # thus should not be a temporary
-        self.set_metadata('test_output', 'output', True)
+        self.field('test_output').output = True
         self.add_link('LOO.train->train1.in1')
         self.add_link('main_inputs->train2.in1')
         self.add_link('train1.out1->train2.in2')
@@ -197,7 +196,7 @@ class PipelineLOO(Pipeline):
         self.export_parameter('global_output', 'output', 'test_output')
         self.add_link('main_inputs->train.test')
         self.add_link('train.test_output->global_output.files')
-        self.pipeline_node.plugs['subjects'].optional = False
+        self.plugs['subjects'].optional = False
 
         self.node_position = {
             'global_output': (416.6660345018389, 82.62713792979389),
@@ -210,8 +209,8 @@ class CVtest(Pipeline):
     def pipeline_definition(self):
         # nodes
         self.add_process("test", "capsul.pipeline.test.test_custom_nodes.TestProcess")
-        self.nodes["test"].process.out1 = u'%s_test_output' % os.path.sep
-        self.add_custom_node("test_output", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': u'out_file', 'outputs': [u'base'], 'param_types': ['Str', 'Str', 'Str', 'Str', 'Any'], 'parameters': [u'base', u'sep', u'subject', u'suffix']})
+        self.nodes["test"].out1 = u'%s_test_output' % os.path.sep
+        self.add_custom_node("test_output", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': u'out_file', 'outputs': [u'base'], 'param_types': ['str', 'str', 'str', 'str', 'Any'], 'parameters': [u'base', u'sep', u'subject', u'suffix']})
         self.nodes["test_output"].plugs["sep"].optional = True
         self.nodes["test_output"].plugs["suffix"].optional = True
         self.nodes["test_output"].sep = os.path.sep
@@ -222,7 +221,7 @@ class CVtest(Pipeline):
         self.export_parameter("test", "model")
         self.export_parameter("test_output", "subject")
         self.export_parameter("test", "out1")
-        self.set_metadata('out1', 'output', True)  # don't force from outside
+        self.field('out1').output = True  # don't force from outside
         self.add_link("test.out1->test_output.out_file")
         self.export_parameter("test_output", "base")
 
@@ -253,17 +252,17 @@ class PipelineCVFold(Pipeline):
     def pipeline_definition(self):
         # nodes
         self.add_process("train1", "capsul.pipeline.test.test_custom_nodes.TrainProcess1")
-        self.nodes["train1"].process.out1 = u'%s_interm' % os.path.sep
+        self.nodes["train1"].out1 = u'%s_interm' % os.path.sep
         self.add_process("train2", "capsul.pipeline.test.test_custom_nodes.TrainProcess2")
-        self.nodes["train2"].process.in2 = u'%s_interm' % os.path.sep
-        self.nodes["train2"].process.out1 = os.path.sep
+        self.nodes["train2"].in2 = u'%s_interm' % os.path.sep
+        self.nodes["train2"].out1 = os.path.sep
         self.add_iterative_process("test_it", "capsul.pipeline.test.test_custom_nodes.CVtest", iterative_plugs=set([u'out1', u'in1', u'subject']),
                                    make_optional=['out1'])
-        self.add_custom_node("output_file", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': 'out_file', 'outputs': ['base'], 'param_types': ['Directory', 'Str', 'Str', 'Any'], 'parameters': ['base', 'separator', 'subject']})
+        self.add_custom_node("output_file", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': 'out_file', 'outputs': ['base'], 'param_types': ['Directory', 'str', 'str', 'Any'], 'parameters': ['base', 'separator', 'subject']})
         self.nodes["output_file"].plugs["separator"].optional = True
         self.nodes["output_file"].plugs["subject"].optional = True
         self.nodes["output_file"].separator = os.path.sep
-        self.add_custom_node("intermediate_output", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': 'out_file', 'outputs': ['base'], 'param_types': ['Directory', 'Str', 'Str', 'Str', 'File'], 'parameters': ['base', 'sep', 'subject', 'suffix']})
+        self.add_custom_node("intermediate_output", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': 'out_file', 'outputs': ['base'], 'param_types': ['Directory', 'str', 'str', 'str', 'File'], 'parameters': ['base', 'sep', 'subject', 'suffix']})
         self.nodes["intermediate_output"].plugs["sep"].optional = True
         self.nodes["intermediate_output"].plugs["subject"].optional = True
         self.nodes["intermediate_output"].plugs["suffix"].optional = True
@@ -275,13 +274,13 @@ class PipelineCVFold(Pipeline):
         self.nodes["CV"].plugs["nfolds"].optional = True
         self.nodes["CV"].plugs["train"].optional = True
         self.nodes["CV"].plugs["test"].optional = True
-        self.add_custom_node("CV_subject", "capsul.pipeline.custom_nodes.cv_node.CrossValidationFoldNode", {'param_type': 'Str'})
+        self.add_custom_node("CV_subject", "capsul.pipeline.custom_nodes.cv_node.CrossValidationFoldNode", {'param_type': 'str'})
         self.nodes["CV_subject"].plugs["inputs"].optional = True
         self.nodes["CV_subject"].plugs["fold"].optional = True
         self.nodes["CV_subject"].plugs["nfolds"].optional = True
         self.nodes["CV_subject"].plugs["train"].optional = True
         self.nodes["CV_subject"].plugs["test"].optional = True
-        self.add_custom_node("CV_str", "capsul.pipeline.custom_nodes.strconv.StrConvNode", {'param_type': 'Int'})
+        self.add_custom_node("CV_str", "capsul.pipeline.custom_nodes.strconv.StrConvNode", {'param_type': 'int'})
         self.nodes["CV_str"].plugs["input"].optional = True
         self.nodes["CV_str"].plugs["output"].optional = True
 
@@ -374,16 +373,16 @@ class PipelineMapReduce(Pipeline):
             'map', 'capsul.pipeline.custom_nodes.map_node',
             parameters={'input_names': ['map_input', 'subjects'],
                         'output_names': ['test_%d', 'subject_%d'],
-                        'input_types': ['File', 'Str']})
+                        'input_types': ['File', 'str']})
         # extract inputs list len as a list of 1 item
         # [2, 2] -> 2, 2
         self.add_custom_node(
             'input_len1', 'capsul.pipeline.custom_nodes.map_node',
-            parameters={'input_types': ['Int']})
+            parameters={'input_types': ['int']})
         # 2 -> [2]
         self.add_custom_node(
             'input_len2', 'capsul.pipeline.custom_nodes.reduce_node',
-            parameters={'input_types': ['Int']},
+            parameters={'input_types': ['int']},
             make_optional=['lengths'], do_not_export=['skip_empty'])
         # real reduce
         self.add_custom_node(
@@ -478,18 +477,18 @@ class TestCustomNodes(unittest.TestCase):
         pipeline.test = pipeline.main_inputs[2]
         pipeline.subject = 'subject2'
         pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
-        self.assertEqual(pipeline.nodes['train1'].process.out1,
+        self.assertEqual(pipeline.nodes['train1'].out1,
                          os.path.join(pipeline.output_directory,
                                       '%s_interm' % pipeline.subject))
-        self.assertEqual(pipeline.nodes['train2'].process.out1,
+        self.assertEqual(pipeline.nodes['train2'].out1,
                          os.path.join(pipeline.output_directory,
                                       pipeline.subject))
-        self.assertEqual(pipeline.nodes['test'].process.out1,
+        self.assertEqual(pipeline.nodes['test'].out1,
                          os.path.join(pipeline.output_directory,
                                       '%s_test_output' % pipeline.subject))
         out_field_type \
-            = type_str(pipeline.nodes['test_output'].field('out_file'))
-        self.assertTrue(isinstance(out_field_type, 'file'))
+            = pipeline.nodes['test_output'].field('out_file').type_str()
+        self.assertEqual(out_field_type, 'File')
 
     def test_custom_nodes(self):
         c = Capsul()
@@ -654,6 +653,7 @@ class TestCustomNodes(unittest.TestCase):
         pipeline2 = c.executable(pyfname)
         self._test_custom_nodes(pipeline)
 
+    @unittest.skip('XML is no longer supported')
     def test_custom_nodes_xml_io(self):
         c = Capsul()
         pipeline = c.executable(Pipeline1)
@@ -676,6 +676,7 @@ class TestCustomNodes(unittest.TestCase):
         pipeline2 = c.executable(pyfname)
         self._test_loo_pipeline(pipeline2)
 
+    @unittest.skip('XML is no longer supported')
     def test_loo_xml_io(self):
         c = Capsul()
         pipeline = c.executable(PipelineLOO)
@@ -695,7 +696,7 @@ class TestCustomNodes(unittest.TestCase):
         pipeline.subjects = ['Robert', 'Gustave']
         pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
         self.assertEqual(
-            pipeline.nodes['cat'].process.files,
+            pipeline.nodes['cat'].files,
             [os.path.join(pipeline.output_directory,
                           '%s_test_output' % pipeline.subjects[0]),
             os.path.join(pipeline.output_directory,
@@ -717,6 +718,7 @@ class TestCustomNodes(unittest.TestCase):
         pipeline2 = c.executable(pyfname)
         self._test_cv_pipeline(pipeline2)
 
+    @unittest.skip('XML is no longer supported')
     def test_cv_xml_io(self):
         c = Capsul()
         pipeline = c.executable(PipelineCV)

@@ -13,11 +13,12 @@ try:
 except ImportError:
     NipypeInterface = type("Interface", (object, ), {})
 
-from soma.controller import field
+from soma.controller import field, Controller
 from soma.undefined import undefined
 
 from .dataset import Dataset
-from .api import Process, Pipeline, Node
+from .process.process import Process, Node
+from .pipeline.pipeline import Pipeline
 from .process.nipype_process import nipype_factory
 from .engine.local import LocalEngine
 
@@ -328,3 +329,96 @@ class JSONPipeline(Pipeline):
                 self.export_parameter(node, plug, source,
                                          weak_link=weak_link)
                 exported_parameters.add(source)
+
+
+def get_node_class(node_type):
+    """
+    Get a custom node class from module + class string.
+    The class name is optional if the module contains only one node class.
+    It is OK to pass a Node subclass or a Node instance also.
+    """
+    if inspect.isclass(node_type):
+        if issubclass(node_type, Node):
+            return node_type.__name__, node_type  # already a Node class
+        return Node
+    if isinstance(node_type, Node):
+        return node_type.__class__.__name__, node_type.__class__
+    cls = None
+    try:
+        mod = importlib.import_module(node_type)
+        for name, val in mod.__dict__.items():
+            if inspect.isclass(val) and val.__name__ != 'Node' \
+                    and issubclass(val, Node):
+                cls = val
+                break
+        else:
+            return None
+    except ImportError:
+        name = node_type.split('.')[-1]
+        modname = node_type[:-len(name) - 1]
+        mod = importlib.import_module(modname)
+        cls = getattr(mod, name)
+    if cls is None:
+        return None
+    return name, cls
+
+def get_node_instance(node_type, pipeline, conf_dict=None, name=None,
+                      **kwargs):
+    """
+    Get a custom node instance from a module + class name (see
+    :func:`executable`) and a configuration dict or Controller.
+    The configuration contains parameters needed to instantiate the node type.
+    Each node class may specify its parameters via its class method
+    `configure_node`.
+    Parameters
+    ----------
+    node_type: str or Node subclass or Node instance
+        node type to be built. Either a class (Node subclass) or a Node
+        instance (the node will be re-instantiated), or a string
+        describing a module and class.
+    pipeline: Pipeline
+        pipeline in which the node will be inserted.
+    conf_dict: dict or Controller
+        configuration dict or Controller defining parameters needed to build
+        the node. The controller should be obtained using the node class's
+        `configure_node()` static method, then filled with the desired values.
+        If not given the node is supposed to be built with no parameters, which
+        will not work for every node type.
+    kwargs:
+        default values of the node instance parameters.
+    """
+    cls_and_name = get_node_class(node_type)
+    if cls_and_name is None or issubclass(cls_and_name[1], Process):
+        raise ValueError("Could not find node class %s" % node_type)
+    nname, cls = cls_and_name
+    if not name:
+        name = nname
+
+    if isinstance(conf_dict, Controller):
+        conf_controller = conf_dict
+    elif conf_dict is not None:
+        if hasattr(cls, 'configure_controller'):
+            conf_controller = cls.configure_controller()
+            if conf_controller is None:
+                raise ValueError("node type %s has a configuration controller "
+                                 "problem (see %s.configure_controller()"
+                                 % (node_type, node_type))
+            conf_controller.import_dict(conf_dict)
+        else:
+            conf_controller = Controller()
+    else:
+        if hasattr(cls, 'configure_controller'):
+            conf_controller = cls.configure_controller()
+        else:
+            conf_controller = Controller()
+    if hasattr(cls, 'build_node'):
+        node = cls.build_node(pipeline, name, conf_controller)
+    else:
+        # probably bound to fail...
+        node = cls(pipeline, name, [], [])
+
+    # Set the instance default parameters
+    for name, value in kwargs.items():
+        setattr(node, name, value)
+
+    return node
