@@ -8,14 +8,9 @@ Classes
 '''
 
 from copy import deepcopy
-import tempfile
-import os
-import shutil
 import sys
 
 from soma.undefined import undefined
-from soma.utils.weak_proxy import weak_proxy
-import weakref
 
 
 from capsul.process.process import Process, NipypeProcess
@@ -30,7 +25,6 @@ from soma.controller import (Controller,
                              field,
                              Literal)
 from soma.sorted_dictionary import SortedDictionary
-from soma.utils.functiontools import SomaPartial
 
 class Pipeline(Process):
     """ Pipeline containing Process nodes, and links between node parameters.
@@ -197,10 +191,11 @@ class Pipeline(Process):
             if True (default) nodes containing pipeline plugs are automatically
             exported.
         """
+        super().__setattr__('enable_parameter_links', False)
         # Inheritance
         if 'definition' not in kwargs:
             kwargs['definition'] = 'custom'
-        super(Pipeline, self).__init__(**kwargs)
+        super(Pipeline, self).__init__()
         super(Pipeline, self).add_field(
             'nodes_activation',
             Controller, hidden=self.hide_nodes_activation)
@@ -243,6 +238,9 @@ class Pipeline(Process):
         # Refresh pipeline activation
         self._disable_update_nodes_and_plugs_activation -= 1
         self.update_nodes_and_plugs_activation()
+        super().__setattr__('enable_parameter_links', True)
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     def pipeline_definition(self):
         """ Define pipeline structure, nodes, sub-pipelines, switches, and
@@ -1314,17 +1312,6 @@ class Pipeline(Process):
             debug = open(debug, 'w')
             print(self.definition, file=debug)
 
-        # Remember all links that are inactive (i.e. at least one of the two
-        # plugs is inactive) in order to execute a callback if they become
-        # active (see at the end of this method)
-        inactive_links = []
-        for node in self.all_nodes():
-            for source_plug_name, source_plug in node.plugs.items():
-                for nn, pn, n, p, weak_link in source_plug.links_to:
-                    if not source_plug.activated or not p.activated:
-                        inactive_links.append((node, source_plug_name,
-                                               source_plug, n, pn, p))
-
         # Initialization : deactivate all nodes and their plugs
         for node in self.all_nodes():
             node.activated = False
@@ -1397,12 +1384,6 @@ class Pipeline(Process):
                                         new_nodes_to_check.add(n)
             nodes_to_check = new_nodes_to_check
             iteration += 1
-
-        # Execute a callback for all links that have become active.
-        for node, source_plug_name, source_plug, n, pn, p in inactive_links:
-            if (source_plug.activated and p.activated):
-                value = getattr(node, source_plug_name, undefined)
-                node._callbacks[(source_plug_name, n, pn)](value)
 
         # Refresh views relying on plugs and nodes selection
         for node in self.all_nodes():
@@ -1565,139 +1546,67 @@ class Pipeline(Process):
                     flat_structure = sub_workflow[1].topological_sort()
                     walk_workflow(flat_structure, workflow_list)
 
-        # Generate the output workflow representation
-        self.workflow_repr = "->".join([x[0] for x in ordered_list])
-        import logging
-        logger = logging.getLogger('capsul')
-        logger.debug("Workflow: {0}". format(self.workflow_repr))
-
         # Generate the final workflow by flattenin graphs structures
         workflow_list = []
         walk_workflow(ordered_list, workflow_list)
 
         return workflow_list
 
-    def _check_temporary_files_for_node(self, node, temp_files):
+    def set_temporary_file_names(self):
         """ Check temporary outputs and allocate files for them.
 
         Temporary files or directories will be appended to the temp_files list,
         and the node parameters will be set to temp file names.
-
-        This internal function is called by the sequential execution,
-        _run_process() (also used through __call__()).
-        The pipeline state will be restored at the end of execution using
-        _free_temporary_files().
-
-        Parameters
-        ----------
-        node: Node
-            node to check temporary outputs on
-        temp_files: list
-            list of temporary files for the pipeline execution. The list will
-            be modified (completed).
         """
-        process = getattr(node, 'process', None)
-        if process is not None and isinstance(process, NipypeProcess):
-            #nipype processes do not use temporaries, they produce output
-            # file names
-            return
+        print('!tmp!', self)
+        for node in self.nodes.values():
+            prefix = f'!{{tmp}}/{node.full_name}'
+            if isinstance(node, NipypeProcess):
+                #nipype processes do not use temporaries, they produce output
+                # file names
+                return
 
-        for plug_name, plug in node.plugs.items():
-            value = getattr(node, plug_name, undefined)
-            if not plug.activated or not plug.enabled:
-                continue
-            field = node.field(plug_name)
-            if not field.metadata('write', False) or field.output:
-                continue
-            if field.is_list() and field.has_path():
-                if len([x for x in value if x in ('', undefined)]) == 0:
+            for plug_name, plug in node.plugs.items():
+                print(f'!tmp! {node.name}->{plug_name}')
+                value = getattr(node, plug_name, undefined)
+                if not plug.activated or not plug.enabled:
                     continue
-            elif value not in (undefined, '') \
-                    or (not field.has_path()
-                         or len(plug.links_to) == 0):
-                continue
-            # check that it is really temporary: not exported
-            # to the main pipeline
-            if self in [link[2] for link in plug.links_to]:
-                # it is visible out of the pipeline: not temporary
-                continue
-            # if we get here, we are a temporary.
-            if isinstance(value, list):
-                if field.is_directory():
+                field = node.field(plug_name)
+                if not field.is_output():
+                    continue
+                if field.is_list() and field.has_path():
+                    if len([x for x in value if x in ('', undefined)]) == 0:
+                        continue
+                elif value not in (undefined, '') \
+                        or (field.path_type is None
+                            or len(plug.links_to) == 0):
+                    continue
+                # check that it is really temporary: not exported
+                # to the main pipeline
+                if self in [link[2] for link in plug.links_to]:
+                    # it is visible out of the pipeline: not temporary
+                    continue
+                # if we get here, we are a temporary.
+                print(f'!tmp! temporary')
+                e = field.metadata('extensions')
+                if e:
+                    suffix = e[0]
+                else:
+                    suffix = ''
+                if isinstance(value, list):
                     new_value = []
-                    tmpdirs = []
                     for i in range(len(value)):
                         if value[i] in ('', undefined):
-                            tmpdir = tempfile.mkdtemp(suffix='capsul_run')
-                            new_value.append(tmpdir)
-                            tmpdirs.append(tmpdir)
+                            tmp = f'{prefix}.{plug_name}{suffix}'
+                            new_value.append(tmp)
                         else:
                             new_value.append(value[i])
-                    temp_files.append((node, plug_name, tmpdirs, value))
-                    node.set_plug_value(plug_name, new_value)
                 else:
-                    new_value = []
-                    tmpfiles = []
-                    e = field.metadata('allowed_extensions')
-                    if e:
-                        suffix = 'capsul' + e[0]
-                    else:
-                        suffix = 'capsul'
-                    for i in range(len(value)):
-                        if value[i] in ('', undefined):
-                            tmpfile = tempfile.mkstemp(suffix=suffix)
-                            tmpfiles.append(tmpfile[1])
-                            os.close(tmpfile[0])
-                            new_value.append(tmpfile[1])
-                        else:
-                            new_value.append(value[i])
-                    node.set_plug_value(plug_name, new_value)
-                    temp_files.append((node, plug_name, tmpfiles, value))
-            else:
-                if field.is_directory():
-                    tmpdir = tempfile.mkdtemp(suffix='capsul_run')
-                    temp_files.append((node, plug_name, tmpdir, value))
-                    node.set_plug_value(plug_name, tmpdir)
-                else:
-                    e = field.metadata.get('allowed_extensions')
-                    if e:
-                        suffix = 'capsul' + e[0]
-                    else:
-                        suffix = 'capsul'
-                    tmpfile = tempfile.mkstemp(suffix=suffix)
-                    node.set_plug_value(plug_name, tmpfile[1])
-                    os.close(tmpfile[0])
-                    temp_files.append((node, plug_name, tmpfile[1], value))
-
-    def _free_temporary_files(self, temp_files):
-        """ Delete and reset temp files after the pipeline execution.
-
-        This internal function is called at the end of _run_process()
-        (sequential execution)
-        """
-        #
-        for node, plug_name, tmpfiles, value in temp_files:
-            node.set_plug_value(plug_name, value)
-            if not isinstance(tmpfiles, list):
-                tmpfiles = [tmpfiles]
-            for tmpfile in tmpfiles:
-                if os.path.isdir(tmpfile):
-                    try:
-                        shutil.rmtree(tmpfile)
-                    except OSError:
-                        pass
-                else:
-                    try:
-                        os.unlink(tmpfile)
-                    except OSError:
-                        pass
-                # handle additional files (.hdr, .minf...)
-                # TODO
-                if os.path.exists(tmpfile + '.minf'):
-                    try:
-                        os.unlink(tmpfile + '.minf')
-                    except OSError:
-                        pass
+                    new_value = f'{prefix}.{plug_name}{suffix}'
+                node.set_plug_value(plug_name, new_value)
+            if node is not self and isinstance(node, Pipeline):
+                node.set_temporary_file_names()
+ 
 
     def find_empty_parameters(self):
         """ Find internal File/Directory parameters not exported to the main
@@ -2000,117 +1909,6 @@ class Pipeline(Process):
         for node_name in pipeline_state:
             result.append('node "%s" is new' % node_name)
         return result
-
-    def install_links_debug_handler(self, log_file=None, handler=None,
-                                    prefix=''):
-        """ Set callbacks when attribute value change, and follow plugs links to
-        debug links propagation and problems in it.
-
-        Parameters
-        ----------
-        log_file: str (optional)
-            file-like object to write links propagation in.
-            If none is specified, a temporary file will be created for it.
-        handler: function (optional)
-            Callback to be processed for debugging. If none is specified, the
-            default pipeline debugging function will be used. This default
-            handler prints attributes changes and links to be processed in the
-            log_file.
-            The handler function will receive a prefix string, a node,
-            and attribute parameters, namely the object (process) owning the
-            changed value, the attribute name and value in this object.
-        prefix: str (optional)
-            prefix to be prepended to attributes names, typically the parent
-            pipeline full name
-
-        Returns
-        -------
-        log_file: the file object where events will be written in
-        """
-
-        if log_file is None:
-            log_file_s = tempfile.mkstemp()
-            class AutodeDelete(object):
-                def __init__(self, file_object):
-                    self.file_object = file_object
-                def __del__(self):
-                    try:
-                        self.file_object.close()
-                    except IOError:
-                        pass
-                    try:
-                        os.unlink(self.file_object.name)
-                    except Exception:
-                        pass
-            os.close(log_file_s[0])
-            log_file = open(log_file_s[1], 'w')
-            self._log_file_del = AutodeDelete(log_file)
-
-        self._link_debugger_file = log_file
-        if prefix != '' and not prefix.endswith('.'):
-            prefix = prefix + '.'
-        # install handler on nodes
-        for node_name, node in self.nodes.items():
-            node_prefix = prefix + node_name
-            if node_prefix != '' and not node_prefix.endswith('.'):
-                node_prefix += '.'
-            if handler is None:
-                custom_handler = node._value_callback_with_logging
-            else:
-                custom_handler = handler
-            sub_process = None
-            sub_pipeline = False
-            if hasattr(node, 'process'):
-                sub_process = node
-            if hasattr(sub_process, 'nodes') and sub_process is not self:
-                sub_pipeline = sub_process
-            if sub_pipeline:
-                sub_pipeline.install_links_debug_handler(
-                    log_file=log_file,
-                    handler=handler,
-                    prefix=node_prefix)
-            else:
-                # replace all callbacks
-                callbacks = list(node._callbacks.items())
-                for element, callback in callbacks:
-                    source_plug_name, dest_node, dest_plug_name = element
-                    value_callback = SomaPartial(
-                        custom_handler, log_file, node_prefix,
-                        source_plug_name,
-                        dest_node, dest_plug_name)
-                    node.remove_callback_from_plug(source_plug_name, callback)
-                    node._callbacks[element] = value_callback
-                    node.set_callback_on_plug(source_plug_name, value_callback)
-
-        return log_file
-
-    def uninstall_links_debug_handler(self):
-        """ Remove links debugging callbacks set by install_links_debug_handler
-        """
-
-        for node_name, node in self.nodes.items():
-            sub_process = None
-            sub_pipeline = False
-            if hasattr(node, 'process'):
-                sub_process = node
-            if hasattr(sub_process, 'nodes') and sub_process is not self:
-                sub_pipeline = sub_process
-            if sub_pipeline:
-                sub_pipeline.uninstall_links_debug_handler()
-            else:
-                for element, callback in list(node._callbacks.items()):
-                    source_plug_name, dest_node, dest_plug_name = element
-                    value_callback = SomaPartial(
-                        node._value_callback, source_plug_name,
-                        dest_node, dest_plug_name)
-                    node.remove_callback_from_plug(source_plug_name, callback)
-                    node._callbacks[element] = value_callback
-                    node.set_callback_on_plug(source_plug_name, value_callback)
-
-        if hasattr(self, '_link_debugger_file'):
-            del self._link_debugger_file
-        if hasattr(self, '_log_file_del'):
-            del self._log_file_del
 
     def define_pipeline_steps(self, steps):
         '''Define steps in the pipeline.
@@ -2434,8 +2232,8 @@ class Pipeline(Process):
                     if old_node_name in nodes:
                         field.nodes = \
                             [n if n != old_node_name
-                             else new_node_name
-                             for n in nodes]
+                            else new_node_name
+                            for n in nodes]
 
             # nodes positions and dimensions
             if old_node_name in getattr(self, 'node_position', {}):
@@ -2489,7 +2287,14 @@ class Pipeline(Process):
                 break
         return dest_plugs
 
-    def get_linked_items(self, node, plug_name=None):
+    def __setattr__(self, name, value):
+        result = super().__setattr__(name, value)
+        if self.enable_parameter_links and name in self.plugs:
+            for node, plug in self.get_linked_items(self, name, in_sub_pipelines=False, activated_only=False, process_only=False):
+                setattr(node, plug, value)
+        return result
+
+    def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True, activated_only=True, process_only=True):
         '''Return the real process(es) node and plug connected to the given plug.
         Going through switches and inside subpipelines, ignoring nodes that are
         not activated.
@@ -2501,7 +2306,7 @@ class Pipeline(Process):
             stack =[(node, plug_name)]
         while stack:
             node, plug_name = stack.pop(0)
-            if not node.activated:
+            if activated_only and not node.activated:
                 continue
             plug = node.plugs.get(plug_name)
             if plug:
@@ -2510,13 +2315,17 @@ class Pipeline(Process):
                 else:
                     direction = 'links_from'
                 for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
-                    if isinstance(dest_node, Process):
+                    if isinstance(dest_node, Pipeline):
+                        if in_sub_pipelines:
+                            yield from dest_node.get_linked_items(dest_node, dest_plug_name)
+                        else:
+                            yield (dest_node, dest_plug_name)
+                    elif isinstance(dest_node, Process):
                         yield (dest_node, dest_plug_name)
-                    elif isinstance(dest_node, Pipeline):
-                        yield from dest_node.get_linked_items(dest_plug_name)
                     elif isinstance(dest_node, Switch):
                         if dest_plug_name == 'switch':
-                            yield (dest_node, dest_plug_name)
+                            if not process_only:
+                                yield (dest_node, dest_plug_name)
                         else:
                             for input_plug_name, output_plug_name in dest_node.connections():
                                 if plug.output ^ isinstance(node, Pipeline):
@@ -2582,46 +2391,6 @@ class Pipeline(Process):
                 node_json['enabled'] = False
         return result
 
-
-
-    #     "executables": {
-    #         "p1": {
-    #             "type": "process",
-    #             "definition": "capsul.process.test.test_load_from_description.a_function_to_wrap",
-    #             "parameters": {
-    #                 "list_of_str": ["test"]
-    #             }
-    #         },
-    #         "p2": {
-    #             "type": "process",
-    #             "definition": "capsul.process.test.test_load_from_description.a_function_to_wrap"
-    #         }
-    #     },
-    #     "links": [
-    #         ["p1.result", "p2.fname"],
-    #         ["pdirectory", "p2.directory"],
-    #         ["value", "p2.value"],
-    #         ["enum", "p2.enum"],
-    #         ["list_of_str", "p2.list_of_str"],
-    #         ["value", "p1.value"],
-    #         ["enum", "p1.enum"],
-    #         ["fname", "p1.fname"],
-    #         ["list_of_str", "p1.list_of_str"],
-    #         ["pdirectory", "p1.directory"],
-    #         ["p2.result", "out1"]
-    #     ],
-    #     "gui": {
-    #         "position": {
-    #             "inputs": [0, 0],
-    #             "p1": [200, 200],
-    #             "p2": [400, -200],
-    #             "outputs": [600, 0]
-    #         },
-    #         "zoom": {
-    #             "level": 1
-    #         }
-    #     }
-    # }
 
 # This import is at the end because get_process_instance needs Pipeline and
 #  Pipeline needs get_process instance

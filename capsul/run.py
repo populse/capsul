@@ -3,54 +3,18 @@
 import datetime
 import json
 import os
+import shutil
 import sys
+import tempfile
 import traceback
 
 from capsul.api import Capsul, ExecutionContext, Pipeline, Process
 
 
-def pipeline_graph(pipeline):
-    '''
-    ready_nodes : dict(node: succesor nodes)
-    waiting_nodes : dict(node: (predecessors count, successor nodes))
-    '''
-    predecessor_count = {}
-    node_successors = {}
-    for node_name, node in pipeline.nodes.items():
-        if node_name == '':
-            # Ignore pipeline node
-            continue
-        if isinstance(node, Process):
-            predecessor_count.setdefault(node, 0)
-            successors = set()
-            for successor, _ in pipeline.get_linked_items(node):
-                if successor not in successors:
-                    predecessor_count[sucessor] = predecessor_count.get(successor, 0) + 1
-                    node_successors.setdefault(node, set()).add(successor)
-                    successors.add(successor)
-
-    ready_nodes = {i: node_successors.get(i,set()) for i in predecessor_count if predecessor_count[i] == 0}
-    waiting_nodes = {i: [predecessor_count[i], node_successors.get(i,set())] for i in predecessor_count if predecessor_count[i] != 0}
-    return ready_nodes, waiting_nodes
-
-
-def execute_pipeline(pipeline, context):
-    ready_nodes, waiting_nodes = pipeline_graph(pipeline)
-    while ready_nodes:
-        process, successors = ready_nodes.popitem()
-        process.before_execute(context)
-        if isinstance(process, Pipeline):
-            execute_pipeline(process, context)
-        else:
-            process.execute(context)
-        process.after_execute(context)
-        for successor in successors:
-            predecessor_count, s = waiting_nodes[successor][0] - 1
-            if predecessor_count == 0:
-                ready_nodes[successor] = s
-                del waiting_nodes[successor]
-            else:
-                waiting_nodes[successor][0] = predecessor_count
+def execute_process(process, context):
+    process.before_execute(context)
+    process.execute(context)
+    process.after_execute(context)
 
 if __name__ == '__main__':
     # Really detach the process from the parent.
@@ -67,7 +31,7 @@ if __name__ == '__main__':
         capsul = Capsul()
         executable = capsul.executable(execution_info['executable'])
         executable.import_json(execution_info['executable']['parameters'])
-        
+        tmp = tempfile.mkdtemp()
         try:
             execution_info['status'] = 'running'
             execution_info['start_time'] = datetime.datetime.now().isoformat()
@@ -75,10 +39,25 @@ if __name__ == '__main__':
             with open(execution_file, 'w') as f:
                 json.dump(execution_info, f)
 
-            context = ExecutionContext(execution_info)
+            context = ExecutionContext(execution_info, tmp)
+
+            if isinstance(executable, Pipeline):
+                nodes = executable.all_nodes()
+            else:
+                nodes = [executable]
+            for node in nodes:
+                for field in node.fields():
+                    if is_path(field):
+                        value = getattr(node, field.name, None)
+                        if value and value.startswith('!'):
+                            final_value = eval(f"f'{{{value[1:]}}}'", context.__dict__, context.__dict__)
+                            setattr(node, field.name, final_value)
             executable.before_execute(context)
             if isinstance(executable, Pipeline):
-                execute_pipeline(executable, context)
+                for node in executable.workflow_ordered_nodes():
+                    node.before_execute(context)
+                    node.execute(context)
+                    node.after_execute(context)
             else:
                 executable.execute(context)
             executable.after_execute(context)
@@ -86,6 +65,7 @@ if __name__ == '__main__':
             execution_info['error'] = f'{e}'
             execution_info['error_detail'] = f'{traceback.format_exc()}'
         finally:
+            shutil.rmtree(tmp)
             execution_info['status'] = 'ended'
             execution_info['end_time'] = datetime.datetime.now().isoformat()
             execution_info.pop('pid', None)

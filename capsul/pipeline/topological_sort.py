@@ -8,16 +8,6 @@ Classes
 ------------------
 '''
 
-# System import
-from __future__ import absolute_import
-from __future__ import print_function
-import logging
-import six
-
-# Define the logger
-logger = logging.getLogger(__name__)
-
-
 class GraphNode(object):
     """ Simple Graph Node Structure
 
@@ -149,7 +139,6 @@ class Graph(object):
         node: GraphNode (mandatory)
         the node to insert
         """
-        logging.debug("node: {0}".format(node.name))
         if not isinstance(node, GraphNode):
             raise Exception("Expect a GraphNode, got {0}".format(node))
         if node.name in self._nodes:
@@ -179,7 +168,6 @@ class Graph(object):
         to_node: GraphNode (mandatory)
         the successor node
         """
-        logging.debug("link: {0}->{1}".format(from_node, to_node))
         if from_node not in self._nodes:
             raise Exception("Node {0} is not defined in the Graph."
                    "Use add_node() method".format(from_node))
@@ -212,7 +200,7 @@ class Graph(object):
 
         # Step 1
         nnil = []
-        for name, node in six.iteritems(self._nodes):
+        for name, node in self._nodes.items():
             if node.links_from_degree == 0:
                 nnil.append(node)
 

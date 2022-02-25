@@ -144,7 +144,7 @@ class Dataset:
         for field in layout.fields():
             value = getattr(layout, field.name, undefined) 
             if value is undefined:
-                if not layout.is_optional(field.name):
+                if not field.optional:
                     kwargs[field.name] = '*'
             else:
                 kwargs[field.name] = value
@@ -170,7 +170,7 @@ class Dataset:
     def set_output_paths(self, executable, **kwargs):
         global_attrs = getattr(executable, 'path_layout', {}).get('*', {})
         for field in executable.fields():
-            if executable.is_output(field) and executable.is_path(field):
+            if field.is_output() and field.is_path():
                 layout = self.layout(**kwargs)
                 attrs = global_attrs.copy()
                 process_attrs = getattr(executable, 'path_layout', {}).get(self.layout_name, {}).get(field.name)
@@ -185,3 +185,5 @@ class Dataset:
                     setattr(layout, n, v)
                 path = functools.reduce(operator.truediv, layout.build_path(), self.path)
                 setattr(executable, field.name, str(path))
+        if isinstance(executable, Pipeline):
+            executable.set_temporary_file_names()
