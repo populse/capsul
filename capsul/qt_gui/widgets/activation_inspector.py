@@ -30,7 +30,7 @@ from soma.qt_gui.controller import ControllerWidget
 # Capsul import
 from capsul.qt_apps.utils.application import Application
 import capsul.qt_apps.resources as resources
-from capsul.api import get_process_instance, Pipeline
+from capsul.api import Capsul, Pipeline
 from capsul.qt_gui.widgets import PipelineDeveloperView
 
 
@@ -58,7 +58,8 @@ class ActivationInspectorApp(Application):
         super(ActivationInspectorApp, self).__init__(*args, **kwargs)
 
         # Load the pipeline
-        self.pipeline = get_process_instance(pipeline_path)
+        capsul = Capsul()
+        self.pipeline = capsul.executable(pipeline_path)
 
         # Initialize the application
         self.record_file = record_file
