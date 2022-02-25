@@ -17,7 +17,7 @@ from soma.controller import field
 from soma.undefined import undefined
 
 from .dataset import Dataset
-from .api import Process, Pipeline
+from .api import Process, Pipeline, Node
 from .process.nipype_process import nipype_factory
 from .engine.local import LocalEngine
 
@@ -90,32 +90,67 @@ def executable(definition, **kwargs):
     item = None
     if isinstance(definition, dict):
         result = executable_from_json(None, definition)
-    elif isinstance(definition, Process):
+    elif isinstance(definition, Node):
         result = type(definition)()
-    elif isinstance(definition, type) and issubclass(definition, Process):
+    elif isinstance(definition, type) and issubclass(definition, Node):
         result = definition()
     else:
         if definition.endswith('.json'):
             with open(definition) as f:
                 json_executable = json.load(f)
             result =  executable_from_json(definition, json_executable)
-        elif definition.endswith('.py'):
+        elif definition.endswith('.py') or len(definition.rsplit('.py#')) == 2:
+            filename = definition
+            object_name = None
+            def_item = definition.rsplit('.py#')
+            if len(def_item) == 2:
+                # class/function name after # in the definition
+                object_name = def_item[1]
+                filename = def_item[0] + '.py'
             d = {}
-            with open(definition) as f:
+            with open(filename) as f:
                 exec(f.read(), d, d)
-            processes = [i for i in d.values() if isinstance(i, type) and issubclass(i, Process) and i not in (Process, Pipeline)]
-            if not processes:
-                # TODO: try to find a function process
-                raise ValueError(f'No process class found in {definition}')
-            if len(processes) > 1:
-                raise ValueError(f'Several process classes found in {definition}')
-            result = executable_from_python(definition, processes[0])
+            if object_name:
+                process = d.get(object_name)
+                if process is None:
+                    raise ValueError(
+                        f'Invalid executable definition: {definition}')
+            else:
+                processes = [i for i in d.values()
+                             if isinstance(i, type) and issubclass(i, Node)
+                                and i not in (Node, Process, Pipeline)]
+                if not processes:
+                    # TODO: try to find a function process
+                    raise ValueError(f'No process class found in {definition}')
+                if len(processes) > 1:
+                    raise ValueError(
+                        f'Several process classes found in {definition}')
+                process = processes[0]
+            result = executable_from_python(definition, process)
         else:
             elements = definition.rsplit('.', 1)
             if len(elements) > 1:
                 module_name, object_name = elements
                 module = importlib.import_module(module_name)
                 item = getattr(module, object_name, None)
+                if item is None:
+                    # maybe a sub-module to be imported
+                    module = importlib.import_module(definition)
+                    if module is not None:
+                        item = module
+                # check if item is a module containing a single process
+                if (inspect.ismodule(item)
+                        or (inspect.isclass(item)
+                            and not issubclass(item, Node))):
+                    items = find_executables(item)
+                    if len(items) == 1:
+                        module = item
+                        item = items[0]
+                        definition = '.'.join((definition,
+                                               item.__name__.rsplit('.')[-1]))
+                    elif len(items) > 1:
+                        raise ValueError(
+                            f'Several process classes found in {definition}')
                 result = executable_from_python(definition, item)
 
     if result is not None:
@@ -124,6 +159,15 @@ def executable(definition, **kwargs):
         return result
     raise ValueError(f'Invalid executable definition: {definition}') 
     
+def find_executables(module):
+    # report only Node classes, since it's difficult to be sure a function
+    # is meant to be a Process or not.
+    items = []
+    for item in module.__dict__.values():
+        if inspect.isclass(item) and issubclass(item, Node) \
+                and item not in (Node, Process, Pipeline):
+            items.append(item)
+    return items
 
 def executable_from_python(definition, item):
     '''
