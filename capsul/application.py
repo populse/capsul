@@ -90,6 +90,10 @@ def executable(definition, **kwargs):
     item = None
     if isinstance(definition, dict):
         result = executable_from_json(None, definition)
+    elif isinstance(definition, Process):
+        result = type(definition)()
+    elif isinstance(definition, type) and issubclass(definition, Process):
+        result = definition()
     else:
         if definition.endswith('.json'):
             with open(definition) as f:
