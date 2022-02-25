@@ -13,6 +13,15 @@
           "mask_10": "capsul.process.test.test_load_from_description.mask",
           "mask_100": "capsul.process.test.test_load_from_description.mask"
         },
+        "processes_selections": {
+            "select_method": {
+                "groups": {
+                    "greater than": ["threshold_gt_1", "threshold_gt_10", "threshold_gt_100"],
+                    "lower than": ["threshold_lt_1", "threshold_lt_10", "threshold_lt_100"]
+                },
+                "value": "greater than"
+            }
+        },
         "links": [
             "input_image->threshold_lt_1.input_image",
             "input_image->threshold_gt_10.input_image",
@@ -32,19 +41,19 @@
             "mask_1.output_image->output_1",
             "mask_10.output_image->output_10",
             "mask_100.output_image->output_100"
-        ]
-    },
-    "node_position": {
-        "threshold_gt_100": [386.0, 403.0],
-        "inputs": [50.0, 50.0],
-        "mask_1": [815.0, 153.0],
-        "threshold_gt_10": [374.0, 242.0],
-        "threshold_lt_100": [556.0, 314.0],
-        "threshold_gt_1": [371.0, 88.0],
-        "mask_10": [820.0, 293.0],
-        "mask_100": [826.0, 451.0],
-        "threshold_lt_1": [570.0, 6.0],
-        "threshold_lt_10": [568.0, 145.0],
-        "outputs": [1000.0, 100.0]
+        ],
+        "node_position": {
+            "threshold_gt_100": [386.0, 403.0],
+            "inputs": [50.0, 50.0],
+            "mask_1": [815.0, 153.0],
+            "threshold_gt_10": [374.0, 242.0],
+            "threshold_lt_100": [556.0, 314.0],
+            "threshold_gt_1": [371.0, 88.0],
+            "mask_10": [820.0, 293.0],
+            "mask_100": [826.0, 451.0],
+            "threshold_lt_1": [570.0, 6.0],
+            "threshold_lt_10": [568.0, 145.0],
+            "outputs": [1000.0, 100.0]
+        }
     }
 }

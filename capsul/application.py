@@ -290,10 +290,17 @@ class JSONPipeline(Pipeline):
     
     def pipeline_definition(self):
         exported_parameters = set()
-        for name, ejson in self.json_executable['executables'].items():
+        for name, ejson in self.json_executable.get('executables', {}).items():
             e = executable(ejson)
             #e = executable_from_json(f'{self.definition}#{name}', ejson)
             self.add_process(name, e)
+
+        for sel_key, sel_group_def in self.json_executable.get(
+                'processes_selections', {}).items():
+            sel_groups = sel_group_def.get("groups")
+            value = sel_group_def.get("value", None)
+            self.add_processes_selection(sel_key, sel_groups, value)
+
         all_links = [(i, False) for i in self.json_executable.get('links', [])]
         all_links += [(i, True) for i in self.json_executable.get('weak_links', [])]
         
