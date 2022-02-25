@@ -14,7 +14,7 @@ class DummyProcess(Process):
 
 
 class TestProcessUserTrait(unittest.TestCase):
-    """ Class to test that process user traits are independent between
+    """ Class to test that process user fields are independent between
     instances.
     """
     def setUp(self):
@@ -29,12 +29,14 @@ class TestProcessUserTrait(unittest.TestCase):
         """ Method to test if class user parameters are not shared at
         the instance level.
         """
-        # Go through all traits
+        # Go through all fields
         for field in self.p1.fields():
             # Check that only class fields are shared
             # between instances
             self.assertEqual(
-                field is self.p2.field(field.name), field.metadata['class_field'])
+                field._dataclass_field is
+                    self.p2.field(field.name)._dataclass_field,
+                field.class_field)
 
 
 
