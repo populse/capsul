@@ -291,12 +291,17 @@ class JSONPipeline(Pipeline):
     def pipeline_definition(self):
         exported_parameters = set()
         for name, ejson in self.json_executable['executables'].items():
-            e = executable_from_json(f'{self.definition}#{name}', ejson)
+            e = executable(ejson)
+            #e = executable_from_json(f'{self.definition}#{name}', ejson)
             self.add_process(name, e)
-        all_links = [i + [False] for i in self.json_executable.get('links', [])]
-        all_links += [i + [True] for i in self.json_executable.get('weak_links', [])]
+        all_links = [(i, False) for i in self.json_executable.get('links', [])]
+        all_links += [(i, True) for i in self.json_executable.get('weak_links', [])]
         
-        for source, dest, weak_link in all_links:
+        for link_def, weak_link in all_links:
+            if isinstance(link_def, (list, tuple)):
+                source, dest = link_def
+            else:
+                source, dest = link_def.split('->')
             if '.' in source:
                 if '.' in dest:
                     self.add_link(f'{source}->{dest}',
