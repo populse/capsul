@@ -7,6 +7,7 @@ Classes
 -----------------
 '''
 
+from concurrent.futures import process
 from copy import deepcopy
 import sys
 
@@ -813,13 +814,10 @@ class Pipeline(Process):
                     # beginning of the plug name: probably an auto_exported one
                     # from an invalid node
                     err = True
-                    print('!1!', hasattr(node, 'process'), hasattr(node, '_invalid_nodes'))
                     if hasattr(node, 'process') \
                             and hasattr(node, '_invalid_nodes'):
                         invalid = node._invalid_nodes
-                        print('!2!', invalid)
                         for ip in invalid:
-                            print('!3!', plug_name)
                             if plug_name.startswith(ip + '_'):
                                 err = False
                                 node.invalid_plugs.add(plug_name)
@@ -934,10 +932,6 @@ class Pipeline(Process):
             dest_node._switch_changed(getattr(dest_node, "switch", undefined),
                                       getattr(dest_node, "switch", undefined))
 
-        # Observer
-        source_node.connect(source_plug_name, dest_node, dest_plug_name)
-        dest_node.connect(dest_plug_name, source_node, source_plug_name)
-
         # Refresh pipeline activation
         self.update_nodes_and_plugs_activation()
 
@@ -987,10 +981,6 @@ class Pipeline(Process):
             dest_field = dest_node.field(dest_plug_name)
             if dest_field.metadata('connected_output'):
                 dest_field.connected_output = False  # FIXME
-
-        # Observer
-        source_node.disconnect(source_plug_name, dest_node, dest_plug_name)
-        dest_node.disconnect(dest_plug_name, source_node, source_plug_name)
 
         # Refresh pipeline activation
         self.update_nodes_and_plugs_activation()
@@ -1566,7 +1556,6 @@ class Pipeline(Process):
                 return
 
             for plug_name, plug in node.plugs.items():
-                print(f'!tmp! {node.name}->{plug_name}')
                 value = getattr(node, plug_name, undefined)
                 if not plug.activated or not plug.enabled:
                     continue
@@ -1582,8 +1571,9 @@ class Pipeline(Process):
                     continue
                 # check that it is really temporary: not exported
                 # to the main pipeline
-                if self in [link[2] for link in plug.links_to]:
-                    # it is visible out of the pipeline: not temporary
+                for n, pn in self.get_linked_items(node, plug_name, in_sub_pipelines=False, process_only=False):
+                    if n is self:
+                        continue
                     continue
                 # if we get here, we are a temporary.
                 e = field.metadata('extensions')
@@ -1602,6 +1592,7 @@ class Pipeline(Process):
                 else:
                     new_value = f'{prefix}.{plug_name}{suffix}'
                 node.set_plug_value(plug_name, new_value)
+                self.dispatch_value(node, plug_name, new_value)
             if node is not self and isinstance(node, Pipeline):
                 node.set_temporary_file_names()
  
@@ -2288,9 +2279,29 @@ class Pipeline(Process):
     def __setattr__(self, name, value):
         result = super().__setattr__(name, value)
         if self.enable_parameter_links and name in self.plugs:
-            for node, plug in self.get_linked_items(self, name, in_sub_pipelines=False, activated_only=False, process_only=False):
-                setattr(node, plug, value)
+            self.dispatch_value(self, name, value)
         return result
+    
+    def dispatch_value(self, node, name, value):
+        self.enable_parameter_links = False
+        done = set()
+        stack = list(self.get_linked_items(node, 
+            name, 
+            in_sub_pipelines=False,
+            activated_only=False,
+            process_only=False))
+        while stack:
+            item = stack.pop()
+            if item not in done:
+                node, plug = item
+                setattr(node, plug, value)
+                done.add(item)
+                stack.extend(self.get_linked_items(node, 
+                    plug, 
+                    in_sub_pipelines=False,
+                    activated_only=False,
+                    process_only=False))
+        self.enable_parameter_links = True
 
     def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True, activated_only=True, process_only=True):
         '''Return the real process(es) node and plug connected to the given plug.
@@ -2328,9 +2339,13 @@ class Pipeline(Process):
                             for input_plug_name, output_plug_name in dest_node.connections():
                                 if plug.output ^ isinstance(node, Pipeline):
                                     if dest_plug_name == input_plug_name:
+                                        if not process_only:
+                                            yield (dest_node, output_plug_name)
                                         stack.append((dest_node, output_plug_name))
                                 else:
                                     if dest_plug_name == output_plug_name:
+                                        if not process_only:
+                                            yield (dest_node, input_plug_name)
                                         stack.append((dest_node, input_plug_name))
 
     def json(self):

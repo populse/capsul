@@ -170,15 +170,21 @@ class Dataset:
     def set_output_paths(self, executable, **kwargs):
         global_attrs = getattr(executable, 'path_layout', {}).get('*', {})
         for field in executable.fields():
-            if field.is_output() and field.is_path():
+            if not field.is_output():
+                continue
+            if isinstance(executable, Pipeline):
+                inner_item = next(executable.get_linked_items(executable, field.name), None)
+                if inner_item is not None:
+                    inner_process, inner_field_name = inner_item
+                    inner_field = inner_process.field(inner_field_name)
+                else:
+                    inner_process = inner_field = None
+            if field.is_path() or (inner_field and inner_field.is_path()):
                 layout = self.layout(**kwargs)
                 attrs = global_attrs.copy()
                 process_attrs = getattr(executable, 'path_layout', {}).get(self.layout_name, {}).get(field.name)
-                if process_attrs is None and isinstance(executable, Pipeline):
-                    inner_item = next(executable.get_linked_items(executable, field.name), None)
-                    if inner_item is not None:
-                        e, p = inner_item
-                        process_attrs = getattr(e, 'path_layout', {}).get(self.layout_name, {}).get(p)
+                if process_attrs is None and inner_field:
+                    process_attrs = getattr(inner_process, 'path_layout', {}).get(self.layout_name, {}).get(inner_field.name)
                 if process_attrs:
                     attrs.update(process_attrs)
                 for n, v in attrs.items():

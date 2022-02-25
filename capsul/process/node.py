@@ -228,7 +228,7 @@ class Node(Controller):
             self.pipeline = None
             return
 
-        self.pipeline = weak_proxy(pipeline, self._pipeline_deleted)
+        self.pipeline = weak_proxy(pipeline)
 
         for plug in self.plugs.values():
             # add an event on plug to validate the pipeline
@@ -289,7 +289,7 @@ class Node(Controller):
 
     @property
     def full_name(self):
-        if self.pipeline is not None \
+        if getattr(self, 'pipeline', None) is not None \
                 and self.pipeline.get_pipeline() is not None:
             return self.pipeline.full_name + '.' + self.name
         else:
@@ -334,201 +334,23 @@ class Node(Controller):
         self._remove_plug(name)
         super().remove_field(name)
 
-    @staticmethod
-    def _value_callback(self, source_plug_name, dest_node, dest_plug_name,
-                        value):
-        """ Spread the source plug value to the destination plug.
-        """
-        dest_node.set_plug_value(
-            dest_plug_name, value,
-            self.is_parameter_protected(source_plug_name))
-
-    def _value_callback_with_logging(
-            self, log_stream, prefix, source_plug_name, dest_node,
-            dest_plug_name, value):
-        """ Spread the source plug value to the destination plug, and log it in
-        a stream for debugging.
-        """
-        #print '(debug) value changed:', self, self.name, source_plug_name, dest_node, dest_plug_name, repr(value), ', stream:', log_stream, prefix
-
-        plug = self.plugs.get(source_plug_name, None)
-        if plug is None:
-            return
-        def _link_name(dest_node, plug, prefix, dest_plug_name,
-                       source_node_or_process):
-            external = True
-            sibling = False
-            # check if it is an external link: if source is not a parent of
-            # dest
-            if hasattr(source_node_or_process, 'nodes'):
-                source_node = source_node_or_process
-                children = [x for k, x in source_node.nodes.items() if x != '']
-                if dest_node in children:
-                    external = False
-            # check if it is a sibling node:
-            # if external and source is not in dest
-            if external:
-                sibling = True
-                #print >> open('/tmp/linklog.txt', 'a'), 'check sibling, prefix:', prefix, 'source:', source_node_or_process, ', dest_plug_name:', dest_plug_name, 'dest_node:', dest_node, dest_node.name
-                if hasattr(dest_node, 'nodes'):
-                    children = [x for k, x in dest_node.nodes.items()
-                                if x != '']
-                    if source_node_or_process in children:
-                        sibling = False
-                #print 'sibling:', sibling
-            if external:
-                if sibling:
-                    name = '.'.join(prefix.split('.')[:-2] \
-                        + [dest_node.name, dest_plug_name])
-                else:
-                    name = '.'.join(prefix.split('.')[:-2] + [dest_plug_name])
-            else:
-                # internal connection in a (sub) pipeline
-                name = prefix + dest_node.name
-                if name != '' and not name.endswith('.'):
-                  name += '.'
-                name += dest_plug_name
-            return name
-        dest_plug = dest_node.plugs[dest_plug_name]
-        #print >> open('/tmp/linklog.txt', 'a'), 'link_name:',  self, repr(self.name), ', prefix:', repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
-        print('value link:', \
-            'from:', prefix + source_plug_name, \
-            'to:', _link_name(dest_node, dest_plug, prefix, dest_plug_name,
-                              self), \
-            ', value:', repr(value), file=log_stream) #, 'self:', self, repr(self.name), ', prefix:',repr(prefix), ', source_plug_name:', source_plug_name, 'dest:', dest_plug, repr(dest_plug_name), 'dest node:', dest_node, repr(dest_node.name)
-        log_stream.flush()
-
-        # actually propagate
-        dest_node.set_plug_value(dest_plug_name, value,
-                                 self.is_parameter_protected(source_plug_name))
-
-    def connect(self, source_plug_name, dest_node, dest_plug_name):
-        """ Connect linked plugs of two nodes
-
-        Parameters
-        ----------
-        source_plug_name: str (mandatory)
-            the source plug name
-        dest_node: Node (mandatory)
-            the destination node
-        dest_plug_name: str (mandatory)
-            the destination plug name
-        """
-        # add a callback to spread the source plug value
-        value_callback = SomaPartial(
-            self.__class__._value_callback, weak_proxy(self),
-            source_plug_name, weak_proxy(dest_node), dest_plug_name)
-        self._callbacks[(source_plug_name, dest_node,
-                         dest_plug_name)] = value_callback
-        self.set_callback_on_plug(source_plug_name, value_callback)
-
-    def disconnect(self, source_plug_name, dest_node, dest_plug_name,
-                   silent=False):
-        """ disconnect linked plugs of two nodes
-
-        Parameters
-        ----------
-        source_plug_name: str (mandatory)
-            the source plug name
-        dest_node: Node (mandatory)
-            the destination node
-        dest_plug_name: str (mandatory)
-            the destination plug name
-        silent: bool
-            if False, do not fire an exception if the connection does not exust
-            (perhaps already disconnected
-        """
-        # remove the callback to spread the source plug value
-        try:
-            callback = self._callbacks.pop(
-                (source_plug_name, dest_node, dest_plug_name))
-            self.remove_callback_from_plug(source_plug_name, callback)
-        except Exception:
-            if not silent:
-                raise
-
-    def _pipeline_deleted(self, pipeline):
-        self.cleanup()
-
-    def cleanup(self):
-        """ cleanup before deletion
-
-        disconnects all plugs, remove internal and cyclic references
-        """
-        pipeline = self.get_pipeline()
-
-        for plug_name, plug in self.plugs.items():
-            to_discard = []
-            for link in plug.links_from:
-                link[2].disconnect(link[1], self, plug_name, silent=True)
-                self.disconnect(plug_name, link[2], link[1], silent=True)
-                link[3].links_to.discard((self.name, plug_name,
-                                          self, plug, True))
-                to_discard.append(link)
-            for link in to_discard:
-                plug.links_from.discard(link)
-            to_discard = []
-            for link in plug.links_to:
-                self.disconnect(plug_name, link[2], link[1], silent=True)
-                link[2].disconnect(link[1], self, plug_name, silent=True)
-                to_discard.append(link)
-                link[3].links_from.discard((self.name, plug_name,
-                                            self, plug, False))
-            if pipeline:  ## FIXME
-                plug.on_trait_change(
-                    pipeline.update_nodes_and_plugs_activation, remove=True)
-        if pipeline:
-            self.on_trait_change(pipeline.update_nodes_and_plugs_activation,
-                                 remove=True)
-        self._callbacks = {}
-        self.pipeline = None
-        self.plugs = {}
-
     def __getstate__(self):
         """ Remove the callbacks from the default __getstate__ result because
         they prevent Node instance from being used with pickle.
         """
         state = super().__getstate__()
-        state['_callbacks'] = list(state['_callbacks'].keys())
         state['pipeline'] = get_ref(state['pipeline'])
         return state
 
     def __setstate__(self, state):
         """ Restore the callbacks that have been removed by __getstate__.
         """
-        state['_callbacks'] = dict((i, SomaPartial(self._value_callback, *i))
-                                   for i in state['_callbacks'])
         if state['pipeline'] is state['process']:
             state['pipeline'] = state['process'] = weak_proxy(state['pipeline'])
         else:
             state['pipeline'] = weak_proxy(state['pipeline'])
         super().__setstate__(state)
-        for callback_key, value_callback in self._callbacks.items():
-            self.set_callback_on_plug(callback_key[0], value_callback)
 
-    def set_callback_on_plug(self, plug_name, callback):
-        """ Add an event when a plug change
-
-        Parameters
-        ----------
-        plug_name: str (mandatory)
-            a plug name
-        callback: @f (mandatory)
-            a callback function
-        """
-        self.on_attribute_change.add(callback, plug_name)
-
-    def remove_callback_from_plug(self, plug_name, callback):
-        """ Remove an event when a plug change
-
-        Parameters
-        ----------
-        plug_name: str (mandatory)
-            a plug name
-        callback: @f (mandatory)
-            a callback function
-        """
-        self.on_attribute_change.remove(callback, plug_name)
 
 
     def set_plug_value(self, plug_name, value, protected=None):
