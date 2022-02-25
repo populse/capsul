@@ -8,7 +8,7 @@ import unittest
 import tempfile
 import sys
 
-from soma.controller import file, File, field
+from soma.controller import File, field
 
 from capsul.api import Process, Pipeline, Switch
 from capsul.process_instance import get_process_instance

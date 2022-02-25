@@ -79,7 +79,7 @@ def threshold(
 def mask(
     input_image: field(type_=File, doc='Path of a NIFTI-1 image file.'),
     mask: field(type_=File, doc='Path of mask binary image.'),
-    output_image: File = field(write=True, doc="Output file name.")
+    output_image: field(type_=File, write=True, doc="Output file name.")
 ):
 
     pass

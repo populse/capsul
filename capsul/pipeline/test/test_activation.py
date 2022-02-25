@@ -2,7 +2,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 import unittest
-from soma.controller import file
+from soma.controller import File
 from capsul.api import Process
 from capsul.api import Pipeline
 import sys
@@ -16,11 +16,11 @@ class DummyProcess(Process):
             'capsul.pipeline.test.test_activation.DummyProcess')
 
         # inputs
-        self.add_field("input_image", file(), optional=False)
+        self.add_field("input_image", File, optional=False)
         self.add_field("other_input", float, optional=True)
 
         # outputs
-        self.add_field("output_image", file(), optional=False, output=True)
+        self.add_field("output_image", File, optional=False, output=True)
         self.add_field("other_output", float, optional=True, output=True)
 
     def execute(self, context):
