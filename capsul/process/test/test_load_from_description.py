@@ -8,7 +8,7 @@ import sys
 import shutil
 from typing import List, Tuple
 
-from soma.controller import file, directory, field, Literal, File, Directory
+from soma.controller import field, Literal, File, Directory
 
 from capsul.api import Capsul, Process, Pipeline
 
@@ -58,7 +58,7 @@ def to_warp_func(
 # temp replacement:
 def threshold(
     input_image: field(type_=File, doc='Path of a NIFTI-1 image file.'),
-    output_image: field(type_=file(write=True), doc="Name of the output image."),
+    output_image: field(type_=File, write=True, doc="Name of the output image."),
     method: field(type_=Literal['gt', 'ge', 'lt', 'le'], default='gt', doc="Mehod for thresolding."),
     threshold: field(type_=float, default=0)
 ):
@@ -79,7 +79,7 @@ def threshold(
 def mask(
     input_image: field(type_=File, doc='Path of a NIFTI-1 image file.'),
     mask: field(type_=File, doc='Path of mask binary image.'),
-    output_image: field(type_=File[{'write': True}], doc="Output file name.")
+    output_image: File = field(write=True, doc="Output file name.")
 ):
 
     pass
