@@ -447,7 +447,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         code = (int(c[0] * 255), int(c[1] * 255), int(c[2] * 255))
         return code
 
-    def _repaint_parameter(self, param_name, new_value):
+    def _repaint_parameter(self, new_value, old_value, param_name):
         if self.logical_view or param_name not in self.parameters:
             return
         param_text = self._parameter_text(param_name)
