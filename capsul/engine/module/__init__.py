@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-default_modules = ['fsl',
+default_modules = ['afni',
+                   'ants',
+                   'fsl',
                    'matlab',
-                   'spm',
-                   'afni']
+                   'spm']

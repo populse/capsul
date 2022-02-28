@@ -142,6 +142,13 @@ class TestCapsulEngine(unittest.TestCase):
             settings.new_config('afni', 'global', {'directory': '/there',
                                                    cif: '22'})
 
+            # Create a global ANTS configuration
+            config = settings.config('ants', 'global')
+            if config:
+                settings.remove_config('ants', 'global',
+                                       getattr(config, cif))
+            settings.new_config('ants', 'global', {'directory': '/there',
+                                                   cif: '235'})
 
             # Create two global SPM configurations
             settings.new_config('spm', 'global', {'version': '8',
@@ -160,13 +167,17 @@ class TestCapsulEngine(unittest.TestCase):
             {'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'ALL',
                                         'capsul.engine.module.matlab': 'ALL',
                                         'capsul.engine.module.spm': 'ALL',
-                                        'capsul.engine.module.afni': 'ALL'}},
+                                        'capsul.engine.module.afni': 'ALL',
+                                        'capsul.engine.module.ants': 'ALL'}},
              'capsul.engine.module.fsl': {'config_environment': 'global',
                                           'directory': '/there',
                                           cif: '5'},
              'capsul.engine.module.afni': {
                 'config_environment': 'global','directory': '/there',
                 cif: '22'},
+             'capsul.engine.module.ants': {
+                 'config_environment': 'global', 'directory': '/there',
+                 cif: '235'},
              'capsul.engine.module.spm': {'config_environment': 'my_machine',
                                            'version': '20',
                                            'standalone': True,
@@ -191,6 +202,15 @@ class TestCapsulEngine(unittest.TestCase):
                   cif: '22'},
              'capsul_engine':
                  {'uses': {'capsul.engine.module.afni': 'any'}}})
+
+        self.assertEqual(
+            self.ce.settings.select_configurations('global',
+                                                   uses={'ants': 'any'}),
+            {'capsul.engine.module.ants':
+                 {'config_environment': 'global', 'directory': '/there',
+                  cif: '235'},
+             'capsul_engine':
+                 {'uses': {'capsul.engine.module.ants': 'any'}}})
 
         self.assertEqual(
             self.ce.settings.select_configurations('global',

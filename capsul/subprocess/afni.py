@@ -4,7 +4,7 @@ Specific subprocess-like functions to call AFNI taking into account a
 potential configuration done in StudyConfig. If a StudyConfig is not
 configured to use AFNI, it may be automatically configured.
 
-For calling AFNI command with this module, the first arguent of
+For calling AFNI command with this module, the first argument of
 command line must be the AFNI executable.
 The appropriate path is added from the configuration
 of the StudyConfig instance.

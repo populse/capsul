@@ -17,6 +17,7 @@ def configure_all():
     configure_fsl()
     configure_freesurfer()
     configure_afni()
+    configure_ants()
 
 
 def configure_spm():
@@ -105,5 +106,17 @@ def configure_afni():
     if conf:
         from capsul.in_context import afni as afnirun
         env = afnirun.afni_env()
+        for var, value in env.items():
+            os.environ[var] = value
+
+def configure_ants():
+    '''
+    Configure ANTS for nipype
+    '''
+    from capsul import engine
+    conf = engine.configurations.get('capsul.engine.module.ants')
+    if conf:
+        from capsul.in_context import ants as antsrun
+        env = antsrun.ants_env()
         for var, value in env.items():
             os.environ[var] = value
