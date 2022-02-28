@@ -28,7 +28,9 @@ from soma.controller import (Controller,
 from soma.sorted_dictionary import SortedDictionary
 
 class Pipeline(Process):
-    """ Pipeline containing Process nodes, and links between node parameters.
+    """ Pipeline containing :class:`~capsul.process.node.Node` nodes
+    (:class:`~capsul.process.process.Process` and custom nodes), and links
+    between node parameters.
 
     A Pipeline is normally subclassed, and its :py:meth:`pipeline_definition`
     method is overloaded to define its nodes and links.
@@ -66,15 +68,15 @@ class Pipeline(Process):
 
     .. currentmodule:: capsul.pipeline
 
-    * process nodes (:py:class:`~capsul.process.process.Process`) are the leaf
+    * process nodes (:class:`~capsul.process.process.Process`) are the leaf
       nodes which represent actual processing bricks.
     * pipeline nodes are
       sub-pipelines which allow to reuse an existing pipeline within another
       one
-    * switch nodes (:py:class:`pipeline_nodes.Switch`) allows to select values
+    * switch nodes (:class:`~Switch`) allows to select values
       between several possible inputs. The switch mechanism also allows to
       select between several alternative processes or processing branches.
-    * iterative process (:py:class:process_iteration.ProcessIteration`)
+    * iterative process (:class:~process_iteration.ProcessIteration`)
       represent parallel processing of the same pipeline on a set of
       parameters.
 

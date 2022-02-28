@@ -116,6 +116,8 @@ class Process(Node):
         self.definition = definition
     
     def json(self):
+        '''
+        '''
         result = {
             'type': 'process',
             'definition': self.definition,
@@ -154,9 +156,15 @@ class Process(Node):
         return missing
 
     def is_job(self):
+        ''' True if the node is actually a job in a workflow
+        '''
         return True
 
     def execute(self, context):
+        ''' Main execution method for a process.
+        Each Process subclass should overload this method to perform its actual
+        job.
+        '''
         raise NotImplementedError(f'The run method is not implemented for process {self.definition}')
 
 

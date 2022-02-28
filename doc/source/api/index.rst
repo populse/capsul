@@ -34,17 +34,15 @@ Node Types
 
 .. currentmodule:: capsul.pipeline.pipeline_nodes
 
-* :class:`Node`
-* :class:`ProcessNode`
-* :class:`PipelineNode`
-* :class:`Switch`
+* :class:`~capsul.process.node.Node`
+* :class:`pipeline_nodes.Switch`
 
 * :mod:`Custom nodes types <capsul.pipeline.custom_nodes>`
 
 Plug
 -----
 
-* :class:`Plug`
+* :class:`~capsul.process.node.Plug`
 
 
 :mod:`capsul.process`: Process
