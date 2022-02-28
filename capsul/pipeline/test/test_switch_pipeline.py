@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 
 import sys
 import unittest
 import os
-from traits.api import Str, Float
 from capsul.api import Process
-from capsul.api import Pipeline, PipelineNode
+from capsul.api import Pipeline
+from soma.controller import undefined
 
 
 class DummyProcess(Process):
@@ -17,16 +15,16 @@ class DummyProcess(Process):
         super(DummyProcess, self).__init__()
 
         # inputs
-        self.add_trait("input_image", Str(optional=False))
-        self.add_trait("other_input", Float(optional=True))
+        self.add_field("input_image", str, optional=False)
+        self.add_field("other_input", float, optional=True)
 
         # outputs
-        self.add_trait("output_image", Str(optional=False, output=True))
-        self.add_trait("other_output", Float(optional=False, output=True))
+        self.add_field("output_image", str, optional=False, output=True)
+        self.add_field("other_output", float, optional=False, output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         self.output_image = self.input_image
-        self.other_output = self.other_input
+        self.other_output = getattr(self, 'other_input', undefined)
 
 
 class SwitchPipeline(Pipeline):
@@ -94,18 +92,21 @@ class TestSwitchPipeline(unittest.TestCase):
 
     def test_way1(self):
         self.pipeline.switch = "one"
-        self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr, "node->way1")
+        workflow_repr = '->'.join([
+            j.name for j in self.pipeline.workflow_ordered_nodes()])
+        self.assertEqual(workflow_repr, "node->way1")
 
     def test_way2(self):
         self.pipeline.switch = "two"
-        self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr, "node->way21->way22")
+        workflow_repr = '->'.join([
+            j.name for j in self.pipeline.workflow_ordered_nodes()])
+        self.assertEqual(workflow_repr, "node->way21->way22")
 
     def test_way3(self):
         self.pipeline.switch = "none"
-        self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr, "node")
+        workflow_repr = '->'.join([
+            j.name for j in self.pipeline.workflow_ordered_nodes()])
+        self.assertEqual(workflow_repr, "node")
 
     def test_weak_on(self):
         self.pipeline.switch = "two"
@@ -115,7 +116,7 @@ class TestSwitchPipeline(unittest.TestCase):
             self.assertTrue(dest_weak_plug.activated)
             is_weak = False
             for nn, pn, n, p, wl in src_weak_plug.links_to:
-                if isinstance(n, PipelineNode):
+                if isinstance(n, Pipeline):
                     is_weak = is_weak or wl
             self.assertTrue(is_weak)
 
@@ -139,7 +140,7 @@ class TestSwitchPipeline(unittest.TestCase):
             self.assertFalse(dest_weak_plug.activated)
             is_weak = False
             for nn, pn, n, p, wl in src_weak_plug.links_to:
-                if isinstance(n, PipelineNode):
+                if isinstance(n, Pipeline):
                     is_weak = is_weak or wl
             self.assertTrue(is_weak)
 
@@ -165,7 +166,7 @@ class TestSwitchPipeline(unittest.TestCase):
         self.assertTrue(dest_weak_plug.activated)
         is_weak = False
         for nn, pn, n, p, wl in src_weak_plug.links_to:
-            if isinstance(n, PipelineNode):
+            if isinstance(n, Pipeline):
                 is_weak = is_weak or wl
         self.assertFalse(is_weak)
 
@@ -174,15 +175,12 @@ class TestSwitchPipeline(unittest.TestCase):
         key = "test"
         self.pipeline.input_image = key
         # Test first level
-        self.assertEqual(self.pipeline.nodes["node"].process.input_image,
-                         key)
+        self.assertEqual(self.pipeline.nodes["node"].input_image, key)
         # Test second level
-        self.pipeline.nodes["node"].process()
-        self.assertEqual(self.pipeline.nodes["way1"].process.input_image,
-                         key)
+        self.pipeline.nodes["node"].execute(None)
+        self.assertEqual(self.pipeline.nodes["way1"].input_image, key)
         self.pipeline.switch = "two"
-        self.assertEqual(self.pipeline.nodes["way21"].process.input_image,
-                         key)
+        self.assertEqual(self.pipeline.nodes["way21"].input_image, key)
 
 
 def test():
@@ -199,7 +197,6 @@ if __name__ == "__main__":
     if '-v' in sys.argv:
         import sys
         from soma.qt_gui import qt_backend
-        qt_backend.set_qt_backend('PyQt4')
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDeveloperView
 
@@ -208,6 +205,8 @@ if __name__ == "__main__":
             app = QtGui.QApplication(sys.argv)
         pipeline = SwitchPipeline()
         pipeline.switch = "one"
+        pipeline.input_image = 'test'
+        pipeline.nodes["node"].execute(None)
         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)
         view1.show()

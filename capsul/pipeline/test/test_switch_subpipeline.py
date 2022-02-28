@@ -203,6 +203,7 @@ class TestSwitchPipeline(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
         self.pipeline = MainTestPipeline()
+        self.pipeline.name = ''  # saved state has en empty main node name
 
     def load_state(self, file_name):
         file_name = os.path.join(os.path.dirname(__file__), file_name + '.json')

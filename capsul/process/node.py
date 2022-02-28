@@ -118,8 +118,6 @@ class Node(Controller):
 
     Methods
     -------
-    connect
-    set_callback_on_plug
     set_plug_value
     """
     # name: field(type_=str, metadata={'hidden': True})
