@@ -14,6 +14,10 @@ def init_settings(capsul_engine):
         [dict(name='executable',
               type='string',
               description='Full path of the matlab executable'),
+         dict(name='mcr_directory',
+              type='string',
+              description='Full path of the matlab MCR directory, for use '
+                  'with standalone binaries'),
          ])
 
 
@@ -49,21 +53,33 @@ def edition_widget(engine, environment):
                 values['executable'] = None
             else:
                 values['executable'] = controller.executable
+            if controller.mcr_directory in (None, traits.Undefined, ''):
+                values['mcr_directory'] = None
+            else:
+                values['mcr_directory'] = controller.mcr_directory
             if conf is None:
                 session.new_config('matlab', widget.environment, values)
             else:
-                for k in ('executable', ):
+                for k in ('executable', 'mcr_directory', ):
                     setattr(conf, k, values[k])
 
     controller = Controller()
     controller.add_trait('executable',
-                         traits.Str(desc='Full path of the matlab executable'))
+                         traits.File(desc=
+                                     'Full path of the matlab executable'))
+    controller.add_trait('mcr_directory',
+                         traits.Directory(desc='Full path of the matlab MCR '
+                                          'directory, or use with standalone '
+                                          'binaries'))
 
     conf = engine.settings.select_configurations(
         environment, {'matlab': 'any'})
     if conf:
         controller.executable = conf.get(
             'capsul.engine.module.matlab', {}).get('executable',
+                                                   traits.Undefined)
+        controller.mcr_directory = conf.get(
+            'capsul.engine.module.matlab', {}).get('mcr_directory',
                                                    traits.Undefined)
 
     widget = ScrollControllerWidget(controller, live=True)
