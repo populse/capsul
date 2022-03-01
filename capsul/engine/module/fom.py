@@ -294,6 +294,7 @@ def edition_widget(engine, environment):
     import types
 
     def validate_config(widget):
+        widget.update_controller()
         controller = widget.controller_widget.controller
         with widget.engine.settings as session:
             conf = session.config('fom', widget.environment)

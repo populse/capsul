@@ -106,6 +106,7 @@ def edition_widget(engine, environment):
     import traits.api as traits
 
     def validate_config(widget):
+        widget.update_controller()
         controller = widget.controller_widget.controller
         with widget.engine.settings as session:
             conf = session.config('fsl', widget.environment)
