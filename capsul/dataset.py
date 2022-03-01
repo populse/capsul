@@ -227,3 +227,80 @@ class Dataset:
                 setattr(executable, field.name, str(path))
         if isinstance(executable, Pipeline):
             executable.set_temporary_file_names()
+
+
+class Completion:
+    ''' This is an attempt to compose several :class:`Dataset` / process/
+    parameters combinations to allow completion for both inputs and outputs,
+    and allow using several datasets/layouts for different parameters, if
+    needed.
+    '''
+    def __init__(self):
+        # {'proc' : {'param': dataset}} dict
+        self.completion_datasets = {}
+
+    def add_param_items(self, param_dict):
+        ''' add a param dict in the shape {'proc.param': dataset}
+        '''
+        for param, dataset in param_dict.items():
+            proc, param = param.rsplit('.', 1)
+            self.completion_layouts.setdefault(proc, {})[param] = dataset
+
+    def add_dataset_items(self, dataset_dict):
+        ''' add a param dict in the shape {dataset: {'proc': ['param', ...]}}
+        or {dataset: ['proc.param', ...]}
+        '''
+        for dataset, params in dataset_dict.items():
+            if isinstance(params, list):
+                for item in params:
+                    proc, param = item.resplit('.', 1)
+                    self.completion_datasets.setdefault(proc, {})[param] \
+                        = dataset
+            else:
+                for proc, pnames in params.items():
+                    for param in pnames:
+                        self.completion_datasets.setdefault(proc, {})[param] \
+                            = dataset
+
+    def set_paths(self, executable, **kwargs):
+        ''' Operates completion for values of an executable.
+        '''
+        global_attrs = getattr(executable, 'path_layout', {}).get('*', {})
+        for field in executable.fields():
+            proc_dataset = self.completion_datasets.get(executable.name)
+            if not proc_dataset:
+                # print('no dataset for process:', executable.name)
+                continue
+            dataset = proc_dataset.get(field.name)
+            if not dataset:
+                # print('no dataset for:', executable.name, field.name)
+                continue
+            # print('dataset:', executable.name, field.name, dataset)
+            inner_field = None
+            if isinstance(executable, Pipeline):
+                inner_item = next(executable.get_linked_items(
+                    executable, field.name), None)
+                if inner_item is not None:
+                    inner_process, inner_field_name = inner_item
+                    inner_field = inner_process.field(inner_field_name)
+                else:
+                    inner_process = inner_field = None
+            if field.is_path() or (inner_field and inner_field.is_path()):
+                layout = dataset.layout(**kwargs)
+                attrs = global_attrs.copy()
+                process_attrs = getattr(
+                    executable, 'path_layout', {}).get(dataset.layout_name,
+                                                       {}).get(field.name)
+                if process_attrs is None and inner_field:
+                    process_attrs = getattr(
+                        inner_process, 'path_layout',
+                        {}).get(dataset.layout_name, {}).get(inner_field.name)
+                if process_attrs:
+                    attrs.update(process_attrs)
+                for n, v in attrs.items():
+                    setattr(layout, n, v)
+                path = functools.reduce(operator.truediv, layout.build_path(),
+                                        dataset.path)
+                setattr(executable, field.name, str(path))
+        if isinstance(executable, Pipeline):
+            executable.set_temporary_file_names()
