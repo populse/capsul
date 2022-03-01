@@ -3,7 +3,7 @@
 capsul.process
 ==============
 
-.. inheritance-diagram:: capsul.process capsul.process.process capsul.process.node capsul.process.nipype_process capsul.process.runprocess capsul.process.xml capsul.pipeline.pipeline capsul.pipeline.process_iteration
+.. inheritance-diagram:: capsul.process capsul.process.process capsul.process.node capsul.process.nipype_process
     :parts: 1
 
 .. automodule:: capsul.process
@@ -27,20 +27,6 @@ capsul.process.nipype_process submodule
 ---------------------------------------
 
 .. automodule:: capsul.process.nipype_process
-    :members:
-
-
-capsul.process.runprocess submodule
------------------------------------
-
-.. automodule:: capsul.process.runprocess
-    :members:
-
-
-capsul.process.xml submodule
-----------------------------
-
-.. automodule:: capsul.process.xml
     :members:
 
 

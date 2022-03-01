@@ -66,13 +66,27 @@ class Capsul:
         return False
 
     def executable(self, definition, **kwargs):
+        ''' Get an "executable" instance
+        (:class:`~capsul.process.process.Process`,
+        :class:`~capsul.pipeline.pipeline.Pipeline...)` from its module or file
+        name.
+        '''
         return executable(definition, **kwargs)
 
     def engine(self):
+        ''' Get a :class:`~capsul.engine.CapsulEngine` instance
+        '''
         engine_config = self.config.get('default', {})
         return LocalEngine(engine_config)
 
     def dataset(self, path):
+        ''' Get a :class:`~.dataset.DataSet` instance associated with the given path
+
+        Parameters
+        ----------
+        path: :class:`pathlib.Path`
+            path for the dataset
+        '''
         dataset_config_file = path / 'capsul.json'
         with dataset_config_file.open() as f:
             dataset_config = json.load(f)
@@ -161,6 +175,9 @@ def executable(definition, **kwargs):
     raise ValueError(f'Invalid executable definition: {definition}') 
     
 def find_executables(module):
+    ''' Look for "executables" (:class:`~.process.node.Node` classes) in the
+    given module
+    '''
     # report only Node classes, since it's difficult to be sure a function
     # is meant to be a Process or not.
     items = []
@@ -235,6 +252,9 @@ def executable_from_json(definition, json_executable):
     return result
 
 def process_from_function(function):
+    '''
+    Build a process instance from an annotated function.
+    '''
     annotations = {}
     for name, type_ in getattr(function, '__annotations__', {}).items():
         output = name == 'return'
@@ -283,6 +303,9 @@ def process_from_function(function):
 
 
 class JSONPipeline(Pipeline):
+    ''' :class:`.pipeline.pipeline.Pipeline` subclass for pipelines built from
+    a JSON file definition
+    '''
     def __init__(self, definition, json_executable):
         if definition is None:
             definition = 'custom_pipeline'
@@ -290,6 +313,8 @@ class JSONPipeline(Pipeline):
         super().__init__(definition=definition, autoexport_nodes_parameters=json_executable.get('export_parameters', False))
     
     def pipeline_definition(self):
+        ''' define the pipeline contents
+        '''
         exported_parameters = set()
         for name, ejson in self.json_executable.get('executables', {}).items():
             e = executable(ejson)
@@ -370,6 +395,7 @@ def get_node_instance(node_type, pipeline, conf_dict=None, name=None,
     The configuration contains parameters needed to instantiate the node type.
     Each node class may specify its parameters via its class method
     `configure_node`.
+
     Parameters
     ----------
     node_type: str or Node subclass or Node instance

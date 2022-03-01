@@ -9,11 +9,32 @@ from soma.undefined import undefined
 from .api import Pipeline
 
 class PathLayout(Controller):
+    ''' Path layout for :class:`Dataset`
+
+    Abstract class: derived classes should overload the :meth:`_build_path`
+    static method to actually implement path building.
+
+    This class is a :class:`~soma.controller.controller.Controller`: attributes
+    are stored as fields.
+    '''
     def build_path(self, **kwargs):
+        ''' Returns a list of path elements built from the current PathLayout
+        fields values.
+
+        This method calls :meth:`_build_path` which should be implemented in
+        subclasses.
+        '''
         return self._build_path(self.asdict())
+
+    @staticmethod
+    def _build_path(attributes):
+        raise NotImplementedError(
+            '_build_path should be specialized in PathLayout subclasses.')
 
 
 class BIDSLayout(PathLayout):
+    ''' BIDS path layout for dataset
+    '''
     folder: Literal['sourcedata', 'rawdata', 'derivative']
     pipeline: str = None
     sub: str
@@ -72,6 +93,8 @@ class BIDSLayout(PathLayout):
 
 
 class BrainVISALayout(PathLayout):
+    ''' BrainVISA path layout for dataset
+    '''
     center: str
     subject: str
     modality: str = None
@@ -127,6 +150,8 @@ class BrainVISALayout(PathLayout):
 
 
 class Dataset:
+    ''' Dataset class
+    '''
     layouts = {
         'bids': BIDSLayout,
         'brainvisa': BrainVISALayout,
@@ -139,6 +164,13 @@ class Dataset:
             raise ValueError(f'Invalid paths layout: {layout_str}')
     
     def find(self, **kwargs):
+        ''' Find attributes values from existing files (using :func:`glob.glob`
+        and filenames parsing)
+
+        Returns
+        -------
+        Yields an attributes dict for every matching file path.
+        '''
         layout = self.layout(**kwargs)
         kwargs = {}
         for field in layout.fields():
@@ -168,6 +200,8 @@ class Dataset:
                     yield result
 
     def set_output_paths(self, executable, **kwargs):
+        ''' Operates completion for output values of an executable.
+        '''
         global_attrs = getattr(executable, 'path_layout', {}).get('*', {})
         for field in executable.fields():
             if not field.is_output():

@@ -5,6 +5,7 @@ The high-level capsul.api module pre-imports the main objects from several sub-m
 Classes
 -------
 
+* :class:`~capsul.application.Capsul`
 * :class:`~capsul.process.process.Process`
 * :class:`~capsul.process.process.NipypeProcess`
 * :class:`~capsul.process.process.FileCopyProcess`

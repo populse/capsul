@@ -10,15 +10,8 @@ Classes
 ++++++++++++++++
 :class:`FileCopyProcess`
 ++++++++++++++++++++++++
-:class:`InteractiveProcess`
-+++++++++++++++++++++++++++
 :class:`NipypeProcess`
 ++++++++++++++++++++++
-:class:`ProcessMeta`
-++++++++++++++++++++
-:class:`ProcessResult`
-++++++++++++++++++++++
-
 '''
 
 import os
