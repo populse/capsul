@@ -2281,7 +2281,10 @@ class Pipeline(Process):
 
     def __setattr__(self, name, value):
         result = super().__setattr__(name, value)
-        if self.enable_parameter_links and name in self.plugs:
+        # enable_parameter_links may not be defined yet if called from the
+        # constructor of a subclass
+        if getattr(self, 'enable_parameter_links', False) \
+                and name in self.plugs:
             self.dispatch_value(self, name, value)
         return result
     
