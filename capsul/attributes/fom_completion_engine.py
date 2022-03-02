@@ -13,17 +13,8 @@ Classes
 --------------------------------------------
 '''
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 import os
-import six
-try:
-    from traits.api import Str, HasTraits, List
-except ImportError:
-    from enthought.traits.api import Str, HasTraits, List
-
-from soma.controller import Controller  # , ControllerTrait  FIXME
+from soma.controller import Controller, undefined
 from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline_nodes import Node, Switch
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
@@ -96,14 +87,15 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         attributes: Controller
         '''
         if not self._rebuild_attributes \
-                and self.trait('capsul_attributes') is not None \
+                and self.field('capsul_attributes') is not None \
                 and hasattr(self, 'capsul_attributes'):
             return self.capsul_attributes
 
         schemas = self._get_schemas()
         #schemas = self.process.get_study_config().modules_data.foms.keys()
         if not hasattr(self, 'capsul_attributes'):
-            self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+            self.add_field('capsul_attributes', Controller,
+                           default_factory=Controller)
             self.capsul_attributes = ProcessAttributes(self.process, schemas)
         self._rebuild_attributes = False
 
@@ -136,7 +128,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         foms.update(modules_data.foms)
         if study_config.auto_fom:
             # in auto-fom mode, also search in additional and non-loaded FOMs
-            for schema, fom in six.iteritems(modules_data.all_foms):
+            for schema, fom in modules_data.all_foms.items():
                 if schema not in (study_config.input_fom,
                                   study_config.output_fom,
                                   study_config.shared_fom):
@@ -149,10 +141,11 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                     continue # skip FOM internals
                 default_value = fom.attribute_definitions[attribute].get(
                     'default_value', '')
-                ea.add_trait(attribute, Str(default_value, optional=True))
+                ea.add_field(attribute, str, default=default_value,
+                             optional=True)
             return ea
 
-        for schema, fom in six.iteritems(foms):
+        for schema, fom in foms.items():
             if fom is None:
                 fom, atp, pta \
                     = study_config.modules['FomConfig'].load_fom(schema)
@@ -237,7 +230,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             attributes = self.capsul_attributes
             name = process.name
 
-            for node_name, node in six.iteritems(process.nodes):
+            for node_name, node in process.nodes.items():
                 if isinstance(node, Switch):
                     subprocess = node
                     if subprocess is None:
@@ -256,12 +249,13 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                                 = subprocess_compl.get_attribute_values()
                         except Exception:
                             continue
-                    for attribute, trait \
-                            in six.iteritems(sub_attributes.user_traits()):
-                        if attributes.trait(attribute) is None:
-                            attributes.add_trait(attribute, trait)
+                    for field in sub_attributes.fields():
+                        attribute = field.name
+                        if attributes.field(attribute) is None:
+                            attributes.add_field(attribute, field)
                             setattr(attributes, attribute,
-                                    getattr(sub_attributes, attribute))
+                                    getattr(sub_attributes, attribute,
+                                            undefined))
 
             self._get_linked_attributes()
 
@@ -370,17 +364,16 @@ class FomPathCompletionEngine(PathCompletionEngine):
         #Create completion
         names_search_list = []
         if isinstance(process, Node):
-            trait = process.get_trait(parameter)
+            field = process.field(parameter)
             name = process.name
-            if hasattr(process, 'process'):
-                if hasattr(process.process, 'context_name'):
-                    names_search_list.append(process.process.context_name)
-                names_search_list.append(process.process.name)
+            if hasattr(process, 'context_name'):
+                names_search_list.append(process.context_name)
+            names_search_list.append(process.name)
         else:
-            trait = process.trait(parameter)
+            field = process.field(parameter)
             name = process.id
             names_search_list.append(name)
-        if trait.output:
+        if field.is_output():
             atp = output_atp
             fom = output_fom
         else:
@@ -397,7 +390,7 @@ class FomPathCompletionEngine(PathCompletionEngine):
             raise KeyError('Process not found in FOMs amongst %s' \
                 % repr(names_search_list))
 
-        allowed_attributes = set(attributes.user_traits().keys())
+        allowed_attributes = set(f.name for f in attributes.fields())
         allowed_attributes.discard('parameter')
         allowed_attributes.discard('process_name')
         #allowed_attributes = set(attributes.get_parameters_attributes()[
@@ -459,7 +452,7 @@ class FomPathCompletionEngine(PathCompletionEngine):
                 continue
 
             values = atp.find_attributes_values()
-            attributes = [k for k, v in six.iteritems(values)
+            attributes = [k for k, v in values.items()
                           if k not in ('fom_name', 'fom_process',
                                        'fom_parameter', 'fom_format')
                             and len(v) == 2 and v[1] == (u'', )]
@@ -530,11 +523,11 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
         iter_attrib = set()
         if not self.process.iterative_parameters:
-            params = list(subprocess.user_traits().keys())
+            params = [f.name for f in subprocess.fields()]
         else:
             params = self.process.iterative_parameters
         for parameter in params:
-            if subprocess.trait(parameter).output:
+            if subprocess.field(parameter).is_output():
                 atp = output_atp
             else:
                 atp = input_atp

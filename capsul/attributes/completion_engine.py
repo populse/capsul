@@ -16,30 +16,24 @@ Classes
 ------------------------------------
 '''
 
-from __future__ import print_function
-from __future__ import absolute_import
 from soma.singleton import Singleton
-from soma.controller import Controller
+from soma.controller import Controller, undefined
 from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline import Graph
 from capsul.pipeline.pipeline_nodes import (Node, Switch)
 from capsul.attributes.attributes_schema import ProcessAttributes, \
     EditableAttributes
 from capsul.pipeline import pipeline_tools
-import traits.api as traits
 from soma.utils.weak_proxy import weak_proxy, get_ref
 from soma.functiontools import SomaPartial
-#from soma.controller.trait_utils import relax_exists_constraint  # FIXME
-import six
 import sys
 import copy
-from six.moves import range
 
 # DEBUG
 #ce_calls = 0
 
 
-class ProcessCompletionEngine(traits.HasTraits):
+class ProcessCompletionEngine(Controller):
     ''' Parameters completion from attributes for a process or pipeline node
     instance, in the context of a specific data organization.
 
@@ -61,7 +55,7 @@ class ProcessCompletionEngine(traits.HasTraits):
     ::
 
         attributes = completion_engine.get_attribute_values()
-        print(attributes.user_traits().keys())
+        print([f.name for f in attributes.fields()])
         attributes.specific_process_attribute = 'a value'
 
     Once attributes are set, to process with parameters completion:
@@ -103,8 +97,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         self.process = weak_proxy(process, self._clear_node)
         self.name = name
         self.completion_ongoing = False
-        self.add_trait('completion_progress', traits.Float(0.))
-        self.add_trait('completion_progress_total', traits.Float(1.))
+        self.add_field('completion_progress', float, defaut=0.)
+        self.add_field('completion_progress_total', float, default=1.)
         self._rebuild_attributes = False
 
 
@@ -132,17 +126,12 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         '''
         if not self._rebuild_attributes \
-                and 'capsul_attributes' in self._instance_traits():
-            # we have to use this private HasTraits method _instance_traits()
-            # to know if we actually have an instance trait, because
-            # class traits are automatically added whenever we access an
-            # attribute of another instance which doesn't have it (!)
+                and self.field('capsul_attributes') is not None:
             return self.capsul_attributes
 
         schemas = self._get_schemas()
 
-        study_config = self.process.get_study_config()
-        engine = study_config.engine
+        engine = self.process.get_capsul_engine()
 
         proc_attr_cls = ProcessAttributes
 
@@ -160,21 +149,23 @@ class ProcessCompletionEngine(traits.HasTraits):
                     pass
 
         if not hasattr(self, 'capsul_attributes'):
-            self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+            self.add_field('capsul_attributes', Controller,
+                           default_factory=Controller)
             self.capsul_attributes = proc_attr_cls(self.process, schemas)
         self._rebuild_attributes = False
 
         # if no specialized attributes set and process is a pipeline,
         # try building from children nodes
         if proc_attr_cls is ProcessAttributes \
-                and isinstance(self.process, (Pipeline, Pipeline)):
+                and isinstance(self.process, Pipeline):
             attributes = self.capsul_attributes
+            pipeline = self.process
             name = getattr(pipeline, 'context_name',
                            getattr(self.process, 'context_name',
                                    getattr(pipeline, 'context_name',
                                            pipeline.name)))
 
-            for node_name, node in six.iteritems(pipeline.nodes):
+            for node_name, node in pipeline.nodes.items():
                 if node_name == '':
                     continue
                 subprocess = None
@@ -197,14 +188,15 @@ class ProcessCompletionEngine(traits.HasTraits):
                                 = subprocess_compl.get_attribute_values()
                         except Exception:
                             continue
-                    for attribute, trait \
-                            in six.iteritems(sub_attributes.user_traits()):
-                        if attribute not in attributes._instance_traits():
-                            attributes.add_trait(attribute, trait)
+                    for field in sub_attributes.fields():
+                        attribute = field.name
+                        if attributes.field(attribute) is None:
+                            attributes.add_field(attribute, field)
                             # all attributes are optional by default
-                            attributes.trait(attribute).optional = True
+                            attributes.field(attribute).optional = True
                             setattr(attributes, attribute,
-                                    getattr(sub_attributes, attribute))
+                                    getattr(sub_attributes, attribute,
+                                            undefined))
 
             self._get_linked_attributes()
 
@@ -221,20 +213,19 @@ class ProcessCompletionEngine(traits.HasTraits):
         forbidden_attributes = set(['generated_by_parameter',
                                     'generated_by_process'])
         done_parameters = set(
-            [p for p, al in six.iteritems(param_attributes)
+            [p for p, al in param_attributes.items()
               if len([a for a in al if a not in forbidden_attributes])
               != 0])
-        traits_types = {str: traits.Str, six.text_type: traits.Str, int: traits.Int,
-                        float: traits.Float, list: traits.List}
         pipeline = self.process
         name = pipeline.name
-        for pname, trait in six.iteritems(pipeline.user_traits()):
+        for field in pipeline.user_fields():
+            pname = field.name
             if pname in done_parameters:
                 continue
-            plug = pipeline.pipeline_node.plugs.get(pname)
+            plug = pipeline.plugs.get(pname)
             if plug is None:
                 continue
-            if trait.output:
+            if field.is_output():
                 links = plug.links_from
             else:
                 links = plug.links_to
@@ -251,17 +242,16 @@ class ProcessCompletionEngine(traits.HasTraits):
                             and len([x for x in s_p_attributes.keys()
                                     if x not in forbidden_attributes]) != 0:
                         ea = EditableAttributes()
-                        for attribute, value in six.iteritems(
-                                s_p_attributes):
+                        for attribute, value in s_p_attributes.items():
                             if attribute not in forbidden_attributes:
-                                ttype = traits_types.get(type(value))
+                                ttype = type(value)
                                 if ttype is not None:
-                                    trait = ttype()
+                                    field = ttype
                                 else:
-                                    trait = value
-                                ea.add_trait(attribute, ttype)
+                                    ttype = type(value)
+                                ea.add_field(attribute, ttype)
                                 # all attributes are optional by default
-                                ea.trait(attribute).optional = True
+                                ea.field(attribute).optional = True
                                 setattr(ea, attribute, value)
 
                         attributes.set_parameter_attributes(
@@ -378,14 +368,14 @@ class ProcessCompletionEngine(traits.HasTraits):
                                                     done):
                             todo.append((l[0], dnode))
                         # not needed any longer:
-                        ## release "exists" property on connected traits
+                        ## release "exists" property on connected fieldss
                         #if hasattr(dnode, 'process'):
                             #p = l[2].process
                         #else:
                             #p = l[2]
-                        #trait = p.trait(l[1])
-                        #if trait:
-                            #relax_exists_constraint(trait)
+                        #field = p.field(l[1])
+                        #if field:
+                            #relax_exists_constraint(field)
                             ## FIXME this very specific stuff should be
                             ## handled another way at another place...
                             #if hasattr(p, 'process') \
@@ -394,7 +384,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                                 ## are this way, and do not release the
                                 ## exists constrain internally.
                                 #relax_exists_constraint(
-                                    #p.process.inputs.trait(l[1]))
+                                    #p.process.inputs.field(l[1]))
 
             if len(done) != len(nodes_list):
                 print('Some nodes of the pipeline could not be reached '
@@ -406,8 +396,7 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         # if some attributes are list, we must separate list and non-list
         # attributes, and use an un-listed controller to get a path
-        have_list = any([isinstance(t.trait_type, traits.List)
-                         for t in attributes.user_traits().values()])
+        have_list = any([f.is_list() for f in attributes.fields()])
         if have_list:
             attributes_single = attributes.copy_to_single(with_values=True)
             attributes_list = attributes_single.copy_to_single(
@@ -418,24 +407,24 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         # now complete process parameters:
         process = self.process
-        for pname, trait in six.iteritems(process.user_traits()):
-            if trait.forbid_completion \
+        for field in process.user_fields():
+            pname = field.name
+            if field.forbid_completion \
                     or process.is_parameter_protected(pname):
                 # completion has been explicitly disabled on this parameter
                 continue
             value = []  # for the try.. except
             try:
-                if isinstance(process.trait(pname).trait_type,
-                              traits.List):
+                if process.field(pname).is_list():
                     nmax = 0
                     param_att = attributes.parameter_attributes.get(pname)
                     if param_att is None:
                         continue  # no completion for you
 
                     # FIXME: why [0][0]; check what it is...
-                    for a in param_att[0][0] \
-                            .user_traits().keys():
-                        att_value = getattr(attributes, a)
+                    for af in param_att[0][0].fields():
+                        a = af.name
+                        att_value = getattr(attributes, a, undefined)
                         if not isinstance(att_value, list):
                             if att_value is not None:
                                 nmax = max(nmax, 1)
@@ -445,14 +434,15 @@ class ProcessCompletionEngine(traits.HasTraits):
                     # param is a list: call iteratively the path completion
                     # for each attributes values set
                     for item in range(nmax):
-                        for a, t in six.iteritems(attributes.user_traits()):
-                            if isinstance(t.trait_type, traits.List):
-                                att_value = getattr(attributes, a)
+                        for f in attributes.fields():
+                            a = f.name
+                            if f.is_list():
+                                att_value = getattr(attributes, a, [])
                                 if not isinstance(att_value, list):
                                     setattr(attributes_list, a, att_value)
                                 elif len(att_value) == 0:
                                     setattr(attributes_list, a,
-                                            t.inner_traits[0].default)
+                                            f.type.__args__[0]())
                                 else:
                                     if len(att_value) <= item:
                                         item = -1
@@ -507,19 +497,19 @@ class ProcessCompletionEngine(traits.HasTraits):
         dst_attributes = self.get_attribute_values()
         attributes = process_inputs.get('capsul_attributes')
         if attributes:
-            avail_attrib = set(dst_attributes.user_traits().keys())
-            attributes = dict((k, v) for k, v in six.iteritems(attributes)
+            avail_attrib = set(f.name for f in dst_attributes.fields())
+            attributes = dict((k, v) for k, v in attributes.items()
                               if k in avail_attrib)
             dst_attributes.import_from_dict(attributes)
         process_inputs = dict((k, v) for k, v
-                              in six.iteritems(process_inputs)
+                              in process_inputs.items()
                               if k != 'capsul_attributes')
         process = self.process
         process.import_from_dict(process_inputs)
 
 
-    def attributes_changed(self, obj, name, old, new):
-        ''' Traits changed callback which triggers parameters update.
+    def attributes_changed(self, new, old, name, obj):
+        ''' Fields changed callback which triggers parameters update.
 
         This method basically calls complete_parameters() (after some checks).
 
@@ -528,16 +518,15 @@ class ProcessCompletionEngine(traits.HasTraits):
 
         See :py:meth:`install_auto_completion`
         '''
-        if name != 'trait_added' and name != 'user_traits_changed' \
-                and self.completion_ongoing is False:
+        if self.completion_ongoing is False:
             #setattr(self.capsul_attributes, name, new)
             self.completion_ongoing = True
             self.complete_parameters({'capsul_attributes': {name: new}})
             self.completion_ongoing = False
 
 
-    def nodes_selection_changed(self, obj, name, old, new):
-        ''' Traits changed callback which triggers parameters update.
+    def nodes_selection_changed(self, new, old, name, obj):
+        ''' Fields changed callback which triggers parameters update.
 
         This method basically calls complete_parameters() (after some checks).
 
@@ -557,17 +546,17 @@ class ProcessCompletionEngine(traits.HasTraits):
         ''' Monitor attributes changes and switches changes (which may
         influence attributes) and recompute parameters completion when needed.
         '''
-        self.get_attribute_values().on_trait_change(
-            self.attributes_changed, 'anytrait')
+        self.get_attribute_values().on_attribute_change.add(
+            self.attributes_changed)
 
         process = self.process
         if isinstance(process, Pipeline):
-            for node_name, node in six.iteritems(process.nodes):
+            for node_name, node in process.nodes.items():
                 if isinstance(node, Switch):
                     # a switch may change attributes dynamically
                     # so we must be notified if this happens.
-                    node.on_trait_change(self.nodes_selection_changed,
-                                         'switch')
+                    node.on_attribute_change.add(self.nodes_selection_changed,
+                                                 'switch')
 
 
     def remove_auto_completion(self):
@@ -580,17 +569,16 @@ class ProcessCompletionEngine(traits.HasTraits):
                 av = self.process.completion_engine
             except (ReferenceError, AttributeError):
                 return
-            av.on_trait_change(
-                self.attributes_changed, 'anytrait', remove=True)
+            av.on_attriubute_change.remoive(self.attributes_changed)
 
             process = self.process
             if isinstance(process, Pipeline):
-                for node_name, node in six.iteritems(process.nodes):
+                for node_name, node in process.nodes.items():
                     if isinstance(node, Switch):
                         # a switch may change attributes dynamically
                         # so we must be notified if this happens.
-                        node.on_trait_change(self.nodes_selection_changed,
-                                            'switch', remove=True)
+                        node.on_attribute_change.remove(
+                            self.nodes_selection_changed, 'switch')
 
 
     def get_path_completion_engine(self):
@@ -599,15 +587,16 @@ class ProcessCompletionEngine(traits.HasTraits):
         but some specific ProcessCompletionEngine implementations may override
         it for path completion at the process level (FOMs for instance).
         '''
-        study_config = self.process.get_study_config()
-        engine = study_config.engine
+        engine = self.process.get_capsul_engine()
         engine_factory = None
         if 'capsul.engine.module.attributes' in engine._loaded_modules:
+            aconfig = engine.settings.select_configuratons()('global')[
+                'capsul.engine.module.attributes']
             try:
                 engine_factory \
                     = engine._modules_data['attributes'] \
                         ['attributes_factory'].get(
-                            'path_completion', study_config.path_completion)
+                            'path_completion', aconfig.get('path_completion'))
             except ValueError:
                 pass # not found
         if engine_factory is None:
@@ -623,18 +612,18 @@ class ProcessCompletionEngine(traits.HasTraits):
         #global ce_calls
         #ce_calls += 1
         engine_factory = None
-        study_config = None
-        if hasattr(process, 'get_study_config'):
-            # switches don't have a study_config at the moment.
-            study_config = process.get_study_config()
-            engine = study_config.engine
+        if hasattr(process, 'get_capsul_engine'):
+            # switches don't have a capsul_engine at the moment.
+            engine = process.get_capsul_engine()
             if 'capsul.engine.module.attributes' in engine._loaded_modules:
+                aconfig = engine.settings.select_configuratons()('global')[
+                'capsul.engine.module.attributes']
                 try:
                     engine_factory \
                         = engine._modules_data['attributes'] \
                             ['attributes_factory'].get(
                                 'process_completion',
-                                study_config.process_completion)
+                                aconfig.get('process_completion'))
                 except ValueError:
                     pass # not found
         if engine_factory is None:
@@ -653,7 +642,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         if completion_engine is not None:
             process.completion_engine = completion_engine
             process._has_studyconfig_callback = True
-            if study_config is not None:
+            if engine is not None:
                 from capsul.process.process import Process
                 if isinstance(process, Process):
                     nclass = Process
@@ -667,14 +656,16 @@ class ProcessCompletionEngine(traits.HasTraits):
                 else:
                     try:
                         # remove former callback, if any
-                        study_config.on_trait_change(
-                        process._remove_completion_engine,
-                        'use_fom,input_fom,output_fom,shared_fom', remove=True)
+                        engine.settings().module_notifiers.get(
+                            'capsul.engine.module.fom').remove(
+                                process._remove_completion_engine)
+                            # ['use_fom', 'input_fom', 'output_fom', 'shared_fom'])
                     except Exception:
                         pass
-                study_config.on_trait_change(
-                    process._remove_completion_engine,
-                    'use_fom,input_fom,output_fom,shared_fom')
+                engine.settings().module_notifiers.setdefault(
+                    'capsul.engine.module.fom', []).append(
+                        process._remove_completion_engine)
+                        #['use_fom', 'input_fom', 'output_fom', 'shared_fom'])
         return completion_engine
 
     @staticmethod
@@ -684,29 +675,31 @@ class ProcessCompletionEngine(traits.HasTraits):
 
     @staticmethod
     def _del_process_callback(process):
-        if hasattr(process, 'study_config') \
-                and process.study_config is not None \
-                and hasattr(process, '_has_studyconfig_callback'):
-            process.study_config.on_trait_change(
-                process._remove_completion_engine,
-                'use_fom,input_fom,output_fom,shared_fom', remove=True)
-            del process._has_studyconfig_callback
+        if hasattr(process, 'engine') \
+                and process.engine is not None \
+                and hasattr(process, '_has_engine_callback'):
+            process.engine.settings().module_notifiers.get(
+                'capsul.engine.module.fom').remove(
+                    process._remove_completion_engine)
+                    # ['use_fom', 'input_fom', 'output_fom', 'shared_fom'])
+            del process._has_engine_callback
 
     def _get_schemas(self):
         ''' Get schemas dictionary from process and its StudyConfig
         '''
         schemas = {}
         try:
-            study_config = self.process.get_study_config()
-            engine = study_config.engine
+            engine = self.process.get_capsul_engine()
         except ReferenceError:
             # process is deleted
             return schemas
         factory = getattr(engine, '_modules_data', {}).get(
             'attributes', {}).get('attributes_factory', None)
         if factory is not None:
+            aconfig = engine.settings().select_configuratons('global')[
+                'capsul.engine.module.attributes']
             for dir_name, schema_name \
-                    in six.iteritems(study_config.attributes_schemas):
+                    in aconfig.get('attributes_schemas', {}).items():
                 schemas[dir_name] = factory.get('schema', schema_name)
         return schemas
 
@@ -722,7 +715,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             self._monitoring_callback = SomaPartial(
                 self.__class__._substep_completion_progress, weak_proxy(self),
                 subprocess_compl)
-            subprocess_compl.on_trait_change(
+            subprocess_compl.on_attribute_change.add(
                 self._monitoring_callback, 'completion_progress')
 
 
@@ -730,8 +723,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         monitor_subprocess_progress = getattr(
             self, 'monitor_subprocess_progress', True)
         if monitor_subprocess_progress:
-            subprocess_compl.on_trait_change(
-                self._monitoring_callback, 'completion_progress', remove=True)
+            subprocess_compl.on_attribute_change.remove(
+                self._monitoring_callback, 'completion_progress')
             del self._current_progress
             del self._monitoring_callback
             if self._old_monitor_sub:
@@ -740,8 +733,8 @@ class ProcessCompletionEngine(traits.HasTraits):
 
 
     @staticmethod
-    def _substep_completion_progress(self, substep_completion_engine, obj,
-                                     name, old, new):
+    def _substep_completion_progress(self, substep_completion_engine, new, old,
+                                     name, obj):
         sub_completion_rate \
             = substep_completion_engine.completion_progress \
                 / substep_completion_engine.completion_progress_total
@@ -753,8 +746,8 @@ class ProcessCompletionEngine(traits.HasTraits):
         '''Clear attributes controller cache, to allow rebuilding it after
         a change. This is generally a callback attached to switches changes.
         '''
-        if 'capsul_attributes' in self._instance_traits():
-            self.remove_trait('capsul_attributes')
+        if self.field('capsul_attributes') is not None:
+            self.remove_field('capsul_attributes')
 
 
     def remove_switch_observers(self):
@@ -764,7 +757,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         try:
             process = self.process
             if isinstance(process, Pipeline):
-                for name, node in six.iteritems(process.nodes):
+                for name, node in process.nodes.items():
                     if isinstance(node, Switch) \
                             and hasattr(node, 'completion_engine'):
                         completion_engine = node.completion_engine
@@ -785,10 +778,11 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
         self.remove_switch_observer()
 
     def get_attribute_values(self):
-        if 'capsul_attributes' in self._instance_traits():
+        if self.field('capsul_attributes') is not None:
             return self.capsul_attributes
 
-        self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+        self.add_field('capsul_attributes', Controller,
+                       default_factory=Controller)
         capsul_attributes = ProcessAttributes(self.process, {})
         self.capsul_attributes = capsul_attributes
         outputs = self.process._outputs
@@ -801,8 +795,6 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
             pipeline_name = [pipeline_name]
         forbidden_attributes = set(['generated_by_parameter',
                                     'generated_by_process'])
-        traits_types = {str: traits.Str, six.text_type: traits.Str, int: traits.Int,
-                        float: traits.Float, list: traits.List}
         for out_name in outputs:
             in_name = '_switch_'.join((self.process.switch, out_name))
             found = False
@@ -840,17 +832,12 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                             and len([x for x in param_attributes.keys()
                                      if x not in forbidden_attributes]) != 0:
                         ea = EditableAttributes()
-                        for attribute, value in six.iteritems(
-                                param_attributes):
+                        for attribute, value in param_attributes.items():
                             if attribute not in forbidden_attributes:
-                                ttype = traits_types.get(type(value))
-                                if ttype is not None:
-                                    trait = ttype()
-                                else:
-                                    trait = value
-                                ea.add_trait(attribute, ttype)
+                                ttype = type(value)
+                                ea.add_field(attribute, ttype)
                                 # all attributes are optional by default
-                                ea.trait(attribute).optional = True
+                                ea.field(attribute).optional = True
                                 setattr(ea, attribute, value)
 
                         capsul_attributes.set_parameter_attributes(
@@ -862,16 +849,11 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
             if found:
                 # propagate from input/output to other side
                 ea = EditableAttributes()
-                for attribute, value in six.iteritems(
-                        param_attributes):
-                    ttype = traits_types.get(type(value))
-                    if ttype is not None:
-                        trait = ttype()
-                    else:
-                        trait = value
-                    ea.add_trait(attribute, ttype)
+                for attribute, value in param_attributes.items():
+                    ttype = type(value)
+                    ea.add_field(attribute, ttype)
                     # all attributes are optional by default
-                    ea.trait(attribute).optional = True
+                    ea.field(attribute).optional = True
                     setattr(ea, attribute, value)
                 if output:
                     capsul_attributes.set_parameter_attributes(
@@ -898,7 +880,8 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
         '''
         if observer is None:
             observer = self
-        self.process.on_trait_change(observer.remove_attributes, 'switch')
+        self.process.on_attribute_change.add(observer.remove_attributes,
+                                             'switch')
 
 
     def remove_switch_observer(self, observer=None):
@@ -907,8 +890,8 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
         if observer is None:
             observer = self
         try:
-            self.process.on_trait_change(observer.remove_attributes, 'switch',
-                                         remove=True)
+            self.process.on_attribute_change.remove(observer.remove_attributes,
+                                                    'switch')
         except Exception:
             pass  # probably already deleted object
 
@@ -952,9 +935,9 @@ class ProcessCompletionEngineFactory(object):
     def get_completion_engine(self, process, name=None):
         '''
         Factory for ProcessCompletionEngine: get an ProcessCompletionEngine
-        instance for a process in the context of a given StudyConfig.
+        instance for a process in the context of a given CapsulEngine.
 
-        The study_config should specify which completion system(s) is (are)
+        The capsul_engine should specify which completion system(s) is (are)
         used (FOM, ...)
         If nothing is configured, a ProcessCompletionEngine base instance will
         be returned. It will not be able to perform completion at all, but will

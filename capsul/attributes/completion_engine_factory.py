@@ -8,7 +8,6 @@ Classes
 ----------------------------------------------
 '''
 
-from __future__ import absolute_import
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     PathCompletionEngine, ProcessCompletionEngineFactory
 from capsul.attributes.completion_engine_iteration \
@@ -38,7 +37,7 @@ class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
         if hasattr(process, 'completion_engine'):
             return process.completion_engine
 
-        study_config = process.get_study_config()
+        study_config = process.get_capsul_engine()
 
         # FOM
         if 'FomConfig' in study_config.modules and study_config.use_fom:

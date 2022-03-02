@@ -9,21 +9,12 @@ Classes
 -----------------------------------------
 '''
 
-from __future__ import print_function
-
-from __future__ import absolute_import
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     ProcessCompletionEngineFactory
 from capsul.attributes.attributes_schema import ProcessAttributes
-from soma.controller import Controller  # ,ControllerTrait  FIXME
-import traits.api as traits
-import six
+from soma.controller import Controller, undefined
 import sys
-from six.moves import range
-
-if sys.version_info[0] >= 3:
-    xrange = range
 
 
 class ProcessCompletionEngineIteration(ProcessCompletionEngine):
@@ -38,7 +29,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
     def __init__(self, process, name=None):
         super(ProcessCompletionEngineIteration, self).__init__(
             process=process, name=name)
-        #self.add_trait('capsul_iteration_step', traits.Int(0))
+        #self.add_field('capsul_iteration_step', int, default=0)
         self.capsul_iteration_step = 0
         #self.iterated_attributes = self.get_iterated_attributes()
 
@@ -60,9 +51,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             attribs.update(list(param_attributes.get(parameter, {}).keys()))
         # if no iterative parameter has been declared, use all attributes
         if not process.iterative_parameters:
-            return set(pattributes.user_traits().keys())
-        return [param for param in pattributes.user_traits().keys()
-                if param in attribs]
+            return set(f.name for f in pattributes.fields())
+        return [f.name for f in pattributes.fields() if f.name in attribs]
 
 
     def get_induced_iterative_parameters(self):
@@ -85,7 +75,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             process.process).get_attribute_values()
         param_attributes = pattributes.get_parameters_attributes()
         induced_params = []
-        for parameter in process.process.user_traits():
+        for field in process.process.user_fields():
+            parameter = field.name
             if parameter not in process.iterative_parameters:
                 par_attributes = param_attributes.get(parameter)
                 if par_attributes:
@@ -104,7 +95,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         -------
         attributes: Controller
         '''
-        if 'capsul_attributes' not in self._instance_traits():
+        if self.field('capsul_attributes') is None:
             process = self.process
             try:
                 pattributes = ProcessCompletionEngine.get_completion_engine(
@@ -117,19 +108,21 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             schemas = self._get_schemas()
             attributes = ProcessAttributes(self.process, schemas)
 
-            self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+            self.add_field('capsul_attributes', Controller,
+                           default_factory=Controller)
             self.capsul_attributes = attributes
             iter_attrib = self.get_iterated_attributes()
-            for attrib, trait in six.iteritems(pattributes.user_traits()):
+            for field in pattributes.fields():
+                attrib = field.name
                 if attrib not in iter_attrib:
-                    attributes.add_trait(attrib, trait)
+                    attributes.add_field(attrib, field)
             for attrib in iter_attrib:
-                trait = pattributes.trait(attrib)
-                if trait is not None:
-                    attributes.add_trait(
-                        attrib, traits.List(trait, output=trait.output))
+                field = pattributes.field(attrib)
+                if field is not None:
+                    attributes.field(
+                        attrib, list[field.type], output=field.is_output())
                 value = getattr(pattributes, attrib, None)
-                if value is not None and value is not traits.Undefined:
+                if value is not None and value is not undefined:
                     setattr(attributes, attrib, [value])
         return self.capsul_attributes
 
@@ -194,10 +187,10 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         size = self.iteration_size()
 
         iterated_attributes = self.get_iterated_attributes()
-        for attribute in attributes_set.user_traits():
+        for attribute in attributes_set.fields():
             if attribute not in iterated_attributes:
                 setattr(step_attributes, attribute,
-                        getattr(attributes_set, attribute))
+                        getattr(attributes_set, attribute, undefined))
         parameters = {}
         for parameter in process.regular_parameters:
             parameters[parameter] = getattr(process, parameter)
@@ -227,7 +220,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 value = getattr(process.process, parameter)
                 iterative_parameters[parameter].append(value)
             self.completion_progress = it_step + 1
-        for parameter, values in six.iteritems(iterative_parameters):
+        for parameter, values in iterative_parameters.items():
             try:
                 setattr(process, parameter, values)
             except Exception as e:
@@ -256,10 +249,11 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             step = min(len(iterated_values) - 1, self.capsul_iteration_step)
             value = iterated_values[step]
             setattr(step_attributes, attribute, value)
-        for attribute in attributes_set.user_traits():
+        for field in attributes_set.fields():
+            attribute = field.name
             if attribute not in iterated_attributes:
                 setattr(step_attributes, attribute,
-                        getattr(attributes_set, attribute))
+                        getattr(attributes_set, attribute, undefined))
         parameters = {}
         for parameter in process.regular_parameters:
             parameters[parameter] = getattr(process, parameter)
