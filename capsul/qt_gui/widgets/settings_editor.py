@@ -73,4 +73,7 @@ class SettingsEditor(Qt.QDialog):
     def accept(self):
         super(SettingsEditor, self).accept()
         for module_name, tab in self.module_tabs.items():
-            tab.accept()
+            try:
+                tab.accept()
+            except Exception as e:
+                print(e)
