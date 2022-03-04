@@ -186,7 +186,10 @@ def edition_widget(engine, environment):
             else:
                 for k in ('directory', 'standalone', 'version'):
                     if k == 'directory' and not os.path.isdir(values[k]):
-                        raise OSError('{} is not existing!'.format(values[k]))
+                        #raise OSError('{} is not existing!'.format(values[k]))
+                        raise NotADirectoryError('\nSPM directory was not '
+                                                 'updated:\n{} is not '
+                                                 'existing!'.format(values[k]))
                     setattr(conf, k, values[k])
 
     controller = Controller()
