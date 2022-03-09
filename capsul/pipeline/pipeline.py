@@ -7,12 +7,10 @@ Classes
 -----------------
 '''
 
-from concurrent.futures import process
 from copy import deepcopy
 import sys
 
 from soma.undefined import undefined
-
 
 from capsul.process.process import Process, NipypeProcess
 from .topological_sort import GraphNode
@@ -283,33 +281,6 @@ class Pipeline(Process):
                           parameter_name).optional)):
 
                     self.export_parameter(node_name, parameter_name)
-
-    def remove_field(self, name):
-        """ Remove a field from the pipeline
-
-        Parameters
-        ----------
-        name: str (mandatory)
-            the field name
-        """
-        field = self.field(name)
-
-        # If we remove a field, clear/remove the associated plug
-        if name in self.plugs:
-            plug = self.plugs[name]
-            links_to_remove = []
-            # use intermediary links_to_remove to avoid modifying
-            # the links set while iterating on it...
-            for link in plug.links_to:
-                dst = f'{link[0]}.{link[1]}'
-                links_to_remove.append(f'{name}->{dst}')
-            for link in plug.links_from:
-                src = f'{link[0]}.{link[1]}'
-                links_to_remove.append(f'{src}->{name}')
-            for link in links_to_remove:    
-                self.remove_link(link)
-            del self.plugs[name]
-        super().remove_field(name)
 
     def _make_subprocess_context_name(self, name):
         ''' build full contextual name on process instance

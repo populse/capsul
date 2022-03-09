@@ -11,8 +11,7 @@ from __future__ import print_function
 
 from capsul.pipeline.pipeline import Pipeline
 from capsul.process.process import Process
-from traits.api import Undefined
-import six
+from soma.controller import undefined
 import tempfile
 import os
 import io
@@ -151,7 +150,7 @@ def start(engine, process, workflow=None, history=True, get_pipeline=False, **kw
     '''
 
     # set parameters values
-    for k, v in six.iteritems(kwargs):
+    for k, v in kwargs.items():
         setattr(process, k, v)
 
     missing = process.get_missing_mandatory_parameters()
@@ -235,7 +234,7 @@ def wait(engine, execution_id, timeout=-1, pipeline=None):
                         # iteration or non-process job
                         continue
                     for param in list(out_params.keys()):
-                        if process.trait(param) is None:
+                        if process.field(param) is None:
                             del out_params[param]
                     try:
                         process.import_from_dict(out_params)

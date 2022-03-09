@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 # System import
-from __future__ import division, print_function
-from __future__ import absolute_import
 import soma.subprocess
 import os
 import sys
@@ -74,7 +72,6 @@ def clean_coverage_report(nose_coverage):
         "capsul/attributes/",
         "capsul/pipeline/",
         "capsul/process/",
-        "capsul/study_config/",
         "capsul/subprocess/"
         "capsul/utils/",
         "soma/controller/"

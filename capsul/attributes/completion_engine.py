@@ -160,43 +160,35 @@ class ProcessCompletionEngine(Controller):
                 and isinstance(self.process, Pipeline):
             attributes = self.capsul_attributes
             pipeline = self.process
-            name = getattr(pipeline, 'context_name',
-                           getattr(self.process, 'context_name',
-                                   getattr(pipeline, 'context_name',
-                                           pipeline.name)))
+            name = getattr(pipeline, 'context_name', pipeline.name)
 
             for node_name, node in pipeline.nodes.items():
                 if node_name == '':
                     continue
-                subprocess = None
-                if hasattr(node, 'process'):
-                    subprocess = node.process
-                elif isinstance(node, Switch):
-                    subprocess = node
-                if subprocess is not None:
-                    pname = '.'.join([name, node_name])
-                    subprocess_compl = \
-                        ProcessCompletionEngine.get_completion_engine(
-                            subprocess, pname)
+                subprocess = node
+                pname = '.'.join([name, node_name])
+                subprocess_compl = \
+                    ProcessCompletionEngine.get_completion_engine(
+                        subprocess, pname)
+                try:
+                    sub_attributes \
+                        = subprocess_compl.get_attribute_values()
+                except Exception:
                     try:
+                        subprocess_compl = self.__class__(subprocess)
                         sub_attributes \
                             = subprocess_compl.get_attribute_values()
                     except Exception:
-                        try:
-                            subprocess_compl = self.__class__(subprocess)
-                            sub_attributes \
-                                = subprocess_compl.get_attribute_values()
-                        except Exception:
-                            continue
-                    for field in sub_attributes.fields():
-                        attribute = field.name
-                        if attributes.field(attribute) is None:
-                            attributes.add_field(attribute, field)
-                            # all attributes are optional by default
-                            attributes.field(attribute).optional = True
-                            setattr(attributes, attribute,
-                                    getattr(sub_attributes, attribute,
-                                            undefined))
+                        continue
+                for field in sub_attributes.fields():
+                    attribute = field.name
+                    if attributes.field(attribute) is None:
+                        attributes.add_field(attribute, field)
+                        # all attributes are optional by default
+                        attributes.field(attribute).optional = True
+                        setattr(attributes, attribute,
+                                getattr(sub_attributes, attribute,
+                                        undefined))
 
             self._get_linked_attributes()
 
@@ -369,10 +361,7 @@ class ProcessCompletionEngine(Controller):
                             todo.append((l[0], dnode))
                         # not needed any longer:
                         ## release "exists" property on connected fieldss
-                        #if hasattr(dnode, 'process'):
-                            #p = l[2].process
-                        #else:
-                            #p = l[2]
+                        #p = l[2]
                         #field = p.field(l[1])
                         #if field:
                             #relax_exists_constraint(field)

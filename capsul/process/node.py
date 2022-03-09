@@ -264,6 +264,20 @@ class Node(Controller):
             # remove the event on plug to validate the pipeline
             plug.on_attribute_change.remove(
                 self.pipeline.update_nodes_and_plugs_activation, "enabled")
+
+            # clear/remove the associated plug links
+            links_to_remove = []
+            # use intermediary links_to_remove to avoid modifying
+            # the links set while iterating on it...
+            for link in plug.links_to:
+                dst = f'{link[0]}.{link[1]}'
+                links_to_remove.append(f'{plug_name}->{dst}')
+            for link in plug.links_from:
+                src = f'{link[0]}.{link[1]}'
+                links_to_remove.append(f'{src}->{plug_name}')
+            for link in links_to_remove:
+                self.pipeline.remove_link(link)
+
         del self.plugs[plug_name]
 
     def _release_pipeline(self):
@@ -410,3 +424,16 @@ class Node(Controller):
 
     def protect_parameter(self, plug_name, state=True):
         self.field(plug_name).protected = state
+
+    def get_capsul_engine(self):
+        ''' OBSOLETE '''
+        engine = getattr(self, 'engine', None)
+        if engine is None:
+            from capsul.engine import capsul_engine
+            engine = capsul_engine()
+            self.engine = engine
+        return engine
+
+    def set_capsul_engine(self, engine):
+        ''' OBSOLETE '''
+        self.engine = engine

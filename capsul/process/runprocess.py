@@ -58,24 +58,19 @@ Functions
 
 """
 
-from __future__ import print_function
-
-from __future__ import absolute_import
-from capsul.api import get_process_instance
-from capsul.api import StudyConfig
+from capsul.api import Capsul
 from capsul.api import Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
+from soma.controller import undefined
 
 import logging
 import sys, re, types
 from optparse import OptionParser, OptionGroup
-from traits.api import Undefined, List
 try:
     import yaml
 except ImportError:
     yaml = None
     import json
-import six
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -87,13 +82,11 @@ class ProcessParamError(Exception):
 
 def set_process_param_from_str(process, k, arg):
     """Set a process parameter from a string representation."""
-    if not process.trait(k):
+    if not process.field(k):
         raise ProcessParamError("Unknown parameter {0} for process {1}"
                                 .format(k, process.name))
-    try:
-        evaluate = process.trait(k).trait_type.evaluate
-    except AttributeError:
-        evaluate = None
+    if process.field(k).type not in (str, bytes):
+        evaluate = eval
     if evaluate:
         arg = evaluate(arg)
     setattr(process, k, arg)
@@ -127,8 +120,7 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
     process: Process instance
     '''
     process = study_config.get_process_instance(process_name)
-    signature = process.user_traits()
-    params = list(signature.keys())
+    params = [f.name for f in process.user_fields()]
 
     # check for iterations
     if iterated_params:
@@ -147,7 +139,7 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
         # not iterated
         for i, arg in enumerate(args):
             set_process_param_from_str(process, params[i], arg)
-        for k, arg in six.iteritems(kwargs):
+        for k, arg in kwargs.items():
             set_process_param_from_str(process, k, arg)
 
     completion_engine = ProcessCompletionEngine.get_completion_engine(process)
@@ -368,11 +360,11 @@ def main():
         study_config.input_directory = options.input_directory
     if options.output_directory:
         study_config.output_directory = options.output_directory
-    if study_config.output_directory in (None, Undefined) \
-            and study_config.input_directory not in (None, Undefined):
+    if study_config.output_directory in (None, undefined) \
+            and study_config.input_directory not in (None, undefined):
         study_config.output_directory = study_config.input_directory
-    if study_config.input_directory in (None, Undefined) \
-            and study_config.output_directory not in (None, Undefined):
+    if study_config.input_directory in (None, undefined) \
+            and study_config.output_directory not in (None, undefined):
         study_config.input_directory = study_config.output_directory
     study_config.somaworkflow_keep_succeeded_workflows \
         = options.keep_succeded_workflow
@@ -392,7 +384,7 @@ def main():
     kwargs = {}
     todel = []
     for arg in args:
-        if isinstance(arg, six.string_types):
+        if isinstance(arg, str):
             m = kwre.match(arg)
             if m is not None:
                 kwargs[m.group(1)] = convert_commandline_parameter(m.group(3))
@@ -433,16 +425,12 @@ def main():
         print()
 
         skipped = set(['generated_by_parameter', 'generated_by_process'])
-        for name, value in six.iteritems(aval):
+        for name, value in aval.items():
             if name in skipped:
                 continue
-            ttype = attribs.trait(name).trait_type.__class__.__name__
-            if isinstance(attribs.trait(name).trait_type, List):
-                ttype += '(%s)' \
-                    % attribs.trait(name).inner_traits[
-                        0].trait_type.__class__.__name__
+            ttype = attribs.field(name).type_str()
             print('%s:' % name, ttype)
-            if value not in (None, Undefined):
+            if value not in (None, undefined):
                 print('   ', value)
 
         print()

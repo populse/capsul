@@ -50,18 +50,19 @@ CAPSUL is a powerful tool to define and share processing pipelines.
 """
 
 # Capsul dependencies
-SPHINX_MIN_VERSION = 1.0
+SPHINX_MIN_VERSION = "1.0"
 SOMA_MIN_VERSION = "5.1.0"
 
 # dependencies
 SOMA_WORKFLOW_MIN_VERSION = "2.9.0"
 POPULSE_DB_MIN_VERSION = "1.1.1"
+PYDANTIC_MIN_VERSION = "1.9.0"
 NIBABEL_MIN_VERSION = "1.0"
 NETWORKX_MIN_VERSION = "1.0"
 NUMPY_MIN_VERSION = "1.3"
 SCIPY_MIN_VERSION = "0.7"
-TRAITS_MIN_VERSION = "4.0"
 NIPYPE_VERSION = "0.10.0"
+TRAITS_MIN_VERSION = "4.0"
 
 # Main setup parameters
 NAME = "capsul"
@@ -81,7 +82,7 @@ ISRELEASE = ""
 VERSION = __version__
 PROVIDES = ["capsul"]
 REQUIRES = [
-    "traits>={0}".format(TRAITS_MIN_VERSION),
+    "pydantic>={0}".format(PYDANTIC_MIN_VERSION),
     # activate the following line after soma-base > 4.6.1 is released
     #"soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
@@ -97,6 +98,7 @@ EXTRA_REQUIRES = {
     ],
     "database": ["populse_db"],
     "nipype": [
+        "traits>={}".format(TRAITS_MIN_VERSION),
         "numpy>={0}".format(NUMPY_MIN_VERSION),
         "scipy>={0}".format(SCIPY_MIN_VERSION),
         "nibabel>={0}".format(NIBABEL_MIN_VERSION),

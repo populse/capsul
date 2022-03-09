@@ -200,7 +200,7 @@ class CapsulEngine(Controller):
         capsul.module.default_modules is used).
         '''
         if require is None:
-            require = default_modules
+            require = []  # default_modules
         
         for module in require:
             self.load_module(module)
@@ -480,6 +480,33 @@ def database_factory(database_location):
     if engine_directory:
         engine.set_named_directory('capsul_engine', engine_directory)
     return engine
+
+
+def capsul_engine(database_location=None, require=None):
+    '''
+    User facrory for creating capsul engines.
+
+    If no database_location is given, it will default to an internal (in-
+    memory) database with no persistent settings or history values.
+
+    Configuration is read from a dictionary stored in two database entries.
+    The first entry has the key 'global_config' (i.e.
+    database.json_value('global_config')), it contains the configuration
+    values that are shared by all processings engines. The secon entry is
+    computing_config`. It contains a dictionary with one item per computing
+    resource where the key is the resource name and the value is configuration
+    values that are specific to this computing resource.
+
+    Before initialization of the CapsulEngine, modules are loaded. The
+    list of loaded modules is searched in the 'modules' value in the
+    database (i.e. in database.json_value('modules')) ; if no list is
+    defined in the database, capsul.module.default_modules is used.
+    '''
+    #if database_location is None:
+        #database_location = osp.expanduser('~/.config/capsul/capsul_engine.sqlite')
+    database = database_factory(database_location)
+    capsul_engine = CapsulEngine(database_location, database, require=require)
+    return capsul_engine
 
 
 configurations = None

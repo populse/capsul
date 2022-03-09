@@ -2679,7 +2679,7 @@ class PipelineDeveloperView(QGraphicsView):
             if isinstance(pipeline, Process):
                 process = pipeline
                 pipeline = Pipeline()
-                #pipeline.set_study_config(process.get_study_config())
+                #pipeline.set_capsul_engine(process.get_completion_engine())
                 pipeline.add_process(process.name, process)
                 pipeline.autoexport_nodes_parameters()
                 pipeline.node_position["inputs"] = (0., 0.)
@@ -3070,8 +3070,8 @@ class PipelineDeveloperView(QGraphicsView):
         process = self.scene.pipeline.nodes[node_name]
         # force instantiating a completion engine (since
         # AttributedProcessWidget does not force it)
-        if hasattr(process, 'get_study_config'):  # exclude custom nodes
-            engine = process.get_study_config().engine
+        if hasattr(process, 'get_capsul_engine'):  # exclude custom nodes
+            engine = process.get_capsul_engine()
             from capsul.attributes.completion_engine \
                 import ProcessCompletionEngine
             ce = ProcessCompletionEngine.get_completion_engine(process)
@@ -4126,7 +4126,7 @@ class PipelineDeveloperView(QGraphicsView):
         module/name, the node name, and iterative plugs before inserting.
         '''
         pipeline = self.scene.pipeline
-        #engine = pipeline.get_study_config().engine
+        #engine = pipeline.get_capsul_engine()
         engine = None
         proc_name_gui = PipelineDeveloperView.IterativeProcessInput(engine)
         proc_name_gui.resize(800, proc_name_gui.sizeHint().height())

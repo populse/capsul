@@ -9,13 +9,8 @@ Classes
 '''
 
 # System import
-from __future__ import absolute_import
-import six
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
-try:
-    import traits.api as traits
-except ImportError:
-    import enthought.traits.api as traits
+from soma.controller import undefined
 
 
 class PipelineFileWarningWidget(Qt.QSplitter):
@@ -73,14 +68,14 @@ class PipelineFileWarningWidget(Qt.QSplitter):
             table = QtGui.QTableWidget()
             layout1.addWidget(table)
             table.setColumnCount(3)
-            sizes = [len(l) for node, l in six.iteritems(missing_inputs)]
+            sizes = [len(l) for node, l in missing_inputs.items()]
             table.setRowCount(sum(sizes))
             table.setHorizontalHeaderLabels(
                 ['node', 'parameter', 'filename'])
             row = 0
-            for node_name, items in six.iteritems(missing_inputs):
+            for node_name, items in missing_inputs.items():
                 for param_name, file_name in items:
-                    if not file_name or file_name is traits.Undefined:
+                    if not file_name or file_name is undefined:
                         file_name = '<temp. file>'
                     table.setItem(row, 0, QtGui.QTableWidgetItem(node_name))
                     table.setItem(row, 1,
@@ -103,14 +98,14 @@ class PipelineFileWarningWidget(Qt.QSplitter):
             table = QtGui.QTableWidget()
             layout2.addWidget(table)
             table.setColumnCount(3)
-            sizes = [len(l) for node, l in six.iteritems(overwritten_outputs)]
+            sizes = [len(l) for node, l in overwritten_outputs.items()]
             table.setRowCount(sum(sizes))
             table.setHorizontalHeaderLabels(
                 ['node', 'parameter', 'filename'])
             row = 0
-            for node_name, items in six.iteritems(overwritten_outputs):
+            for node_name, items in overwritten_outputs.items():
                 for param_name, file_name in items:
-                    if not file_name or file_name is traits.Undefined:
+                    if not file_name or file_name is undefined:
                         file_name = '<temp. file>'
                     table.setItem(row, 0, QtGui.QTableWidgetItem(node_name))
                     table.setItem(row, 1,

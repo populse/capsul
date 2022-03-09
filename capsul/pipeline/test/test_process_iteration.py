@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 # System import
-from __future__ import print_function
-from __future__ import absolute_import
 
 import sys
 import os
@@ -10,22 +8,18 @@ import unittest
 from tempfile import NamedTemporaryFile
 import struct
 
-# Trait import
-from traits.api import String, Int, List, File
-
 # Capsul import
 from capsul.api import Process
 from capsul.api import Pipeline
 from capsul.pipeline.process_iteration import ProcessIteration
-import six
-from six.moves import range
+from soma.controller import File, field
 
 
 class WriteOutput(Process):
-    input_image = File()
-    output_image = File(output=True)
+    input_image: File
+    output_image: File = field(output=True)
     
-    def _run_process(self):
+    def execute(self, context=None):
         # Copy input_image in output_image
         with open(self.input_image,'rb') as i:
             with open(self.output_image,'wb') as o:
@@ -33,12 +27,12 @@ class WriteOutput(Process):
 
 
 class ProcessSlice(Process):
-    input_image = File()
-    slice_number = Int()
-    output_image_dependency = File()
-    output_image = File(output=True)
+    input_image: File
+    slice_number: int
+    output_image_dependency: File
+    output_image: File = field(output=True)
     
-    def _run_process(self):
+    def execute(self):
         file_size = os.stat(self.output_image).st_size
         if self.slice_number >= int(file_size/2):
             raise ValueError('Due to output file size, slice_number cannot '
@@ -54,11 +48,10 @@ class MyPipeline(Pipeline):
     
     def __init__(self):
         super(MyPipeline, self).__init__()
-        self.on_trait_change(self.input_image_changed, 'input_image')
+        self.on_attribute_change.add(self.input_image_changed, 'input_image')
         
     def input_image_changed(self):
-        if isinstance(self.input_image, six.string_types) and \
-                osp.exists(self.input_image):
+        if isinstance(self.input_image, str) and osp.exists(self.input_image):
             self.slices = list(range(int(os.stat(self.input_image).st_size/2)))
         else:
             self.slices = []
@@ -139,7 +132,7 @@ if __name__ == "__main__":
     pipeline.output_image = '/tmp/y'
 
     view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                   allow_open_controller=True)
+                                  allow_open_controller=True)
 
     view1.show()
     app.exec_()

@@ -9,16 +9,13 @@ Classes
 '''
 
 # System import
-from __future__ import absolute_import
 import logging
 import os
 
-import six
-
 # Soma import
-from soma.controller.trait_utils import trait_ids
 import soma.subprocess
 from soma.qt_gui.qt_backend import QtGui, QtCore
+from soma.controller import undefined
 
 # Qt import
 try:
@@ -39,7 +36,7 @@ class ViewerWidget(QtGui.QWidget):
         viewer_node_name: str
             the name of the node containing the viewer process
         pipeline: str
-            the full pipeline in order to get the viewer input trait values
+            the full pipeline in order to get the viewer input field values
             since the viewer node is unactivated
         """
         # Inheritance
@@ -65,13 +62,13 @@ class ViewerWidget(QtGui.QWidget):
         """
         # Get the viewer node and process
         viewer_node = self.pipeline.nodes[self.viewer_node_name]
-        viewer_process = viewer_node.process
+        viewer_process = viewer_node
 
         # Propagate the parameters to the input viewer node
         # And check if the viewer is active (ie dependencies
         # are specified -> corresponding process have run)
         is_viewer_active = True
-        for plug_name, plug in six.iteritems(viewer_node.plugs):
+        for plug_name, plug in viewer_node.plugs.items():
 
             if plug_name in ["nodes_activation", "selection_changed"]:
                 continue
@@ -80,21 +77,19 @@ class ViewerWidget(QtGui.QWidget):
             for (source_node_name, source_plug_name, source_node,
                  source_plug, weak_link) in plug.links_from:
 
-                # Get the source plug value and source trait
-                source_plug_value = getattr(source_node.process,
-                                            source_plug_name)
-                source_trait = source_node.process.trait(source_plug_name)
+                # Get the source plug value and source field
+                source_plug_value = getattr(source_node,
+                                            source_plug_name, undefined)
+                source_field = source_node.field(source_plug_name)
 
                 # Check if the viewer is active:
                 # 1) the source_plug_value has been set
-                if source_plug_value == source_trait.handler.default_value:
+                if source_plug_value == source_field.default_value():
                     is_viewer_active = False
                     break
                 # 2) if the plug is a file, the file exists
-                str_description = trait_ids(source_trait)
-                if (len(str_description) == 1 and
-                   str_description[0] == "File" and
-                   not os.path.isfile(source_plug_value)):
+                if source_field.is_file() \
+                        and not os.path.isfile(source_plug_value):
 
                     is_viewer_active = False
                     break
