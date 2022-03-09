@@ -115,12 +115,9 @@ class MatlabConfig(StudyConfigModule):
                         {'executable': matlab_exec,
                          cif: 'matlab'})
                 else:
-                    if ceparam == 'executable' and self.study_config.matlab_exec in (None, Undefined, ''):
-                        if config is not None:
-                            del config
-                            session.remove_config('matlab', 'global', 'matlab')
-                    else:
-                        setattr(config, ceparam, value)
+                    if value is Undefined:
+                        value = None
+                    setattr(config, ceparam, value)
 
     def sync_from_engine(self, param=None, value=None):
         self.use_matlab = None  # avoid transcient inconsistencies
