@@ -18,7 +18,7 @@ from soma.undefined import undefined
 
 from .dataset import Dataset
 from .process.process import Process, Node
-from .pipeline.pipeline import Pipeline
+from .pipeline.pipeline import Pipeline, CustomPipeline
 from .process.nipype_process import nipype_factory
 from .engine.local import LocalEngine
 
@@ -93,8 +93,8 @@ class Capsul:
         path_layout = dataset_config['path_layout']
         return Dataset(path, path_layout)
 
-    def custom_pipeline(self, *args, **kwargs):
-        return Pipeline(definition='custom', *args, **kwargs)
+    def custom_pipeline(self):
+        return CustomPipeline()
 
 def executable(definition, **kwargs):
     '''
@@ -243,7 +243,8 @@ def executable_from_json(definition, json_executable):
         if parameters:
             result.import_json(parameters)
     elif type == 'custom_pipeline':
-        result = JSONPipeline(definition, pipeline_definition)
+        result = CustomPipeline(definition=definition, 
+                                json_executable=pipeline_definition)
         parameters = json_executable.get('parameters')
         if parameters:
             result.import_json(parameters)
@@ -302,58 +303,6 @@ def process_from_function(function):
 
 
 
-class JSONPipeline(Pipeline):
-    ''' :class:`.pipeline.pipeline.Pipeline` subclass for pipelines built from
-    a JSON file definition
-    '''
-    def __init__(self, definition, json_executable):
-        if definition is None:
-            definition = 'custom_pipeline'
-        object.__setattr__(self, 'json_executable' , json_executable)
-        super().__init__(definition=definition, autoexport_nodes_parameters=json_executable.get('export_parameters', False))
-    
-    def pipeline_definition(self):
-        ''' define the pipeline contents
-        '''
-        exported_parameters = set()
-        for name, ejson in self.json_executable.get('executables', {}).items():
-            e = executable(ejson)
-            #e = executable_from_json(f'{self.definition}#{name}', ejson)
-            self.add_process(name, e)
-
-        for sel_key, sel_group_def in self.json_executable.get(
-                'processes_selections', {}).items():
-            sel_groups = sel_group_def.get("groups")
-            value = sel_group_def.get("value", None)
-            self.add_processes_selection(sel_key, sel_groups, value)
-
-        all_links = [(i, False) for i in self.json_executable.get('links', [])]
-        all_links += [(i, True) for i in self.json_executable.get('weak_links', [])]
-        
-        for link_def, weak_link in all_links:
-            if isinstance(link_def, (list, tuple)):
-                source, dest = link_def
-            else:
-                source, dest = link_def.split('->')
-            if '.' in source:
-                if '.' in dest:
-                    self.add_link(f'{source}->{dest}',
-                                     weak_link=weak_link)
-                elif dest in exported_parameters:
-                    self.add_link(f'{source}->{dest}',
-                                     weak_link=weak_link)
-                else:
-                    node, plug = source.rsplit('.', 1)
-                    self.export_parameter(node, plug, dest,
-                                             weak_link=weak_link)
-                    exported_parameters.add(dest)
-            elif source in exported_parameters:
-                self.add_link(f'{source}->{dest}')
-            else:
-                node, plug = dest.rsplit('.', 1)
-                self.export_parameter(node, plug, source,
-                                         weak_link=weak_link)
-                exported_parameters.add(source)
 
 
 def get_node_class(node_type):

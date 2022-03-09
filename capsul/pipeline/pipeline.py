@@ -25,6 +25,8 @@ from soma.controller import (Controller,
                              Literal)
 from soma.sorted_dictionary import SortedDictionary
 
+from capsul.api import debug
+
 class Pipeline(Process):
     """ Pipeline containing :class:`~capsul.process.node.Node` nodes
     (:class:`~capsul.process.process.Process` and custom nodes), and links
@@ -139,10 +141,6 @@ class Pipeline(Process):
     nodes: dict {node_name: node}
         a dictionary containing the pipline nodes and where the pipeline node
         name is ''
-    workflow_list: list
-        a list of odered nodes that can be executed
-    workflow_repr: str
-        a string representation of the workflow list <node_i>-><node_i+1>
 
     """
 
@@ -193,9 +191,10 @@ class Pipeline(Process):
             exported.
         """
         super().__setattr__('enable_parameter_links', False)
-        # Inheritance
         if 'definition' not in kwargs:
-            kwargs['definition'] = 'custom'
+            raise TypeError('No definition string given to Pipeline constructor')
+
+        # Inheritance
         super(Pipeline, self).__init__()
         super(Pipeline, self).add_field(
             'nodes_activation',
@@ -226,8 +225,7 @@ class Pipeline(Process):
         self._must_update_nodes_and_plugs_activation = False
         self.pipeline_definition()
 
-        self.workflow_repr = ""
-        self.workflow_list = []
+        self._plugs_with_internal_value = set()
 
         if autoexport_nodes_parameters is None:
             autoexport_nodes_parameters = self.do_autoexport_nodes_parameters
@@ -1491,6 +1489,7 @@ class Pipeline(Process):
         # Create a graph and a list of graph node edges
         graph = self.workflow_graph(remove_disabled_steps)
 
+        
         # Start the topologival sort
         ordered_list = graph.topological_sort()
 
@@ -1522,6 +1521,7 @@ class Pipeline(Process):
         Temporary files or directories will be appended to the temp_files list,
         and the node parameters will be set to temp file names.
         """
+        self._plugs_with_internal_value = set()
         for node in self.nodes.values():
             prefix = f'!{{tmp}}/{node.full_name}'
             if isinstance(node, NipypeProcess):
@@ -1565,6 +1565,7 @@ class Pipeline(Process):
                             new_value.append(value[i])
                 else:
                     new_value = f'{prefix}.{plug_name}{suffix}'
+                self._plugs_with_internal_value.add((node, plug_name))
                 node.set_plug_value(plug_name, new_value)
                 self.dispatch_value(node, plug_name, new_value)
             if node is not self and isinstance(node, Pipeline):
@@ -2326,21 +2327,97 @@ class Pipeline(Process):
                                         stack.append((dest_node, input_plug_name))
 
     def json(self):
-        if self.definition == 'custom':
-            return {
-                'type': 'custom_pipeline',
-                'definition': self.json_definition(),
-                'parameters': super(Process, self).json(),
-            }
-        else:
-            result = super().json()
-            result['type'] = 'pipeline'
-            return result
+        result = super().json()
+        result['type'] = 'pipeline'
+        parameters = result.setdefault('parameters', {})
+        for node, plug in self._plugs_with_internal_value:
+            v = getattr(node, plug, undefined)
+            if v is not undefined:
+                parameters[f'{node.name}.{plug}'] = v
+        return result
 
-    def json_definition(self):
-        result = {}
+    def import_json(self, json):
+        ''' Set the pipeline parameters from a JSON dict
+        '''
+        for name, json_value in json.items():
+            names = name.split('.')
+            node = self
+            for i in names[:-1]:
+                node = node.nodes[i]
+            setattr(node, names[-1], json_value)
+            if isinstance(node, Process) \
+                and self.enable_parameter_links \
+                and names[-1] in node.plugs:
+                self.dispatch_value(node, names[-1], json_value)
 
-        if hasattr(self, "__doc__"):
+
+class CustomPipeline(Pipeline):
+    def __init__(self, definition='custom_pipeline', json_executable = {}):
+        object.__setattr__(self, 'json_executable' , json_executable)
+        super().__init__(definition=definition, autoexport_nodes_parameters=json_executable.get('export_parameters', False))
+        for node_full_name, activations in self.json_executable.get('activations', {}).items():
+            node = self
+            for i in node_full_name.split('.'):
+                node = node.nodes[i]
+            node.enabled = activations['enabled']
+            node.activated = activations['activated']
+    
+    def pipeline_definition(self):
+        '''
+        define the pipeline contents
+        '''
+        from ..application import executable
+
+        exported_parameters = set()
+        for name, ejson in self.json_executable.get('executables', {}).items():
+            e = executable(ejson)
+            self.add_process(name, e)
+        
+        for sel_key, sel_group_def in self.json_executable.get(
+                'processes_selections', {}).items():
+            sel_groups = sel_group_def.get("groups")
+            value = sel_group_def.get("value", None)
+            self.add_processes_selection(sel_key, sel_groups, value)
+
+        all_links = [(i, False) for i in self.json_executable.get('links', [])]
+        all_links += [(i, True) for i in self.json_executable.get('weak_links', [])]
+        
+        for link_def, weak_link in all_links:
+            if isinstance(link_def, (list, tuple)):
+                source, dest = link_def
+            else:
+                source, dest = link_def.split('->')
+            if '.' in source:
+                if '.' in dest:
+                    self.add_link(f'{source}->{dest}',
+                                     weak_link=weak_link)
+                elif dest in exported_parameters:
+                    self.add_link(f'{source}->{dest}',
+                                     weak_link=weak_link)
+                else:
+                    node, plug = source.rsplit('.', 1)
+                    self.export_parameter(node, plug, dest,
+                                             weak_link=weak_link)
+                    exported_parameters.add(dest)
+            elif source in exported_parameters:
+                self.add_link(f'{source}->{dest}')
+            else:
+                node, plug = dest.rsplit('.', 1)
+                self.export_parameter(node, plug, source,
+                                         weak_link=weak_link)
+                exported_parameters.add(source)
+    
+    def json(self):
+        result = super().json()
+        if self.definition == 'custom_pipeline':
+            result['type'] = 'custom_pipeline'
+            result['definition'] = self.json_pipeline()
+        return result
+
+    def json_pipeline(self):
+        definition = {}
+
+        if hasattr(self, '__doc__') and self.__doc__ is not None:
             docstr = self.__doc__
             if docstr == Pipeline.__doc__:
                 docstr = ''  # don't use the builtin Pipeline help
@@ -2365,7 +2442,7 @@ class Pipeline(Process):
             docstr = ''
         if docstr.strip() == '':
             docstr = ''
-        result['doc'] = docstr
+        definition['doc'] = docstr
 
         for node_name, node in self.nodes.items():
             if node_name == "":
@@ -2374,12 +2451,20 @@ class Pipeline(Process):
                 raise NotImplementedError('Serialization of Switch not implemented')
             elif isinstance(node, Process):
                 node_json = node.json()
-                result.setdefault('executables', {})[node_name] = node_json
+                definition.setdefault('executables', {})[node_name] = node_json
             else:
                 raise NotImplementedError(f'Serialization of {type(node)} not implemented')
             if not node.enabled:
                 node_json['enabled'] = False
-        return result
+        
+        for node in self.all_nodes():
+            if node is not self:
+                definition.setdefault('activations', {})[node.full_name] = {
+                    'enabled': node.enabled,
+                    'activated': node.activated,
+                }
+
+        return definition
 
 
 # This import is at the end because get_process_instance needs Pipeline and

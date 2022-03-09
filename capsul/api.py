@@ -27,6 +27,7 @@ Functions
 '''
 
 from __future__ import absolute_import
+from .debug import debug
 from .process.process import (Process, NipypeProcess,
                                     FileCopyProcess,)
 from .pipeline.pipeline import Pipeline
@@ -36,3 +37,4 @@ from .pipeline.pipeline_nodes import Switch
 from .pipeline.pipeline_nodes import OptionalOutputSwitch
 from .application import Capsul
 from .execution_context import ExecutionContext
+

@@ -105,7 +105,7 @@ class LocalEngine:
         self.assert_connected()
         status = self.status(execution_id)
         if status['status'] == 'submited':
-            for i in range(6):
+            for i in range(10):
                 time.sleep(0.5)
                 status = self.status(execution_id)
                 if status['status'] != 'submited':
@@ -133,6 +133,11 @@ class LocalEngine:
         execution_id = self.start(executable, **kwargs)
         self.wait(execution_id)
         status = self.status(execution_id)
+        self.print_debug_messages(status)
         self.raise_for_status(status)
         self.update_executable(executable, status)
         return execution_id
+
+    def print_debug_messages(self, status):
+        for debug in status.get('debug_messages', ['no debug messages']):
+            print('!', debug)
