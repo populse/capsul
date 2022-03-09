@@ -209,6 +209,41 @@ class Settings:
 
         return configurations
 
+    def export_config_dict(self, environment=None):
+        conf = {}
+        if environment is None:
+            environment = self.get_all_environments()
+        elif isinstance(environment, str):
+            environment = [environment]
+        with self as session:
+            modules = []
+            for collection in (i.collection_name
+                               for i in
+                               session._dbs.get_collections()):
+                if collection.startswith(Settings.collection_prefix):
+                    module_name = \
+                        collection[len(Settings.collection_prefix):]
+                    modules.append(module_name)
+
+            for env in environment:
+                env_conf = {}
+                for module in modules:
+                    mod_conf = {}
+                    for config in session.configs(module, env):
+                        doc = session._dbs.get_document(
+                            session.collection_name(module), config._id)
+                        mod_conf[config._id] = dict(doc._items())
+                    if mod_conf:
+                        env_conf[module] = mod_conf
+
+                env_conf['capsul_engine'] = {'uses': {m: 'ALL'
+                                                        for m in modules}}
+
+                conf[env] = env_conf
+
+        return conf
+
+
     def import_configs(self, environment, config_dict):
         '''
         Import config values from a dictionary as given by
@@ -223,16 +258,21 @@ class Settings:
             for module in modules:
                 mod_dict = config_dict.get(module, {})
                 if mod_dict:
-                    config_id = mod_dict.get('config_id', '')
-                    conf = session.config(
-                        module, environment, 'config_id == "%s"' % config_id)
-                    if conf:
-                        values = {k: v for k, v in mod_dict.items()
-                                  if k not in ('config_id',
-                                               'config_environment')}
-                        conf.set_values(values)
-                    else:
-                        session.new_config(module, environment, mod_dict)
+                    if 'config_id' in mod_dict:
+                        # select_configurations() shape: 1 config per module
+                        mod_dict = {mod_dict['config_id']: mod_dict}
+                    # otherwise several config are indexed by their config_id
+                    for config_id, config in mod_dict.items():
+                        conf = session.config(
+                            module, environment, 'config_id == "%s"' %
+                            config_id)
+                        if conf:
+                            values = {k: v for k, v in config.items()
+                                      if k not in ('config_id',
+                                                   'config_environment')}
+                            conf.set_values(values)
+                        else:
+                            session.new_config(module, environment, config)
 
     def get_all_environments(self):
         '''
