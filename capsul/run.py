@@ -11,11 +11,6 @@ import traceback
 from capsul.api import Capsul, ExecutionContext, Pipeline, Process
 
 
-def execute_process(process, context):
-    process.before_execute(context)
-    process.execute(context)
-    process.after_execute(context)
-
 if __name__ == '__main__':
     # Really detach the process from the parent.
     # Whthout this fork, performing Capsul tests shows warning
@@ -36,6 +31,8 @@ if __name__ == '__main__':
             execution_info['status'] = 'running'
             execution_info['start_time'] = datetime.datetime.now().isoformat()
             execution_info['pid'] = os.getpid()
+            debug_messages = []
+            execution_info['debug_messages'] = debug_messages
             with open(execution_file, 'w') as f:
                 json.dump(execution_info, f)
 
@@ -47,18 +44,21 @@ if __name__ == '__main__':
                 nodes = [executable]
             for node in nodes:
                 for field in node.fields():
-                    if is_path(field):
+                    if field.is_path():
                         value = getattr(node, field.name, None)
                         if value and value.startswith('!'):
                             final_value = eval(f"f'{{{value[1:]}}}'", context.__dict__, context.__dict__)
                             setattr(node, field.name, final_value)
             executable.before_execute(context)
             if isinstance(executable, Pipeline):
+                debug_messages.append(f'execute pipeline {executable.definition}')
+                debug_messages.append(f'  nodes -> {executable.workflow_ordered_nodes()}')
                 for node in executable.workflow_ordered_nodes():
                     node.before_execute(context)
                     node.execute(context)
                     node.after_execute(context)
             else:
+                debug_messages.append('execute process {executable.definition}')
                 executable.execute(context)
             executable.after_execute(context)
         except Exception as e:

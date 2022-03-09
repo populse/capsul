@@ -135,4 +135,4 @@ class LocalEngine:
         status = self.status(execution_id)
         self.raise_for_status(status)
         self.update_executable(executable, status)
-        return executable
+        return execution_id
