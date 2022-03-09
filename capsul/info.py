@@ -73,7 +73,6 @@ LONG_DESCRIPTION = long_description
 URL = "https://github.com/populse/capsul"
 DOWNLOAD_URL = "https://github.com/populse/capsul"
 LICENSE = "CeCILL-B"
-CLASSIFIERS = CLASSIFIERS
 AUTHOR = "Populse team"
 AUTHOR_EMAIL = "support@brainvisa.info"
 PLATFORMS = "OS Independent"

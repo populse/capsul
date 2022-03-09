@@ -1545,11 +1545,12 @@ class PipelineScene(QtGui.QGraphicsScene):
             del self.glinks
         if 'gnodes' in self.__dict__:
             import sip
+            gnode = None
             for gnode in self.gnodes.values():
                 gnode._release()
                 self.removeItem(gnode)
                 sip.transferback(gnode)
-            gnode = None
+            del gnode
             del self.gnodes
 
         try:

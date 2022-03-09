@@ -221,7 +221,7 @@ def run_process_with_distribution(
             import soma_workflow.client as swclient
 
             workflow = workflow_from_pipeline(process)
-            swclient.Helper.serialize(write_workflow_only)
+            swclient.Helper.serialize(write_workflow_only, workflow)
 
             return
 

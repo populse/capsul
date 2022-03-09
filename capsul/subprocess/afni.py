@@ -36,13 +36,8 @@ Functions
 from __future__ import absolute_import
 
 import os
-import os.path as osp
 import soma.subprocess
-
-from traits.api import Undefined
-
 from soma.path import find_in_path
-from capsul.engine.module import afni as afni_engine
 
 
 def afni_command_with_environment(study_config, command):

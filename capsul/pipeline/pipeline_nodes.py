@@ -212,7 +212,6 @@ class Node(Controller):
             raise ReferenceError(
                 'The process underlying node %s, %s has been destroyed '
                 'before the node that contains it.' % (self, self.name))
-            raise
     
     @process.setter
     def process(self, value):

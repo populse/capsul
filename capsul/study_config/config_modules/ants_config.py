@@ -9,12 +9,11 @@ Classes
 '''
 
 from __future__ import absolute_import
-from traits.api import File, Bool, Undefined, String
+from traits.api import File, Bool, Undefined
 
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.engine import CapsulEngine
 from capsul.subprocess.ants import check_ants_configuration
-import os.path as osp
 
 class ANTSConfig(StudyConfigModule):
     '''
