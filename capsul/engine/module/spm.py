@@ -180,7 +180,7 @@ def edition_widget(engine, environment):
                               '-standalone' if controller.standalone else '')
             values['config_id'] = id
             query = 'config_id == "%s"' % id
-            conf = session.config('spm', 'global', selection=query)
+            conf = session.config('spm', widget.environment, selection=query)
             if conf is None:
                 session.new_config('spm', widget.environment, values)
             else:
