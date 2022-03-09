@@ -102,18 +102,18 @@ class MatlabConfig(StudyConfigModule):
         if ceparam is not None:
             with self.study_config.engine.settings as session:
                 config = session.config('matlab', 'global', any=True)
-                if config is None \
-                        and (ceparam !='executable'
+                if config is None:
+                    if (ceparam !='executable'
                              or self.study_config.matlab_exec
                                 not in (None, Undefined, '')):
-                    cif = self.study_config.engine.settings.config_id_field
-                    matlab_exec = self.study_config.matlab_exec
-                    if matlab_exec is Undefined:
-                        matlab_exec = None
-                    session.new_config(
-                        'matlab', 'global',
-                        {'executable': matlab_exec,
-                         cif: 'matlab'})
+                        cif = self.study_config.engine.settings.config_id_field
+                        matlab_exec = self.study_config.matlab_exec
+                        if matlab_exec is Undefined:
+                            matlab_exec = None
+                        session.new_config(
+                            'matlab', 'global',
+                            {'executable': matlab_exec,
+                            cif: 'matlab'})
                 else:
                     if value is Undefined:
                         value = None
