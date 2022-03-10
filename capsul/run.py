@@ -8,8 +8,8 @@ import sys
 import tempfile
 import traceback
 
-from capsul.api import Capsul, ExecutionContext, Pipeline, debug
-from capsul.debug import debug_messages
+from capsul.api import Capsul, ExecutionContext, Pipeline
+import capsul.debug as capsul_debug
 
 
 if __name__ == '__main__':
@@ -24,6 +24,7 @@ if __name__ == '__main__':
         execution_file = sys.argv[1]
         with open(execution_file) as f:
             execution_info = json.load(f)
+        capsul_debug.debug_messages = []
         capsul = Capsul()
         executable = None
         tmp = tempfile.mkdtemp()
@@ -43,6 +44,8 @@ if __name__ == '__main__':
             else:
                 nodes = [executable]
             for node in nodes:
+                if not node.activated:
+                    continue
                 for field in node.fields():
                     if field.is_path():
                         value = getattr(node, field.name, None)
@@ -68,6 +71,6 @@ if __name__ == '__main__':
             execution_info.pop('pid', None)
             if executable is not None:
                 execution_info['executable']['parameters'] = executable.json()['parameters']
-            execution_info['debug_messages'] = debug_messages
+            execution_info['debug_messages'] = capsul_debug.debug_messages
             with open(execution_file, 'w') as f:
                 json.dump(execution_info, f)

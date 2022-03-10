@@ -7,7 +7,7 @@ import sys
 import tempfile
 import time
 
-
+from capsul.api import Pipeline, Process
 
 class LocalEngine:
     def __init__(self, config=None):
@@ -54,14 +54,23 @@ class LocalEngine:
         return importlib.import_module(f'capsul.engine.module.{module_name}')
     
     def executable_requirements(self, executable):
-        return getattr(executable, 'requirements', {})
+        result = {}
+        if isinstance(executable, Pipeline):
+            for node in executable.all_nodes():
+                if isinstance(node, Process) and node.activated:
+                    result.update(getattr(node, 'requirements', {}))
+        result.update(getattr(executable, 'requirements', {}))
+        return result
 
     def modules_config(self, executable):
         result = {}
-        for module_name, requirements in self.executable_requirements(executable):
+        from capsul.api import debug
+        debug('modules_config', executable.definition, self.executable_requirements(executable))
+        for module_name, requirements in self.executable_requirements(executable).items():
             module = self.module(module_name)
             module_configs = self.config.get('modules', {}).get(module_name, [])
             valid_configs = []
+            debug('modules_config', module_configs)
             for module_config in module_configs:
                 if module.is_valid_config(module_config, requirements):
                     valid_configs.append(module_config)
@@ -139,5 +148,5 @@ class LocalEngine:
         return execution_id
 
     def print_debug_messages(self, status):
-        for debug in status.get('debug_messages', ['no debug messages']):
-            print('!', debug)
+        for debug in status.get('debug_messages', []):
+            print('!', *debug)
