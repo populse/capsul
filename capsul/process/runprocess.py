@@ -92,7 +92,7 @@ def set_process_param_from_str(process, k, arg):
     setattr(process, k, arg)
 
 
-def get_process_with_params(process_name, study_config, iterated_params=[],
+def get_process_with_params(process_name, engine, iterated_params=[],
                             attributes={}, *args, **kwargs):
     ''' Instantiate a process, or an iteration over processes, and fill in its
     parameters.
@@ -101,7 +101,7 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
     ----------
     process_name: string
         name (mosule and class) of the process to instantiate
-    study_config: StudyConfig instance
+    engine: CapsulEngine instance
     iterated_params: list (optional)
         parameters names which should be iterated on. If this list is not
         empty, an iteration process is built. All parameters values
@@ -119,13 +119,13 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
     -------
     process: Process instance
     '''
-    process = study_config.get_process_instance(process_name)
+    process = engine.get_process_instance(process_name)
     params = [f.name for f in process.user_fields()]
 
     # check for iterations
     if iterated_params:
 
-        pipeline = study_config.get_process_instance(Pipeline)
+        pipeline = engine.get_process_instance(Pipeline)
         pipeline.add_iterative_process('iteration', process, iterated_params)
         pipeline.autoexport_nodes_parameters(include_optional=True)
         process = pipeline
@@ -150,7 +150,7 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
 
 
 def run_process_with_distribution(
-        study_config, process, use_soma_workflow=False,
+        engine, process, use_soma_workflow=False,
         resource_id=None, password=None, config=None, rsa_key_pass=None,
         queue=None, input_file_processing=None, output_file_processing=None,
         keep_workflow=False, keep_failed_workflow=False):
@@ -159,7 +159,7 @@ def run_process_with_distribution(
 
     Parameters
     ----------
-    study_config: StudyConfig instance
+    engine: CapsulEngine instance
     process: Process instance
         the process to execute (or pipeline, or iteration...)
     use_soma_workflow: bool or None (default=None)
@@ -194,23 +194,23 @@ def run_process_with_distribution(
         if it has failed. By default it is removed.
     '''
     if use_soma_workflow is not None:
-        study_config.use_soma_workflow = use_soma_workflow
-    if study_config.use_soma_workflow:
-        swm = study_config.modules['SomaWorkflowConfig']
+        engine.study_config.use_soma_workflow = use_soma_workflow
+    if engine.study_config.use_soma_workflow:
+        swm = engine.study_config.modules['SomaWorkflowConfig']
         resource_id = swm.get_resource_id(resource_id, set_it=True)
         if password is not None or rsa_key_pass is not None:
             swm.set_computing_resource_password(resource_id, password,
                                                 rsa_key_pass)
         if queue is not None:
             if not hasattr(
-                    study_config.somaworkflow_computing_resources_config,
+                    engine.study_config.somaworkflow_computing_resources_config,
                     resource_id):
-                setattr(study_config.somaworkflow_computing_resources_config,
+                setattr(engine.study_config.somaworkflow_computing_resources_config,
                         resource_id, {})
-            getattr(study_config.somaworkflow_computing_resources_config,
+            getattr(engine.study_config.somaworkflow_computing_resources_config,
                     resource_id).queue = queue
 
-    res = study_config.run(process)
+    res = engine.run(process)
     return res
 
 

@@ -115,6 +115,8 @@ class TestPipeline(unittest.TestCase):
                 'optional'))
         ordered_list = graph.topological_sort()
         workflow_repr = self.pipeline.workflow_ordered_nodes()
+        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
+                                  for x in workflow_repr)
         self.assertTrue(
             workflow_repr in
                 ("constant->node1->node2", "node1->constant->node2"),
@@ -124,6 +126,8 @@ class TestPipeline(unittest.TestCase):
     def test_enabled(self):
         self.pipeline.nodes_activation.node2 = False
         workflow_repr = self.pipeline.workflow_ordered_nodes()
+        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
+                                  for x in workflow_repr)
         self.assertEqual(workflow_repr, "")
 
     @unittest.skip('run() is not reimplemented yet.')
@@ -148,7 +152,7 @@ class TestPipeline(unittest.TestCase):
         from capsul.pipeline import pipeline_tools
         pipeline_tools.save_pipeline(pipeline, filename)
         pipeline2 = Capsul().executable(filename)
-        pipeline2.workflow_ordered_nodes()
+        workflow_repr = pipeline2.workflow_ordered_nodes()
 
         if self.debug:
             from soma.qt_gui.qt_backend import QtGui
@@ -168,11 +172,13 @@ class TestPipeline(unittest.TestCase):
             view2.show()
             app.exec_()
 
+        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
+                                  for x in workflow_repr)
         self.assertTrue(
-            pipeline2.workflow_repr in
+            workflow_repr in
                 ("constant->node1->node2", "node1->constant->node2"),
             '%s not in ("constant->node1->node2", "node1->constant->node2")'
-                % pipeline2.workflow_repr)
+                % workflow_repr)
         d1 = pipeline_tools.dump_pipeline_state_as_dict(pipeline)
         d2 = pipeline_tools.dump_pipeline_state_as_dict(pipeline2)
         self.assertEqual(d1, d2)

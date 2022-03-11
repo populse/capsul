@@ -458,15 +458,15 @@ class Node(Controller):
     def protect_parameter(self, plug_name, state=True):
         self.field(plug_name).protected = state
 
-    def get_capsul_engine(self):
-        ''' OBSOLETE '''
-        engine = getattr(self, 'engine', None)
-        if engine is None:
-            from capsul.engine import capsul_engine
-            engine = capsul_engine()
-            self.engine = engine
-        return engine
+    #def get_capsul_engine(self):
+        #''' OBSOLETE '''
+        #engine = getattr(self, 'engine', None)
+        #if engine is None:
+            #from capsul.engine import capsul_engine
+            #engine = capsul_engine()
+            #self.engine = engine
+        #return engine
 
-    def set_capsul_engine(self, engine):
-        ''' OBSOLETE '''
-        self.engine = engine
+    #def set_capsul_engine(self, engine):
+        #''' OBSOLETE '''
+        #self.engine = engine
