@@ -64,13 +64,10 @@ class LocalEngine:
 
     def modules_config(self, executable):
         result = {}
-        from capsul.api import debug
-        debug('modules_config', executable.definition, self.executable_requirements(executable))
         for module_name, requirements in self.executable_requirements(executable).items():
             module = self.module(module_name)
             module_configs = self.config.get('modules', {}).get(module_name, [])
             valid_configs = []
-            debug('modules_config', module_configs)
             for module_config in module_configs:
                 if module.is_valid_config(module_config, requirements):
                     valid_configs.append(module_config)

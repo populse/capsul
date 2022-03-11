@@ -465,9 +465,8 @@ class Pipeline(Process):
             self._set_node_enabled, node_name)
         self.nodes_activation.remove_field(node_name)
 
-    def add_iterative_process(self, name, process, iterative_plugs=None,
+    def add_iterative_process(self, name, process, non_iterative_plugs=None,
                               do_not_export=None, make_optional=None,
-                              inputs_to_copy=None, inputs_to_clean=None,
                               **kwargs):
         """ Add a new iterative node in the pipeline.
 
@@ -477,7 +476,7 @@ class Pipeline(Process):
             the node name (has to be unique).
         process: Process or str (mandatory)
             the process we want to add.
-        iterative_plugs: list of str (optional)
+        non_iterative_plugs: list of str (optional)
             a list of plug names on which we want to iterate.
             If None, all plugs of the process will be iterated.
         do_not_export: list of str (optional)
@@ -489,21 +488,13 @@ class Pipeline(Process):
         inputs_to_clean: list of str (optional)
             a list of temporary items.
         """
-        if isinstance(process, str):
-            # import Capsul application. This is not done in global imports
-            # because application already importes pipeline.
-            from capsul.application import Capsul
-
-            # FIXME : we should avoid re-creating a different Capsul instance
-            # every time (it is not a singleton)
-            capsul = Capsul()
-
-            process = capsul.executable(process)
-        if iterative_plugs is None:
-            forbidden = set(['nodes_activation', 'selection_changed',
-                             'pipeline_steps', 'visible_groups'])
-            iterative_plugs = [field.name for field in process.fields()
-                               if field.name not in forbidden]
+        process = executable(process)
+        forbidden = {'nodes_activation', 'selection_changed',
+                     'pipeline_steps', 'visible_groups'}
+        if non_iterative_plugs:
+            forbidden.update(non_iterative_plugs)
+        iterative_plugs = [field.name for field in process.fields()
+                            if field.name not in forbidden]
 
         from .process_iteration import ProcessIteration
         context_name = self._make_subprocess_context_name(name)
@@ -512,7 +503,6 @@ class Pipeline(Process):
             ProcessIteration(process, iterative_plugs,
                               context_name=context_name),
             do_not_export, make_optional, **kwargs)
-        return
 
     def call_process_method(self, process_name, method,
                             *args, **kwargs):
