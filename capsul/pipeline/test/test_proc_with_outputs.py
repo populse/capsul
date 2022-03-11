@@ -7,18 +7,14 @@
 # for details.
 ##########################################################################
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 import unittest
 import os
 import sys
 import tempfile
-from traits.api import File, List, Int, Undefined
+from soma.controller import File, undefined
 from capsul.api import Process
-from capsul.api import Pipeline, PipelineNode
+from capsul.api import Pipeline
 from capsul.pipeline import pipeline_workflow
-from capsul.study_config.study_config import StudyConfig
 from soma_workflow import configuration as swconfig
 import socket
 import shutil

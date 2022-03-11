@@ -59,6 +59,7 @@ class TestRunProcess(unittest.TestCase):
             ], stdout=f, stderr=f)
             self.assertEqual(ret, 0)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_run_dummy_process_wrong_args(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([

@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 
 import unittest
 import os
 import os.path as osp
 import sys
-from traits.api import File, List
+from soma.controller import File
 from capsul.api import Process
-from capsul.api import Pipeline, PipelineNode
+from capsul.api import Pipeline
 from capsul.pipeline import pipeline_workflow
-from capsul.study_config.study_config import StudyConfig
 import tempfile
 import shutil
 
@@ -22,12 +19,12 @@ class DummyProcess(Process):
         super(DummyProcess, self).__init__()
 
         # inputs
-        self.add_trait("input", File(optional=False))
+        self.add_field("input", File, optional=False)
 
         # outputs
-        self.add_trait("output", File(output=True))
+        self.add_field("output", File, write=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         with open(self.output, 'w') as f:
             print('node', self.name, ', input:', self.input, file=f)
             with open(self.input) as g:
@@ -48,12 +45,12 @@ class DummyListProcess(Process):
         super(DummyListProcess, self).__init__()
 
         # inputs
-        self.add_trait("inputs", List(File(optional=False)))
+        self.add_field("inputs", list[File], optional=False)
 
         # outputs
-        self.add_trait("output", File(output=True))
+        self.add_field("output", File, output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         with open(self.output, 'w') as f:
             print('node', self, ', inputs:', self.inputs, file=f)
             for inp in self.inputs:

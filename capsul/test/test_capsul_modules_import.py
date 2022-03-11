@@ -14,9 +14,6 @@ class TestCapsulModulesImport(unittest.TestCase):
     def test_capsul_import(self):
         import capsul
 
-    def test_capsul_studyconfig_import(self):
-        import capsul.study_config
-
     def test_capsul_process_import(self):
         import capsul.process
 

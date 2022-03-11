@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-from __future__ import absolute_import
-
-from capsul.api import StudyConfig, Pipeline
+from capsul.api import Capsul, Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 from capsul.attributes.fom_completion_engine \
     import FomProcessCompletionEngine, FomPathCompletionEngine
-from traits.api import Str, Float, File, String, Undefined, List
 from soma_workflow import configuration as swconfig
 import unittest
 import os
@@ -16,7 +12,6 @@ import tempfile
 import shutil
 import socket
 import json
-from six.moves import zip
 
 
 def init_study_config(init_config={}):

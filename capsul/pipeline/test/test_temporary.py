@@ -6,7 +6,7 @@ import unittest
 import os
 import sys
 import tempfile
-from soma.controller import File, file, field, undefined
+from soma.controller import File, field, undefined
 from capsul.api import Process
 from capsul.api import Pipeline
 from capsul.pipeline import pipeline_workflow
@@ -20,7 +20,7 @@ class DummyProcess1(Process):
     """
     input: File
     nb_outputs: int = 0
-    output: list[file(write=True)] = field(output=True, default_factory=list)
+    output: list[File] = field(write=True, default_factory=list)
 
     def __init__(self):
         super(DummyProcess1, self).__init__()
@@ -42,7 +42,7 @@ class DummyProcess2(Process):
     """ Dummy Test Process
     """
     input: list[File] = field(default_factory=list)
-    output: list[file(write=True)] = field(default_factory=list)
+    output: list[File] = field(write=True, default_factory=list)
 
     def __init__(self):
         super(DummyProcess2, self).__init__()
@@ -67,7 +67,7 @@ class DummyProcess3(Process):
     """ Dummy Test Process
     """
     input: list[File] = field(default_factory=list)
-    output: file(write=True)
+    output: File = field(write=True)
 
     def __init__(self):
         super(DummyProcess3, self).__init__()

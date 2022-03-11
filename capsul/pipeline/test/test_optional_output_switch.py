@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 
 import unittest
-from traits.api import File, Float
+from soma.controller import File, undefined
 from capsul.api import Process
 from capsul.api import Pipeline
-from capsul.api import get_process_instance
+from capsul.api import Capsul
 from capsul.pipeline.pipeline_nodes import OptionalOutputSwitch
-from traits.api import Undefined
 import tempfile
 import os
 

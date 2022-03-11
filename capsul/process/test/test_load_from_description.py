@@ -164,6 +164,7 @@ class TestLoadFromDescription(unittest.TestCase):
             ce.run(process)
         self.assertEqual(process.result, (1, 'done'))
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_pipeline_warpping(self):
         """ Method to test the xml description to pipeline on the fly warpping.
         """

@@ -14,7 +14,8 @@ import unittest
 # Capsul import
 from capsul.api import Process
 from capsul.api import Pipeline
-from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
+#@unittest.skip('reimplementation expected for capsul v3')
+#from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 
 # Trait import
 from traits.api import Float, File
@@ -96,6 +97,7 @@ class TestSphinxExt(unittest.TestCase):
         self.pipeline_id = ("capsul.sphinxext.test.test_process_pipeline_doc."
                             "MyPipeline")
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_process_doc(self):
         """ Method to test the process rst documentation.
         """
@@ -104,6 +106,7 @@ class TestSphinxExt(unittest.TestCase):
         rstdoc = docwriter.write_api_docs(returnrst=True)
         self.assertTrue(self.process_id in rstdoc)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_pipeline_doc(self):
         """ Method to test the pipeline rst documentation.
         """

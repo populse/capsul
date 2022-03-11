@@ -8,13 +8,12 @@ import sys
 import shutil
 import tempfile
 
-# Trait import
-from traits.api import File
+# Controller import
+from soma.controller import File
 
 # Capsul import
 from capsul.api import Process
 from capsul.api import Pipeline
-from capsul.api import StudyConfig
 
 
 class DummyProcess(Process):
@@ -24,10 +23,10 @@ class DummyProcess(Process):
         super(DummyProcess, self).__init__()
 
         # inputs
-        self.add_trait("input", File(optional=False))
+        self.add_field("input", File, optional=False)
 
         # outputs
-        self.add_trait("output", File(optional=False, output=True))
+        self.add_field("output", File, optional=False, write=True)
 
     def _run_process(self):
         self.log_file = "in"

@@ -10,7 +10,7 @@ import os
 import tempfile
 import shutil
 
-from soma.controller import undefined, file, File, field, List
+from soma.controller import undefined, File, field, List
 
 # Capsul import
 from capsul.api import Process
@@ -59,7 +59,7 @@ class DummyProcess(Process):
     other_input: float = field(optional=False, output=False)
     dynamic_parameter: float = field(optional=False, output=False)
     # Outputs
-    output_image: file(write=True) = field(optional=False, output=True)
+    output_image: File = field(write=True, optional=False)
     other_output: float = field(optional=False, output=True, default=6)
 
     def execute(self, context=None):
@@ -80,7 +80,7 @@ class DummyProcess(Process):
 
 
 class CreateFilesProcess(Process):
-    output_file: List[file(write=True)] = field(output=True)
+    output_file: list[File] = field(write=True)
 
     def execute(self, context=None):
         print('create: %s' % self.output_file)

@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
-from __future__ import absolute_import
 import os
 import json
 import shutil
@@ -13,7 +10,7 @@ import sys
 
 from capsul.api import Process, Pipeline, Capsul
 from capsul.pipeline.pipeline_tools import save_pipeline_parameters, load_pipeline_parameters
-from soma.controller import file
+from soma.controller import File
 
 
 def load_pipeline_dictionary(filename):
@@ -79,9 +76,9 @@ class TestFile(Process):
     def __init__(self):
         super(TestFile, self).__init__()
 
-        self.add_field("in_1", file(output=False))
-        self.add_field("in_2", file(output=False))
-        self.add_field("out", list[file(output=True)])
+        self.add_field("in_1", File, output=False)
+        self.add_field("in_2", File, output=False)
+        self.add_field("out", list[File], output=True)
 
     def execute(self, context=None):
         self.out = [self.in_1, self.in_2]
@@ -140,9 +137,9 @@ class TestListFile(Process):
     def __init__(self):
         super(TestListFile, self).__init__()
 
-        self.add_field("in_1", list[file(output=False)], output=False)
-        self.add_field("in_2", list[file()], output=False)
-        self.add_field("out", list[file(output=True)], output=True)
+        self.add_field("in_1", list[File], output=False)
+        self.add_field("in_2", list[File], output=False)
+        self.add_field("out", list[File], write=True)
 
     def execute(self, context=None):
         self.out = [self.in_1[0], self.in_2[0]]

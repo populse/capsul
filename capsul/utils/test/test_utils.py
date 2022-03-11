@@ -1,19 +1,8 @@
 # -*- coding: utf-8 -*-
 # System import
-from __future__ import absolute_import
 import unittest
-import six
 import sys
 
-
-# Trait import
-from traits.api import Float, CTrait, File, Directory
-from traits.api import Undefined
-
-# Soma import
-from soma.controller.trait_utils import (
-    get_trait_desc, is_trait_value_defined, is_trait_pathname,
-    trait_ids)
 
 # Capsul import
 import capsul

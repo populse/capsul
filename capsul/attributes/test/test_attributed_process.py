@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-from __future__ import absolute_import
-
-from capsul.api import StudyConfig, Process, Pipeline
+from capsul.api import Capsul, Process, Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
     PathCompletionEngine, PathCompletionEngineFactory
 from capsul.attributes.attributes_schema import ProcessAttributes, \
     AttributesSchema, EditableAttributes
-from traits.api import Str, Float, File, String, Undefined, List
+from soma.controller import File, undefined, field
 from soma_workflow import configuration as swconfig
 import unittest
 import os
@@ -16,11 +13,10 @@ import sys
 import tempfile
 import shutil
 import socket
-from six.moves import zip
 
 
 class DummyProcess(Process):
-    f = Float(output=False)
+    f: float = field(output=False)
 
     def __init__(self):
         super(DummyProcess, self).__init__()
@@ -34,9 +30,9 @@ class DummyProcess(Process):
 
 
 class DummyListProcess(Process):
-    truc = List(File(output=False))
-    bidule = List(File(output=False))
-    result = File(output=True)
+    truc: list[File] = field(output=False)
+    bidule: list[File] = field(output=False)
+    result: File = field(output=True)
 
     def _run_process(self):
         with open(self.result, 'w') as f:
@@ -48,14 +44,14 @@ class CustomAttributesSchema(AttributesSchema):
     factory_id = 'custom_ex'
 
     class Acquisition(EditableAttributes):
-        center = String()
-        subject = String()
+        center: str
+        subject: str
 
     class Group(EditableAttributes):
-        group = String()
+        group: str
 
     class Processing(EditableAttributes):
-        analysis = String()
+        analysis: str
 
 
 class DummyProcessAttributes(ProcessAttributes):
