@@ -292,7 +292,6 @@ class CapsulEngine(Controller):
         The only official way to get a process instance is to use this method.
         '''
         raise NotImplementedError('get_process_instance needs a new implementation since the removal of StudyConfig')
-        return instance
 
     def get_iteration_pipeline(self, pipeline_name, node_name, process_or_id,
                                iterative_plugs=None, do_not_export=None,
@@ -476,6 +475,7 @@ def database_factory(database_location):
     else:
         raise ValueError('Invalid database location: %s' % database_location)
 
+    from .database_populse import PopulseDBEngine
     engine = PopulseDBEngine(populse_db)
     if engine_directory:
         engine.set_named_directory('capsul_engine', engine_directory)
