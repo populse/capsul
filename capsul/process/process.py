@@ -98,16 +98,34 @@ class Process(Node):
         the string description of the class location (ie., module.class).
     """
 
-    def __init__(self, definition=None, **kwargs):
+    def __init__(self, definition, **kwargs):
+        '''
+        Parameters
+        ----------
+        definition: str
+            The definition string defines the Node subclass in order to
+            serialize it for execution. In most cases it is the module + class
+            names ("caspul.pipeline.test.test_pipeline.MyPipeline" for
+            instance).
+
+            For a "locally defined" pipeline, we use the "custom_pipeline"
+            string, in order to tell the serialization engine to use a JSON
+            doct definition. The subclass
+            :class:`~capsul.pipeline.pipeline.CustomPipeline`, and the function
+            :meth:`Capsul.custom_pipeline <capsul.application.Capsul.custom_pipeline` take care of it.
+
+            For a "locally defined" process, this definition should be given
+            manually, and a locally defined process cannot be serialized, in a
+            general way.
+
+            The :meth:`Capsul.executable <capsul.application.Capsul.executable>` function sets this string
+            up when possible.
+        '''
         if definition is None:
-            defn = []
-            if self.__class__.__module__ != '__main__':
-                defn.append(self.__class__.__module__)
-            defn.append(self.__class__.__name__)
-            definition = '.'.join(defn)
-        super().__init__(**kwargs)
-        self.definition = definition
-    
+            raise TypeError(
+                'No definition string given to Process constructor')
+        super().__init__(definition=definition, **kwargs)
+
     def json(self):
         '''
         '''

@@ -25,7 +25,6 @@ from soma.controller import (Controller,
                              Literal)
 from soma.sorted_dictionary import SortedDictionary
 
-from capsul.api import debug
 
 class Pipeline(Process):
     """ Pipeline containing :class:`~capsul.process.node.Node` nodes
@@ -189,13 +188,31 @@ class Pipeline(Process):
         autoexport_nodes_parameters: bool
             if True (default) nodes containing pipeline plugs are automatically
             exported.
+        definition: str
+            The definition string defines the Node subclass in order to
+            serialize it for execution. In most cases it is the module + class
+            names ("caspul.pipeline.test.test_pipeline.MyPipeline" for
+            instance).
+
+            For a "locally defined" pipeline, we use the "custom_pipeline"
+            string, in order to tell the serialization engine to use a JSON
+            doct definition. The subclass
+            :class:`~capsul.pipeline.pipeline.CustomPipeline`, and the function
+            :meth:`Capsul.custom_pipeline <capsul.application.Capsul.custom_pipeline` take care of it.
+
+            For a "locally defined" process, this definition should be given
+            manually, and a locally defined process cannot be serialized, in a
+            general way.
+
+            The :meth:`Capsul.executable <capsul.application.Capsul.executable>` function sets this string
+            up when possible.
         """
         super().__setattr__('enable_parameter_links', False)
         if 'definition' not in kwargs:
             raise TypeError('No definition string given to Pipeline constructor')
 
         # Inheritance
-        super(Pipeline, self).__init__()
+        super(Pipeline, self).__init__(**kwargs)
         super(Pipeline, self).add_field(
             'nodes_activation',
             Controller, hidden=self.hide_nodes_activation)
@@ -369,9 +386,18 @@ class Pipeline(Process):
 
         if skip_invalid:
             self._skip_invalid_nodes.add(name)
+
+        # import Capsul application. This is not done in global imports
+        # because application already importes pipeline.
+        from capsul.application import Capsul
+
+        # FIXME : we should avoid re-creating a different Capsul instance
+        # every time (it is not a singleton)
+        capsul = Capsul()
+
         # Create a process node
         try:
-            node = get_process_instance(process, **kwargs)
+            node = capsul.executable(process, **kwargs)
         except Exception:
             if skip_invalid:
                 node = None
@@ -464,7 +490,15 @@ class Pipeline(Process):
             a list of temporary items.
         """
         if isinstance(process, str):
-            process = get_process_instance(process)
+            # import Capsul application. This is not done in global imports
+            # because application already importes pipeline.
+            from capsul.application import Capsul
+
+            # FIXME : we should avoid re-creating a different Capsul instance
+            # every time (it is not a singleton)
+            capsul = Capsul()
+
+            process = capsul.executable(process)
         if iterative_plugs is None:
             forbidden = set(['nodes_activation', 'selection_changed',
                              'pipeline_steps', 'visible_groups'])
@@ -2465,8 +2499,3 @@ class CustomPipeline(Pipeline):
                 }
 
         return definition
-
-
-# This import is at the end because get_process_instance needs Pipeline and
-#  Pipeline needs get_process instance
-from capsul.process_instance import get_process_instance

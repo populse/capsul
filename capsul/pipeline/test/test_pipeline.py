@@ -78,7 +78,8 @@ class TestPipeline(unittest.TestCase):
     debug = False
 
     def setUp(self):
-        self.pipeline = MyPipeline()
+        capsul = Capsul()
+        self.pipeline = capsul.executable(MyPipeline)
         self.temp_files = []
 
     def tearDown(self):
@@ -113,17 +114,17 @@ class TestPipeline(unittest.TestCase):
             self.pipeline.nodes['constant'].field('input_image').metadata(
                 'optional'))
         ordered_list = graph.topological_sort()
-        self.pipeline.workflow_ordered_nodes()
+        workflow_repr = self.pipeline.workflow_ordered_nodes()
         self.assertTrue(
-            self.pipeline.workflow_repr in
+            workflow_repr in
                 ("constant->node1->node2", "node1->constant->node2"),
             '%s not in ("constant->node1->node2", "node1->constant->node2")'
-                % self.pipeline.workflow_repr)
+                % workflow_repr)
 
     def test_enabled(self):
         self.pipeline.nodes_activation.node2 = False
-        self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr, "")
+        workflow_repr = self.pipeline.workflow_ordered_nodes()
+        self.assertEqual(workflow_repr, "")
 
     @unittest.skip('run() is not reimplemented yet.')
     def test_run_pipeline(self):
@@ -142,7 +143,8 @@ class TestPipeline(unittest.TestCase):
                 os.unlink(tmp[1])
 
     def run_pipeline_io(self, filename):
-        pipeline = MyPipeline()
+        capsul = Capsul()
+        pipeline = capsul.executable(MyPipeline)
         from capsul.pipeline import pipeline_tools
         pipeline_tools.save_pipeline(pipeline, filename)
         pipeline2 = Capsul().executable(filename)

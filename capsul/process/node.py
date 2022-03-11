@@ -133,11 +133,30 @@ class Node(Controller):
                      'protected_parameters', 'pipeline_steps',
                      'visible_groups',)
 
-    def __init__(self, pipeline=None, name=None, inputs={}, outputs={}):
+    def __init__(self, definition=None, pipeline=None, name=None, inputs={},
+                 outputs={}):
         """ Generate a Node
 
         Parameters
         ----------
+        definition: str
+            The definition string defines the Node subclass in order to
+            serialize it for execution. In most cases it is the module + class
+            names ("caspul.pipeline.test.test_pipeline.MyPipeline" for
+            instance).
+
+            For a "locally defined" pipeline, we use the "custom_pipeline"
+            string, in order to tell the serialization engine to use a JSON
+            doct definition. The subclass
+            :class:`~capsul.pipeline.pipeline.CustomPipeline`, and the function
+            :meth:`Capsul.custom_pipeline <capsul.application.Capsul.custom_pipeline` take care of it.
+
+            For a "locally defined" process, this definition should be given
+            manually, and a locally defined process cannot be serialized, in a
+            general way.
+
+            The :meth:`Capsul.executable <capsul.application.Capsul.executable>` function sets this string
+            up when possible.
         pipeline: Pipeline
             the pipeline object where the node is added
         name: str
@@ -149,7 +168,21 @@ class Node(Controller):
             a list of output parameters containing a dictionary with default
             values (mandatory key: name)
         """
+
         super().__init__()
+
+        if definition is None:
+            defn = []
+            if self.__class__.__module__ != '__main__':
+                defn.append(self._class__.__module__)
+            else:
+                raise TypeError(
+                    'No definition string given to local Node constructor')
+            defn.append(self.__class__.__name__)
+            definition = '.'.join(defn)
+
+        self.definition = definition
+
         if name is None:
             name = self.__class__.__name__
         self.name = name

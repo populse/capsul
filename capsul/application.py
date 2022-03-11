@@ -100,15 +100,37 @@ def executable(definition, **kwargs):
     '''
     Build a Process instance given a definition string
     '''
+
+    def definition_string(cls, allow_local_pipeline=True,
+                          allow_local_node=False):
+        defn = []
+        if cls.__module__ != '__main__':
+            defn.append(cls.__module__)
+        else:
+            if issubclass(cls, Pipeline):
+                if allow_local_pipeline:
+                    return 'custom_pipeline'
+                else:
+                    raise TypeError(
+                        'No definition string given to Pipeline constructor')
+            elif not allow_local_node:
+                raise TypeError(
+                    'No definition string given to Process or Node '
+                    'constructor')
+        defn.append(cls.__name__)
+        definition = '.'.join(defn)
+        return definition
         
     result = None
     item = None
     if isinstance(definition, dict):
         result = executable_from_json(None, definition)
     elif isinstance(definition, Node):
-        result = type(definition)()
+        def_str = definition_string(type(definition))
+        result = type(definition)(definition=def_str)
     elif isinstance(definition, type) and issubclass(definition, Node):
-        result = definition()
+        def_str = definition_string(definition)
+        result = definition(definition=def_str)
     else:
         if definition.endswith('.json'):
             with open(definition) as f:
