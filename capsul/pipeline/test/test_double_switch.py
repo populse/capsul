@@ -82,11 +82,13 @@ class TestDoubleSwitchPipeline(unittest.TestCase):
     def setUp(self):
         self.pipeline = DoubleSwitchPipeline1()
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_way2(self):
         self.pipeline.switch1 = "one"
         self.pipeline.switch2 = "two"
         self.assertEqual(self.pipeline.nodes["switch1"].activated, True)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_way1(self):
         self.pipeline.switch1 = "one"
         self.pipeline.switch2 = "one"

@@ -62,6 +62,7 @@ class TestPipeline(unittest.TestCase):
     def setUp(self):
         self.pipeline = MyPipeline()
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_partial_desactivation(self):
         self.pipeline.nodes_activation.way11 = False
         self.run_unactivation_tests_1()
@@ -79,6 +80,7 @@ class TestPipeline(unittest.TestCase):
         self.run_unactivation_tests_2()
         self.pipeline.nodes_activation.way22 = True
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_full_desactivation(self):
         self.pipeline.nodes_activation.way11 = False
         self.pipeline.nodes_activation.way21 = False
@@ -92,6 +94,7 @@ class TestPipeline(unittest.TestCase):
         self.pipeline.workflow_ordered_nodes()
         self.assertEqual(self.pipeline.workflow_repr, "")
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def run_unactivation_tests_1(self):
         self.assertFalse(self.pipeline.nodes["way11"].activated)
         self.assertFalse(self.pipeline.nodes["way12"].activated)
@@ -100,6 +103,7 @@ class TestPipeline(unittest.TestCase):
         self.pipeline.workflow_ordered_nodes()
         self.assertEqual(self.pipeline.workflow_repr, "way21->way22")
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def run_unactivation_tests_2(self):
         self.assertTrue(self.pipeline.nodes["way11"].activated)
         self.assertTrue(self.pipeline.nodes["way12"].activated)

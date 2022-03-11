@@ -210,12 +210,14 @@ class TestSwitchPipeline(unittest.TestCase):
         with open(file_name) as f:
             return json.load(f)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_self_state(self):
         # verify that the state of a pipeline does not generate differences
         # when compared to itself
         state = self.pipeline.pipeline_state()
         self.assertEqual(self.pipeline.compare_to_state(state),[])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_switch_value(self):
         state_one = self.load_state('test_switch_subpipeline_one')    
         state_two = self.load_state('test_switch_subpipeline_two')

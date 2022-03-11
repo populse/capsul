@@ -93,6 +93,7 @@ class TestPipelineWithTemp(unittest.TestCase):
         self.pipeline = MyPipeline()
         self.iter_pipeline = MyIterativePipeline()
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_pipeline_with_temp(self):
         input_f = tempfile.mkstemp(suffix='capsul_input.txt')
         os.close(input_f[0])
@@ -125,6 +126,7 @@ class TestPipelineWithTemp(unittest.TestCase):
                 os.unlink(output_name)
             except OSError: pass
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_pipeline_with_temp(self):
         input_f = tempfile.mkstemp(suffix='capsul_input.txt')
         os.close(input_f[0])

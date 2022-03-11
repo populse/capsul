@@ -490,11 +490,13 @@ class TestCustomNodes(unittest.TestCase):
             = pipeline.nodes['test_output'].field('out_file').type_str()
         self.assertEqual(out_field_type, 'File')
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_custom_nodes(self):
         c = Capsul()
         pipeline = c.executable(Pipeline1)
         self._test_custom_nodes(pipeline)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_custom_nodes_workflow(self):
         c = Capsul()
         pipeline = c.executable(Pipeline1)
@@ -637,11 +639,13 @@ class TestCustomNodes(unittest.TestCase):
                           'subject%d_test_output' % i)
              for i in range(4)])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_leave_one_out_pipeline(self):
         c = Capsul()
         pipeline = c.executable(PipelineLOO)
         self._test_loo_pipeline(pipeline)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_custom_nodes_py_io(self):
         c = Capsul()
         pipeline = c.executable(Pipeline1)
@@ -665,6 +669,7 @@ class TestCustomNodes(unittest.TestCase):
         pipeline2 = c.executable(xmlfname)
         self._test_custom_nodes(pipeline2)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_loo_py_io(self):
         c = Capsul()
         pipeline = c.executable(PipelineLOO)
@@ -688,6 +693,7 @@ class TestCustomNodes(unittest.TestCase):
         pipeline2 = c.executable(xmlfname)
         self._test_loo_pipeline(pipeline2)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_mapreduce(self):
         c = Capsul()
         pipeline = c.executable(PipelineMapReduce)
@@ -707,6 +713,7 @@ class TestCustomNodes(unittest.TestCase):
         #print(sorted([(d[0].name, d[1].name) for d in wf.dependencies]))
         self.assertEqual(len(wf.dependencies), 28)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_cv_py_io(self):
         c = Capsul()
         pipeline = c.executable(PipelineCV)

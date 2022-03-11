@@ -130,6 +130,7 @@ class TestCompletion(unittest.TestCase):
             self.temps = []
 
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_completion(self):
         study_config = self.study_config
         process = study_config.get_process_instance(
@@ -149,6 +150,7 @@ class TestCompletion(unittest.TestCase):
                          os.path.normpath('/tmp/out/DummyProcess_bidule_jojo_barbapapa.txt'))
 
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_iteration(self):
         study_config = self.study_config
         pipeline = study_config.get_iteration_pipeline(
@@ -175,6 +177,7 @@ class TestCompletion(unittest.TestCase):
                 '/tmp/out/DummyProcess_bidule_muppets_stalter.txt',
                 '/tmp/out/DummyProcess_bidule_muppets_waldorf.txt']])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_list_completion(self):
         study_config = self.study_config
         process = study_config.get_process_instance(
@@ -201,6 +204,7 @@ class TestCompletion(unittest.TestCase):
                             '/tmp/out/DummyListProcess_result_cartoon.txt'))
 
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_run_iteraton_sequential(self):
         study_config = self.study_config
         tmp_dir = tempfile.mkdtemp(prefix='capsul_')
@@ -245,6 +249,7 @@ class TestCompletion(unittest.TestCase):
                 self.assertTrue(f.read() == '%s\n' % s)
 
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_run_iteraton_swf(self):
         study_config = self.study_config
         tmp_dir = tempfile.mkdtemp(prefix='capsul_')

@@ -63,10 +63,12 @@ class TestPipeline(unittest.TestCase):
     def setUp(self):
         self.pipeline = MyPipelineWithOptOut()
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_way1(self):
         self.pipeline.workflow_ordered_nodes()
         self.assertEqual(self.pipeline.workflow_repr, "node1->node2")
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_way2(self):
         self.pipeline.workflow_ordered_nodes()
         self.assertEqual(self.pipeline.workflow_repr, "node1->node2")
@@ -82,6 +84,7 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.nodes["node1"].process.output_image,
                          Undefined)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_xml(self):
         from capsul.pipeline import xml
         temp = tempfile.mkstemp(suffix='.xml')

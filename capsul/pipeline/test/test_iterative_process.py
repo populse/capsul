@@ -209,6 +209,7 @@ class TestPipeline(unittest.TestCase):
         else:
             shutil.rmtree(self.directory)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_pipeline_connection(self):
         """ Test if an iterative process works correctly
         """
@@ -237,6 +238,7 @@ class TestPipeline(unittest.TestCase):
                          [self.pipeline.other_input,
                           self.pipeline.other_input])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_pipeline_workflow(self):
         self.small_pipeline.output_image = [
             os.path.join(self.directory, 'toto_out'),
@@ -253,6 +255,7 @@ class TestPipeline(unittest.TestCase):
         # iterative jobs -> iterative output barrier (2)
         self.assertEqual(len(workflow.dependencies), 6)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_big_pipeline_workflow(self):
         self.big_pipeline.files_to_create = [["toto", "tutu"],
                                          ["tata", "titi", "tete"]]
@@ -286,6 +289,7 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(subjects,
                          set(["toto", "tutu", "tata", "titi", "tete"]))
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_pipeline_workflow_run(self):
         import soma_workflow.constants as swconstants
         import soma_workflow.client as swclient

@@ -61,10 +61,12 @@ class TestPipeline(unittest.TestCase):
     def setUp(self):
         self.pipeline = MyPipeline()
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_way1(self):
         self.pipeline.workflow_ordered_nodes()
         self.assertEqual(self.pipeline.workflow_repr, "node1")
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_way2(self):
         self.pipeline.switch1 = 'two'
         self.pipeline.workflow_ordered_nodes()

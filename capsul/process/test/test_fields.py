@@ -2,14 +2,14 @@
 import unittest
 import six
 
-from capsul.api import Process
+from capsul.api import Process, Capsul
 
 
 class DummyProcess(Process):
     f : float
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, definition):
+        super().__init__(definition=definition)
         self.add_field('ff', float)
 
 
@@ -21,9 +21,12 @@ class TestProcessUserTrait(unittest.TestCase):
         """ In the setup construct two processes with class and instance
         user parameters.
         """
+        capsul = Capsul()
         # Construct the processes
-        self.p1 = DummyProcess()
-        self.p2 = DummyProcess()
+        self.p1 = capsul.executable(
+            'capsul.process.test.test_fields.DummyProcess')
+        self.p2 = capsul.executable(
+            'capsul.process.test.test_fields.DummyProcess')
 
     def test_class_user_parameters(self):
         """ Method to test if class user parameters are not shared at

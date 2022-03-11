@@ -98,6 +98,7 @@ class TestPipeline(unittest.TestCase):
         self.output_file.close()
         self.pipeline.output_image = self.output_file.name
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_pipeline_connection(self):
         """ Method to test if an iterative node and built in iterative
         process are correctly connected.

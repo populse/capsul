@@ -191,6 +191,7 @@ class TestPipelineWorkflow(unittest.TestCase):
         except Exception:
             pass
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_requirements(self):
         engine = self.study_config.engine
         with engine.settings as session:
@@ -201,6 +202,7 @@ class TestPipelineWorkflow(unittest.TestCase):
                 self.pipeline, study_config=self.study_config)
 
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_full_wf(self):
         engine = self.study_config.engine
         self.pipeline.enable_all_pipeline_steps()
@@ -215,6 +217,7 @@ class TestPipelineWorkflow(unittest.TestCase):
         #import soma_workflow.client as swc
         #swc.Helper.serialize('/tmp/workflow1.wf', wf)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_partial_wf1(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step3 = False
@@ -224,6 +227,7 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.assertEqual(len(wf.jobs), 3)
         self.assertEqual(len(wf.dependencies), 2)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_partial_wf2(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step2 = False
@@ -233,6 +237,7 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.assertEqual(len(wf.jobs), 3)
         self.assertEqual(len(wf.dependencies), 0)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_partial_wf3_fail(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step1 = False
@@ -246,6 +251,7 @@ class TestPipelineWorkflow(unittest.TestCase):
             raise ValueError('workflow should have failed due to a missing '
                 'temporary file')
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_wf_run(self):
         print()
         engine = self.study_config.engine
@@ -270,6 +276,7 @@ class TestPipelineWorkflow(unittest.TestCase):
                 #print(text)
                 self.assertEqual(len(text.split('\n')), lens[o])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_iter_workflow_without_temp(self):
         engine = self.study_config.engine
         pipeline = engine.get_process_instance(DummyPipelineIterSimple)
@@ -315,6 +322,7 @@ class TestPipelineWorkflow(unittest.TestCase):
             #print(text)
             self.assertEqual(len(text.split('\n')), olen)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_iter_workflow(self):
         engine = self.study_config.engine
         pipeline = engine.get_process_instance(DummyPipelineIter)

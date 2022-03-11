@@ -107,6 +107,7 @@ class TestQCNodes(unittest.TestCase):
         """
         shutil.rmtree(self.output_directory)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_qc_active(self):
         """ Method to test if the run qc option works properly.
         """
@@ -125,6 +126,7 @@ class TestQCNodes(unittest.TestCase):
             # Check that the node has been executed
             self.assertEqual(process_instance.log_file, "in")
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_qc_inactive(self):
         """ Method to test if the run qc option works properly.
         """

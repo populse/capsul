@@ -203,6 +203,7 @@ class TestPipelineMethods(unittest.TestCase):
 
         shutil.rmtree(self.temp_folder)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_int(self):
         class Pipeline1(Pipeline):
 
@@ -248,6 +249,7 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), int)
         self.assertEqual(type(dic["pipeline_parameters"]["out"]), int)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_float(self):
         class Pipeline1(Pipeline):
 
@@ -300,6 +302,7 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), float)
         self.assertEqual(type(dic["pipeline_parameters"]["out"]), float)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_string(self):
         class Pipeline1(Pipeline):
 
@@ -345,6 +348,7 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), str)
         self.assertEqual(type(dic["pipeline_parameters"]["out"]), str)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_file(self):
         class Pipeline1(Pipeline):
 
@@ -394,6 +398,7 @@ class TestPipelineMethods(unittest.TestCase):
         self.assertEqual(type(dic["pipeline_parameters"]["in_2"]), str)
         self.assertEqual(type(dic["pipeline_parameters"]["out"]), list)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_list_int(self):
         class Pipeline1(Pipeline):
 
@@ -463,6 +468,7 @@ class TestPipelineMethods(unittest.TestCase):
             self.assertEqual(element, out[idx])
             self.assertEqual(type(element), int)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_list_float(self):
         class Pipeline1(Pipeline):
 
@@ -532,6 +538,7 @@ class TestPipelineMethods(unittest.TestCase):
             self.assertEqual(element, out[idx])
             self.assertEqual(type(element), float)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_list_string(self):
         class Pipeline1(Pipeline):
 
@@ -601,6 +608,7 @@ class TestPipelineMethods(unittest.TestCase):
             self.assertEqual(element, out[idx])
             self.assertEqual(type(element), str)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_list_file(self):
         class Pipeline1(Pipeline):
 
@@ -670,6 +678,7 @@ class TestPipelineMethods(unittest.TestCase):
             self.assertEqual(element, out[idx])
             self.assertEqual(type(element), str)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_list_list(self):
         class Pipeline1(Pipeline):
 
@@ -739,6 +748,7 @@ class TestPipelineMethods(unittest.TestCase):
             self.assertEqual(element, out[idx])
             self.assertEqual(type(element), int)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_date_time(self):
         class Pipeline1(Pipeline):
 

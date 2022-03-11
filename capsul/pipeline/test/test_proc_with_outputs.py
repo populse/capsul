@@ -278,6 +278,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
             print('leaving temp dir:', self.tmpdir, file=sys.stderr)
 
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_direct_run(self):
         self.study_config.use_soma_workflow = False
         self.pipeline.node2_switch = 'node2'
@@ -296,6 +297,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'This is an output file\n',
                           'And a second output file\n'])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_full_wf(self):
         self.study_config.use_soma_workflow = True
         self.pipeline.node2_switch = 'node2'
@@ -319,6 +321,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'This is an output file\n',
                           'And a second output file\n'])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_direct_run_switch(self):
         self.study_config.use_soma_workflow = False
         # change switch and re-run
@@ -335,6 +338,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'This is an output file\n',
                           'And another output file\n'])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_full_wf_switch(self):
         self.study_config.use_soma_workflow = True
         # change switch and re-run
@@ -356,6 +360,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'This is an output file\n',
                           'And another output file\n'])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_direct_run_subpipeline(self):
         self.study_config.use_soma_workflow = False
         pipeline = self.study_config.get_process_instance(
@@ -375,7 +380,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'And a second output file\n',
                           'This is an output file\n'])
 
-    #@unittest.skip('not working yet')
+    @unittest.skip('reimplementation expected for capsul v3')
     def xtest_full_wf_subpipeline(self):
         self.study_config.use_soma_workflow = True
         pipeline = self.study_config.get_process_instance(
@@ -401,6 +406,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'And a second output file\n',
                           'This is an output file\n'])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_direct_run_sub_iter(self):
         self.study_config.use_soma_workflow = False
         pipeline = self.study_config.get_process_instance(
@@ -430,7 +436,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'And a second output file\n',
                          ])
 
-    #@unittest.skip('not working yet')
+    @unittest.skip('reimplementation expected for capsul v3')
     def xtest_full_wf_sub_iter(self):
         self.study_config.use_soma_workflow = True
         pipeline = self.study_config.get_process_instance(

@@ -174,6 +174,7 @@ class TestTemporary(unittest.TestCase):
               os.unlink(self.output)
 
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_structure(self):
         self.pipeline.nb_outputs = 3
         self.assertEqual(self.pipeline.nodes["node2"].process.input,
@@ -181,6 +182,7 @@ class TestTemporary(unittest.TestCase):
         self.assertEqual(self.pipeline.nodes["node2"].process.output,
                          ["", "", ""])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_direct_run(self):
         self.study_config.use_soma_workflow = False
         self.pipeline.nb_outputs = 3
@@ -193,6 +195,7 @@ class TestTemporary(unittest.TestCase):
             res_out = f.readlines()
         self.assertEqual(len(res_out), 3)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_full_wf(self):
         self.study_config.use_soma_workflow = True
         self.pipeline.nb_outputs = 3

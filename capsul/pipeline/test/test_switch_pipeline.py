@@ -90,24 +90,28 @@ class TestSwitchPipeline(unittest.TestCase):
     def setUp(self):
         self.pipeline = SwitchPipeline()
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_way1(self):
         self.pipeline.switch = "one"
         workflow_repr = '->'.join([
             j.name for j in self.pipeline.workflow_ordered_nodes()])
         self.assertEqual(workflow_repr, "node->way1")
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_way2(self):
         self.pipeline.switch = "two"
         workflow_repr = '->'.join([
             j.name for j in self.pipeline.workflow_ordered_nodes()])
         self.assertEqual(workflow_repr, "node->way21->way22")
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_way3(self):
         self.pipeline.switch = "none"
         workflow_repr = '->'.join([
             j.name for j in self.pipeline.workflow_ordered_nodes()])
         self.assertEqual(workflow_repr, "node")
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_weak_on(self):
         self.pipeline.switch = "two"
 
@@ -132,6 +136,7 @@ class TestSwitchPipeline(unittest.TestCase):
         dest_weak_plug = dest_node.plugs["weak_output_2"]
         is_valid()
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_weak_off(self):
         self.pipeline.switch = "one"
 
@@ -156,6 +161,7 @@ class TestSwitchPipeline(unittest.TestCase):
         dest_weak_plug = dest_node.plugs["weak_output_2"]
         is_valid()
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_hard(self):
         self.pipeline.switch = "one"
         src_node = self.pipeline.nodes["node"]
@@ -170,6 +176,7 @@ class TestSwitchPipeline(unittest.TestCase):
                 is_weak = is_weak or wl
         self.assertFalse(is_weak)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_parameter_propagation(self):
         self.pipeline.switch = "one"
         key = "test"
