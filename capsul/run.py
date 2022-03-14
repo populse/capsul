@@ -21,7 +21,8 @@ if __name__ == '__main__':
     else:
         pid = os.fork()
     if pid == 0:
-        os.setsid()
+        if not sys.platform.startswith('win'):
+            os.setsid()
         if len(sys.argv) != 2:
             raise ValueError('This command must be called with a single parameter containing a capsul execution file')
         execution_file = sys.argv[1]
