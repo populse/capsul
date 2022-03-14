@@ -270,11 +270,14 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         nipype_instance._make_matlab_command = types.MethodType(
             _make_matlab_command, nipype_instance)
 
+    np_def = '.'.join([nipype_instance.__class__.__module__,
+                       nipype_instance.__class__.__name__])
     # Create new instance derived from Process
     if hasattr(base_class, '_nipype_class_type'):
-        process_instance = base_class()
+        process_instance = base_class(definition=np_def)
     else:
-        process_instance = base_class(nipype_instance)
+        process_instance = base_class(definition=np_def,
+                                      nipype_instance=nipype_instance)
 
     try:
         import nipype.interfaces.base.traits_extension as npe

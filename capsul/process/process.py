@@ -195,7 +195,7 @@ class FileCopyProcess(Process):
     _get_process_arguments
     _copy_input_files
     """
-    def __init__(self, activate_copy=True, inputs_to_copy=None,
+    def __init__(self, definition, activate_copy=True, inputs_to_copy=None,
                  inputs_to_clean=None, destination=None,
                  inputs_to_symlink=None, use_temp_output_dir=False):
         """ Initialize the FileCopyProcess class.
@@ -223,7 +223,7 @@ class FileCopyProcess(Process):
             working in the same directory and may write the same intermediate
             files (SPM does this a lot).
         """
-        super().__init__()
+        super().__init__(definition=definition)
 
         # Class parameters
         self.activate_copy = activate_copy
@@ -657,8 +657,8 @@ class NipypeProcess(FileCopyProcess):
         return instance
 
 
-    def __init__(self, nipype_instance=None, use_temp_output_dir=None,
-                 *args, **kwargs):
+    def __init__(self, definition, nipype_instance=None,
+                 use_temp_output_dir=None, *args, **kwargs):
         """ Initialize the NipypeProcess class.
 
         NipypeProcess instance gets automatically an additional user field
@@ -771,6 +771,7 @@ class NipypeProcess(FileCopyProcess):
             if use_temp_output_dir is None:
                 use_temp_output_dir = True
             super(NipypeProcess, self).__init__(
+                definition=definition,
                 activate_copy=True, inputs_to_copy=inputs_to_copy,
                 inputs_to_symlink=inputs_to_symlink,
                 inputs_to_clean=inputs_to_clean,
@@ -780,6 +781,7 @@ class NipypeProcess(FileCopyProcess):
             if use_temp_output_dir is None:
                 use_temp_output_dir = False
             super(NipypeProcess, self).__init__(
+                  definition=definition,
                   activate_copy=False, use_temp_output_dir=use_temp_output_dir,
                   *args, **kwargs)
 

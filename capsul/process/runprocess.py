@@ -254,8 +254,8 @@ def main():
     group1 = OptionGroup(
         parser, 'Config',
         description='Processing configuration, database options')
-    group1.add_option('--studyconfig', dest='studyconfig',
-        help='load StudyConfig configuration from the given file (JSON)')
+    group1.add_option('--engine', dest='capsulengine',
+        help='load CapsulEngine configuration from the given file (JSON)')
     group1.add_option('-i', '--input', dest='input_directory',
                       help='input data directory (if not specified in '
                       'studyconfig file). If not specified neither on the '
@@ -343,32 +343,29 @@ def main():
     parser.disable_interspersed_args()
     (options, args) = parser.parse_args()
 
-    if options.studyconfig:
-        study_config = StudyConfig(
-            modules=StudyConfig.default_modules
-                + ['FomConfig', 'BrainVISAConfig'])
+    capsul = Capsul()
+    engine = capsul.engine()
+    if options.capsulengine:
+        engine.load_modules(['fom', 'axon'])
         if yaml:
-            scdict = yaml.load(open(options.studyconfig))
+            scdict = yaml.load(open(options.capsulengine))
         else:
-            scdict = json.load(open(options.studyconfig))
-        study_config.set_study_configuration(scdict)
-    else:
-        study_config = StudyConfig()
-        study_config.read_configuration()
+            scdict = json.load(open(options.capsulengine))
+        engine.import_configs('global', scdict)
 
     if options.input_directory:
-        study_config.input_directory = options.input_directory
+        engine.input_directory = options.input_directory
     if options.output_directory:
-        study_config.output_directory = options.output_directory
-    if study_config.output_directory in (None, undefined) \
-            and study_config.input_directory not in (None, undefined):
-        study_config.output_directory = study_config.input_directory
-    if study_config.input_directory in (None, undefined) \
-            and study_config.output_directory not in (None, undefined):
-        study_config.input_directory = study_config.output_directory
-    study_config.somaworkflow_keep_succeeded_workflows \
+        engine.output_directory = options.output_directory
+    if engine.output_directory in (None, undefined) \
+            and engine.input_directory not in (None, undefined):
+        engine.output_directory = engine.input_directory
+    if engine.input_directory in (None, undefined) \
+            and engine.output_directory not in (None, undefined):
+        engine.input_directory = engine.output_directory
+    engine.somaworkflow_keep_succeeded_workflows \
         = options.keep_succeded_workflow
-    study_config.somaworkflow_keep_failed_workflows \
+    engine.somaworkflow_keep_failed_workflows \
         = not options.delete_failed_workflow
 
     kwre = re.compile(r'([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
@@ -443,7 +440,7 @@ def main():
     queue = options.queue
     file_processing = []
 
-    study_config.use_soma_workflow = options.soma_workflow
+    engine.use_soma_workflow = options.soma_workflow
 
     if options.soma_workflow:
         file_processing = [None, None]
@@ -452,7 +449,7 @@ def main():
         file_processing = [None, None]
 
     res = run_process_with_distribution(
-        study_config, process, options.soma_workflow, resource_id=resource_id,
+        engine, process, options.soma_workflow, resource_id=resource_id,
         password=password, rsa_key_pass=rsa_key_pass,
         queue=queue, input_file_processing=file_processing[0],
         output_file_processing=file_processing[1])

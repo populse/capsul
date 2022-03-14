@@ -30,7 +30,7 @@ class TestNipypeWrap(unittest.TestCase):
             self.output_extension = '.nii'
 
 
-    @unittest.skip('reimplementation expected for capsul v3')
+    #@unittest.skip('reimplementation expected for capsul v3')
     @unittest.skipIf(nipype is None, 'nipype is not installed')
     def test_nipype_automatic_wrap(self):
         """ Method to test if the automatic nipype interfaces wrap work
