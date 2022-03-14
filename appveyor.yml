@@ -6,7 +6,7 @@ environment:
   matrix:
 
     - PYTHON: "C:\\Python39"
-    - PYTHON: "C:\\Python310"
+    #- PYTHON: "C:\\Python310"
 
 build: off
 
