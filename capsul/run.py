@@ -16,7 +16,10 @@ if __name__ == '__main__':
     # Really detach the process from the parent.
     # Whthout this fork, performing Capsul tests shows warning
     # about child processes not properly wait for.
-    pid = os.fork()
+    if sys.platform.startswith('win'):
+        pid = 0
+    else:
+        pid = os.fork()
     if pid == 0:
         os.setsid()
         if len(sys.argv) != 2:
