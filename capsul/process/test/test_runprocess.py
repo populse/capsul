@@ -12,7 +12,7 @@ from capsul.api import Process
 
 class DummyProcess(Process):
     """Description of DummyProcess"""
-    f: field(type_=float, desc="help for parameter f")
+    f: field(type_=float, doc="help for parameter f")
     
     def execute(self):
         print("DummyProcess exec, f={0}".format(self.f))
@@ -20,14 +20,6 @@ class DummyProcess(Process):
 
 class TestRunProcess(unittest.TestCase):
     """Test case for CAPSUL command-line usage."""
-    def test_help(self):
-        with open(os.devnull, 'wb') as f:
-            ret = subprocess.call([sys.executable, "-m", "capsul.run",
-                                   "--help"],
-                                  stdout=f,
-                                  stderr=f)
-        self.assertEqual(ret, 0)
-
     def test_python_m_capsul(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([sys.executable, "-m", "capsul", "--help"],
@@ -35,25 +27,27 @@ class TestRunProcess(unittest.TestCase):
                                   stderr=f)
         self.assertEqual(ret, 0)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_run_process_help(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([
-                    sys.executable, "-m", "capsul.run",
+                    sys.executable, "-m", "capsul",
                     "--process-help",
                     "capsul.process.test.test_runprocess.DummyProcess"
                 ], stdout=f, stderr=f)
         self.assertEqual(ret, 0)
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_run_dummy_process(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([
-                sys.executable, "-m", "capsul.run",
+                sys.executable, "-m", "capsul",
                 "capsul.process.test.test_runprocess.DummyProcess",
                 "f=0.5"
             ], stdout=f, stderr=f)
             self.assertEqual(ret, 0)
             ret = subprocess.call([
-                sys.executable, "-m", "capsul.run",
+                sys.executable, "-m", "capsul",
                 "capsul.process.test.test_runprocess.DummyProcess",
                 "0.5"
             ], stdout=f, stderr=f)
@@ -63,18 +57,18 @@ class TestRunProcess(unittest.TestCase):
     def test_run_dummy_process_wrong_args(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([
-                sys.executable, "-m", "capsul.run",
+                sys.executable, "-m", "capsul",
                 "capsul.process.test.test_runprocess.DummyProcess",
                 "f=toto"
             ], stdout=f, stderr=f)
             self.assertNotEqual(ret, 0)
             ret = subprocess.call([
-                sys.executable, "-m", "capsul.run",
+                sys.executable, "-m", "capsul",
                 "capsul.process.test.test_runprocess.DummyProcess",
             ], stdout=f, stderr=f)
             self.assertNotEqual(ret, 0)
             ret = subprocess.call([
-                sys.executable, "-m", "capsul.run",
+                sys.executable, "-m", "capsul",
                 "capsul.process.test.test_runprocess.DummyProcess",
             ], stdout=f, stderr=f)
             self.assertNotEqual(ret, 0)
