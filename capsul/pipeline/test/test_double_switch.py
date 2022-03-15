@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 import unittest
 import os
-from capsul.api import Process
+import sys
+from capsul.api import Process, Capsul
 from capsul.api import Pipeline
 
 
 class DummyProcess(Process):
     """ Dummy Test Process
     """
-    def __init__(self):
-        super(DummyProcess, self).__init__()
+    def __init__(self, definition=None):
+        super(DummyProcess, self).__init__(
+            'capsul.pipeline.test.test_double_switch.DummyProcess')
 
         # inputs
         self.add_field("input_image", str, optional=False)
@@ -19,7 +19,7 @@ class DummyProcess(Process):
         # outputs
         self.add_field("output_image", str, optional=False, output=True)
 
-    def _run_process(self):
+    def execute(self, context=None):
         self.output_image = self.input_image
 
 
@@ -80,15 +80,14 @@ class DoubleSwitchPipeline1(Pipeline):
 class TestDoubleSwitchPipeline(unittest.TestCase):
 
     def setUp(self):
-        self.pipeline = DoubleSwitchPipeline1()
+        capsul = Capsul()
+        self.pipeline = capsul.executable(DoubleSwitchPipeline1)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_way2(self):
         self.pipeline.switch1 = "one"
         self.pipeline.switch2 = "two"
         self.assertEqual(self.pipeline.nodes["switch1"].activated, True)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_way1(self):
         self.pipeline.switch1 = "one"
         self.pipeline.switch2 = "one"
@@ -108,17 +107,18 @@ def test():
 if __name__ == "__main__":
     print("RETURNCODE: ", test())
 
-    if 0:
+    if '-v' in sys.argv[1:]:
         import sys
         from soma.qt_gui import qt_backend
-        qt_backend.set_qt_backend('PyQt4')
+        qt_backend.set_qt_backend(compatible_qt5=True)
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
-        pipeline = DoubleSwitchPipeline1()
+        capsul = Capsul()
+        pipeline = capsul.executable(DoubleSwitchPipeline1)
         pipeline.switch1 = "one"
         pipeline.switch2 = "one"
         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
