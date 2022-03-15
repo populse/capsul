@@ -126,8 +126,8 @@ def executable(definition, **kwargs):
     if isinstance(definition, dict):
         result = executable_from_json(None, definition)
     elif isinstance(definition, Node):
-        def_str = definition_string(type(definition))
-        result = type(definition)(definition=def_str)
+        # a Node instance is returned without copy.
+        result = definition
     elif isinstance(definition, type) and issubclass(definition, Node):
         def_str = definition_string(definition)
         result = definition(definition=def_str)
