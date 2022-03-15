@@ -28,7 +28,7 @@ class CrossValidationFoldNode(Node):
         for tr in out_fieldsl:
             out_fields.append({'name': tr, 'optional': True})
         super(CrossValidationFoldNode, self).__init__(
-            pipeline, name, in_fields, out_fields)
+            None, pipeline, name, in_fields, out_fields)
         if input_type:
             ptype = input_type
         else:

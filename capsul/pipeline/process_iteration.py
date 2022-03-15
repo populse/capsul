@@ -25,7 +25,8 @@ class ProcessIteration(Process):
 
     def __init__(self, process, iterative_parameters, 
                  context_name=None):
-        super(ProcessIteration, self).__init__()
+        super(ProcessIteration, self).__init__(
+            'capsul.pipeline.process_iteration.ProcessIteration')
 
         self.process = get_process_instance(process)
 
@@ -75,6 +76,9 @@ class ProcessIteration(Process):
                     list[Union[field.type, type(undefined)]],
                     metadata=meta,
                     default_factory=list)
+                value = getattr(self.process, name, undefined)
+                if value is not undefined:
+                    setattr(self, name, [value])
 
             else:
                 self.regular_parameters.add(name)
@@ -96,6 +100,7 @@ class ProcessIteration(Process):
                 if self.process.field(param).path_type:
                     outputs.append(param)
             else:
+                print('it param:', param, ':', repr(getattr(self, param, [])))
                 num = max(num, len(getattr(self, param, [])))
         for param in outputs:
             value = getattr(self, param, undefined)

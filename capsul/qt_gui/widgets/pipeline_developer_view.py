@@ -1265,6 +1265,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 process = self.sub_pipeline.__init__.__self__
             else:
                 process = self.sub_pipeline
+            print('emit:', self.scene().subpipeline_clicked)
+            print(type(event.modifiers()))
             self.scene().subpipeline_clicked.emit(self.name, process,
                                                   event.modifiers())
             event.accept()

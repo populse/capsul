@@ -174,7 +174,7 @@ class Node(Controller):
         if definition is None:
             defn = []
             if self.__class__.__module__ != '__main__':
-                defn.append(self._class__.__module__)
+                defn.append(self.__class__.__module__)
             else:
                 raise TypeError(
                     'No definition string given to local Node constructor')
