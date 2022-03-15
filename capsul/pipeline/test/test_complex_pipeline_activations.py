@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 
 import os
 import shutil
@@ -10,8 +8,7 @@ import sys
 
 from soma.controller import File, field
 
-from capsul.api import Process, Pipeline, Switch
-from capsul.process_instance import get_process_instance
+from capsul.api import Process, Pipeline, Switch, Capsul
 
 
 class Identity(Process):
@@ -39,9 +36,15 @@ class ComplexPipeline(Pipeline):
             'capsul.process.test.test_pipeline',
             make_optional=['output_1', 'output_10','output_100'])
         self.add_switch('select_threshold', ['threshold_1', 'threshold_10', 'threshold_100'], ['output_a', 'output_b', 'output_c'])
-        self.add_process('identity_a', Identity)
-        self.add_process('identity_b', Identity)
-        self.add_process('identity_c', Identity)
+        self.add_process(
+            'identity_a',
+            'capsul.pipeline.test.test_complex_pipeline_activations.Identity')
+        self.add_process(
+            'identity_b',
+            'capsul.pipeline.test.test_complex_pipeline_activations.Identity')
+        self.add_process(
+            'identity_c',
+            'capsul.pipeline.test.test_complex_pipeline_activations.Identity')
         
         self.export_parameter('first_pipeline', 'select_method')
         self.add_link('select_method->pipeline_1.select_method')
@@ -844,10 +847,11 @@ class TestComplexPipeline(unittest.TestCase):
         ),
     ]
 
-    @unittest.skip('reimplementation expected for capsul v3')
+    #@unittest.skip('reimplementation expected for capsul v3')
     def test_activations(self):
+        capsul = Capsul()
         for kwargs, activations_to_check in self.expected_status:
-            pipeline = get_process_instance(ComplexPipeline, **kwargs)
+            pipeline = capsul.executable(ComplexPipeline, **kwargs)
             
         for full_node_name, node_activations in activations_to_check.items():
             split = full_node_name.split('.')
@@ -887,7 +891,8 @@ if __name__ == '__main__':
     if '-v' in sys.argv[1:]:
         from pprint import pprint
         
-        pipeline = get_process_instance(ComplexPipeline)
+        capsul = Capsul()
+        pipeline = capsul.executable(ComplexPipeline)
             
         from soma.qt_gui.qt_backend import Qt
         from capsul.qt_gui.widgets import PipelineDeveloperView

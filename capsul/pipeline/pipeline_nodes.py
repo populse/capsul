@@ -155,7 +155,8 @@ class Switch(Node):
         node_outputs = [dict(name=i, optional=(i in make_optional))
                         for i in outputs]
         # inherit from Node class
-        super().__init__(pipeline, name)
+        super().__init__('capsul.pipeline.pipeline_nodes.Switch', pipeline,
+                         name)
 
         # add switch enum attribute to select the process
         kwargs = {}
