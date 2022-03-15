@@ -88,7 +88,6 @@ REQUIRES = [
     "soma-base>={0}".format(SOMA_MIN_VERSION),
     "soma-workflow>={0}".format(SOMA_WORKFLOW_MIN_VERSION),
     "populse-db>={0}".format(POPULSE_DB_MIN_VERSION),
-    "six>=1.13",
     "PyYAML",
 ]
 EXTRA_REQUIRES = {

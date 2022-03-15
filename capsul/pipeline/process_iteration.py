@@ -23,9 +23,9 @@ class ProcessIteration(Process):
 
     _doc_path = 'api/pipeline.html#processiteration'
 
-    def __init__(self, process, iterative_parameters, 
+    def __init__(self, definition, process, iterative_parameters, 
                  context_name=None):
-        super(ProcessIteration, self).__init__()
+        super(ProcessIteration, self).__init__(definition=definition)
 
         self.process = get_process_instance(process)
 

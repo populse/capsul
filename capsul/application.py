@@ -98,39 +98,38 @@ class Capsul:
 
 def executable(definition, **kwargs):
     '''
-    Build a Process instance given a definition string
-    '''
-
-    def definition_string(cls, allow_local_pipeline=True,
-                          allow_local_node=False):
-        defn = []
-        if cls.__module__ != '__main__':
-            defn.append(cls.__module__)
-        else:
-            if issubclass(cls, Pipeline):
-                if allow_local_pipeline:
-                    return 'custom_pipeline'
-                else:
-                    raise TypeError(
-                        'No definition string given to Pipeline constructor')
-            elif not allow_local_node:
-                raise TypeError(
-                    'No definition string given to Process or Node '
-                    'constructor')
-        defn.append(cls.__name__)
-        definition = '.'.join(defn)
-        return definition
-        
+    Build a Process instance given a definition item.
+    This definition item can be :
+      - A dictionary containing the JSON serialization of a process.
+        A new instance is created by desierializing this dictionary.
+      - A process instance.
+    '''        
     result = None
     item = None
     if isinstance(definition, dict):
         result = executable_from_json(None, definition)
-    elif isinstance(definition, Node):
-        def_str = definition_string(type(definition))
-        result = type(definition)(definition=def_str)
-    elif isinstance(definition, type) and issubclass(definition, Node):
-        def_str = definition_string(definition)
-        result = definition(definition=def_str)
+    elif isinstance(definition, Process):
+        if kwargs:
+            raise ValueError('executable() do not allow to modify parameters '
+                             'of an existing process')
+        return definition
+    elif isinstance(definition, type) and issubclass(definition, Process):
+        # A class is given as definition. Check that it can be imported.
+        module_name = definition.__module__
+        object_name = definition.__name__
+        try:
+            module = importlib.import_module(module_name)
+        except ImportError as e:
+            raise TypeError(
+                f'Class {definition} cannot be used to create a Process '
+                'beacause its module cannot be imported : {e}')
+        cls = getattr(module, object_name, None)
+        if cls is not definition:
+            raise TypeError(
+                f'Class {definition} cannot be used to create a Process '
+                f'beacause variable {object_name} of module {module_name} '
+                f'contains {cls}')
+        result = definition(definition=f'{module_name}.{object_name}')
     else:
         if definition.endswith('.json'):
             with open(definition) as f:

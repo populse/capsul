@@ -120,7 +120,6 @@ class Switch(Node):
         """
         # if the user pass a simple element, create a list and add this
         # element
-        #super(Node, self).__init__()
         self.__block_output_propagation = False
         if not isinstance(outputs, list):
             outputs = [outputs, ]
@@ -155,7 +154,7 @@ class Switch(Node):
         node_outputs = [dict(name=i, optional=(i in make_optional))
                         for i in outputs]
         # inherit from Node class
-        super().__init__(pipeline, name)
+        super().__init__(pipeline=pipeline, name=name)
 
         # add switch enum attribute to select the process
         kwargs = {}

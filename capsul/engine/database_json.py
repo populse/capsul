@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+
 import os
 import os.path as osp
-import six
-import uuid
 import json
 
 from capsul.engine.database import DatabaseEngine

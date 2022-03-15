@@ -12,10 +12,10 @@ import sys
 
 from soma.undefined import undefined
 
+import capsul.api
 from capsul.process.process import Process, NipypeProcess
 from .topological_sort import GraphNode
 from .topological_sort import Graph
-from .pipeline_nodes import Plug
 from .pipeline_nodes import Switch
 from .pipeline_nodes import OptionalOutputSwitch
 
@@ -391,13 +391,9 @@ class Pipeline(Process):
         # because application already importes pipeline.
         from capsul.application import Capsul
 
-        # FIXME : we should avoid re-creating a different Capsul instance
-        # every time (it is not a singleton)
-        capsul = Capsul()
-
         # Create a process node
         try:
-            node = capsul.executable(process, **kwargs)
+            node = capsul.api.executable(process, **kwargs)
         except Exception:
             if skip_invalid:
                 node = None
@@ -488,7 +484,7 @@ class Pipeline(Process):
         inputs_to_clean: list of str (optional)
             a list of temporary items.
         """
-        process = executable(process)
+        process = capsul.api.executable(process)
         forbidden = {'nodes_activation', 'selection_changed',
                      'pipeline_steps', 'visible_groups'}
         if non_iterative_plugs:
@@ -498,11 +494,17 @@ class Pipeline(Process):
 
         from .process_iteration import ProcessIteration
         context_name = self._make_subprocess_context_name(name)
+        iterative_process = ProcessIteration(
+                definition=f'{self.definition}#{name}', 
+                process=process,
+                iterative_parameters=iterative_plugs,
+                context_name=context_name)
         self.add_process(
-            name,
-            ProcessIteration(process, iterative_plugs,
-                              context_name=context_name),
-            do_not_export, make_optional, **kwargs)
+            name=name,
+            process=iterative_process,
+            do_not_export=do_not_export, 
+            make_optional=make_optional,
+            **kwargs)
 
     def call_process_method(self, process_name, method,
                             *args, **kwargs):
@@ -1020,6 +1022,9 @@ class Pipeline(Process):
             self.invalid_plugs.add(pipeline_parameter)
             return
 
+        if node is None:
+            raise ValueError(f'Invalid pipeline node name: {node_name}')
+        
         # Make a copy of the field
         source_field = node.field(plug_name)
 
@@ -2394,7 +2399,7 @@ class CustomPipeline(Pipeline):
 
         exported_parameters = set()
         for name, ejson in self.json_executable.get('executables', {}).items():
-            e = executable(ejson)
+            e = capsul.api.executable(ejson)
             self.add_process(name, e)
         
         for sel_key, sel_group_def in self.json_executable.get(
