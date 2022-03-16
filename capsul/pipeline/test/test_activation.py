@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 import unittest
 from soma.controller import File
-from capsul.api import Process
+from capsul.api import Process, Capsul
 from capsul.api import Pipeline
 import sys
 
@@ -11,7 +9,7 @@ import sys
 class DummyProcess(Process):
     """ Dummy Test Process
     """
-    def __init__(self):
+    def __init__(self, definition):
         super(DummyProcess, self).__init__(
             'capsul.pipeline.test.test_activation.DummyProcess')
 
@@ -60,9 +58,9 @@ class MyPipeline(Pipeline):
 class TestPipeline(unittest.TestCase):
 
     def setUp(self):
-        self.pipeline = MyPipeline()
+        capsul = Capsul()
+        self.pipeline = capsul.executable(MyPipeline)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_partial_desactivation(self):
         self.pipeline.nodes_activation.way11 = False
         self.run_unactivation_tests_1()
@@ -80,7 +78,6 @@ class TestPipeline(unittest.TestCase):
         self.run_unactivation_tests_2()
         self.pipeline.nodes_activation.way22 = True
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_full_desactivation(self):
         self.pipeline.nodes_activation.way11 = False
         self.pipeline.nodes_activation.way21 = False
@@ -92,25 +89,30 @@ class TestPipeline(unittest.TestCase):
         self.assertFalse(self.pipeline.nodes["way21"].activated)
         self.assertFalse(self.pipeline.nodes["way22"].activated)
         self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr, "")
+        workflow_repr = self.pipeline.workflow_ordered_nodes()
+        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
+                                  for x in workflow_repr)
+        self.assertEqual(workflow_repr, "")
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def run_unactivation_tests_1(self):
         self.assertFalse(self.pipeline.nodes["way11"].activated)
         self.assertFalse(self.pipeline.nodes["way12"].activated)
         self.assertTrue(self.pipeline.nodes["way21"].activated)
         self.assertTrue(self.pipeline.nodes["way22"].activated)
-        self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr, "way21->way22")
+        workflow_repr = self.pipeline.workflow_ordered_nodes()
+        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
+                                  for x in workflow_repr)
+        self.assertEqual(workflow_repr, "way21->way22")
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def run_unactivation_tests_2(self):
         self.assertTrue(self.pipeline.nodes["way11"].activated)
         self.assertTrue(self.pipeline.nodes["way12"].activated)
         self.assertFalse(self.pipeline.nodes["way21"].activated)
         self.assertFalse(self.pipeline.nodes["way22"].activated)
-        self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr, "way11->way12")
+        workflow_repr = self.pipeline.workflow_ordered_nodes()
+        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
+                                  for x in workflow_repr)
+        self.assertEqual(workflow_repr, "way11->way12")
 
 
 def test():
@@ -131,7 +133,8 @@ if __name__ == "__main__":
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
-        pipeline = MyPipeline()
+        capsul = Capsul()
+        pipeline = capsul.executable(MyPipeline)
         setattr(pipeline.nodes_activation, "way11", False)
         view1 = PipelineDeveloperView(pipeline)
         view1.show()
