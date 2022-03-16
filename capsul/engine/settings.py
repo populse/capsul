@@ -40,6 +40,7 @@ Settings cannot be used directly to configure the execution of a software. It is
 
 import importlib
 from uuid import uuid4
+import sys
 
 
 class Settings:
@@ -244,7 +245,7 @@ class Settings:
         return conf
 
 
-    def import_configs(self, environment, config_dict):
+    def import_configs(self, environment, config_dict, cont_on_error=False):
         '''
         Import config values from a dictionary as given by
         :meth:`select_configurations`.
@@ -266,13 +267,21 @@ class Settings:
                         conf = session.config(
                             module, environment, 'config_id == "%s"' %
                             config_id)
-                        if conf:
-                            values = {k: v for k, v in config.items()
-                                      if k not in ('config_id',
-                                                   'config_environment')}
-                            conf.set_values(values)
-                        else:
-                            session.new_config(module, environment, config)
+                        try:
+                            if conf:
+                                values = {k: v for k, v in config.items()
+                                          if k not in ('config_id',
+                                                      'config_environment')}
+                                conf.set_values(values)
+                            else:
+                                session.new_config(module, environment, config)
+                        except Exception as e:
+                            if not cont_on_error:
+                                raise
+                            print(e)
+                            print('Capsul config import fails for '
+                                  'environment:', environment, ', module:',
+                                  module, ', config:', config, file=sys.stderr)
 
     def get_all_environments(self):
         '''
