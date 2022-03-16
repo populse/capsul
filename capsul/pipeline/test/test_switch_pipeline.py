@@ -3,7 +3,7 @@
 import sys
 import unittest
 import os
-from capsul.api import Process
+from capsul.api import Process, Capsul
 from capsul.api import Pipeline
 from soma.controller import undefined
 
@@ -11,8 +11,9 @@ from soma.controller import undefined
 class DummyProcess(Process):
     """ Dummy Test Process
     """
-    def __init__(self):
-        super(DummyProcess, self).__init__()
+    def __init__(self, definition=None):
+        super(DummyProcess, self).__init__(
+            'capsul.pipeline.test.test_switch_pipeline')
 
         # inputs
         self.add_field("input_image", str, optional=False)
@@ -88,30 +89,27 @@ class SwitchPipeline(Pipeline):
 class TestSwitchPipeline(unittest.TestCase):
 
     def setUp(self):
-        self.pipeline = SwitchPipeline()
+        capsul = Capsul()
+        self.pipeline = capsul.executable(SwitchPipeline)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_way1(self):
         self.pipeline.switch = "one"
         workflow_repr = '->'.join([
             j.name for j in self.pipeline.workflow_ordered_nodes()])
         self.assertEqual(workflow_repr, "node->way1")
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_way2(self):
         self.pipeline.switch = "two"
         workflow_repr = '->'.join([
             j.name for j in self.pipeline.workflow_ordered_nodes()])
         self.assertEqual(workflow_repr, "node->way21->way22")
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_way3(self):
         self.pipeline.switch = "none"
         workflow_repr = '->'.join([
             j.name for j in self.pipeline.workflow_ordered_nodes()])
         self.assertEqual(workflow_repr, "node")
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_weak_on(self):
         self.pipeline.switch = "two"
 
@@ -136,7 +134,6 @@ class TestSwitchPipeline(unittest.TestCase):
         dest_weak_plug = dest_node.plugs["weak_output_2"]
         is_valid()
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_weak_off(self):
         self.pipeline.switch = "one"
 
@@ -161,7 +158,6 @@ class TestSwitchPipeline(unittest.TestCase):
         dest_weak_plug = dest_node.plugs["weak_output_2"]
         is_valid()
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_hard(self):
         self.pipeline.switch = "one"
         src_node = self.pipeline.nodes["node"]
@@ -210,7 +206,8 @@ if __name__ == "__main__":
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
-        pipeline = SwitchPipeline()
+        capsul = Capsul()
+        pipeline = capsul.executable(SwitchPipeline)
         pipeline.switch = "one"
         pipeline.input_image = 'test'
         pipeline.nodes["node"].execute(None)

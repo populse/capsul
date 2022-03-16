@@ -16,8 +16,9 @@ import json
 
 
 class TestProcess(Process):
-    def __init__(self):
-        super(TestProcess, self).__init__()
+    def __init__(self, definition=None):
+        super(TestProcess, self).__init__(
+            'caspul.pipeline.test.test_custom_nodes.TestProcess')
         self.add_field('in1', File, output=False)
         self.add_field('model', File, output=False)
         self.add_field('out1', File, write=True)
@@ -40,8 +41,9 @@ class TestProcess(Process):
 
 
 class TrainProcess1(Process):
-    def __init__(self):
-        super(TrainProcess1, self).__init__()
+    def __init__(self, definition=None):
+        super(TrainProcess1, self).__init__(
+            'caspul.pipeline.test.test_custom_nodes.TrainProcess1')
         self.add_field('in1', list[File], output=False)
         self.add_field('out1', File, write=True)
 
@@ -55,8 +57,9 @@ class TrainProcess1(Process):
 
 
 class TrainProcess2(Process):
-    def __init__(self):
-        super(TrainProcess2, self).__init__()
+    def __init__(self, definition=None):
+        super(TrainProcess2, self).__init__(
+            'caspul.pipeline.test.test_custom_nodes.TrainProcess2')
         self.add_field('in1', list[File], output=False)
         self.add_field('in2', File, output=False)
         self.add_field('out1', File, write=True)
@@ -75,8 +78,9 @@ class TrainProcess2(Process):
                 of.write(f.read())
 
 class CatFileProcess(Process):
-    def __init__(self):
-        super(CatFileProcess, self).__init__()
+    def __init__(self, definition=None):
+        super(CatFileProcess, self).__init__(
+            'caspul.pipeline.test.test_custom_nodes.CatFileProcess')
         self.add_field('files', list[File], output=False)
         self.add_field('output', File, write=True)
 
@@ -182,9 +186,7 @@ class PipelineLOO(Pipeline):
     def pipeline_definition(self):
         self.add_iterative_process(
             'train', 'capsul.pipeline.test.test_custom_nodes.Pipeline1',
-            iterative_plugs=['test',
-                            'subject',
-                            'test_output'])
+            non_iterative_plugs=['main_inputs', 'output_directory'])
             #do_not_export=['test_output'])
         self.add_process(
             'global_output',
@@ -256,8 +258,10 @@ class PipelineCVFold(Pipeline):
         self.add_process("train2", "capsul.pipeline.test.test_custom_nodes.TrainProcess2")
         self.nodes["train2"].in2 = u'%s_interm' % os.path.sep
         self.nodes["train2"].out1 = os.path.sep
-        self.add_iterative_process("test_it", "capsul.pipeline.test.test_custom_nodes.CVtest", iterative_plugs=set([u'out1', u'in1', u'subject']),
-                                   make_optional=['out1'])
+        self.add_iterative_process(
+            "test_it", "capsul.pipeline.test.test_custom_nodes.CVtest",
+            non_iterative_plugs=set(['model', 'base',]),
+            make_optional=['out1'])
         self.add_custom_node("output_file", "capsul.pipeline.custom_nodes.strcat_node.StrCatNode", {'concat_plug': 'out_file', 'outputs': ['base'], 'param_types': ['Directory', 'str', 'str', 'Any'], 'parameters': ['base', 'separator', 'subject']})
         self.nodes["output_file"].plugs["separator"].optional = True
         self.nodes["output_file"].plugs["subject"].optional = True
@@ -349,7 +353,7 @@ class PipelineCV(Pipeline):
     def pipeline_definition(self):
         self.add_iterative_process(
             'train', 'capsul.pipeline.test.test_custom_nodes.PipelineCVFold',
-            iterative_plugs=['fold'])
+            non_iterative_plugs=['fold'])
             #do_not_export=['test_output'])
         self.export_parameter('train', 'main_inputs')
         self.export_parameter('train', 'subjects', 'subjects')
@@ -755,18 +759,20 @@ if __name__ == '__main__':
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
-        #pipeline = Pipeline1()
-        #pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i
-        #for i in range(4)])
+        capsul = Capsul()
+
+        #pipeline = capsul.executable(Pipeline1)
+        #pipeline.main_inputs = [os.path.join('/tmp', 'file%d' % i)
+        #for i in range(4)]
         #pipeline.test = pipeline.main_inputs[2]
         #pipeline.subject = 'subject2'
-        #pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
+        #pipeline.output_directory = os.path.join('/tmp', 'out_dir')
         #view1 = PipelineDeveloperView(pipeline, allow_open_controller=True,
                                        #show_sub_pipelines=True,
                                        #enable_edition=True)
         #view1.show()
 
-        pipeline2 = PipelineLOO()
+        pipeline2 = capsul.executable(PipelineLOO)
         pipeline2.main_inputs = ['/tmp/file%d' % i for i in range(4)]
         pipeline2.test = pipeline2.main_inputs[2]
         pipeline2.subjects = ['subject%d' % i for i in range(4)]

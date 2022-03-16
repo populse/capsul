@@ -473,7 +473,7 @@ class Pipeline(Process):
         process: Process or str (mandatory)
             the process we want to add.
         non_iterative_plugs: list of str (optional)
-            a list of plug names on which we want to iterate.
+            a list of plug names on which we *do not* want to iterate.
             If None, all plugs of the process will be iterated.
         do_not_export: list of str (optional)
             a list of plug names that we do not want to export.
@@ -484,13 +484,24 @@ class Pipeline(Process):
         inputs_to_clean: list of str (optional)
             a list of temporary items.
         """
-        process = capsul.api.executable(process)
-        forbidden = {'nodes_activation', 'selection_changed',
-                     'pipeline_steps', 'visible_groups'}
-        if non_iterative_plugs:
-            forbidden.update(non_iterative_plugs)
-        iterative_plugs = [field.name for field in process.fields()
-                            if field.name not in forbidden]
+
+        from ..application import executable
+
+        process = executable(process)
+        if 'iterative_plugs' in kwargs:
+            if non_iterative_plugs is not None:
+                raise ValueError(
+                    'Both iterative_plugs and non_iterative_plugs are '
+                    'specified - they are mutually exclusive')
+            iterative_plugs = kwargs.pop('iterative_plugs')
+        else:
+            forbidden = {'nodes_activation', 'selection_changed',
+                        'pipeline_steps', 'visible_groups', 'enabled',
+                        'activated', 'node_type'}
+            if non_iterative_plugs:
+                forbidden.update(non_iterative_plugs)
+            iterative_plugs = [field.name for field in process.fields()
+                              if field.name not in forbidden]
 
         from .process_iteration import ProcessIteration
         context_name = self._make_subprocess_context_name(name)

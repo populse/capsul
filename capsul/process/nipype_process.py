@@ -33,7 +33,8 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
     A new 'output_directory' nipype input trait is created.
 
     Since nipype inputs and outputs are separated and thus can have
-    the same names, the nipype process outputs are prefixed with '_'.
+    the same names, parameters which fall into this case will be suffixed with
+    '_i' for inputs, and '_o' for outputs, in order to differentiate them.
 
     It also monkey patch some nipype functions in order to execute the
     process in a specific directory:
@@ -292,16 +293,34 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             # no nipype, or problem loading it. Give up, use regular traits.
             import traits.api as npe
 
+    trait_map = getattr(process_instance, '_nipype_trait_mapping', {})
+    in_params_i = {}
+    in_params = {}
+    out_params = {}
+
+    # collect input/output traits/field names, suppress ambiguities
+    for trait_name, trait in nipype_instance.input_spec().items():
+        field_name = trait_map.get('input.%s' %trait_name,
+                                   trait_map.get(trait_name, trait_name))
+        in_params_i[field_name] = trait_name
+    for trait_name, trait in nipype_instance.output_spec().items():
+        field_name = trait_map.get('output.%s' % trait_name,
+                                   trait_map.get(trait_name, trait_name))
+        if field_name in in_params_i:
+            in_params_i[field_name + '_i'] = in_params_i[field_name]
+            field_name += '_o'
+        out_params[trait_name] = field_name
+    for field_name, trait_name in in_params_i.items():
+        in_params[trait_name] = field_name
+
+
     # Add nipype traits to the process instance
     # > input traits
-    trait_map = getattr(process_instance, '_nipype_trait_mapping', {})
-
     for trait_name, trait in nipype_instance.input_spec().items():
-
         # Check if trait name already used in class attributes:
         # For instance nipype.interfaces.fsl.FLIRT has a save_log bool input
         # trait.
-        field_name = trait_map.get(trait_name, trait_name)
+        field_name = in_params[trait_name]
         if process_instance.field(field_name) is not None:
             field_name = "nipype_" + field_name
 
@@ -320,16 +339,9 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
 
         # initialize value with nipype interface initial value, (if we can...)
         try:
-
-            if trait_name.startswith("nipype_"):
-                setattr(process_instance,
-                        trait_name,
-                        getattr(nipype_instance.inputs, trait_name[7:]))
-
-            else:
-                value = getattr(nipype_instance.inputs, trait_name)
-                value = replace_undef(value)
-                setattr(process_instance, field_name, value)
+            value = getattr(nipype_instance.inputs, trait_name)
+            value = replace_undef(value)
+            setattr(process_instance, field_name, value)
 
         except sc.ValidationError:
             # the value in the nipype trait is actually invalid...
@@ -357,15 +369,15 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
     # > output traits
     for trait_name, trait in nipype_instance.output_spec().items():
 
+        field_name = out_params[trait_name]
+        if process_instance.field(field_name) is not None:
+            field_name = "nipype_" + field_name
+
         # Relax nipye exists trait contrain
         relax_exists_constraint(trait)
 
         # Clone the nipype trait
         process_field = trait_to_field(trait)
-
-        # Create the output process field name: nipype trait name prefixed
-        # by '_'
-        private_name = trait_map.get(trait_name, '_' + trait_name)
 
         # Add the cloned trait to the process instance
         # Need to copy all the nipype trait information
@@ -384,7 +396,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         if process_instance._nipype_interface_name == 'spm':
             kwargs['output'] = True
 
-        process_instance.add_field(private_name, process_field,
+        process_instance.add_field(field_name, process_field,
                                    metadata=kwargs)
 
     # allow to save the SPM .m script

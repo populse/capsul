@@ -451,7 +451,7 @@ class OptionalOutputSwitch(Switch):
         none_input = f'_none_switch_{output}'
         pipeline.do_not_export.add((name, none_input))
         # hide internal machinery plugs
-        self.field('switch').metadate['hidden'] = True
+        self.field('switch').hidden = True
         self.plugs['switch'].hidden = True
         self.field(none_input).hidden = True
         self.plugs[none_input].hidden = True

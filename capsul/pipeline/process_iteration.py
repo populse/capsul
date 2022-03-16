@@ -75,6 +75,9 @@ class ProcessIteration(Process):
                     list[Union[field.type, type(undefined)]],
                     metadata=meta,
                     default_factory=list)
+                value = getattr(self.process, name, undefined)
+                if value is not undefined:
+                    setattr(self, name, [value])
 
             else:
                 self.regular_parameters.add(name)
@@ -96,6 +99,7 @@ class ProcessIteration(Process):
                 if self.process.field(param).path_type:
                     outputs.append(param)
             else:
+                print('it param:', param, ':', repr(getattr(self, param, [])))
                 num = max(num, len(getattr(self, param, [])))
         for param in outputs:
             value = getattr(self, param, undefined)

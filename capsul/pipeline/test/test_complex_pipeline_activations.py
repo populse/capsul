@@ -847,7 +847,6 @@ class TestComplexPipeline(unittest.TestCase):
         ),
     ]
 
-    #@unittest.skip('reimplementation expected for capsul v3')
     def test_activations(self):
         capsul = Capsul()
         for kwargs, activations_to_check in self.expected_status:
