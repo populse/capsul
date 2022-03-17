@@ -316,7 +316,7 @@ class CapsulEngine(Controller):
     def path_metadata(self, path, named_directory=None):
         return self.database.set_path_metadata(path, named_directory)
 
-    def import_configs(self, environment, config_dict):
+    def import_configs(self, environment, config_dict, cont_on_error=False):
         '''
         Import config values from a dictionary as given by
         :meth:`Settings.select_configurations`.
@@ -327,7 +327,7 @@ class CapsulEngine(Controller):
         modules = config_dict.get('capsul_engine', {}).get('uses', {})
         for module in modules:
             self.load_module(module)
-        self.settings.import_configs(environment, config_dict)
+        self.settings.import_configs(environment, config_dict, cont_on_error)
 
     #
     # Processes and pipelines related methods
