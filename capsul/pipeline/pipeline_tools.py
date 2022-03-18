@@ -1351,3 +1351,141 @@ def is_node_enabled(pipeline, node_name=None, node=None):
 
     # not disabled ? OK then it's enabled
     return True
+
+
+def trait_str(trait, with_att=True):
+
+    def str_from_trait_id(tid, with_att=True):
+        vals = []
+        if tid[0] == 'Enum':
+            vals += [repr(x) for x in trait.handler.values]
+        tname = tid[0]
+        if tname.startswith('List_'):
+            t = tname
+            tname = 'List'
+            while t.startswith('List_'):
+                t = t[5:]
+                vals = [str_from_trait_id([t], False)]
+        if with_att:
+            vals += ['output=%s' % repr(bool(trait.output)),
+                     'default=%s' % repr(trait.default),
+                     'optional=%s' % repr(bool(trait.optional))]
+            if trait.input_filename:
+                vals.append('input_filename=True')
+        t_str = 'traits.%s(%s)' % (tname, ', '.join(vals))
+
+        return t_str
+
+    from soma.controller.trait_utils import trait_ids
+
+    tid = trait_ids(trait)
+    return str_from_trait_id(tid, True)
+
+
+def write_fake_process(process, filename):
+    ''' Write a "fake process" with same class name and parameters as the input
+    process, but with a fake execution function meant for tests.
+    '''
+
+    from soma.controller.trait_utils import trait_ids
+
+    with open(filename, 'w') as f:
+        f.write('''from capsul.api import Process
+import os
+import traits.api as traits
+
+
+class %s(Process):
+    def __init__(self):
+        super(%s, self).__init__()
+        self.name = '%s'
+
+''' % (process.__class__.__name__, process.__class__.__name__, process.name))
+
+        for name, trait in process.user_traits().items():
+            t_str = trait_str(trait)
+            f.write('        self.add_trait("%s", %s)\n' % (name, t_str))
+
+        f.write('''
+    def _run_process(self):
+        outputs = []
+        for name, param in self.user_traits().items():
+            if isinstance(trait.trait_type, traits.File):
+                if param.output:
+                    outputs.append(name)
+                    coninue
+                filename = getattr(self, name)
+                if filename not in (None, Undefined):
+                    if not os.path.exists(filename):
+                        raise ValueError('Input file %s does not exist' % filename)
+        for name in outputs:
+            trait = self.trait(name)
+            filename = getattr(self, name)
+            if filename not in (None, Undefined):
+                with open(filename, 'w') as f:
+                    f.write(self.__class__.__name__, self.name, name, '\\n')
+''')
+
+
+def write_fake_pipeline(pipeline, module_name, dirname):
+    ''' Write a "fake pipeline" with same class name, structure, and parameters
+    as the input pipeline, but replacing its processes with "fake" processes
+    which do not actually do a real job while executing.
+
+    This is meant for tests, to mimick a "real" pipeline structure without its
+    dependencies.
+
+    :warning:`This function actually modifies the input pipeline, which is
+    transformed into a fake one.`
+    '''
+
+    def replace_node(node, module_name, dirname, done):
+        basename = node.process.__class__.__name__.lower()
+        modname = '.'.join([module_name, basename])
+        filename = os.path.join(dirname, '%s.py' % basename)
+        if modname not in done:
+            done.add(modname)
+            write_fake_process(node.process, filename)
+        new_proc \
+            = pipeline.get_study_config().engine.get_process_instance(filename)
+        new_proc.__class__.__module__ = modname
+        node.process = new_proc
+
+    sys.path.insert(0, dirname)
+    dirname = os.path.join(dirname, module_name)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    with open(os.path.join(dirname, '__init__.py'), 'w'):
+        pass
+
+    nodes = [node[1] for node in pipeline.nodes.items() if node[0] != '']
+    done = set()
+    pipelines = [pipeline]
+    while nodes:
+        node = nodes.pop(0)
+        if not hasattr(node, 'process'):
+            continue
+        if isinstance(node.process, Pipeline):
+            if node.process.__class__ not in done:
+                nodes += [n[1] for n in node.process.nodes.items()
+                          if n[0] != '']
+                node.process.__class__.__module__ = '.'.join(
+                    [module_name, node.process.__class__.__name__.lower()])
+                done.add(node.process.__class__)
+                pipelines.append(node.process)
+        elif isinstance(node.process, ProcessIteration):
+            proc = node.process.process
+            if isinstance(proc, Pipeline):
+                nodes += [n[1] for n in node.process.nodes.items()
+                          if n[0] != '']
+            else:
+                replace_node(proc, module_name, dirname, done)
+        else:
+            replace_node(node, module_name, dirname, done)
+
+    for pipeline in reversed(pipelines):
+        filename = os.path.join(dirname, '%s.py' \
+            % pipeline.__class__.__name__.lower())
+        save_pipeline(pipeline, filename)
+
+    del sys.path[0]
