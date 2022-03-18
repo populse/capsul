@@ -1413,7 +1413,7 @@ class %s(Process):
             if isinstance(trait.trait_type, traits.File):
                 if param.output:
                     outputs.append(name)
-                    coninue
+                    continue
                 filename = getattr(self, name)
                 if filename not in (None, Undefined):
                     if not os.path.exists(filename):
@@ -1432,7 +1432,7 @@ def write_fake_pipeline(pipeline, module_name, dirname):
     as the input pipeline, but replacing its processes with "fake" processes
     which do not actually do a real job while executing.
 
-    This is meant for tests, to mimick a "real" pipeline structure without its
+    This is meant for tests, to mimic a "real" pipeline structure without its
     dependencies.
 
     :warning:`This function actually modifies the input pipeline, which is

@@ -366,7 +366,7 @@ class Pipeline(Process):
         super(Pipeline, self).remove_trait(name)
 
     def reorder_traits(self, names):
-        """ Reimplmentation of :class:`~soma.controller.controller.Controller`
+        """ Reimplementation of :class:`~soma.controller.controller.Controller`
         method :meth:`~~soma.controller.controller.Controller.reorder_traits`
         so that we also reorder the pipeline node plugs.
         """
