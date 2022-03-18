@@ -365,6 +365,17 @@ class Pipeline(Process):
         # Remove the trait
         super(Pipeline, self).remove_trait(name)
 
+    def reorder_traits(self, names):
+        """ Reimplmentation of :class:`~soma.controller.controller.Controller`
+        method :meth:`~~soma.controller.controller.Controller.reorder_traits`
+        so that we also reorder the pipeline node plugs.
+        """
+        super(Pipeline, self).reorder_traits(names)
+        old_keys = self.pipeline_node.plugs.sortedKeys
+        self.pipeline_node.plugs.sortedKeys \
+            = [k for k in names if k in old_keys] \
+              + [k for k in old_keys if k not in names]
+
     def _make_subprocess_context_name(self, name):
         ''' build full contextual name on process instance
         '''
