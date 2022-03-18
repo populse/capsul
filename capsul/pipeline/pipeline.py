@@ -370,7 +370,11 @@ class Pipeline(Process):
         method :meth:`~~soma.controller.controller.Controller.reorder_traits`
         so that we also reorder the pipeline node plugs.
         """
-        super(Pipeline, self).reorder_traits(names)
+        pnames = names
+        if 'nodes_activation' not in names:
+            # keep nodes_activation first since it's normally the first added
+            pnames = ['nodes_activation'] + list(names)
+        super(Pipeline, self).reorder_traits(pnames)
         old_keys = self.pipeline_node.plugs.sortedKeys
         self.pipeline_node.plugs.sortedKeys \
             = [k for k in names if k in old_keys] \
