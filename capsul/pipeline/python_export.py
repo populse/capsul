@@ -306,6 +306,16 @@ def save_py_pipeline(pipeline, py_file):
                             print('        self.add_link("%s->%s"%s)'
                                   % (src, dst, weak_link), file=pyf)
 
+    def _write_param_order(pipeline, pyf):
+        if len(pipeline.user_traits()) == 0:
+            return
+        print('\n        # parameters order', file=pyf)
+        names = ['"%s"' % n for n in pipeline.user_traits().keys()
+                 if n not in ('nodes_activation', 'pipeline_steps',
+                              'visible_groups')]
+        print('\n        self.reorder_traits((%s))'
+              % ', '.join(names), file=pyf)
+
     def _write_steps(pipeline, pyf):
         steps = pipeline.trait('pipeline_steps')
         if steps and getattr(pipeline, 'pipeline_steps', None):
@@ -433,6 +443,7 @@ def save_py_pipeline(pipeline, py_file):
 
         _write_processes(pipeline, pyf)
         _write_links(pipeline, pyf)
+        _write_param_order(pipeline, pyf)
         _write_processes_selections(pipeline, pyf)
         _write_steps(pipeline, pyf)
         _write_values(pipeline, pyf)
