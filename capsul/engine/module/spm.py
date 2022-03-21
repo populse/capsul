@@ -175,8 +175,12 @@ def edition_widget(engine, environment):
             else:
                 values['directory'] = controller.directory
             values['standalone'] = controller.standalone
-            values['version'] = controller.version
-            id = 'spm%s%s' % (controller.version,
+            if controller.version in (None, traits.Undefined, ''):
+                values['version'] = None
+            else:
+                values['version'] = controller.version
+            id = 'spm%s%s' % (controller.version if
+                              controller.version != traits.Undefined else '',
                               '-standalone' if controller.standalone else '')
             values['config_id'] = id
             query = 'config_id == "%s"' % id
@@ -193,7 +197,7 @@ def edition_widget(engine, environment):
         output=False,
         desc="Directory containing SPM."))
     controller.add_trait("standalone", traits.Bool(
-        True,
+        False,
         desc="If True, use the standalone version of SPM."))
     controller.add_trait('version', traits.Str(
         traits.Undefined, output=False,
