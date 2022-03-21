@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import unittest
 import os
 import json
-from capsul.api import Process
+from capsul.api import Process, Capsul
 from capsul.api import Pipeline
 from soma.controller import undefined
 import sys
@@ -13,7 +13,7 @@ import sys
 class DummyProcess(Process):
     """ Dummy Test Process
     """
-    def __init__(self):
+    def __init__(self, definition=None):
         super(DummyProcess, self).__init__(
             'capsul.pipeline.test.test_switch_subpipeline.DummyProcess')
 
@@ -33,7 +33,7 @@ class DummyProcess(Process):
 class DummyProcess1_1(Process):
     """ Dummy Test Process with 1 input and one output
     """
-    def __init__(self):
+    def __init__(self, definition=None):
         super(DummyProcess1_1, self).__init__(
             'capsul.pipeline.test.test_switch_subpipeline.DummyProcess1_1')
 
@@ -49,7 +49,7 @@ class DummyProcess1_1(Process):
 class DummyProcess2_1(Process):
     """ Dummy Test Process with 2 inputs and one output
     """
-    def __init__(self):
+    def __init__(self, definition=None):
         super(DummyProcess2_1, self).__init__(
             'capsul.pipeline.test.test_switch_subpipeline.DummyProcess2_1')
 
@@ -67,7 +67,7 @@ class DummyProcess2_1(Process):
 class DummyProcess4_1(Process):
     """ Dummy Test Process with 4 inputs and one output
     """
-    def __init__(self):
+    def __init__(self, definition=None):
         super(DummyProcess4_1, self).__init__(
             'capsul.pipeline.test.test_switch_subpipeline.DummyProcess4_1')
 
@@ -202,7 +202,8 @@ class TestSwitchPipeline(unittest.TestCase):
 
     def setUp(self):
         self.maxDiff = None
-        self.pipeline = MainTestPipeline()
+        capsul = Capsul()
+        self.pipeline = capsul.executable(MainTestPipeline)
         self.pipeline.name = ''  # saved state has en empty main node name
 
     def load_state(self, file_name):
@@ -210,14 +211,12 @@ class TestSwitchPipeline(unittest.TestCase):
         with open(file_name) as f:
             return json.load(f)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_self_state(self):
         # verify that the state of a pipeline does not generate differences
         # when compared to itself
         state = self.pipeline.pipeline_state()
         self.assertEqual(self.pipeline.compare_to_state(state),[])
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_switch_value(self):
         state_one = self.load_state('test_switch_subpipeline_one')    
         state_two = self.load_state('test_switch_subpipeline_two')
@@ -252,12 +251,11 @@ if __name__ == "__main__":
         from soma.qt_gui.qt_backend import Qt
         from capsul.qt_gui.widgets import PipelineDeveloperView
         #from capsul.qt_gui.widgets import PipelineUserView
-        from capsul.api import Capsul
 
         app = Qt.QApplication(sys.argv)
         capsul = Capsul()
         # pipeline = capsul.executable(MainTestPipeline)
-        pipeline = MainTestPipeline()
+        pipeline = capsul.executable(MainTestPipeline)
         pipeline.selection_changed.add(write_state)
         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                       allow_open_controller=True)
