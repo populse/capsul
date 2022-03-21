@@ -1060,13 +1060,6 @@ class Pipeline(Process):
         trait = dest_node.get_trait(dest_plug_name)
         relax_exists_constraint(trait)
 
-        # if the destination is a mandatory input, set the input param to be
-        # mandatory
-        if not trait.optional:
-            source_trait = source_node.get_trait(source_plug_name)
-            source_trait.optional = False
-            source_plug.optional = False
-
         # Propagate the plug value from source to destination
         value = source_node.get_plug_value(source_plug_name)
         if value is not None:
