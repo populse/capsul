@@ -206,9 +206,9 @@ def edition_widget(engine, environment):
             'capsul.engine.module.spm', {}).get('directory',
                                                 traits.Undefined)
         controller.standalone = conf.get(
-            'capsul.engine.module.spm', {}).get('standalone', True)
+            'capsul.engine.module.spm', {}).get('standalone', False)
         controller.version = conf.get(
-            'capsul.engine.module.spm', {}).get('version', '12')
+            'capsul.engine.module.spm', {}).get('version', traits.Undefined)
 
     # TODO handle several configs
 
