@@ -1,9 +1,24 @@
 # -*- coding: utf-8 -*-
 
 from soma.controller import (Controller, Directory, field,
-                             OpenKeyDictController, File)
+                             OpenKeyDictController, File, undefined)
 import os
 import sys
+import importlib
+
+
+def full_module_name(module_name):
+    '''
+    Return a complete module name (which must be a valid Python module
+    name) given a possibly abbreviated module name. This method must
+    be used whenever a module name is written by a user (for instance
+    in a configuration file.
+    This method add the prefix `'capsul.engine.module.'` if the module
+    name does not contain a dot.
+    '''
+    if '.' not in module_name:
+        module_name = 'capsul.config.' + module_name
+    return module_name
 
 
 class ModuleConfiguration(Controller):
@@ -12,7 +27,7 @@ class ModuleConfiguration(Controller):
     This base class is meant to be inherited in specific modules
     (:class:`SPMConfiguration` etc).
     '''
-    name: str
+    name = ''
 
     def is_valid_config(self, requirements):
         ''' Checks validity of this config in regard to given requirements
@@ -51,23 +66,49 @@ class EngineConfiguration(Controller):
     #modules: dict[str, dict[str, ModuleConfiguration]] \
         #= field(default_factory=dict)
     
-    modules: OpenKeyDictController[OpenKeyDictController[
-        ModuleConfiguration]] \
-        = field(default_factory=OpenKeyDictController[OpenKeyDictController[
-            ModuleConfiguration]])
+    #modules: OpenKeyDictController[OpenKeyDictController[
+        #ModuleConfiguration]] \
+        #= field(default_factory=OpenKeyDictController[OpenKeyDictController[
+            #ModuleConfiguration]])
 
-    #modules = {'capsul.config.spm': {
-        #'12': {
-            #'version': 12,
-            #'directory': '/somewhere'
-            #'standalone'},
-        #'12_bis': {
-            #'version': 12,
-            #'directory': '/elsewhere'
-            #'standalone'},
-        #'8': {'version': 8,
-         #'directory': '/nowhere'},
-    #}}
+    def add_module(self, module_name):
+        # print('add_module:', module_name)
+        full_mod = full_module_name(module_name)
+
+        python_module = importlib.import_module(full_mod)
+        if python_module is None:
+            raise ValueError('Module %s cannot be loaded.' % full_mod)
+
+        module_name = module_name.rsplit('.')[-1]
+        classes = []
+        for c in python_module.__dict__.values():
+            if c is ModuleConfiguration:
+                continue
+            try:
+                if issubclass(c, ModuleConfiguration):
+                    classes.append(c)
+            except TypeError:
+                pass
+        if len(classes) == 0:
+            raise ValueError('No ModuleClass found in module %s' % module_name)
+        if len(classes) > 1:
+            raise ValueError('Several ModuleClass found (%d) in module %s: %s'
+                             % (len(classes), module_name, repr(classes)))
+        cls = classes[0]
+        self.add_field(module_name, OpenKeyDictController[cls],
+                       doc=cls.__doc__,
+                       default_factory=OpenKeyDictController[cls])
+
+    def remove_module(self, module_name):
+        module_name = module_name.rsplit('.')[-1]
+        if self.field(module_name) is not None:
+            self.remove_field(module_name)
+
+    def import_dict(self, conf_dict, clear=False):
+        # insert modules before filling them in
+        for mod in conf_dict:
+            self.add_module(mod)
+        super().import_dict(conf_dict, clear=clear)
 
     def connect():
         ...
@@ -90,15 +131,18 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
         import json
         with open(filename) as f:
             try:
-                site_conf = json.load(f)
+                conf = json.load(f)
             except Exception as e:  # FIXME: find better exception filter
+                import traceback
+                traceback.print_exc()
                 try:
                     import yaml
-                    site_conf = yaml.safe_load(f)
+                    conf = yaml.safe_load(f)
                 except ImportError:
                     raise e
 
-        self.import_dict(site_conf)
+        print('import config:', conf)
+        self.import_dict(conf)
 
     def save(self, filename, format='json'):
         ''' Save configuration to a JSON or YAML file
@@ -116,9 +160,8 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
 
     def merge(self, other_layer):
         ''' Merge in-place: other_layer is "added" to self.
-        TODO
         '''
-        ...
+        self.import_dict(other_layer.asdict(), clear=False)
 
     def merged(self, other_layer):
         ''' Returns a merged copy of self and another ConfigurationLayer layer
@@ -158,17 +201,28 @@ class ApplicationConfiguration(Controller):
 
         if user_file is None:
             user_file = os.path.expanduser('~/.config/%s.conf' % app_name)
-        try:
-            self.user.load(user_file)
-        except Exception as e:
-            print('Loading user configuration file has failed:', e,
-                  file=sys.stderr)
+        if user_file is not undefined:
+            try:
+                self.user.load(user_file)
+            except Exception as e:
+                print('Loading user configuration file has failed:', e,
+                      file=sys.stderr)
 
         self.merged_config = self.site.merged(self.user)
+        self._loaded_modules = set()
     
 
     def available_modules(self):
         ...
+
+    def add_module_in_all_configs(self, module_name):
+        for layer in (self.site, self.user):
+            for env_field in layer.fields():
+                env = env_field.name
+                econf = getattr(layer, env)
+                if econf.field( module_name) is None:
+                    econf.add_module(module_name)
+
 
     
 ## app_config -> engine_config -> module spm -> directory
