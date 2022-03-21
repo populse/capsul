@@ -1060,6 +1060,13 @@ class Pipeline(Process):
         trait = dest_node.get_trait(dest_plug_name)
         relax_exists_constraint(trait)
 
+        # if the destination is a mandatory input, set the input param to be
+        # mandatory
+        if not trait.optional:
+            source_trait = source_node.get_trait(source_plug_name)
+            source_trait.optional = False
+            source_plug.optional = False
+
         # Propagate the plug value from source to destination
         value = source_node.get_plug_value(source_plug_name)
         if value is not None:
@@ -1225,6 +1232,11 @@ class Pipeline(Process):
         # Change the trait optional property
         if is_optional is not None:
             trait.optional = bool(is_optional)
+        else:
+          if source_trait.optional != trait.optional:
+              print('s opt:', source_trait.optional, ':', trait.optional)
+          if 'AIMS_target' in pipeline_parameter:
+              print(node_name, plug_name, pipeline_parameter, 'opt:', source_trait.optional, ':', trait.optional)
 
         # Now add the parameter to the pipeline
         if not pipeline_parameter in self.user_traits():
@@ -1247,6 +1259,9 @@ class Pipeline(Process):
             link_desc = "{0}->{1}.{2}".format(
                 pipeline_parameter, node_name, plug_name)
             self.add_link(link_desc, weak_link)
+        if 'AIMS_target' in pipeline_parameter:
+            trait2 = self.trait(pipeline_parameter)
+            print(node_name, plug_name, pipeline_parameter, 'opt:', trait2.optional, ', trait:', trait2, ', source:', source_trait)
 
     def _set_node_enabled(self, node_name, is_enabled):
         """ Method to enable or disabled a node

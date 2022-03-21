@@ -162,6 +162,7 @@ def save_py_pipeline(pipeline, py_file):
               file=pyf)
 
     def _write_switch(switch, pyf, name, enabled):
+        print('*** write switch:', switch.name, '***')
         inputs = set()
         outputs = []
         optional = []
@@ -171,6 +172,7 @@ def save_py_pipeline(pipeline, py_file):
             if plug.output:
                 outputs.append(plug_name)
                 if plug.optional:
+                    print('switch opt out:', plug_name)
                     optional.append(plug_name)
             else:
                 name_parts = plug_name.split("_switch_")
@@ -181,8 +183,17 @@ def save_py_pipeline(pipeline, py_file):
                         opt_in.append(name_parts[0])
         optional_p = ''
         if len(optional) != 0:
+            print('OPTIONAL:', optional)
             optional_p = ', make_optional=%s' % repr(optional)
         inputs = list(inputs)
+
+        # output types
+        from .pipeline_tools import trait_str
+        out_types = []
+        for p in switch._outputs:
+            out_types.append(trait_str(switch.trait(p)))
+        output_types = '[' + ', '.join(out_types) + ']'
+
         opt_inputs = getattr(switch, '_optional_input_nodes', None)
         if opt_inputs:
             opt_inputs = [i[1] for i in opt_inputs if i[0] in inputs]
@@ -192,9 +203,9 @@ def save_py_pipeline(pipeline, py_file):
         value_p = ''
         if switch.switch != inputs[0]:
             value_p = ', switch_value=%s' % repr(switch.switch)
-        print('        self.add_switch("%s", %s, %s%s%s%s, export_switch=False)'
-              % (name, repr(inputs), repr(outputs), optional_p, value_p,
-                 options),
+        print('        self.add_switch("%s", %s, %s, output_types=%s%s%s%s, export_switch=False)'
+              % (name, repr(inputs), repr(outputs), output_types, optional_p,
+                 value_p, options),
               file=pyf)
 
     def _write_optional_output_switch(switch, pyf, name, enabled):
@@ -260,6 +271,7 @@ def save_py_pipeline(pipeline, py_file):
             link = list(plug.links_from)[0]
         else:
             link = list(plug.links_to)[0]
+        trait = pipeline.trait(param_name)
         node_name, plug_name = link[:2]
         if param_name == plug_name:
             param_name = ''
@@ -268,8 +280,15 @@ def save_py_pipeline(pipeline, py_file):
         weak_link = ''
         if link[-1]:
             weak_link = ', weak_link=True'
-        print('        self.export_parameter("%s", "%s"%s%s)'
-              % (node_name, plug_name, param_name, weak_link), file=pyf)
+        is_optional = ''
+        if trait is None:
+            print('missing tait', param_name, 'on:', pipeline)
+        #if pipeline.trait(param_name).optional:
+        if trait.optional:
+            is_optional = ', is_optional=True'
+        print('        self.export_parameter("%s", "%s"%s%s%s)'
+              % (node_name, plug_name, param_name, weak_link, is_optional),
+              file=pyf)
         return node_name, plug_name
 
     def _write_links(pipeline, pyf):

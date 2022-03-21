@@ -43,9 +43,9 @@ Functions
 '''
 
 from __future__ import print_function
+from __future__ import absolute_import
 
 # System import
-from __future__ import absolute_import
 import os
 import logging
 import tempfile
@@ -1368,7 +1368,7 @@ def trait_str(trait, with_att=True):
                 vals = [str_from_trait_id([t], False)]
         if with_att:
             vals += ['output=%s' % repr(bool(trait.output)),
-                     'default=%s' % repr(trait.default),
+                     #'default_value=%s' % repr(trait.default),
                      'optional=%s' % repr(bool(trait.optional))]
             if trait.input_filename:
                 vals.append('input_filename=True')
@@ -1382,12 +1382,10 @@ def trait_str(trait, with_att=True):
     return str_from_trait_id(tid, True)
 
 
-def write_fake_process(process, filename):
+def write_fake_process(process, filename, sleep_time=0):
     ''' Write a "fake process" with same class name and parameters as the input
     process, but with a fake execution function meant for tests.
     '''
-
-    from soma.controller.trait_utils import trait_ids
 
     with open(filename, 'w') as f:
         f.write('''from capsul.api import Process
@@ -1405,29 +1403,41 @@ class %s(Process):
         for name, trait in process.user_traits().items():
             t_str = trait_str(trait)
             f.write('        self.add_trait("%s", %s)\n' % (name, t_str))
+            value = getattr(process, name, traits.Undefined)
+            if value is not traits.Undefined:
+                f.write('        self.%s = %s\n' % (name, repr(value)))
 
         f.write('''
     def _run_process(self):
         outputs = []
-        for name, param in self.user_traits().items():
+        for name, trait in self.user_traits().items():
             if isinstance(trait.trait_type, traits.File):
-                if param.output:
+                if trait.output:
                     outputs.append(name)
                     continue
                 filename = getattr(self, name)
-                if filename not in (None, Undefined):
+                if filename not in (None, traits.Undefined, ''):
                     if not os.path.exists(filename):
-                        raise ValueError('Input file %s does not exist' % filename)
-        for name in outputs:
+                        raise ValueError(
+                          'Input parameter: %s, file %s does not exist'
+                          % (name, repr(filename)))
+
+''')
+        if sleep_time != 0:
+            f.write('        import time\n')
+            f.write('        time.sleep(%f)\n\n' % sleep_time)
+        f.write('''        for name in outputs:
             trait = self.trait(name)
             filename = getattr(self, name)
-            if filename not in (None, Undefined):
+            if filename not in (None, traits.Undefined, ''):
                 with open(filename, 'w') as f:
-                    f.write(self.__class__.__name__, self.name, name, '\\n')
+                    f.write('class: %s\\n' % self.__class__.__name__)
+                    f.write('name: %s\\n' % self.name)
+                    f.write('parameter: %s\\n' % name)
 ''')
 
 
-def write_fake_pipeline(pipeline, module_name, dirname):
+def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
     ''' Write a "fake pipeline" with same class name, structure, and parameters
     as the input pipeline, but replacing its processes with "fake" processes
     which do not actually do a real job while executing.
@@ -1440,12 +1450,13 @@ def write_fake_pipeline(pipeline, module_name, dirname):
     '''
 
     def replace_node(node, module_name, dirname, done):
+        return  # FIXME
         basename = node.process.__class__.__name__.lower()
         modname = '.'.join([module_name, basename])
         filename = os.path.join(dirname, '%s.py' % basename)
         if modname not in done:
             done.add(modname)
-            write_fake_process(node.process, filename)
+            write_fake_process(node.process, filename, sleep_time=sleep_time)
         new_proc \
             = pipeline.get_study_config().engine.get_process_instance(filename)
         new_proc.__class__.__module__ = modname
