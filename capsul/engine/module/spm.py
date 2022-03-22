@@ -175,8 +175,12 @@ def edition_widget(engine, environment):
             else:
                 values['directory'] = controller.directory
             values['standalone'] = controller.standalone
-            values['version'] = controller.version
-            id = 'spm%s%s' % (controller.version,
+            if controller.version in (None, traits.Undefined, ''):
+                values['version'] = None
+            else:
+                values['version'] = controller.version
+            id = 'spm%s%s' % (controller.version if
+                              controller.version != traits.Undefined else '',
                               '-standalone' if controller.standalone else '')
             values['config_id'] = id
             query = 'config_id == "%s"' % id
@@ -185,6 +189,11 @@ def edition_widget(engine, environment):
                 session.new_config('spm', widget.environment, values)
             else:
                 for k in ('directory', 'standalone', 'version'):
+                    if k == 'directory' and not os.path.isdir(values[k]):
+                        #raise OSError('{} is not existing!'.format(values[k]))
+                        raise NotADirectoryError('\nSPM directory was not '
+                                                 'updated:\n{} is not '
+                                                 'existing!'.format(values[k]))
                     setattr(conf, k, values[k])
 
     controller = Controller()
@@ -193,7 +202,7 @@ def edition_widget(engine, environment):
         output=False,
         desc="Directory containing SPM."))
     controller.add_trait("standalone", traits.Bool(
-        True,
+        False,
         desc="If True, use the standalone version of SPM."))
     controller.add_trait('version', traits.Str(
         traits.Undefined, output=False,
@@ -206,9 +215,9 @@ def edition_widget(engine, environment):
             'capsul.engine.module.spm', {}).get('directory',
                                                 traits.Undefined)
         controller.standalone = conf.get(
-            'capsul.engine.module.spm', {}).get('standalone', True)
+            'capsul.engine.module.spm', {}).get('standalone', False)
         controller.version = conf.get(
-            'capsul.engine.module.spm', {}).get('version', '12')
+            'capsul.engine.module.spm', {}).get('version', traits.Undefined)
 
     # TODO handle several configs
 
