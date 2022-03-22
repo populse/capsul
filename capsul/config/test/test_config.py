@@ -2,6 +2,7 @@
 import unittest
 from capsul.config import (ApplicationConfiguration, ConfigurationLayer,
                            EngineConfiguration)
+from soma.controller import undefined
 import sys
 import os
 import os.path as osp
@@ -60,7 +61,8 @@ class TestConfiguration(unittest.TestCase):
                         'standalone': False,
                     }}}}
 
-        app_config = ApplicationConfiguration('single_conf2')
+        app_config = ApplicationConfiguration('single_conf2',
+                                              user_file=undefined)
         app_config.user = conf_dict
 
         # print(app_config.asdict())
@@ -69,6 +71,57 @@ class TestConfiguration(unittest.TestCase):
             app_config.asdict(),
             {'site': {}, 'app_name': 'single_conf2', 'user': conf_dict,
              'merged_config': {}})
+
+    def test_config_merge(self):
+        user_conf_dict = {
+            'local': {
+                'spm': {
+                    'spm12_standalone': {
+                        'directory': '/usr/local/spm12_standalone',
+                        'standalone': True},
+                    }}}
+        site_conf_dict = {
+            'local': {
+                'spm': {
+                    'spm12_standalone': {
+                        'directory': '/i2bm/local/spm12_standalone',
+                        'version': '12',
+                        'standalone': True},
+                    'spm8': {
+                        'directory': '/i2bm/local/spm8',
+                        'version': '8',
+                        'standalone': False,
+                    }},
+                'fsl': {
+                    'fsl5': {
+                        'directory': '/i2bm/local/fsl',
+                        'setup_script': '/i2bm/local/fsl/etc/fslconf/fsl.sh'
+                    }}}}
+        merged_conf_dict = {
+            'local': {
+                'spm': {
+                    'spm12_standalone': {
+                        'directory': '/usr/local/spm12_standalone',
+                        'version': '12',
+                        'standalone': True},
+                    'spm8': {
+                        'directory': '/i2bm/local/spm8',
+                        'version': '8',
+                        'standalone': False,
+                    }},
+                'fsl': {
+                    'fsl5': {
+                        'directory': '/i2bm/local/fsl',
+                        'setup_script': '/i2bm/local/fsl/etc/fslconf/fsl.sh'
+                    }}}}
+
+        app_config = ApplicationConfiguration('single_conf3',
+                                              user_file=undefined)
+        app_config.site = site_conf_dict
+        app_config.user = user_conf_dict
+        app_config.merge_configs()
+        # print('merged:', app_config.merged_config.asdict())
+        self.assertEqual(app_config.merged_config.asdict(), merged_conf_dict)
 
 
 def test():

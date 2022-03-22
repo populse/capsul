@@ -71,7 +71,7 @@ class EngineConfiguration(Controller):
         #= field(default_factory=OpenKeyDictController[OpenKeyDictController[
             #ModuleConfiguration]])
 
-    def add_module(self, module_name):
+    def add_module(self, module_name, allow_existing=False):
         # print('add_module:', module_name)
         full_mod = full_module_name(module_name)
 
@@ -95,6 +95,12 @@ class EngineConfiguration(Controller):
             raise ValueError('Several ModuleClass found (%d) in module %s: %s'
                              % (len(classes), module_name, repr(classes)))
         cls = classes[0]
+
+        if allow_existing:
+            field = self.field(module_name)
+            if field is not None and field.type is OpenKeyDictController[cls]:
+                return
+
         self.add_field(module_name, OpenKeyDictController[cls],
                        doc=cls.__doc__,
                        default_factory=OpenKeyDictController[cls])
@@ -107,7 +113,7 @@ class EngineConfiguration(Controller):
     def import_dict(self, conf_dict, clear=False):
         # insert modules before filling them in
         for mod in conf_dict:
-            self.add_module(mod)
+            self.add_module(mod, allow_existing=True)
         super().import_dict(conf_dict, clear=clear)
 
     def connect():
@@ -141,7 +147,7 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
                 except ImportError:
                     raise e
 
-        print('import config:', conf)
+        # print('import config:', conf)
         self.import_dict(conf)
 
     def save(self, filename, format='json'):
@@ -166,7 +172,9 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     def merged(self, other_layer):
         ''' Returns a merged copy of self and another ConfigurationLayer layer
         '''
-        merged = self.copy()
+        # merged = self.copy()
+        merged = ConfigurationLayer()
+        merged.import_dict(self.asdict())
         merged.merge(other_layer)
         return merged
 
@@ -187,6 +195,20 @@ class ApplicationConfiguration(Controller):
         default_factory=ConfigurationLayer)
     
     def __init__(self, app_name, user_file=None, site_file=None):
+        '''
+        Parameters
+        ----------
+        app_name: str
+            name of the application / config
+        user_file: str
+            file name for the user config file. If `̀`None`` (the default), it
+            will be looked for in ``~/.config/{app_name}.conf``. If
+            ``undefined``, then no user config will be loaded.
+        site_file: str
+            file name for the site config file. If `̀`None`` (the default), then
+            no config will be loaded.
+
+        '''
         super().__init__()
 
         self.app_name = app_name
@@ -208,9 +230,10 @@ class ApplicationConfiguration(Controller):
                 print('Loading user configuration file has failed:', e,
                       file=sys.stderr)
 
-        self.merged_config = self.site.merged(self.user)
-        self._loaded_modules = set()
+        self.merge_configs()
     
+    def merge_configs(self):
+        self.merged_config = self.site.merged(self.user)
 
     def available_modules(self):
         ...
