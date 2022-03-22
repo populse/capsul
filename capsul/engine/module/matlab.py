@@ -63,10 +63,22 @@ def edition_widget(engine, environment):
                     session.new_config('matlab', widget.environment, values)
                 else:
                     for k in ('executable', 'mcr_directory', ):
-                        setattr(conf, k, values[k])
+                        if k == 'mcr_directory' and not os.path.isdir(values[k]):
+                            raise NotADirectoryError('\nMatlab mcr_directory '
+                                                     'was not updated:\n{} is '
+                                                     'not existing!'.format(
+                                                                    values[k]))
+                        elif k == 'executable' and not os.path.isfile(values[k]):
+                            raise FileNotFoundError('\nMatlab executable '
+                                                     'was not updated:\n{} is '
+                                                     'not existing!'.format(
+                                                                    values[k]))
+                        else:
+                            setattr(conf, k, values[k])
         except Exception as e:
             import traceback
             traceback.print_exc()
+            raise
 
     controller = Controller()
     controller.add_trait('executable',

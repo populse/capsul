@@ -194,7 +194,8 @@ def edition_widget(engine, environment):
                         raise NotADirectoryError('\nSPM directory was not '
                                                  'updated:\n{} is not '
                                                  'existing!'.format(values[k]))
-                    setattr(conf, k, values[k])
+                    else:
+                        setattr(conf, k, values[k])
 
     controller = Controller()
     controller.add_trait("directory", traits.Directory(
