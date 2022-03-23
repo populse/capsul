@@ -23,9 +23,10 @@ class FSLConfiguration(ModuleConfiguration):
             return False
         return True
 
-    def init_execution_context(execution_context):
-        '''
-        Configure an execution context given a capsul_engine and some requirements.
-        '''
-        config =  execution_context.config['modules']['fsl']
-        execution_context.fsl = FSLConfiguration(**config)
+def init_execution_context(execution_context):
+    '''
+    Configure an execution context given a capsul_engine and some requirements.
+    '''
+    config =  execution_context.config['modules']['fsl']
+    execution_context.fsl = FSLConfiguration()
+    execution_context.fsl.import_from_dict(config)

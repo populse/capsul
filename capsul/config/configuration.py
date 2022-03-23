@@ -56,20 +56,6 @@ class EngineConfiguration(Controller):
     include dots as they are field names, so we either take the "short name",
     or replace dots with underscores.
     '''
-    # maybe modules should be replaced by indiviudual fields for each module,
-    # in order to:
-    # - have a constrained list of modules (keys)
-    # - force each module dict/controller to use its own ModuleConfiguration
-    #   subclass and no other
-
-    # key -> nom du fichier de module. spm -> capsul.config.spm
-    #modules: dict[str, dict[str, ModuleConfiguration]] \
-        #= field(default_factory=dict)
-    
-    #modules: OpenKeyDictController[OpenKeyDictController[
-        #ModuleConfiguration]] \
-        #= field(default_factory=OpenKeyDictController[OpenKeyDictController[
-            #ModuleConfiguration]])
 
     def add_module(self, module_name, allow_existing=False):
         # print('add_module:', module_name)
@@ -215,15 +201,16 @@ class ApplicationConfiguration(Controller):
 
         if site_file is not None:
             self.site_file = site_file
-            try:
-                self.site.load(site_file)
-            except Exception as e:
-                print('Loading site configuration file has failed:', e,
-                      file=sys.stderr)
+            if os.path.exists(site_file):
+                try:
+                    self.site.load(site_file)
+                except Exception as e:
+                    print('Loading site configuration file has failed:', e,
+                          file=sys.stderr)
 
         if user_file is None:
             user_file = os.path.expanduser('~/.config/%s.conf' % app_name)
-        if user_file is not undefined:
+        if user_file is not undefined and os.path.exists(user_file):
             try:
                 self.user.load(user_file)
             except Exception as e:

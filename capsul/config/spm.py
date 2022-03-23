@@ -22,9 +22,10 @@ class SPMConfiguration(ModuleConfiguration):
             return False
         return True
 
-    def init_execution_context(execution_context):
-        '''
-        Configure an execution context given a capsul_engine and some requirements.
-        '''
-        config =  execution_context.config['modules']['spm']
-        execution_context.spm = SPMConfiguration(**config)
+def init_execution_context(execution_context):
+    '''
+    Configure an execution context given a capsul_engine and some requirements.
+    '''
+    config =  execution_context.config['modules']['spm']
+    execution_context.spm = SPMConfiguration()
+    execution_context.spm.import_dict(config)
