@@ -25,7 +25,7 @@ class ModuleConfiguration(Controller):
     ''' Module-level configuration object.
 
     This base class is meant to be inherited in specific modules
-    (:class:`SPMConfiguration` etc).
+    (:class:`~spm.SPMConfiguration` etc).
     '''
     name = ''
 
@@ -58,7 +58,11 @@ class EngineConfiguration(Controller):
     '''
 
     def add_module(self, module_name, allow_existing=False):
-        # print('add_module:', module_name)
+        ''' Loads a modle and adds it in the engine configuration.
+
+        This operation is performed automatically, thus should not need to be
+        called manually.
+        '''
         full_mod = full_module_name(module_name)
 
         python_module = importlib.import_module(full_mod)
@@ -92,6 +96,8 @@ class EngineConfiguration(Controller):
                        default_factory=OpenKeyDictController[cls])
 
     def remove_module(self, module_name):
+        ''' Remove the given module
+        '''
         module_name = module_name.rsplit('.')[-1]
         if self.field(module_name) is not None:
             self.remove_field(module_name)
@@ -103,6 +109,10 @@ class EngineConfiguration(Controller):
         super().import_dict(conf_dict, clear=clear)
 
     def connect():
+        ''' Connect to a computing resource using a connection module.
+
+        TODO, not implemented yet.
+        '''
         ...
 
 
@@ -114,8 +124,6 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     resources, which are keys in this :class:`Controller`. A "default" config
     resource could be named "local".
     '''
-    #engines: dict[str, EngineConfiguration]
-    #engines: OpenKeyDictController[EngineConfiguration]
 
     def load(self, filename):
         ''' Load configuration from a JSON or YAML file
@@ -168,7 +176,69 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
 class ApplicationConfiguration(Controller):
     ''' Application-wide configuration class.
 
-    It contains a "site" and a "user" configuration, and a merge of both (TODO)
+    It contains a "site" and a "user" configuration, and a merge of both.
+
+    Merging is not automatic: after modifying either the site or user configs,
+    :meth:`merge_configs` should be called to rebuild the merged configuration.
+
+    It is used like this::
+
+        app_config = ApplicationConfiguration(
+            'my_app_name', site_file='/usr/local/etc/my_app_name.json')
+        user_conf_dict = {
+            'local': {
+                'spm': {
+                    'spm12_standalone': {
+                        'directory': '/usr/local/spm12_standalone',
+                        'standalone': True},
+                    }}}
+        app_config.user = user_conf_dict
+        app_config.merge_configs()
+        print('merged:', app_config.merged_config.asdict())
+
+    ApplicationConfiguration contains actually 3 configuration objects:
+
+    * the "site" config
+    * the "user" config, which are the personal settings and take priority over
+      site settings.
+    * the "merged_config" which is the resulting merged configuration. This one
+      should never be modified y hand, as it is built by the
+      :meth:`merge_configs` method.
+
+    In each configuration (``user``, ``site``,, ``merged_config``):
+
+    * The first level, "environment" corresponds to a "computing resource"
+      name. The default (and always existing) is "local" and means the local
+      computer configuration. Additional configs may be added to store settings
+      for remote computing resources.
+
+    * the second level corresponds to configuration modules. Each module has to
+      be known in the Capsul config system, and is accessed as a module. The
+      default search path for modules is capsul.config.<module_name>. Each
+      config module should contain one class inheriting the
+      :class:`ModuleConfiguration` class, and a function
+      ``init_execution_context(execution_context)``. Otherwise loading and
+      initialization of modules is automatic when inserting items in the config
+      object.
+
+    * the third level corresponds to config modules instances. Several
+      instances of the same module can exist (for instance a config for SPM8
+      and one for SPM12 may coexist and are both instances of the SPM config
+      module class, :class:`~spm.SPMConfiguration`). They are indexed by an
+      identifier (a name) which may represent an identifiable config (for
+      instance, "spm12_standalone" or "spm8").
+
+    * the forth level contains module configuration options (fields of the
+      config module class).
+
+    Configurations are based on the
+    :class:`~soma.controller.controller.Controller` class, which allows typed
+    fields, used to store configurations values. Some levels ("environment",
+    modules) are "open keys" in the Controller fields. We have implemented them
+    using the :class:`~soma.controller.controller.OpenKeyController`, or more
+    precisely :class:`~soma.controller.controller.OpenKeyDictController` class,
+    which allows a complete control and validation at every level, contrarily
+    to a ``dict[str, ModuleConfiguration]`` for instance.
     '''
     site_file: File
     site: ConfigurationLayer = field(default_factory=ConfigurationLayer)
@@ -220,22 +290,16 @@ class ApplicationConfiguration(Controller):
         self.merge_configs()
     
     def merge_configs(self):
+        ''' Merge site and user configs into the ``merged_config``
+        configuration. This ``merged_config`` will be erased and rebuilt during
+        the operation, so *never modify the merged_config*, but site or user
+        configs instead.
+        '''
         self.merged_config = self.site.merged(self.user)
 
     def available_modules(self):
         ...
 
-    def add_module_in_all_configs(self, module_name):
-        for layer in (self.site, self.user):
-            for env_field in layer.fields():
-                env = env_field.name
-                econf = getattr(layer, env)
-                if econf.field( module_name) is None:
-                    econf.add_module(module_name)
 
 
     
-## app_config -> engine_config -> module spm -> directory
-
-#app_config.engines['local'].modules['spm']['12'].directory
-# app_config.user.local = cf.EngineConfiguration()
