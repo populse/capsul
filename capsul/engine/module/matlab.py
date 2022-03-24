@@ -45,28 +45,39 @@ def edition_widget(engine, environment):
     import traits.api as traits
 
     def validate_config(widget):
-        try:
-            widget.update_controller()
-            controller = widget.controller_widget.controller
-            with widget.engine.settings as session:
-                conf = session.config('matlab', widget.environment)
-                values = {'config_id': 'matlab'}
-                if controller.executable in (None, traits.Undefined, ''):
-                    values['executable'] = None
-                else:
-                    values['executable'] = controller.executable
-                if controller.mcr_directory in (None, traits.Undefined, ''):
-                    values['mcr_directory'] = None
-                else:
-                    values['mcr_directory'] = controller.mcr_directory
-                if conf is None:
-                    session.new_config('matlab', widget.environment, values)
-                else:
-                    for k in ('executable', 'mcr_directory', ):
+        widget.update_controller()
+        controller = widget.controller_widget.controller
+        with widget.engine.settings as session:
+            conf = session.config('matlab', widget.environment)
+            values = {'config_id': 'matlab'}
+            if controller.executable in (None, traits.Undefined, ''):
+                values['executable'] = None
+            else:
+                values['executable'] = controller.executable
+            if controller.mcr_directory in (None, traits.Undefined, ''):
+                values['mcr_directory'] = None
+            else:
+                values['mcr_directory'] = controller.mcr_directory
+            if conf is None:
+                session.new_config('matlab', widget.environment, values)
+            else:
+                for k in ('executable', 'mcr_directory', ):
+                    if (k == 'mcr_directory' and
+                                   values[k] and
+                                   not os.path.isdir(values[k])):
+                        raise NotADirectoryError('\nMatlab mcr_directory '
+                                                 'was not updated:\n{} is '
+                                                 'not existing!'.format(
+                                                                values[k]))
+                    elif (k == 'executable' and
+                                  values[k] and
+                                  not os.path.isfile(values[k])):
+                        raise FileNotFoundError('\nMatlab executable '
+                                                 'was not updated:\n{} is '
+                                                 'not existing!'.format(
+                                                                values[k]))
+                    else:
                         setattr(conf, k, values[k])
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
 
     controller = Controller()
     controller.add_trait('executable',
