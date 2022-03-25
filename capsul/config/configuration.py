@@ -26,6 +26,22 @@ class ModuleConfiguration(Controller):
 
     This base class is meant to be inherited in specific modules
     (:class:`~spm.SPMConfiguration` etc).
+
+    A configuration module should be written this way:
+
+    - be in a python module file which contains one, and only one, subclass of
+      ``ModuleConfiguration``.
+
+    - the subclass should declare its own configuration parameters using
+      fields, and overload the method :meth:`is_valid_config` to check if a
+      requirements dictionary matches the current config module parameterss
+
+    - declare a function ``init_execution_context(execution_context)`` which
+      takes an :class:`~capsul.execution_context.ExecutionContext` object. It
+      should extract from the context configuration dict
+      (execution_context.config) its own module config, and do whatever is
+      needed to configure things and/or add in the context itself things that
+      can be used during execution.
     '''
     name = ''
 
@@ -35,13 +51,13 @@ class ModuleConfiguration(Controller):
         raise NotImplementedError('A subclass of ModuleConfiguration must '
                                   'define is_valid_config()')
 
-    def init_execution_context(execution_context):
-        '''
-        Configure an execution context given a capsul_engine and some
-        requirements.
-        '''
-        raise NotImplementedError('A subclass of ModuleConfiguration must '
-                                  'define init_execution_context()')
+    #def init_execution_context(execution_context):
+        #'''
+        #Configure an execution context given a capsul_engine and some
+        #requirements.
+        #'''
+        #raise NotImplementedError('A subclass of ModuleConfiguration must '
+                                  #'define init_execution_context()')
 
 
 class EngineConfiguration(Controller):
