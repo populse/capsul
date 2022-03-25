@@ -8,13 +8,18 @@ import tempfile
 import time
 
 from capsul.api import Pipeline, Process
+from capsul.config import EngineConfiguration
 
 class LocalEngine:
-    def __init__(self, config=None):
+    def __init__(self, label, config=None):
+        self.label = label
         if config is None:
-            self.config = {}
-        else:
+            self.config = EngineConfiguration()
+        elif isinstance(config, EngineConfiguration):
             self.config = config
+        else:
+            self.config = EngineConfiguration()
+            self.config.import_dict(config)
         self.tmp = None
         self._with_count = 0
 
@@ -51,7 +56,7 @@ class LocalEngine:
 
     @staticmethod
     def module(module_name):
-        return importlib.import_module(f'capsul.engine.module.{module_name}')
+        return importlib.import_module(f'capsul.config.{module_name}')
     
     def executable_requirements(self, executable):
         result = {}
@@ -65,17 +70,22 @@ class LocalEngine:
     def modules_config(self, executable):
         result = {}
         for module_name, requirements in self.executable_requirements(executable).items():
-            module = self.module(module_name)
-            module_configs = self.config.get('modules', {}).get(module_name, [])
+            module_configs = getattr(self.config, module_name, {})
             valid_configs = []
-            for module_config in module_configs:
-                if module.is_valid_config(module_config, requirements):
+            for module_field in module_configs.fields():
+                module_config = getattr(module_configs, module_field.name)
+                if module_config.is_valid_config(requirements):
                     valid_configs.append(module_config)
             if not valid_configs:
-                raise RuntimeError(f'Execution environment "{self.config["label"]}" have no valid configuration for module {module_name}')
+                raise RuntimeError(
+                    f'Execution environment "{self.label}" has no '
+                    f'valid configuration for module {module_name}')
             if len(valid_configs) > 1:
-                raise RuntimeError(f'Execution environment "{self.config["label"]}" have {len(valid_configs)} possible configurations for module {module_name}')
-            result[module_name] = valid_configs[0]
+                raise RuntimeError(
+                    f'Execution environment "{self.label}" has '
+                    f'{len(valid_configs)} possible configurations for '
+                    f'module {module_name}')
+            result[module_name] = valid_configs[0].asdict()
         return result
 
     def start(self, executable, **kwargs):
