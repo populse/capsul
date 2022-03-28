@@ -156,7 +156,7 @@ def activate_configurations():
         del os.environ['SPM_STANDALONE']
 
 
-def edition_widget(engine, environment):
+def edition_widget(engine, environment, config_id='any'):
     ''' Edition GUI for SPM config - see
     :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
     '''
@@ -197,6 +197,13 @@ def edition_widget(engine, environment):
                                                  'existing!'.format(values[k]))
                     else:
                         setattr(conf, k, values[k])
+            if id != widget.config_id:
+                try:
+                    session.remove_config('spm', widget.environment,
+                                          widget.config_id)
+                except Exception:
+                    pass
+                widget.config_id = id
 
     controller = Controller()
     controller.add_trait("directory", traits.Directory(
@@ -210,8 +217,16 @@ def edition_widget(engine, environment):
         traits.Undefined, output=False,
         desc='Version string for SPM: "12", "8", etc.'))
 
-    conf = engine.settings.select_configurations(
-        environment, {'spm': 'any'})
+    conf = None
+    if config_id == 'any':
+        conf = engine.settings.select_configurations(
+            environment, {'spm': 'any'})
+    else:
+        try:
+            conf = engine.settings.select_configurations(
+                environment, {'spm': 'config_id=="%s"' % config_id})
+        except Exception:
+            pass
     if conf:
         controller.directory = conf.get(
             'capsul.engine.module.spm', {}).get('directory',
@@ -220,12 +235,15 @@ def edition_widget(engine, environment):
             'capsul.engine.module.spm', {}).get('standalone', False)
         controller.version = conf.get(
             'capsul.engine.module.spm', {}).get('version', traits.Undefined)
+        config_id = conf.get(
+            'capsul.engine.module.spm', {}).get('config_id', config_id)
 
     # TODO handle several configs
 
     widget = ScrollControllerWidget(controller, live=True)
     widget.engine = engine
     widget.environment = environment
+    widget.config_id = config_id
     widget.accept = types.MethodType(validate_config, widget)
 
     return widget

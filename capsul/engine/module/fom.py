@@ -285,7 +285,7 @@ def reset_foms(capsul_engine, environment):
     update_fom(capsul_engine, environment)
 
 
-def edition_widget(engine, environment):
+def edition_widget(engine, environment, config_id='fom'):
     ''' Edition GUI for FOM config - see
     :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
     '''
@@ -297,8 +297,8 @@ def edition_widget(engine, environment):
         widget.update_controller()
         controller = widget.controller_widget.controller
         with widget.engine.settings as session:
-            conf = session.config('fom', widget.environment)
-            values = {'config_id': 'fom'}
+            conf = session.config(config_id, widget.environment)
+            values = {'config_id': config_id}
             for k in ('input_fom', 'output_fom', 'shared_fom',
                       'volumes_format', 'meshes_format', 'auto_fom',
                       'fom_path', 'input_directory', 'output_directory'):
@@ -310,7 +310,7 @@ def edition_widget(engine, environment):
                         value = None
                 values[k] = value
             if conf is None:
-                session.new_config('fom', widget.environment, values)
+                session.new_config(config_id, widget.environment, values)
             else:
                 for k, value in values.items():
                     if k == 'config_id':

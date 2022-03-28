@@ -74,7 +74,7 @@ def complete_configurations():
             config['shared_directory'] = shared_dir
 
 
-def edition_widget(engine, environment):
+def edition_widget(engine, environment, config_id='axon'):
     ''' Edition GUI for axon config - see
     :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
     '''
@@ -87,14 +87,15 @@ def edition_widget(engine, environment):
         widget.update_controller()
         controller = widget.controller_widget.controller
         with widget.engine.settings as session:
-            conf = session.config('axon', widget.environment)
-            values = {'config_id': 'axon', 'user_level': controller.user_level}
+            conf = session.config(config_id, widget.environment)
+            values = {'config_id': config_id,
+                      'user_level': controller.user_level}
             if controller.shared_directory in (None, traits.Undefined, ''):
                 values['shared_directory'] = None
             else:
                 values['shared_directory'] = controller.shared_directory
             if conf is None:
-                session.new_config('axon', widget.environment, values)
+                session.new_config(config_id, widget.environment, values)
             else:
                 for k in ('shared_directory', 'user_level'):
                     setattr(conf, k, values[k])

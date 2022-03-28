@@ -45,7 +45,7 @@ def activate_configurations():
         if py_path:
             sys.path = py_path + [p for p in sys.path if p not in py_path]
 
-def edition_widget(engine, environment):
+def edition_widget(engine, environment, config_id='python'):
     ''' Edition GUI for python config - see
     :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
     '''
@@ -59,8 +59,8 @@ def edition_widget(engine, environment):
         widget.update_controller()
         controller = widget.controller_widget.controller
         with widget.engine.settings as session:
-            conf = session.config('python', widget.environment)
-            values = {'config_id': 'python',
+            conf = session.config(config_id, widget.environment)
+            values = {'config_id': config_id,
                       'path': controller.path}
             if controller.executable in (None,
                                                 traits.Undefined, ''):
@@ -68,7 +68,7 @@ def edition_widget(engine, environment):
             else:
                 values['executable'] = controller.executable
             if conf is None:
-                session.new_config('python', widget.environment, values)
+                session.new_config(config_id, widget.environment, values)
             else:
                 for k in ('path', 'executable'):
                     setattr(conf, k, values[k])

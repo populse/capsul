@@ -106,7 +106,7 @@ def _sync_attributes_factory(capsul_engine, param=None, value=None):
             factory.module_path = config.attributes_schema_paths
 
 
-def edition_widget(engine, environment):
+def edition_widget(engine, environment, config_id='attributes'):
     ''' Edition GUI for attributes config - see
     :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
     '''
@@ -119,8 +119,8 @@ def edition_widget(engine, environment):
         widget.update_controller()
         controller = widget.controller_widget.controller
         with widget.engine.settings as session:
-            conf = session.config('attributes', widget.environment)
-            values = {'config_id': 'attributes'}
+            conf = session.config(config_id, widget.environment)
+            values = {'config_id': config_id}
             values['attributes_schema_paths'] \
                 = controller.attributes_schema_paths
             values['attributes_schemas'] = controller.attributes_schemas
@@ -131,7 +131,7 @@ def edition_widget(engine, environment):
             if controller.path_completion is traits.Undefined:
                 values['path_completion'] = None
             if conf is None:
-                session.new_config('attributes', widget.environment, values)
+                session.new_config(config_id, widget.environment, values)
             else:
                 for k in ('attributes_schema_paths', 'attributes_schemas',
                           'process_completion', 'path_completion'):

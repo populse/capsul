@@ -35,7 +35,7 @@ def activate_configurations():
         del os.environ['AFNIPATH']
 
 
-def edition_widget(engine, environment):
+def edition_widget(engine, environment, config_id='afni'):
     ''' Edition GUI for AFNI config - see
     :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
     '''
@@ -48,15 +48,15 @@ def edition_widget(engine, environment):
         widget.update_controller()
         controller = widget.controller_widget.controller
         with widget.engine.settings as session:
-            conf = session.config('afni', widget.environment)
-            values = {'config_id': 'afni'}
+            conf = session.config(config_id, widget.environment)
+            values = {'config_id': config_id}
             for k in ['directory']:
                 value = getattr(controller, k)
                 if value is traits.Undefined:
                     value = None
                 values[k] = value
             if conf is None:
-                session.new_config('afni', widget.environment, values)
+                session.new_config(config_id, widget.environment, values)
             else:
                 for k, value in values.items():
                     if k == 'config_id':

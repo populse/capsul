@@ -35,7 +35,7 @@ def check_configurations():
     return None
 
 
-def edition_widget(engine, environment):
+def edition_widget(engine, environment, config_id='matlab'):
     ''' Edition GUI for matlab config - see
     :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
     '''
@@ -48,8 +48,8 @@ def edition_widget(engine, environment):
         widget.update_controller()
         controller = widget.controller_widget.controller
         with widget.engine.settings as session:
-            conf = session.config('matlab', widget.environment)
-            values = {'config_id': 'matlab'}
+            conf = session.config(config_id, widget.environment)
+            values = {'config_id': config_id}
             if controller.executable in (None, traits.Undefined, ''):
                 values['executable'] = None
             else:
@@ -59,7 +59,7 @@ def edition_widget(engine, environment):
             else:
                 values['mcr_directory'] = controller.mcr_directory
             if conf is None:
-                session.new_config('matlab', widget.environment, values)
+                session.new_config(config_id, widget.environment, values)
             else:
                 for k in ('executable', 'mcr_directory', ):
                     if (k == 'mcr_directory' and
