@@ -82,8 +82,9 @@ class AttributesConfig(StudyConfigModule):
             ['attributes_schemas', 'process_completion',
              'path_completion', 'attributes_schema_paths'])
         #  WARNING ref to self in callback
-        self.study_config.engine.settings.module_notifiers[
-            'capsul.engine.module.axon'] = [self.sync_from_engine]
+        self.study_config.engine.settings.module_notifiers.setdefault(
+            'capsul.engine.module.attributes', []).append(
+                self.sync_from_engine)
 
 
     def update_module(self, param=None, value=None):
