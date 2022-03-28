@@ -61,19 +61,30 @@ class SettingsEditor(Qt.QDialog):
             if module:
                 edition_func = getattr(module, 'edition_widget', None)
                 if edition_func:
-                    tab = edition_func(self.engine, environment)
-                    self.tab_wid.addTab(tab, short_module_name)
-                    self.module_tabs[module] = tab
+                    tab1 = QVTabWidget()
+                    #self.module_tabs[module] = tab1
+                    self.tab_wid.addTab(tab1, short_module_name)
+                    #self.tab_wid.addTab(tab, short_module_name)
+                    config_ids = []
+                    with self.engine.settings as session:
+                        for config in session.configs(module_name,
+                                                      environment):
+                            config_ids.append(config._id)
+                    if not config_ids:
+                        config_ids = [short_module_name]
+                    for config_id in config_ids:
+                        tab = edition_func(self.engine, environment,
+                                           config_id)
+                        tab1.addTab(tab, config_id)
+                        self.module_tabs.setdefault(
+                            module_name, {})[config_id] = tab
 
     def change_environment(self, index):
         environment = self.environment_combo.currentText()
-        print('change_environment:', environment)
         self.update_gui()
 
     def accept(self):
         super(SettingsEditor, self).accept()
-        for module_name, tab in self.module_tabs.items():
-            try:
+        for module_name, tab1 in self.module_tabs.items():
+            for config_id, tab in tab1.items():
                 tab.accept()
-            except Exception as e:
-                print(e)
