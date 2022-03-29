@@ -87,4 +87,7 @@ class SettingsEditor(Qt.QDialog):
         super(SettingsEditor, self).accept()
         for module_name, tab1 in self.module_tabs.items():
             for config_id, tab in tab1.items():
-                tab.accept()
+                try:
+                    tab.accept()
+                except Exception as e:
+                    print(e, file=sys.stderr)
