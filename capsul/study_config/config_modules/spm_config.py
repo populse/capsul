@@ -94,14 +94,16 @@ class SPMConfig(StudyConfigModule):
                         configs,
                         key=lambda x: (-int(x.version)
                                        if x.version not in ('', None)
-                                       else 0) * 1000 - int(x.standalone))
+                                       else 0)
+                                       * 1000 - int(bool(x.standalone)))
                     if len(configs) != 0:
                         config = configs[0]
                         directory = config.directory \
                             if config.directory not in (None, '') \
                             else Undefined
                         self.study_config.spm_directory = directory
-                        self.study_config.spm_standalone = config.standalone
+                        self.study_config.spm_standalone \
+                            = bool(config.standalone)
                         if config.version is not None:
                             self.study_config.spm_version = config.version
                         else:
