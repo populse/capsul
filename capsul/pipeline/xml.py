@@ -335,6 +335,7 @@ def save_xml_pipeline(pipeline, xml_file):
                     value = getattr(process, param_name)
                 if value not in (None, Undefined, '', []) \
                         or (trait.optional
+                            and proc_copy.trait(param_name)
                             and not proc_copy.trait(param_name).optional):
                     if isinstance(value, Controller):
                         value_repr = repr(dict(value.export_to_dict()))
