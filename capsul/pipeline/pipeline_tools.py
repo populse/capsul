@@ -1215,7 +1215,7 @@ def save_pipeline(pipeline, file, format=None):
     format: str
         'py', 'xml'... If not specified and file is a file name, it will be
         guessed from its extension. If file is not a string, then format will
-        defaut to xml.
+        default to xml.
     '''
     from capsul.pipeline.xml import save_xml_pipeline
     from capsul.pipeline.python_export import save_py_pipeline
