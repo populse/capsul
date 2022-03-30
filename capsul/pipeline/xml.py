@@ -42,7 +42,7 @@ def create_xml_pipeline(module, name, xml_file):
         name of file containing the XML description or XML string.
     
     """
-    if os.path.exists(xml_file):
+    if hasattr(xml_file, 'read') or os.path.exists(xml_file):
         xml_pipeline = ET.parse(xml_file).getroot()
     else:
         xml_pipeline = ET.fromstring(xml_file)

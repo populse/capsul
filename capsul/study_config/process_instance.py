@@ -254,7 +254,8 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
         
     # If the function 'process_or_id' parameter is a class string
     # description
-    elif isinstance(process_or_id, six.string_types):
+    elif isinstance(process_or_id, six.string_types) \
+            and not process_or_id.startswith('<process'):
         py_url = os.path.basename(process_or_id).split('#')
         object_name = None
         as_xml = False
@@ -389,6 +390,16 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                 if osp.exists(xml_file):
                     result = create_xml_pipeline(module_name, None,
                                                  xml_file)()
+    elif hasattr(process_or_id, 'read') \
+            or (isinstance(process_or_id, bytes)
+                and process_or_id.startswith(b'<pipeline')):
+        # file-like object or xml string
+        module_name = __name__
+        # can be either XML or python
+        #try:
+        result = create_xml_pipeline(module_name, None, process_or_id)()
+        #except Exception as e:
+            #result = create_xml_pipeline(module_name, None, process_or_id)()
 
     if result is None:
         raise ValueError("Invalid process_or_id argument. "
