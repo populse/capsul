@@ -266,7 +266,7 @@ def save_xml_pipeline(pipeline, xml_file):
     ----------
     pipeline: Pipeline instance
         pipeline to save
-    xml_file: str
+    xml_file: str or file-like object
         XML file to save the pipeline in
     '''
     # imports are done locally to avoid circular imports

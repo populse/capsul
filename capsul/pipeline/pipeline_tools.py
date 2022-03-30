@@ -1203,25 +1203,38 @@ def create_output_directories(process):
             os.makedirs(directory)
 
 
-def save_pipeline(pipeline, filename):
+def save_pipeline(pipeline, file, format=None):
     '''
     Save the pipeline either in XML or .py source file
+
+    Parameters
+    ----------
+    pipeline: Pipeline instance
+    file: file object or str
+        either a filename, or a file-like stream
+    format: str
+        'py', 'xml'... If not specified and file is a file name, it will be
+        guessed from its extension. If file is not a string, then format will
+        defaut to xml.
     '''
     from capsul.pipeline.xml import save_xml_pipeline
     from capsul.pipeline.python_export import save_py_pipeline
 
     formats = {'.py': save_py_pipeline,
-               '.xml': save_xml_pipeline}
+              '.xml': save_xml_pipeline}
 
-    saved = False
-    for ext, writer in six.iteritems(formats):
-        if filename.endswith(ext):
-            writer(pipeline, filename)
-            saved = True
-            break
-    if not saved:
-        # fallback to XML
-        save_py_pipeline(pipeline, filename)
+    if not format and isinstance(file, str):
+
+        saved = False
+        for ext, writer in six.iteritems(formats):
+            if file.endswith(ext):
+                format = ext[1:]
+
+    if not format:
+        format = 'xml'
+
+    writer = formats['.%s' % format]
+    writer(pipeline, file)
 
 
 def load_pipeline_parameters(filename, pipeline):

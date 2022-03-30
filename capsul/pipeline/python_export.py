@@ -26,7 +26,7 @@ def save_py_pipeline(pipeline, py_file):
     ----------
     pipeline: Pipeline instance
         pipeline to save
-    py_file: str
+    py_file: str or file-like object
         .py file to save the pipeline in
     '''
     # imports are done locally to avoid circular imports
@@ -442,32 +442,43 @@ def save_py_pipeline(pipeline, py_file):
     class_name = type(pipeline).__name__
     if class_name == 'Pipeline':
         # don't accept the base Pipeline class
-        class_name = os.path.basename(py_file)
+        if isinstance(py_file, str):
+            class_name = os.path.basename(py_file)
+        elif hasattr(py_file, 'name'):
+            class_name = os.path.basename(py_file.name)
+        else:
+            class_name = 'CustomPipeline'
         if '.' in class_name:
             class_name = class_name[:class_name.index('.')]
         class_name = class_name[0].upper() + class_name[1:]
 
-    with open(py_file, 'w') as pyf:
+    if isinstance(py_file, str):
+        pyf = open(py_file, 'w')
+    else:
+        pyf = py_file
 
-        print('from capsul.api import Pipeline', file=pyf)
-        print('import traits.api as traits', file=pyf)
-        print(file=pyf)
-        print(file=pyf)
-        print('class %s(Pipeline):' % class_name, file=pyf)
+    print('from capsul.api import Pipeline', file=pyf)
+    print('import traits.api as traits', file=pyf)
+    print(file=pyf)
+    print(file=pyf)
+    print('class %s(Pipeline):' % class_name, file=pyf)
 
-        _write_doc(pipeline, pyf)
+    _write_doc(pipeline, pyf)
 
-        print(file=pyf)
-        print('    def pipeline_definition(self):', file=pyf)
+    print(file=pyf)
+    print('    def pipeline_definition(self):', file=pyf)
 
-        _write_processes(pipeline, pyf)
-        _write_links(pipeline, pyf)
-        _write_param_order(pipeline, pyf)
-        _write_processes_selections(pipeline, pyf)
-        _write_steps(pipeline, pyf)
-        _write_values(pipeline, pyf)
-        _write_nodes_positions(pipeline, pyf)
-        _write_nodes_dimensions(pipeline, pyf) #add by Irmage OM
+    _write_processes(pipeline, pyf)
+    _write_links(pipeline, pyf)
+    _write_param_order(pipeline, pyf)
+    _write_processes_selections(pipeline, pyf)
+    _write_steps(pipeline, pyf)
+    _write_values(pipeline, pyf)
+    _write_nodes_positions(pipeline, pyf)
+    _write_nodes_dimensions(pipeline, pyf) #add by Irmage OM
 
-        print('\n        self.do_autoexport_nodes_parameters = False',
-              file=pyf)
+    print('\n        self.do_autoexport_nodes_parameters = False',
+          file=pyf)
+
+    if pyf is not py_file:
+        pyf.close()
