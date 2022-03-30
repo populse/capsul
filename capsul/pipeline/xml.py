@@ -523,8 +523,14 @@ def save_xml_pipeline(pipeline, xml_file):
             for node_name, pos in six.iteritems(pipeline.node_position):
                 node_pos = ET.SubElement(gui, 'position')
                 node_pos.set('name', node_name)
-                node_pos.set('x', six.text_type(pos[0]))
-                node_pos.set('y', six.text_type(pos[1]))
+                if hasattr(pos, 'x'):
+                    # it's a QPointF
+                    node_pos.set('x', six.text_type(pos.x))
+                    node_pos.set('y', six.text_type(pos.y))
+                else:
+                    # it's a python iterable
+                    node_pos.set('x', six.text_type(pos[0]))
+                    node_pos.set('y', six.text_type(pos[1]))
         return gui
 
     def _write_doc(pipeline, root):
