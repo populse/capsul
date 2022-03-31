@@ -44,8 +44,12 @@ def create_xml_pipeline(module, name, xml_file):
     """
     if hasattr(xml_file, 'read') or os.path.exists(xml_file):
         xml_pipeline = ET.parse(xml_file).getroot()
-    else:
+    elif isinstance(xml_file, bytes):
         xml_pipeline = ET.fromstring(xml_file)
+    else:
+        encoded_xml = xml_file.encode('utf-8')
+        xml_pipeline = ET.fromstring(encoded_xml)
+
     version = xml_pipeline.get('capsul_xml')
     if version and version != '2.0':
         raise ValueError('Only Capsul XML 2.0 is supported, not %s' % version)
@@ -587,4 +591,12 @@ def save_xml_pipeline(pipeline, xml_file):
         scale_node.set('level', six.text_type(pipeline.scene_scale_factor))
 
     tree = ET.ElementTree(root)
-    tree.write(xml_file)
+    try:
+        tree.write(xml_file)
+    except TypeError:
+        # probably writing to a unicode stringIO
+        # tree.write can only write encoded streeams
+        import io
+        b = io.BytesIO()
+        tree.write(b)
+        xml_file.write(b.getvalue().decode())

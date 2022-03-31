@@ -255,7 +255,7 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
     # If the function 'process_or_id' parameter is a class string
     # description
     elif isinstance(process_or_id, six.string_types) \
-            and not process_or_id.startswith('<process'):
+            and not process_or_id.startswith('<pipeline'):
         py_url = os.path.basename(process_or_id).split('#')
         object_name = None
         as_xml = False
@@ -392,7 +392,9 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                                                  xml_file)()
     elif hasattr(process_or_id, 'read') \
             or (isinstance(process_or_id, bytes)
-                and process_or_id.startswith(b'<pipeline')):
+                and process_or_id.startswith(b'<pipeline')) \
+            or (isinstance(process_or_id, str)
+                and process_or_id.startswith('<pipeline')):
         # file-like object or xml string
         module_name = __name__
         # can be either XML or python
