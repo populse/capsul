@@ -264,7 +264,7 @@ class ApplicationConfiguration(Controller):
     
     # read-only modified by merge
     merged_config: ConfigurationLayer = field(
-        default_factory=ConfigurationLayer)
+        default_factory=ConfigurationLayer, user_level=2)
     
     def __init__(self, app_name, user_file=None, site_file=None):
         '''
@@ -317,7 +317,6 @@ class ApplicationConfiguration(Controller):
     def available_modules():
         module = sys.modules.get(__name__)
         mod_base = module.__name__.rsplit('.', 1)[0]
-        print('config module:', module)
         mod_path = getattr(module, '__file__')
         if mod_path is None:
             mod_path = getattr(module, '__path__')
