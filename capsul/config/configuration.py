@@ -313,8 +313,23 @@ class ApplicationConfiguration(Controller):
         '''
         self.merged_config = self.site.merged(self.user)
 
-    def available_modules(self):
-        ...
+    @staticmethod
+    def available_modules():
+        module = sys.modules.get(__name__)
+        mod_base = module.__name__.rsplit('.', 1)[0]
+        print('config module:', module)
+        mod_path = getattr(module, '__file__')
+        if mod_path is None:
+            mod_path = getattr(module, '__path__')
+        mod_dir = os.path.dirname(mod_path)
+        modules = []
+        for p in os.listdir(mod_dir):
+            if not p.endswith('.py'):
+                continue
+            if p in ('configuration.py', '__init__.py'):
+                continue
+            modules.append('.'.join((mod_base, p[:-3])))
+        return sorted(modules)
 
 
 
