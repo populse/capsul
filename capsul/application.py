@@ -41,8 +41,9 @@ class Capsul:
 
     '''    
 
-    def __init__(self, config_file=None, site_config_file=None):
-        self.config = ApplicationConfiguration('capsul', user_file=config_file,
+    def __init__(self, config_file=None, site_config_file=None,
+                 app_name='capsul'):
+        self.config = ApplicationConfiguration(app_name, user_file=config_file,
                                                site_file=site_config_file)
         # we should always have a default "local" config.
         if self.config.merged_config.field('local') is None:

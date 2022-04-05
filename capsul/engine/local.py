@@ -18,8 +18,8 @@ class LocalEngine:
         elif isinstance(config, EngineConfiguration):
             self.config = config
         else:
-            self.config = EngineConfiguration()
-            self.config.import_dict(config)
+            raise TypeError(
+                'config must be an instance of EngineConfiguration')
         self.tmp = None
         self._with_count = 0
 
