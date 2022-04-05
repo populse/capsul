@@ -248,8 +248,8 @@ def create_xml_pipeline(module, name, xml_file):
             for gui_child in child:
                 if gui_child.tag == 'position':
                     name = gui_child.get('name')
-                    x = float(gui_child.get('x')())
-                    y = float(gui_child.get('y')())
+                    x = float(gui_child.get('x'))
+                    y = float(gui_child.get('y'))
                     builder.set_node_position(name, x, y)
                 elif gui_child.tag == 'zoom':
                     builder.set_scene_scale_factor(
@@ -530,8 +530,8 @@ def save_xml_pipeline(pipeline, xml_file):
                 node_pos.set('name', node_name)
                 if hasattr(pos, 'x'):
                     # it's a QPointF
-                    node_pos.set('x', six.text_type(pos.x))
-                    node_pos.set('y', six.text_type(pos.y))
+                    node_pos.set('x', six.text_type(pos.x()))
+                    node_pos.set('y', six.text_type(pos.y()))
                 else:
                     # it's a python iterable
                     node_pos.set('x', six.text_type(pos[0]))
