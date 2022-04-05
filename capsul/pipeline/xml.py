@@ -248,8 +248,8 @@ def create_xml_pipeline(module, name, xml_file):
             for gui_child in child:
                 if gui_child.tag == 'position':
                     name = gui_child.get('name')
-                    x = float(gui_child.get('x'))
-                    y = float(gui_child.get('y'))
+                    x = float(gui_child.get('x')())
+                    y = float(gui_child.get('y')())
                     builder.set_node_position(name, x, y)
                 elif gui_child.tag == 'zoom':
                     builder.set_scene_scale_factor(
