@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 debug_messages = None
 
 def debug(*messages):

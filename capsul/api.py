@@ -37,4 +37,3 @@ from .pipeline.pipeline_nodes import Switch
 from .pipeline.pipeline_nodes import OptionalOutputSwitch
 from .application import Capsul, executable
 from .execution_context import ExecutionContext
-

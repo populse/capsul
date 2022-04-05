@@ -21,6 +21,7 @@ from .process.process import Process, Node
 from .pipeline.pipeline import Pipeline, CustomPipeline
 from .process.nipype_process import nipype_factory
 from .engine.local import LocalEngine
+from .config.configuration import ApplicationConfiguration
 
 
 
@@ -40,17 +41,14 @@ class Capsul:
 
     '''    
 
-    def __init__(self, config_file=None):
-        if config_file is None:
-            self.config_file = None
-            self.config = {}
-        else:
-            if isinstance(config_file, str):
-                self.config_file = Path(config_file)
-            else:
-                self.config_file = config_file
-            with self.config_file.open() as f:
-                self.config = json.load(f)
+    def __init__(self, config_file=None, site_config_file=None,
+                 app_name='capsul'):
+        self.config = ApplicationConfiguration(app_name, user_file=config_file,
+                                               site_file=site_config_file)
+        # we should always have a default "local" config.
+        if self.config.merged_config.field('local') is None:
+            self.config.user.local = {}
+            self.config.merge_configs()
     
     @staticmethod
     def is_executable(item):
@@ -73,11 +71,15 @@ class Capsul:
         '''
         return executable(definition, **kwargs)
 
-    def engine(self):
-        ''' Get a :class:`~capsul.engine.CapsulEngine` instance
+    def engine(self, environment='local'):
+        ''' Get a :class:`~capsul.engine.CapsulEngine` instance.
+
+        The engine has a configuration object. However it is a merged (site +
+        user) config, that should not be modified. Configuration modification
+        should always be performed from the Capsul.config object.
         '''
-        engine_config = self.config.get('default', {})
-        return LocalEngine(engine_config)
+        engine_config = getattr(self.config.merged_config, environment)
+        return LocalEngine(environment, engine_config)
 
     def dataset(self, path):
         ''' Get a :class:`~.dataset.DataSet` instance associated with the given path
@@ -250,6 +252,8 @@ def executable_from_json(definition, json_executable):
     '''
     Build a process instance from a JSON dictionary and its definition string.
     '''
+    if definition is None:
+        definition = json_executable
     type = json_executable.get('type')
     if type is None:
         raise ValueError(f'type missing from pipeline defined in {definition}')
