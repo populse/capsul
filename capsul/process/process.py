@@ -126,6 +126,11 @@ class Process(Node):
                 'No definition string given to Process constructor')
         super().__init__(definition=definition, **kwargs)
 
+    @property
+    def requirements(self):
+        return getattr(super(), 'requirements', {})
+
+
     def json(self):
         '''
         '''
@@ -176,7 +181,7 @@ class Process(Node):
         Each Process subclass should overload this method to perform its actual
         job.
         '''
-        raise NotImplementedError(f'The run method is not implemented for process {self.definition}')
+        raise NotImplementedError(f'The execute() method is not implemented for process {self.definition}')
 
 
 class FileCopyProcess(Process):
@@ -811,16 +816,17 @@ class NipypeProcess(FileCopyProcess):
         '''
         pass
 
-
+    
+    @property
     def requirements(self):
-        req = {'nipype': 'any'}
+        result = super().requirements.copy()
         if self._nipype_interface_name == "spm":
-            req['spm'] = 'any'
+            result['spm'] = {}
         elif self._nipype_interface_name == "fsl":
-            req['fsl'] = 'any'
+            result['fsl'] = {}
         elif self._nipype_interface_name == "freesurfer":
-            req['freesurfer'] = 'any'
-        return req
+            result['freesurfer'] = {}
+        return result
 
 
     def set_output_directory(self, out_dir):

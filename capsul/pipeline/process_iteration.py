@@ -9,14 +9,10 @@ Classes
 -------------------------
 '''
 
-from __future__ import print_function
-from __future__ import absolute_import
-
-import sys
 from soma.controller import undefined, Union
 
 from capsul.process.process import Process
-from capsul.process_instance import get_process_instance
+from capsul.application import executable
 
 
 class ProcessIteration(Process):
@@ -27,7 +23,7 @@ class ProcessIteration(Process):
                  context_name=None):
         super(ProcessIteration, self).__init__(definition=definition)
 
-        self.process = get_process_instance(process)
+        self.process = executable(process)
 
         if context_name is not None:
             self.process.context_name = context_name
@@ -68,13 +64,11 @@ class ProcessIteration(Process):
         for field in self.process.user_fields():
             name = field.name
             if name in iterative_parameters:
-                meta = field.metadata()
                 # allow undefined values in this list
                 self.add_field(
                     name,
                     list[Union[field.type, type(undefined)]],
-                    metadata=meta,
-                    default_factory=list)
+                    metadata=field.metadata())
                 value = getattr(self.process, name, undefined)
                 if value is not undefined:
                     setattr(self, name, [value])
@@ -86,40 +80,40 @@ class ProcessIteration(Process):
                 # Note: should be this be done via a links system ?
                 setattr(self, name, getattr(self.process, name, undefined))
 
-        # if the process has iterative outputs, the output lists have to be
-        # resized according to inputs
-        if has_output:
-            self.on_attribute_change.add(self._resize_outputs, inputs)
+    #     # if the process has iterative outputs, the output lists have to be
+    #     # resized according to inputs
+    #     if has_output:
+    #         self.on_attribute_change.add(self._resize_outputs, inputs)
 
-    def _resize_outputs(self):
-        num = 0
-        outputs = []
-        for param in self.iterative_parameters:
-            if self.process.field(param).is_output():
-                if self.process.field(param).path_type:
-                    outputs.append(param)
-            else:
-                print('it param:', param, ':', repr(getattr(self, param, [])))
-                num = max(num, len(getattr(self, param, [])))
-        for param in outputs:
-            value = getattr(self, param, undefined)
-            mod = False
-            if len(value) > num:
-                new_value = value[:num]
-                mod = True
-            else:
-                if len(value) < num:
-                    new_value = value \
-                        + [self.process.field(param).default_value()] \
-                            * (num - len(value))
-                    mod = True
-            if mod:
-                try:
-                    setattr(self, param, new_value)
-                except Exception as e:
-                    print('exc:', e)
-                    print('could not set iteration value:', param, ':',
-                          new_value)
+    # def _resize_outputs(self):
+    #     num = 0
+    #     outputs = []
+    #     for param in self.iterative_parameters:
+    #         if self.process.field(param).is_output():
+    #             if self.process.field(param).path_type:
+    #                 outputs.append(param)
+    #         else:
+    #             print('it param:', param, ':', repr(getattr(self, param, [])))
+    #             num = max(num, len(getattr(self, param, [])))
+    #     for param in outputs:
+    #         value = getattr(self, param, undefined)
+    #         mod = False
+    #         if len(value) > num:
+    #             new_value = value[:num]
+    #             mod = True
+    #         else:
+    #             if len(value) < num:
+    #                 new_value = value \
+    #                     + [self.process.field(param).default_value()] \
+    #                         * (num - len(value))
+    #                 mod = True
+    #         if mod:
+    #             try:
+    #                 setattr(self, param, new_value)
+    #             except Exception as e:
+    #                 print('exc:', e)
+    #                 print('could not set iteration value:', param, ':',
+    #                       new_value)
 
     def change_iterative_plug(self, parameter, iterative=None):
         '''
@@ -178,14 +172,17 @@ class ProcessIteration(Process):
             setattr(self, parameter,
                     getattr(self.process, parameter, undefined))
 
-    def execute(self, context):
+    def iterate_over_process_parmeters(self):
         # Check that all iterative parameter value have the same size
+        # or are undefined
         no_output_value = None
         size = None
         size_error = False
         for parameter in self.iterative_parameters:
             field = self.field(parameter)
             value = getattr(self, parameter, undefined)
+            if value is undefined:
+                continue
             psize = len(value)
             if psize and (not field.is_output()
                           or len([x for x in value
@@ -222,46 +219,31 @@ class ProcessIteration(Process):
 
         for parameter in self.regular_parameters:
             setattr(self.process, parameter, getattr(self, parameter))
-        if no_output_value:
+        for iteration in range(size):
             for parameter in self.iterative_parameters:
-                field = self.field(parameter)
-                if field.is_output():
-                    setattr(self, parameter, [])
-            outputs = {}
-            for iteration in range(size):
-                for parameter in self.iterative_parameters:
-                    #if not no_output_value or not field.is_output():
-                    value = getattr(self, parameter)
-                    if len(value) > iteration:
-                        setattr(self.process, parameter,
-                                getattr(self, parameter)[iteration])
-                # operate completion
-                self.complete_iteration(iteration)
-                self.process()
-                for parameter in self.iterative_parameters:
-                    field = self.field(parameter)
-                    if field.is_output():
-                        outputs.setdefault(parameter,[]).append(
-                            getattr(self.process, parameter))
-                        # reset empty value
-                        setattr(self.process, parameter, undefined)
-            for parameter, value in outputs.items():
-                setattr(self, parameter, value)
-        else:
-            for iteration in range(size):
-                for parameter in self.iterative_parameters:
-                    setattr(self.process, parameter,
-                            getattr(self, parameter)[iteration])
-                # operate completion
-                self.complete_iteration(iteration)
-                self.process()
+                values = getattr(self, parameter, undefined)
+                if values is not undefined and len(values) > iteration:
+                    value = values[iteration]
+                else:
+                    value = undefined
+                setattr(self.process, parameter, value)
+            yield self.process
+    
+    def json(self):
+        return {
+            'type': 'iterative_process',
+            'definition': {
+                'definition': self.definition,
+                'process': self.process.json(),
+                'iterative_parameters': list(self.iterative_parameters),
+                'context_name': getattr(self.process, 'context_name', None),
+            }
+        }
 
-    def complete_iteration(self, iteration):
-        # don't import this at module level to avoid cyclic imports
-        from capsul.attributes.completion_engine import ProcessCompletionEngine
+    @property
+    def requirements(self):
+        result = {}
+        for process in self.iterate_over_process_parmeters():
+            result.update(self.process.requirements)
+        return result
 
-        completion_engine = ProcessCompletionEngine.get_completion_engine(
-            self)
-        # check if it is an iterative completion engine
-        if hasattr(completion_engine, 'complete_iteration_step'):
-            completion_engine.complete_iteration_step(iteration)

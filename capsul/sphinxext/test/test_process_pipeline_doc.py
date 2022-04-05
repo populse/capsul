@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-##########################################################################
-# Capsul - Copyright (C) CEA, 2014
-# Distributed under the terms of the CeCILL-B license, as published by
-# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
-# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-# for details.
-##########################################################################
-
-# System import
-from __future__ import absolute_import
 import unittest
 
 # Capsul import
@@ -17,20 +7,18 @@ from capsul.api import Pipeline
 #@unittest.skip('reimplementation expected for capsul v3')
 #from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 
-# Trait import
-from traits.api import Float, File
-
+from soma.controller import File, field
 
 class MyProcess(Process):
     """ My dummy process.
     """
     # Some inputs
-    input_image = File(optional=False, desc="an image.")
-    input_float = Float(optional=True, desc="a float.")
+    input_image = field(type_=File, optional=False, desc="an image.")
+    input_float = field(type_=float, optional=True, desc="a float.")
 
     # Some outputs
-    output_image = File(optional=False, output=True, desc="an output image.")
-    output_float = Float(optional=True, output=True, desc=None)
+    output_image = field(type_=File, optional=False, write=True, desc="an output image.")
+    output_float = field(type_=float, optional=True, output=True, desc=None)
 
 
 class MyPipeline(Pipeline):

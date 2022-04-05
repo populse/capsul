@@ -9,6 +9,7 @@ import tempfile
 import traceback
 
 from capsul.api import Capsul, ExecutionContext, Pipeline
+from .pipeline.process_iteration import ProcessIteration
 import capsul.debug as capsul_debug
 
 
@@ -54,14 +55,23 @@ if __name__ == '__main__':
                     if field.is_path():
                         value = getattr(node, field.name, None)
                         if value and value.startswith('!'):
-                            final_value = eval(f"f'{value[1:]}'", context.__dict__, context.__dict__)
+                            try:
+                                final_value = eval(f"f'{value[1:]}'", context.__dict__, context.__dict__)
+                            except Exception:
+                                final_value = value
                             setattr(node, field.name, final_value)
             executable.before_execute(context)
             if isinstance(executable, Pipeline):
                 for node in reversed(executable.workflow_ordered_nodes()):
-                    node.before_execute(context)
-                    node.execute(context)
-                    node.after_execute(context)
+                    if isinstance(node, ProcessIteration):
+                        for process in node.iterate_over_process_parmeters():
+                            process.before_execute(context)
+                            process.execute(context)
+                            process.after_execute(context)
+                    else:
+                        node.before_execute(context)
+                        node.execute(context)
+                        node.after_execute(context)
             else:
                 executable.execute(context)
             executable.after_execute(context)

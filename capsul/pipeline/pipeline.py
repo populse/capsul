@@ -461,7 +461,8 @@ class Pipeline(Process):
             self._set_node_enabled, node_name)
         self.nodes_activation.remove_field(node_name)
 
-    def add_iterative_process(self, name, process, non_iterative_plugs=None,
+    def add_iterative_process(self, name, process, 
+                              non_iterative_plugs=None, iterative_plugs=None,
                               do_not_export=None, make_optional=None,
                               **kwargs):
         """ Add a new iterative node in the pipeline.
@@ -474,6 +475,8 @@ class Pipeline(Process):
             the process we want to add.
         non_iterative_plugs: list of str (optional)
             a list of plug names on which we *do not* want to iterate.
+        iterative_plugs: list of str (optional)
+            a list of plug names on which we *do* want to iterate.
             If None, all plugs of the process will be iterated.
         do_not_export: list of str (optional)
             a list of plug names that we do not want to export.
@@ -488,12 +491,11 @@ class Pipeline(Process):
         from ..application import executable
 
         process = executable(process)
-        if 'iterative_plugs' in kwargs:
+        if iterative_plugs is not None:
             if non_iterative_plugs is not None:
                 raise ValueError(
                     'Both iterative_plugs and non_iterative_plugs are '
                     'specified - they are mutually exclusive')
-            iterative_plugs = kwargs.pop('iterative_plugs')
         else:
             forbidden = {'nodes_activation', 'selection_changed',
                         'pipeline_steps', 'visible_groups', 'enabled',
@@ -2455,7 +2457,9 @@ class CustomPipeline(Pipeline):
         return result
 
     def json_pipeline(self):
-        definition = {}
+        definition = {
+            'definition': self.definition,
+        }
 
         if hasattr(self, '__doc__') and self.__doc__ is not None:
             docstr = self.__doc__

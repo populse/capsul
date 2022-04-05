@@ -8,19 +8,21 @@ Functions
 ++++++++++++++++++++++
 '''
 
-# System import
-from __future__ import print_function
-from __future__ import absolute_import
 import sys
 import os
 import types
 import inspect
 import logging
 
-# Capsul import
 from .process import NipypeProcess
 import soma.controller as sc
-import traits.api as traits
+try:
+    import traits.api as traits
+except:
+    # Nipype is using traits but there is no mandatory dependency on Nipype.
+    # Therefore, Capsul must be usable without traits (which is a dependency
+    # of Nipype).
+    traits = None
 
 
 def nipype_factory(nipype_instance, base_class=NipypeProcess):
