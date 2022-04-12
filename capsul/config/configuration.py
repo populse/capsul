@@ -141,6 +141,14 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     resource could be named "local".
     '''
 
+    def __init__(self):
+        super().__init__()
+        self.add_field(
+            'local', EngineConfiguration,default_factory=EngineConfiguration,
+            doc='Default local computing resource config. Elements are config '
+            'modules which should be registered in the application (spm, fsl, '
+            '...)')
+
     def load(self, filename):
         ''' Load configuration from a JSON or YAML file
         '''
@@ -159,6 +167,19 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
 
         # print('import config:', conf)
         self.import_dict(conf)
+
+    def add_field(self, name, *args, **kwargs):
+        if 'doc' not in kwargs:
+            kwargs = dict(kwargs)
+            if name == 'local':
+                kwargs['doc'] = 'Default local computing resource config. ' \
+                    'Elements are config modules which should be registered ' \
+                    'in the application (spm, fsl, ...)'
+            else:
+                kwargs['doc'] = 'Computing resource config. Elements are ' \
+                    'config modules which should be registered in the ' \
+                    'application (spm, fsl, ...)'
+        super().add_field(name, *args, **kwargs)
 
     def save(self, filename, format='json'):
         ''' Save configuration to a JSON or YAML file
@@ -256,11 +277,17 @@ class ApplicationConfiguration(Controller):
     which allows a complete control and validation at every level, contrarily
     to a ``dict[str, ModuleConfiguration]`` for instance.
     '''
-    site_file: File
-    site: ConfigurationLayer = field(default_factory=ConfigurationLayer)
-    user_file: File
-    user: ConfigurationLayer = field(default_factory=ConfigurationLayer)
-    app_name: str = 'capsul'
+    site_file: File = field(doc='site configuration file')
+    site: ConfigurationLayer = field(
+        default_factory=ConfigurationLayer,
+        doc='Site-wise configuration, set by the software admin or installer. '
+        'Elements represent computing resources configs.')
+    user_file: File = field(doc='user configuration file')
+    user: ConfigurationLayer = field(
+        default_factory=ConfigurationLayer,
+        doc='Personal user config: overrides or completes the site config. '
+        'Elements represent computing resources configs.')
+    app_name: str = field(default='capsul', doc='Application name')
     
     # read-only modified by merge
     merged_config: ConfigurationLayer = field(
