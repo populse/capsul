@@ -2803,6 +2803,7 @@ class PipelineDeveloperView(QGraphicsView):
         and a new scene should not be built
         '''
         # Setup callback to update view when pipeline state is modified
+        import sip
         pipeline = None
         if self.scene is not None and hasattr(self.scene, 'pipeline'):
             pipeline = self.scene.pipeline
@@ -2814,6 +2815,9 @@ class PipelineDeveloperView(QGraphicsView):
                                     remove=True)
             pipeline.on_trait_change(self._reset_pipeline,
                                      'user_traits_changed', remove=True)
+        if sip.isdeleted(self):
+            # prevent 'C++ object has been deleted' error
+            return
         self.setScene(None)
         if self.scene:
             # force destruction of scene internals now that the Qt object
