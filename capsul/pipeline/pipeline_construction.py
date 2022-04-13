@@ -86,7 +86,11 @@ class PipelineConstructor(object):
         """
         self._calls.append(('add_link', args, kwargs))
 
-        
+    def add_subpipeline_link(self, *args, **kwargs):
+        """Add a link between subpipeline processes.
+        """
+        self._calls.append(('add_subpipeline_link', args, kwargs))
+
     def export_parameter(self, *args, **kwargs):
         """Export an internal parameter to the pipeline parameters.
         """
@@ -168,3 +172,14 @@ class ConstructedPipeline(Pipeline):
                 m = '%s(%s)' % (method_name, ', '.join(l))
                 raise RuntimeError('%s: %s (in pipeline %s when calling %s)' %
                                    (e.__class__.__name__, str(e), self.id, m))
+
+    def add_subpipeline_link(self, node_def, source, dest):
+        from capsul.pipeline.process_iteration import ProcessIteration
+
+        nodes = node_def.split('.')
+        proc = self
+        for node in nodes:
+            proc = proc.nodes[node].process
+            if isinstance(proc, ProcessIteration):
+                proc = proc.process
+        proc.add_link('%s->%s' % (source, dest), allow_export=True)

@@ -79,6 +79,7 @@ def create_xml_pipeline(module, name, xml_file):
             nipype_usedefault = []
             iterate = []
             iteration = child.get('iteration')
+            links = []
             if iteration:
                 iterate = [x.strip() for x in iteration.split(',')]
             for process_child in child:
@@ -100,6 +101,11 @@ def create_xml_pipeline(module, name, xml_file):
                     elif copyfile == 'discard':
                         kwargs.setdefault('inputs_to_copy', []).append(name)
                         kwargs.setdefault('inputs_to_clean', []).append(name)
+                elif process_child.tag == 'link':
+                    # internal export
+                    source = process_child.get('source')
+                    dest = process_child.get('dest')
+                    links.append((source, dest))
                 else:
                     raise ValueError('Invalid tag in <process>: %s' %
                                      process_child.tag)
@@ -111,6 +117,9 @@ def create_xml_pipeline(module, name, xml_file):
             for name in nipype_usedefault:
                 builder.call_process_method(process_name, 'set_usedefault',
                                             name, True)
+            if links:
+                for link in links:
+                    builder.add_subpipeline_link(process_name, *link)
             enabled = child.get('enabled')
             if enabled == 'false':
                 builder.set_node_enabled(process_name, False)
@@ -332,6 +341,29 @@ def save_xml_pipeline(pipeline, xml_file):
         dont_write_plug_values.update(('nodes_activation',
                                        'selection_changed'))
         for param_name, trait in six.iteritems(process.user_traits()):
+            if proc_copy.trait(param_name) is None:
+                # param added, not in the original process
+                is_input = not trait.output
+                if isinstance(process, Pipeline) \
+                        and ((is_input and process.pipeline_node.plugs[
+                            param_name].links_to)
+                             or (not is_input
+                                 and process.pipeline_node.plugs[
+                                    param_name].links_from)):
+                    if is_input:
+                        for link in process.pipeline_node.plugs[
+                                param_name].links_to:
+                            link_el = ET.SubElement(procnode, 'link')
+                            link_el.set('source', param_name)
+                            link_el.set('dest', '.'.join((link[0], link[1])))
+                    else:
+                        for link in process.pipeline_node.plugs[
+                                param_name].links_from:
+                            link_el = ET.SubElement(procnode, 'link')
+                            link_el.set('source', '.'.join((link[0], link[1])))
+                            link_el.set('dest', param_name)
+                # else the parameter has been added orphan on a process or
+                # pipeline: it is useless...
             if param_name not in dont_write_plug_values:
                 if param_name in init_plug_values:
                     value = init_plug_values[param_name]
