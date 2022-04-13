@@ -61,6 +61,10 @@ class ModuleConfiguration(Controller):
                                   #'define init_execution_context()')
 
 
+class DatasetConfig(Controller):
+    directory: Directory
+    metadata_schema: str
+
 class EngineConfiguration(Controller):
     ''' Engine-level configuration object
 
@@ -74,7 +78,7 @@ class EngineConfiguration(Controller):
     or replace dots with underscores.
     '''
 
-    dataset: OpenKeyDictController[Directory]
+    dataset: OpenKeyDictController[DatasetConfig]
     load_modules: list[str]
 
     def add_module(self, module_name, allow_existing=False):

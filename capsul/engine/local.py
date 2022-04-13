@@ -10,11 +10,15 @@ import time
 from soma.controller import Controller, OpenKeyDictController, Directory
 
 from capsul.api import Pipeline, Process
-from ..config.configuration import ModuleConfiguration
-
+from ..config.configuration import ModuleConfiguration, DatasetConfig
+from ..dataset import Dataset
 
 class ExecutionContext(Controller):
-    dataset: OpenKeyDictController[Directory]
+    dataset: OpenKeyDictController[Dataset]
+
+    def __init__(self):
+        super().__init__()
+        self.dataset = OpenKeyDictController[Dataset]()
 
 
 class LocalEngine:
@@ -70,7 +74,8 @@ class LocalEngine:
 
     def execution_context(self, executable):
         execution_context = ExecutionContext()
-        execution_context.dataset = self.config.dataset
+        for name, cfg in self.config.dataset.items():
+            setattr(execution_context.dataset, name, Dataset(path=cfg.directory, schema=cfg.metadata_schema))
         for module_name, requirements in self.executable_requirements(executable).items():
             module_configs = getattr(self.config, module_name, {})
             valid_configs = []

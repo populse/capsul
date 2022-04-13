@@ -23,6 +23,7 @@ class MetadataSchema(Controller):
     are stored as fields.
     '''
     def __init__(self, base_path):
+        super().__init__()
         if not isinstance(base_path, Path):
             self.base_path = Path(base_path)
         else:
@@ -31,12 +32,12 @@ class MetadataSchema(Controller):
     def get(self, name, default=None):
         '''
         Shortcut to get an attribute with a None default value.
-        Used in :meth:`_path_listh` specialization to have a 
+        Used in :meth:`_path_list` specialization to have a 
         shorter code.
         '''
-        return getattr(self, name, value)
+        return getattr(self, name, default)
 
-    def build_path(self, base):
+    def build_path(self):
         ''' Returns a list of path elements built from the current PathLayout
         fields values.
 
@@ -47,7 +48,7 @@ class MetadataSchema(Controller):
                                 self._path_list(),
                                 self.base_path)
 
-    def _path_list():
+    def _path_list(self):
         raise NotImplementedError(
             '_path_list() must be specialized in MetadataSchema subclasses.')
 
@@ -146,6 +147,8 @@ class BIDSSchema(MetadataSchema):
         BIDSMetadata is used to get metadata of many files, there
         will be only one reading and conversion per file.
         '''
+        if not isinstance(path, Path):
+            path = Path(path)
         result = {}
         if path.is_absolute():
             relative_path = path.relative_to(self.base_path)
@@ -241,7 +244,6 @@ class BrainVISASchema(MetadataSchema):
         r'_(?P<suffix>[^-_/]*)\.(?P<extension>.*)$'
     )
 
-    @staticmethod
     def _path_list(self):
         '''
         The path has the following pattern:
@@ -273,11 +275,15 @@ class BrainVISASchema(MetadataSchema):
         return path_list
 
 def bids_to_brainvisa(bids):
-    return dict(
+    result = dict(
         center='whaterver',
         subject=bids['sub'],
         acquisition=bids['ses'],
         extension = 'nii')
+    process = bids.get('process')
+    if process:
+        result['process'] = process
+    return result
 
 class Dataset:
     ''' Dataset class
@@ -288,7 +294,7 @@ class Dataset:
     }
 
     schema_mappings = {
-        ('brainvisa', 'bids'): bids_to_brainvisa,
+        ('bids', 'brainvisa'): bids_to_brainvisa,
     }
 
     def __init__(self, path, schema=None):
@@ -320,20 +326,34 @@ class Dataset:
         yield from self.schema.find(self.path, **kwargs)
 
 
-def generate_paths(self, executable, context):
+def generate_paths(executable, context, debug=False):
+    def dprint(*args, **kwargs):
+        if debug:
+            if debug is True:
+                import sys
+                file = sys.stderr
+            else:
+                file = debug
+            print('!generate_paths!', *args, **kwargs, file=file)
+    dprint()
     source_field_per_schema = {}
     target_field_per_schema = {}
     dataset_name_per_field = {}
     for field in executable.fields():
-        if field.path_type:
+        inner_item = next(executable.get_linked_items(
+                            executable, field.name), None)
+        if inner_item is not None:
+            inner_process, inner_field_name = inner_item
+            path_type = inner_process.field(inner_field_name).path_type
+        else:
+            path_type = field.path_type
+        dprint(f'field {field.name}: path_type = {path_type}')
+        if path_type:
             # Associates a Dataset name with the field
             dataset_name = getattr(field, 'dataset', None)
             if dataset_name is None:
                 dataset_name = ('output' if field.is_output() else 'input')
-            dataset = None
-            datasets = getattr(context, 'datasets', None)
-            if datasets:
-                dataset = getattr(context, dataset_name, None)
+            dataset = getattr(context.dataset, dataset_name, None)
             value = getattr(executable, field.name, undefined)
             if value is undefined:
                 if dataset is None:
@@ -342,15 +362,20 @@ def generate_paths(self, executable, context):
                             'in execution context. It is required to generate '
                             f'path for parameter "{field.name}"')
                 else:
+                    dprint(f'target field {field.name} -> dataset {dataset_name}: schema {dataset.schema_name}')
                     dataset_name_per_field[field] = dataset_name
                     target_field_per_schema.setdefault(dataset.schema_name, []).append(field) 
             else:
                 if dataset is not None:
+                    dprint(f'source field {field.name} -> dataset {dataset_name}: schema {dataset.schema_name}')
+                    dataset_name_per_field[field] = dataset_name
                     source_field_per_schema.setdefault(dataset.schema_name, []).append(field) 
+                else:
+                    dprint(f'source field {field.name} -> ignored because dataset {dataset_name} not found')
 
     if len(target_field_per_schema) > 1:
         raise ValueError(f'Found several metadata schemas in path parameters with missing value: {", ".join(target_field_per_schema)}')
-    target_schema_name, target_fields = target_field_per_schema.pop()
+    ((target_schema_name, target_fields),) = target_field_per_schema.items()
     if not target_fields:
         return
     target_schema = Dataset.find_schema(target_schema_name)
@@ -375,27 +400,37 @@ def generate_paths(self, executable, context):
                     if target_list_size is not None and target_list_size != l:
                         raise ValueError('Lists of different sizes given to generate paths')
                     target_list_size = l
-    source_metadatas = ([{}] * target_list_size if target_list_size is None else [{}])
+    source_metadatas = ([{}] if target_list_size is None else [{}] * target_list_size)
+    dprint(f'target schema = {target_schema_name}')
+    dprint(f'target list size = {target_list_size}')
+    dprint(f'global_metadata = {global_metadata}')
 
     for source_schema_name, source_fields in source_field_per_schema.items():
+        dprint(f'schema {source_schema_name} -> source fields: {", ".join(i.name for i in source_fields)}')
         source_schema = Dataset.find_schema(source_schema_name)
         if not source_schema:
+            dprint(f'cannot get schema {source_schema_name}')
             continue
         if source_schema_name != target_schema_name:
             mapping = Dataset.find_schema_mapping(source_schema_name, target_schema_name)
             if mapping is None:
+                dprint(f'cannot get mapping between schemas {source_schema_name} and {target_schema_name}')
                 continue
         else:
             mapping = None
         for list_index in ((None,) if target_list_size is None else range(target_list_size)):
-            merged_metadata = source_metadata[(0 if list_index is None else list_index)]
+            merged_metadata = source_metadatas[(0 if list_index is None else list_index)]
             for field in source_fields:
                 path = getattr(executable, field.name)
                 if isinstance(path, list):
                     path = path[list_index]
-                path_metadata = source_schema.metadata(path)
+                dprint(f'source path: {path}')
+                schema = source_schema(context.dataset[dataset_name_per_field[field]].path)
+                path_metadata = schema.metadata(path)
+                dprint(f'path {path} -> {path_metadata}')
                 if mapping is not None:
                     path_metadata = mapping(path_metadata)
+                dprint(f'schema mapping -> {path_metadata}')
                 for k, v in path_metadata.items():
                     if k in merged_metadata:
                         if merged_metadata[k] != v:
@@ -413,7 +448,8 @@ def generate_paths(self, executable, context):
             inner_process = inner_field = None
         values = []
         for source_metadata in source_metadatas:
-            target_metadata = dict((k, v) for k, v in source_metadata if v is not undefined)
+            target_metadata = dict((k, v) for k, v in source_metadata.items() if v is not undefined)
+            dprint(f'for {field.name}: source_metadata = {target_metadata}')
             target_metadata.update(global_metadata)
             field_metadata = getattr(
                 executable, 'metadata_schema', {}).get(target_schema_name,
@@ -422,12 +458,14 @@ def generate_paths(self, executable, context):
                 field_metadata = getattr(
                     inner_process, 'metadata_schema',
                     {}).get(target_schema_name, {}).get(inner_field.name)
+            dprint(f'for {field.name}: field_metadata = {field_metadata}')
             if field_metadata:
                 target_metadata.update(field_metadata)
-            schema = target_schema(dataset_name_per_field[field])
+            dprint(f'for {field.name}: target_metadata = {target_metadata}')
+            schema = target_schema(f'{{dataset.{dataset_name_per_field[field]}}}')
             for k, v in target_metadata.items():
                 setattr(schema, k, v)
-            values.append(schema.build_path())
+            values.append('!' + str(schema.build_path()))
         if target_list_size is None:
             setattr(executable, field.name, values[0])
         else:

@@ -7,11 +7,11 @@ import tempfile
 import unittest
 
 from soma.controller import field, File
+from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
 from capsul.config.configuration import ModuleConfiguration
-from soma.controller import Directory, undefined
-
+from capsul.dataset import generate_paths
 
 class FakeSPMConfiguration(ModuleConfiguration):
     ''' SPM configuration module
@@ -63,6 +63,7 @@ class FakeSPMNormalization12(Process):
         type_=File, 
         extensions=('.nii',),
         completion='spm',
+        dataset='fakespm'
     ) = '!{fakespm.directory}/template'
     output: field(type_=File, write=True, extensions=('.nii',))
     
@@ -73,8 +74,8 @@ class FakeSPMNormalization12(Process):
     }
     
     metadata_schema = dict(
-        bids={'output': {'part': 'normalized'}},
-        brainvisa={'output': {'prefix': 'normalized'}}
+        bids={'output': {'part': 'normalized_fakespm12'}},
+        brainvisa={'output': {'prefix': 'normalized_fakespm12'}}
     )
 
     def execute(self, context):
@@ -95,14 +96,19 @@ class FakeSPMNormalization8(FakeSPMNormalization12):
         }
     }
 
+    metadata_schema = dict(
+        bids={'output': {'part': 'normalized_fakespm8'}},
+        brainvisa={'output': {'prefix': 'normalized_fakespm8'}}
+    )
+
 class AimsNormalization(Process):
     input: field(type_=File, extensions=('.nii',))
     origin: field(type_=list[float], default_factory=lambda: [1.2, 3.4, 5.6])
     output: field(type_=File, write=True, extensions=('.nii',))
 
     metadata_schema = dict(
-        bids={'output': {'part': 'normalized'}},
-        brainvisa={'output': {'prefix': 'normalized'}}
+        bids={'output': {'part': 'normalized_aims'}},
+        brainvisa={'output': {'prefix': 'normalized_aims'}}
     )
 
     def execute(self, context):
@@ -286,8 +292,14 @@ class TestTinyMorphologist(unittest.TestCase):
                     'capsul.test.test_tiny_morphologist',
                 ],
                 'dataset': {
-                    'input': str(self.bids),
-                    'output': str(self.brainvisa),
+                    'input': {
+                        'directory': str(self.bids),
+                        'metadata_schema': 'bids',
+                    },
+                    'output': {
+                        'directory': str(self.brainvisa),
+                        'metadata_schema': 'brainvisa',
+                    }
                 }
             }
         }
@@ -323,8 +335,14 @@ class TestTinyMorphologist(unittest.TestCase):
         expected_config = {
             'local': {
                 'dataset': {
-                    'input': str(self.tmp / 'bids'),
-                    'output': str(self.tmp / 'brainvisa'),
+                    'input': {
+                        'directory': str(self.tmp / 'bids'),
+                        'metadata_schema': 'bids',
+                    },
+                    'output': {
+                        'directory': str(self.tmp / 'brainvisa'),
+                        'metadata_schema': 'brainvisa',
+                    },
                 },
                 'fakespm': {
                     'fakespm_12': {
@@ -347,9 +365,15 @@ class TestTinyMorphologist(unittest.TestCase):
         context = engine.execution_context(tiny_morphologist)
         expected_context = {
             'dataset': {
-                'input': str( self.tmp / 'bids'),
-                'output': str( self.tmp / 'brainvisa')
-            }
+                'input': {
+                    'directory': str(self.tmp / 'bids'),
+                    'metadata_schema': 'bids',
+                },
+                'output': {
+                    'directory': str(self.tmp / 'brainvisa'),
+                    'metadata_schema': 'brainvisa',
+                },
+            },
         }
         self.assertEqual(context.asdict(), expected_context)
 
@@ -369,47 +393,18 @@ class TestTinyMorphologist(unittest.TestCase):
         }
         self.assertEqual(context.asdict(), expected_context)
 
-    # def test_path_generation(self):
-    #     capsul = Capsul(config_file=self.config_file)
-    #     # Input dataset is declared as following BIDS organization in capsul.json
-    #     # therefore a BIDS specific object is returned
-    #     input_dataset = capsul.dataset(self.bids)
-    #     # Output dataset is declared as following BrainVISA organization in capsul.json
-    #     # therefore a BrainVISA specific object is returned
-    #     output_dataset = capsul.dataset(self.brainvisa)
-    #     # Create a main pipeline that will contain all the morphologist pipelines
-    #     # we want to execute
-    #     processing_pipeline = capsul.custom_pipeline()
-    #     processing_pipeline.add_iterative_process(
-    #         'tiny_morphologist',
-    #         'bv_use_cases.tiny_morphologist.TinyMorphologist',
-    #         non_iterative_plugs=['template'],
-    #     )
-    #     processing_pipeline.autoexport_nodes_parameters(include_optional=True)
-
-    #     completion = Completion()
-    #     completion.add_dataset_items({
-    #         output_dataset: {
-    #             'TinyMorphologist': ['nobias', 'normalized',
-    #                                 'right_hemisphere',
-    #                                 'left_hemisphere']},
-    #     })
-        
-    #     # Parse the dataset with BIDS-specific query (here "suffix" is part
-    #     #  of BIDS specification). The object returned contains info for main
-    #     # BIDS fields (sub, ses, acq, etc.)
-    #     count = 0
-    #     inputs = []
-    #     normalizations = []
-
-    #     from pprint import pprint
-    #     for path, metadata in input_dataset.find(suffix='T1w', extension='nii'):
-    #         inputs.extend([path]*3)
-    #         normalizations += ['none', 'aims', 'fakespm']
-    #         print(path, ':')
-    #         pprint(metadata)
-    #     return
-    #     # Set the input data
+    def test_path_generation(self):
+        capsul = Capsul('test_tiny_morphologist', site_file=self.config_file)
+        engine = capsul.engine()
+        for normalization in ('none', 'aims', 'fakespm12', 'fakespm8'):
+            tiny_morphologist = capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
+            tiny_morphologist.input = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
+            tiny_morphologist.normalization = normalization
+            execution_context = engine.execution_context(tiny_morphologist)
+            generate_paths(tiny_morphologist, execution_context, debug=False)
+            for field in tiny_morphologist.fields():
+                value = getattr(tiny_morphologist, field.name, undefined)
+                print(f'!{normalization}!', field.name, value)
 
     # def test_tiny_morphologist(self):
     #     capsul = Capsul(config_file=self.config_file)
