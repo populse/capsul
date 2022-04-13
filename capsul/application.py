@@ -15,17 +15,19 @@ except ImportError:
 
 from soma.controller import field, Controller
 from soma.undefined import undefined
+from soma.singleton import Singleton
 
-from .dataset import Dataset
-from .process.process import Process, Node
-from .pipeline.pipeline import Pipeline, CustomPipeline
-from .process.nipype_process import nipype_factory
-from .engine.local import LocalEngine
 from .config.configuration import ApplicationConfiguration
+from .dataset import Dataset
+from .engine.local import LocalEngine
+from .pipeline.pipeline import Pipeline, CustomPipeline
+from .pipeline.process_iteration import ProcessIteration
+from .process.process import Process, Node
+from .process.nipype_process import nipype_factory
 
 
 
-class Capsul:
+class Capsul(Singleton):
     '''User entry point to Capsul features. 
     This objects reads Capsul configuration in site and user environments.
     It allows configuration customization and instanciation of a 
@@ -41,15 +43,10 @@ class Capsul:
 
     '''    
 
-    def __init__(self, config_file=None, site_config_file=None,
-                 app_name='capsul'):
-        self.config = ApplicationConfiguration(app_name, user_file=config_file,
-                                               site_file=site_config_file)
-        # we should always have a default "local" config.
-        if self.config.merged_config.field('local') is None:
-            self.config.user.local = {}
-            self.config.merge_configs()
-    
+    def __singleton_init__(self, app_name='capsul', site_file=None):
+        c = ApplicationConfiguration(app_name=app_name, site_file=str(site_file))
+        self.config = c.merged_config
+
     @staticmethod
     def is_executable(item):
         '''Check if the input item is a process class or function with decorator
@@ -71,15 +68,11 @@ class Capsul:
         '''
         return executable(definition, **kwargs)
 
-    def engine(self, environment='local'):
-        ''' Get a :class:`~capsul.engine.CapsulEngine` instance.
-
-        The engine has a configuration object. However it is a merged (site +
-        user) config, that should not be modified. Configuration modification
-        should always be performed from the Capsul.config object.
+    def engine(self, name='local'):
+        ''' Get a :class:`~capsul.engine.CapsulEngine` instance
         '''
-        engine_config = getattr(self.config.merged_config, environment)
-        return LocalEngine(environment, engine_config)
+        engine_config = self.config.get(name, {})
+        return LocalEngine(name, engine_config)
 
     def dataset(self, path):
         ''' Get a :class:`~.dataset.DataSet` instance associated with the given path
@@ -89,14 +82,11 @@ class Capsul:
         path: :class:`pathlib.Path`
             path for the dataset
         '''
-        dataset_config_file = path / 'capsul.json'
-        with dataset_config_file.open() as f:
-            dataset_config = json.load(f)
-        path_layout = dataset_config['path_layout']
-        return Dataset(path, path_layout)
+        return Dataset(path)
 
     def custom_pipeline(self):
         return CustomPipeline()
+
 
 def executable(definition, **kwargs):
     '''
@@ -252,29 +242,33 @@ def executable_from_json(definition, json_executable):
     '''
     Build a process instance from a JSON dictionary and its definition string.
     '''
-    if definition is None:
-        definition = json_executable
+    process_definition = json_executable.get('definition')
+    if process_definition is None:
+        raise ValueError(f'definition missing from process defined in {definition}')
     type = json_executable.get('type')
     if type is None:
-        raise ValueError(f'type missing from pipeline defined in {definition}')
-    pipeline_definition = json_executable.get('definition')
-    if pipeline_definition is None:
-        raise ValueError(f'definition missing from pipeline defined in {definition}')
+        raise ValueError(f'type missing from process defined in {definition}')
+    if definition is None:
+        definition = json_executable.get('definition')
     if type in ('process', 'pipeline'):
-        result = executable(pipeline_definition)
+        result = executable(process_definition)
         if definition is not None:
             result.definition = definition
-        parameters = json_executable.get('parameters')
-        if parameters:
-            result.import_json(parameters)
     elif type == 'custom_pipeline':
         result = CustomPipeline(definition=definition, 
-                                json_executable=pipeline_definition)
-        parameters = json_executable.get('parameters')
-        if parameters:
-            result.import_json(parameters)
+                                json_executable=process_definition)
+    elif type == 'iterative_process':
+        result = ProcessIteration(
+            definition=definition,
+            process=executable(process_definition['process']),
+            iterative_parameters=process_definition['iterative_parameters'],
+            context_name=process_definition ['context_name'],
+        )
     else:
         raise ValueError(f'Invalid executable type in {definition}: {type}')
+    parameters = json_executable.get('parameters')
+    if parameters:
+        result.import_json(parameters)
     return result
 
 def process_from_function(function):
@@ -326,10 +320,6 @@ def process_from_function(function):
     return type(name, (Process,), namespace)
 
 
-
-
-
-
 def get_node_class(node_type):
     """
     Get a custom node class from module + class string.
@@ -360,6 +350,7 @@ def get_node_class(node_type):
     if cls is None:
         return None
     return name, cls
+
 
 def get_node_instance(node_type, pipeline, conf_dict=None, name=None,
                       **kwargs):

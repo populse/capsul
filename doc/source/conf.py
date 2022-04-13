@@ -395,41 +395,42 @@ except Exception:
 #     tutorial/tutorial/images/*.jpg
 #
 # Hack to copy files from sources to build dir
-out_dir = sys.argv[-1]
-src_dir = sys.argv[-2]
-print('source:', src_dir)
-print('dest:', out_dir)
-print('cwd:', os.getcwd())
-if not os.path.isabs(src_dir) and not os.path.exists(os.path.join(src_dir)):
-    # this strange config appears in MAkefile builds
-    src_dir = os.getcwd()
-    if not os.path.isabs(out_dir):
-        out_dir = os.path.join(os.path.dirname(os.getcwd()), out_dir)
-# nbsphinx 3/4 has a bug: it adds the 1st directory level to images paths.
-# so we have to move it into a 2nd level of 'tutorial'. Probably nbsphinx
-# is only working well for notebooks at the root of the source tree.
-out_tuto_path = os.path.join(out_dir, 'tutorial')
-out_tuto_img_path = os.path.join(out_tuto_path, 'tutorial')
-if os.path.exists(out_tuto_img_path):
-    shutil.rmtree(out_tuto_img_path)
-if not os.path.exists(out_tuto_path):
-    os.makedirs(out_tuto_path)
-shutil.copytree(os.path.join(src_dir, 'tutorial/images'), out_tuto_img_path)
+if len(sys.argv) == 2:
+    out_dir = sys.argv[-1]
+    src_dir = sys.argv[-2]
+    print('source:', src_dir)
+    print('dest:', out_dir)
+    print('cwd:', os.getcwd())
+    if not os.path.isabs(src_dir) and not os.path.exists(os.path.join(src_dir)):
+        # this strange config appears in MAkefile builds
+        src_dir = os.getcwd()
+        if not os.path.isabs(out_dir):
+            out_dir = os.path.join(os.path.dirname(os.getcwd()), out_dir)
+    # nbsphinx 3/4 has a bug: it adds the 1st directory level to images paths.
+    # so we have to move it into a 2nd level of 'tutorial'. Probably nbsphinx
+    # is only working well for notebooks at the root of the source tree.
+    out_tuto_path = os.path.join(out_dir, 'tutorial')
+    out_tuto_img_path = os.path.join(out_tuto_path, 'tutorial')
+    if os.path.exists(out_tuto_img_path):
+        shutil.rmtree(out_tuto_img_path)
+    if not os.path.exists(out_tuto_path):
+        os.makedirs(out_tuto_path)
+    shutil.copytree(os.path.join(src_dir, 'tutorial/images'), out_tuto_img_path)
 
-# convert notebook(s) with correct python kernel
-in_nb = os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb.in')
-out_nb = os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb')
-args = [sys.executable, '-m', 'jupyter', 'nbconvert', '--to', 'notebook',
-        # Comment execution until v3 API is finished and examples are fixed
-        #'--execute',
-        #'--ExecutePreprocessor.kernel_name=python%d' % sys.version_info[0],
-        '--output', out_nb, in_nb]
-print('exec:', *args)
-subprocess.check_call(args)
+    # convert notebook(s) with correct python kernel
+    in_nb = os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb.in')
+    out_nb = os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb')
+    args = [sys.executable, '-m', 'jupyter', 'nbconvert', '--to', 'notebook',
+            # Comment execution until v3 API is finished and examples are fixed
+            #'--execute',
+            #'--ExecutePreprocessor.kernel_name=python%d' % sys.version_info[0],
+            '--output', out_nb, in_nb]
+    print('exec:', *args)
+    subprocess.check_call(args)
 
-#shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb.in'),
-             #os.path.join(out_tuto_path, 'capsul_tutorial.ipynb.in'))
-if not os.path.exists(os.path.join(out_dir, '_static/tutorial')):
-    os.makedirs(os.path.join(out_dir, '_static/tutorial'))
-shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb'),
-             os.path.join(out_dir, '_static/tutorial/capsul_tutorial.ipynb'))
+    #shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb.in'),
+                #os.path.join(out_tuto_path, 'capsul_tutorial.ipynb.in'))
+    if not os.path.exists(os.path.join(out_dir, '_static/tutorial')):
+        os.makedirs(os.path.join(out_dir, '_static/tutorial'))
+    shutil.copy2(os.path.join(src_dir, 'tutorial/capsul_tutorial.ipynb'),
+                os.path.join(out_dir, '_static/tutorial/capsul_tutorial.ipynb'))

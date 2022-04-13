@@ -12,8 +12,7 @@ Classes
 from soma.controller import undefined, Union
 
 from capsul.process.process import Process
-from capsul.application import executable
-
+import capsul.application
 
 class ProcessIteration(Process):
 
@@ -23,7 +22,7 @@ class ProcessIteration(Process):
                  context_name=None):
         super(ProcessIteration, self).__init__(definition=definition)
 
-        self.process = executable(process)
+        self.process = capsul.application.executable(process)
 
         if context_name is not None:
             self.process.context_name = context_name

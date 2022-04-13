@@ -1,39 +1,63 @@
 # -*- coding: utf-8 -*-
+import csv
 import functools
+import json
 import operator
+from pathlib import Path
 import re
 
 from soma.controller import Controller, Literal
 from soma.undefined import undefined
 
-from .api import Pipeline
+# from .api import Pipeline
+# from .pipeline.process_iteration import ProcessIteration
 
-class PathLayout(Controller):
-    ''' Path layout for :class:`Dataset`
 
-    Abstract class: derived classes should overload the :meth:`_build_path`
+class MetadataSchema(Controller):
+    '''Schema of metadata associated to a file in a :class:`Dataset`
+
+    Abstract class: derived classes should overload the :meth:`_path_list`
     static method to actually implement path building.
 
     This class is a :class:`~soma.controller.controller.Controller`: attributes
     are stored as fields.
     '''
-    def build_path(self, **kwargs):
+    def __init__(self, base_path):
+        if not isinstance(base_path, Path):
+            self.base_path = Path(base_path)
+        else:
+            self.base_path = base_path
+
+    def get(self, name, default=None):
+        '''
+        Shortcut to get an attribute with a None default value.
+        Used in :meth:`_path_listh` specialization to have a 
+        shorter code.
+        '''
+        return getattr(self, name, value)
+
+    def build_path(self, base):
         ''' Returns a list of path elements built from the current PathLayout
         fields values.
 
-        This method calls :meth:`_build_path` which should be implemented in
+        This method calls :meth:`_path_listh` which should be implemented in
         subclasses.
-        '''
-        return self._build_path(self.asdict())
+        '''            
+        return functools.reduce(operator.truediv,
+                                self._path_list(),
+                                self.base_path)
 
-    @staticmethod
-    def _build_path(attributes):
+    def _path_list():
         raise NotImplementedError(
-            '_build_path should be specialized in PathLayout subclasses.')
+            '_path_list() must be specialized in MetadataSchema subclasses.')
+
+    def metadata(self, path):
+        raise NotImplementedError(
+            'metadata() must be specialized in MetadataSchema subclasses.')
 
 
-class BIDSLayout(PathLayout):
-    ''' BIDS path layout for dataset
+class BIDSSchema(MetadataSchema):
+    ''' Metadata schema for BIDS datasets
     '''
     folder: Literal['sourcedata', 'rawdata', 'derivative']
     pipeline: str = None
@@ -50,8 +74,7 @@ class BIDSLayout(PathLayout):
     suffix: str
     extension: str
 
-
-    find_attrs = re.compile(
+    path_pattern = re.compile(
         r'(?P<folder>[^-_/]*)/'
         r'sub-(?P<sub>[^-_/]*)/'
         r'ses-(?P<ses>[^-_/]*)/'
@@ -67,33 +90,134 @@ class BIDSLayout(PathLayout):
         r'_(?P<suffix>[^-_/]*)\.(?P<extension>.*)$'
     )
 
+    def __init__(self, base_path):
+        super().__init__(base_path)
 
-    @staticmethod
-    def _build_path(kwargs):
+        # Cache of TSV files that are already read and converted
+        # to a dictionary
+        self._tsv_to_dict = {}
+
+    def _path_list(self):
         '''
         The path has the following pattern:
           sub-{sub}/ses-{ses}/{data_type}/sub-{sub}_ses-{ses}[_task-{task}][_acq-{acq}][_ce-{ce}][_rec-{rec}][_run-{run}][_echo-{echo}][_part-{part}]{modality}.{extension}
         '''
-        path_list = [kwargs["folder"]]
-        if kwargs['pipeline']:
-            path_list += [kwargs['pipeline']]
-        path_list += [f'sub-{kwargs["sub"]}',
-                      f'ses-{kwargs["ses"]}',
-                      kwargs["data_type"]]
+        path_list = [self.folder]
+        if self.pipeline:
+            path_list += [self.pipeline]
+        path_list += [f'sub-{self.sub}',
+                      f'ses-{self.ses}',
+                      self.data_type]
 
-        filename = [f'sub-{kwargs["sub"]}',
-                    f'ses-{kwargs["ses"]}']
+        filename = [f'sub-{self.sub}',
+                    f'ses-{self.ses}']
         for key in ('task', 'acq', 'ce', 'rec', 'run', 'echo', 'part'):
-            value = kwargs.get(key)
+            value = getattr(self, key, undefined)
             if value:
                 filename.append(f'{key}-{value}')
-        filename.append(f'{kwargs["suffix"]}.{kwargs["extension"]}')
+        filename.append(f'{self.suffix}.{self.extension}')
         path_list.append('_'.join(filename))
         return path_list
+    
+    def tsv_to_dict(self, tsv):
+        '''
+        Reads a TSV file and convert it to a dictionary of dictionaries
+        using the first row value as key and other row values are converted
+        to dict. The first row must contains column names.
+        '''
+        result = self._tsv_to_dict.get(tsv)
+        if result is None:
+            result = {}
+            with open(tsv) as f:
+                reader = csv.reader(f, dialect='excel-tab')
+                header = next(reader)[1:]
+                for row in reader:
+                    key = row[0]
+                    value = dict(zip(header, row[1:]))
+                    result[key] = value
+            self._tsv_to_dict[tsv] = result
+        return result
 
+    def metadata(self, path):
+        '''
+        Get metadata from BIDS files given its path.
+        During the process, TSV files that are read and converted
+        to dictionaries values are cached in self. That way if the same
+        BIDSMetadata is used to get metadata of many files, there
+        will be only one reading and conversion per file.
+        '''
+        result = {}
+        if path.is_absolute():
+            relative_path = path.relative_to(self.base_path)
+        else:
+            relative_path = path
+            path = self.base_path / path
+        if path.exists():
+            m = self.path_pattern.match(str(relative_path))
+            if m:
+                result.update((k,v) for k, v in m.groupdict().items() if v is not None)
+            folder = result.get('folder')
+            sub = result.get('sub')
+            if folder and sub:
+                ses = result.get('ses')
+                if ses:
+                    sessions_file = self.base_path / folder / f'sub-{sub}' /  f'sub-{sub}_sessions.tsv'
+                    if sessions_file.exists():
+                        sessions_data = self.tsv_to_dict(sessions_file)
+                        session_metadata = sessions_data.get(f'ses-{ses}', {})
+                        result.update(session_metadata)
+                    scans_file = self.base_path / folder / f'sub-{sub}' / f'ses-{ses}' / f'sub-{sub}_ses-{ses}_scans.tsv'
+                else:
+                    scans_file = self.base_path / folder / f'sub-{sub}' / f'sub-{sub}_scans.tsv'
+                if scans_file.exists():
+                    scans_data = self.tsv_to_dict(scans_file)
+                    scan_metadata = scans_data.get(str(path.relative_to(scans_file.parent)), {})
+                    result.update(scan_metadata)
+                extension = result.get('extension')
+                if extension:
+                    json_path = path.parent / (path.name[:-len(extension)-1] + '.json')
+                else:
+                    json_path = path.parent / (path.name + '.json')                    
+                if json_path.exists():
+                    with open(json_path) as f:
+                        result.update(json.load(f))
+        return result
 
-class BrainVISALayout(PathLayout):
-    ''' BrainVISA path layout for dataset
+    def find(self, **kwargs):
+        ''' Find path from existing files given fixed values for some parameters
+        (using :func:`glob.glob` and filenames parsing)
+
+        Returns
+        -------
+        Yields a path for every match.
+        '''
+        layout = self.__class__(**kwargs)
+        for field in layout.fields():
+            value = getattr(layout, field.name, undefined) 
+            if value is undefined:
+                if not field.optional:
+                    # Force the value of the attribute without
+                    # using Pydantic validation because '*' may
+                    # not be a valid value.
+                    object.__setattr__(layout, field.name, '*')
+        globs = layout._path_list()
+        directories = [self.base_path]
+        while len(globs) > 1:
+            new_directories = []
+            for d in directories:
+                for sd in d.glob(globs[0]):
+                    if sd.is_dir():
+                        new_directories.append(sd)
+            globs = globs[1:]
+            directories = new_directories
+        
+        for d in directories:
+            for sd in d.glob(globs[0]):
+                yield sd
+                
+
+class BrainVISASchema(MetadataSchema):
+    '''Metadata schema for BrainVISA datasets
     '''
     center: str
     subject: str
@@ -118,189 +242,194 @@ class BrainVISALayout(PathLayout):
     )
 
     @staticmethod
-    def _build_path(kwargs):
+    def _path_list(self):
         '''
         The path has the following pattern:
         {center}/{subject}/[{modality}/][{process/][{acquisition}/][{preprocessings}/][{longitudinal}/]{analysis}/[{prefix}_]{subject}[_to_avg_{longitudinal}}[_{suffix}][.{extension}]
         '''
 
-        path_list = [kwargs['center'], kwargs['subject']]
+        path_list = [self.center, self.subject]
         for key in ('modality', 'process', 'acquisition', 'preprocessings', 'longitudinal'):
-            value = kwargs.get(key)
+            value = getattr(self, key, None)
             if value:
                 path_list.append(value)
-        path_list.append(kwargs['analysis'])
+        path_list.append(self.analysis)
 
         filename = []
-        prefix = kwargs.get('prefix')
+        prefix = self.get('prefix')
         if prefix:
             filename.append(f'{prefix}_')
-        filename.append(kwargs['subject'])
-        longitudinal = kwargs.get('longitudinal')
+        filename.append(self.subject)
+        longitudinal = self.get('longitudinal')
         if longitudinal:
             filename.append(f'_to_avg_{longitudinal}')
-        suffix = kwargs.get('suffix')
+        suffix = self.get('suffix')
         if suffix:
             filename.append(f'_{suffix}')
-        extension = kwargs.get('extension')
+        extension = self.get('extension')
         if extension:
             filename.append(f'.{extension}')
         path_list.append(''.join(filename))
         return path_list
 
+def bids_to_brainvisa(bids):
+    return dict(
+        center='whaterver',
+        subject=bids['sub'],
+        acquisition=bids['ses'],
+        extension = 'nii')
 
 class Dataset:
     ''' Dataset class
     '''
-    layouts = {
-        'bids': BIDSLayout,
-        'brainvisa': BrainVISALayout,
+    schemas = {
+        'bids': BIDSSchema,
+        'brainvisa': BrainVISASchema,
     }
-    def __init__(self, path, layout_str):
-        self.path = path
-        self.layout_name, self.layout_version = layout_str.split('-', 1)
-        self.layout = self.layouts.get(self.layout_name)
-        if not self.layout:
-            raise ValueError(f'Invalid paths layout: {layout_str}')
+
+    schema_mappings = {
+        ('brainvisa', 'bids'): bids_to_brainvisa,
+    }
+
+    def __init__(self, path, schema=None):
+        if isinstance(path, Path):
+            self.path = path
+        else:
+            self.path = Path(path)          
+        if schema is None:
+            capsul_json = self.path / 'capsul.json'
+            if capsul_json.exists():
+                with capsul_json.open() as f:
+                    schema = json.load(f).get('metadata_schema')
+            if schema is None:
+                schema = 'bids'
+        self.schema_name = schema
+        self.schema = self.find_schema(self.schema_name)
+        if not self.schema:
+            raise ValueError(f'Invalid metadata schema "{schema}" for path "{path}"')
     
+    @classmethod
+    def find_schema(cls, schema_name):
+        return cls.schemas.get(schema_name)
+
+    @classmethod
+    def find_schema_mapping(cls, source_schema, target_schema):
+        return cls.schema_mappings.get((source_schema, target_schema))
+
     def find(self, **kwargs):
-        ''' Find attributes values from existing files (using :func:`glob.glob`
-        and filenames parsing)
+        yield from self.schema.find(self.path, **kwargs)
 
-        Returns
-        -------
-        Yields an attributes dict for every matching file path.
-        '''
-        layout = self.layout(**kwargs)
-        kwargs = {}
-        for field in layout.fields():
-            value = getattr(layout, field.name, undefined) 
+
+def generate_paths(self, executable, context):
+    source_field_per_schema = {}
+    target_field_per_schema = {}
+    dataset_name_per_field = {}
+    for field in executable.fields():
+        if field.path_type:
+            # Associates a Dataset name with the field
+            dataset_name = getattr(field, 'dataset', None)
+            if dataset_name is None:
+                dataset_name = ('output' if field.is_output() else 'input')
+            dataset = None
+            datasets = getattr(context, 'datasets', None)
+            if datasets:
+                dataset = getattr(context, dataset_name, None)
+            value = getattr(executable, field.name, undefined)
             if value is undefined:
-                if not field.optional:
-                    kwargs[field.name] = '*'
-            else:
-                kwargs[field.name] = value
-        globs = layout._build_path(kwargs)
-        directories = [self.path]
-        while len(globs) > 1:
-            new_directories = []
-            for d in directories:
-                for sd in d.glob(globs[0]):
-                    if sd.is_dir():
-                        new_directories.append(sd)
-            globs = globs[1:]
-            directories = new_directories
-        for d in directories:
-            for sd in d.glob(globs[0]):
-                path = str(sd)[len(str(self.path))+1:]
-                m = layout.find_attrs.match(path)
-                if m:
-                    result = m.groupdict()
-                    result['path'] = str(sd)
-                    yield result
-
-    def set_output_paths(self, executable, **kwargs):
-        ''' Operates completion for output values of an executable.
-        '''
-        global_attrs = getattr(executable, 'path_layout', {}).get('*', {})
-        for field in executable.fields():
-            if not field.is_output():
-                continue
-            if isinstance(executable, Pipeline):
-                inner_item = next(executable.get_linked_items(executable, field.name), None)
-                if inner_item is not None:
-                    inner_process, inner_field_name = inner_item
-                    inner_field = inner_process.field(inner_field_name)
+                if dataset is None:
+                    if not field.optional:
+                        raise ValueError(f'No dataset "{dataset_name}" found '
+                            'in execution context. It is required to generate '
+                            f'path for parameter "{field.name}"')
                 else:
-                    inner_process = inner_field = None
-            if field.is_path() or (inner_field and inner_field.is_path()):
-                layout = self.layout(**kwargs)
-                attrs = global_attrs.copy()
-                process_attrs = getattr(executable, 'path_layout', {}).get(self.layout_name, {}).get(field.name)
-                if process_attrs is None and inner_field:
-                    process_attrs = getattr(inner_process, 'path_layout', {}).get(self.layout_name, {}).get(inner_field.name)
-                if process_attrs:
-                    attrs.update(process_attrs)
-                for n, v in attrs.items():
-                    setattr(layout, n, v)
-                path = functools.reduce(operator.truediv, layout.build_path(), self.path)
-                setattr(executable, field.name, str(path))
-        if isinstance(executable, Pipeline):
-            executable.set_temporary_file_names()
-
-
-class Completion:
-    ''' This is an attempt to compose several :class:`Dataset` / process/
-    parameters combinations to allow completion for both inputs and outputs,
-    and allow using several datasets/layouts for different parameters, if
-    needed.
-    '''
-    def __init__(self):
-        # {'proc' : {'param': dataset}} dict
-        self.completion_datasets = {}
-
-    def add_param_items(self, param_dict):
-        ''' add a param dict in the shape {'proc.param': dataset}
-        '''
-        for param, dataset in param_dict.items():
-            proc, param = param.rsplit('.', 1)
-            self.completion_layouts.setdefault(proc, {})[param] = dataset
-
-    def add_dataset_items(self, dataset_dict):
-        ''' add a param dict in the shape {dataset: {'proc': ['param', ...]}}
-        or {dataset: ['proc.param', ...]}
-        '''
-        for dataset, params in dataset_dict.items():
-            if isinstance(params, list):
-                for item in params:
-                    proc, param = item.resplit('.', 1)
-                    self.completion_datasets.setdefault(proc, {})[param] \
-                        = dataset
+                    dataset_name_per_field[field] = dataset_name
+                    target_field_per_schema.setdefault(dataset.schema_name, []).append(field) 
             else:
-                for proc, pnames in params.items():
-                    for param in pnames:
-                        self.completion_datasets.setdefault(proc, {})[param] \
-                            = dataset
+                if dataset is not None:
+                    source_field_per_schema.setdefault(dataset.schema_name, []).append(field) 
 
-    def set_paths(self, executable, **kwargs):
-        ''' Operates completion for values of an executable.
-        '''
-        global_attrs = getattr(executable, 'path_layout', {}).get('*', {})
-        for field in executable.fields():
-            proc_dataset = self.completion_datasets.get(executable.name)
-            if not proc_dataset:
-                # print('no dataset for process:', executable.name)
+    if len(target_field_per_schema) > 1:
+        raise ValueError(f'Found several metadata schemas in path parameters with missing value: {", ".join(target_field_per_schema)}')
+    target_schema_name, target_fields = target_field_per_schema.pop()
+    if not target_fields:
+        return
+    target_schema = Dataset.find_schema(target_schema_name)
+    if target_schema is None:
+        raise ValueError(f'Cannot find metadata schema {target_schema_name}')
+
+    global_metadata = getattr(executable, 'metadata_schema', {}).get(target_schema_name, {}).get('*', {})
+
+    target_list_fields = [i for i in target_fields if i.is_list()]
+    if target_list_fields and len(target_list_fields) != len(target_fields):
+        l = ', '.join(i.name for i in target_list_fields)
+        s = ', '.join(i.name for i in target_fields if not i.is_list())
+        raise ValueError(f'Cannot generate paths for parameters {l} that are expecting lists ans {s} that are single paths')
+
+    target_list_size = None
+    if target_list_fields:
+        for source_schema_name, source_fields in source_field_per_schema.items():
+            for field in source_fields:
+                value = getattr(executable, field.name, undefined)
+                if isinstance(value, list):
+                    l = len(value)
+                    if target_list_size is not None and target_list_size != l:
+                        raise ValueError('Lists of different sizes given to generate paths')
+                    target_list_size = l
+    source_metadatas = ([{}] * target_list_size if target_list_size is None else [{}])
+
+    for source_schema_name, source_fields in source_field_per_schema.items():
+        source_schema = Dataset.find_schema(source_schema_name)
+        if not source_schema:
+            continue
+        if source_schema_name != target_schema_name:
+            mapping = Dataset.find_schema_mapping(source_schema_name, target_schema_name)
+            if mapping is None:
                 continue
-            dataset = proc_dataset.get(field.name)
-            if not dataset:
-                # print('no dataset for:', executable.name, field.name)
-                continue
-            # print('dataset:', executable.name, field.name, dataset)
-            inner_field = None
-            if isinstance(executable, Pipeline):
-                inner_item = next(executable.get_linked_items(
-                    executable, field.name), None)
-                if inner_item is not None:
-                    inner_process, inner_field_name = inner_item
-                    inner_field = inner_process.field(inner_field_name)
-                else:
-                    inner_process = inner_field = None
-            if field.is_path() or (inner_field and inner_field.is_path()):
-                layout = dataset.layout(**kwargs)
-                attrs = global_attrs.copy()
-                process_attrs = getattr(
-                    executable, 'path_layout', {}).get(dataset.layout_name,
-                                                       {}).get(field.name)
-                if process_attrs is None and inner_field:
-                    process_attrs = getattr(
-                        inner_process, 'path_layout',
-                        {}).get(dataset.layout_name, {}).get(inner_field.name)
-                if process_attrs:
-                    attrs.update(process_attrs)
-                for n, v in attrs.items():
-                    setattr(layout, n, v)
-                path = functools.reduce(operator.truediv, layout.build_path(),
-                                        dataset.path)
-                setattr(executable, field.name, str(path))
-        if isinstance(executable, Pipeline):
-            executable.set_temporary_file_names()
+        else:
+            mapping = None
+        for list_index in ((None,) if target_list_size is None else range(target_list_size)):
+            merged_metadata = source_metadata[(0 if list_index is None else list_index)]
+            for field in source_fields:
+                path = getattr(executable, field.name)
+                if isinstance(path, list):
+                    path = path[list_index]
+                path_metadata = source_schema.metadata(path)
+                if mapping is not None:
+                    path_metadata = mapping(path_metadata)
+                for k, v in path_metadata.items():
+                    if k in merged_metadata:
+                        if merged_metadata[k] != v:
+                            merged_metadata[k] = undefined
+                    else:
+                        merged_metadata[k] = v
+
+    for field in target_fields:
+        inner_item = next(executable.get_linked_items(
+                            executable, field.name), None)
+        if inner_item is not None:
+            inner_process, inner_field_name = inner_item
+            inner_field = inner_process.field(inner_field_name)
+        else:
+            inner_process = inner_field = None
+        values = []
+        for source_metadata in source_metadatas:
+            target_metadata = dict((k, v) for k, v in source_metadata if v is not undefined)
+            target_metadata.update(global_metadata)
+            field_metadata = getattr(
+                executable, 'metadata_schema', {}).get(target_schema_name,
+                    {}).get(field.name)
+            if field_metadata is None and inner_field:
+                field_metadata = getattr(
+                    inner_process, 'metadata_schema',
+                    {}).get(target_schema_name, {}).get(inner_field.name)
+            if field_metadata:
+                target_metadata.update(field_metadata)
+            schema = target_schema(dataset_name_per_field[field])
+            for k, v in target_metadata.items():
+                setattr(schema, k, v)
+            values.append(schema.build_path())
+        if target_list_size is None:
+            setattr(executable, field.name, values[0])
+        else:
+            setattr(executable, field.name, values)
+

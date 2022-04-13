@@ -7,19 +7,20 @@ import sys
 import tempfile
 import time
 
+from soma.controller import Controller, OpenKeyDictController, Directory
+
 from capsul.api import Pipeline, Process
-from capsul.config import EngineConfiguration
+from ..config.configuration import ModuleConfiguration
+
+
+class ExecutionContext(Controller):
+    dataset: OpenKeyDictController[Directory]
+
 
 class LocalEngine:
-    def __init__(self, label, config=None):
+    def __init__(self, label, config):
         self.label = label
-        if config is None:
-            self.config = EngineConfiguration()
-        elif isinstance(config, EngineConfiguration):
-            self.config = config
-        else:
-            raise TypeError(
-                'config must be an instance of EngineConfiguration')
+        self.config = config
         self.tmp = None
         self._with_count = 0
 
@@ -67,8 +68,9 @@ class LocalEngine:
         result.update(getattr(executable, 'requirements', {}))
         return result
 
-    def modules_config(self, executable):
-        result = {}
+    def execution_context(self, executable):
+        execution_context = ExecutionContext()
+        execution_context.dataset = self.config.dataset
         for module_name, requirements in self.executable_requirements(executable).items():
             module_configs = getattr(self.config, module_name, {})
             valid_configs = []
@@ -85,8 +87,9 @@ class LocalEngine:
                     f'Execution environment "{self.label}" has '
                     f'{len(valid_configs)} possible configurations for '
                     f'module {module_name}')
-            result[module_name] = valid_configs[0].asdict()
-        return result
+            execution_context.add_field(module_name, type_=ModuleConfiguration)
+            setattr(execution_context, module_name,  valid_configs[0])
+        return execution_context
 
     def start(self, executable, **kwargs):
         self.assert_connected()

@@ -2,6 +2,7 @@
 
 from soma.controller import (Controller, Directory, field,
                              OpenKeyDictController, File, undefined)
+import json
 import os
 import sys
 import importlib
@@ -73,6 +74,9 @@ class EngineConfiguration(Controller):
     or replace dots with underscores.
     '''
 
+    dataset: OpenKeyDictController[Directory]
+    load_modules: list[str]
+
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.
 
@@ -85,7 +89,6 @@ class EngineConfiguration(Controller):
         if python_module is None:
             raise ValueError('Module %s cannot be loaded.' % full_mod)
 
-        module_name = module_name.rsplit('.')[-1]
         classes = []
         for c in python_module.__dict__.values():
             if c is ModuleConfiguration:
@@ -96,11 +99,11 @@ class EngineConfiguration(Controller):
             except TypeError:
                 pass
         if len(classes) == 0:
-            raise ValueError('No ModuleClass found in module %s' % module_name)
+            raise ValueError(f'No ModuleClass found in module {module_name}')
         if len(classes) > 1:
-            raise ValueError('Several ModuleClass found (%d) in module %s: %s'
-                             % (len(classes), module_name, repr(classes)))
+            raise ValueError(f'Several ModuleClass found {len(classes)} in module {module_name}: {classes}')
         cls = classes[0]
+        module_name = getattr(cls, 'name', module_name.rsplit('.')[-1])
 
         if allow_existing:
             field = self.field(module_name)
@@ -120,16 +123,15 @@ class EngineConfiguration(Controller):
 
     def import_dict(self, conf_dict, clear=False):
         # insert modules before filling them in
+        load_modules = conf_dict.get('load_modules')
+        if load_modules:
+            for module_name in load_modules:
+                self.add_module(module_name, allow_existing=True)
+
         for mod in conf_dict:
-            self.add_module(mod, allow_existing=True)
+            if not self.has_field(mod):
+                self.add_module(mod, allow_existing=True)
         super().import_dict(conf_dict, clear=clear)
-
-    def connect():
-        ''' Connect to a computing resource using a connection module.
-
-        TODO, not implemented yet.
-        '''
-        ...
 
 
 class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
@@ -144,35 +146,35 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     def load(self, filename):
         ''' Load configuration from a JSON or YAML file
         '''
-        import json
         with open(filename) as f:
-            try:
+            if filename.endswith('.yaml'):
+                # YAML support is optional, yaml module may not
+                # be installed
+                import yaml
+                conf = yaml.safe_load(f)
+            else:
                 conf = json.load(f)
-            except Exception as e:  # FIXME: find better exception filter
-                import traceback
-                traceback.print_exc()
-                try:
-                    import yaml
-                    conf = yaml.safe_load(f)
-                except ImportError:
-                    raise e
-
-        # print('import config:', conf)
         self.import_dict(conf)
 
-    def save(self, filename, format='json'):
+    def save(self, filename, format=None):
         ''' Save configuration to a JSON or YAML file
         '''
+        if format is None:
+            if filename.endswith('.yaml'):
+                format = 'yaml'
+            else:
+                format = 'json'
         if format == 'json':
-            import json
             with open(filename, 'w') as f:
                 json.dump(self.asdict(), f)
         elif format == 'yaml':
+            # YAML support is optional, yaml module may not
+            # be installed
             import yaml
             with open(filename, 'w') as f:
                 yaml.dump(self.asdict(), f)
         else:
-            raise ValueError('Unsupported format: %s' % format)
+            raise ValueError(f'Unsupported format: {format}')
 
     def merge(self, other_layer):
         ''' Merge in-place: other_layer is "added" to self.
@@ -182,7 +184,6 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     def merged(self, other_layer):
         ''' Returns a merged copy of self and another ConfigurationLayer layer
         '''
-        # merged = self.copy()
         merged = ConfigurationLayer()
         merged.import_dict(self.asdict())
         merged.merge(other_layer)
@@ -218,7 +219,7 @@ class ApplicationConfiguration(Controller):
     * the "user" config, which are the personal settings and take priority over
       site settings.
     * the "merged_config" which is the resulting merged configuration. This one
-      should never be modified y hand, as it is built by the
+      should never be modified by hand, as it is built by the
       :meth:`merge_configs` method.
 
     In each configuration (``user``, ``site``,, ``merged_config``):
@@ -287,24 +288,18 @@ class ApplicationConfiguration(Controller):
 
         if site_file is not None:
             self.site_file = site_file
-            if os.path.exists(site_file):
-                try:
-                    self.site.load(site_file)
-                except Exception as e:
-                    print('Loading site configuration file has failed:', e,
-                          file=sys.stderr)
+            self.site.load(site_file)
 
         if user_file is None:
-            user_file = os.path.expanduser('~/.config/%s.conf' % app_name)
-        if user_file is not undefined and os.path.exists(user_file):
-            try:
-                self.user.load(user_file)
-            except Exception as e:
-                print('Loading user configuration file has failed:', e,
-                      file=sys.stderr)
-
+            user_file = os.path.expanduser(f'~/.config/{app_name}.conf')
+            if not os.path.exists(user_file):
+                user_file = None
+        if user_file is not None:
+            self.user_file = user_file
+            self.user.load(user_file)
         self.merge_configs()
     
+
     def merge_configs(self):
         ''' Merge site and user configs into the ``merged_config``
         configuration. This ``merged_config`` will be erased and rebuilt during

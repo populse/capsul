@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-
 import unittest
-import tempfile
 import os
-import sys
-import shutil
 from typing import List, Tuple
 
 from soma.controller import field, Literal, File, Directory
 
 from capsul.api import Capsul, Process, Pipeline
-
-
 
 
 def a_function_to_wrap(
@@ -92,51 +85,7 @@ def cat(
     return '_'.join(i for i in (value1, value2, value3) if i)
 
 def join(value1 : str, value2 : str, value3 : str) -> list[str]:
-     return [i for i in (value1, value2, value3) if i]
-
-
- 
-
-# @xml_process('''
-# <process capsul_xml="2.0">
-#     <input name="a" type="list_int" doc="An integers list"/>
-#     <input name="b" type="list_int" doc="Another integers list"/>
-#     <return>
-#         <output name="quotients" type="list_int" doc="Quotients of a / b"/>
-#         <output name="remainders" type="list_int" doc="Remainders of a / b"/>
-#     </return>
-# </process>
-# ''')
-# def divides_list(a, b):
-#      return [[int(i / j) for i, j in zip(a, b)],
-#              [i % j for i, j in zip(a, b)]]
- 
- 
-# @xml_process('''
-# <process capsul_xml="2.0">
-#     <input name="a" type="list_int" doc="An integers list"/>
-#     <input name="b" type="list_int" doc="Another integers list"/>
-#     <return>
-#         <output name="quotients" type="list_int" doc="Quotients of a / b"/>
-#     </return>
-# </process>
-# ''')
-# def divides_single_dict(a, b):
-#      return {
-#         'quotients': [int(i / j) for i, j in zip(a, b)],
-#     }
-
-# @xml_process('''
-# <process capsul_xml="2.0">
-#     <input name="a" type="list_int" doc="An integers list"/>
-#     <input name="b" type="list_int" doc="Another integers list"/>
-#     <return>
-#         <output name="quotients" type="list_int" doc="Quotients of a / b"/>
-#     </return>
-# </process>
-# ''')
-# def divides_single_list(a, b):
-#      return [[int(i / j) for i, j in zip(a, b)]]
+     return [i for i in (value1, value2, value3) if i] 
 
 
 class TestLoadFromDescription(unittest.TestCase):

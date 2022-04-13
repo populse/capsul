@@ -1578,7 +1578,7 @@ class Pipeline(Process):
                 field = node.field(plug_name)
                 if not field.is_output():
                     continue
-                if field.is_list() and field.has_path():
+                if field.is_list() and field.path_type is not None:
                     if len([x for x in value if x in ('', undefined)]) == 0:
                         continue
                 elif value not in (undefined, '') \
@@ -2396,7 +2396,8 @@ class Pipeline(Process):
 class CustomPipeline(Pipeline):
     def __init__(self, definition='custom_pipeline', json_executable = {}):
         object.__setattr__(self, 'json_executable' , json_executable)
-        super().__init__(definition=definition, autoexport_nodes_parameters=json_executable.get('export_parameters', False))
+        super().__init__(definition=definition, 
+                         autoexport_nodes_parameters=json_executable.get('export_parameters', True))
         for node_full_name, activations in self.json_executable.get('activations', {}).items():
             node = self
             for i in node_full_name.split('.'):
