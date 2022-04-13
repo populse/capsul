@@ -982,7 +982,7 @@ class Pipeline(Process):
                 plug = node.plugs[plug_name]
         return node_name, plug_name, node, plug
 
-    def add_link(self, link, weak_link=False, allow_export=False):
+    def add_link(self, link, weak_link=False, allow_export=False, value=None):
         """ Add a link between pipeline nodes.
 
         If the destination node is a switch, force the source plug to be not
@@ -1005,6 +1005,8 @@ class Pipeline(Process):
             function will act exactly like export_parameter. This may be a more
             convenient way of exporting/connecting pipeline plugs to several
             nodes without having to export the first one, then link the others.
+        value: any
+            if given, set this value instead of the source plug value
         """
         check = True
         if allow_export:
@@ -1061,7 +1063,8 @@ class Pipeline(Process):
         relax_exists_constraint(trait)
 
         # Propagate the plug value from source to destination
-        value = source_node.get_plug_value(source_plug_name)
+        if value is None:
+            value = source_node.get_plug_value(source_plug_name)
         if value is not None:
             dest_node.set_plug_value(dest_plug_name, value)
 

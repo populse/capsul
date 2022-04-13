@@ -105,10 +105,20 @@ def create_xml_pipeline(module, name, xml_file):
                     # internal export
                     source = process_child.get('source')
                     dest = process_child.get('dest')
-                    links.append((source, dest))
+                    links.append([source, dest, None])
                 else:
                     raise ValueError('Invalid tag in <process>: %s' %
                                      process_child.tag)
+            if links:
+                todel = []
+                for link in links:
+                    k = link[0]
+                    if '.' in k:
+                        k = link[1]
+                    v = kwargs.get(k)
+                    if v is not None:
+                        link[2] = v
+                        del kwargs[k]
             if iterate:
                 kwargs['iterative_plugs'] = iterate
                 builder.add_iterative_process(*args, **kwargs)
@@ -119,7 +129,8 @@ def create_xml_pipeline(module, name, xml_file):
                                             name, True)
             if links:
                 for link in links:
-                    builder.add_subpipeline_link(process_name, *link)
+                    builder.add_subpipeline_link(process_name, link[0],
+                                                 link[1], value=link[2])
             enabled = child.get('enabled')
             if enabled == 'false':
                 builder.set_node_enabled(process_name, False)

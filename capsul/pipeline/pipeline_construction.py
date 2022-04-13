@@ -173,7 +173,7 @@ class ConstructedPipeline(Pipeline):
                 raise RuntimeError('%s: %s (in pipeline %s when calling %s)' %
                                    (e.__class__.__name__, str(e), self.id, m))
 
-    def add_subpipeline_link(self, node_def, source, dest):
+    def add_subpipeline_link(self, node_def, source, dest, **kwargs):
         from capsul.pipeline.process_iteration import ProcessIteration
 
         nodes = node_def.split('.')
@@ -182,4 +182,4 @@ class ConstructedPipeline(Pipeline):
             proc = proc.nodes[node].process
             if isinstance(proc, ProcessIteration):
                 proc = proc.process
-        proc.add_link('%s->%s' % (source, dest), allow_export=True)
+        proc.add_link('%s->%s' % (source, dest), allow_export=True, **kwargs)
