@@ -44,7 +44,8 @@ class TestConfiguration(unittest.TestCase):
 
         self.assertEqual(
             app_config.asdict(),
-            {'site': {}, 'app_name': 'single_conf', 'user': conf_dict,
+            {'site': {'local': {}}, 'app_name': 'single_conf',
+             'user': conf_dict,
              'merged_config': conf_dict})
 
     def test_config_assignment(self):
@@ -69,8 +70,9 @@ class TestConfiguration(unittest.TestCase):
 
         self.assertEqual(
             app_config.asdict(),
-            {'site': {}, 'app_name': 'single_conf2', 'user': conf_dict,
-             'merged_config': {}})
+            {'site': {'local': {}}, 'app_name': 'single_conf2',
+             'user': conf_dict,
+             'merged_config': {'local': {}}})
 
     def test_config_merge(self):
         user_conf_dict = {

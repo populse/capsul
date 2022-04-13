@@ -28,6 +28,7 @@ class EngineConfigurationWidgetFactory(ControllerWidgetFactory):
             expanded=(self.parent_interaction.depth==0),
             buttons_label=buttons,
             parent=self.controller_widget)
+        self.widget.setToolTip(self.parent_interaction.get_doc())
         self.inner_widget.setContentsMargins(
             self.widget.toggle_button.sizeHint().height(),0,0,0)
 
@@ -53,12 +54,15 @@ class EngineConfigurationWidgetFactory(ControllerWidgetFactory):
     def add_module(self, module):
         controller = self.parent_interaction.get_value()
         controller.add_module(module)
+        self.set_expanded_items({module: 'all'})
 
     def add_custom_module(self):
         module = self.inner_widget.ask_new_key_name()
         if module:
             controller = self.parent_interaction.get_value()
             controller.add_module(module)
+            module_name = module.rsplit('.')[-1]
+            self.set_expanded_items({module_name: 'all'})
 
 
 WidgetFactory.widget_factory_types.update({
