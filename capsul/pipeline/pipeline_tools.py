@@ -1220,6 +1220,17 @@ def save_pipeline(pipeline, file, format=None):
     from capsul.pipeline.xml import save_xml_pipeline
     from capsul.pipeline.python_export import save_py_pipeline
 
+    if not isinstance(pipeline, Pipeline):
+        # "pipeline" is actually a single process (or should, if it is not a
+        # pipeline). Get it into a pipeline (with a single node) to make the
+        # workflow.
+        new_pipeline = Pipeline()
+        new_pipeline.name = pipeline.name
+        new_pipeline.set_study_config(pipeline.get_study_config())
+        new_pipeline.add_process('main', pipeline)
+        new_pipeline.autoexport_nodes_parameters(include_optional=True)
+        pipeline = new_pipeline
+
     formats = {'.py': save_py_pipeline,
               '.xml': save_xml_pipeline}
 
