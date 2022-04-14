@@ -78,6 +78,31 @@ def save_py_pipeline(pipeline, py_file):
         print('        self.add_process("%s", "%s"%s)' % (name, procname,
                                                           node_options),
               file=pyf)
+
+        # if the process is a (sub)pipeline, and this pipeline has additional
+        # exported traits compared to the its base module/class instance
+        # (proc_copy),  then we must use explicit exports/links inside it
+        if isinstance(process, Pipeline):
+            for param_name, trait in process.user_traits().items():
+                if proc_copy.trait(param_name) is None:
+                    # param added, not in the original process
+                    is_input = not trait.output
+                    if (is_input and process.pipeline_node.plugs[
+                                param_name].links_to) \
+                            or (not is_input
+                                and process.pipeline_node.plugs[
+                                    param_name].links_from):
+                        if is_input:
+                            for link in process.pipeline_node.plugs[
+                                    param_name].links_to:
+                                print(f'        self.nodes["{name}"].process.add_link("{param_name}->{link[0]}.{link[1]}", allow_export=True)\n',
+                                      file=pyf)
+                        else:
+                            for link in process.pipeline_node.plugs[
+                                    param_name].links_from:
+                                print(f'        self.nodes["{name}"].process.add_link("{link[0]}.{link[1]}->{param_name}", allow_export=True)\n',
+                                      file=pyf)
+
         for pname in process.user_traits():
             value = getattr(process, pname)
             init_value = getattr(proc_copy, pname, Undefined)
