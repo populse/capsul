@@ -936,26 +936,25 @@ class Pipeline(Process):
             tuple containing the plug description and instances
         """
         # Parse the plug description
-        dot = name.find(".")
+        nodes = name.split('.')
+        plug_name = nodes[-1]
+        nodes.pop(-1)
 
-        # Check if its a pipeline node
-        if dot < 0:
-            node_name = ""
-            node = self.pipeline_node
-            plug_name = name
-        else:
-            node_name = name[:dot]
-            node = self.nodes.get(node_name)
+        node = self.pipeline_node
+        node_name = ''
+        for pnode in nodes:
+            node = node.process.nodes.get(pnode)
+            node_name = pnode
             if node is None:
                 if node_name in self._invalid_nodes:
                     node = None
                     plug = None
+                    break
                 else:
                     raise ValueError("{0} is not a valid node name".format(
                                     node_name))
-            plug_name = name[dot + 1:]
 
-        # Check if plug nexists
+        # Check if plug exists
         plug = None
         if node is not None:
             if plug_name not in node.plugs:
@@ -1026,16 +1025,13 @@ class Pipeline(Process):
                               if n is dest_node][0]
 
         if allow_export:
-            if source_node is self.pipeline_node \
-                    and source_plug_name not in source_node.plugs:
-                print(dest_node_name, dest_node, dest_node.plugs.keys())
-                self.export_parameter(dest_node_name, dest_plug_name,
-                                      source_plug_name)
+            if source_plug is None:
+                source_node.process.export_parameter(
+                    dest_node_name, dest_plug_name, source_plug_name)
                 return
-            elif dest_node is self.pipeline_node \
-                    and dest_plug_name not in dest_node.plugs:
-                self.export_parameter(source_node_name, source_plug_name,
-                                      dest_plug_name)
+            elif dest_plug is None:
+                dest_node.process.export_parameter(
+                    source_node_name, source_plug_name, dest_plug_name)
                 return
 
         if source_node is None \
