@@ -394,6 +394,36 @@ class TestTinyMorphologist(unittest.TestCase):
         self.assertEqual(context.asdict(), expected_context)
 
     def test_path_generation(self):
+        expected = {
+            'none': {
+                'template': '!{fakespm.directory}/template',
+                'nobias': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/nobias_aleksander.nii',
+                'normalized': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/nobias_aleksander.nii',
+                'right_hemisphere': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/right_hemi_aleksander.nii',
+                'left_hemisphere': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/left_hemi_aleksander.nii',
+            },
+            'aims': {
+                'template': '!{fakespm.directory}/template',
+                'nobias': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/nobias_aleksander.nii',
+                'normalized': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/normalized_aims_aleksander.nii',
+                'right_hemisphere': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/right_hemi_aleksander.nii',
+                'left_hemisphere': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/left_hemi_aleksander.nii',
+            },
+            'fakespm12': {
+                'template': '!{fakespm.directory}/template',
+                'nobias': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/nobias_aleksander.nii',
+                'normalized': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/normalized_fakespm12_aleksander.nii',
+                'right_hemisphere': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/right_hemi_aleksander.nii',
+                'left_hemisphere': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/left_hemi_aleksander.nii',
+            },
+            'fakespm8': {
+                'template': '!{fakespm.directory}/template',
+                'nobias': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/nobias_aleksander.nii',
+                'normalized': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/normalized_fakespm8_aleksander.nii',
+                'right_hemisphere': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/right_hemi_aleksander.nii',
+                'left_hemisphere': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/left_hemi_aleksander.nii',
+            },
+        }
         capsul = Capsul('test_tiny_morphologist', site_file=self.config_file)
         engine = capsul.engine()
         for normalization in ('none', 'aims', 'fakespm12', 'fakespm8'):
@@ -402,11 +432,12 @@ class TestTinyMorphologist(unittest.TestCase):
             tiny_morphologist.normalization = normalization
             execution_context = engine.execution_context(tiny_morphologist)
             generate_paths(tiny_morphologist, execution_context, debug=False)
-            for field in tiny_morphologist.fields():
-                value = getattr(tiny_morphologist, field.name, undefined)
-                print(f'!{normalization}!', field.name, value)
+            params = dict((i, 
+                getattr(tiny_morphologist, i, undefined)) for i in ('template', 
+                    'nobias', 'normalized', 'right_hemisphere', 'left_hemisphere'))
+            self.assertEqual(params, expected[normalization])
 
-    # def test_tiny_morphologist(self):
+    # def test_pipeline_iteration(self):
     #     capsul = Capsul(config_file=self.config_file)
     #     # Input dataset is declared as following BIDS organization in capsul.json
     #     # therefore a BIDS specific object is returned
