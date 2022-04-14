@@ -1426,7 +1426,14 @@ class %s(Process):
 
         for name, trait in process.user_traits().items():
             t_str = trait_str(trait)
-            f.write('        self.add_trait("%s", %s)\n' % (name, t_str))
+            meta = {k: v for k, v in trait.__dict__.items()
+                    if k not in {'type', }}
+            meta_str = ''
+            if meta:
+                meta_str = ', ' + ', '.join('%s=%s' % (k, repr(v))
+                                            for k, v in meta.items())
+            f.write('        self.add_trait("%s", %s%s)\n'
+                    % (name, t_str, meta_str))
             value = getattr(process, name, traits.Undefined)
             if value is not traits.Undefined:
                 f.write('        self.%s = %s\n' % (name, repr(value)))

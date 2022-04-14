@@ -32,7 +32,7 @@ def save_py_pipeline(pipeline, py_file):
     # imports are done locally to avoid circular imports
     from capsul.api import Process, Pipeline
     from capsul.pipeline.pipeline_nodes import ProcessNode, Switch, \
-        OptionalOutputSwitch
+        OptionalOutputSwitch, PipelineNode
     from capsul.pipeline.process_iteration import ProcessIteration
     from capsul.process.process import NipypeProcess
     from capsul.study_config.process_instance import get_process_instance
@@ -50,7 +50,8 @@ def save_py_pipeline(pipeline, py_file):
             repvalue = repr(value)
         return repvalue
 
-    def _write_process(process, pyf, name, enabled, skip_invalid):
+    def _write_process(node, pyf, name, enabled, skip_invalid):
+        process = node.process
         if isinstance(process, NipypeProcess):
             mod = process._nipype_interface.__module__
             classname = process._nipype_interface.__class__.__name__
@@ -79,29 +80,64 @@ def save_py_pipeline(pipeline, py_file):
                                                           node_options),
               file=pyf)
 
-        # if the process is a (sub)pipeline, and this pipeline has additional
-        # exported traits compared to the its base module/class instance
-        # (proc_copy),  then we must use explicit exports/links inside it
-        if isinstance(process, Pipeline):
-            for param_name, trait in process.user_traits().items():
-                if proc_copy.trait(param_name) is None:
-                    # param added, not in the original process
-                    is_input = not trait.output
-                    if (is_input and process.pipeline_node.plugs[
-                                param_name].links_to) \
-                            or (not is_input
-                                and process.pipeline_node.plugs[
-                                    param_name].links_from):
-                        if is_input:
-                            for link in process.pipeline_node.plugs[
-                                    param_name].links_to:
-                                print(f'        self.nodes["{name}"].process.add_link("{param_name}->{link[0]}.{link[1]}", allow_export=True)\n',
-                                      file=pyf)
-                        else:
-                            for link in process.pipeline_node.plugs[
-                                    param_name].links_from:
-                                print(f'        self.nodes["{name}"].process.add_link("{link[0]}.{link[1]}->{param_name}", allow_export=True)\n',
-                                      file=pyf)
+        # check that sub-nodes enable and plugs optional states are the
+        # expected ones
+        todo = [('self.nodes["%s"]' % name, node,
+                 ProcessNode(node.pipeline, node.name, proc_copy))]
+        while todo:
+            self_str, snode, cnode = todo.pop(0)
+            if not snode.enabled:
+                print('        %s.enabled = False' % self_str,
+                      file=pyf)
+
+            # if the node is a (sub)pipeline, and this pipeline has additional
+            # exported traits compared to the its base module/class instance
+            # (proc_copy),  then we must use explicit exports/links inside it
+            if isinstance(snode, PipelineNode):
+                sproc = snode.process
+                cproc = cnode.process
+                for param_name, trait in sproc.user_traits().items():
+                    optional = None
+                    if cproc.trait(param_name) is None:
+                        # param added, not in the original process
+                        is_input = not trait.output
+                        if (is_input and sproc.pipeline_node.plugs[
+                                    param_name].links_to) \
+                                or (not is_input
+                                    and sproc.pipeline_node.plugs[
+                                        param_name].links_from):
+                            if is_input:
+                                for link in sproc.pipeline_node.plugs[
+                                        param_name].links_to:
+                                    print(f'        {self_str}.process.add_link("{param_name}->{link[0]}.{link[1]}", allow_export=True)\n',
+                                          file=pyf)
+                            else:
+                                for link in sproc.pipeline_node.plugs[
+                                        param_name].links_from:
+                                    print(f'        {self_str}.process.add_link("{link[0]}.{link[1]}->{param_name}", allow_export=True)\n',
+                                          file=pyf)
+
+            for param_name, plug in snode.plugs.items():
+                trait = snode.get_trait(param_name)
+                ctrait = cnode.get_trait(param_name)
+                optional = None
+                if ctrait is None or trait.optional != ctrait.optional:
+                    optional = trait.optional
+                if optional is not None:
+                    if hasattr(cnode, 'process'):
+                        print(f'        {self_str}.process.trait("{param_name}").optional = {optional}\n',
+                              file=pyf)
+                    print(f'        {self_str}.plugs["{param_name}"].optional = {optional}\n',
+                          file=pyf)
+
+            if isinstance(snode, PipelineNode):
+                sself_str = '%s.process.nodes["%s"]' % (self_str, '%s')
+                for node_name, snode in snode.process.nodes.items():
+                    scnode = cnode.process.nodes[node_name]
+
+                    if node_name == '':
+                        continue
+                    todo.append((sself_str % node_name, snode, scnode))
 
         for pname in process.user_traits():
             value = getattr(process, pname)
@@ -187,7 +223,6 @@ def save_py_pipeline(pipeline, py_file):
               file=pyf)
 
     def _write_switch(switch, pyf, name, enabled):
-        print('*** write switch:', switch.name, '***')
         inputs = set()
         outputs = []
         optional = []
@@ -197,7 +232,6 @@ def save_py_pipeline(pipeline, py_file):
             if plug.output:
                 outputs.append(plug_name)
                 if plug.optional:
-                    print('switch opt out:', plug_name)
                     optional.append(plug_name)
             else:
                 name_parts = plug_name.split("_switch_")
@@ -208,7 +242,6 @@ def save_py_pipeline(pipeline, py_file):
                         opt_in.append(name_parts[0])
         optional_p = ''
         if len(optional) != 0:
-            print('OPTIONAL:', optional)
             optional_p = ', make_optional=%s' % repr(optional)
         inputs = list(inputs)
 
@@ -255,16 +288,12 @@ def save_py_pipeline(pipeline, py_file):
     def _write_processes(pipeline, pyf):
         print('        # nodes', file=pyf)
         nodes = []
-        proc_nodes = []
         # sort nodes, processes first
         for node_name, node in six.iteritems(pipeline.nodes):
             if node_name == "":
                 continue
-            if isinstance(node, ProcessNode):
-                proc_nodes.append((node_name, node))
-            else:
-                nodes.append((node_name, node))
-        for node_name, node in proc_nodes + nodes:
+            nodes.append((node_name, node))
+        for node_name, node in nodes:
             if isinstance(node, OptionalOutputSwitch):
                 _write_optional_output_switch(node, pyf, node_name,
                                               node.enabled)
@@ -274,7 +303,7 @@ def save_py_pipeline(pipeline, py_file):
                     and isinstance(node.process, ProcessIteration):
                 _write_iteration(node.process, pyf, node_name, node.enabled)
             elif isinstance(node, ProcessNode):
-                _write_process(node.process, pyf, node_name, node.enabled,
+                _write_process(node, pyf, node_name, node.enabled,
                                node_name in pipeline._skip_invalid_nodes)
             else:
                 # custom node
@@ -305,12 +334,10 @@ def save_py_pipeline(pipeline, py_file):
         weak_link = ''
         if link[-1]:
             weak_link = ', weak_link=True'
-        is_optional = ''
         if trait is None:
             print('missing tait', param_name, 'on:', pipeline)
         #if pipeline.trait(param_name).optional:
-        if trait.optional:
-            is_optional = ', is_optional=True'
+        is_optional = ', is_optional=%s' % repr(trait.optional)
         print('        self.export_parameter("%s", "%s"%s%s%s)'
               % (node_name, plug_name, param_name, weak_link, is_optional),
               file=pyf)
