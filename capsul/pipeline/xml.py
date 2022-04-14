@@ -439,9 +439,10 @@ def save_xml_pipeline(pipeline, xml_file):
                 elem.set('name', param_name)
                 elem.set('value', value_repr)
 
-    def _write_iteration(process_iter, parent, name):
+    def _write_iteration(node, parent, name):
         iter_values = dict([(p, getattr(process_iter, p))
                             for p in process_iter.iterative_parameters])
+        process_iter = node.process
         procnode = _write_process(
             process_iter, parent, name, init_plug_values=iter_values)
         iteration_params = ', '.join(process_iter.iterative_parameters)
@@ -498,7 +499,7 @@ def save_xml_pipeline(pipeline, xml_file):
                 xmlnode = _write_switch(node, root, node_name)
             elif isinstance(node, ProcessNode) \
                     and isinstance(node.process, ProcessIteration):
-                xmlnode = _write_iteration(node.process, root, node_name)
+                xmlnode = _write_iteration(node, root, node_name)
             elif isinstance(node, ProcessNode):
                 xmlnode = _write_process(node, root, node_name)
             else:
