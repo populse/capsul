@@ -11,10 +11,7 @@ class FSLConfiguration(ModuleConfiguration):
     version: str
     setup_script: File = field(optional=True)
     prefix: str = field(optional=True)
-
-    def __init__(self):
-        super().__init__()
-        self.name = 'fsl'
+    name = 'fsl'
 
     def is_valid_config(self, requirements):
         required_version = requirements.get('version')

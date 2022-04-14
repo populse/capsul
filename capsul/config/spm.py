@@ -10,10 +10,7 @@ class SPMConfiguration(ModuleConfiguration):
     directory: Directory
     version: str
     standalone: bool = False
-
-    def __init__(self):
-        super().__init__()
-        self.name = 'spm'
+    name = 'spm'
 
     def is_valid_config(self, requirements):
         required_version = requirements.get('version')
