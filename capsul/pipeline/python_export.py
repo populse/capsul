@@ -98,7 +98,7 @@ def save_py_pipeline(pipeline, py_file):
                 cproc = cnode.process
                 for param_name, trait in sproc.user_traits().items():
                     optional = None
-                    if cproc.trait(param_name) is None:
+                    if param_name not in cproc.traits():
                         # param added, not in the original process
                         is_input = not trait.output
                         if (is_input and sproc.pipeline_node.plugs[
@@ -121,7 +121,8 @@ def save_py_pipeline(pipeline, py_file):
                 trait = snode.get_trait(param_name)
                 ctrait = cnode.get_trait(param_name)
                 optional = None
-                if ctrait is None or trait.optional != ctrait.optional:
+                if param_name not in cnode.plugs \
+                        or trait.optional != ctrait.optional:
                     optional = trait.optional
                 if optional is not None:
                     if hasattr(cnode, 'process'):
@@ -192,7 +193,7 @@ def save_py_pipeline(pipeline, py_file):
         # non-default: values of unconnected plugs
         for plug_name, plug in six.iteritems(node.plugs):
             if len(plug.links_from) == 0 and len(plug.links_to) == 0 \
-                    and node.trait(plug_name) is not None \
+                    and plug_name in node.traits() \
                     and getattr(node, plug_name) \
                         != node.trait(plug_name).default:
                 value = getattr(node, plug_name)
