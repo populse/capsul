@@ -318,7 +318,10 @@ def save_xml_pipeline(pipeline, xml_file):
                     classname = classname[0].upper() + class_name[1:]
         procnode.set('module', "%s.%s" % (mod, classname))
         procnode.set('name', name)
-        proc_copy = get_process_instance("%s.%s" % (mod, classname))
+        try:
+            proc_copy = get_process_instance("%s.%s" % (mod, classname))
+        except Exception:
+            proc_copy = process  # don't duplicate, don't test differences
         if isinstance(process, NipypeProcess):
             # WARNING: not sure I'm doing the right things for nipype. To be
             # fixed if needed.
@@ -440,11 +443,12 @@ def save_xml_pipeline(pipeline, xml_file):
                 elem.set('value', value_repr)
 
     def _write_iteration(node, parent, name):
+        process_iter = node.process
+        it_node = ProcessNode(node.pipeline, name, process_iter.process)
         iter_values = dict([(p, getattr(process_iter, p))
                             for p in process_iter.iterative_parameters])
-        process_iter = node.process
         procnode = _write_process(
-            process_iter, parent, name, init_plug_values=iter_values)
+            it_node, parent, name, init_plug_values=iter_values)
         iteration_params = ', '.join(process_iter.iterative_parameters)
         procnode.set('iteration', iteration_params)
         return procnode

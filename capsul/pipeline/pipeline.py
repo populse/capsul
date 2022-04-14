@@ -535,7 +535,7 @@ class Pipeline(Process):
         # If a default value is given to a parameter, change the corresponding
         # plug so that it gets activated even if not linked
         for parameter_name in kwargs:
-            if process.trait(parameter_name):
+            if parameter_name in process.traits():
                 node.plugs[parameter_name].has_default_value = True
                 make_optional.add(parameter_name)
 
