@@ -150,6 +150,12 @@ class PipelineConstructor(object):
         self._calls.append(('add_pipeline_step', (step_name, nodes, enabled),
                             {}))
 
+    def add_node_state(self, node_name, key, value):
+        self._calls.append(('add_node_state', (node_name, key, value), {}))
+
+    def add_plug_state(self, plug_name, key, value):
+        self._calls.append(('add_plug_state', (plug_name, key, value), {}))
+
 
 class ConstructedPipeline(Pipeline):
     """
@@ -183,3 +189,24 @@ class ConstructedPipeline(Pipeline):
             if isinstance(proc, ProcessIteration):
                 proc = proc.process
         proc.add_link('%s->%s' % (source, dest), allow_export=True, **kwargs)
+
+    def add_node_state(self, node_name, key, value):
+        node_list = node_name.split('.')
+        parent = self.pipeline_node
+        for name in node_list:
+            parent = parent.process.nodes[name]
+        if key in ('enabled', ):
+            value = bool(int(value))
+        setattr(parent, key, value)
+
+    def add_plug_state(self, param_name, key, value):
+        node_list = param_name.split('.')
+        pname = node_list[-1]
+        node_list.pop(-1)
+        parent = self.pipeline_node
+        for name in node_list:
+            parent = parent.process.nodes[name]
+        if key in ('optional', 'output', 'intput_filename', ):
+            value = bool(int(value))
+        setattr(parent.get_trait(pname), key, value)
+        setattr(parent.plugs[pname], key, value)

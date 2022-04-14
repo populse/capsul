@@ -22,6 +22,7 @@ from soma.sorted_dictionary import OrderedDict
 
 from capsul.process.xml import string_to_value
 from capsul.pipeline.pipeline_construction import PipelineConstructor
+from capsul.pipeline.pipeline_nodes import PipelineNode
 from soma.controller import Controller
 
 from traits.api import Undefined
@@ -65,7 +66,6 @@ def create_xml_pipeline(module, name, xml_file):
         name = os.path.basename(xml_file).rsplit('.', 1)[0]
 
     builder = PipelineConstructor(module, name)
-    exported_parameters = set()
 
     for child in xml_pipeline:
         if child.tag == 'doc':
@@ -215,25 +215,8 @@ def create_xml_pipeline(module, name, xml_file):
                 weak_link = True
             else:
                 weak_link = False
-            if '.' in source:
-                if '.' in dest:
-                    builder.add_link('%s->%s' % (source, dest),
-                                     weak_link=weak_link)
-                elif dest in exported_parameters:
-                    builder.add_link('%s->%s' % (source, dest),
-                                     weak_link=weak_link)
-                else:
-                    node, plug = source.rsplit('.', 1)
-                    builder.export_parameter(node, plug, dest,
-                                             weak_link=weak_link)
-                    exported_parameters.add(dest)
-            elif source in exported_parameters:
-                builder.add_link('%s->%s' % (source, dest))
-            else:
-                node, plug = dest.rsplit('.', 1)
-                builder.export_parameter(node, plug, source,
-                                         weak_link=weak_link)
-                exported_parameters.add(source)
+            builder.add_link('%s->%s' % (source, dest),
+                              weak_link=weak_link, allow_export=True)
         elif child.tag == 'processes_selection':
             selection_parameter = child.get('name')
             selection_groups = OrderedDict()
@@ -277,6 +260,16 @@ def create_xml_pipeline(module, name, xml_file):
                 else:
                     raise ValueError('Invalid tag in <gui>: %s' %
                                      gui_child.tag)
+        elif child.tag == 'plug_state':
+            key = child.get('option')
+            value = child.get('value')
+            plug_name = child.get('param')
+            builder.add_plug_state(plug_name, key, value)
+        elif child.tag == 'state':
+            key = child.get('option')
+            value = child.get('value')
+            node_name = child.get('node')
+            builder.add_node_state(node_name, key, value)
         else:
             raise ValueError('Invalid tag in <pipeline>: %s' % child.tag)
     return builder.pipeline
@@ -301,8 +294,9 @@ def save_xml_pipeline(pipeline, xml_file):
     from capsul.process.process import NipypeProcess
     from capsul.study_config.process_instance import get_process_instance
 
-    def _write_process(process, parent, name, dont_write_plug_values=set(),
+    def _write_process(node, parent, name, dont_write_plug_values=set(),
                        init_plug_values={}):
+        process = node.process
         procnode = ET.SubElement(parent, 'process')
         if isinstance(process, NipypeProcess):
             mod = process._nipype_interface.__module__
@@ -351,30 +345,33 @@ def save_xml_pipeline(pipeline, xml_file):
         dont_write_plug_values = set(dont_write_plug_values)
         dont_write_plug_values.update(('nodes_activation',
                                        'selection_changed'))
+
+        _write_states(parent, name, node, proc_copy)
+
         for param_name, trait in six.iteritems(process.user_traits()):
-            if proc_copy.trait(param_name) is None:
-                # param added, not in the original process
-                is_input = not trait.output
-                if isinstance(process, Pipeline) \
-                        and ((is_input and process.pipeline_node.plugs[
-                            param_name].links_to)
-                             or (not is_input
-                                 and process.pipeline_node.plugs[
-                                    param_name].links_from)):
-                    if is_input:
-                        for link in process.pipeline_node.plugs[
-                                param_name].links_to:
-                            link_el = ET.SubElement(procnode, 'link')
-                            link_el.set('source', param_name)
-                            link_el.set('dest', '.'.join((link[0], link[1])))
-                    else:
-                        for link in process.pipeline_node.plugs[
-                                param_name].links_from:
-                            link_el = ET.SubElement(procnode, 'link')
-                            link_el.set('source', '.'.join((link[0], link[1])))
-                            link_el.set('dest', param_name)
-                # else the parameter has been added orphan on a process or
-                # pipeline: it is useless...
+            #if param_name not in proc_copy.traits():
+                ## param added, not in the original process
+                #is_input = not trait.output
+                #if isinstance(process, Pipeline) \
+                        #and ((is_input and process.pipeline_node.plugs[
+                            #param_name].links_to)
+                             #or (not is_input
+                                 #and process.pipeline_node.plugs[
+                                    #param_name].links_from)):
+                    #if is_input:
+                        #for link in process.pipeline_node.plugs[
+                                #param_name].links_to:
+                            #link_el = ET.SubElement(procnode, 'link')
+                            #link_el.set('source', param_name)
+                            #link_el.set('dest', '.'.join((link[0], link[1])))
+                    #else:
+                        #for link in process.pipeline_node.plugs[
+                                #param_name].links_from:
+                            #link_el = ET.SubElement(procnode, 'link')
+                            #link_el.set('source', '.'.join((link[0], link[1])))
+                            #link_el.set('dest', param_name)
+                ## else the parameter has been added orphan on a process or
+                ## pipeline: it is useless...
             if param_name not in dont_write_plug_values:
                 if param_name in init_plug_values:
                     value = init_plug_values[param_name]
@@ -382,7 +379,7 @@ def save_xml_pipeline(pipeline, xml_file):
                     value = getattr(process, param_name)
                 if value not in (None, Undefined, '', []) \
                         or (trait.optional
-                            and proc_copy.trait(param_name)
+                            and param_name in proc_copy.traits()
                             and not proc_copy.trait(param_name).optional):
                     if isinstance(value, Controller):
                         value_repr = repr(dict(value.export_to_dict()))
@@ -446,7 +443,7 @@ def save_xml_pipeline(pipeline, xml_file):
         iter_values = dict([(p, getattr(process_iter, p))
                             for p in process_iter.iterative_parameters])
         procnode = _write_process(
-            process_iter.process, parent, name, init_plug_values=iter_values)
+            process_iter, parent, name, init_plug_values=iter_values)
         iteration_params = ', '.join(process_iter.iterative_parameters)
         procnode.set('iteration', iteration_params)
         return procnode
@@ -503,7 +500,7 @@ def save_xml_pipeline(pipeline, xml_file):
                     and isinstance(node.process, ProcessIteration):
                 xmlnode = _write_iteration(node.process, root, node_name)
             elif isinstance(node, ProcessNode):
-                xmlnode = _write_process(node.process, root, node_name)
+                xmlnode = _write_process(node, root, node_name)
             else:
                 xmlnode = _write_custom_node(node, root, node_name)
             if not node.enabled:
@@ -611,6 +608,78 @@ def save_xml_pipeline(pipeline, xml_file):
         doc = ET.SubElement(root, 'doc')
         doc.text = docstr
         return doc
+
+    def _write_states(root, name, node, proc_copy):
+        # check that sub-nodes enable and plugs optional states are the
+        # expected ones
+        todo = [(name, node, ProcessNode(node.pipeline, node.name, proc_copy))]
+        while todo:
+            self_str, snode, cnode = todo.pop(0)
+            if not snode.enabled:
+                item = ET.SubElement(root, 'state')
+                item.set('option', 'enabled')
+                item.set('value', '0')
+                item.set('node', self_str)
+
+            # if the node is a (sub)pipeline, and this pipeline has additional
+            # exported traits compared to the its base module/class instance
+            # (proc_copy),  then we must use explicit exports/links inside it
+            if isinstance(snode, PipelineNode):
+                sproc = snode.process
+                cproc = cnode.process
+                for param_name, trait in sproc.user_traits().items():
+                    optional = None
+                    if param_name not in cproc.traits():
+                        # param added, not in the original process
+                        is_input = not trait.output
+                        if (is_input and sproc.pipeline_node.plugs[
+                                    param_name].links_to) \
+                                or (not is_input
+                                    and sproc.pipeline_node.plugs[
+                                        param_name].links_from):
+                            if is_input:
+                                for link in sproc.pipeline_node.plugs[
+                                        param_name].links_to:
+                                    link_el = ET.SubElement(root, 'link')
+                                    link_el.set('source',
+                                                '%s.%s' % (self_str,
+                                                           param_name))
+                                    link_el.set('dest',
+                                                '.'.join((self_str, link[0],
+                                                          link[1])))
+                            else:
+                                for link in sproc.pipeline_node.plugs[
+                                        param_name].links_from:
+                                    link_el = ET.SubElement(root, 'link')
+                                    link_el.set('source',
+                                                '.'.join((self_str, link[0],
+                                                          link[1])))
+                                    link_el.set('dest',
+                                                '%s.%s' % (self_str,
+                                                           param_name))
+
+            for param_name, plug in snode.plugs.items():
+                trait = snode.get_trait(param_name)
+                ctrait = cnode.get_trait(param_name)
+                optional = None
+                if param_name not in cnode.plugs \
+                        or trait.optional != ctrait.optional:
+                    optional = trait.optional
+                if optional is not None:
+                    item = ET.SubElement(root, 'plug_state')
+                    item.set('option', 'optional')
+                    item.set('value', str(int(optional)))
+                    item.set('param', '%s.%s' % (self_str, param_name))
+
+            if isinstance(snode, PipelineNode):
+                for node_name, snode in snode.process.nodes.items():
+                    scnode = cnode.process.nodes[node_name]
+
+                    if node_name == '':
+                        continue
+                    todo.append(('%s.%s' % (self_str, node_name), snode,
+                                 scnode))
+
 
     root = ET.Element('pipeline')
     root.set('capsul_xml', '2.0')
