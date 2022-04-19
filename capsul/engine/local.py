@@ -9,8 +9,9 @@ import time
 
 from soma.controller import Controller, OpenKeyDictController, Directory
 
-from capsul.api import Pipeline, Process
-from ..config.configuration import ModuleConfiguration, DatasetConfig
+from ..api import Pipeline, Process
+from ..pipeline.process_iteration import ProcessIteration
+from ..config.configuration import ModuleConfiguration
 from ..dataset import Dataset
 
 class ExecutionContext(Controller):
@@ -65,17 +66,21 @@ class LocalEngine:
     
     def executable_requirements(self, executable):
         result = {}
-        if isinstance(executable, Pipeline):
+        if isinstance(executable, ProcessIteration):
+            for process in executable.iterate_over_process_parmeters():
+                if process.activated:
+                    result.update(self.executable_requirements(process))
+        elif isinstance(executable, Pipeline):
             for node in executable.all_nodes():
-                if isinstance(node, Process) and node.activated:
-                    result.update(getattr(node, 'requirements', {}))
+                if node is not executable and isinstance(node, Process) and node.activated:
+                    result.update(self.executable_requirements(node))
         result.update(getattr(executable, 'requirements', {}))
         return result
 
     def execution_context(self, executable):
         execution_context = ExecutionContext()
         for name, cfg in self.config.dataset.items():
-            setattr(execution_context.dataset, name, Dataset(path=cfg.directory, schema=cfg.metadata_schema))
+            setattr(execution_context.dataset, name, Dataset(path=cfg.path, metadata_schema=cfg.metadata_schema))
         for module_name, requirements in self.executable_requirements(executable).items():
             module_configs = getattr(self.config, module_name, {})
             valid_configs = []

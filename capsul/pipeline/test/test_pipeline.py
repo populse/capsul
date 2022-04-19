@@ -146,6 +146,7 @@ class TestPipeline(unittest.TestCase):
             if os.path.exists(tmp[1]):
                 os.unlink(tmp[1])
 
+    @unittest.skip('reimplementation expected for capsul v3')
     def run_pipeline_io(self, filename):
         capsul = Capsul()
         pipeline = capsul.executable(MyPipeline)

@@ -6,11 +6,8 @@ import operator
 from pathlib import Path
 import re
 
-from soma.controller import Controller, Literal
+from soma.controller import Controller, Literal, Directory
 from soma.undefined import undefined
-
-# from .api import Pipeline
-# from .pipeline.process_iteration import ProcessIteration
 
 
 class MetadataSchema(Controller):
@@ -22,8 +19,8 @@ class MetadataSchema(Controller):
     This class is a :class:`~soma.controller.controller.Controller`: attributes
     are stored as fields.
     '''
-    def __init__(self, base_path):
-        super().__init__()
+    def __init__(self, base_path, **kwargs):
+        super().__init__(**kwargs)
         if not isinstance(base_path, Path):
             self.base_path = Path(base_path)
         else:
@@ -55,7 +52,6 @@ class MetadataSchema(Controller):
     def metadata(self, path):
         raise NotImplementedError(
             'metadata() must be specialized in MetadataSchema subclasses.')
-
 
 class BIDSSchema(MetadataSchema):
     ''' Metadata schema for BIDS datasets
@@ -91,8 +87,8 @@ class BIDSSchema(MetadataSchema):
         r'_(?P<suffix>[^-_/]*)\.(?P<extension>.*)$'
     )
 
-    def __init__(self, base_path):
-        super().__init__(base_path)
+    def __init__(self, base_path, **kwargs):
+        super().__init__(base_path, **kwargs)
 
         # Cache of TSV files that are already read and converted
         # to a dictionary
@@ -194,7 +190,7 @@ class BIDSSchema(MetadataSchema):
         -------
         Yields a path for every match.
         '''
-        layout = self.__class__(**kwargs)
+        layout = self.__class__(self.base_path, **kwargs)
         for field in layout.fields():
             value = getattr(layout, field.name, undefined) 
             if value is undefined:
@@ -285,9 +281,10 @@ def bids_to_brainvisa(bids):
         result['process'] = process
     return result
 
-class Dataset:
-    ''' Dataset class
-    '''
+class Dataset(Controller):
+    path: Directory
+    metadata_schema: str
+
     schemas = {
         'bids': BIDSSchema,
         'brainvisa': BrainVISASchema,
@@ -297,34 +294,37 @@ class Dataset:
         ('bids', 'brainvisa'): bids_to_brainvisa,
     }
 
-    def __init__(self, path, schema=None):
-        if isinstance(path, Path):
-            self.path = path
-        else:
-            self.path = Path(path)          
-        if schema is None:
-            capsul_json = self.path / 'capsul.json'
-            if capsul_json.exists():
-                with capsul_json.open() as f:
-                    schema = json.load(f).get('metadata_schema')
-            if schema is None:
-                schema = 'bids'
-        self.schema_name = schema
-        self.schema = self.find_schema(self.schema_name)
-        if not self.schema:
-            raise ValueError(f'Invalid metadata schema "{schema}" for path "{path}"')
+    def __init__(self, path=None, metadata_schema=None):
+        super().__init__(self)
+        self.on_attribute_change.add(self.changed_schema, 'metadata_schema')
+        if path is not None:
+            if isinstance(path, Path):
+                self.path = str(path)
+            else:
+                self.path = path          
+            if metadata_schema is None:
+                capsul_json = Path(self.path) / 'capsul.json'
+                if capsul_json.exists():
+                    with capsul_json.open() as f:
+                        metadata_schema = json.load(f).get('metadata_schema')
+        if metadata_schema:
+            self.metadata_schema = metadata_schema
     
     @classmethod
-    def find_schema(cls, schema_name):
-        return cls.schemas.get(schema_name)
+    def find_schema(cls, metadata_schema):
+        return cls.schemas.get(metadata_schema)
 
     @classmethod
     def find_schema_mapping(cls, source_schema, target_schema):
         return cls.schema_mappings.get((source_schema, target_schema))
 
     def find(self, **kwargs):
-        yield from self.schema.find(self.path, **kwargs)
+        yield from self.schema(self.path).find(**kwargs)
 
+    def changed_schema(self):
+        self.schema = self.find_schema(self.metadata_schema)
+        if not self.schema:
+            raise ValueError(f'Invalid metadata schema "{self.metadata_schema}" for path "{self.path}"')
 
 def generate_paths(executable, context, debug=False):
     def dprint(*args, **kwargs):
@@ -362,22 +362,22 @@ def generate_paths(executable, context, debug=False):
                             'in execution context. It is required to generate '
                             f'path for parameter "{field.name}"')
                 else:
-                    dprint(f'target field {field.name} -> dataset {dataset_name}: schema {dataset.schema_name}')
+                    dprint(f'target field {field.name} -> dataset {dataset_name}: schema {dataset.metadata_schema}')
                     dataset_name_per_field[field] = dataset_name
-                    target_field_per_schema.setdefault(dataset.schema_name, []).append(field) 
+                    target_field_per_schema.setdefault(dataset.metadata_schema, []).append(field) 
             else:
                 if dataset is not None:
-                    dprint(f'source field {field.name} -> dataset {dataset_name}: schema {dataset.schema_name}')
+                    dprint(f'source field {field.name} -> dataset {dataset_name}: schema {dataset.metadata_schema}')
                     dataset_name_per_field[field] = dataset_name
-                    source_field_per_schema.setdefault(dataset.schema_name, []).append(field) 
+                    source_field_per_schema.setdefault(dataset.metadata_schema, []).append(field) 
                 else:
                     dprint(f'source field {field.name} -> ignored because dataset {dataset_name} not found')
 
+    if not target_field_per_schema:
+        return
     if len(target_field_per_schema) > 1:
         raise ValueError(f'Found several metadata schemas in path parameters with missing value: {", ".join(target_field_per_schema)}')
     ((target_schema_name, target_fields),) = target_field_per_schema.items()
-    if not target_fields:
-        return
     target_schema = Dataset.find_schema(target_schema_name)
     if target_schema is None:
         raise ValueError(f'Cannot find metadata schema {target_schema_name}')

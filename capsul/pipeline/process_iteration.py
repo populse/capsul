@@ -29,22 +29,6 @@ class ProcessIteration(Process):
         self.regular_parameters = set()
         self.iterative_parameters = set(iterative_parameters)
 
-        # use the completion system (if any) to get induced (additional)
-        # iterated parameters
-
-        # FIXME
-        ## don't import this at module level to avoid cyclic imports
-        #from capsul.attributes.completion_engine \
-            #import ProcessCompletionEngine
-
-        #completion_engine \
-            #= ProcessCompletionEngine.get_completion_engine(self)
-        #if hasattr(completion_engine, 'get_induced_iterative_parameters'):
-            #induced_iterative_parameters \
-                #= completion_engine.get_induced_iterative_parameters()
-            #self.iterative_parameters.update(induced_iterative_parameters)
-            #iterative_parameters = self.iterative_parameters
-
         # Check that all iterative parameters are valid process parameters
         has_output = False
         inputs = []
@@ -79,40 +63,6 @@ class ProcessIteration(Process):
                 # Note: should be this be done via a links system ?
                 setattr(self, name, getattr(self.process, name, undefined))
 
-    #     # if the process has iterative outputs, the output lists have to be
-    #     # resized according to inputs
-    #     if has_output:
-    #         self.on_attribute_change.add(self._resize_outputs, inputs)
-
-    # def _resize_outputs(self):
-    #     num = 0
-    #     outputs = []
-    #     for param in self.iterative_parameters:
-    #         if self.process.field(param).is_output():
-    #             if self.process.field(param).path_type:
-    #                 outputs.append(param)
-    #         else:
-    #             print('it param:', param, ':', repr(getattr(self, param, [])))
-    #             num = max(num, len(getattr(self, param, [])))
-    #     for param in outputs:
-    #         value = getattr(self, param, undefined)
-    #         mod = False
-    #         if len(value) > num:
-    #             new_value = value[:num]
-    #             mod = True
-    #         else:
-    #             if len(value) < num:
-    #                 new_value = value \
-    #                     + [self.process.field(param).default_value()] \
-    #                         * (num - len(value))
-    #                 mod = True
-    #         if mod:
-    #             try:
-    #                 setattr(self, param, new_value)
-    #             except Exception as e:
-    #                 print('exc:', e)
-    #                 print('could not set iteration value:', param, ':',
-    #                       new_value)
 
     def change_iterative_plug(self, parameter, iterative=None):
         '''
@@ -238,11 +188,4 @@ class ProcessIteration(Process):
                 'context_name': getattr(self.process, 'context_name', None),
             }
         }
-
-    @property
-    def requirements(self):
-        result = {}
-        for process in self.iterate_over_process_parmeters():
-            result.update(self.process.requirements)
-        return result
 

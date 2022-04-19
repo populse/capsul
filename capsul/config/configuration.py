@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from soma.controller import (Controller, Directory, field,
-                             OpenKeyDictController, File, undefined)
 import json
 import os
 import sys
 import importlib
 
+from soma.controller import (Controller, field,
+                             OpenKeyDictController, File)
+
+from ..dataset import Dataset
 
 def full_module_name(module_name):
     '''
@@ -61,10 +63,6 @@ class ModuleConfiguration(Controller):
                                   #'define init_execution_context()')
 
 
-class DatasetConfig(Controller):
-    directory: Directory
-    metadata_schema: str
-
 class EngineConfiguration(Controller):
     ''' Engine-level configuration object
 
@@ -78,7 +76,7 @@ class EngineConfiguration(Controller):
     or replace dots with underscores.
     '''
 
-    dataset: OpenKeyDictController[DatasetConfig]
+    dataset: OpenKeyDictController[Dataset]
     load_modules: list[str]
 
     def add_module(self, module_name, allow_existing=False):
