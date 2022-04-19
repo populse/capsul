@@ -352,29 +352,8 @@ def save_xml_pipeline(pipeline, xml_file):
         _write_states(parent, name, node, proc_copy)
 
         for param_name, trait in six.iteritems(process.user_traits()):
-            #if param_name not in proc_copy.traits():
-                ## param added, not in the original process
-                #is_input = not trait.output
-                #if isinstance(process, Pipeline) \
-                        #and ((is_input and process.pipeline_node.plugs[
-                            #param_name].links_to)
-                             #or (not is_input
-                                 #and process.pipeline_node.plugs[
-                                    #param_name].links_from)):
-                    #if is_input:
-                        #for link in process.pipeline_node.plugs[
-                                #param_name].links_to:
-                            #link_el = ET.SubElement(procnode, 'link')
-                            #link_el.set('source', param_name)
-                            #link_el.set('dest', '.'.join((link[0], link[1])))
-                    #else:
-                        #for link in process.pipeline_node.plugs[
-                                #param_name].links_from:
-                            #link_el = ET.SubElement(procnode, 'link')
-                            #link_el.set('source', '.'.join((link[0], link[1])))
-                            #link_el.set('dest', param_name)
-                ## else the parameter has been added orphan on a process or
-                ## pipeline: it is useless...
+            if param_name not in proc_copy.traits():
+                continue
             if param_name not in dont_write_plug_values:
                 if param_name in init_plug_values:
                     value = init_plug_values[param_name]
@@ -382,7 +361,6 @@ def save_xml_pipeline(pipeline, xml_file):
                     value = getattr(process, param_name)
                 if value not in (None, Undefined, '', []) \
                         or (trait.optional
-                            and param_name in proc_copy.traits()
                             and not proc_copy.trait(param_name).optional):
                     if isinstance(value, Controller):
                         value_repr = repr(dict(value.export_to_dict()))
