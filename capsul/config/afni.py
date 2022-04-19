@@ -4,14 +4,12 @@ from .configuration import ModuleConfiguration
 from soma.controller import Directory, undefined, File, field
 
 
-class FSLConfiguration(ModuleConfiguration):
-    ''' FSL configuration module
+class AfniConfiguration(ModuleConfiguration):
+    ''' AFNI configuration module
     '''
-    directory: Directory = field(optional=True)
     version: str
-    setup_script: File = field(optional=True)
-    prefix: str = field(optional=True)
-    name = 'fsl'
+    directory: Directory = field(optional=True)
+    name = 'afni'
 
     def is_valid_config(self, requirements):
         required_version = requirements.get('version')
@@ -24,6 +22,6 @@ def init_execution_context(execution_context):
     '''
     Configure an execution context given a capsul_engine and some requirements.
     '''
-    config =  execution_context.config['modules']['fsl']
-    execution_context.fsl = FSLConfiguration()
-    execution_context.fsl.import_from_dict(config)
+    config =  execution_context.config['modules']['afni']
+    execution_context.afni = AfniConfiguration()
+    execution_context.afni.import_from_dict(config)

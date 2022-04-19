@@ -105,7 +105,11 @@ class EngineConfiguration(Controller):
         if len(classes) > 1:
             raise ValueError(f'Several ModuleClass found {len(classes)} in module {module_name}: {classes}')
         cls = classes[0]
+        old_module_name = module_name
         module_name = getattr(cls, 'name', module_name.rsplit('.')[-1])
+        if not module_name:
+            # fallback
+            module_name = old_module_name.rsplit('.')[-1]
 
         if allow_existing:
             field = self.field(module_name)
