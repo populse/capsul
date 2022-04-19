@@ -208,7 +208,9 @@ class TestPipeline(unittest.TestCase):
             print('directory %s not removed.' % self.directory)
         else:
             shutil.rmtree(self.directory)
-
+        self.capsul = None
+        Capsul.delete_singleton()
+        
     @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_pipeline_connection(self):
         """ Test if an iterative process works correctly

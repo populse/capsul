@@ -44,7 +44,9 @@ class Capsul(Singleton):
     '''    
 
     def __singleton_init__(self, app_name='capsul', site_file=None):
-        c = ApplicationConfiguration(app_name=app_name, site_file=str(site_file))
+        if isinstance(site_file, Path):
+            site_file=str(site_file)
+        c = ApplicationConfiguration(app_name=app_name, site_file=site_file)
         self.config = c.merged_config
 
     @staticmethod

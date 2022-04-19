@@ -3,7 +3,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import unittest
-from capsul.api import Process, Pipeline, Capsul
+from capsul.api import Process, Pipeline, executable
 from capsul.pipeline import pipeline_workflow
 from capsul.pipeline import python_export
 from soma.controller import File
@@ -496,14 +496,12 @@ class TestCustomNodes(unittest.TestCase):
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_custom_nodes(self):
-        c = Capsul()
-        pipeline = c.executable(Pipeline1)
+        pipeline = executable(Pipeline1)
         self._test_custom_nodes(pipeline)
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_custom_nodes_workflow(self):
-        c = Capsul()
-        pipeline = c.executable(Pipeline1)
+        pipeline = executable(Pipeline1)
         pipeline.main_input = os.path.join(self.temp_dir, 'file')
         pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
         wf = pipeline_workflow.workflow_from_pipeline(pipeline,
@@ -645,62 +643,56 @@ class TestCustomNodes(unittest.TestCase):
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_leave_one_out_pipeline(self):
-        c = Capsul()
-        pipeline = c.executable(PipelineLOO)
+        pipeline = executable(PipelineLOO)
         self._test_loo_pipeline(pipeline)
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_custom_nodes_py_io(self):
-        c = Capsul()
-        pipeline = c.executable(Pipeline1)
+        pipeline = executable(Pipeline1)
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
         self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
-        pipeline2 = c.executable(pyfname)
+        pipeline2 = executable(pyfname)
         self._test_custom_nodes(pipeline)
 
     @unittest.skip('XML is no longer supported')
     def test_custom_nodes_xml_io(self):
-        c = Capsul()
-        pipeline = c.executable(Pipeline1)
+        pipeline = executable(Pipeline1)
         xml_file = tempfile.mkstemp(suffix='_capsul.xml')
         xmlfname = xml_file[1]
         os.close(xml_file[0])
         self.temp_files.append(xmlfname)
         xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = c.executable(xmlfname)
+        pipeline2 = executable(xmlfname)
         self._test_custom_nodes(pipeline2)
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_loo_py_io(self):
-        c = Capsul()
-        pipeline = c.executable(PipelineLOO)
+        pipeline = executable(PipelineLOO)
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
         self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
-        pipeline2 = c.executable(pyfname)
+        pipeline2 = executable(pyfname)
         self._test_loo_pipeline(pipeline2)
 
     @unittest.skip('XML is no longer supported')
     def test_loo_xml_io(self):
-        c = Capsul()
-        pipeline = c.executable(PipelineLOO)
+        pipeline = executable(PipelineLOO)
         xml_file = tempfile.mkstemp(suffix='_capsul.xml')
         xmlfname = xml_file[1]
         os.close(xml_file[0])
         self.temp_files.append(xmlfname)
         xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = c.executable(xmlfname)
+        pipeline2 = executable(xmlfname)
         self._test_loo_pipeline(pipeline2)
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_mapreduce(self):
-        c = Capsul()
-        pipeline = c.executable(PipelineMapReduce)
+        pipeline = executable(PipelineMapReduce)
         pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i)
                                 for i in range(4)]
         pipeline.subjects = ['Robert', 'Gustave']
@@ -719,26 +711,24 @@ class TestCustomNodes(unittest.TestCase):
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_cv_py_io(self):
-        c = Capsul()
-        pipeline = c.executable(PipelineCV)
+        pipeline = executable(PipelineCV)
         py_file = tempfile.mkstemp(suffix='_capsul.py')
         pyfname = py_file[1]
         os.close(py_file[0])
         self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
-        pipeline2 = c.executable(pyfname)
+        pipeline2 = executable(pyfname)
         self._test_cv_pipeline(pipeline2)
 
     @unittest.skip('XML is no longer supported')
     def test_cv_xml_io(self):
-        c = Capsul()
-        pipeline = c.executable(PipelineCV)
+        pipeline = executable(PipelineCV)
         xml_file = tempfile.mkstemp(suffix='_capsul.xml')
         xmlfname = xml_file[1]
         os.close(xml_file[0])
         self.temp_files.append(xmlfname)
         xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = c.executable(xmlfname)
+        pipeline2 = executable(xmlfname)
         self._test_cv_pipeline(pipeline2)
 
 
@@ -759,7 +749,6 @@ if __name__ == '__main__':
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
-        capsul = Capsul()
 
         #pipeline = capsul.executable(Pipeline1)
         #pipeline.main_inputs = [os.path.join('/tmp', 'file%d' % i)
@@ -772,7 +761,7 @@ if __name__ == '__main__':
                                        #enable_edition=True)
         #view1.show()
 
-        pipeline2 = capsul.executable(PipelineLOO)
+        pipeline2 = executable(PipelineLOO)
         pipeline2.main_inputs = ['/tmp/file%d' % i for i in range(4)]
         pipeline2.test = pipeline2.main_inputs[2]
         pipeline2.subjects = ['subject%d' % i for i in range(4)]

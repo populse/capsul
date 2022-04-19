@@ -4,7 +4,7 @@ import unittest
 from soma.controller import File, undefined
 from capsul.api import Process
 from capsul.api import Pipeline
-from capsul.api import Capsul
+from capsul.api import executable
 from capsul.pipeline.pipeline_nodes import OptionalOutputSwitch
 import tempfile
 import os
@@ -59,8 +59,7 @@ class MyPipelineWithOptOut(Pipeline):
 class TestPipeline(unittest.TestCase):
 
     def setUp(self):
-        capsul = Capsul()
-        self.pipeline = capsul.executable(MyPipelineWithOptOut)
+        self.pipeline = executable(MyPipelineWithOptOut)
 
     def test_way1(self):
         workflow_repr = self.pipeline.workflow_ordered_nodes()
@@ -124,8 +123,7 @@ if __name__ == "__main__":
         app = Qt.QApplication.instance()
         if not app:
             app = Qt.QApplication(sys.argv)
-        capsul = Capsul()
-        pipeline = capsul.executable(MyPipelineWithOptOut)
+        pipeline = executable(MyPipelineWithOptOut)
         pipeline.intermediate_out = '/tmp/a_file.txt'
         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                        allow_open_controller=True)

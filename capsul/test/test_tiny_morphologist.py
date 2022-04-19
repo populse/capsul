@@ -325,17 +325,18 @@ class TestTinyMorphologist(unittest.TestCase):
         with self.config_file.open('w') as f:
             json.dump(config, f)
 
+        self. capsul = Capsul('test_tiny_morphologist', site_file=self.config_file)
         return super().setUp()
 
     def tearDown(self):
+        self.capsul = None
+        Capsul.delete_singleton()
         print('tear down', self.tmp)
         shutil.rmtree(self.tmp)
         return super().tearDown()
 
-    @unittest.skip('something is wrong, wating for a fix')
     def test_tiny_morphologist_config(self):
         self.maxDiff = 2000
-        capsul = Capsul('test_tiny_morphologist', site_file=self.config_file)
         expected_config = {
             'local': {
                 'dataset': {
@@ -361,10 +362,10 @@ class TestTinyMorphologist(unittest.TestCase):
                 'load_modules': ['capsul.test.test_tiny_morphologist'],
             }            
         }
-        self.assertEqual(capsul.config.asdict(), expected_config)
+        self.assertEqual(self.capsul.config.asdict(), expected_config)
 
-        engine = capsul.engine()
-        tiny_morphologist = capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
+        engine = self.capsul.engine()
+        tiny_morphologist = self.capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
         
         context = engine.execution_context(tiny_morphologist)
         expected_context = {
@@ -390,7 +391,7 @@ class TestTinyMorphologist(unittest.TestCase):
         expected_context['fakespm'] = fakespm12_conf
         self.assertEqual(context.asdict(), expected_context)
 
-        tiny_morphologist_iteration = capsul.custom_pipeline()
+        tiny_morphologist_iteration = self.capsul.custom_pipeline()
         tiny_morphologist_iteration.add_iterative_process(
             'tiny_morphologist',
             'capsul.test.test_tiny_morphologist.TinyMorphologist',
@@ -437,10 +438,9 @@ class TestTinyMorphologist(unittest.TestCase):
                 'left_hemisphere': '!{dataset.output}/whaterver/aleksander/tinymorphologist/m0/default/left_hemi_aleksander.nii',
             },
         }
-        capsul = Capsul('test_tiny_morphologist', site_file=self.config_file)
-        engine = capsul.engine()
+        engine = self.capsul.engine()
         for normalization in ('none', 'aims', 'fakespm12', 'fakespm8'):
-            tiny_morphologist = capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
+            tiny_morphologist = self.capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
             tiny_morphologist.input = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
             tiny_morphologist.normalization = normalization
             execution_context = engine.execution_context(tiny_morphologist)
@@ -459,8 +459,7 @@ class TestTinyMorphologist(unittest.TestCase):
             #     print(f'!{normalization}!', field.name, value)
 
     def test_pipeline_iteration(self):
-        capsul = Capsul('test_tiny_morphologist', site_file=self.config_file)
-        tiny_morphologist_iteration = capsul.custom_pipeline()
+        tiny_morphologist_iteration = self.capsul.custom_pipeline()
         tiny_morphologist_iteration.add_iterative_process(
             'tiny_morphologist',
             'capsul.test.test_tiny_morphologist.TinyMorphologist',
@@ -476,13 +475,13 @@ class TestTinyMorphologist(unittest.TestCase):
         normalizations = []
 
         from pprint import pprint
-        for path in capsul.config.local.dataset.input.find(suffix='T1w', extension='nii'):
+        for path in self.capsul.config.local.dataset.input.find(suffix='T1w', extension='nii'):
             inputs.extend([str(path)]*3)
             normalizations += ['none', 'aims', 'fakespm8']
         # Set the input data
         tiny_morphologist_iteration.input = inputs
         tiny_morphologist_iteration.normalization = normalizations
-        engine = capsul.engine()
+        engine = self.capsul.engine()
         execution_context = engine.execution_context(tiny_morphologist_iteration)
         generate_paths(tiny_morphologist_iteration, execution_context, debug=True)
         for field in tiny_morphologist_iteration.fields():

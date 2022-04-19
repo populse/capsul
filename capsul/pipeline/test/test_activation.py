@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 from soma.controller import File
-from capsul.api import Process, Capsul
+from capsul.api import Process, executable
 from capsul.api import Pipeline
 import sys
 
@@ -58,8 +58,7 @@ class MyPipeline(Pipeline):
 class TestPipeline(unittest.TestCase):
 
     def setUp(self):
-        capsul = Capsul()
-        self.pipeline = capsul.executable(MyPipeline)
+        self.pipeline = executable(MyPipeline)
 
     def test_partial_desactivation(self):
         self.pipeline.nodes_activation.way11 = False

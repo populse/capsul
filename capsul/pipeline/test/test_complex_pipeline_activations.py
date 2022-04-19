@@ -8,7 +8,7 @@ import sys
 
 from soma.controller import File, field
 
-from capsul.api import Process, Pipeline, Switch, Capsul
+from capsul.api import Process, Pipeline, executable
 
 
 class Identity(Process):
@@ -848,9 +848,8 @@ class TestComplexPipeline(unittest.TestCase):
     ]
 
     def test_activations(self):
-        capsul = Capsul()
         for kwargs, activations_to_check in self.expected_status:
-            pipeline = capsul.executable(ComplexPipeline, **kwargs)
+            pipeline = executable(ComplexPipeline, **kwargs)
             
         for full_node_name, node_activations in activations_to_check.items():
             split = full_node_name.split('.')
@@ -890,8 +889,7 @@ if __name__ == '__main__':
     if '-v' in sys.argv[1:]:
         from pprint import pprint
         
-        capsul = Capsul()
-        pipeline = capsul.executable(ComplexPipeline)
+        pipeline = executable(ComplexPipeline)
             
         from soma.qt_gui.qt_backend import Qt
         from capsul.qt_gui.widgets import PipelineDeveloperView

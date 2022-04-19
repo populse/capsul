@@ -5,7 +5,7 @@ import os
 import unittest
 
 # Capsul import
-from capsul.api import Capsul
+from capsul.api import executable
 from capsul.api import NipypeProcess
 
 try:
@@ -37,8 +37,7 @@ class TestNipypeWrap(unittest.TestCase):
         properly.
         """
         from nipype.interfaces.fsl import BET
-        capsul = Capsul()
-        nipype_process = capsul.executable("nipype.interfaces.fsl.BET")
+        nipype_process = executable("nipype.interfaces.fsl.BET")
         self.assertTrue(isinstance(nipype_process, NipypeProcess))
         self.assertTrue(isinstance(nipype_process._nipype_interface, BET))
 
@@ -48,8 +47,7 @@ class TestNipypeWrap(unittest.TestCase):
         """ Method to test the monkey patching used to work in user
         specified directories.
         """
-        capsul = Capsul()
-        nipype_process = capsul.executable("nipype.interfaces.fsl.BET")
+        nipype_process = executable("nipype.interfaces.fsl.BET")
         nipype_process.in_file = os.path.abspath(__file__)
         self.assertEqual(
             nipype_process._nipype_interface._list_outputs()["out_file"],

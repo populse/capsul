@@ -13,14 +13,7 @@ from ..api import Pipeline, Process
 from ..pipeline.process_iteration import ProcessIteration
 from ..config.configuration import ModuleConfiguration
 from ..dataset import Dataset
-
-class ExecutionContext(Controller):
-    dataset: OpenKeyDictController[Dataset]
-
-    def __init__(self):
-        super().__init__()
-        self.dataset = OpenKeyDictController[Dataset]()
-
+from ..execution_context import ExecutionContext
 
 class LocalEngine:
     def __init__(self, label, config):
@@ -79,7 +72,7 @@ class LocalEngine:
 
     def execution_context(self, executable):
         execution_context = ExecutionContext()
-        for name, cfg in self.config.dataset.items():
+        for name, cfg in getattr(self.config, 'dataset', {}).items():
             setattr(execution_context.dataset, name, Dataset(path=cfg.path, metadata_schema=cfg.metadata_schema))
         for module_name, requirements in self.executable_requirements(executable).items():
             module_configs = getattr(self.config, module_name, {})
@@ -105,12 +98,11 @@ class LocalEngine:
         self.assert_connected()
         for name, value in kwargs.items():
             setattr(executable, name, value)
+        execution_context = self.execution_context(executable)
         capsul = {
             'status': 'submited',
             'executable': executable.json(),
-            'config': {
-                'modules': self.modules_config(executable)
-            }
+            'execution_context': execution_context.json(),
         }
         with tempfile.NamedTemporaryFile(dir=self.tmp,suffix='.capsul', mode='w', delete=False) as f:
             json.dump(capsul,f)

@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 import unittest
 import os
 import json
-from capsul.api import Process, Capsul
+from capsul.api import Process, executable
 from capsul.api import Pipeline
-from soma.controller import undefined
 import sys
 
 
@@ -202,8 +199,7 @@ class TestSwitchPipeline(unittest.TestCase):
 
     def setUp(self):
         self.maxDiff = None
-        capsul = Capsul()
-        self.pipeline = capsul.executable(MainTestPipeline)
+        self.pipeline = executable(MainTestPipeline)
         self.pipeline.name = ''  # saved state has en empty main node name
 
     def load_state(self, file_name):
@@ -253,9 +249,8 @@ if __name__ == "__main__":
         #from capsul.qt_gui.widgets import PipelineUserView
 
         app = Qt.QApplication(sys.argv)
-        capsul = Capsul()
         # pipeline = capsul.executable(MainTestPipeline)
-        pipeline = capsul.executable(MainTestPipeline)
+        pipeline = executable(MainTestPipeline)
         pipeline.selection_changed.add(write_state)
         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                       allow_open_controller=True)

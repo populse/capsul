@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import unittest
 from capsul.api import Capsul
+from capsul.api import executable
 from capsul.api import Process
 from capsul.api import Pipeline
 from soma.controller import File
@@ -78,8 +79,7 @@ class TestPipeline(unittest.TestCase):
     debug = False
 
     def setUp(self):
-        capsul = Capsul()
-        self.pipeline = capsul.executable(MyPipeline)
+        self.pipeline = executable(MyPipeline)
         self.temp_files = []
 
     def tearDown(self):
@@ -145,14 +145,14 @@ class TestPipeline(unittest.TestCase):
         finally:
             if os.path.exists(tmp[1]):
                 os.unlink(tmp[1])
+        Capsul.delete_singleton()
 
     @unittest.skip('reimplementation expected for capsul v3')
     def run_pipeline_io(self, filename):
-        capsul = Capsul()
-        pipeline = capsul.executable(MyPipeline)
+        pipeline = executable(MyPipeline)
         from capsul.pipeline import pipeline_tools
         pipeline_tools.save_pipeline(pipeline, filename)
-        pipeline2 = Capsul().executable(filename)
+        pipeline2 = executable(filename)
         workflow_repr = pipeline2.workflow_ordered_nodes()
 
         if self.debug:
@@ -227,9 +227,7 @@ if __name__ == "__main__":
         if not app:
             app = Qt.QApplication(sys.argv)
 
-        capsul = Capsul()
-
-        pipeline = capsul.executable(MyPipeline)
+        pipeline = executable(MyPipeline)
         #setattr(pipeline.nodes_activation, "node2", False)
         view1 = PipelineDeveloperView(pipeline, allow_open_controller=True)
         view1.show()

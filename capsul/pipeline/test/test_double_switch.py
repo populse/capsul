@@ -2,7 +2,7 @@
 import unittest
 import os
 import sys
-from capsul.api import Process, Capsul
+from capsul.api import Process, executable
 from capsul.api import Pipeline
 
 
@@ -80,8 +80,7 @@ class DoubleSwitchPipeline1(Pipeline):
 class TestDoubleSwitchPipeline(unittest.TestCase):
 
     def setUp(self):
-        capsul = Capsul()
-        self.pipeline = capsul.executable(DoubleSwitchPipeline1)
+        self.pipeline = executable(DoubleSwitchPipeline1)
 
     def test_way2(self):
         self.pipeline.switch1 = "one"
@@ -117,8 +116,7 @@ if __name__ == "__main__":
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
-        capsul = Capsul()
-        pipeline = capsul.executable(DoubleSwitchPipeline1)
+        pipeline = executable(DoubleSwitchPipeline1)
         pipeline.switch1 = "one"
         pipeline.switch2 = "one"
         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,

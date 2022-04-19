@@ -7,6 +7,7 @@ import importlib
 
 from soma.controller import (Controller, field,
                              OpenKeyDictController, File)
+from soma.undefined import undefined
 
 from ..dataset import Dataset
 
@@ -300,16 +301,16 @@ class ApplicationConfiguration(Controller):
     merged_config: ConfigurationLayer = field(
         default_factory=ConfigurationLayer, user_level=2)
     
-    def __init__(self, app_name, user_file=None, site_file=None):
+    def __init__(self, app_name, user_file=undefined, site_file=None):
         '''
         Parameters
         ----------
         app_name: str
             name of the application / config
         user_file: str
-            file name for the user config file. If `̀`None`` (the default), it
+            file name for the user config file. If `̀`undefined`` (the default), it
             will be looked for in ``~/.config/{app_name}.conf``. If
-            ``undefined``, then no user config will be loaded.
+            ``None``, then no user config will be loaded.
         site_file: str
             file name for the site config file. If `̀`None`` (the default), then
             no config will be loaded.
@@ -323,7 +324,7 @@ class ApplicationConfiguration(Controller):
             self.site_file = site_file
             self.site.load(site_file)
 
-        if user_file is None:
+        if user_file is undefined:
             user_file = os.path.expanduser(f'~/.config/{app_name}.conf')
             if not os.path.exists(user_file):
                 user_file = None

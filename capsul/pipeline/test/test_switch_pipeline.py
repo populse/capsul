@@ -3,7 +3,7 @@
 import sys
 import unittest
 import os
-from capsul.api import Process, Capsul
+from capsul.api import Process, executable
 from capsul.api import Pipeline
 from soma.controller import undefined
 
@@ -89,8 +89,7 @@ class SwitchPipeline(Pipeline):
 class TestSwitchPipeline(unittest.TestCase):
 
     def setUp(self):
-        capsul = Capsul()
-        self.pipeline = capsul.executable(SwitchPipeline)
+        self.pipeline = executable(SwitchPipeline)
 
     def test_way1(self):
         self.pipeline.switch = "one"
@@ -206,8 +205,7 @@ if __name__ == "__main__":
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
-        capsul = Capsul()
-        pipeline = capsul.executable(SwitchPipeline)
+        pipeline = executable(SwitchPipeline)
         pipeline.switch = "one"
         pipeline.input_image = 'test'
         pipeline.nodes["node"].execute(None)

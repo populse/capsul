@@ -40,13 +40,13 @@ class TestConfiguration(unittest.TestCase):
             json.dump(conf_dict, f)
         app_config = ApplicationConfiguration('single_conf',
                                               user_file=user_file)
-        # print(app_config.asdict())
-
+        self.maxDiff = 2000
         self.assertEqual(
             app_config.asdict(),
             {'site': {'local': {}}, 'app_name': 'single_conf',
              'user': conf_dict,
-             'merged_config': conf_dict})
+             'merged_config': conf_dict,
+             'user_file': user_file})
 
     def test_config_assignment(self):
 
@@ -63,7 +63,7 @@ class TestConfiguration(unittest.TestCase):
                     }}}}
 
         app_config = ApplicationConfiguration('single_conf2',
-                                              user_file=undefined)
+                                              user_file=None)
         app_config.user = conf_dict
 
         # print(app_config.asdict())

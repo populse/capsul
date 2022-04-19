@@ -8,8 +8,9 @@ import sys
 import tempfile
 import traceback
 
-from capsul.api import Capsul, ExecutionContext, Pipeline
+from capsul.api import Capsul, Pipeline
 from .pipeline.process_iteration import ProcessIteration
+from .execution_context import ExecutionContext
 import capsul.debug as capsul_debug
 
 
@@ -42,7 +43,8 @@ if __name__ == '__main__':
             with open(execution_file, 'w') as f:
                 json.dump(execution_info, f)
 
-            context = ExecutionContext(execution_info, tmp)
+            context = ExecutionContext(execution_info['execution_context'])
+            context.dataset['tmp'] = tmp
 
             if isinstance(executable, Pipeline):
                 nodes = executable.all_nodes()

@@ -2,7 +2,7 @@
 import unittest
 import six
 
-from capsul.api import Process, Capsul
+from capsul.api import Process, executable
 
 
 class DummyProcess(Process):
@@ -21,11 +21,11 @@ class TestProcessUserTrait(unittest.TestCase):
         """ In the setup construct two processes with class and instance
         user parameters.
         """
-        capsul = Capsul()
+
         # Construct the processes
-        self.p1 = capsul.executable(
+        self.p1 = executable(
             'capsul.process.test.test_fields.DummyProcess')
-        self.p2 = capsul.executable(
+        self.p2 = executable(
             'capsul.process.test.test_fields.DummyProcess')
 
     def test_class_user_parameters(self):

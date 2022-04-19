@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 from soma.controller import field, Literal, File, Directory
 
-from capsul.api import Capsul, Process, Pipeline
+from capsul.api import Capsul, Process, Pipeline, executable
 
 
 def a_function_to_wrap(
@@ -112,6 +112,7 @@ class TestLoadFromDescription(unittest.TestCase):
         with capsul.engine() as ce:
             ce.run(process)
         self.assertEqual(process.result, (1, 'done'))
+        Capsul.delete_singleton()
 
     #@unittest.skip('reimplementation expected for capsul v3')
     def test_pipeline_warpping(self):
@@ -123,6 +124,7 @@ class TestLoadFromDescription(unittest.TestCase):
         self.assertTrue(isinstance(pipeline, Pipeline))
         for node_name in ["", "p1", "p2"]:
             self.assertTrue(node_name in pipeline.nodes)
+        Capsul.delete_singleton()
 
 #     def test_pipeline_writing(self):
 #         """ Method to test the xml description saving and reloading
@@ -180,6 +182,7 @@ class TestLoadFromDescription(unittest.TestCase):
                 value2 = 'v',
                 value3 = '')
             self.assertEqual(process.result, 'v')
+        Capsul.delete_singleton()
         
     def test_return_list(self):
         capsul = Capsul()
@@ -192,6 +195,7 @@ class TestLoadFromDescription(unittest.TestCase):
             capsul_engine.run(process,
                 value1='', value2='v', value3='')
             self.assertEqual(process.result, ['v'])
+        Capsul.delete_singleton()
 
         
 class TestProcessWrap(unittest.TestCase):
@@ -200,9 +204,8 @@ class TestProcessWrap(unittest.TestCase):
     def setUp(self):
         """ In the setup construct set some process input parameters.
         """
-        capsul = Capsul()
         # Get the wrapped test process process
-        self.process = capsul.executable(
+        self.process = executable(
             'capsul.process.test.test_load_from_description.a_function_to_wrap')
 
         # Set some input parameters

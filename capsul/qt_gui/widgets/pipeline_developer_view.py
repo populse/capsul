@@ -56,7 +56,7 @@ qt_backend.set_qt_backend(compatible_qt5=True)
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
 from soma.qt_gui.qt_backend.Qt import QMessageBox
 from soma.sorted_dictionary import SortedDictionary
-from capsul.api import Switch, OptionalOutputSwitch, Capsul
+from capsul.api import Switch, OptionalOutputSwitch, Capsul, executable
 from capsul.pipeline import pipeline_tools
 from capsul.api import Pipeline
 from capsul.api import Process
@@ -65,7 +65,6 @@ from capsul.pipeline.pipeline_nodes import Node
 from soma.qt_gui.qt_backend.Qt import QGraphicsView
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
     import PipelineFileWarningWidget
-import capsul.pipeline.xml as capsulxml
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma import controller as sc
 from soma.controller import Controller, undefined
@@ -2996,7 +2995,7 @@ class PipelineDeveloperView(QGraphicsView):
                         print(e)
                         return
                 try:
-                    process = Capsul().executable(instance)
+                    process = executable(instance)
                 except Exception as e:
                     print(e)
                     return
@@ -4113,7 +4112,7 @@ class PipelineDeveloperView(QGraphicsView):
         def set_plugs(self, text):
             self.plugs.clear()
             try:
-                process = Capsul().executable(text)
+                process = executable(text)
             except Exception:
                 return
             fields = [field.name for field in process.fields()]
@@ -4138,7 +4137,7 @@ class PipelineDeveloperView(QGraphicsView):
             proc_module = six.text_type(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
             try:
-                process = Capsul().executable(
+                process = executable(
                     six.text_type(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
@@ -4842,7 +4841,7 @@ class PipelineDeveloperView(QGraphicsView):
                 return filename
             else:
                 try:
-                    pipeline = Capsul().executable(filename)
+                    pipeline = executable(filename)
                 except Exception as e:
                     print(e)
                     pipeline = None
