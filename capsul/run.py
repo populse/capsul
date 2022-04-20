@@ -43,7 +43,9 @@ if __name__ == '__main__':
             with open(execution_file, 'w') as f:
                 json.dump(execution_info, f)
 
-            context = ExecutionContext(execution_info['execution_context'])
+            context = ExecutionContext(
+                config=execution_info['execution_context'], 
+                executable=executable)
             context.dataset['tmp'] = tmp
 
             if isinstance(executable, Pipeline):

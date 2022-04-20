@@ -47,22 +47,12 @@ class ProcessIteration(Process):
         for field in self.process.user_fields():
             name = field.name
             if name in iterative_parameters:
-                # allow undefined values in this list
-                self.add_field(
-                    name,
-                    list[Union[field.type, type(undefined)]],
-                    metadata=field.metadata())
-                value = getattr(self.process, name, undefined)
-                if value is not undefined:
-                    setattr(self, name, [value])
-
+                self.add_list_proxy(name, self.process, name)
             else:
                 self.regular_parameters.add(name)
-                self.add_field(name, field)
-                # copy initial value of the underlying process to self
-                # Note: should be this be done via a links system ?
-                setattr(self, name, getattr(self.process, name, undefined))
+                self.add_proxy(name, self.process, name)
 
+        self.metadata_schema = getattr(self.process, 'metadata_schema', {})
 
     def change_iterative_plug(self, parameter, iterative=None):
         '''
@@ -89,42 +79,21 @@ class ProcessIteration(Process):
 
         field = self.process.field(parameter)
         if iterative:
-
             # switch to iterative
             self.regular_parameters.remove(parameter)
             self.iterative_parameters.add(parameter)
             self.remove_field(parameter)
-            # Create iterative process parameter by copying process parameter
-            # and changing iterative parameter to list
-            self.add_field(parameter,
-                           Union[list[field.type], type(undefined)],
-                           metadata=field.metadata(),
-                           default_factory=list)
-
-            # if it is an output, the output list has to be
-            # resized according to inputs
-            if field.is_output():
-                inputs = []
-                for param in self.iterative_parameters:
-                    if not self.process.field(param).is_output():
-                        inputs.append(param)
-                self.on_attribute_change(self._resize_outputs, inputs)
-
+            self.add_list_proxy(parameter, self.process, parameter)
         else:
-
             # switch to non-iterative
             self.remove_field(parameter)
             self.iterative_parameters.remove(parameter)
             self.regular_parameters.add(parameter)
-            self.add_field(parameter, field)
-            # copy initial value of the underlying process to self
-            setattr(self, parameter,
-                    getattr(self.process, parameter, undefined))
+            self.add_proxy(parameter, self.process, parameter)
 
     def iterate_over_process_parmeters(self):
         # Check that all iterative parameter value have the same size
         # or are undefined
-        no_output_value = None
         size = None
         size_error = False
         for parameter in self.iterative_parameters:
@@ -133,41 +102,15 @@ class ProcessIteration(Process):
             if value is undefined:
                 continue
             psize = len(value)
-            if psize and (not field.is_output()
-                          or len([x for x in value
-                                  if x in ('', undefined, None)]) == 0):
-                if size is None:
-                    size = psize
-                elif size != psize:
-                    size_error = True
-                    break
-                if field.is_output():
-                    if no_output_value is None:
-                        no_output_value = False
-                    elif no_output_value:
-                        size_error = True
-                        break
+            if size is None:
+                size = psize
             else:
-                if field.is_output():
-                    if no_output_value is None:
-                        no_output_value = True
-                    elif not no_output_value:
-                        size_error = True
-                        break
-                else:
-                    if size is None:
-                        size = psize
-                    elif size != psize:
-                        size_error = True
-                        break
-
-        if size_error:
-            raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
-        if size == 0:
+                if size != psize:
+                   raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
+        if size is None:
             return
-
-        for parameter in self.regular_parameters:
-            setattr(self.process, parameter, getattr(self, parameter))
+        # for parameter in self.regular_parameters:
+        #     setattr(self.process, parameter, getattr(self, parameter))
         for iteration in range(size):
             for parameter in self.iterative_parameters:
                 values = getattr(self, parameter, undefined)

@@ -71,7 +71,7 @@ class LocalEngine:
         return result
 
     def execution_context(self, executable):
-        execution_context = ExecutionContext()
+        execution_context = ExecutionContext(executable=executable)
         for name, cfg in getattr(self.config, 'dataset', {}).items():
             setattr(execution_context.dataset, name, Dataset(path=cfg.path, metadata_schema=cfg.metadata_schema))
         for module_name, requirements in self.executable_requirements(executable).items():

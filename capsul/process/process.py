@@ -183,6 +183,21 @@ class Process(Node):
         '''
         raise NotImplementedError(f'The execute() method is not implemented for process {self.definition}')
 
+    def resolve_path_value(self, value, execution_context):
+        if isinstance(value, list):
+            return [self.resolve_path_value(i, execution_context) for i in value]
+        elif isinstance(value, str) and value.startswith('!'):
+            return eval(f"f'{value[1:]}'", 
+                execution_context.__dict__, 
+                execution_context.__dict__)
+        return value
+
+    def resolve_paths(self, execution_context):
+        for field in self.user_fields():
+            if field.path_type:
+                value = getattr(self, field.name, None)
+                if value:
+                    setattr(self, field.name, self.resolve_path_value(value, execution_context))
 
 class FileCopyProcess(Process):
     """ A specific process that copies all the input files.

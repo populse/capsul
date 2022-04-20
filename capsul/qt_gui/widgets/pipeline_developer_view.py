@@ -40,9 +40,7 @@ import soma.subprocess
 import distutils.spawn
 import importlib
 import sys
-import types
 import inspect
-import six
 import json
 import io
 import traceback
@@ -60,7 +58,7 @@ from capsul.api import Switch, OptionalOutputSwitch, Capsul, executable
 from capsul.pipeline import pipeline_tools
 from capsul.api import Pipeline
 from capsul.api import Process
-from capsul import process_instance
+from capsul.application import get_node_class, is_executable
 from capsul.pipeline.pipeline_nodes import Node
 from soma.qt_gui.qt_backend.Qt import QGraphicsView
 from capsul.qt_gui.widgets.pipeline_file_warning_widget \
@@ -265,7 +263,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.style = 'default'
         self.name = name
         #print('GNode userlevel:', self.userlevel)
-        #print([(pname, param) for pname, param in six.iteritems(parameters)
+        #print([(pname, param) for pname, param in parameters.items()
              #if not getattr(param, 'hidden', False)
              #and (getattr(param, 'userlevel', None) is None
                   #or param.userlevel <= self.userlevel)]
@@ -313,7 +311,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         selects = pipeline.get_processes_selections()
         for sel_plug in selects:
             groups = pipeline.get_processes_selection_groups(sel_plug)
-            for group, nodes in six.iteritems(groups):
+            for group, nodes in groups.items():
                 if name in nodes:
                     my_labels.append('select: %s' % sel_plug)
 
@@ -627,7 +625,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         else:
             selections = []
 
-        for in_param, pipeline_plug in six.iteritems(self.parameters):
+        for in_param, pipeline_plug in self.parameters.items():
             output = (not pipeline_plug.output if self.name in (
                 'inputs', 'outputs') else pipeline_plug.output)
             if output or (not self.show_opt_inputs and pipeline_plug.optional):
@@ -658,7 +656,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             pos = pos + param_name.boundingRect().size().height()
 
         pos = pos0
-        for out_param, pipeline_plug in six.iteritems(self.parameters):
+        for out_param, pipeline_plug in self.parameters.items():
             output = (not pipeline_plug.output if self.name in (
                 'inputs', 'outputs') else pipeline_plug.output)
             if not output or (not self.show_opt_outputs and pipeline_plug.optional):
@@ -708,7 +706,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         has_input = False
         has_output = False
 
-        for in_param, pipeline_plug in six.iteritems(self.parameters):
+        for in_param, pipeline_plug in self.parameters.items():
             output = (not pipeline_plug.output if self.name in (
                 'inputs', 'outputs') else pipeline_plug.output)
             if output:
@@ -791,7 +789,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
     def clear_plugs(self):
         for plugs, params in ((self.in_plugs, self.in_params),
                               (self.out_plugs, self.out_params)):
-            for plug_name, plug in six.iteritems(plugs):
+            for plug_name, plug in plugs.items():
                 param_item = params[plug_name]
                 self.scene().removeItem(param_item)
                 self.scene().removeItem(plug)
@@ -936,7 +934,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         no = 0
         bottom_pos = 0
         if param_item:
-            for param_name, pipeline_plug in six.iteritems(self.parameters):
+            for param_name, pipeline_plug in self.parameters.items():
                 output = (not pipeline_plug.output if self.name in (
                     'inputs', 'outputs') else pipeline_plug.output)
                 if output:
@@ -1027,7 +1025,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self._set_brush()
         self.box_title.setBrush(self.title_brush)
         self.box.setBrush(self.bg_brush)
-        for param, pipeline_plug in six.iteritems(self.parameters):
+        for param, pipeline_plug in self.parameters.items():
             output = (not pipeline_plug.output if self.name in (
                 'inputs', 'outputs') else pipeline_plug.output)
             if output:
@@ -1070,7 +1068,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             to_remove = []
 
             # Added to choose to visualize optional parameters
-            for param, pipeline_plug in six.iteritems(self.parameters):
+            for param, pipeline_plug in self.parameters.items():
                 output = (not pipeline_plug.output if self.name in (
                     'inputs', 'outputs') else pipeline_plug.output)
                 if output:
@@ -1182,7 +1180,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         pos = margin * 2 + self.title.boundingRect().size().height()
         opos = param_width \
                + self.embedded_subpipeline.boundingRect().width()  # + margin ?
-        for name, param in six.iteritems(self.out_params):
+        for name, param in self.out_params.items():
             param.setPos(opos, param.pos().y())
             plug = self.out_plugs[name]
             plug.setPos(opos + margin + param.boundingRect().size().width(),
@@ -1195,7 +1193,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
     def resize_subpipeline_on_hide(self):
         margin = 5
-        for name, param in six.iteritems(self.out_params):
+        for name, param in self.out_params.items():
             plug = self.out_plugs[name]
             param.setPos(plug.boundingRect().width() + margin, param.pos().y())
             plug.setPos(plug.boundingRect().size().width() + margin +
@@ -1210,7 +1208,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         margin = 5
         width = 0
         pwidth = 0
-        for param_name, param in six.iteritems(self.in_params):
+        for param_name, param in self.in_params.items():
             if param.boundingRect().width() > width:
                 width = param.boundingRect().width()
             if pwidth == 0:
@@ -1220,7 +1218,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
     def out_params_width(self):
         width = 0
-        for param_name, param in six.iteritems(self.out_params):
+        for param_name, param in self.out_params.items():
             if param.boundingRect().width() > width:
                 width = param.boundingRect().width()
         return width
@@ -1705,13 +1703,13 @@ class PipelineScene(QtGui.QGraphicsScene):
             del self.glinks[new_source_dest]
 
     def update_paths(self, regions=[]):
-        for name, i in six.iteritems(self.gnodes):
+        for name, i in self.gnodes.items():
             self.pos[i.name] = i.pos()
             br = i.box.boundingRect()
             self.dim[i.name] = (br.width(), br.height())
 
         dropped = []
-        for source_dest, glink in six.iteritems(self.glinks):
+        for source_dest, glink in self.glinks.items():
             source, dest = source_dest
             source_gnode_name, source_param = source
             dest_gnode_name, dest_param = dest
@@ -1736,7 +1734,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         pipeline_inputs = SortedDictionary()
         pipeline_outputs = SortedDictionary()
         if pipeline is not None:
-            for name, plug in six.iteritems(pipeline.nodes[''].plugs):
+            for name, plug in pipeline.nodes[''].plugs.items():
                 if plug.output:
                     pipeline_outputs[name] = plug
                 else:
@@ -1749,7 +1747,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                         colored_parameters=self.colored_parameters,
                         logical_view=self.logical_view,
                         userlevel=self.userlevel))
-            for node_name, node in six.iteritems(pipeline.nodes):
+            for node_name, node in pipeline.nodes.items():
                 if not node_name:
                     continue
                 self.add_node(node_name, node)
@@ -1762,9 +1760,9 @@ class PipelineScene(QtGui.QGraphicsScene):
                         logical_view=self.logical_view,
                         userlevel=self.userlevel))
 
-            for source_node_name, source_node in six.iteritems(pipeline.nodes):
+            for source_node_name, source_node in pipeline.nodes.items():
                 for source_parameter, source_plug \
-                        in six.iteritems(source_node.plugs):
+                        in source_node.plugs.items():
                     for (dest_node_name, dest_parameter, dest_node, dest_plug,
                         weak_link) in source_plug.links_to:
                         if dest_node is pipeline.nodes.get(dest_node_name):
@@ -1790,7 +1788,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         removed_nodes = []
 
         #         print(self.gnodes)
-        for node_name, gnode in six.iteritems(self.gnodes):
+        for node_name, gnode in self.gnodes.items():
             removed = False
             if gnode.logical_view:
                 gnode.clear_plugs()
@@ -1800,7 +1798,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                 # in case fields have been added/removed
                 if node_name == 'inputs':
                     pipeline_inputs = SortedDictionary()
-                    for name, plug in six.iteritems(node.plugs):
+                    for name, plug in node.plugs.items():
                         if not plug.output:
                             field = node.field(name)
                             if not getattr(field, 'hidden', False) \
@@ -1816,7 +1814,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                         removed = True
                 else:
                     pipeline_outputs = SortedDictionary()
-                    for name, plug in six.iteritems(node.plugs):
+                    for name, plug in node.plugs.items():
                         if plug.output:
                             field = node.field(name)
                             if not getattr(field, 'hidden', False) \
@@ -1854,11 +1852,11 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         # check for added nodes
         added_nodes = []
-        for node_name, node in six.iteritems(pipeline.nodes):
+        for node_name, node in pipeline.nodes.items():
             if node_name == '':
                 pipeline_inputs = SortedDictionary()
                 pipeline_outputs = SortedDictionary()
-                for name, plug in six.iteritems(node.plugs):
+                for name, plug in node.plugs.items():
                     if plug.output:
                         pipeline_outputs[name] = plug
                     else:
@@ -1889,7 +1887,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         # links
         to_remove = []
-        for source_dest, glink in six.iteritems(self.glinks):
+        for source_dest, glink in self.glinks.items():
             source, dest = source_dest
             source_node_name, source_param = source
             dest_node_name, dest_param = dest
@@ -1927,9 +1925,9 @@ class PipelineScene(QtGui.QGraphicsScene):
         for source_dest in to_remove:
             self._remove_link(source_dest)
         # check added links
-        for source_node_name, source_node in six.iteritems(pipeline.nodes):
+        for source_node_name, source_node in pipeline.nodes.items():
             for source_parameter, source_plug \
-                    in six.iteritems(source_node.plugs):
+                    in source_node.plugs.items():
                 for (dest_node_name, dest_parameter, dest_node, dest_plug,
                      weak_link) in source_plug.links_to:
                     if dest_node is pipeline.nodes.get(dest_node_name):
@@ -1948,7 +1946,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         steps = pipeline.pipeline_steps
         if steps is None:
             return
-        for node_name, node in six.iteritems(pipeline.nodes):
+        for node_name, node in pipeline.nodes.items():
             gnode = self.gnodes.get(node_name)
             if gnode is None:
                 continue
@@ -1962,7 +1960,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         pipeline = self.pipeline
         # nodes state
         removed_nodes = []
-        for node_name, gnode in six.iteritems(self.gnodes):
+        for node_name, gnode in self.gnodes.items():
             if not gnode.logical_view:
                 gnode.clear_plugs()
                 gnode.logical_view = True
@@ -1985,11 +1983,11 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         # check for added nodes
         added_nodes = []
-        for node_name, node in six.iteritems(pipeline.nodes):
+        for node_name, node in pipeline.nodes.items():
             if node_name == '':
                 pipeline_inputs = SortedDictionary()
                 pipeline_outputs = SortedDictionary()
-                for name, plug in six.iteritems(node.plugs):
+                for name, plug in node.plugs.items():
                     if plug.output:
                         pipeline_outputs['outputs'] = plug
                     else:
@@ -2020,13 +2018,13 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         # links
         # delete all links
-        for source_dest, glink in six.iteritems(self.glinks):
+        for source_dest, glink in self.glinks.items():
             self.removeItem(glink)
         self.glinks = {}
         # recreate links
-        for source_node_name, source_node in six.iteritems(pipeline.nodes):
+        for source_node_name, source_node in pipeline.nodes.items():
             for source_parameter, source_plug \
-                    in six.iteritems(source_node.plugs):
+                    in source_node.plugs.items():
                 for (dest_node_name, dest_parameter, dest_node, dest_plug,
                      weak_link) in source_plug.links_to:
                     if dest_node is pipeline.nodes.get(dest_node_name):
@@ -2271,7 +2269,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             return
         item = self.itemAt(event.scenePos(), Qt.QTransform())
         if isinstance(item, Link):
-            for source_dest, glink in six.iteritems(self.glinks):
+            for source_dest, glink in self.glinks.items():
                 if glink is item:
                     text = self.link_tooltip_text(source_dest)
                     item.setToolTip(text)
@@ -2279,12 +2277,12 @@ class PipelineScene(QtGui.QGraphicsScene):
         elif isinstance(item, Plug):
             node = self._parentgnode(item)
             found = False
-            for name, plug in six.iteritems(node.in_plugs):
+            for name, plug in node.in_plugs.items():
                 if plug is item:
                     found = True
                     break
             if not found:
-                for name, plug in six.iteritems(node.out_plugs):
+                for name, plug in node.out_plugs.items():
                     if plug is item:
                         found = True
                         break
@@ -2317,7 +2315,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             return
         todel = set()
         import sip
-        for link, glink in six.iteritems(self.glinks):
+        for link, glink in self.glinks.items():
             if link[0][0] == node_name or link[1][0] == node_name:
                 self.removeItem(glink)
                 todel.add(link)
@@ -2330,7 +2328,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     def _link_right_clicked(self, link):
         # find the link in list
         # print('Scene._link_right_clicked:', link)
-        for source_dest, glink in six.iteritems(self.glinks):
+        for source_dest, glink in self.glinks.items():
             if glink is link:
                 self.link_right_clicked.emit(
                     source_dest[0][0], source_dest[0][1],
@@ -2338,7 +2336,7 @@ class PipelineScene(QtGui.QGraphicsScene):
                 break
 
     def _link_keydelete_clicked(self, link):
-        for source_dest, glink in six.iteritems(self.glinks):
+        for source_dest, glink in self.glinks.items():
             if glink is link:
                 self.link_keydelete_clicked.emit(
                     source_dest[0][0], source_dest[0][1],
@@ -2478,7 +2476,7 @@ class PipelineDeveloperView(QGraphicsView):
         ''' A specialized QLineEdit with completion for process name
         '''
         def __init__(self, parent=None,
-                     class_type_check=process_instance.is_process):
+                     class_type_check=is_executable):
             super(PipelineDeveloperView.ProcessNameEdit,
                   self).__init__(parent)
             self.compl = QtGui.QCompleter([])
@@ -2506,7 +2504,7 @@ class PipelineDeveloperView(QGraphicsView):
         def get_processes_or_modules(self, filename):
             file_dict = self.load_py(filename)
             processes = []
-            for name, item in six.iteritems(file_dict):
+            for name, item in file_dict.items():
                 if self.class_type_check(item) or inspect.ismodule(item):
                     processes.append(name)
             return processes
@@ -2530,7 +2528,7 @@ class PipelineDeveloperView(QGraphicsView):
                         paths = [os.path.dirname(mod.__file__)]
                     # add process/pipeline objects in current_mod
                     procs = [item for k, item
-                             in six.iteritems(mod.__dict__)
+                             in mod.__dict__.items()
                              if self.class_type_check(item)
                              or inspect.ismodule(item)]
                     compl.update(['.'.join([current_mod, c.__name__])
@@ -2699,9 +2697,9 @@ class PipelineDeveloperView(QGraphicsView):
         if self.scene:
             pos = self.scene.pos
             dim = self.scene.dim #add by Irmage OM
-            # pprint(dict((i, (j.x(), j.y())) for i, j in six.iteritems(pos)))
+            # pprint(dict((i, (j.x(), j.y())) for i, j in pos.items()))
         if hasattr(pipeline, 'node_position'):
-            for i, j in six.iteritems(pipeline.node_position):
+            for i, j in pipeline.node_position.items():
                 if isinstance(j, QtCore.QPointF):
                     pos[i] = j
                 else:
@@ -2709,7 +2707,7 @@ class PipelineDeveloperView(QGraphicsView):
         
         ############### add by Irmage OM #######################
         if hasattr(pipeline, 'node_dimension'):
-            for i, j in six.iteritems(pipeline.node_dimension):
+            for i, j in pipeline.node_dimension.items():
                 if isinstance(j, QtCore.QPointF):
                     dim[i] = (j.x(), j.y())
                 else:
@@ -2908,9 +2906,9 @@ class PipelineDeveloperView(QGraphicsView):
 
             #             print("background clicked")
 
-            for source_dest, glink in six.iteritems(self.scene.glinks):
+            for source_dest, glink in self.scene.glinks.items():
                 glink.fonced_viewer(False)
-            for node_name, gnode in six.iteritems(self.scene.gnodes):
+            for node_name, gnode in self.scene.gnodes.items():
                 gnode.fonced_viewer(False)
 
     def mouseReleaseEvent(self, event):
@@ -3096,7 +3094,6 @@ class PipelineDeveloperView(QGraphicsView):
     def open_node_menu(self, node_name, process):
         """ right-click popup menu for nodes
         """
-        node_name = six.text_type(node_name)  # in case it is a QString
         node_type = 'process'
         if isinstance(process, OptionalOutputSwitch):
             node_type = 'opt. output switch'
@@ -3287,14 +3284,14 @@ class PipelineDeveloperView(QGraphicsView):
         # print(self.current_node_name)
         # print(gnode.in_plugs)
 
-        # for source_dest, link in six.iteritems(self.scene.glinks):
+        # for source_dest, link in self.scene.glinks.items():
         #     print(source_dest,",",self.current_node_name in str(source_dest))
 
 
         # The show_opt_inputs attribute is not changed yet
         if gnode.show_opt_inputs:
             # Verifying that the plugs are not connected to another node
-            for param, pipeline_plug in six.iteritems(gnode.parameters):
+            for param, pipeline_plug in gnode.parameters.items():
                 # print(param," : ",pipeline_plug.activated)
                 output = (not pipeline_plug.output if gnode.name in (
                     'inputs', 'outputs') else pipeline_plug.output)
@@ -3333,7 +3330,7 @@ class PipelineDeveloperView(QGraphicsView):
         # The show_opt_outputs attribute is not changed yet
         if gnode.show_opt_outputs:
             # Verifying that the plugs are not connected to another node
-            for param, pipeline_plug in six.iteritems(gnode.parameters):
+            for param, pipeline_plug in gnode.parameters.items():
                 output = (not pipeline_plug.output if gnode.name in (
                     'inputs', 'outputs') else pipeline_plug.output)
                 if output:
@@ -3554,7 +3551,7 @@ class PipelineDeveloperView(QGraphicsView):
         nodes_sizes = dict([(name,
                              (gnode.boundingRect().width(),
                               gnode.boundingRect().height()))
-                            for name, gnode in six.iteritems(scene.gnodes)])
+                            for name, gnode in scene.gnodes.items()])
         dgraph = pipeline_tools.dot_graph_from_pipeline(
             scene.pipeline, nodes_sizes=nodes_sizes)
         tfile, tfile_name = tempfile.mkstemp()
@@ -3573,18 +3570,18 @@ class PipelineDeveloperView(QGraphicsView):
             nodes_pos = self._read_dot_pos(toutfile_name)
 
             rects = dict([(name, node.boundingRect())
-                          for name, node in six.iteritems(scene.gnodes)])
+                          for name, node in scene.gnodes.items()])
             pos = dict([(name, (-rects[name].width() / 2 + pos[0] * scale,
                                 -rects[name].height() / 2 - pos[1] * scale))
                         for id, name, pos in nodes_pos])
-            minx = min([x[0] for x in six.itervalues(pos)])
-            miny = min([x[1] for x in six.itervalues(pos)])
+            minx = min([x[0] for x in pos.values()])
+            miny = min([x[1] for x in pos.values()])
             pos = dict([(name, (p[0] - minx, p[1] - miny))
-                        for name, p in six.iteritems(pos)])
+                        for name, p in pos.items()])
             #         print('pos:')
             #         print(pos)
             scene.pos = pos
-            for node, position in six.iteritems(pos):
+            for node, position in pos.items():
                 gnode = scene.gnodes[node]
                 if isinstance(position, Qt.QPointF):
                     gnode.setPos(position)
@@ -3664,7 +3661,7 @@ class PipelineDeveloperView(QGraphicsView):
 #         if dim is not None:
 #             scene.dim = dim
 #             print()
-#             for node, dimension in six.iteritems(dim):
+#             for node, dimension in dim.items():
 #                 gnode = scene.gnodes.get(node)
 #                 if gnode is not None:
 #                     if isinstance(dimension, QtCore.QPointF):
@@ -3677,7 +3674,7 @@ class PipelineDeveloperView(QGraphicsView):
         pos = getattr(scene.pipeline, 'node_position')
         if pos is not None:
             scene.pos = pos
-            for node, position in six.iteritems(pos):
+            for node, position in pos.items():
                 gnode = scene.gnodes.get(node)
                 if gnode is not None:
                     if isinstance(position, QtCore.QPointF):
@@ -3696,7 +3693,7 @@ class PipelineDeveloperView(QGraphicsView):
             return p
 
         posdict = dict([(key, conv_pos(value)) \
-                        for key, value in six.iteritems(self.scene.pos)])
+                        for key, value in self.scene.pos.items()])
         pprint(posdict)
 
     def del_node(self, node_name=None):
@@ -3713,12 +3710,12 @@ class PipelineDeveloperView(QGraphicsView):
             if node_name == 'inputs':
                 plugs = [name
                          for name, plug in
-                            six.iteritems(pipeline.pipeline_node.plugs)
+                            pipeline.pipeline_node.plugs.items()
                          if not plug.output]
             else:
                 plugs = [name
                          for name, plug in
-                            six.iteritems(pipeline.pipeline_node.plugs)
+                            pipeline.pipeline_node.plugs.items()
                          if plug.output]
             for plug in plugs:
                 self.scene.pipeline.remove_field(plug)
@@ -3932,7 +3929,7 @@ class PipelineDeveloperView(QGraphicsView):
 
     class ProcessModuleInput(QtGui.QDialog):
         def __init__(self, display_str='process module/name',
-                     class_type_check=process_instance.is_process):
+                     class_type_check=is_executable):
             super(PipelineDeveloperView.ProcessModuleInput, self).__init__()
             self.setWindowTitle('%s:' % display_str)
             layout = QtGui.QGridLayout(self)
@@ -3963,7 +3960,7 @@ class PipelineDeveloperView(QGraphicsView):
 
         res = proc_name_gui.exec_()
         if res:
-            proc_module = six.text_type(proc_name_gui.proc_line.text())
+            proc_module = str(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
             self.add_named_process(proc_module, node_name)
 
@@ -3971,7 +3968,7 @@ class PipelineDeveloperView(QGraphicsView):
             pipeline = self.scene.pipeline
 
             if not node_name:
-                if isinstance(proc_module, six.string_types):
+                if isinstance(proc_module, str):
                     class_name = proc_module
                 else:
                     class_name = proc_module.__name__
@@ -4016,7 +4013,7 @@ class PipelineDeveloperView(QGraphicsView):
 
         res = node_name_gui.exec_()
         if res:
-            node_module = six.text_type(node_name_gui.proc_line.text())
+            node_module = str(node_name_gui.proc_line.text())
             node_name = str(node_name_gui.name_line.text())
             self.add_named_node(node_name, node_module)
 
@@ -4044,7 +4041,7 @@ class PipelineDeveloperView(QGraphicsView):
                 return None
 
         def get_node_instance(class_str, pipeline):
-            cls_and_name = process_instance.get_node_class(class_str)
+            cls_and_name = get_node_class(class_str)
             if cls_and_name is None:
                 return None
             name, cls = cls_and_name
@@ -4134,11 +4131,11 @@ class PipelineDeveloperView(QGraphicsView):
 
         res = proc_name_gui.exec_()
         if res:
-            proc_module = six.text_type(proc_name_gui.proc_line.text())
+            proc_module = str(proc_name_gui.proc_line.text())
             node_name = str(proc_name_gui.name_line.text())
             try:
                 process = executable(
-                    six.text_type(proc_name_gui.proc_line.text()))
+                    str(proc_name_gui.proc_line.text()))
             except Exception as e:
                 print(e)
                 return
@@ -4285,7 +4282,7 @@ class PipelineDeveloperView(QGraphicsView):
         if isinstance(item, Link):
             # look for its dest plug
             plug = None
-            for source_dest, link in six.iteritems(self.scene.glinks):
+            for source_dest, link in self.scene.glinks.items():
                 if link is item:
                     plug = source_dest[1]
                     break
@@ -4531,14 +4528,14 @@ class PipelineDeveloperView(QGraphicsView):
 
     def _node_clicked_ctrl(self, name, process):
 
-        for source_dest, glink in six.iteritems(self.scene.glinks):
+        for source_dest, glink in self.scene.glinks.items():
             glink.fonced_viewer(False)
             #             print("source-dest ",source_dest)
             if name not in str(source_dest):
                 glink.fonced_viewer(True)
         #             else:
         #                 print(source_dest[0])
-        for node_name, gnode in six.iteritems(self.scene.gnodes):
+        for node_name, gnode in self.scene.gnodes.items():
             #             print("    node_name",node_name)
             gnode.fonced_viewer(False)
             if name not in str(node_name):
@@ -4569,7 +4566,7 @@ class PipelineDeveloperView(QGraphicsView):
 
     def _plug_right_clicked(self, name):
 
-        for node_name, gnode in six.iteritems(self.scene.gnodes):
+        for node_name, gnode in self.scene.gnodes.items():
             if node_name in 'inputs':
                 self.inputYet = True
             if node_name in 'outputs':
@@ -4671,7 +4668,7 @@ class PipelineDeveloperView(QGraphicsView):
 
         res = dial.exec_()
         if res:
-            # for node_name, gnode in six.iteritems(self.scene.gnodes):
+            # for node_name, gnode in self.scene.gnodes.items():
             #     print("list Nodes",node_name)
             try:
                 self.scene.pipeline.export_parameter(
@@ -4732,7 +4729,7 @@ class PipelineDeveloperView(QGraphicsView):
         pipeline = self.scene.pipeline
         pnode = pipeline
         to_del = []
-        for plug_name, plug in six.iteritems(pnode.plugs):
+        for plug_name, plug in pnode.plugs.items():
             if plug.output and len(plug.links_from) == 0:
                 to_del.append(plug_name)
             elif not plug.output and len(plug.links_to) == 0:
@@ -4862,13 +4859,13 @@ class PipelineDeveloperView(QGraphicsView):
             'Compatible files (*.xml *.py);; All (*)')
         if filename:
             posdict = {}
-            for key, value in six.iteritems(self.scene.pos):
+            for key, value in self.scene.pos.items():
                 if hasattr(value, 'x'):
                     posdict[key] = (value.x(), value.y())
                 else:
                     posdict[key] = (value[0], value[1])
             dimdict = {}
-            for key, value in six.iteritems(self.scene.dim):
+            for key, value in self.scene.dim.items():
                 if hasattr(value, 'boundingRect'):
                     dimdict[key] = (value.boundingRect().width(),
                                     value.boundingRect().height())
@@ -4880,7 +4877,7 @@ class PipelineDeveloperView(QGraphicsView):
             old_dim = pipeline.node_dimension
             pipeline.node_position = posdict
             pipeline_tools.save_pipeline(pipeline, filename)
-            self._pipeline_filename = six.text_type(filename)
+            self._pipeline_filename = str(filename)
             pipeline.node_position = old_pos
             pipeline.node_dimension = old_dim
 

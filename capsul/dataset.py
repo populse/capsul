@@ -400,7 +400,7 @@ def generate_paths(executable, context, debug=False):
                     if target_list_size is not None and target_list_size != l:
                         raise ValueError('Lists of different sizes given to generate paths')
                     target_list_size = l
-    source_metadatas = ([{}] if target_list_size is None else [{}] * target_list_size)
+    source_metadatas = ([{}] if target_list_size is None else [{'list_index': i} for i in range(target_list_size)])
     dprint(f'target schema = {target_schema_name}')
     dprint(f'target list size = {target_list_size}')
     dprint(f'global_metadata = {global_metadata}')
@@ -420,6 +420,7 @@ def generate_paths(executable, context, debug=False):
             mapping = None
         for list_index in ((None,) if target_list_size is None else range(target_list_size)):
             merged_metadata = source_metadatas[(0 if list_index is None else list_index)]
+            dprint(f'list_index: {list_index}: {merged_metadata}')
             for field in source_fields:
                 path = getattr(executable, field.name)
                 if isinstance(path, list):
@@ -437,6 +438,7 @@ def generate_paths(executable, context, debug=False):
                             merged_metadata[k] = undefined
                     else:
                         merged_metadata[k] = v
+                dprint(f'merged metadata -> {merged_metadata}')
 
     for field in target_fields:
         inner_item = next(executable.get_linked_items(
@@ -451,19 +453,30 @@ def generate_paths(executable, context, debug=False):
             target_metadata = dict((k, v) for k, v in source_metadata.items() if v is not undefined)
             dprint(f'for {field.name}: source_metadata = {target_metadata}')
             target_metadata.update(global_metadata)
-            field_metadata = getattr(
-                executable, 'metadata_schema', {}).get(target_schema_name,
-                    {}).get(field.name)
-            if field_metadata is None and inner_field:
-                field_metadata = getattr(
-                    inner_process, 'metadata_schema',
-                    {}).get(target_schema_name, {}).get(inner_field.name)
+            field_metadata = {}
+            if inner_field:
+                inner_metadata_schema = getattr(inner_process, 'metadata_schema',
+                    {}).get(target_schema_name, {})
+                field_metadata.update(inner_metadata_schema.get('*', {}))
+                field_metadata.update(inner_metadata_schema.get(inner_field.name, {}))
+            outer_metadata_schema = getattr(executable, 'metadata_schema',
+             {}).get(target_schema_name,{})
+            field_metadata.update(outer_metadata_schema.get('*', {}))
+            field_metadata.update(outer_metadata_schema.get(field.name, {}))
             dprint(f'for {field.name}: field_metadata = {field_metadata}')
             if field_metadata:
                 target_metadata.update(field_metadata)
             dprint(f'for {field.name}: target_metadata = {target_metadata}')
-            schema = target_schema(f'{{dataset.{dataset_name_per_field[field]}}}')
+            schema = target_schema(f'{{dataset.{dataset_name_per_field[field]}.path}}')
+            d = None
             for k, v in target_metadata.items():
+                if isinstance(v, str) and v and v.startswith('!'):
+                    if d is None:
+                        d = {
+                            'list_index': source_metadata.get('list_index')
+                        }
+                        d.update(target_metadata)
+                    v = eval(f"f'{v[1:]}'", d, d)
                 setattr(schema, k, v)
             values.append('!' + str(schema.build_path()))
         if target_list_size is None:

@@ -415,3 +415,42 @@ def get_node_instance(node_type, pipeline, conf_dict=None, name=None,
         setattr(node, name, value)
 
     return node
+
+_interface = None
+_nipype_loaded = False
+
+def _get_interface_class():
+    '''
+    returns the nypype Interface type, or a custom type if it cannot be
+    imported.
+    We use this function on demand because importing nipype is long (it
+    sometimes takes several seconds) and it's not always needed.
+    We don't really import nipype, but use sys.modules to get it instead,
+    because here we only use Interface to check if a given object is an
+    instance of Interface.
+    '''
+    global _interface, _nipype_loaded
+    if _interface is not None and _nipype_loaded:
+        return _interface
+    if not _nipype_loaded:
+        # Nipype import
+        nipype = sys.modules.get('nipype.interfaces.base')
+        if nipype is None:
+            _interface = type("Interface", (object, ), {})
+        else:
+            _interface = getattr(nipype, 'Interface')
+            _nipype_loaded = True
+    return _interface
+
+def is_executable(item):
+    """ Check if the input item is a process class or function with annotations
+    """
+    Interface = _get_interface_class()
+    if inspect.isclass(item) and item not in (Pipeline, Process) \
+            and (issubclass(item, Process) or issubclass(item, Interface)):
+        return True
+    if not inspect.isfunction(item):
+        return False
+    if hasattr(item, '__annotations__'):
+        return True
+    return False
