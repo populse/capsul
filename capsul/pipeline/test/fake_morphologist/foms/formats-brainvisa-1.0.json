@@ -1,0 +1,18 @@
+{
+  "fom_name" : "formats-brainvisa-1.0",
+
+  "fom_import": ["brainvisa-formats-3.2.0"],
+
+  "formats" : {
+    "JSON file": "json",
+    "Deep model file": "mdsm"
+  },
+
+
+  "format_lists" : {
+    "images" : [ "gz compressed NIFTI-1 image", "GIS image", "MINC image", "SPM image", "NIFTI-1 image"],
+    "label translations" : [ "Label Translation", "DEF Label Translation" ],
+    "mesh" : ["GIFTI file", "MESH mesh", "PLY mesh"]
+  }
+
+}

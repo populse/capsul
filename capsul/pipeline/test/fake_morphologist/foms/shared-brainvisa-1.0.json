@@ -1,0 +1,53 @@
+{
+    "fom_name" : "shared-brainvisa-1.0",
+
+    "fom_import": ["formats-brainvisa-1.0", "brainvisa-formats-3.2.0"],
+
+    "shared_patterns" : {
+        "shared.anatomical_templates" :
+            [["shared:anatomical_templates/MNI152_T1_1mm", "images"],
+                ["shared:anatomical_templates/MNI152_T1_2mm", "images"],
+                ["shared:anatomical_templates/MNI152_T1_1mm_brain", "NIFTI-1 image"],
+                ["shared:anatomical_templates/MNI152_T1_2mm_brain", "NIFTI-1 image"]
+            ],
+        "shared.anatomical_template_t1":
+            [["shared:anatomical_templates/MNI152_T1_2mm", "gz compressed NIFTI-1 image"]],
+        "shared.anatomical_template_t1_skull_stripped":
+            [["shared:anatomical_templates/MNI152_T1_2mm_brain", "NIFTI-1 image"]],
+        "shared.mni_spm_referential" :
+            [["shared:registration/Talairach-MNI_template-SPM", "Referential"]],
+        "shared.acpc_referential" :
+            [["shared:registration/Talairach-AC_PC-Anatomist", "Referential"]],
+        "shared.talairach_TO_spm_transform" :
+            [["shared:transformation/talairach_TO_spm_template_novoxels","Transformation matrix"]],
+        "shared.surface_referential_translation_map" :
+            [["shared:nomenclature/surfaceanalysis/surfaceReferential", "label translations"]],
+        "shared.sulci_labels_translation_map" :
+            [["shared:nomenclature/translation/sulci_model_<sulci_database>", "label translations", {"sulci_database": "2008"}]],
+        "shared.split_template":
+            [["shared:hemitemplate/closedvoronoi", "GIS image"]],
+        "spam_models":
+            "models/models_<sulci_database>/descriptive_models",
+        "spam_labels_priors":
+            "{spam_models}/labels_priors/frequency_segments_priors_<side>/frequency_segments_priors",
+        "spam_models_segments":
+            "{spam_models}/segments/<sulci_segments_model_type>_<side>",
+        "spam_distribs" :
+            "{spam_models_segments}/spam_distribs" ,
+        "spam_direction_priors":
+            "{spam_models_segments}/bingham_direction_trm_priors",
+        "spam_angle_priors":
+            "{spam_models_segments}/vonmises_angle_trm_priors",
+        "spam_translation_priors":
+            "{spam_models_segments}/gaussian_translation_trm_priors",
+        "spam_local_referentials":
+            "{spam_models_segments}/local_referentials",
+        "spam_segments_relations_model":
+            "{spam_models}/segments_relations/mindist_relations_<side>/gamma_exponential_mixture_distribs",
+        "sulci_recognition_ann_model":
+            "models/models_<sulci_database>/discriminative_models/<graph_version>/<side>folds_noroots/<side>folds_noroots",
+        "shared.sulcal_morphometry_sulci_file":
+            [["shared:nomenclature/translation/sulci_default_list", "JSON file"]],
+    }
+}
+  
