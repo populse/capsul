@@ -72,3 +72,8 @@ To use it:
 
 3. Completion should be available in the pipeline, and it should be able to run.
   Running it is fast (every process just writes a few text lines in output files, just to check that it has run and has been able to create output files).
+
+  Notes about completion in Morphologist / Fake Morphologist:
+
+  - The completion uses the FOM system. It uses attributes which are available in the ``Attributes`` part of parameters controllers GUIs. 2 main attributes are required: ``center`` and ``subject``.
+  - If the importation step needs to be used (if the main input is not organised in a brainvisa / morphologist database), then the main ``t1mri`` input has to be filled manually. In controllers GUIs (in MIA for instance), you need to check the "show completion" box on the right at the beginning of non-attribute parameters, then to enter a value for the ``t1mri`` parameter (it's OK to use the MIA ``Filter`` button and select it in the Mia database).
