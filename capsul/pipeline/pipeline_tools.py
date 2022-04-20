@@ -1403,7 +1403,7 @@ def trait_str(trait, with_att=True):
     from soma.controller.trait_utils import trait_ids
 
     tid = trait_ids(trait)
-    return str_from_trait_id(tid, True)
+    return str_from_trait_id(tid, with_att)
 
 
 def write_fake_process(process, filename, sleep_time=0):
@@ -1425,14 +1425,16 @@ class %s(Process):
 ''' % (process.__class__.__name__, process.__class__.__name__, process.name))
 
         for name, trait in process.user_traits().items():
-            t_str = trait_str(trait)
+            t_str = trait_str(trait, False)[:-1]
             meta = {k: v for k, v in trait.__dict__.items()
-                    if k not in {'type', }}
+                    if k not in {'type', 'trait'}}
             meta_str = ''
             if meta:
-                meta_str = ', ' + ', '.join('%s=%s' % (k, repr(v))
-                                            for k, v in meta.items())
-            f.write('        self.add_trait("%s", %s%s)\n'
+                meta_str = ', '.join('%s=%s' % (k, repr(v))
+                                     for k, v in meta.items())
+                if not t_str.endswith('('):
+                    meta_str = ', ' + meta_str
+            f.write('        self.add_trait("%s", %s%s))\n'
                     % (name, t_str, meta_str))
             value = getattr(process, name, traits.Undefined)
             if value is not traits.Undefined:
@@ -1481,7 +1483,6 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
     '''
 
     def replace_node(node, module_name, dirname, done):
-        return  # FIXME
         basename = node.process.__class__.__name__.lower()
         modname = '.'.join([module_name, basename])
         filename = os.path.join(dirname, '%s.py' % basename)
@@ -1494,7 +1495,7 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
         node.process = new_proc
 
     sys.path.insert(0, dirname)
-    dirname = os.path.join(dirname, module_name)
+    dirname = os.path.join(dirname, module_name.rsplit('.')[-1])
     if not os.path.exists(dirname):
         os.makedirs(dirname)
     with open(os.path.join(dirname, '__init__.py'), 'w'):
