@@ -86,47 +86,19 @@ class TestPipeline(unittest.TestCase):
             getattr(self.pipeline.nodes["node1"], 'output_image', undefined),
             undefined)
 
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_xml(self):
-        from capsul.pipeline import xml
-        temp = tempfile.mkstemp(suffix='.xml')
-        try:
-            os.close(temp[0])
-            xml.save_xml_pipeline(self.pipeline, temp[1])
-            pipeline = get_process_instance(temp[1])
-            self.assertEqual(len(pipeline.nodes), len(self.pipeline.nodes))
-            pipeline.workflow_ordered_nodes()
-            self.assertEqual(isinstance(pipeline.nodes['intermediate_out'],
-                                        OptionalOutputSwitch), True)
-            self.assertEqual(pipeline.workflow_repr, "node1->node2")
-        finally:
-            os.unlink(temp[1])
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
 
 
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
+    from soma.qt_gui.qt_backend import Qt
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
-    import sys
-    verbose = '-v' in sys.argv or '--verbose' in sys.argv
-
-    if verbose:
-        from soma.qt_gui.qt_backend import Qt
-        from capsul.qt_gui.widgets import PipelineDeveloperView
-
-        app = Qt.QApplication.instance()
-        if not app:
-            app = Qt.QApplication(sys.argv)
-        pipeline = executable(MyPipelineWithOptOut)
-        pipeline.intermediate_out = '/tmp/a_file.txt'
-        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view1.show()
-        app.exec_()
-        del view1
+    app = Qt.QApplication.instance()
+    if not app:
+        app = Qt.QApplication(sys.argv)
+    pipeline = executable(MyPipelineWithOptOut)
+    pipeline.intermediate_out = '/tmp/a_file.txt'
+    view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view1.show()
+    app.exec_()
+    del view1

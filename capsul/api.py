@@ -12,21 +12,17 @@ Classes
 * :class:`~capsul.pipeline.pipeline.Pipeline`
 * :class:`~capsul.pipeline.pipeline_nodes.Plug`
 * :class:`~capsul.pipeline.pipeline_nodes.Node`
-* :class:`~capsul.pipeline.pipeline_nodes.ProcessNode`
-* :class:`~capsul.pipeline.pipeline_nodes.PipelineNode`
 * :class:`~capsul.pipeline.pipeline_nodes.Switch`
 * :class:`~capsul.pipeline.pipeline_nodes.OptionalOutputSwitch`
 
 Functions
 ---------
 
-* :func:`~capsul.engine.capsul_engine`
-* :func:`~capsul.engine.get_process_instance`
-* :func:`~capsul.utils.finder.find_processes`
+* :func:`~capsul.debug.debug`
+* :func:`~capsul.application.executable`
 
 '''
 
-from __future__ import absolute_import
 from .debug import debug
 from .process.process import (Process, NipypeProcess,
                                     FileCopyProcess,)
