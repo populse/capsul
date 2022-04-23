@@ -8,11 +8,9 @@ import tempfile
 import unittest
 
 from soma.controller import File, field
-from soma_workflow import configuration as swconfig
 
 from capsul.api import Process, executable, Capsul
 from ...dataset import Dataset, MetadataSchema
-from capsul.attributes.attributes_schema import ProcessAttributes
 from capsul.dataset import generate_paths
 
 
@@ -86,11 +84,12 @@ def setUpModule():
         app_name = 'test_completion'
         temp_home_dir = Path(tempfile.mkdtemp(prefix='capsul_test_completion_'))
         os.environ['HOME'] = str(temp_home_dir)
-        swconfig.change_soma_workflow_directory(temp_home_dir)
         config = temp_home_dir / '.config'
         config.mkdir()
         input = temp_home_dir / 'in'
+        input.mkdir()
         output = temp_home_dir / 'out'
+        output.mkdir()
         with (config / f'{app_name}.json').open('w') as f:
             json.dump({
                 'local': {
@@ -130,13 +129,6 @@ def tearDownModule():
 
 
 class TestCompletion(unittest.TestCase):
-
-    # def tearDown(self):
-    #     swm = self.study_config.modules['SomaWorkflowConfig']
-    #     swc = swm.get_workflow_controller()
-    #     if swc is not None:
-    #         # stop workflow controller and wait for thread termination
-    #         swc.stop_engine()
 
     def test_completion(self):
         global temp_home_dir
@@ -211,103 +203,33 @@ class TestCompletion(unittest.TestCase):
                          f'{temp_home_dir}/out/DummyListProcess_result_cartoon')
 
 
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_run_iteraton_sequential(self):
-        study_config = self.study_config
-        tmp_dir = tempfile.mkdtemp(prefix='capsul_')
-        self.temps.append(tmp_dir)
+    def test_run_iteraton(self):
 
-        study_config.input_directory = os.path.join(tmp_dir, 'in')
-        study_config.output_directory = os.path.join(tmp_dir, 'out')
-        os.mkdir(study_config.input_directory)
-        os.mkdir(study_config.output_directory)
-
-        pipeline = study_config.get_iteration_pipeline(
-            'iter',
-            'dummy',
+        pipeline = Capsul().iteration_pipeline(
             'capsul.attributes.test.test_attributed_process.DummyProcess',
-            ['truc', 'bidule'])
-        cm = ProcessCompletionEngine.get_completion_engine(pipeline)
-        atts = cm.get_attribute_values()
-        atts.center = ['muppets']
-        atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
-        cm.complete_parameters()
+            iterative_plugs=['truc', 'bidule'])
+        execution_context = Capsul().engine().execution_context(pipeline)
+        subjects = ['kermit', 'piggy', 'stalter', 'waldorf']
+        generate_paths(pipeline, execution_context, metadata = [{
+                'process': 'DummyProcess',
+                'center': 'muppets',
+                'subject': i,
+            } for i in subjects])
 
         # create input files
-        for s in atts.subject:
-            with open(os.path.join(
-                    study_config.input_directory,
-                    'DummyProcess_truc_muppets_%s' % s), 'w') as f:
-                f.write('%s\n' %s)
+        for s in subjects:
+            with open(Path(execution_context.dataset.input.path) /
+                    f'DummyProcess_truc_muppets_{s}', 'w') as f:
+                f.write(f'{s}\n')
 
         # run
-        study_config.use_soma_workflow = False
-        study_config.run(pipeline)
+        with Capsul().engine() as engine:
+            engine.run(pipeline)
 
         # check outputs
-        out_files = [
-            os.path.join(
-                study_config.output_directory,
-                'DummyProcess_bidule_muppets_%s' % s) for s in atts.subject]
-        for s, out_file in zip(atts.subject, out_files):
-            self.assertTrue(os.path.isfile(out_file))
+        out_files = [Path(execution_context.dataset.output.path)
+            / f'DummyProcess_bidule_muppets_{s}' for s in subjects]
+        for s, out_file in zip(subjects, out_files):
+            self.assertTrue(out_file.is_file())
             with open(out_file) as f:
-                self.assertTrue(f.read() == '%s\n' % s)
-
-
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_run_iteraton_swf(self):
-        study_config = self.study_config
-        tmp_dir = tempfile.mkdtemp(prefix='capsul_')
-        self.temps.append(tmp_dir)
-
-        study_config.input_directory = os.path.join(tmp_dir, 'in')
-        study_config.output_directory = os.path.join(tmp_dir, 'out')
-        os.mkdir(study_config.input_directory)
-        os.mkdir(study_config.output_directory)
-
-        pipeline = study_config.get_iteration_pipeline(
-            'iter',
-            'dummy',
-            'capsul.attributes.test.test_attributed_process.DummyProcess',
-            ['truc', 'bidule'])
-        cm = ProcessCompletionEngine.get_completion_engine(pipeline)
-        atts = cm.get_attribute_values()
-        atts.center = ['muppets']
-        atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
-        cm.complete_parameters()
-
-        # create input files
-        for s in atts.subject:
-            with open(os.path.join(
-                    study_config.input_directory,
-                    'DummyProcess_truc_muppets_%s' % s), 'w') as f:
-                f.write('%s\n' %s)
-
-        #from capsul.pipeline import pipeline_workflow
-        #wf = pipeline_workflow.workflow_from_pipeline(pipeline)
-        #from soma_workflow import client as swc
-        #swc.Helper.serialize('/tmp/workflow.workflow', wf)
-
-        # run
-        study_config.use_soma_workflow = True
-        study_config.run(pipeline)
-
-        # check outputs
-        out_files = [
-            os.path.join(
-                study_config.output_directory,
-                'DummyProcess_bidule_muppets_%s' % s) for s in atts.subject]
-        for s, out_file in zip(atts.subject, out_files):
-            self.assertTrue(os.path.isfile(out_file))
-            with open(out_file) as f:
-                self.assertTrue(f.read() == '%s\n' % s)
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestCompletion)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
+                self.assertTrue(f.read() == f'{s}\n')

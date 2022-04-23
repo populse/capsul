@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import importlib
 import json
+from pathlib import Path
 import shutil
 import subprocess
 import sys
@@ -8,13 +9,15 @@ import tempfile
 import time
 
 from soma.controller import Controller, OpenKeyDictController, Directory
+from populse_db import Database
 
 from ..api import Pipeline, Process
 from ..pipeline.process_iteration import ProcessIteration
 from ..config.configuration import ModuleConfiguration
 from ..dataset import Dataset
-from ..execution_context import ExecutionContext
+from ..execution_context import ExecutionContext, ExecutionStatus
 
+        
 class LocalEngine:
     def __init__(self, label, config):
         self.label = label
@@ -99,14 +102,13 @@ class LocalEngine:
         for name, value in kwargs.items():
             setattr(executable, name, value)
         execution_context = self.execution_context(executable)
-        capsul = {
-            'status': 'submited',
-            'executable': executable.json(),
-            'execution_context': execution_context.json(),
-        }
         with tempfile.NamedTemporaryFile(dir=self.tmp,suffix='.capsul', mode='w', delete=False) as f:
-            json.dump(capsul,f)
-            f.flush()
+            with ExecutionStatus(f.name) as status:
+                status.update({
+                    'status': 'submited',
+                    'executable': executable.json(),
+                    'execution_context': execution_context.json(),
+                })
             p = subprocess.Popen(
                 [sys.executable, '-m', 'capsul.run', f.name],
                 start_new_session=True,
@@ -117,25 +119,27 @@ class LocalEngine:
             p.wait()
         return f.name
 
-    def status(self, execution_id):
+    def status(self, execution_id, keys=None):
+        if isinstance(keys, str):
+            keys = [keys]
         self.assert_connected()
-        with open(execution_id) as f:
-            return json.load(f)
+        with ExecutionStatus(execution_id) as status:
+            return status.as_dict(keys)
     
     def wait(self, execution_id):
         self.assert_connected()
-        status = self.status(execution_id)
+        status = self.status(execution_id, keys='status')
         if status['status'] == 'submited':
             for i in range(10):
                 time.sleep(0.5)
-                status = self.status(execution_id)
+                status = self.status(execution_id, keys='status')
                 if status['status'] != 'submited':
                     break
             else:
                 raise SystemError('executable too slow to start')
         while status['status'] == 'running':
             time.sleep(0.5)
-            status = self.status(execution_id)
+            status = self.status(execution_id, keys='status')
 
     def raise_for_status(self, status):
         self.assert_connected()
@@ -148,12 +152,12 @@ class LocalEngine:
                 raise RuntimeError(error)
 
     def update_executable(self, executable, status):
-        executable.import_json(status.get('executable', {}).get('parameters', {}))
+        executable.import_json(status.get('output_parameters', {}))
 
     def run(self, executable, **kwargs):
         execution_id = self.start(executable, **kwargs)
         self.wait(execution_id)
-        status = self.status(execution_id)
+        status = self.status(execution_id, keys=['error', 'error_details', 'debug_messages', 'output_parameters'])
         self.print_debug_messages(status)
         self.raise_for_status(status)
         self.update_executable(executable, status)
