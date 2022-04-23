@@ -10,6 +10,8 @@ from soma.controller import Controller, Literal, Directory
 from soma.undefined import undefined
 
 
+from capsul.api import Pipeline
+
 class MetadataSchema(Controller):
     '''Schema of metadata associated to a file in a :class:`Dataset`
 
@@ -326,7 +328,11 @@ class Dataset(Controller):
         if not self.schema:
             raise ValueError(f'Invalid metadata schema "{self.metadata_schema}" for path "{self.path}"')
 
-def generate_paths(executable, context, debug=False):
+    @classmethod
+    def register_schema(cls, name, schema):
+        cls.schemas[name] = schema
+
+def generate_paths(executable, context, metadata=None, fields=None, ignore=None, debug=False):
     def dprint(*args, **kwargs):
         if debug:
             if debug is True:
@@ -335,13 +341,25 @@ def generate_paths(executable, context, debug=False):
             else:
                 file = debug
             print('!generate_paths!', *args, **kwargs, file=file)
-    dprint()
+    if metadata is None:
+        metadata = {}
+    dprint(metadata)
     source_field_per_schema = {}
     target_field_per_schema = {}
     dataset_name_per_field = {}
-    for field in executable.fields():
-        inner_item = next(executable.get_linked_items(
-                            executable, field.name), None)
+
+    if fields is None:
+        fields = executable.user_fields()
+    else:
+        fields = (executable.field(i) for i in fields)
+    for field in fields:
+        if ignore and field.name in ignore:
+            continue
+        if isinstance(executable, Pipeline):
+            inner_item = next(executable.get_linked_items(
+                                executable, field.name), None)
+        else:
+            inner_item = None
         if inner_item is not None:
             inner_process, inner_field_name = inner_item
             path_type = inner_process.field(inner_field_name).path_type
@@ -390,7 +408,10 @@ def generate_paths(executable, context, debug=False):
         s = ', '.join(i.name for i in target_fields if not i.is_list())
         raise ValueError(f'Cannot generate paths for parameters {l} that are expecting lists ans {s} that are single paths')
 
-    target_list_size = None
+    if isinstance(metadata, (list, tuple)):
+        target_list_size = len(metadata)
+    else:
+        target_list_size = None
     if target_list_fields:
         for source_schema_name, source_fields in source_field_per_schema.items():
             for field in source_fields:
@@ -400,7 +421,10 @@ def generate_paths(executable, context, debug=False):
                     if target_list_size is not None and target_list_size != l:
                         raise ValueError('Lists of different sizes given to generate paths')
                     target_list_size = l
-    source_metadatas = ([{}] if target_list_size is None else [{'list_index': i} for i in range(target_list_size)])
+    source_metadatas = ([{'list_index': 0}] if target_list_size is None
+                        else [{'list_index': i} for i in range(target_list_size)])
+    if not isinstance(metadata, (list, tuple)):
+        metadata = [metadata] * (1 if target_list_size is None else target_list_size)
     dprint(f'target schema = {target_schema_name}')
     dprint(f'target list size = {target_list_size}')
     dprint(f'global_metadata = {global_metadata}')
@@ -441,8 +465,11 @@ def generate_paths(executable, context, debug=False):
                 dprint(f'merged metadata -> {merged_metadata}')
 
     for field in target_fields:
-        inner_item = next(executable.get_linked_items(
-                            executable, field.name), None)
+        if isinstance(executable, Pipeline):
+            inner_item = next(executable.get_linked_items(
+                                executable, field.name), None)
+        else:
+            inner_item = None
         if inner_item is not None:
             inner_process, inner_field_name = inner_item
             inner_field = inner_process.field(inner_field_name)
@@ -453,6 +480,8 @@ def generate_paths(executable, context, debug=False):
             target_metadata = dict((k, v) for k, v in source_metadata.items() if v is not undefined)
             dprint(f'for {field.name}: source_metadata = {target_metadata}')
             target_metadata.update(global_metadata)
+            dprint(f'for {field.name}: given metadata = {metadata[source_metadata["list_index"]]}')
+            target_metadata.update(metadata[source_metadata['list_index']])
             field_metadata = {}
             if inner_field:
                 inner_metadata_schema = getattr(inner_process, 'metadata_schema',
@@ -483,4 +512,3 @@ def generate_paths(executable, context, debug=False):
             setattr(executable, field.name, values[0])
         else:
             setattr(executable, field.name, values)
-

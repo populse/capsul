@@ -288,7 +288,7 @@ class TestTinyMorphologist(unittest.TestCase):
         # Configuration base dictionary
         config = {
             'local': {
-                'load_modules': [
+                'config_modules': [
                     'capsul.test.test_tiny_morphologist',
                 ],
                 'dataset': {
@@ -357,7 +357,7 @@ class TestTinyMorphologist(unittest.TestCase):
                         'version': '8'
                     }
                 },
-                'load_modules': ['capsul.test.test_tiny_morphologist'],
+                'config_modules': ['capsul.test.test_tiny_morphologist'],
             }            
         }
         self.assertEqual(self.capsul.config.asdict(), expected_config)
@@ -391,13 +391,10 @@ class TestTinyMorphologist(unittest.TestCase):
         dict_context = context.asdict()
         self.assertEqual(dict_context, expected_context)
 
-        tiny_morphologist_iteration = self.capsul.custom_pipeline()
-        tiny_morphologist_iteration.add_iterative_process(
-            'tiny_morphologist_iterative',
+        tiny_morphologist_iteration = self.capsul.iteration_pipeline(
             'capsul.test.test_tiny_morphologist.TinyMorphologist',
             non_iterative_plugs=['template'],
         )
-        tiny_morphologist_iteration.autoexport_nodes_parameters(include_optional=True)
 
         context = engine.execution_context(tiny_morphologist_iteration)
         del expected_context['fakespm']
@@ -650,13 +647,10 @@ class TestTinyMorphologist(unittest.TestCase):
                                     f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default/right_hemi_aleksander_fakespm8.nii']
         }
 
-        tiny_morphologist_iteration = self.capsul.custom_pipeline()
-        tiny_morphologist_iteration.add_iterative_process(
-            'tiny_morphologist_iterative',
+        tiny_morphologist_iteration = self.capsul.iteration_pipeline(
             'capsul.test.test_tiny_morphologist.TinyMorphologist',
             non_iterative_plugs=['template'],
         )
-        tiny_morphologist_iteration.autoexport_nodes_parameters(include_optional=True)
         
         # Parse the dataset with BIDS-specific query (here "suffix" is part
         #  of BIDS specification). The object returned contains info for main

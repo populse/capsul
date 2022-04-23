@@ -126,7 +126,7 @@ class TestCompletion(unittest.TestCase):
 
 
     @unittest.skip('reimplementation expected for capsul v3')
-    def test_completion(self):
+    def test_fom_completion(self):
         study_config = self.study_config
         process = study_config.get_process_instance(
             'capsul.attributes.test.test_attributed_process.DummyProcess')

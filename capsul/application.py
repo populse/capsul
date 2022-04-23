@@ -89,6 +89,44 @@ class Capsul(Singleton):
     def custom_pipeline(self):
         return CustomPipeline()
 
+    def iteration_pipeline(self, executable,
+            non_iterative_plugs=None, 
+            iterative_plugs=None, 
+            do_not_export=None,
+            make_optional=None,
+            **kwargs):
+            """ Create a pipeline with an iteration node iterating the given
+            process.
+            Parameters
+            ----------
+            pipeline_name: str
+                pipeline name
+            node_name: str
+                iteration node name in the pipeline
+            process_or_id: process description
+                as in :meth:`get_process_instance`
+            iterative_plugs: list (optional)
+                passed to :meth:`Pipeline.add_iterative_process`
+            do_not_export: list
+                passed to :meth:`Pipeline.add_iterative_process`
+            make_optional: list
+                passed to :meth:`Pipeline.add_iterative_process`
+            Returns
+            -------
+            pipeline: :class:`Pipeline` instance
+            """
+            from capsul.pipeline.pipeline import Pipeline
+
+            pipeline = self.custom_pipeline()
+            pipeline.add_iterative_process('iteration', executable,
+                non_iterative_plugs=non_iterative_plugs,
+                iterative_plugs=iterative_plugs,
+                do_not_export=do_not_export,
+                make_optional=make_optional,
+                **kwargs)
+            pipeline.autoexport_nodes_parameters(include_optional=True)
+            return pipeline
+
 
 def executable(definition, **kwargs):
     '''

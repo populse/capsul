@@ -78,7 +78,7 @@ class EngineConfiguration(Controller):
     '''
 
     dataset: OpenKeyDictController[Dataset]
-    load_modules: list[str]
+    config_modules: list[str]
 
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.
@@ -129,13 +129,24 @@ class EngineConfiguration(Controller):
             self.remove_field(module_name)
 
     def import_dict(self, conf_dict, clear=False):
-        # insert modules before filling them in
-        load_modules = conf_dict.get('load_modules')
-        if load_modules:
-            for module_name in load_modules:
+        # Load Python modules
+        # These modules are typically used to register a class
+        # such as a MetadataSchema when they are loaded
+        python_modules = conf_dict.get('python_modules')
+        if python_modules:
+            for module_name in python_modules:
+                __import__(module_name)
+        
+        # Load config modules
+        config_modules = conf_dict.get('config_modules')
+        if config_modules:
+            for module_name in config_modules:
                 self.add_module(module_name, allow_existing=True)
 
+        # Set configuration values
         for mod in conf_dict:
+            if mod in ('python_modules', 'config_modules'):
+                continue
             if not self.has_field(mod):
                 self.add_module(mod, allow_existing=True)
         super().import_dict(conf_dict, clear=clear)
@@ -309,7 +320,7 @@ class ApplicationConfiguration(Controller):
             name of the application / config
         user_file: str
             file name for the user config file. If `̀`undefined`` (the default), it
-            will be looked for in ``~/.config/{app_name}.conf``. If
+            will be looked for in ``~/.config/{app_name}.json``. If
             ``None``, then no user config will be loaded.
         site_file: str
             file name for the site config file. If `̀`None`` (the default), then
@@ -325,7 +336,7 @@ class ApplicationConfiguration(Controller):
             self.site.load(site_file)
 
         if user_file is undefined:
-            user_file = os.path.expanduser(f'~/.config/{app_name}.conf')
+            user_file = os.path.expanduser(f'~/.config/{app_name}.json')
             if not os.path.exists(user_file):
                 user_file = None
         if user_file is not None:

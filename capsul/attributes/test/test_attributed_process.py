@@ -1,120 +1,78 @@
 # -*- coding: utf-8 -*-
 
-from capsul.api import Capsul, Process, Pipeline
-from capsul.attributes.completion_engine import ProcessCompletionEngine, \
-    PathCompletionEngine, PathCompletionEngineFactory
-from capsul.attributes.attributes_schema import ProcessAttributes, \
-    AttributesSchema, EditableAttributes
-from soma.controller import File, undefined, field
-from soma_workflow import configuration as swconfig
-import unittest
+import json
 import os
-import sys
-import tempfile
+from pathlib import Path
 import shutil
-import socket
+import tempfile
+import unittest
+
+from soma.controller import File, field
+from soma_workflow import configuration as swconfig
+
+from capsul.api import Process, executable, Capsul
+from ...dataset import Dataset, MetadataSchema
+from capsul.attributes.attributes_schema import ProcessAttributes
+from capsul.dataset import generate_paths
 
 
 class DummyProcess(Process):
     f: float = field(output=False)
 
-    def __init__(self):
-        super(DummyProcess, self).__init__()
-        self.add_trait("truc", File(output=False))
-        self.add_trait("bidule", File(output=True))
+    def __init__(self, definition):
+        super(DummyProcess, self).__init__(definition)
+        self.add_field('truc', type_=File, write=False)
+        self.add_field('bidule', type_=File, write=True)
 
-    def _run_process(self):
+    def execute(self, context):
         with open(self.bidule, 'w') as f:
             with open(self.truc) as g:
                 f.write(g.read())
 
+    metadata_schema = {
+        'custom': {
+            '*': {'process': 'DummyProcess'},
+            'truc': {'parameter': 'truc'},
+            'bidule': {'parameter': 'bidule'},
+        }
+    }
 
 class DummyListProcess(Process):
-    truc: list[File] = field(output=False)
-    bidule: list[File] = field(output=False)
-    result: File = field(output=True)
+    truc: field(type_=list[File], write=False)
+    bidule: field(type_=list[File], write=False)
+    result: field(type_=File, write=True)
 
-    def _run_process(self):
+    def execute(self, context):
         with open(self.result, 'w') as f:
             f.write(
                 '{\n    truc=%s,\n    bidule=%s\n}' % (self.truc, self.bidule))
 
+    metadata_schema = {
+        'custom': {
+            '*': {'process': 'DummyListProcess'},
+            'truc': {'parameter': 'truc'},
+            'bidule': {'parameter': 'bidule'},
+            'result': {'parameter': 'result'},
+        }
+    }
 
-class CustomAttributesSchema(AttributesSchema):
-    factory_id = 'custom_ex'
-
-    class Acquisition(EditableAttributes):
-        center: str
-        subject: str
-
-    class Group(EditableAttributes):
-        group: str
-
-    class Processing(EditableAttributes):
-        analysis: str
-
-
-class DummyProcessAttributes(ProcessAttributes):
-    factory_id = 'DummyProcess'
-
-    def __init__(self, process, schema_dict):
-        super(DummyProcessAttributes, self).__init__(process, schema_dict)
-        self.set_parameter_attributes('truc', 'input', 'Acquisition', {})
-        self.set_parameter_attributes('bidule', 'output', 'Acquisition', {})
-
-
-class DummyListProcessAttributes(ProcessAttributes):
-    factory_id = 'DummyListProcess'
-
-    def __init__(self, process, schema_dict):
-        super(DummyListProcessAttributes, self).__init__(process, schema_dict)
-        self.set_parameter_attributes('truc', 'input', 'Acquisition', {})
-        self.set_parameter_attributes('bidule', 'input', 'Acquisition', {})
-        self.set_parameter_attributes('result', 'output', 'Group', {})
-
-
-class MyPathCompletion(PathCompletionEngineFactory, PathCompletionEngine):
-    factory_id = 'custom_ex'
-
-    def __init__(self):
-        super(MyPathCompletion, self).__init__()
-
-    def get_path_completion_engine(self, process):
-        return self
-
-    def attributes_to_path(self, process, parameter, attributes):
-        study_config = process.get_study_config()
-        att_dict = attributes.get_parameters_attributes()[parameter]
-        elements = [process.name, parameter]
-        # get attributes sorted by user_traits
-        for key in attributes.user_traits().keys():
-            val = att_dict.get(key)
-            if val and val is not Undefined:
-                elements.append(str(val))
-        if 'generated_by_parameter' in att_dict:
-            directory = study_config.output_directory
-        else:
-            directory = study_config.input_directory
-        return os.path.join(directory, '_'.join(elements))
-
-
-def init_study_config(init_config={}):
-    study_config = StudyConfig('test_study',
-                               modules=['AttributesConfig',
-                                        'SomaWorkflowConfig'],
-                               init_config=init_config)
-    study_config.input_directory = '/tmp/in'
-    study_config.output_directory = '/tmp/out'
-    study_config.attributes_schema_paths \
-        = study_config.attributes_schema_paths \
-            + ['capsul.attributes.test.test_attributed_process']
-    study_config.attributes_schemas['input'] = 'custom_ex'
-    study_config.attributes_schemas['output'] = 'custom_ex'
-    #print('attributes_schema_paths:', study_config.attributes_schema_paths)
-    study_config.path_completion = 'custom_ex'
-    #print('attributes_schema_paths 2:', study_config.attributes_schema_paths)
-
-    return study_config
+class CustomMetadataSchema(MetadataSchema):
+    process: str
+    parameter: str
+    center: str
+    subject: str
+    analysis: str
+    group: str
+     
+    def _path_list(self):
+        items = []
+        for field in self.fields():
+            value = getattr(self, field.name, None)
+            if value:
+                items.append(value)
+        return ['_'.join(items)]
+    
+Dataset.register_schema('custom', CustomMetadataSchema)
 
 
 def setUpModule():
@@ -125,9 +83,34 @@ def setUpModule():
     temp_home_dir = None
     old_home = os.environ.get('HOME')
     try:
-        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
-        os.environ['HOME'] = temp_home_dir
+        app_name = 'test_completion'
+        temp_home_dir = Path(tempfile.mkdtemp(prefix='capsul_test_completion_'))
+        os.environ['HOME'] = str(temp_home_dir)
         swconfig.change_soma_workflow_directory(temp_home_dir)
+        config = temp_home_dir / '.config'
+        config.mkdir()
+        input = temp_home_dir / 'in'
+        output = temp_home_dir / 'out'
+        with (config / f'{app_name}.json').open('w') as f:
+            json.dump({
+                'local': {
+                    'python_modules': [
+                        'capsul.attributes.test.test_attributed_process'
+                    ],
+                    'dataset': {
+                        'input': {
+                            'path': str(input),
+                            'metadata_schema': 'custom',
+                        },
+                        'output': {
+                            'path': str(output),
+                            'metadata_schema': 'custom',
+                        }
+                    }
+                }
+            }, f)
+        capsul = Capsul(app_name)
+    
     except BaseException:  # clean up in case of interruption
         if old_home is None:
             del os.environ['HOME']
@@ -148,105 +131,84 @@ def tearDownModule():
 
 class TestCompletion(unittest.TestCase):
 
-    def setUp(self):
-        self.study_config = init_study_config()
-        if not hasattr(self, 'temps'):
-            self.temps = []
+    # def tearDown(self):
+    #     swm = self.study_config.modules['SomaWorkflowConfig']
+    #     swc = swm.get_workflow_controller()
+    #     if swc is not None:
+    #         # stop workflow controller and wait for thread termination
+    #         swc.stop_engine()
 
-
-    def tearDown(self):
-        swm = self.study_config.modules['SomaWorkflowConfig']
-        swc = swm.get_workflow_controller()
-        if swc is not None:
-            # stop workflow controller and wait for thread termination
-            swc.stop_engine()
-
-
-    def __del__(self):
-        if hasattr(self, 'temps'):
-            for tdir in self.temps:
-                shutil.rmtree(tdir)
-
-
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_completion(self):
-        study_config = self.study_config
-        process = study_config.get_process_instance(
+        global temp_home_dir
+    
+        process = executable(
             'capsul.attributes.test.test_attributed_process.DummyProcess')
-        from capsul.attributes.test.test_attributed_process \
-            import DummyProcessAttributes, MyPathCompletion
-        patt = ProcessCompletionEngine.get_completion_engine(process)
-        atts = patt.get_attribute_values()
-        self.assertTrue(isinstance(patt, ProcessCompletionEngine))
-        self.assertTrue(isinstance(atts, DummyProcessAttributes))
-        self.assertTrue(isinstance(
-            patt.get_path_completion_engine(),
-            MyPathCompletion))
-        atts.center = 'jojo'
-        atts.subject = 'barbapapa'
-        patt.complete_parameters()
+        execution_context = Capsul().engine().execution_context(process)
+        generate_paths(process, execution_context, metadata = {
+                'center': 'jojo',
+                'subject': 'barbapapa',
+            })
+        process.resolve_paths(execution_context)
         self.assertEqual(os.path.normpath(process.truc),
-                         os.path.normpath('/tmp/in/DummyProcess_truc_jojo_barbapapa'))
+                         os.path.normpath(f'{temp_home_dir}/in/DummyProcess_truc_jojo_barbapapa'))
         self.assertEqual(os.path.normpath(process.bidule),
-                         os.path.normpath('/tmp/out/DummyProcess_bidule_jojo_barbapapa'))
+                         os.path.normpath(f'{temp_home_dir}/out/DummyProcess_bidule_jojo_barbapapa'))
 
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_iteration(self):
-        study_config = self.study_config
-        pipeline = study_config.get_iteration_pipeline(
-            'iter',
-            'dummy',
+        pipeline = Capsul().iteration_pipeline(
             'capsul.attributes.test.test_attributed_process.DummyProcess',
-            ['truc', 'bidule'])
-        cm = ProcessCompletionEngine.get_completion_engine(pipeline)
-        atts = cm.get_attribute_values()
-        atts.center = ['muppets']
-        atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
-        cm.complete_parameters()
+            iterative_plugs=['truc', 'bidule'])
+        execution_context = Capsul().engine().execution_context(pipeline)
+        generate_paths(pipeline, execution_context, metadata = [{
+                'process': 'DummyProcess',
+                'center': 'muppets',
+                'subject': i,
+            } for i in ['kermit', 'piggy', 'stalter', 'waldorf']])
+        pipeline.resolve_paths(execution_context)
         self.assertEqual([os.path.normpath(p) for p in pipeline.truc],
-                         [os.path.normpath(p) for p in 
-                            ['/tmp/in/DummyProcess_truc_muppets_kermit',
-                             '/tmp/in/DummyProcess_truc_muppets_piggy',
-                             '/tmp/in/DummyProcess_truc_muppets_stalter',
-                             '/tmp/in/DummyProcess_truc_muppets_waldorf']])
+                         [f'{temp_home_dir}/in/DummyProcess_truc_muppets_kermit',
+                          f'{temp_home_dir}/in/DummyProcess_truc_muppets_piggy',
+                          f'{temp_home_dir}/in/DummyProcess_truc_muppets_stalter',
+                          f'{temp_home_dir}/in/DummyProcess_truc_muppets_waldorf'])
         self.assertEqual([os.path.normpath(p) for p in pipeline.bidule],
-                         [os.path.normpath(p) for p in 
-                            ['/tmp/out/DummyProcess_bidule_muppets_kermit',
-                             '/tmp/out/DummyProcess_bidule_muppets_piggy',
-                             '/tmp/out/DummyProcess_bidule_muppets_stalter',
-                             '/tmp/out/DummyProcess_bidule_muppets_waldorf']])
+                         [f'{temp_home_dir}/out/DummyProcess_bidule_muppets_kermit',
+                          f'{temp_home_dir}/out/DummyProcess_bidule_muppets_piggy',
+                          f'{temp_home_dir}/out/DummyProcess_bidule_muppets_stalter',
+                          f'{temp_home_dir}/out/DummyProcess_bidule_muppets_waldorf'])
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_list_completion(self):
-        study_config = self.study_config
-        process = study_config.get_process_instance(
+        process = executable(
             'capsul.attributes.test.test_attributed_process.DummyListProcess')
-        from capsul.attributes.test.test_attributed_process \
-            import DummyListProcessAttributes, MyPathCompletion
-        patt = ProcessCompletionEngine.get_completion_engine(process)
-        atts = patt.get_attribute_values()
-        self.assertTrue(isinstance(patt, ProcessCompletionEngine))
-        self.assertTrue(isinstance(atts, DummyListProcessAttributes))
-        self.assertTrue(isinstance(
-            patt.get_path_completion_engine(),
-            MyPathCompletion))
-        atts.center = ['jojo', 'koko']
-        atts.subject = ['barbapapa', 'barbatruc']
-        atts.group = 'cartoon'
-        patt.complete_parameters()
+        execution_context = Capsul().engine().execution_context(process)
+        generate_paths(process, execution_context, 
+            ignore={'result'},
+            metadata = [
+            {
+                'center': 'jojo',
+                'subject': 'barbapapa',
+            },
+            {
+                'center': 'koko',
+                'subject': 'barbatruc'
+            }]
+        )
+        generate_paths(process, execution_context, 
+            fields={'result'},
+            metadata = {
+                'group': 'cartoon',
+            }
+        )
+        process.resolve_paths(execution_context)
         self.assertEqual([os.path.normpath(p) for p in process.truc],
-                         [os.path.normpath(p) for p in
-                            ['/tmp/in/DummyListProcess_truc_jojo_barbapapa',
-                             '/tmp/in/DummyListProcess_truc_koko_barbatruc',]])
+                         [f'{temp_home_dir}/in/DummyListProcess_truc_jojo_barbapapa',
+                          f'{temp_home_dir}/in/DummyListProcess_truc_koko_barbatruc',])
         self.assertEqual([os.path.normpath(p) for p in process.bidule],
-                         [os.path.normpath(p) for p in
-                            ['/tmp/in/DummyListProcess_bidule_jojo_barbapapa',
-                             '/tmp/in/DummyListProcess_bidule_koko_barbatruc']]
+                         [f'{temp_home_dir}/in/DummyListProcess_bidule_jojo_barbapapa',
+                          f'{temp_home_dir}/in/DummyListProcess_bidule_koko_barbatruc']
         )
         self.assertEqual(os.path.normpath(process.result),
-                         os.path.normpath(
-                            '/tmp/out/DummyListProcess_result_cartoon'))
+                         f'{temp_home_dir}/out/DummyListProcess_result_cartoon')
 
 
     @unittest.skip('reimplementation expected for capsul v3')
@@ -349,35 +311,3 @@ def test():
     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
     return runtime.wasSuccessful()
 
-
-if __name__ == '__main__':
-    print("RETURNCODE: ", test())
-
-    if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
-
-        from capsul.qt_gui.widgets.pipeline_developper_view \
-            import PipelineDeveloperView
-        from capsul.qt_gui.widgets.attributed_process_widget \
-            import AttributedProcessWidget
-        from soma.qt_gui.qt_backend import QtGui, QtCore
-
-        study_config = init_study_config()
-
-        process = study_config.get_process_instance(
-            'capsul.attributes.test.test_attributed_process.DummyProcess')
-        patt = ProcessCompletionEngine.get_completion_engine(process)
-        atts = patt.get_attribute_values()
-
-        qapp = None
-        if QtGui.QApplication.instance() is None:
-            qapp = QtGui.QApplication(['test_app'])
-        pv = PipelineDeveloperView(process, allow_open_controller=True,
-                                    enable_edition=True,
-                                    show_sub_pipelines=True)
-        pc = AttributedProcessWidget(process, enable_attr_from_filename=True,
-                                    enable_load_buttons=True)
-
-        pv.show()
-        pc.show()
-        if qapp:
-            qapp.exec_()
