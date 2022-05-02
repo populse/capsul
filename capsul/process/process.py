@@ -727,7 +727,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                   % process.name, params, file=sys.stderr)
             raise
         # actually run the process
-        ce.study_config.use_soma_workglow = False
+        ce.study_config.use_soma_workflow = False
         result = ce.study_config.run(process, configuration_dict=configuration)
         # collect output parameers
         out_param_file = os.environ.get('SOMAWF_OUTPUT_PARAMS')
