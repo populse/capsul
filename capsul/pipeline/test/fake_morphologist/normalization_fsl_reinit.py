@@ -12,7 +12,7 @@ class Normalization_FSL_reinit(Process):
         self.add_trait("anatomy_data", traits.File(allowed_extensions=['.nii', '.nii.gz'], output=False, optional=False, connected_output=True))
         self.add_trait("anatomical_template", traits.File(allowed_extensions=['.nii', '.nii.gz'], output=False, optional=False))
         self.anatomical_template = '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz'
-        self.add_trait("Alignment", traits.Enum('Already Virtualy Aligned', 'Not Aligned but Same Orientation', 'Incorrectly Oriented', output=False, optional=False))
+        self.add_trait("Alignment", traits.Enum('Already Virtually Aligned', 'Not Aligned but Same Orientation', 'Incorrectly Oriented', output=False, optional=False))
         self.Alignment = 'Not Aligned but Same Orientation'
         self.add_trait("transformation_matrix", traits.File(allowed_extensions=['.mat'], output=True, optional=False))
         self.transformation_matrix = ''
