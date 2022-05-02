@@ -7,6 +7,8 @@ import sys
 import tempfile
 import traceback
 
+from soma.undefined import undefined
+
 import capsul.debug as capsul_debug
 from capsul.api import Capsul, Pipeline
 from .pipeline.process_iteration import ProcessIteration
@@ -58,10 +60,29 @@ if __name__ == '__main__':
             if isinstance(executable, Pipeline):
                 for node in reversed(executable.workflow_ordered_nodes()):
                     if isinstance(node, ProcessIteration):
-                        for process in node.iterate_over_process_parmeters():
-                            process.before_execute(execution_context)
-                            process.execute(execution_context)
-                            process.after_execute(execution_context)
+                        size = node.iteration_size()
+                        if size:
+                            list_outputs = []
+                            for field in node.user_fields():
+                                if field.is_output() and field.name in node.iterative_parameters:
+                                    list_outputs.append(field.name)
+                                    value = getattr(node, field.name, None)
+                                    if value is None:
+                                        setattr(node, field.name, [undefined] * size)
+                                    elif len(value) < size:
+                                        value += [undefined] * (size - len(value))
+                            index = 0
+                            for process in node.iterate_over_process_parmeters():
+                                process.before_execute(execution_context)
+                                process.execute(execution_context)
+                                process.after_execute(execution_context)
+                                for name in list_outputs:
+                                    value = getattr(process, name, None)
+                                    getattr(node, name)[index] = value
+                                index += 1
+                            for name in list_outputs:
+                                executable.dispatch_value(node, name, getattr(node, name))
+                                
                     else:
                         node.before_execute(execution_context)
                         node.execute(execution_context)
@@ -81,8 +102,8 @@ if __name__ == '__main__':
             if executable is not None:
                 for field in executable.user_fields():
                     if field.is_output():
-                        value = getattr(executable, field.name, ...)
-                        if value is not ...:
+                        value = getattr(executable, field.name, undefined)
+                        if value is not undefined:
                             output_parameters[field.name] = value
                 final_status_update['output_parameters'] = output_parameters
             final_status_update['debug_messages'] = capsul_debug.debug_messages

@@ -47,7 +47,7 @@ class MyPipeline(Pipeline):
         # Create processes
         self.add_process("constant",
             "capsul.pipeline.test.test_pipeline.DummyProcess",
-            do_not_export=['input_image', 'other_input'],
+            do_not_export=['input_image', 'other_input', 'other_output'],
             make_optional=['input_image', 'other_input'],)
         self.add_process("node1",
             "capsul.pipeline.test.test_pipeline.DummyProcess")

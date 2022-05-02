@@ -51,6 +51,14 @@ class ProcessIteration(Process):
             else:
                 self.regular_parameters.add(name)
                 self.add_proxy(name, self.process, name)
+            parameter = {
+                "name": name,
+                "output": field.is_output(),
+                "optional": field.optional,
+                "has_default_value": field.has_default(),
+            }
+            # generate plug with input parameter and identifier name
+            self._add_plug(parameter)
 
         self.metadata_schema = getattr(self.process, 'metadata_schema', {})
 
@@ -91,13 +99,11 @@ class ProcessIteration(Process):
             self.regular_parameters.add(parameter)
             self.add_proxy(parameter, self.process, parameter)
 
-    def iterate_over_process_parmeters(self):
+    def iteration_size(self):
         # Check that all iterative parameter value have the same size
         # or are undefined
         size = None
-        size_error = False
         for parameter in self.iterative_parameters:
-            field = self.field(parameter)
             value = getattr(self, parameter, undefined)
             if value is undefined:
                 continue
@@ -107,6 +113,10 @@ class ProcessIteration(Process):
             else:
                 if size != psize:
                    raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
+        return size
+    
+    def iterate_over_process_parmeters(self):
+        size = self.iteration_size()
         if size is None:
             return
         # for parameter in self.regular_parameters:

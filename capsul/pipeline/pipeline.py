@@ -267,7 +267,7 @@ class Pipeline(Process):
         """
         pass
 
-    def autoexport_nodes_parameters(self, include_optional=False):
+    def autoexport_nodes_parameters(self, include_optional=True):
         """ Automatically export nodes plugs to the pipeline.
 
         Some parameters can be explicitly preserved from exportation if they
@@ -927,13 +927,6 @@ class Pipeline(Process):
         dest_plug.links_from.add((source_node_name, source_plug_name,
                                   source_node, source_plug, weak_link))
 
-        # Set a connected_output property
-        if (isinstance(dest_node, Process) and
-                isinstance(source_node, Process)):
-            source_field = source_node.field(source_plug_name)
-            dest_field = dest_node.field(dest_plug_name)
-            if source_field.is_output() and not dest_field.is_output():
-                dest_field.connected_output = True
 
         # Propagate the doc in case of destination switch node
         if isinstance(dest_node, Switch):
@@ -985,13 +978,6 @@ class Pipeline(Process):
                                       source_node, source_plug, True))
         dest_plug.links_from.discard((source_node_name, source_plug_name,
                                       source_node, source_plug, False))
-
-        # Set a connected_output property
-        if (isinstance(dest_node, Process) and
-                isinstance(source_node, Process)):
-            dest_field = dest_node.field(dest_plug_name)
-            if dest_field.metadata('connected_output'):
-                dest_field.connected_output = False  # FIXME
 
         # Refresh pipeline activation
         self.update_nodes_and_plugs_activation()
@@ -1052,17 +1038,18 @@ class Pipeline(Process):
                 f"Parameter '{plug_name}' of node '{node_name or 'pipeline'}' cannot be exported to pipeline "
                 f"parameter '{pipeline_parameter}'")
 
-        f = field(pipeline_parameter, type_=source_field)
+
+        # Now add the parameter to the pipeline
+        if not self.field(pipeline_parameter):
+            self.add_field(pipeline_parameter, source_field)
+
+        f= self.field(pipeline_parameter)
 
         # Set user enabled parameter only if specified
         # Important because this property is automatically set during
         # the nipype interface wrappings
         if is_enabled is not None:
             f.enabled = bool(is_enabled)
-
-        # Now add the parameter to the pipeline
-        if not self.field(pipeline_parameter):
-            self.add_field(pipeline_parameter, f)
 
         # Change the field optional property
         if is_optional is not None:

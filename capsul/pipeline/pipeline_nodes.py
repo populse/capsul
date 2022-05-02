@@ -14,9 +14,6 @@ import typing
 
 from soma.controller import (Controller, field,
                              undefined, Literal, List, type_from_str)
-from soma.sorted_dictionary import SortedDictionary
-from soma.utils.functiontools import SomaPartial
-from soma.utils.weak_proxy import weak_proxy, get_ref
 
 from ..process.node import Plug, Node
 

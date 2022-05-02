@@ -157,7 +157,7 @@ class LocalEngine:
     def run(self, executable, **kwargs):
         execution_id = self.start(executable, **kwargs)
         self.wait(execution_id)
-        status = self.status(execution_id, keys=['error', 'error_details', 'debug_messages', 'output_parameters'])
+        status = self.status(execution_id, keys=['error', 'error_detail', 'debug_messages', 'output_parameters'])
         self.print_debug_messages(status)
         self.raise_for_status(status)
         self.update_executable(executable, status)

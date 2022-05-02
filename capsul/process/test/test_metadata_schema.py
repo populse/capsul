@@ -126,6 +126,7 @@ def tearDownModule():
     else:
         os.environ['HOME'] = old_home
     shutil.rmtree(temp_home_dir)
+    Capsul.delete_singleton()
 
 
 class TestCompletion(unittest.TestCase):

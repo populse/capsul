@@ -34,25 +34,33 @@ class MyPipeline(Pipeline):
         self.add_process("way11",
             "capsul.pipeline.test.test_activation.DummyProcess")
         self.add_process("way12",
-            "capsul.pipeline.test.test_activation.DummyProcess")
+            "capsul.pipeline.test.test_activation.DummyProcess",
+            do_not_export=["other_input", "other_output"])
         self.add_process("way21",
-            "capsul.pipeline.test.test_activation.DummyProcess")
+            "capsul.pipeline.test.test_activation.DummyProcess",
+            do_not_export=["other_input"])
         self.add_process("way22",
             "capsul.pipeline.test.test_activation.DummyProcess",
-            do_not_export=['output_image' ],
+            do_not_export=['output_image', 'other_input' ],
             make_optional=['output_image'])
 
         # Inputs
         self.export_parameter("way11", "input_image")
+        self.add_link("input_image->way21.input_image")
+        self.export_parameter("way11", "other_input")
+        self.add_link("other_input->way21.other_input")
 
         # Links
-        self.add_link("input_image->way21.input_image")
         self.add_link("way11.output_image->way12.input_image")
+        self.add_link("way11.other_output->way12.other_input")
         self.add_link("way21.output_image->way22.input_image")
+        self.add_link("way21.other_output->way22.other_input")
 
         # Outputs
-        self.export_parameter("way12", "output_image", is_optional=True)
-        self.export_parameter("way22", "other_output")
+        self.export_parameter("way12", "output_image")
+        self.add_link("way22.output_image->output_image")
+        self.export_parameter("way12", "other_output")
+        self.add_link("way22.other_output->other_output")
 
 
 class TestPipeline(unittest.TestCase):
@@ -132,8 +140,7 @@ if __name__ == "__main__":
         app = QtGui.QApplication.instance()
         if not app:
             app = QtGui.QApplication(sys.argv)
-        capsul = Capsul()
-        pipeline = capsul.executable(MyPipeline)
+        pipeline = executable(MyPipeline)
         setattr(pipeline.nodes_activation, "way11", False)
         view1 = PipelineDeveloperView(pipeline)
         view1.show()

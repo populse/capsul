@@ -170,6 +170,7 @@ class TinyMorphologist(Pipeline):
         self.add_link('nobias.output->fakespm_normalization_8.input')
         self.add_link('fakespm_normalization_8.output->normalization.fakespm8_switch_output')
         self.export_parameter('fakespm_normalization_12', 'template')
+        self.add_link('template->fakespm_normalization_8.template')
         self.add_link('nobias.output->aims_normalization.input')
         self.add_link('aims_normalization.output->normalization.aims_switch_output')
 

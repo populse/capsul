@@ -31,7 +31,7 @@ class ExecutionStatus:
             status.add_field('execution_context', dict)
             status.add_field('debug_messages', list[str])
             status.add_field('error', str)
-            status.add_field('error_details', str)
+            status.add_field('error_detail', str)
             status.add_field('output_fields', dict)
             status.add_field('start_time', str)
             status.add_field('pid', int)

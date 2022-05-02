@@ -1,23 +1,19 @@
 # -*- coding: utf-8 -*-
-# System import
-from __future__ import print_function
-from __future__ import absolute_import
 
 import sys
 import unittest
-import re
 import os
+from pathlib import Path
 import tempfile
 import shutil
 
-from soma.controller import undefined, File, field, List
+from soma.controller import undefined, File, field
 
 # Capsul import
 from capsul.api import Process
 from capsul.api import Pipeline
 from capsul.api import Capsul
 from capsul.pipeline import pipeline_workflow
-from soma.controller import Controller
 from soma_workflow import configuration as swconfig
 
 debug = False
@@ -42,6 +38,27 @@ def setUpModule():
             shutil.rmtree(temp_home_dir)
         raise
 
+def setUpModule():
+    global old_home
+    global temp_home_dir
+    # Run tests with a temporary HOME directory so that they are isolated from
+    # the user's environment
+    temp_home_dir = None
+    old_home = os.environ.get('HOME')
+    try:
+        app_name = 'test_iterative_process'
+        temp_home_dir = Path(tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
+        os.environ['HOME'] = str(temp_home_dir)
+        capsul = Capsul(app_name)    
+    except BaseException:  # clean up in case of interruption
+        if old_home is None:
+            del os.environ['HOME']
+        else:
+            os.environ['HOME'] = old_home
+        if temp_home_dir:
+            shutil.rmtree(temp_home_dir)
+        raise
+
 
 def tearDownModule():
     if old_home is None:
@@ -49,29 +66,29 @@ def tearDownModule():
     else:
         os.environ['HOME'] = old_home
     shutil.rmtree(temp_home_dir)
+    Capsul.delete_singleton()
 
 
 class DummyProcess(Process):
     """ Dummy Test Process
     """
     # Inputs
-    input_image: File = field(optional=False, output=False)
-    other_input: float = field(optional=False, output=False)
-    dynamic_parameter: float = field(optional=False, output=False)
+    input_image: field(type_=File, optional=False)
+    other_input: field(type_=float, optional=False)
+    dynamic_parameter: field(type_=float, optional=False)
     # Outputs
-    output_image: File = field(write=True, optional=False)
-    other_output: float = field(optional=False, output=True, default=6)
+    output_image: field(type_=File, write=True, optional=False, output=True)
+    other_output: field(type_=float, optional=False, output=True, default=6)
 
     def execute(self, context=None):
         """ Execute the process.
         """
-        print('run: %s -> %s' % (self.input_image, str(self.output_image)))
-        if self.output_image in (None, undefined, ''):
+        # print('run: %s -> %s' % (self.input_image, str(self.output_image)))
+        if not getattr(self, 'output_image', None):
             # Just join the input values
-            value = "{0}-{1}-{2}".format(
-                self.input_image, self.other_input, self.dynamic_parameter)
+            value = f'{self.input_image}-{self.other_input}-{self.dynamic_parameter}'
             self.output_image = value
-            print('    define output_image: %s' % value)
+            # print('    define output_image: %s' % value)
 
         with open(self.output_image, 'w') as f_out:
             with open(self.input_image) as f_in:
@@ -80,10 +97,10 @@ class DummyProcess(Process):
 
 
 class CreateFilesProcess(Process):
-    output_file: list[File] = field(write=True)
+    output_file: field(type_=list[File], write=True)
 
     def execute(self, context=None):
-        print('create: %s' % self.output_file)
+        # print('create: %s' % self.output_file)
         for fname in self.output_file:
             open(fname, "w").write("file: %s\n" % fname)
 
@@ -174,8 +191,7 @@ class TestPipeline(unittest.TestCase):
         self.capsul = Capsul()
 
         # Construct the pipeline
-        self.pipeline = self.capsul.executable(
-            '.'.join((__name__, 'MyPipeline')))
+        self.pipeline = self.capsul.executable(MyPipeline)
 
         # Set some input parameters
         self.pipeline.input_image = [os.path.join(self.directory, "toto"),
@@ -185,7 +201,7 @@ class TestPipeline(unittest.TestCase):
 
         # build a pipeline with dependencies
         self.small_pipeline \
-            = self.capsul.executable('.'.join((__name__, 'MySmallPipeline')))
+            = self.capsul.executable(MySmallPipeline)
         self.small_pipeline.files_to_create = [
             os.path.join(self.directory, "toto"),
             os.path.join(self.directory, "tutu")]
@@ -194,48 +210,46 @@ class TestPipeline(unittest.TestCase):
 
         # build a bigger pipeline with several levels
         self.big_pipeline \
-            = self.capsul.executable('.'.join((__name__, 'MyBigPipeline')))
+            = self.capsul.executable(MyBigPipeline)
 
     def tearDown(self):
-        # FIXME
-        #swm = self.capsul.engine().modules['soma_workflow']
-        #swc = swm.get_workflow_controller()
-        swc = None  # FIXME
-        if swc is not None:
-            # stop workflow controller and wait for thread termination
-            swc.stop_engine()
         if debug:
             print('directory %s not removed.' % self.directory)
         else:
             shutil.rmtree(self.directory)
         self.capsul = None
-        Capsul.delete_singleton()
         
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_pipeline_connection(self):
         """ Test if an iterative process works correctly
         """
-
         # create inputs
         for f in self.pipeline.input_image:
             with open(f, "w") as fobj:
                 fobj.write("input: %s\n" % f)
 
-        # Test the output connection
-        self.pipeline()
+        # from soma.qt_gui.qt_backend import QtGui
+        # from capsul.qt_gui.widgets import PipelineDeveloperView
 
-        if sys.version_info >= (2, 7):
-            self.assertIn("toto-5.0-3.0",
-                          [os.path.basename(f)
-                           for f in self.pipeline.output_image])
-            self.assertIn("tutu-5.0-1.0",
-                          [os.path.basename(f)
-                           for f in self.pipeline.output_image])
-        else:
-            self.assertTrue("toto-5.0-3.0" in
-                [os.path.basename(f) for f in self.pipeline.output_image])
-            self.assertTrue("tutu-5.0-1.0" in
-                [os.path.basename(f) for f in self.pipeline.output_image])
+        # app = QtGui.QApplication.instance()
+        # if not app:
+        #     app = QtGui.QApplication(sys.argv)
+        # view1 = PipelineDeveloperView(self.pipeline, show_sub_pipelines=True,
+        #                                allow_open_controller=True)
+        # # view1.add_embedded_subpipeline('iterative')
+        # view1.auto_dot_node_positions()
+        # view1.show()
+        # app.exec_()
+
+        # Test the output connection
+        with Capsul().engine() as engine:
+            engine.run(self.pipeline)
+
+        self.assertIn("toto-5.0-3.0",
+                        [os.path.basename(f)
+                        for f in self.pipeline.output_image])
+        self.assertIn("tutu-5.0-1.0",
+                        [os.path.basename(f)
+                        for f in self.pipeline.output_image])
         self.assertEqual(self.pipeline.other_output, 
                          [self.pipeline.other_input,
                           self.pipeline.other_input])
@@ -340,48 +354,48 @@ class TestPipeline(unittest.TestCase):
             #del controller
             #del config
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
+# def test():
+#     """ Function to execute unitest
+#     """
+#     suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
+#     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
+#     return runtime.wasSuccessful()
 
 
-if __name__ == "__main__":
-    if '-d' in sys.argv[1:] or '--debug' in sys.argv[1:]:
-        debug = True
+# if __name__ == "__main__":
+#     if '-d' in sys.argv[1:] or '--debug' in sys.argv[1:]:
+#         debug = True
 
-    test()
+#     test()
 
-    if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
-        from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDeveloperView
+#     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
+#         from soma.qt_gui.qt_backend import QtGui
+#         from capsul.qt_gui.widgets import PipelineDeveloperView
 
-        app = QtGui.QApplication.instance()
-        if not app:
-            app = QtGui.QApplication(sys.argv)
-        pipeline = MySmallPipeline()
-        pipeline.files_to_create = ["toto", "tutu", "titi"]
-        pipeline.output_image = ['toto_out', 'tutu_out', 'tata_out']
-        pipeline.dynamic_parameter = [3, 1, 4]
-        pipeline.other_output = [0, 0, 0]
-        pipeline.other_input = 0
-        pipeline2 = pipeline.nodes["iterative"].process
-        pipeline2.scene_scale_factor = 0.5
+#         app = QtGui.QApplication.instance()
+#         if not app:
+#             app = QtGui.QApplication(sys.argv)
+#         pipeline = MySmallPipeline()
+#         pipeline.files_to_create = ["toto", "tutu", "titi"]
+#         pipeline.output_image = ['toto_out', 'tutu_out', 'tata_out']
+#         pipeline.dynamic_parameter = [3, 1, 4]
+#         pipeline.other_output = [0, 0, 0]
+#         pipeline.other_input = 0
+#         pipeline2 = pipeline.nodes["iterative"].process
+#         pipeline2.scene_scale_factor = 0.5
 
-        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view1.add_embedded_subpipeline('iterative')
-        view1.auto_dot_node_positions()
-        view1.show()
+#         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
+#                                        allow_open_controller=True)
+#         view1.add_embedded_subpipeline('iterative')
+#         view1.auto_dot_node_positions()
+#         view1.show()
 
-        pipeline2 = MyBigPipeline()
-        view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view2.add_embedded_subpipeline('iterative')
-        view2.auto_dot_node_positions()
-        view2.show()
+#         pipeline2 = MyBigPipeline()
+#         view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
+#                                        allow_open_controller=True)
+#         view2.add_embedded_subpipeline('iterative')
+#         view2.auto_dot_node_positions()
+#         view2.show()
 
-        app.exec_()
-        del view1
+#         app.exec_()
+#         del view1

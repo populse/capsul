@@ -27,12 +27,9 @@ import soma_workflow.info as swinfo
 from capsul.pipeline.pipeline import Pipeline, Switch
 from capsul.pipeline import pipeline_tools
 from capsul.process.process import Process
-from capsul.pipeline.topological_sort import Graph
-from soma.controller import undefined, Any, List
+from soma.controller import undefined, Any
 from soma.sorted_dictionary import OrderedDict, SortedDictionary
 from .process_iteration import ProcessIteration
-from capsul.attributes import completion_engine_iteration
-from capsul.attributes.completion_engine import ProcessCompletionEngine
 from soma_workflow.custom_jobs import MapJob, ReduceJob
 
 

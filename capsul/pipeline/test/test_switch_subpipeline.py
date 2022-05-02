@@ -98,11 +98,13 @@ class SwitchPipeline(Pipeline):
 
         # Link input
         self.export_parameter("way1", "input_image")
+        self.export_parameter("way1", "other_input")
 
         # Links
         self.add_link("way1.output_image->switch.one_switch_switch_image")
 
         self.add_link("input_image->way2.input_image")
+        self.add_link("other_input->way2.other_input")
 
         self.add_link("way2.output_image->switch.two_switch_switch_image")
 
@@ -200,7 +202,7 @@ class TestSwitchPipeline(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
         self.pipeline = executable(MainTestPipeline)
-        self.pipeline.name = ''  # saved state has en empty main node name
+        # self.pipeline.name = ''  # saved state has an empty main node name
 
     def load_state(self, file_name):
         file_name = os.path.join(os.path.dirname(__file__), file_name + '.json')
