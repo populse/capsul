@@ -1412,7 +1412,9 @@ def write_fake_process(process, filename, sleep_time=0):
     '''
 
     with open(filename, 'w') as f:
-        f.write('''from capsul.api import Process
+        f.write('''# -*- coding: utf-8 -*-
+
+from capsul.api import Process
 import os
 import traits.api as traits
 

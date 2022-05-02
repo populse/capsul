@@ -510,6 +510,7 @@ def save_py_pipeline(pipeline, py_file):
     else:
         pyf = py_file
 
+    print('# -*- coding: utf-8 -*-\n', file=pyf)
     print('from capsul.api import Pipeline', file=pyf)
     print('import traits.api as traits', file=pyf)
     print(file=pyf)
