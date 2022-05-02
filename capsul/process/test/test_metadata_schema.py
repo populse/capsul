@@ -81,8 +81,8 @@ def setUpModule():
     temp_home_dir = None
     old_home = os.environ.get('HOME')
     try:
-        app_name = 'test_completion'
-        temp_home_dir = Path(tempfile.mkdtemp(prefix='capsul_test_completion_'))
+        app_name = 'test_metadata_schema'
+        temp_home_dir = Path(tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
         os.environ['HOME'] = str(temp_home_dir)
         config = temp_home_dir / '.config'
         config.mkdir()
@@ -94,7 +94,7 @@ def setUpModule():
             json.dump({
                 'local': {
                     'python_modules': [
-                        'capsul.attributes.test.test_attributed_process'
+                        'capsul.process.test.test_metadata_schema'
                     ],
                     'dataset': {
                         'input': {
@@ -134,7 +134,7 @@ class TestCompletion(unittest.TestCase):
         global temp_home_dir
     
         process = executable(
-            'capsul.attributes.test.test_attributed_process.DummyProcess')
+            'capsul.process.test.test_metadata_schema.DummyProcess')
         execution_context = Capsul().engine().execution_context(process)
         generate_paths(process, execution_context, metadata = {
                 'center': 'jojo',
@@ -149,7 +149,7 @@ class TestCompletion(unittest.TestCase):
 
     def test_iteration(self):
         pipeline = Capsul().iteration_pipeline(
-            'capsul.attributes.test.test_attributed_process.DummyProcess',
+            'capsul.process.test.test_metadata_schema.DummyProcess',
             iterative_plugs=['truc', 'bidule'])
         execution_context = Capsul().engine().execution_context(pipeline)
         generate_paths(pipeline, execution_context, metadata = [{
@@ -171,7 +171,7 @@ class TestCompletion(unittest.TestCase):
 
     def test_list_completion(self):
         process = executable(
-            'capsul.attributes.test.test_attributed_process.DummyListProcess')
+            'capsul.process.test.test_metadata_schema.DummyListProcess')
         execution_context = Capsul().engine().execution_context(process)
         generate_paths(process, execution_context, 
             ignore={'result'},
@@ -206,7 +206,7 @@ class TestCompletion(unittest.TestCase):
     def test_run_iteraton(self):
 
         pipeline = Capsul().iteration_pipeline(
-            'capsul.attributes.test.test_attributed_process.DummyProcess',
+            'capsul.process.test.test_metadata_schema.DummyProcess',
             iterative_plugs=['truc', 'bidule'])
         execution_context = Capsul().engine().execution_context(pipeline)
         subjects = ['kermit', 'piggy', 'stalter', 'waldorf']
