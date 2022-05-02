@@ -227,19 +227,6 @@ class TestPipeline(unittest.TestCase):
             with open(f, "w") as fobj:
                 fobj.write("input: %s\n" % f)
 
-        # from soma.qt_gui.qt_backend import QtGui
-        # from capsul.qt_gui.widgets import PipelineDeveloperView
-
-        # app = QtGui.QApplication.instance()
-        # if not app:
-        #     app = QtGui.QApplication(sys.argv)
-        # view1 = PipelineDeveloperView(self.pipeline, show_sub_pipelines=True,
-        #                                allow_open_controller=True)
-        # # view1.add_embedded_subpipeline('iterative')
-        # view1.auto_dot_node_positions()
-        # view1.show()
-        # app.exec_()
-
         # Test the output connection
         with Capsul().engine() as engine:
             engine.run(self.pipeline)
@@ -354,48 +341,35 @@ class TestPipeline(unittest.TestCase):
             #del controller
             #del config
 
-# def test():
-#     """ Function to execute unitest
-#     """
-#     suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
-#     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-#     return runtime.wasSuccessful()
 
+if __name__ == "__main__":
+    from soma.qt_gui.qt_backend import QtGui
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
-# if __name__ == "__main__":
-#     if '-d' in sys.argv[1:] or '--debug' in sys.argv[1:]:
-#         debug = True
+    app = QtGui.QApplication.instance()
+    if not app:
+        app = QtGui.QApplication(sys.argv)
+    pipeline = MySmallPipeline()
+    pipeline.files_to_create = ["toto", "tutu", "titi"]
+    pipeline.output_image = ['toto_out', 'tutu_out', 'tata_out']
+    pipeline.dynamic_parameter = [3, 1, 4]
+    pipeline.other_output = [0, 0, 0]
+    pipeline.other_input = 0
+    pipeline2 = pipeline.nodes["iterative"].process
+    pipeline2.scene_scale_factor = 0.5
 
-#     test()
+    view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view1.add_embedded_subpipeline('iterative')
+    view1.auto_dot_node_positions()
+    view1.show()
 
-#     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
-#         from soma.qt_gui.qt_backend import QtGui
-#         from capsul.qt_gui.widgets import PipelineDeveloperView
+    pipeline2 = MyBigPipeline()
+    view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view2.add_embedded_subpipeline('iterative')
+    view2.auto_dot_node_positions()
+    view2.show()
 
-#         app = QtGui.QApplication.instance()
-#         if not app:
-#             app = QtGui.QApplication(sys.argv)
-#         pipeline = MySmallPipeline()
-#         pipeline.files_to_create = ["toto", "tutu", "titi"]
-#         pipeline.output_image = ['toto_out', 'tutu_out', 'tata_out']
-#         pipeline.dynamic_parameter = [3, 1, 4]
-#         pipeline.other_output = [0, 0, 0]
-#         pipeline.other_input = 0
-#         pipeline2 = pipeline.nodes["iterative"].process
-#         pipeline2.scene_scale_factor = 0.5
-
-#         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-#                                        allow_open_controller=True)
-#         view1.add_embedded_subpipeline('iterative')
-#         view1.auto_dot_node_positions()
-#         view1.show()
-
-#         pipeline2 = MyBigPipeline()
-#         view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
-#                                        allow_open_controller=True)
-#         view2.add_embedded_subpipeline('iterative')
-#         view2.auto_dot_node_positions()
-#         view2.show()
-
-#         app.exec_()
-#         del view1
+    app.exec_()
+    del view1
