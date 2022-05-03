@@ -138,7 +138,7 @@ class TestPipeline(unittest.TestCase):
         pipeline2 = get_process_instance(filename)
         pipeline2.workflow_ordered_nodes()
 
-        if self.debug:
+        if self.debug and False:
             from soma.qt_gui.qt_backend import QtGui
             from capsul.qt_gui.widgets import PipelineDeveloperView
             import sys
@@ -181,6 +181,16 @@ class TestPipeline(unittest.TestCase):
         else:
             fd, filename = tempfile.mkstemp(prefix='test_pipeline',
                                             suffix='.xml')
+            os.close(fd)
+            self.temp_files.append(filename)
+        self.run_pipeline_io(filename)
+
+    def test_pipeline_json(self):
+        if self.debug:
+            filename = '/tmp/pipeline.json'
+        else:
+            fd, filename = tempfile.mkstemp(prefix='test_pipeline',
+                                            suffix='.json')
             os.close(fd)
             self.temp_files.append(filename)
         self.run_pipeline_io(filename)
