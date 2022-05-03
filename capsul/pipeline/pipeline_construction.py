@@ -156,6 +156,13 @@ class PipelineConstructor(object):
     def add_plug_state(self, plug_name, key, value):
         self._calls.append(('add_plug_state', (plug_name, key, value), {}))
 
+    def set_plug_value(self, node_name, plug_name, value):
+        self._calls.append(('set_plug_value', (node_name, plug_name, value),
+                            {}))
+
+    def set_export_parameters(self, value):
+        self._calls.append(('set_export_parameters', (value, ), {}))
+
 
 class ConstructedPipeline(Pipeline):
     """
@@ -210,3 +217,15 @@ class ConstructedPipeline(Pipeline):
             value = bool(int(value))
         setattr(parent.get_trait(pname), key, value)
         setattr(parent.plugs[pname], key, value)
+
+    def set_plug_value(self, node_name, param_name, value):
+        node_list = node_name.split('.')
+        if node_list == ['']:
+            node_list = []
+        parent = self.pipeline_node
+        for name in node_list:
+            parent = parent.process.nodes[name]
+        parent.set_plug_value(param_name, value)
+
+    def set_export_parameters(self, value):
+        self.do_autoexport_nodes_parameters = value
