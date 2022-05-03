@@ -331,9 +331,12 @@ def save_json_pipeline(pipeline, json_file):
                         value_repr = dict(value.export_to_dict())
                     else:
                         value_repr = value
-                    params[param_name] = value_repr
+                    full_pname = param_name
+                    if name:
+                        full_pname = '.'.join((name, param_name))
+                    params[full_pname] = value_repr
         if params:
-            parent['parameters'] = params
+            parent.setdefault('parameters', {}).update(params)
 
         return procnode
 
