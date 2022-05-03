@@ -63,7 +63,7 @@ def create_json_pipeline(module, name, json_file):
     done = set()
     # sort things to be done
     todo = ['export_parameters', 'doc', 'executables', 'processes_selections',
-            'links', 'weak_links', 'plug_state', 'parameters']
+            'links', 'weak_links', 'plugs_state', 'parameters']
     todo += [k for k in definition.keys() if k not in todo]
 
     for child_name in todo:
@@ -145,7 +145,7 @@ def create_json_pipeline(module, name, json_file):
                 else:
                     raise ValueError('Invalid tag in definition.gui: %s' %
                                      gui_child_name)
-        elif child_name == 'plug_state':
+        elif child_name == 'plugs_state':
             for plug_name, state in child.items():
                 for key, value in state.items():
                     builder.add_plug_state(plug_name, key, value)
@@ -313,7 +313,7 @@ def save_json_pipeline(pipeline, json_file):
                     optional = trait.optional
                 if optional is not None:
                     item = {'optional': bool(optional)}
-                    states = root.setdefault('plug_state', {})
+                    states = root.setdefault('plugs_state', {})
                     states['%s.%s' % (self_str, param_name)] = item
 
             if isinstance(snode, PipelineNode):

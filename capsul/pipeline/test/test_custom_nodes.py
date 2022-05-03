@@ -465,7 +465,7 @@ class TestCustomNodes(unittest.TestCase):
             self.temp_files.append(pyfname + 'c')
         else:
             cache_dir = osp.join(osp.dirname(pyfname), '__pycache__')
-            print('cache_dir:', cache_dir)
+            # print('cache_dir:', cache_dir)
             cpver = 'cpython-%d%d.pyc' % sys.version_info[:2]
             pyfname_we = osp.basename(pyfname[:pyfname.rfind('.')])
             pycfname = osp.join(cache_dir, '%s.%s' % (pyfname_we, cpver))
