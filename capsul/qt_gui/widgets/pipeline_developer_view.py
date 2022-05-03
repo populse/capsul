@@ -4469,12 +4469,18 @@ class PipelineDeveloperView(QGraphicsView):
             from soma.qt_gui.qt_backend.QtWebEngineWidgets \
                 import QWebEngineView, QWebEnginePage
             use_webengine = True
-        except ImportError:
-            from soma.qt_gui.qt_backend import QtWebKit
-            QWebEngineView = QtWebKit.QWebView
-            QWebPage = QtWebKit.QWebPage
-            QWebEnginePage = QWebPage
-            use_webengine = False
+        except ImportError as e:
+            print('\n{}'.format(e))
+            try:
+                from soma.qt_gui.qt_backend import QtWebKit
+                QWebEngineView = QtWebKit.QWebView
+                QWebPage = QtWebKit.QWebPage
+                QWebEnginePage = QWebPage
+                use_webengine = False
+            except ImportError as e:
+                print('\n{}\n\nThe process documentation cannot be '
+                     'displayed ...'.format(e))
+                return None
         self._use_webengine = use_webengine
 
         class DocBrowser(QWebEngineView):
