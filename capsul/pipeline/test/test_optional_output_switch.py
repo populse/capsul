@@ -97,6 +97,21 @@ class TestPipeline(unittest.TestCase):
         finally:
             os.unlink(temp[1])
 
+    def test_json(self):
+        from capsul.pipeline import pipeline_tools
+        temp = tempfile.mkstemp(suffix='.json')
+        try:
+            os.close(temp[0])
+            pipeline_tools.save_pipeline(self.pipeline, temp[1])
+            pipeline = get_process_instance(temp[1])
+            self.assertEqual(len(pipeline.nodes), len(self.pipeline.nodes))
+            pipeline.workflow_ordered_nodes()
+            self.assertEqual(isinstance(pipeline.nodes['intermediate_out'],
+                                        OptionalOutputSwitch), True)
+            self.assertEqual(pipeline.workflow_repr, "node1->node2")
+        finally:
+            os.unlink(temp[1])
+
 def test():
     """ Function to execute unitest
     """

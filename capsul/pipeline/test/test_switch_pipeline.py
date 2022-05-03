@@ -194,7 +194,6 @@ class TestSwitchPipeline(unittest.TestCase):
         self.pipeline.input_image = key
         ce = capsul_engine()
         tmp = tempfile.mkdtemp(prefix='capsul')
-        print('tmp:', tmp)
         try:
             for format in ('.py', '.xml', '.json'):
                 pname = os.path.join(tmp, 'pipeline%s' % format)
@@ -207,8 +206,7 @@ class TestSwitchPipeline(unittest.TestCase):
                                         if n.activated),
                                  ['', 'node', 'switch', 'way21', 'way22'])
         finally:
-            #shutil.rmtree(tmp)
-            pass
+            shutil.rmtree(tmp)
 
 
 def test():

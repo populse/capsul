@@ -5,8 +5,7 @@ from __future__ import absolute_import
 import unittest
 from capsul.api import Process, Pipeline, StudyConfig
 from capsul.pipeline import pipeline_workflow
-from capsul.pipeline import python_export
-from capsul.pipeline import xml
+from capsul.pipeline import pipeline_tools
 import traits.api as traits
 import os
 import os.path as osp
@@ -471,7 +470,7 @@ class TestCustomNodes(unittest.TestCase):
             pyfname_we = osp.basename(pyfname[:pyfname.rfind('.')])
             pycfname = osp.join(cache_dir, '%s.%s' % (pyfname_we, cpver))
             self.temp_files.append(pycfname)
-            print('added py tmpfile:', pyfname, pycfname)
+            # print('added py tmpfile:', pyfname, pycfname)
 
     def _test_custom_nodes(self, pipeline):
         pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i)
@@ -646,49 +645,40 @@ class TestCustomNodes(unittest.TestCase):
         pipeline = sc.get_process_instance(PipelineLOO)
         self._test_loo_pipeline(pipeline)
 
-    def test_custom_nodes_py_io(self):
+    def _test_custom_io(self, pipeline, test_func, format):
         sc = StudyConfig()
-        pipeline = sc.get_process_instance(Pipeline1)
-        py_file = tempfile.mkstemp(suffix='_capsul.py')
+        pipeline = sc.get_process_instance(pipeline)
+        py_file = tempfile.mkstemp(suffix='_capsul.%s' % format)
         pyfname = py_file[1]
         os.close(py_file[0])
-        self.add_py_tmpfile(pyfname)
-        python_export.save_py_pipeline(pipeline, pyfname)
+        if format == 'py':
+            self.add_py_tmpfile(pyfname)
+        else:
+            self.temp_files.append(pyfname)
+        pipeline_tools.save_pipeline(pipeline, pyfname, format=format)
         pipeline2 = sc.get_process_instance(pyfname)
-        self._test_custom_nodes(pipeline)
+        test_func(pipeline2)
+
+    def _test_custom_nodes_io(self, format):
+        self._test_custom_io(Pipeline1, self._test_custom_nodes, format)
+
+    def test_custom_nodes_py_io(self):
+        self._test_custom_nodes_io('py')
 
     def test_custom_nodes_xml_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(Pipeline1)
-        xml_file = tempfile.mkstemp(suffix='_capsul.xml')
-        xmlfname = xml_file[1]
-        os.close(xml_file[0])
-        self.temp_files.append(xmlfname)
-        xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = sc.get_process_instance(xmlfname)
-        self._test_custom_nodes(pipeline2)
+        self._test_custom_nodes_io('xml')
+
+    def test_custom_nodes_json_io(self):
+        self._test_custom_nodes_io('json')
 
     def test_loo_py_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(PipelineLOO)
-        py_file = tempfile.mkstemp(suffix='_capsul.py')
-        pyfname = py_file[1]
-        os.close(py_file[0])
-        self.add_py_tmpfile(pyfname)
-        python_export.save_py_pipeline(pipeline, pyfname)
-        pipeline2 = sc.get_process_instance(pyfname)
-        self._test_loo_pipeline(pipeline2)
+        self._test_custom_io(PipelineLOO, self._test_loo_pipeline, 'py')
 
     def test_loo_xml_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(PipelineLOO)
-        xml_file = tempfile.mkstemp(suffix='_capsul.xml')
-        xmlfname = xml_file[1]
-        os.close(xml_file[0])
-        self.temp_files.append(xmlfname)
-        xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = sc.get_process_instance(xmlfname)
-        self._test_loo_pipeline(pipeline2)
+        self._test_custom_io(PipelineLOO, self._test_loo_pipeline, 'xml')
+
+    def test_loo_json_io(self):
+        self._test_custom_io(PipelineLOO, self._test_loo_pipeline, 'json')
 
     def test_mapreduce(self):
         sc = StudyConfig()
@@ -710,26 +700,10 @@ class TestCustomNodes(unittest.TestCase):
         self.assertEqual(len(wf.dependencies), 28)
 
     def test_cv_py_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(PipelineCV)
-        py_file = tempfile.mkstemp(suffix='_capsul.py')
-        pyfname = py_file[1]
-        os.close(py_file[0])
-        self.add_py_tmpfile(pyfname)
-        python_export.save_py_pipeline(pipeline, pyfname)
-        pipeline2 = sc.get_process_instance(pyfname)
-        self._test_cv_pipeline(pipeline2)
+        self._test_custom_io(PipelineCV, self._test_cv_pipeline, 'py')
 
     def test_cv_xml_io(self):
-        sc = StudyConfig()
-        pipeline = sc.get_process_instance(PipelineCV)
-        xml_file = tempfile.mkstemp(suffix='_capsul.xml')
-        xmlfname = xml_file[1]
-        os.close(xml_file[0])
-        self.temp_files.append(xmlfname)
-        xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = sc.get_process_instance(xmlfname)
-        self._test_cv_pipeline(pipeline2)
+        self._test_custom_io(PipelineCV, self._test_cv_pipeline, 'xml')
 
 
 def test():
