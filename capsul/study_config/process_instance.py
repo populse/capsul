@@ -33,6 +33,7 @@ from capsul.pipeline.pipeline import Pipeline
 from capsul.process.nipype_process import nipype_factory
 from capsul.process.xml import create_xml_process
 from capsul.pipeline.xml import create_xml_pipeline
+from capsul.pipeline.json_io import create_json_pipeline
 from capsul.pipeline.pipeline_nodes import Node
 from soma.controller import Controller
 
@@ -111,6 +112,7 @@ def get_process_instance(process_or_id, study_config=None, **kwargs):
           `<module>`
         * a string description of a pipeline `<module>.<fname>.xml`.
         * an XML filename for a pipeline.
+        * a JSON filename for a pipeline.
         * a Python (.py) filename with process name in it:
           `/path/process_source.py#ProcessName`.
         * a Python (.py) filename for a file containing a single process.
@@ -311,49 +313,56 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
             except ImportError as e:
                 pass
         if not as_py:
-            # maybe XML filename or URL
-            xml_url = process_or_id + '.xml'
+            # maybe XML or JSON filename or URL
+            for ext in ('.xml', '.json'):
+                xml_url = process_or_id + ext
+                if osp.exists(xml_url):
+                    object_name = None
+                    as_xml = True
+                elif process_or_id.endswith(ext) and osp.exists(process_or_id):
+                    xml_url = process_or_id
+                    object_name = None
+                    as_xml = True
+                else:
+                    # maybe XML or JSON file with pipeline name in it
+                    xml_url = module_name + ext
+                    if not osp.exists(xml_url) and module_name.endswith(ext) \
+                            and osp.exists(module_name):
+                        xml_url = module_name
+                    if not osp.exists(xml_url):
+                        # try XML file in a module directory + class name
+                        basename = None
+                        module_name2 = None
+                        if module_name in sys.modules:
+                            basename = object_name
+                            module_name2 = module_name
+                            object_name = None # to allow unmatching class / xml
+                            if basename.endswith(ext):
+                                basename = basename[:-4]
+                        else:
+                            elements = module_name.rsplit('.', 1)
+                            if len(elements) == 2:
+                                module_name2, basename = elements
+                        if module_name2 and basename:
+                            try:
+                                importlib.import_module(module_name2)
+                                mod_dirname = osp.dirname(
+                                    sys.modules[module_name2].__file__)
+                                xml_url = osp.join(mod_dirname, basename + ext)
+                                if not osp.exists(xml_url):
+                                    # if basename includes .xml extension
+                                    xml_url = osp.join(mod_dirname, basename)
+                                as_xml = True
+                            except ImportError as e:
+                                raise ImportError('Cannot import %s: %s'
+                                                  % (module_name, str(e)))
+                if as_xml:
+                    break
+
             if osp.exists(xml_url):
-                object_name = None
-            elif process_or_id.endswith('.xml') and osp.exists(process_or_id):
-                xml_url = process_or_id
-                object_name = None
-            else:
-                # maybe XML file with pipeline name in it
-                xml_url = module_name + '.xml'
-                if not osp.exists(xml_url) and module_name.endswith('.xml') \
-                        and osp.exists(module_name):
-                    xml_url = module_name
-                if not osp.exists(xml_url):
-                    # try XML file in a module directory + class name
-                    basename = None
-                    module_name2 = None
-                    if module_name in sys.modules:
-                        basename = object_name
-                        module_name2 = module_name
-                        object_name = None # to allow unmatching class / xml
-                        if basename.endswith('.xml'):
-                            basename = basename[:-4]
-                    else:
-                        elements = module_name.rsplit('.', 1)
-                        if len(elements) == 2:
-                            module_name2, basename = elements
-                    if module_name2 and basename:
-                        try:
-                            importlib.import_module(module_name2)
-                            mod_dirname = osp.dirname(
-                                sys.modules[module_name2].__file__)
-                            xml_url = osp.join(mod_dirname, basename + '.xml')
-                            if not osp.exists(xml_url):
-                                # if basename includes .xml extension
-                                xml_url = osp.join(mod_dirname, basename)
-                        except ImportError as e:
-                            raise ImportError('Cannot import %s: %s'
-                                              % (module_name, str(e)))
-            as_xml = True
-            if osp.exists(xml_url):
-                result = create_xml_pipeline(module_name, object_name,
-                                             xml_url)()
+                loaders = {'.xml': create_xml_pipeline,
+                           '.json': create_json_pipeline}
+                result = loaders[ext](module_name, object_name, xml_url)()
 
         if result is None and not as_xml:
             if module_dict is not None:

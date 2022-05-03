@@ -1205,7 +1205,7 @@ def create_output_directories(process):
 
 def save_pipeline(pipeline, file, format=None):
     '''
-    Save the pipeline either in XML or .py source file
+    Save the pipeline either in XML, JSON, or .py source file
 
     Parameters
     ----------
@@ -1219,6 +1219,7 @@ def save_pipeline(pipeline, file, format=None):
     '''
     from capsul.pipeline.xml import save_xml_pipeline
     from capsul.pipeline.python_export import save_py_pipeline
+    from capsul.pipeline.json_io import save_json_pipeline
 
     if not isinstance(pipeline, Pipeline):
         # "pipeline" is actually a single process (or should, if it is not a
@@ -1232,7 +1233,8 @@ def save_pipeline(pipeline, file, format=None):
         pipeline = new_pipeline
 
     formats = {'.py': save_py_pipeline,
-              '.xml': save_xml_pipeline}
+              '.xml': save_xml_pipeline,
+              '.json': save_json_pipeline}
 
     if not format and isinstance(file, str):
 
