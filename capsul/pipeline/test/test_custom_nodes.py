@@ -705,6 +705,9 @@ class TestCustomNodes(unittest.TestCase):
     def test_cv_xml_io(self):
         self._test_custom_io(PipelineCV, self._test_cv_pipeline, 'xml')
 
+    def test_cv_json_io(self):
+        self._test_custom_io(PipelineCV, self._test_cv_pipeline, 'json')
+
 
 def test():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestCustomNodes)
