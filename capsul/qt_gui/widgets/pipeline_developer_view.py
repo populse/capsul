@@ -2599,7 +2599,7 @@ class PipelineDeveloperView(QGraphicsView):
                     else:
                         # look for matching xml files
                         for f in os.listdir(pathname):
-                            if (f.endswith('.xml')
+                            if (f.endswith('.xml') or f.endswith('.json')
                                 or os.path.isdir(os.path.join(pathname,
                                                               f))) \
                                     and f.startswith(filename):
@@ -2617,7 +2617,7 @@ class PipelineDeveloperView(QGraphicsView):
                             sel.add(f[:-3])
                         elif f.endswith('.pyc') or f.endswith('.pyo'):
                             sel.add(f[:-4])
-                        elif f.endswith('.xml'):
+                        elif f.endswith('.xml') or f.endswith('.json'):
                             sel.add(f)
                         elif '.' not in f \
                                 and os.path.isdir(os.path.join(
@@ -4877,7 +4877,7 @@ class PipelineDeveloperView(QGraphicsView):
             def get_filename(self):
                 filename = qt_backend.getOpenFileName(
                     None, 'Load the pipeline', self.old_filename,
-                    'Compatible files (*.xml *.py);; All (*)')
+                    'Compatible files (*.xml *.json *.py);; All (*)')
                 if filename:
                     self.proc_edit.setText(filename)
 
@@ -4917,13 +4917,13 @@ class PipelineDeveloperView(QGraphicsView):
     def save_pipeline(self):
         '''
         Ask for a filename using the file dialog, and save the pipeline as a
-        XML or python file.
+        XML, JSON or python file.
         '''
         pipeline = self.scene.pipeline
         old_filename = getattr(self, '_pipeline_filename', '')
         filename = qt_backend.getSaveFileName(
             None, 'Save the pipeline', old_filename,
-            'Compatible files (*.xml *.py);; All (*)')
+            'Compatible files (*.xml *.json *.py);; All (*)')
         if filename:
             posdict = {}
             for key, value in six.iteritems(self.scene.pos):

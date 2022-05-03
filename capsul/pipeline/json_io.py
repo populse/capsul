@@ -76,67 +76,79 @@ def create_json_pipeline(module, name, json_file):
                 builder.set_documentation(child.strip())
         elif child_name == 'executables':
             for process_name, process_def in child.items():
-                module = process_def.get('definition')
-                args = (process_name, module)
-                kwargs = {}
-                nipype_usedefault = []
-                iterate = []
-                iteration = process_def.get('iteration')
-                #links = []
-                if iteration:
-                    iterate = [x.strip() for x in iteration]
-                #for process_child in process_def:
-                    #if process_child_name == 'set':
-                        #name = process_child.get('name')
-                        #value = process_child.get('value')
-                        #value = string_to_value(value)
-                        #if value is not None:
-                            #kwargs[name] = value
-                        #kwargs.setdefault('make_optional', []).append(name)
-                    #elif process_child_name == 'nipype':
-                        #name = process_child.get('name')
-                        #usedefault = process_child.get('usedefault')
-                        #if usedefault == 'true':
-                            #nipype_usedefault.append(name)
-                        #copyfile = process_child.get('copyfile')
-                        #if copyfile == 'true':
-                            #kwargs.setdefault('inputs_to_copy', []).append(name)
-                        #elif copyfile == 'discard':
-                            #kwargs.setdefault('inputs_to_copy', []).append(name)
-                            #kwargs.setdefault('inputs_to_clean', []).append(name)
-                    #elif process_child_name == 'link':
-                        ## internal export
-                        #source = process_child.get('source')
-                        #dest = process_child.get('dest')
-                        #links.append([source, dest, None])
-                    #else:
-                        #raise ValueError('Invalid tag in <process>: %s' %
-                                        #process_child_name)
-                #if links:
-                    #todel = []
-                    #for link in links:
-                        #k = link[0]
-                        #if '.' in k:
-                            #k = link[1]
-                        #v = kwargs.get(k)
-                        #if v is not None:
-                            #link[2] = v
-                            #del kwargs[k]
-                if iterate:
-                    kwargs['iterative_plugs'] = iterate
-                    builder.add_iterative_process(*args, **kwargs)
+                type = process_def.get('type')
+                if type == 'switch':
+                    inputs = process_def.get('inputs', [])
+                    outputs = process_def.get('outputs', [])
+                    value = process_def.get('value')
+                    optional = process_def.get('optional', ())
+                    builder.add_switch(process_name, inputs, outputs, False,
+                                       optional, switch_value=value)
+
                 else:
-                    builder.add_process(*args, **kwargs)
-                #for name in nipype_usedefault:
-                    #builder.call_process_method(process_name, 'set_usedefault',
-                                                #name, True)
-                #if links:
-                    #for link in links:
-                        #builder.add_subpipeline_link(process_name, link[0],
-                                                    #link[1], value=link[2])
-                enabled = process_def.get('enabled')
-                if enabled == 'false':
-                    builder.set_node_enabled(process_name, False)
+                    # process / pipeline
+
+                    iterate = []
+                    if type == 'iterative_process':
+                        iterate = process_def['iterative_parameters']
+
+                    module = process_def.get('definition')
+                    args = (process_name, module)
+                    kwargs = {}
+                    #nipype_usedefault = []
+                    #links = []
+                    #for process_child in process_def:
+                        #if process_child_name == 'set':
+                            #name = process_child.get('name')
+                            #value = process_child.get('value')
+                            #value = string_to_value(value)
+                            #if value is not None:
+                                #kwargs[name] = value
+                            #kwargs.setdefault('make_optional', []).append(name)
+                        #elif process_child_name == 'nipype':
+                            #name = process_child.get('name')
+                            #usedefault = process_child.get('usedefault')
+                            #if usedefault == 'true':
+                                #nipype_usedefault.append(name)
+                            #copyfile = process_child.get('copyfile')
+                            #if copyfile == 'true':
+                                #kwargs.setdefault('inputs_to_copy', []).append(name)
+                            #elif copyfile == 'discard':
+                                #kwargs.setdefault('inputs_to_copy', []).append(name)
+                                #kwargs.setdefault('inputs_to_clean', []).append(name)
+                        #elif process_child_name == 'link':
+                            ## internal export
+                            #source = process_child.get('source')
+                            #dest = process_child.get('dest')
+                            #links.append([source, dest, None])
+                        #else:
+                            #raise ValueError('Invalid tag in <process>: %s' %
+                                            #process_child_name)
+                    #if links:
+                        #todel = []
+                        #for link in links:
+                            #k = link[0]
+                            #if '.' in k:
+                                #k = link[1]
+                            #v = kwargs.get(k)
+                            #if v is not None:
+                                #link[2] = v
+                                #del kwargs[k]
+                    if iterate:
+                        kwargs['iterative_plugs'] = iterate
+                        builder.add_iterative_process(*args, **kwargs)
+                    else:
+                        builder.add_process(*args, **kwargs)
+                    #for name in nipype_usedefault:
+                        #builder.call_process_method(process_name, 'set_usedefault',
+                                                    #name, True)
+                    #if links:
+                        #for link in links:
+                            #builder.add_subpipeline_link(process_name, link[0],
+                                                        #link[1], value=link[2])
+                    enabled = process_def.get('enabled')
+                    if enabled == 'false':
+                        builder.set_node_enabled(process_name, False)
         #elif child_name == 'switch':
             #switch_name = child.get('name')
             #value = child.get('switch_value')
@@ -411,6 +423,34 @@ def save_json_pipeline(pipeline, json_file):
                         continue
                     todo.append(('%s.%s' % (self_str, node_name), snode,
                                  scnode))
+
+    def _write_switch(switch, parent, name):
+        swnode = {'type': 'switch'}
+        mod = switch.__module__
+        classname = switch.__class__.__name__
+        swnode['definition'] = "%s.%s" % (mod, classname)
+
+        inputs = set()
+        outputs = []
+        optional = []
+        for plug_name, plug in switch.plugs.items():
+            if plug.output:
+                outputs.append(plug_name)
+                if plug.optional:
+                    optional.append(plug_name)
+            else:
+                name_parts = plug_name.split("_switch_")
+                if len(name_parts) == 2 and name_parts[0] not in inputs:
+                    inputs.add(name_parts[0])
+                    if plug.optional:
+                        optional.append(plug_name)
+        swnode['value'] = str(switch.switch)
+        swnode['inputs'] = sorted(inputs)
+        swnode['outputs'] = outputs
+        if optional:
+            swnode['optional'] = optional
+        parent.setdefault('executables', {})[name] = swnode
+        return swnode
 
     def _write_doc(pipeline, root):
         if hasattr(pipeline, "__doc__"):

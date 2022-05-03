@@ -5,9 +5,13 @@ from __future__ import absolute_import
 import sys
 import unittest
 import os
+import tempfile
+import shutil
 from traits.api import Str, Float
 from capsul.api import Process
 from capsul.api import Pipeline, PipelineNode
+from capsul.api import capsul_engine
+from capsul.pipeline import pipeline_tools
 
 
 class DummyProcess(Process):
@@ -184,6 +188,28 @@ class TestSwitchPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.nodes["way21"].process.input_image,
                          key)
 
+    def test_io(self):
+        self.pipeline.switch = "two"
+        key = "test"
+        self.pipeline.input_image = key
+        ce = capsul_engine()
+        tmp = tempfile.mkdtemp(prefix='capsul')
+        print('tmp:', tmp)
+        try:
+            for format in ('.py', '.xml', '.json'):
+                pname = os.path.join(tmp, 'pipeline%s' % format)
+                pipeline_tools.save_pipeline(self.pipeline, pname)
+                p2 = ce.get_process_instance(pname)
+                self.assertEqual(sorted(p2.nodes.keys()),
+                                 ['', 'node', 'switch', 'way1', 'way21',
+                                  'way22'])
+                self.assertEqual(sorted(k for k, n in p2.nodes.items()
+                                        if n.activated),
+                                 ['', 'node', 'switch', 'way21', 'way22'])
+        finally:
+            #shutil.rmtree(tmp)
+            pass
+
 
 def test():
     """ Function to execute unitest
@@ -199,7 +225,7 @@ if __name__ == "__main__":
     if '-v' in sys.argv:
         import sys
         from soma.qt_gui import qt_backend
-        qt_backend.set_qt_backend('PyQt4')
+        qt_backend.set_qt_backend(compatible_qt5=True)
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDeveloperView
 
