@@ -6,8 +6,7 @@ from capsul.api import Process
 from capsul.api import Pipeline
 from capsul.api import executable
 from capsul.pipeline.pipeline_nodes import OptionalOutputSwitch
-import tempfile
-import os
+import sys
 
 
 class DummyProcess(Process):
@@ -38,12 +37,10 @@ class MyPipelineWithOptOut(Pipeline):
             "capsul.pipeline.test.test_optional_output_switch.DummyProcess")
         self.add_process("node2",
             "capsul.pipeline.test.test_optional_output_switch.DummyProcess")
-        self.add_optional_output_switch("intermediate_out", "one")
+        self.add_proxy("intermediate_out", self.nodes["node1"], "output_image")
 
         # Links
         self.add_link("node1.output_image->node2.input_image")
-        self.add_link("node1.output_image->"
-                      "intermediate_out.one_switch_intermediate_out")
 
         # exports
         self.export_parameter("node1", "input_image", "input_image1")
@@ -67,21 +64,13 @@ class TestPipeline(unittest.TestCase):
                                   for x in workflow_repr)
         self.assertEqual(workflow_repr, "node1->node2")
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_way2(self):
-        workflow_repr = self.pipeline.workflow_ordered_nodes()
-        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
-                                  for x in workflow_repr)
-        self.assertEqual(workflow_repr, "node1->node2")
-        self.assertEqual(self.pipeline.nodes["intermediate_out"].switch,
-                         "_none")
         self.pipeline.intermediate_out = '/tmp/a_file.txt'
-        self.assertEqual(self.pipeline.nodes["intermediate_out"].switch, "one")
+        self.assertEqual(self.pipeline.nodes["node1"].output_image,
+                         '/tmp/a_file.txt')
         self.assertEqual(self.pipeline.nodes["node1"].output_image,
                          self.pipeline.intermediate_out)
         self.pipeline.intermediate_out = undefined
-        self.assertEqual(self.pipeline.nodes["intermediate_out"].switch,
-                         "_none")
         self.assertEqual(
             getattr(self.pipeline.nodes["node1"], 'output_image', undefined),
             undefined)

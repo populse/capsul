@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 
 import unittest
 from capsul.api import Process, Pipeline, executable
@@ -12,18 +10,16 @@ import os.path as osp
 import tempfile
 import sys
 import shutil
-import json
 
 
 class TestProcess(Process):
-    def __init__(self, definition=None):
-        super(TestProcess, self).__init__(
-            'caspul.pipeline.test.test_custom_nodes.TestProcess')
+    def __init__(self, definition):
+        super().__init__(definition)
         self.add_field('in1', File, output=False)
         self.add_field('model', File, output=False)
         self.add_field('out1', File, write=True)
 
-    def execute(self, context=None):
+    def execute(self, context):
         print('in1:', self.in1)
         print('out1:', self.out1)
         with open(self.out1, 'w') as f:
@@ -41,9 +37,8 @@ class TestProcess(Process):
 
 
 class TrainProcess1(Process):
-    def __init__(self, definition=None):
-        super(TrainProcess1, self).__init__(
-            'caspul.pipeline.test.test_custom_nodes.TrainProcess1')
+    def __init__(self, definition):
+        super().__init__(definition)
         self.add_field('in1', list[File], output=False)
         self.add_field('out1', File, write=True)
 
@@ -57,9 +52,8 @@ class TrainProcess1(Process):
 
 
 class TrainProcess2(Process):
-    def __init__(self, definition=None):
-        super(TrainProcess2, self).__init__(
-            'caspul.pipeline.test.test_custom_nodes.TrainProcess2')
+    def __init__(self, definition):
+        super().__init__(definition)
         self.add_field('in1', list[File], output=False)
         self.add_field('in2', File, output=False)
         self.add_field('out1', File, write=True)
@@ -78,9 +72,8 @@ class TrainProcess2(Process):
                 of.write(f.read())
 
 class CatFileProcess(Process):
-    def __init__(self, definition=None):
-        super(CatFileProcess, self).__init__(
-            'caspul.pipeline.test.test_custom_nodes.CatFileProcess')
+    def __init__(self, definition):
+        super().__init__(definition)
         self.add_field('files', list[File], output=False)
         self.add_field('output', File, write=True)
 
@@ -92,8 +85,8 @@ class CatFileProcess(Process):
 
 class Pipeline1(Pipeline):
     def pipeline_definition(self):
-        self.add_process('train1', TrainProcess1())
-        self.add_process('train2', TrainProcess2())
+        self.add_process('train1', TrainProcess1)
+        self.add_process('train2', TrainProcess2)
 
         self.add_custom_node('LOO',
                              'capsul.pipeline.custom_nodes.loo_node',
@@ -128,7 +121,7 @@ class Pipeline1(Pipeline):
         self.nodes['intermediate_output'].subject = 'output_file'
         self.nodes['intermediate_output'].suffix = '_interm'
 
-        self.add_process('test', TestProcess())
+        self.add_process('test', TestProcess)
 
         self.add_custom_node(
             'test_output',
@@ -254,9 +247,9 @@ class PipelineCVFold(Pipeline):
     def pipeline_definition(self):
         # nodes
         self.add_process("train1", "capsul.pipeline.test.test_custom_nodes.TrainProcess1")
-        self.nodes["train1"].out1 = u'%s_interm' % os.path.sep
+        self.nodes["train1"].out1 = f'{os.path.sep}_interm'
         self.add_process("train2", "capsul.pipeline.test.test_custom_nodes.TrainProcess2")
-        self.nodes["train2"].in2 = u'%s_interm' % os.path.sep
+        self.nodes["train2"].in2 = f'{os.path.sep}_interm'
         self.nodes["train2"].out1 = os.path.sep
         self.add_iterative_process(
             "test_it", "capsul.pipeline.test.test_custom_nodes.CVtest",
