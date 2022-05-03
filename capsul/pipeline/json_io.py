@@ -13,6 +13,7 @@ Functions
 
 import json
 import os
+import sys
 from traits.api import Undefined
 from soma.controller import Controller
 from capsul.pipeline.pipeline_construction import PipelineConstructor
@@ -65,7 +66,6 @@ def create_json_pipeline(module, name, json_file):
             'links', 'weak_links', 'plug_state', 'parameters']
     todo += [k for k in definition.keys() if k not in todo]
 
-
     for child_name in todo:
         child = definition.get(child_name)
         if child is None:
@@ -85,8 +85,21 @@ def create_json_pipeline(module, name, json_file):
                     builder.add_switch(process_name, inputs, outputs, False,
                                        optional, switch_value=value)
 
+                elif type == 'optional_output_switch':
+                    input = process_def.get('input')
+                    output = process_def.get('output')
+                    builder.add_optional_output_switch(process_name, input,
+                                                       output)
+
+                elif type == 'custom_node':
+                    node_def = process_def.get('definition')
+                    conf = process_def.get('config')
+                    optional = process_def.get('optional', ())
+                    builder.add_custom_node(process_name, node_def, conf,
+                                            optional)
+
                 else:
-                    # process / pipeline
+                    # process / pipeline / iteration
 
                     iterate = []
                     if type == 'iterative_process':
@@ -95,132 +108,14 @@ def create_json_pipeline(module, name, json_file):
                     module = process_def.get('definition')
                     args = (process_name, module)
                     kwargs = {}
-                    #nipype_usedefault = []
-                    #links = []
-                    #for process_child in process_def:
-                        #if process_child_name == 'set':
-                            #name = process_child.get('name')
-                            #value = process_child.get('value')
-                            #value = string_to_value(value)
-                            #if value is not None:
-                                #kwargs[name] = value
-                            #kwargs.setdefault('make_optional', []).append(name)
-                        #elif process_child_name == 'nipype':
-                            #name = process_child.get('name')
-                            #usedefault = process_child.get('usedefault')
-                            #if usedefault == 'true':
-                                #nipype_usedefault.append(name)
-                            #copyfile = process_child.get('copyfile')
-                            #if copyfile == 'true':
-                                #kwargs.setdefault('inputs_to_copy', []).append(name)
-                            #elif copyfile == 'discard':
-                                #kwargs.setdefault('inputs_to_copy', []).append(name)
-                                #kwargs.setdefault('inputs_to_clean', []).append(name)
-                        #elif process_child_name == 'link':
-                            ## internal export
-                            #source = process_child.get('source')
-                            #dest = process_child.get('dest')
-                            #links.append([source, dest, None])
-                        #else:
-                            #raise ValueError('Invalid tag in <process>: %s' %
-                                            #process_child_name)
-                    #if links:
-                        #todel = []
-                        #for link in links:
-                            #k = link[0]
-                            #if '.' in k:
-                                #k = link[1]
-                            #v = kwargs.get(k)
-                            #if v is not None:
-                                #link[2] = v
-                                #del kwargs[k]
                     if iterate:
                         kwargs['iterative_plugs'] = iterate
                         builder.add_iterative_process(*args, **kwargs)
                     else:
                         builder.add_process(*args, **kwargs)
-                    #for name in nipype_usedefault:
-                        #builder.call_process_method(process_name, 'set_usedefault',
-                                                    #name, True)
-                    #if links:
-                        #for link in links:
-                            #builder.add_subpipeline_link(process_name, link[0],
-                                                        #link[1], value=link[2])
                     enabled = process_def.get('enabled')
                     if enabled == 'false':
                         builder.set_node_enabled(process_name, False)
-        #elif child_name == 'switch':
-            #switch_name = child.get('name')
-            #value = child.get('switch_value')
-            #kwargs = {'export_switch': False}
-            #if value:
-                #kwargs['switch_value'] = value
-            #inputs = []
-            #outputs = []
-            #for process_child in child:
-                #if process_child_name == 'input':
-                    #name = process_child.get('name')
-                    #inputs.append(name)
-                #elif process_child_name == 'output':
-                    #name = process_child.get('name')
-                    #outputs.append(name)
-                    #optional = process_child.get('optional')
-                    #if optional == 'true':
-                        #kwargs.setdefault('make_optional', []).append(name)
-            #builder.add_switch(switch_name, inputs, outputs, **kwargs)
-            #enabled = child.get('enabled')
-            #if enabled == 'false':
-                #builder.set_node_enabled(switch_name, False)
-        #elif child_name == 'optional_output_switch':
-            #switch_name = child.get('name')
-            #kwargs = {}
-            #input = None
-            #output = None
-            #for process_child in child:
-                #if process_child_name == 'input':
-                    #if input is not None:
-                        #raise ValueError(
-                            #'Several inputs in optional_output_switch')
-                    #input = process_child.get('name')
-                #elif process_child_name == 'output':
-                    #if output is not None:
-                        #raise ValueError(
-                            #'Several outputs in optional_output_switch')
-                    #output = process_child.get('name')
-            #if input is None:
-                #raise ValueError('No input in optional_output_switch')
-            #builder.add_optional_output_switch(switch_name, input, output)
-            #enabled = child.get('enabled')
-            #if enabled == 'false':
-                #builder.set_node_enabled(switch_name, False)
-
-        #elif child_name == 'custom_node':
-            #node_name = child.get('name')
-            #module = child.get('module')
-            #params = {}
-            #kwargs = {}
-            #make_optional = []
-            #for process_child in child:
-                #if process_child_name == 'config':
-                    #for p, value in process_child.items():
-                          #params[p] = string_to_value(value)
-                #elif process_child_name == 'set':
-                    #name = process_child.get('name')
-                    #value = process_child.get('value')
-                    #value = string_to_value(value)
-                    #if value is not None:
-                        #kwargs[name] = value
-                    #make_optional.append(name)
-                #else:
-                    #raise ValueError('Invalid tag in <process>: %s' %
-                                     #process_child_name)
-            ## TODO optional plugs
-            #builder.add_custom_node(node_name, module, params, make_optional,
-                                    #**kwargs)
-
-            #enabled = child.get('enabled')
-            #if enabled == 'false':
-                #builder.set_node_enabled(node_name, False)
 
         elif child_name == 'links':
             for link in child:
@@ -248,7 +143,7 @@ def create_json_pipeline(module, name, json_file):
                 elif gui_child_name == 'zoom':
                     builder.set_scene_scale_factor(gui_child)
                 else:
-                    raise ValueError('Invalid tag in <gui>: %s' %
+                    raise ValueError('Invalid tag in definition.gui: %s' %
                                      gui_child_name)
         elif child_name == 'plug_state':
             for plug_name, state in child.items():
@@ -266,7 +161,8 @@ def create_json_pipeline(module, name, json_file):
         elif child_name == 'export_parameters':
             builder.set_export_parameters(child)
         else:
-            raise ValueError('Invalid tag in <pipeline>: %s' % child_name)
+            raise ValueError('Invalid tag in pipeline definition: %s'
+                             % child_name)
     return builder.pipeline
 
 
@@ -311,7 +207,12 @@ def save_json_pipeline(pipeline, json_file):
                     if '.' in class_name:
                         classname = classname[:classname.index('.')]
                     classname = classname[0].upper() + class_name[1:]
-        procnode['definition'] = "%s.%s" % (mod, classname)
+
+        if mod == '__main__':
+            defn = '%s#%s' % (sys.argv[0], classname)
+        else:
+            defn = '%s.%s' % (mod, classname)
+        procnode['definition'] = defn
         procnode['type'] = 'process'
         parent.setdefault('executables', {})[name] = procnode
 
@@ -426,9 +327,9 @@ def save_json_pipeline(pipeline, json_file):
 
     def _write_switch(switch, parent, name):
         swnode = {'type': 'switch'}
-        mod = switch.__module__
-        classname = switch.__class__.__name__
-        swnode['definition'] = "%s.%s" % (mod, classname)
+        # mod = switch.__module__
+        # classname = switch.__class__.__name__
+        # swnode['definition'] = "%s.%s" % (mod, classname)
 
         inputs = set()
         outputs = []
@@ -451,6 +352,73 @@ def save_json_pipeline(pipeline, json_file):
             swnode['optional'] = optional
         parent.setdefault('executables', {})[name] = swnode
         return swnode
+
+    def _write_optional_output_switch(switch, parent, name):
+        swnode = {'type': 'optional_output_switch'}
+        for plug_name, plug in switch.plugs.items():
+            if plug.output:
+                swnode['output'] = plug_name
+            else:
+                name_parts = plug_name.split("_switch_")
+                if len(name_parts) == 2:
+                    input = name_parts[0]
+                    if input != '_none':
+                        swnode['input'] = input
+        parent.setdefault('executables', {})[name] = swnode
+        return swnode
+
+    def _write_custom_node(node, parent, name):
+        etnode = {'type': 'custom_node'}
+        mod = node.__module__
+        classname = node.__class__.__name__
+        nodename = '.'.join((mod, classname))
+        etnode['definition'] = "%s.%s" % (mod, classname)
+        if hasattr(node, 'configured_controller'):
+            c = node.configured_controller()
+            if len(c.user_traits()) != 0:
+                et = {}
+                etnode['config'] = et
+                for param_name in c.user_traits():
+                    value = getattr(c, param_name)
+                    if isinstance(value, Controller):
+                        value_repr = dict(value.export_to_dict())
+                    else:
+                        value_repr = value
+                    et[param_name] = value_repr
+        # set initial values
+        optional = []
+        for param_name, plug in node.plugs.items():
+            trait = node.trait(param_name)
+            value = getattr(node, param_name)
+            if trait.optional:
+                optional.append(param_name)
+            if value not in (None, Undefined, '', []) or trait.optional:
+                if isinstance(value, Controller):
+                    value_repr = dict(value.export_to_dict())
+                else:
+                    value_repr = value
+                values = parent.setdefault('parameters', {})
+                full_pname = param_name
+                if name:
+                    full_pname = '.'.join((name, param_name))
+                values[full_pname] = value_repr
+        if optional:
+            etnode['optional'] = optional
+
+        parent.setdefault('executables', {})[name] = etnode
+        return etnode
+
+    def _write_iteration(node, parent, name):
+        process_iter = node.process
+        it_node = ProcessNode(node.pipeline, name, process_iter.process)
+        iter_values = dict([(p, getattr(process_iter, p))
+                            for p in process_iter.iterative_parameters])
+        procnode = _write_process(
+            it_node, parent, name, init_plug_values=iter_values)
+        procnode['type'] = 'iterative_process'
+        procnode['iterative_parameters'] \
+            = list(process_iter.iterative_parameters)
+        return procnode
 
     def _write_doc(pipeline, root):
         if hasattr(pipeline, "__doc__"):
@@ -546,7 +514,8 @@ def save_json_pipeline(pipeline, json_file):
     def _write_nodes_positions(pipeline, root):
         gui = {}
         if hasattr(pipeline, "node_position") and pipeline.node_position:
-            gui = {}
+            npos = {}
+            gui['position'] = npos
             for node_name, pos in pipeline.node_position.items():
                 if hasattr(pos, 'x'):
                     # it's a QPointF
@@ -554,7 +523,7 @@ def save_json_pipeline(pipeline, json_file):
                 else:
                     # it's a python iterable
                     node_pos = [float(pos[0]), float(pos[1])]
-                gui[node_name] = node_pos
+                npos[node_name] = node_pos
 
         if hasattr(pipeline, "scene_scale_factor"):
             gui['zoom'] = float(pipeline.scene_scale_factor)
@@ -594,9 +563,15 @@ def save_json_pipeline(pipeline, json_file):
     _write_steps(pipeline, definition)
     _write_nodes_positions(pipeline, definition)
 
-    if isinstance(json_file, str):
-        json_filename = json_file
-        with open(json_filename, 'w') as json_file:
+    try:
+        if isinstance(json_file, str):
+            json_filename = json_file
+            with open(json_filename, 'w') as json_file:
+                json.dump(root, json_file, indent=4)
+        else:
             json.dump(root, json_file, indent=4)
-    else:
-        json.dump(root, json_file, indent=4)
+    except Exception as e:
+        print('EXC:', e)
+        print('dict:')
+        print(root)
+        raise
