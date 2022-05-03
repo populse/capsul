@@ -563,15 +563,9 @@ def save_json_pipeline(pipeline, json_file):
     _write_steps(pipeline, definition)
     _write_nodes_positions(pipeline, definition)
 
-    try:
-        if isinstance(json_file, str):
-            json_filename = json_file
-            with open(json_filename, 'w') as json_file:
-                json.dump(root, json_file, indent=4)
-        else:
+    if isinstance(json_file, str):
+        json_filename = json_file
+        with open(json_filename, 'w') as json_file:
             json.dump(root, json_file, indent=4)
-    except Exception as e:
-        print('EXC:', e)
-        print('dict:')
-        print(root)
-        raise
+    else:
+        json.dump(root, json_file, indent=4)
