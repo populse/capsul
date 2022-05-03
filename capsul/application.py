@@ -86,7 +86,8 @@ class Capsul(Singleton):
         '''
         return Dataset(path)
 
-    def custom_pipeline(self):
+    @staticmethod
+    def custom_pipeline():
         return CustomPipeline()
 
     def iteration_pipeline(self, executable,

@@ -87,6 +87,10 @@ if __name__ == '__main__':
                         node.before_execute(execution_context)
                         node.execute(execution_context)
                         node.after_execute(execution_context)
+                        for field in node.fields():
+                            if field.is_output():
+                                value = getattr(node, field.name, undefined)
+                                executable.dispatch_value(node, field.name, value)
             else:
                 executable.execute(execution_context)
             executable.after_execute(execution_context)

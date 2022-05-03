@@ -42,22 +42,13 @@ Functions
 -----------------------
 '''
 
-from __future__ import print_function
-
-# System import
-from __future__ import absolute_import
 import os
-import logging
 import tempfile
 import soma.subprocess
-import six
-import sys
 import json
-from datetime import date, time, datetime
 import io
 
-# Define the logger
-logger = logging.getLogger(__name__)
+from populse_db import json_encode, json_decode
 
 # Capsul import
 from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
@@ -311,7 +302,7 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
     nodes_pos = pipeline.node_position
     scale = 1. / 67.
 
-    for node_name, node in six.iteritems(pipeline.nodes):
+    for node_name, node in pipeline.nodes.items():
         if node_name == '':
             if not include_io:
                 continue
@@ -339,7 +330,7 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
         if node_name != '':
             nodes.append((id, node_name, node_props))
         has_inputs = False
-        for plug_name, plug in six.iteritems(node.plugs):
+        for plug_name, plug in node.plugs.items():
             if (plug.output and node_name != '') \
                     or (not plug.output and node_name == ''):
                 if node_name == '':
@@ -476,7 +467,7 @@ def save_dot_graph(dot_graph, filename, **kwargs):
     '''
 
     def _str_repr(item):
-        if isinstance(item, six.string_types):
+        if isinstance(item, str):
             return '"%s"' % item
         return repr(item)
 
@@ -484,7 +475,7 @@ def save_dot_graph(dot_graph, filename, **kwargs):
     props = {'rankdir': 'LR'}
     props.update(kwargs)
     propsstr = ' '.join(['='.join([aname, _str_repr(val)])
-                         for aname, val in six.iteritems(props)])
+                         for aname, val in props.items()])
     rankdir = props['rankdir']
 
     fileobj.write('digraph {%s;\n' % propsstr)
@@ -495,15 +486,15 @@ def save_dot_graph(dot_graph, filename, **kwargs):
             props = dict(props)
             props['orientation'] -= 90
         attstr = ' '.join(['='.join([aname, _str_repr(val)])
-                           for aname, val in six.iteritems(props)])
+                           for aname, val in props.items()])
         if len(props) != 0:
             attstr = ' ' + attstr
         fileobj.write('  %s [label="%s" style="filled"%s];\n'
                       % (id, node, attstr))
-    for edge, descr in six.iteritems(dot_graph[1]):
+    for edge, descr in dot_graph[1].items():
         props = descr[0]
         attstr = ' '.join(['='.join([aname, _str_repr(val)])
-                           for aname, val in six.iteritems(props)])
+                           for aname, val in props.items()])
         fileobj.write('  "%s" -> "%s" [%s];\n'
                       % (edge[0], edge[1], attstr))
     fileobj.write('}\n')
@@ -755,10 +746,10 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
         process = node.process
         if recursive and isinstance(process, Pipeline):
             nodes += [('%s.%s' % (node_name, new_name), new_node)
-                      for new_name, new_node in six.iteritems(process.nodes)
+                      for new_name, new_node in process.nodes.items()
                       if new_name != '']
             continue
-        for plug_name, plug in six.iteritems(node.plugs):
+        for plug_name, plug in node.plugs.items():
             if not plug.output:
                 if process.field(plug_name).is_path():
                     value = getattr(process, plug_name, undefined)
@@ -1059,7 +1050,7 @@ def dump_pipeline_state_as_dict(pipeline):
                     modified = True
                 elif recursive:
                     todo = [(value, nodes, key, True)
-                            for key, value in six.iteritems(nodes)] + todo
+                            for key, value in nodes.items()] + todo
                     modified = True
             if len(current_dict) == 0 and parent is not None:
                 del parent[parent_key]
@@ -1074,7 +1065,7 @@ def dump_pipeline_state_as_dict(pipeline):
         proc = node
         node_dict = proc.asdict()
         # filter out forbidden and already used plugs
-        for plug_name, plug in six.iteritems(node.plugs):
+        for plug_name, plug in node.plugs.items():
             if plug_name in node_dict \
                     and not should_keep_value(node, plug, components):
                 del node_dict[plug_name]
@@ -1090,7 +1081,7 @@ def dump_pipeline_state_as_dict(pipeline):
         if hasattr(proc, 'nodes'):
             nodes += [(child_node_name, child_node, child_dict)
                       for child_node_name, child_node
-                      in six.iteritems(proc.nodes) if child_node_name != '']
+                      in proc.nodes.items() if child_node_name != '']
 
     prune_empty_dicts(state_dict)
     return state_dict
@@ -1216,22 +1207,9 @@ def load_pipeline_parameters(filename, pipeline):
             dic = json.load(file)
 
         if "pipeline_parameters" not in dic:
-            raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
+            raise KeyError(f'No "pipeline_parameters" key found in {filename}.')
 
-        for field_name, field_value in dic["pipeline_parameters"].items():
-            if pipeline.field(field_name) is None:
-                # Should we raise an error or just "continue"?
-                raise KeyError(
-                    'No "{0}" parameter in pipeline.'.format(field_name))
-
-            try:
-                setattr(pipeline, field_name, field_value)
-            except ValidationError:
-                # This case happened using traits when the type is date,
-                # time or datetime
-                # Couldn't find an other solution for now
-                setattr(pipeline, field_name, None)
-
+        pipeline.import_json(json_decode(dic["pipeline_parameters"]))
         pipeline.update_nodes_and_plugs_activation()
 
 
@@ -1240,46 +1218,18 @@ def save_pipeline_parameters(filename, pipeline):
     Saving pipeline parameters (inputs and outputs) to a Json file.
     """
 
-    def check_value(val):
-        """
-        Checking if the value is a list, Undefined, a date or a time
-        :param val: value
-        :return: the serializable value
-        """
-        if type(val) in [list, ]:
-            for idx, element in enumerate(val):
-                new_list_value = check_value(element)
-                val[idx] = new_list_value
-
-        if val is undefined:
-            val = ""
-
-        if type(val) in [date, time, datetime]:
-            val = str(val)
-
-        return val
 
     if filename:
         # Generating the dictionary
-        param_dic = {}
-        for field in pipeline.fields():
-            field_name = field.name
-            if field_name in ["nodes_activation"]:
-                continue
-            value = check_value(getattr(pipeline, field_name, undefined))
-            param_dic[field_name] = value
+        param_dic = json_encode(pipeline.json()['parameters'])
 
         # In the future, more information may be added to this dictionary
         dic = {}
         dic["pipeline_parameters"] = param_dic
 
         # Saving the dictionary in the Json file
-        if sys.version_info[0] >= 3:
-            with open(filename, 'w', encoding='utf8') as file:
-                json.dump(dic, file)
-        else:
-            with open(filename, 'w') as file:
-                json.dump(dic, file)
+        with open(filename, 'w', encoding='utf8') as file:
+            json.dump(dic, file)
 
 
 def find_node(pipeline, node):
