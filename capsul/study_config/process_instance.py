@@ -277,11 +277,13 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
             module = _load_module(filename)
             module_name = module.__name__
             module_dict = module.__dict__
-            module_dict = module.__dict__
-            object_name = _find_single_process(
-                module_dict, module_name)
-            if object_name is not None:
-                module_name = process_or_id
+            if object_name is None:
+                object_name = _find_single_process(
+                    module_dict, module_name)
+                if object_name is not None:
+                    module_name = process_or_id
+                    as_py = True
+            elif object_name in module_dict:
                 as_py = True
         if object_name is None:
             elements = process_or_id.rsplit('.', 1)
