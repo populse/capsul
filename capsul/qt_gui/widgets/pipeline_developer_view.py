@@ -1262,8 +1262,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 process = self.sub_pipeline.__init__.__self__
             else:
                 process = self.sub_pipeline
-            print('emit:', self.scene().subpipeline_clicked)
-            print(type(event.modifiers()))
             self.scene().subpipeline_clicked.emit(self.name, process,
                                                   event.modifiers())
             event.accept()
@@ -1456,8 +1454,9 @@ class Link(QtGui.QGraphicsPathItem):
 
 class PipelineScene(QtGui.QGraphicsScene):
     # Signal emitted when a sub pipeline has to be open.
-    subpipeline_clicked = QtCore.Signal(str, Process,
-                                        QtCore.Qt.KeyboardModifiers)
+    #subpipeline_clicked = QtCore.Signal(str, Process,
+                                        #QtCore.Qt.KeyboardModifiers)
+    subpipeline_clicked = QtCore.Signal(str, Process, int)
     # Signal emitted when a node box is clicked
     process_clicked = QtCore.Signal(str, Process)
     node_clicked = QtCore.Signal(str, Node)
@@ -2415,8 +2414,9 @@ class PipelineDeveloperView(QGraphicsView):
     reset_initial_nodes_positions
     window
     '''
-    subpipeline_clicked = QtCore.Signal(str, Process,
-                                        QtCore.Qt.KeyboardModifiers)
+    #subpipeline_clicked = QtCore.Signal(str, Process,
+                                        #QtCore.Qt.KeyboardModifiers)
+    subpipeline_clicked = QtCore.Signal(str, Process, int)
     '''Signal emitted when a sub pipeline has to be open.'''
     process_clicked = QtCore.Signal(str, Process)
     node_clicked = QtCore.Signal(str, Node)
