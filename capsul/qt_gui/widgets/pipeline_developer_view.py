@@ -58,6 +58,7 @@ from capsul.api import Switch, OptionalOutputSwitch, Capsul, executable
 from capsul.pipeline import pipeline_tools
 from capsul.api import Pipeline
 from capsul.api import Process
+from capsul.pipeline.pipeline import CustomPipeline
 from capsul.application import get_node_class, is_executable
 from capsul.pipeline.pipeline_nodes import Node
 from soma.qt_gui.qt_backend.Qt import QGraphicsView
@@ -1262,8 +1263,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 process = self.sub_pipeline.__init__.__self__
             else:
                 process = self.sub_pipeline
+
             self.scene().subpipeline_clicked.emit(self.name, process,
-                                                  event.modifiers())
+                                                  int(event.modifiers()))
             event.accept()
         else:
             event.ignore()
@@ -2677,7 +2679,7 @@ class PipelineDeveloperView(QGraphicsView):
         if not isinstance(pipeline, Pipeline):
             if isinstance(pipeline, Process):
                 process = pipeline
-                pipeline = Pipeline()
+                pipeline = CustomPipeline()
                 #pipeline.set_capsul_engine(process.get_completion_engine())
                 pipeline.add_process(process.name, process)
                 pipeline.autoexport_nodes_parameters()

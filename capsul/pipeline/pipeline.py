@@ -2345,8 +2345,6 @@ class Pipeline(Process):
                                 yield from dest_node.get_linked_items(dest_node, dest_plug_name)
                         else:
                             yield (dest_node, dest_plug_name)
-                    elif isinstance(dest_node, Process):
-                        yield (dest_node, dest_plug_name)
                     elif isinstance(dest_node, Switch):
                         if dest_plug_name == 'switch':
                             if not process_only:
@@ -2363,6 +2361,9 @@ class Pipeline(Process):
                                         if not process_only:
                                             yield (dest_node, input_plug_name)
                                         stack.append((dest_node, input_plug_name))
+                    #elif isinstance(dest_node, Process):
+                    else:
+                        yield (dest_node, dest_plug_name)
 
     def json(self):
         result = super().json()

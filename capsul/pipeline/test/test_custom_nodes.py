@@ -461,12 +461,12 @@ class TestCustomNodes(unittest.TestCase):
             self.temp_files.append(pyfname + 'c')
         else:
             cache_dir = osp.join(osp.dirname(pyfname), '__pycache__')
-            print('cache_dir:', cache_dir)
+            # print('cache_dir:', cache_dir)
             cpver = 'cpython-%d%d.pyc' % sys.version_info[:2]
             pyfname_we = osp.basename(pyfname[:pyfname.rfind('.')])
             pycfname = osp.join(cache_dir, '%s.%s' % (pyfname_we, cpver))
             self.temp_files.append(pycfname)
-            print('added py tmpfile:', pyfname, pycfname)
+            # print('added py tmpfile:', pyfname, pycfname)
 
     def _test_custom_nodes(self, pipeline):
         pipeline.main_inputs = [os.path.join(self.temp_dir, 'file%d' % i)
@@ -735,7 +735,6 @@ if __name__ == '__main__':
     print("RETURNCODE: ", test())
 
     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
-        import sys
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDeveloperView
 
@@ -743,7 +742,7 @@ if __name__ == '__main__':
         if not app:
             app = QtGui.QApplication(sys.argv)
 
-        #pipeline = capsul.executable(Pipeline1)
+        #pipeline = executable(Pipeline1)
         #pipeline.main_inputs = [os.path.join('/tmp', 'file%d' % i)
         #for i in range(4)]
         #pipeline.test = pipeline.main_inputs[2]
