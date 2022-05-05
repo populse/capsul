@@ -19,7 +19,6 @@ from soma.singleton import Singleton
 
 from .config.configuration import ApplicationConfiguration
 from .dataset import Dataset
-from .engine.local import LocalEngine
 from .pipeline.pipeline import Pipeline, CustomPipeline
 from .pipeline.process_iteration import ProcessIteration
 from .process.process import Process, Node
@@ -62,7 +61,8 @@ class Capsul(Singleton):
             return True
         return False
 
-    def executable(self, definition, **kwargs):
+    @staticmethod
+    def executable(definition, **kwargs):
         ''' Get an "executable" instance
         (:class:`~capsul.process.process.Process`,
         :class:`~capsul.pipeline.pipeline.Pipeline...)` from its module or file
@@ -73,6 +73,9 @@ class Capsul(Singleton):
     def engine(self, name='local'):
         ''' Get a :class:`~capsul.engine.CapsulEngine` instance
         '''
+        # Avoid circular import
+        from .engine.local import LocalEngine
+
         engine_config = self.config.get(name, {})
         return LocalEngine(name, engine_config)
 

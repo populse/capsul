@@ -12,7 +12,6 @@ import sys
 
 from soma.undefined import undefined
 
-import capsul.api
 from capsul.process.process import Process, NipypeProcess
 from .topological_sort import GraphNode
 from .topological_sort import Graph
@@ -21,7 +20,6 @@ from .pipeline_nodes import OptionalOutputSwitch
 
 from soma.controller import (Controller, 
                              Event,
-                             field,
                              Literal)
 from soma.sorted_dictionary import SortedDictionary
 
@@ -374,6 +372,8 @@ class Pipeline(Process):
             not be available depending on their dependencies, typically in a
             switch offering several alternative methods.
         """
+        from ..application import executable
+
         # Unique constrains
         make_optional = set(make_optional or [])
         do_not_export = set(do_not_export or [])
@@ -393,7 +393,7 @@ class Pipeline(Process):
 
         # Create a process node
         try:
-            node = capsul.api.executable(process, **kwargs)
+            node = executable(process, **kwargs)
         except Exception:
             if skip_invalid:
                 node = None
@@ -1552,7 +1552,9 @@ class Pipeline(Process):
         """
         self._plugs_with_internal_value = set()
         for node in self.nodes.values():
-            prefix = f'!{{tmp}}/{node.full_name}'
+            if node is self:
+                continue
+            prefix = f'!{{dataset.tmp.path}}/{node.full_name}'
             if isinstance(node, NipypeProcess):
                 #nipype processes do not use temporaries, they produce output
                 # file names
@@ -1566,17 +1568,23 @@ class Pipeline(Process):
                 if not field.is_output():
                     continue
                 if field.is_list() and field.path_type is not None:
-                    if len([x for x in value if x in ('', undefined)]) == 0:
+                    if value is not undefined and len([x for x in value if x in ('', undefined)]) == 0:
                         continue
                 elif value not in (undefined, '') \
                         or (field.path_type is None
                             or len(plug.links_to) == 0):
                     continue
+                print('!1!', self.definition, node.full_name, plug_name)
                 # check that it is really temporary: not exported
                 # to the main pipeline
+                temporary = False
                 for n, pn in self.get_linked_items(node, plug_name, in_sub_pipelines=False, process_only=False):
                     if n is self:
                         continue
+                    print('!1.1! ->', n.full_name, pn)
+                    temporary = True
+                    break
+                if not temporary:
                     continue
                 # if we get here, we are a temporary.
                 e = field.metadata('extensions')
@@ -2333,7 +2341,8 @@ class Pipeline(Process):
                 for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
                     if isinstance(dest_node, Pipeline):
                         if in_sub_pipelines:
-                            yield from dest_node.get_linked_items(dest_node, dest_plug_name)
+                            if dest_node is not self:
+                                yield from dest_node.get_linked_items(dest_node, dest_plug_name)
                         else:
                             yield (dest_node, dest_plug_name)
                     elif isinstance(dest_node, Process):
@@ -2400,7 +2409,7 @@ class CustomPipeline(Pipeline):
 
         exported_parameters = set()
         for name, ejson in self.json_executable.get('executables', {}).items():
-            e = capsul.api.executable(ejson)
+            e = executable(ejson)
             self.add_process(name, e)
         
         for sel_key, sel_group_def in self.json_executable.get(

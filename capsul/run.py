@@ -1,115 +1,102 @@
 # -*- coding: utf-8 -*-
 
-import datetime
+from datetime import datetime
 import os
 import shutil
 import sys
-import tempfile
 import traceback
 
 from soma.undefined import undefined
 
 import capsul.debug as capsul_debug
-from capsul.api import Capsul, Pipeline
-from .pipeline.process_iteration import ProcessIteration
-from .execution_context import ExecutionContext, ExecutionStatus
+from . import execution_context
 
 
 if __name__ == '__main__':
-    # Really detach the process from the parent.
-    # Whthout this fork, performing Capsul tests shows warning
-    # about child processes not properly wait for.
-    if sys.platform.startswith('win'):
-        pid = 0
-    else:
-        pid = os.fork()
-    if pid == 0:
-        if not sys.platform.startswith('win'):
-            os.setsid()
-        if len(sys.argv) != 2:
-            raise ValueError('This command must be called with a single parameter containing a capsul execution status file')
-        execution_status = ExecutionStatus(sys.argv[1])
-        capsul_debug.debug_messages = []
-        capsul = Capsul()
-        executable = None
-        tmp = tempfile.mkdtemp()
-        final_status_update = {}
-        try:
-            with execution_status as status:
-                executable = capsul.executable(status['executable'])
-                executable.import_json(status['executable']['parameters'])
-                execution_context = ExecutionContext(config=status['execution_context'], executable=executable)
-                execution_context.dataset['tmp'] = {
-                    'path': tmp
-                }
-                executable.resolve_paths(execution_context)
-                status.update({
-                    'status': 'running',
-                    'start_time': datetime.datetime.now().isoformat(),
-                    'pid': os.getpid(),
-                })
+    tmp = os.environ.get('CAPSUL_TMP')
+    if not tmp:
+        print('Capsul cannot run command because CAPSUL_TMP is not defined: '
+              f'command={sys.argv}',
+              file=sys.stderr)
+        sys.exit(1)
+    if not os.path.exists(tmp):
+        print('Capsul cannot run command because temporary directory does not exist: '
+              f'tmp="{tmp}", command={sys.argv}',
+              file=sys.stderr)
+        sys.exit(1)
+    db_url = os.environ.get('CAPSUL_DATABASE')
+    if not db_url:
+        print('Capsul cannot run command because CAPSUL_DATABASE is not defined: '
+              f'tmp="{tmp}", command={sys.argv}',
+              file=sys.stderr)
+        sys.exit(1)
+    if not os.path.exists(db_url):
+        print('Capsul cannot run command because database file does not exist: '
+              f'tmp="{tmp}", database="{db_url}", command={sys.argv}',
+              file=sys.stderr)
+        sys.exit(1)
+    if len(sys.argv) < 2:
+        print('Capsul cannot run command because parameters are missing: '
+              f'tmp="{tmp}", database="{db_url}", command={sys.argv}',
+              file=sys.stderr)
+        sys.exit(1)
 
-            if isinstance(executable, Pipeline):
-                nodes = executable.all_nodes()
+    database = execution_context.ExecutionDatabase(db_url)
+    with database as db:
+        execution_context = db.execution_context
+        execution_context.dataset.tmp = {
+            'path': tmp
+        }
+    command = sys.argv[1]
+    args = sys.argv[2:]
+    capsul_debug.debug_messages = []
+    db_update = {}
+    try:
+        invalid_parameters = False
+        if command == 'process':
+            if len(args) == 2:
+                process_uuid, iteration_index = args
+                iteration_index = (None if iteration_index == 'None' else int(iteration_index))
+                with database as db:
+                    process = db.process(process_uuid)
+                    db.update_process(process_uuid, start_time=datetime.now())
+                process_update = {}
+                try:
+                    if iteration_index is not None:
+                        process.select_iteration_index(iteration_index)
+                    execution_context.executable = process
+                    process.resolve_paths(execution_context)
+                    process.before_execute(execution_context)
+                    process.execute(execution_context)
+                    process.after_execute(execution_context)
+                    output_parameters = {}
+                    for field in process.user_fields():
+                        if field.is_output():
+                            value = getattr(process, field.name, undefined)
+                            if value is not undefined:
+                                output_parameters[field.name] = value
+                    if output_parameters:
+                        process_update['output_parameters'] = output_parameters
+                finally:
+                    process_update['end_time'] = datetime.now()        
+                    with database as db:
+                        process = db.process(process_uuid)
+                        db.update_process(process_uuid, **process_update)
             else:
-                nodes = [executable]
-            for node in nodes:
-                if not node.activated:
-                    continue
-            executable.before_execute(execution_context)
-            if isinstance(executable, Pipeline):
-                for node in reversed(executable.workflow_ordered_nodes()):
-                    if isinstance(node, ProcessIteration):
-                        size = node.iteration_size()
-                        if size:
-                            list_outputs = []
-                            for field in node.user_fields():
-                                if field.is_output() and field.name in node.iterative_parameters:
-                                    list_outputs.append(field.name)
-                                    value = getattr(node, field.name, None)
-                                    if value is None:
-                                        setattr(node, field.name, [undefined] * size)
-                                    elif len(value) < size:
-                                        value += [undefined] * (size - len(value))
-                            index = 0
-                            for process in node.iterate_over_process_parmeters():
-                                process.before_execute(execution_context)
-                                process.execute(execution_context)
-                                process.after_execute(execution_context)
-                                for name in list_outputs:
-                                    value = getattr(process, name, None)
-                                    getattr(node, name)[index] = value
-                                index += 1
-                            for name in list_outputs:
-                                executable.dispatch_value(node, name, getattr(node, name))
-                                
-                    else:
-                        node.before_execute(execution_context)
-                        node.execute(execution_context)
-                        node.after_execute(execution_context)
-                        for field in node.fields():
-                            if field.is_output():
-                                value = getattr(node, field.name, undefined)
-                                executable.dispatch_value(node, field.name, value)
-            else:
-                executable.execute(execution_context)
-            executable.after_execute(execution_context)
-        except Exception as e:
-            final_status_update['error'] = f'{e}'
-            final_status_update['error_detail'] = f'{traceback.format_exc()}'
-        finally:
-            shutil.rmtree(tmp)
-            final_status_update['status'] = 'ended'
-            final_status_update['end_time'] = datetime.datetime.now().isoformat()
-            final_status_update['pid'] = None
-            output_parameters = {}
-            if executable is not None:
-                for field in executable.user_fields():
-                    if field.is_output():
-                        value = getattr(executable, field.name, undefined)
-                        if value is not undefined:
-                            output_parameters[field.name] = value
-                final_status_update['output_parameters'] = output_parameters
-            final_status_update['debug_messages'] = capsul_debug.debug_messages
-            with execution_status as status:
-                status.update(final_status_update)
+                invalid_parameters = True  
+        else:
+            invalid_parameters = True
+
+        if invalid_parameters:
+            print('Capsul cannot run command because parameters are invalid: '
+                f'tmp="{tmp}", database="{db_url}", command={sys.argv}',
+                file=sys.stderr)
+            sys.exit(1)
+    except Exception as e:
+        db_update['error'] = f'{e}'
+        db_update['error_detail'] = f'{traceback.format_exc()}'
+    finally:
+        db_update['status'] = 'ended'
+        db_update['end_time'] = datetime.now()
+        with database as db:
+            db.session['status'].update_document('', db_update)

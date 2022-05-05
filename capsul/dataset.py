@@ -10,8 +10,6 @@ from soma.controller import Controller, Literal, Directory
 from soma.undefined import undefined
 
 
-from capsul.api import Pipeline
-
 class MetadataSchema(Controller):
     '''Schema of metadata associated to a file in a :class:`Dataset`
 
@@ -333,6 +331,9 @@ class Dataset(Controller):
         cls.schemas[name] = schema
 
 def generate_paths(executable, context, metadata=None, fields=None, ignore=None, debug=False):
+    # avoid circular import
+    from capsul.pipeline.pipeline import Pipeline
+    
     def dprint(*args, **kwargs):
         if debug:
             if debug is True:

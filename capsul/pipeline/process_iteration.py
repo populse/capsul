@@ -12,7 +12,6 @@ Classes
 from soma.controller import undefined, Union
 
 from capsul.process.process import Process
-import capsul.application
 
 class ProcessIteration(Process):
 
@@ -20,9 +19,12 @@ class ProcessIteration(Process):
 
     def __init__(self, definition, process, iterative_parameters, 
                  context_name=None):
+        # Avoid circular import
+        from capsul.api import executable
+
         super(ProcessIteration, self).__init__(definition=definition)
 
-        self.process = capsul.application.executable(process)
+        self.process = executable(process)
 
         if context_name is not None:
             self.process.context_name = context_name
@@ -121,16 +123,19 @@ class ProcessIteration(Process):
             return
         # for parameter in self.regular_parameters:
         #     setattr(self.process, parameter, getattr(self, parameter))
-        for iteration in range(size):
-            for parameter in self.iterative_parameters:
-                values = getattr(self, parameter, undefined)
-                if values is not undefined and len(values) > iteration:
-                    value = values[iteration]
-                else:
-                    value = undefined
-                setattr(self.process, parameter, value)
+        for iteration_index in range(size):
+            self.select_iteration_index(iteration_index)
             yield self.process
     
+    def select_iteration_index(self, iteration_index):
+        for parameter in self.iterative_parameters:
+            values = getattr(self, parameter, undefined)
+            if values is not undefined and len(values) > iteration_index:
+                value = values[iteration_index]
+            else:
+                value = undefined
+            setattr(self.process, parameter, value)
+
     def json(self):
         return {
             'type': 'iterative_process',

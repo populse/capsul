@@ -1,30 +1,29 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
-
 import unittest
 import tempfile
 import os
 import sys
-from traits.api import File, Float, List
-from capsul.api import Process, Pipeline
+
+from soma.controller import File
+
+from capsul.api import Capsul, Process, Pipeline
 
 
 class DummyProcess(Process):
     """ Dummy Test Process
     """
-    def __init__(self):
-        super(DummyProcess, self).__init__()
+    def __init__(self, definition):
+        super().__init__(definition)
 
         # inputs
-        self.add_trait("input_image", File(optional=False))
+        self.add_field("input_image", File)
 
         # outputs
-        self.add_trait("output_image", File(optional=False, output=True))
+        self.add_field("output_image", File, write=True)
 
-    def _run_process(self):
+    def execute(self, context):
         # copy input contents to output
-        print(self.name, ':', self.input_image, '->', self.output_image)
+        print('!dummy!', self.definition, getattr(self, 'input_image', None), getattr(self, 'output_image', None), flush=True)
         with open(self.output_image, 'w') as f:
             with open(self.input_image) as g:
                 f.write(g.read())
@@ -50,17 +49,16 @@ class MyPipeline(Pipeline):
 
 
 class CatFiles(Process):
-    def __init__(self):
-        super(CatFiles, self).__init__()
+    def __init__(self, definition):
+        super().__init__(definition)
 
         # inputs
-        self.add_trait("inputs", List(File(optional=False)))
+        self.add_field("inputs", list[File])
 
         # outputs
-        self.add_trait("output", File(optional=False, output=True))
+        self.add_field("output", File, write=True)
 
-    def _run_process(self):
-        print('cat', self.inputs, 'to:', self.output)
+    def execute(self, context):
         with open(self.output, 'w') as f:
             for in_file in self.inputs:
                 with open(in_file) as g:
@@ -90,27 +88,26 @@ class MyIterativePipeline(Pipeline):
 class TestPipelineWithTemp(unittest.TestCase):
 
     def setUp(self):
-        self.pipeline = MyPipeline()
-        self.iter_pipeline = MyIterativePipeline()
+        self.pipeline = Capsul.executable(MyPipeline)
+        self.iter_pipeline = Capsul.executable(MyIterativePipeline)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_pipeline_with_temp(self):
         input_f = tempfile.mkstemp(suffix='capsul_input.txt')
-        os.close(input_f[0])
-        input_name = input_f[1]
-        with open(input_name, 'w') as f:
-            f.write('this is my input data\n')
         output_f = tempfile.mkstemp(suffix='capsul_output.txt')
-        os.close(output_f[0])
-        output_name = output_f[1]
-        #os.unlink(output_name)
-
         try:
+            os.close(input_f[0])
+            input_name = input_f[1]
+            with open(input_name, 'w') as f:
+                f.write('this is my input data\n')
+            os.close(output_f[0])
+            output_name = output_f[1]
+
             self.pipeline.input_image = input_name
             self.pipeline.output_image = output_name
 
             # run sequentially
-            self.pipeline()
+            with Capsul().engine() as ce:
+                ce.run(self.pipeline)
 
             # test
             self.assertTrue(os.path.exists(output_name))
@@ -121,10 +118,12 @@ class TestPipelineWithTemp(unittest.TestCase):
         finally:
             try:
                 os.unlink(input_name)
-            except OSError: pass
+            except OSError:
+                pass
             try:
                 os.unlink(output_name)
-            except OSError: pass
+            except OSError:
+                pass
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_pipeline_with_temp(self):
@@ -174,28 +173,25 @@ def test():
 
 
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
+    import sys
+    from soma.qt_gui.qt_backend import QtGui
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
-    if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
-        import sys
-        from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDeveloperView
+    app = QtGui.QApplication.instance()
+    if not app:
+        app = QtGui.QApplication(sys.argv)
+    pipeline = Capsul.executable(MyPipeline)
+    pipeline.input_image = '/data/file.txt'
+    pipeline.output_image = '/data/output_file.txt'
+    view1 = PipelineDeveloperView(pipeline)
+    view1.show()
 
-        app = QtGui.QApplication.instance()
-        if not app:
-            app = QtGui.QApplication(sys.argv)
-        pipeline = MyPipeline()
-        pipeline.input_image = '/data/file.txt'
-        pipeline.output_image = '/data/output_file.txt'
-        view1 = PipelineDeveloperView(pipeline)
-        view1.show()
+    pipeline2 = Capsul.executable(MyIterativePipeline)
+    pipeline2.input_images = ['/data/file.txt', '/data/file.txt',
+                                '/data/file.txt']
+    pipeline2.output = '/data/output_file.txt'
+    view2 = PipelineDeveloperView(pipeline2)
+    view2.show()
+    app.exec_()
 
-        pipeline2 = MyIterativePipeline()
-        pipeline2.input_images = ['/data/file.txt', '/data/file.txt',
-                                  '/data/file.txt']
-        pipeline2.output = '/data/output_file.txt'
-        view2 = PipelineDeveloperView(pipeline2)
-        view2.show()
-        app.exec_()
-
-        del view1, view2
+    del view1, view2
