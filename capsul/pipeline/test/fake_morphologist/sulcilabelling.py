@@ -17,10 +17,10 @@ class SulciLabelling(Pipeline):
         # links
         self.export_parameter("select_Sulci_Recognition", "switch", "select_Sulci_Recognition")
         self.export_parameter("CNN_recognition19", "graph", "data_graph")
-        self.add_link("data_graph->SPAM_recognition09.data_graph")
         self.add_link("data_graph->recognition2000.data_graph")
-        self.export_parameter("recognition2000", "fix_random_seed")
-        self.add_link("fix_random_seed->CNN_recognition19.fix_random_seed")
+        self.add_link("data_graph->SPAM_recognition09.data_graph")
+        self.export_parameter("CNN_recognition19", "fix_random_seed")
+        self.add_link("fix_random_seed->recognition2000.fix_random_seed")
         self.add_link("fix_random_seed->SPAM_recognition09.fix_random_seed")
         self.export_parameter("recognition2000", "model", "recognition2000_model")
         self.export_parameter("recognition2000", "model_hint", "recognition2000_model_hint")

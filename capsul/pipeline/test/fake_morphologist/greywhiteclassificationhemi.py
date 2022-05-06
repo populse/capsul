@@ -10,7 +10,7 @@ class GreyWhiteClassificationHemi(Process):
         super(GreyWhiteClassificationHemi, self).__init__(**kwargs)
         self.name = 'GreyWhiteClassification'
 
-        self.add_field("side", Literal['left','right'])
+        self.add_field("side", Literal['left','right'], optional=True)
         self.side = 'left'
         self.add_field("t1mri_nobias", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
         self.add_field("histo_analysis", File, read=True, allowed_extensions=['.han'], write=False)

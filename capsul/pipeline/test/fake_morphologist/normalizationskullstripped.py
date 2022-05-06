@@ -9,18 +9,18 @@ class NormalizationSkullStripped(Pipeline):
     def pipeline_definition(self):
         # nodes
         self.add_process("SkullStripping", "capsul.pipeline.test.fake_morphologist.skullstripping.skullstripping")
-        self.add_process("Normalization", "capsul.pipeline.test.fake_morphologist.normalization.Normalization", make_optional=['NormalizeFSL_template', 'NormalizeFSL_alignment', 'NormalizeFSL_set_transformation_in_source_volume', 'NormalizeFSL_allow_retry_initialization', 'NormalizeSPM_NormalizeSPM', 'NormalizeSPM_allow_retry_initialization', 'NormalizeSPM_voxel_size', 'NormalizeSPM_cutoff_option', 'NormalizeSPM_nbiteration', 'NormalizeBaladin_set_transformation_in_source_volume', 'Normalization_AimsMIRegister_anatomical_template', 'Normalization_AimsMIRegister_smoothing', 'NormalizeSPM_spm_transformation'])
+        self.add_process("Normalization", "capsul.pipeline.test.fake_morphologist.normalization.Normalization", make_optional=['NormalizeFSL_template', 'NormalizeFSL_alignment', 'NormalizeFSL_set_transformation_in_source_volume', 'NormalizeFSL_allow_retry_initialization', 'NormalizeSPM_NormalizeSPM', 'NormalizeSPM_allow_retry_initialization', 'NormalizeSPM_voxel_size', 'NormalizeSPM_cutoff_option', 'NormalizeSPM_nbiteration', 'NormalizeBaladin_set_transformation_in_source_volume', 'Normalization_AimsMIRegister_anatomical_template', 'Normalization_AimsMIRegister_smoothing', 'NormalizeSPM_spm_transformation', 'reoriented_t1mri'])
         self.nodes["Normalization"].activated = False
         self.add_process("TalairachFromNormalization", "capsul.pipeline.test.fake_morphologist.talairachtransformationfromnormalization.TalairachTransformationFromNormalization")
 
         # links
-        self.export_parameter("SkullStripping", "t1mri")
-        self.add_link("t1mri->TalairachFromNormalization.t1mri")
+        self.export_parameter("TalairachFromNormalization", "t1mri")
+        self.add_link("t1mri->SkullStripping.t1mri")
         self.export_parameter("SkullStripping", "brain_mask")
-        self.export_parameter("Normalization", "NormalizeBaladin_template", "template")
-        self.add_link("template->Normalization.NormalizeFSL_template")
-        self.add_link("template->Normalization.NormalizeSPM_template")
+        self.export_parameter("Normalization", "NormalizeFSL_template", "template")
         self.add_link("template->Normalization.Normalization_AimsMIRegister_anatomical_template")
+        self.add_link("template->Normalization.NormalizeSPM_template")
+        self.add_link("template->Normalization.NormalizeBaladin_template")
         self.export_parameter("Normalization", "select_Normalization_pipeline", "Normalization_select_Normalization_pipeline")
         self.export_parameter("Normalization", "allow_flip_initial_MRI", "Normalization_allow_flip_initial_MRI")
         self.export_parameter("Normalization", "commissures_coordinates", "Normalization_commissures_coordinates")
@@ -46,10 +46,10 @@ class NormalizationSkullStripped(Pipeline):
         self.export_parameter("TalairachFromNormalization", "normalized_referential", "TalairachFromNormalization_normalized_referential")
         self.export_parameter("TalairachFromNormalization", "acpc_referential", "TalairachFromNormalization_acpc_referential")
         self.export_parameter("TalairachFromNormalization", "transform_chain_ACPC_to_Normalized", "TalairachFromNormalization_transform_chain_ACPC_to_Normalized")
-        self.add_link("SkullStripping.skull_stripped->Normalization.t1mri")
         self.export_parameter("SkullStripping", "skull_stripped")
-        self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
+        self.add_link("SkullStripping.skull_stripped->Normalization.t1mri")
         self.export_parameter("Normalization", "transformation")
+        self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
         self.export_parameter("Normalization", "reoriented_t1mri", "Normalization_reoriented_t1mri")
         self.export_parameter("Normalization", "normalized", "Normalization_normalized")
         self.export_parameter("Normalization", "NormalizeFSL_NormalizeFSL_transformation_matrix", "Normalization_NormalizeFSL_NormalizeFSL_transformation_matrix")
