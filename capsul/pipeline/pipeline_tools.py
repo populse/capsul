@@ -47,12 +47,14 @@ import tempfile
 import soma.subprocess
 import json
 import io
+import sys
 
 from populse_db import json_encode, json_decode
 
 # Capsul import
+from capsul.application import executable
 from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
-    OptionalOutputSwitch
+    OptionalOutputSwitch, CustomPipeline
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller, undefined, Any
 from pydantic import ValidationError
@@ -1178,13 +1180,12 @@ def create_output_directories(process):
 
 def save_pipeline(pipeline, filename):
     '''
-    Save the pipeline either in XML or .py source file
+    Save the pipeline either in JSON or .py source file
     '''
-    from capsul.pipeline.xml import save_xml_pipeline
     from capsul.pipeline.python_export import save_py_pipeline
 
     formats = {'.py': save_py_pipeline,
-               '.xml': save_xml_pipeline}
+               '.json': save_json_pipeline}
 
     saved = False
     for ext, writer in formats.items():
@@ -1195,6 +1196,15 @@ def save_pipeline(pipeline, filename):
     if not saved:
         # fallback to py
         save_py_pipeline(pipeline, filename)
+
+
+def save_json_pipeline(pipeline, filename):
+    json_def = CustomPipeline.json_definition(pipeline)
+    if hasattr(filename, 'write'):
+        json.dump(json_def, filename)
+    else:
+        with open(filename, 'w') as f:
+            json.dump(json_def, f)
 
 
 def load_pipeline_parameters(filename, pipeline):
@@ -1283,3 +1293,185 @@ def is_node_enabled(pipeline, node_name=None, node=None):
 
     # not disabled ? OK then it's enabled
     return True
+
+
+def write_fake_process(process, filename, sleep_time=0):
+    ''' Write a "fake process" with same class name and parameters as the input
+    process, but with a fake execution function meant for tests.
+    '''
+
+    auto_fields = {'activated', 'enabled', 'node_type'}
+    meta_forbidden = {'order', 'path_type', 'class_field'}
+
+    with open(filename, 'w') as f:
+        f.write('''# -*- coding: utf-8 -*-
+
+from capsul.api import Process
+import os
+from soma.controller import File, Directory, undefined, Literal
+''')
+
+        imports = set()
+        for field in process.fields():
+            name = field.name
+            if name in auto_fields:
+                continue
+
+            t_str = field.type_str()
+            t_str = t_str.split('[', 1)[0]
+            t_str = t_str.split('(', 1)[0]
+            if '.' in t_str:
+                imp_str = t_str.rsplit('.', 1)[0]
+                if imp_str not in imports:
+                    imports.add(imp_str)
+                    f.write('import %s\n' % imp_str)
+
+        f.write('''
+
+class %s(Process):
+    def __init__(self, **kwargs):
+        super(%s, self).__init__(**kwargs)
+        self.name = '%s'
+
+''' % (process.__class__.__name__, process.__class__.__name__, process.name))
+
+        for field in process.fields():
+            name = field.name
+            if name in auto_fields:
+                continue
+
+            t_str = field.type_str()
+            meta = {k: v for k, v in field.metadata().items()
+                    if k not in meta_forbidden}
+            meta_str = ''
+            if meta:
+                meta_str = ', '.join('%s=%s' % (k, repr(v))
+                                     for k, v in meta.items())
+                meta_str = ', ' + meta_str
+            f.write('        self.add_field("%s", %s%s)\n'
+                    % (name, t_str, meta_str))
+            value = getattr(process, name, undefined)
+            if value is not undefined:
+                f.write('        self.%s = %s\n' % (name, repr(value)))
+
+        f.write('''
+    def execute(self, context):
+        outputs = []
+        for field in self.fields():
+            name = field.name
+            if isinstance(field.type, File):
+                if field.write:
+                    outputs.append(name)
+                    continue
+                filename = getattr(self, name, undefined)
+                if filename not in (None, undefined, ''):
+                    if not os.path.exists(filename):
+                        raise ValueError(
+                          'Input parameter: %s, file %s does not exist'
+                          % (name, repr(filename)))
+
+''')
+        if sleep_time != 0:
+            f.write('        import time\n')
+            f.write('        time.sleep(%f)\n\n' % sleep_time)
+        f.write('''        for name in outputs:
+            field = self.field(name)
+            filename = getattr(self, name, undefined)
+            if filename not in (None, undefined, ''):
+                with open(filename, 'w') as f:
+                    f.write('class: %s\\n' % self.__class__.__name__)
+                    f.write('name: %s\\n' % self.name)
+                    f.write('parameter: %s\\n' % name)
+''')
+
+
+def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
+    ''' Write a "fake pipeline" with same class name, structure, and parameters
+    as the input pipeline, but replacing its processes with "fake" processes
+    which do not actually do a real job while executing.
+
+    This is meant for tests, to mimic a "real" pipeline structure without its
+    dependencies.
+
+    :warning:`This function actually modifies the input pipeline, which is
+    transformed into a fake one.`
+    '''
+
+    def replace_pipeline_node(old_node, new_node, parent):
+        for plug_name, plug in old_node.plugs.items():
+            for link in plug.links_from:
+                new_plug = new_node.plugs[plug_name]
+                new_plug.links_from.add(link)
+                for olink in set(link[3].links_to):
+                    if olink[3] is plug:
+                        nolink = (olink[0], olink[1], new_node, new_plug,
+                                  olink[4])
+                        link[3].links_to.remove(olink)
+                        link[3].links_to.add(nolink)
+            for link in plug.links_to:
+                new_plug = new_node.plugs[plug_name]
+                new_plug.links_to.add(link)
+                for olink in set(link[3].links_from):
+                    if olink[3] is plug:
+                        nolink = (olink[0], olink[1], new_node, new_plug,
+                                  olink[4])
+                        link[3].links_from.remove(olink)
+                        link[3].links_from.add(nolink)
+
+    def replace_node(node, module_name, dirname, done, parent, node_name):
+        basename = node.__class__.__name__.lower()
+        modname = '.'.join([module_name, basename])
+        filename = os.path.join(dirname, '%s.py' % basename)
+        if modname not in done:
+            done.add(modname)
+            write_fake_process(node, filename, sleep_time=sleep_time)
+        new_proc = executable(filename)
+        new_proc.__class__.__module__ = modname
+
+        if parent is not None and node_name is not None:
+            parent.nodes[node_name] = new_proc
+            replace_pipeline_node(node, new_proc, parent)
+
+        return new_proc
+
+    sys.path.insert(0, dirname)
+    dirname = os.path.join(dirname, module_name.rsplit('.')[-1])
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    with open(os.path.join(dirname, '__init__.py'), 'w'):
+        pass
+
+    nodes = [(pipeline, node[0], node[1]) for node in pipeline.nodes.items()
+             if node[0] != '']
+    done = set()
+    pipelines = [pipeline]
+    while nodes:
+        parent, node_name, node = nodes.pop(0)
+        if not isinstance(node, Process):
+            continue
+        if isinstance(node, Pipeline):
+            if node.__class__ not in done:
+                nodes += [(node, n[0], n[1]) for n in node.nodes.items()
+                          if n[0] != '']
+                node.__class__.__module__ = '.'.join(
+                    [module_name, node.__class__.__name__.lower()])
+                done.add(node.__class__)
+                pipelines.append(node)
+        elif isinstance(node, ProcessIteration):
+            proc = node.process
+            if isinstance(proc, Pipeline):
+                nodes += [(proc, n[0], n[1]) for n in proc.nodes.items()
+                          if n[0] != '']
+            else:
+                new_node = replace_node(proc, module_name, dirname, done, None,
+                                        None)
+                node.process = new_node
+        else:
+            replace_node(node, module_name, dirname, done, parent, node_name)
+
+    for pipeline in reversed(pipelines):
+        filename = os.path.join(dirname, '%s.py' \
+            % pipeline.__class__.__name__.lower())
+        save_pipeline(pipeline, filename)
+
+    del sys.path[0]
