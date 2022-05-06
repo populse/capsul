@@ -341,7 +341,6 @@ def generate_paths(executable, context, metadata=None, fields=None, ignore=None,
                 file = sys.stderr
             else:
                 file = debug
-            print('!generate_paths!', *args, **kwargs, file=file)
     if metadata is None:
         metadata = {}
     dprint(metadata)

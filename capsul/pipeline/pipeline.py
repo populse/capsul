@@ -1574,14 +1574,12 @@ class Pipeline(Process):
                         or (field.path_type is None
                             or len(plug.links_to) == 0):
                     continue
-                print('!1!', self.definition, node.full_name, plug_name)
                 # check that it is really temporary: not exported
                 # to the main pipeline
                 temporary = False
                 for n, pn in self.get_linked_items(node, plug_name, in_sub_pipelines=False, process_only=False):
                     if n is self:
                         continue
-                    print('!1.1! ->', n.full_name, pn)
                     temporary = True
                     break
                 if not temporary:
@@ -2365,14 +2363,15 @@ class Pipeline(Process):
                     else:
                         yield (dest_node, dest_plug_name)
 
-    def json(self):
+    def json(self, include_parameters=True):
         result = super().json()
         result['type'] = 'pipeline'
-        parameters = result.setdefault('parameters', {})
-        for node, plug in self._plugs_with_internal_value:
-            v = getattr(node, plug, undefined)
-            if v is not undefined:
-                parameters[f'{node.name}.{plug}'] = v
+        if include_parameters:
+            parameters = result.setdefault('parameters', {})
+            for node, plug in self._plugs_with_internal_value:
+                v = getattr(node, plug, undefined)
+                if v is not undefined:
+                    parameters[f'{node.name}.{plug}'] = v
         return result
 
     def import_json(self, json):
@@ -2447,8 +2446,8 @@ class CustomPipeline(Pipeline):
                                          weak_link=weak_link)
                 exported_parameters.add(source)
     
-    def json(self):
-        result = super().json()
+    def json(self, include_parameters=True):
+        result = super().json(include_parameters=include_parameters)
         if self.definition == 'custom_pipeline':
             result['type'] = 'custom_pipeline'
             result['definition'] = self.json_pipeline()

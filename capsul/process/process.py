@@ -131,14 +131,15 @@ class Process(Node):
         return getattr(super(), 'requirements', {})
 
 
-    def json(self):
+    def json(self, include_parameters=True):
         '''
         '''
         result = {
             'type': 'process',
             'definition': self.definition,
-            'parameters': super().json(),
         }
+        if include_parameters:
+            result['parameters'] = super().json()
         return result
     
     def before_execute(self, context):

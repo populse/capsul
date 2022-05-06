@@ -208,7 +208,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = in_2
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -247,7 +247,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = 4.0
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         in_1 = 2.0
         in_2 = 4.0
@@ -258,7 +258,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = in_2
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -301,7 +301,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = in_2
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -344,7 +344,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = in_2
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -391,7 +391,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = in_2
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -458,7 +458,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = in_2
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -525,7 +525,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = in_2
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -592,7 +592,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = in_2
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -659,7 +659,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = in_2
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -726,7 +726,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_2 = in_2
 
         with Capsul().engine() as ce:
-            ce.run(pipeline1)
+            ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
 

@@ -83,12 +83,10 @@ class DummyProcess(Process):
     def execute(self, context=None):
         """ Execute the process.
         """
-        # print('run: %s -> %s' % (self.input_image, str(self.output_image)))
         if not getattr(self, 'output_image', None):
             # Just join the input values
             value = f'{self.input_image}-{self.other_input}-{self.dynamic_parameter}'
             self.output_image = value
-            # print('    define output_image: %s' % value)
 
         with open(self.output_image, 'w') as f_out:
             with open(self.input_image) as f_in:
@@ -229,7 +227,7 @@ class TestPipeline(unittest.TestCase):
 
         # Test the output connection
         with Capsul().engine() as engine:
-            engine.run(self.pipeline)
+            engine.run(self.pipeline, timeout=5)
 
         self.assertIn("toto-5.0-3.0",
                         [os.path.basename(f)
@@ -316,7 +314,7 @@ class TestPipeline(unittest.TestCase):
         print('* running pipeline...')
         #swclient.Helper.wait_workflow(wf_id, controller)
         with self.capsul.engine() as c:
-            c.run(self.small_pipeline)
+            c.run(self.small_pipeline, timeout=5)
         print('* finished.')
         #workflow_status = controller.workflow_status(wf_id)
         #elements_status = controller.workflow_elements_status(wf_id)

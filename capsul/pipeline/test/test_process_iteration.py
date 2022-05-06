@@ -116,7 +116,7 @@ def test():
     """ Function to execute unitest
     """
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
+    runtime = unittest.TextTestRunner(verbosity=2).run(suite, timeout=5)
     return runtime.wasSuccessful()
 
 

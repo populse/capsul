@@ -101,12 +101,12 @@ class TestPipeline(unittest.TestCase):
             self.temp_files.append(pyfname + 'c')
         else:
             cache_dir = osp.join(osp.dirname(pyfname), '__pycache__')
-            print('cache_dir:', cache_dir)
+            # print('cache_dir:', cache_dir)
             cpver = 'cpython-%d%d.pyc' % sys.version_info[:2]
             pyfname_we = osp.basename(pyfname[:pyfname.rfind('.')])
             pycfname = osp.join(cache_dir, '%s.%s' % (pyfname_we, cpver))
             self.temp_files.append(pycfname)
-            print('added py tmpfile:', pyfname, pycfname)
+            # print('added py tmpfile:', pyfname, pycfname)
 
     def test_constant(self):
         graph = self.pipeline.workflow_graph()
@@ -140,8 +140,9 @@ class TestPipeline(unittest.TestCase):
         capsul = Capsul()
         try:
             with capsul.engine() as engine:
-                engine.run(self.pipeline, input_image='/tmp/bloup',
-                           output=ofile)
+                engine.run(self.pipeline, timeout=5,
+                    input_image='/tmp/bloup',
+                    output=ofile)
         finally:
             if os.path.exists(tmp[1]):
                 os.unlink(tmp[1])

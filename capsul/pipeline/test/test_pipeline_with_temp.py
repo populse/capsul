@@ -23,7 +23,6 @@ class DummyProcess(Process):
 
     def execute(self, context):
         # copy input contents to output
-        print('!dummy!', self.definition, getattr(self, 'input_image', None), getattr(self, 'output_image', None), flush=True)
         with open(self.output_image, 'w') as f:
             with open(self.input_image) as g:
                 f.write(g.read())
@@ -107,7 +106,7 @@ class TestPipelineWithTemp(unittest.TestCase):
 
             # run sequentially
             with Capsul().engine() as ce:
-                ce.run(self.pipeline)
+                ce.run(self.pipeline, timeout=5)
 
             # test
             self.assertTrue(os.path.exists(output_name))

@@ -225,7 +225,7 @@ class TestCompletion(unittest.TestCase):
 
         # run
         with Capsul().engine() as engine:
-            engine.run(pipeline)
+            engine.run(pipeline, timeout=5)
 
         # check outputs
         out_files = [Path(execution_context.dataset.output.path)

@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import traceback
 from uuid import uuid4
 
 from soma.undefined import undefined
@@ -70,7 +71,9 @@ class LocalEngine:
         return execution_context
 
     def start(self, executable, **kwargs):
-        executable.set_temporary_file_names()
+        set_temporary_file_names = getattr(executable, 'set_temporary_file_names', None)
+        if set_temporary_file_names is not None:
+            set_temporary_file_names()
         db_file = tempfile.NamedTemporaryFile(prefix='capsul_local_engine_', delete=False)
         try:
             for name, value in kwargs.items():
@@ -104,7 +107,8 @@ class LocalEngine:
             status['engine_output'] = output
         return status
     
-    def wait(self, execution_id):
+    def wait(self, execution_id, timeout=None):
+        start = time.time()
         status = self.status(execution_id, keys='status')
         if status['status'] == 'submited':
             for i in range(50):
@@ -114,8 +118,11 @@ class LocalEngine:
                     break
             else:
                 raise SystemError('executable too slow to start')
+        status = self.status(execution_id, keys='status')
         while status['status'] == 'running':
-            time.sleep(0.5)
+            if timeout is not None and (time.time() - start) > timeout:
+                raise TimeoutError('Process execution timeout')
+            time.sleep(0.1)
             status = self.status(execution_id, keys='status')
 
     def raise_for_status(self, status):
@@ -135,11 +142,8 @@ class LocalEngine:
                 raise RuntimeError(error)
 
     def update_executable(self, executable, execution_id):
-        # from pprint import pprint
-        # print('!update_executable!', executable.definition)
         with ExecutionDatabase(execution_id) as db:
             for p in db.session['processes']:
-                # pprint(p)
                 output_parameters = p.get('output_parameters')
                 if output_parameters:
                     if isinstance(executable, Pipeline):
@@ -155,14 +159,16 @@ class LocalEngine:
                         for n, v in output_parameters.items():
                             setattr(executable, n, v)
     
-    def run(self, executable, **kwargs):
+    def run(self, executable, timeout=None, **kwargs):
         execution_id = self.start(executable, **kwargs)
-        self.wait(execution_id)
-        status = self.status(execution_id, keys=['error', 'error_detail', 'debug_messages', 'output_parameters'])
-        self.print_debug_messages(status)
-        self.raise_for_status(status)
-        self.update_executable(executable, execution_id)
-        self.dispose(execution_id)
+        try:
+            self.wait(execution_id, timeout=timeout)
+            status = self.status(execution_id, keys=['error', 'error_detail', 'debug_messages', 'output_parameters'])
+            self.print_debug_messages(status)
+            self.raise_for_status(status)
+            self.update_executable(executable, execution_id)
+        finally:
+            self.dispose(execution_id)
         return status
 
     def dispose(self, execution_id):
@@ -216,9 +222,9 @@ class LocalEngine:
                             list_outputs.append(field.name)
                             value = getattr(node, field.name, None)
                             if value is None:
-                                setattr(node, field.name, [undefined] * size)
+                                setattr(node, field.name, [field.target_field.valid_value()] * size)
                             elif len(value) < size:
-                                value += [undefined] * (size - len(value))
+                                value += [field.target_field.valid_value()] * (size - len(value))
                     iteration_index = 0
                     for process in node.iterate_over_process_parmeters():
                         job_uuid = execution_database.add_process_job(
@@ -241,11 +247,17 @@ class LocalEngine:
                         execution_database.add_job_chronology(before_job, after_job)
         
 if __name__ == '__main__':
+    import contextlib
+
     if len(sys.argv) != 2:
         raise ValueError('This command must be called with a single '
             'parameter containing a capsul execution database file name')
-    sys.stdout = sys.stderr = open(sys.argv[1] + '.stdouterr', 'w')
+    output = open(sys.argv[1] + '.stdouterr', 'w')
+    contextlib.redirect_stdout(output)
+    contextlib.redirect_stderr(output)
     database = ExecutionDatabase(sys.argv[1])
+    with database as db:
+        db.status = 'submited'
 
     # Really detach the process from the parent.
     # Whthout this fork, performing Capsul tests shows warning
@@ -259,6 +271,7 @@ if __name__ == '__main__':
             os.setsid()
         # Create temporary directory
         tmp = tempfile.mkdtemp(prefix='capsul_local_engine_')
+        db_update = {}
         try:
             # create environment variables for jobs
             env = os.environ.copy()
@@ -268,8 +281,7 @@ if __name__ == '__main__':
             })
             # Read jobs workflow
             with database as db:
-                db.status = 'submited'
-            with database as db:
+                db.status = 'running'
                 db.start_time = datetime.now()
                 jobs = {}
                 ready = set()
@@ -287,14 +299,20 @@ if __name__ == '__main__':
                 job_uuid = ready.pop()
                 job = jobs[job_uuid]
                 command = job['command']
-                subprocess.run(command, env=env, stdout=sys.stdout, 
-                    stderr=subprocess.STDOUT,
-                    check=True)
+                subprocess.check_call(command, env=env, stdout=sys.stdout, 
+                    stderr=subprocess.STDOUT,)
                 done.add(job_uuid)
                 for waiting_uuid in list(waiting):
                     waiting_job = jobs[waiting_uuid]
                     if not any(i for i in waiting_job['wait_for'] if i not in done):
                         waiting.remove(waiting_uuid)
                         ready.add(waiting_uuid)
+        except Exception as e:
+            db_update['error'] = f'{e}'
+            db_update['error_detail'] = f'{traceback.format_exc()}'
         finally:
             shutil.rmtree(tmp)
+            db_update['status'] = 'ended'
+            db_update['end_time'] = datetime.now()
+            with database as db:
+                db.session['status'].update_document('', db_update)

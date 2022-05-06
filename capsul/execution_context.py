@@ -109,30 +109,6 @@ class ExecutionDatabase:
         self.session['processes'].update_document(process_uuid,
             kwargs)
     
-    # def __getitem__(self, name):
-    #     result = self.get(name, ...)
-    #     if result is ...:
-    #         raise KeyError(name)
-    #     return result
-
-    # def get(self, name, default=None):
-    #     row = self.collection.document('', fields=[name], as_list=True)
-    #     if row is None or row[0] is None:
-    #         return default
-    #     return row[0]
-    
-    # def __setitem__(self, name, value):
-    #     self.collection.update_document('', {name: value})
-
-    # def update(self, kwargs):
-    #     self.collection.update_document('', kwargs)
-
-    # def as_dict(self, keys=None):
-    #     if keys:
-    #         return dict((k, v) for k, v in self.collection.document('', fields=keys).items() if v is not None)
-    #     else:
-    #         return self.collection.document('')
-
     def add_process(self, uuid, process, jobs):
         if jobs is not None and not isinstance(jobs, list):
             jobs = list(jobs)

@@ -110,7 +110,7 @@ class TestLoadFromDescription(unittest.TestCase):
         process.parameter2 = 'toto'
         process.parameter3 = 4
         with capsul.engine() as ce:
-            ce.run(process)
+            ce.run(process, timeout=5)
         self.assertEqual(process.result, (1, 'done'))
         Capsul.delete_singleton()
 
@@ -175,9 +175,9 @@ class TestLoadFromDescription(unittest.TestCase):
             value2='b',
             value3 = 'c')
         with capsul.engine() as capsul_engine:
-            capsul_engine.run(process)
+            capsul_engine.run(process, timeout=5)
             self.assertEqual(process.result, 'a_b_c')
-            capsul_engine.run(process,
+            capsul_engine.run(process, timeout=5,
                 value1 = '',
                 value2 = 'v',
                 value3 = '')
@@ -189,10 +189,10 @@ class TestLoadFromDescription(unittest.TestCase):
         process = capsul.executable(
             'capsul.process.test.test_load_from_description.join')
         with capsul.engine() as capsul_engine:
-            capsul_engine.run(process,
+            capsul_engine.run(process, timeout=5,
                 value1='a', value2='b', value3='c')
             self.assertEqual(process.result, ['a', 'b', 'c'])
-            capsul_engine.run(process,
+            capsul_engine.run(process, timeout=5,
                 value1='', value2='v', value3='')
             self.assertEqual(process.result, ['v'])
         Capsul.delete_singleton()
@@ -221,7 +221,7 @@ class TestProcessWrap(unittest.TestCase):
         # Execute the process
         capsul = Capsul()
         with capsul.engine() as ce:
-            ce.run(self.process)
+            ce.run(self.process, timeout=5)
             self.assertEqual(
                 self.process.result,
                 "ALL FUNCTION PARAMETERS::\n\nfnamedirectory1.2choice1['a_string']")

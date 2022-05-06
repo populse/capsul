@@ -9,7 +9,7 @@ Classes
 -------------------------
 '''
 
-from soma.controller import undefined, Union
+from soma.controller import undefined
 
 from capsul.process.process import Process
 
@@ -32,16 +32,13 @@ class ProcessIteration(Process):
         self.iterative_parameters = set(iterative_parameters)
 
         # Check that all iterative parameters are valid process parameters
-        has_output = False
         inputs = []
         for parameter in self.iterative_parameters:
             if self.process.field(parameter) is None:
                 raise ValueError('Cannot iterate on parameter %s '
                   'that is not a parameter of process %s'
                   % (parameter, self.process.id))
-            if self.process.field(parameter).is_output():
-                has_output = True
-            else:
+            if not self.process.field(parameter).is_output():
                 inputs.append(parameter)
 
         # Create iterative process parameters by copying process parameter
@@ -121,13 +118,13 @@ class ProcessIteration(Process):
         size = self.iteration_size()
         if size is None:
             return
-        # for parameter in self.regular_parameters:
-        #     setattr(self.process, parameter, getattr(self, parameter))
         for iteration_index in range(size):
             self.select_iteration_index(iteration_index)
             yield self.process
     
     def select_iteration_index(self, iteration_index):
+        for parameter in self.regular_parameters:
+            setattr(self.process, parameter, getattr(self, parameter, undefined))
         for parameter in self.iterative_parameters:
             values = getattr(self, parameter, undefined)
             if values is not undefined and len(values) > iteration_index:
@@ -136,14 +133,16 @@ class ProcessIteration(Process):
                 value = undefined
             setattr(self.process, parameter, value)
 
-    def json(self):
-        return {
+    def json(self, include_parameters=True):
+        result = {
             'type': 'iterative_process',
             'definition': {
                 'definition': self.definition,
-                'process': self.process.json(),
+                'process': self.process.json(include_parameters=False),
                 'iterative_parameters': list(self.iterative_parameters),
                 'context_name': getattr(self.process, 'context_name', None),
             }
         }
-
+        if include_parameters:
+            result['parameters'] = super(Process,self).json()
+        return result

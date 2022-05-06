@@ -79,6 +79,7 @@ class EngineConfiguration(Controller):
 
     dataset: OpenKeyDictController[Dataset]
     config_modules: list[str]
+    python_modules: list[str]
 
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.
