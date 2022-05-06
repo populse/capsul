@@ -413,6 +413,7 @@ def save_py_pipeline(pipeline, py_file):
 
     with open(py_file, 'w') as pyf:
 
+        print('# -*- coding: utf-8 -*-\n', file=pyf)
         print('from capsul.api import Pipeline', file=pyf)
         print('from soma.controller import undefined', file=pyf)
         print(file=pyf)
