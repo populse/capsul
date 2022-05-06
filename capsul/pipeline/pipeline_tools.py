@@ -1526,7 +1526,7 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
                 nodes += [n[1] for n in node.process.nodes.items()
                           if n[0] != '']
             else:
-                replace_node(proc, module_name, dirname, done)
+                replace_node(node, module_name, dirname, done)
         else:
             replace_node(node, module_name, dirname, done)
 
