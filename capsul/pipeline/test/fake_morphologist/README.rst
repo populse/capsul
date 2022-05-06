@@ -12,8 +12,7 @@ obtained using the following python code, with morphologist installed::
 
     ce = capsul_engine()
     out_dir = os.path.join(
-        os.path.dirname(sys.modules['capsul.pipeline'].__file__),
-        'test', 'fake_morphologist')
+        os.path.dirname(sys.modules['capsul.pipeline'].__file__), 'test')
 
     m = ce.get_process_instance('morphologist.capsul.morphologist')
     pipeline_tools.write_fake_pipeline(

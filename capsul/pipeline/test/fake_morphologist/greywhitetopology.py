@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from capsul.api import Process
 import os
 import traits.api as traits

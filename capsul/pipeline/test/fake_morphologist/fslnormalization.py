@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from capsul.api import Pipeline
 import traits.api as traits
 
@@ -13,11 +14,11 @@ class FSLNormalization(Pipeline):
         self.add_process("converter", "capsul.pipeline.test.fake_morphologist.aimsconverter.AimsConverter")
 
         # links
-        self.export_parameter("converter", "read", "t1mri", is_optional=False)
-        self.add_link("t1mri->ConvertFSLnormalizationToAIMS.source_volume")
+        self.export_parameter("ConvertFSLnormalizationToAIMS", "source_volume", "t1mri", is_optional=False)
         self.add_link("t1mri->ReorientAnatomy.t1mri")
-        self.export_parameter("ConvertFSLnormalizationToAIMS", "registered_volume", "template", is_optional=False)
-        self.add_link("template->NormalizeFSL.anatomical_template")
+        self.add_link("t1mri->converter.read")
+        self.export_parameter("NormalizeFSL", "anatomical_template", "template", is_optional=False)
+        self.add_link("template->ConvertFSLnormalizationToAIMS.registered_volume")
         self.export_parameter("NormalizeFSL", "Alignment", "alignment", is_optional=False)
         self.export_parameter("ConvertFSLnormalizationToAIMS", "set_transformation_in_source_volume", is_optional=False)
         self.export_parameter("ReorientAnatomy", "allow_flip_initial_MRI", is_optional=False)
