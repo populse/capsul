@@ -293,10 +293,16 @@ class Node(Controller):
 
     def _remove_plug(self, plug_name):
         plug = self.plugs[plug_name]
-        if self.pipeline is not None:
+        pipeline = self.pipeline
+        if pipeline is None and hasattr(self, 'remove_link'):
+            pipeline = self  # I am a pipeline
+        if pipeline is not None:
             # remove the event on plug to validate the pipeline
-            plug.on_attribute_change.remove(
-                self.pipeline.update_nodes_and_plugs_activation, "enabled")
+            try:
+                plug.on_attribute_change.remove(
+                    pipeline.update_nodes_and_plugs_activation, "enabled")
+            except KeyError:
+                pass  # there was no such callback. Nevermind.
 
             # clear/remove the associated plug links
             links_to_remove = []
@@ -309,7 +315,7 @@ class Node(Controller):
                 src = f'{link[0]}.{link[1]}'
                 links_to_remove.append(f'{src}->{plug_name}')
             for link in links_to_remove:
-                self.pipeline.remove_link(link)
+                pipeline.remove_link(link)
 
         del self.plugs[plug_name]
 
