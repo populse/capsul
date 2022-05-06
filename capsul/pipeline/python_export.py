@@ -32,10 +32,10 @@ def save_py_pipeline(pipeline, py_file):
     from capsul.pipeline.pipeline_nodes import Switch, OptionalOutputSwitch
     from capsul.pipeline.process_iteration import ProcessIteration
     from capsul.process.process import NipypeProcess
-    from capsul.process_instance import get_process_instance
+    from capsul.application import executable
 
     def get_repr_value(value):
-        # TODO: handle None/Undefined in lists/dicts etc
+        # TODO: handle None/undefined in lists/dicts etc
         if value is undefined:
             repvalue = 'undefined'
         elif value is None:
@@ -60,7 +60,7 @@ def save_py_pipeline(pipeline, py_file):
             else:
                 classname = process.__class__.__name__
         procname = '.'.join((mod, classname))
-        proc_copy = get_process_instance(procname)
+        proc_copy = executable(procname)
         make_opt = []
         for field in proc_copy.fields():
             fname = field.name
@@ -314,8 +314,7 @@ def save_py_pipeline(pipeline, py_file):
                 enabled_str = ''
                 if not enabled:
                     enabled_str = ', enabled=false'
-                nodes = pipeline.pipeline_steps.field(step).metadata(
-                    'nodes', set())
+                nodes = step.metadata('nodes', set())
                 print('        self.add_pipeline_step("%s", %s%s)'
                       % (step_name, repr(nodes), enabled_str), file=pyf)
 
