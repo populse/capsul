@@ -11,9 +11,14 @@ from .dataset import Dataset
 
 
 class ExecutionContext(Controller):
+    python_modules: list[str]
     dataset: OpenKeyDictController[Dataset]
 
     def __init__(self, config=None, executable=None):
+        if config:
+            python_modules = config.get('python_modules', ())
+            for m in python_modules:
+                __import__(m)
         super().__init__()
         self.dataset = OpenKeyDictController[Dataset]()
         if config is not None:

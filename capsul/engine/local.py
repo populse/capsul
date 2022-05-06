@@ -48,6 +48,9 @@ class LocalEngine:
 
     def execution_context(self, executable):
         execution_context = ExecutionContext(executable=executable)
+        python_modules = getattr(self.config, 'python_modules', ())
+        if python_modules:
+            execution_context.python_modules = python_modules
         for name, cfg in getattr(self.config, 'dataset', {}).items():
             setattr(execution_context.dataset, name, Dataset(path=cfg.path, metadata_schema=cfg.metadata_schema))
         for module_name, requirements in self.executable_requirements(executable).items():
