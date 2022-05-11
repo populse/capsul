@@ -1866,16 +1866,29 @@ class NipypeProcess(FileCopyProcess):
         os.chdir(self.output_directory)
         self.synchronize += 1
 
+        trait_map = getattr(self, '_nipype_trait_mapping', {})
         # Force nipype update
         for trait_name in self._nipype_interface.inputs.traits().keys():
-            if trait_name in self.user_traits():
+            capsul_name = trait_map.get(trait_name, trait_name)
+            if capsul_name in self.user_traits():
                 old = getattr(self._nipype_interface.inputs, trait_name)
-                new = getattr(self, trait_name)
+                new = getattr(self, capsul_name)
                 if old is Undefined and old != new:
                     setattr(self._nipype_interface.inputs, trait_name, new)
 
         results = self._nipype_interface.run()
         self.synchronize += 1
+
+        # update outputs from nipype
+        for trait_name \
+                in self._nipype_interface.output_spec().traits().keys():
+            capsul_name = trait_map.get(trait_name, trait_name)
+            if capsul_name in self.user_traits():
+                old = getattr(self, capsul_name)
+                new = getattr(self._nipype_interface.output_spec(),
+                              trait_name)
+                if old != new:
+                    setattr(self, capsul_name, new)
 
         # For spm, need to move the batch
         # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)
