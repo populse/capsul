@@ -1505,6 +1505,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                 'The pipeline requirements are not met in the current '
                 'configuration settings.')
 
+    temp_pipeline = False
     if not isinstance(pipeline, Pipeline):
         # "pipeline" is actually a single process (or should, if it is not a
         # pipeline). Get it into a pipeline (with a single node) to make the
@@ -1514,6 +1515,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         new_pipeline.add_process('main', pipeline)
         new_pipeline.autoexport_nodes_parameters(include_optional=True)
         pipeline = new_pipeline
+        temp_pipeline = True
 
     if complete_parameters:
         completion = ProcessCompletionEngine.get_completion_engine(pipeline)
@@ -1628,6 +1630,10 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
     # mark workflow with pipeline
     workflow.pipeline = weakref.ref(pipeline)
+    if temp_pipeline:
+        # the pipeline is temporary - it will be deleted if we don't save a ref
+        # to it somewhere else in the workflow
+        workflow._pipeline = pipeline
     workflow._do_not_pickle = ['pipeline']
     if hasattr(pipeline, 'uuid'):
         workflow.uuid = pipeline.uuid
