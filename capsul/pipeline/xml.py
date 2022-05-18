@@ -325,18 +325,19 @@ def save_xml_pipeline(pipeline, xml_file):
         if isinstance(process, NipypeProcess):
             # WARNING: not sure I'm doing the right things for nipype. To be
             # fixed if needed.
-            for param in process.inputs_to_copy:
-                elem = ET.SubElement(procnode, 'nipype')
-                elem.set('name', param)
-                if param in process.inputs_to_clean:
-                    elem.set('copyfile', 'discard')
-                else:
-                    elem.set('copyfile', 'true')
-                np_input = getattr(process._nipype_interface.inputs, param)
-                if np_input:
-                    use_default = getattr(np_input, 'usedefault', False) # is it that?
-                    if use_default:
-                        elem.set('use_default', 'true')
+            if process.activate_copy:
+                for param in process.inputs_to_copy:
+                    elem = ET.SubElement(procnode, 'nipype')
+                    elem.set('name', param)
+                    if param in process.inputs_to_clean:
+                        elem.set('copyfile', 'discard')
+                    else:
+                        elem.set('copyfile', 'true')
+                    np_input = getattr(process._nipype_interface.inputs, param)
+                    if np_input:
+                        use_default = getattr(np_input, 'usedefault', False) # is it that?
+                        if use_default:
+                            elem.set('use_default', 'true')
             for param, np_input in \
                     six.iteritems(process._nipype_interface.inputs.__dict__):
                 use_default = getattr(np_input, 'usedefault', False) # is it that?
