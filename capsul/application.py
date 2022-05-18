@@ -5,13 +5,7 @@ import json
 from pathlib import Path
 import types
 import inspect
-
-# Nipype import
-try:
-    from nipype.interfaces.base import Interface as NipypeInterface
-# If nipype is not found create a dummy Interface class
-except ImportError:
-    NipypeInterface = type("Interface", (object, ), {})
+import sys
 
 from soma.controller import field, Controller
 from soma.undefined import undefined
@@ -22,8 +16,38 @@ from .dataset import Dataset
 from .pipeline.pipeline import Pipeline, CustomPipeline
 from .pipeline.process_iteration import ProcessIteration
 from .process.process import Process, Node
-from .process.nipype_process import nipype_factory
 
+# note: nipype and related imports are not done here to avoid several seconds
+# of import time when we don't use them.
+
+
+def _is_nipype_interface(obj):
+    '''Checks whether the given object is an instance of a nipype interface.
+
+    It basically behaves like isinstance(obj, NipypeInterface), but avoids to
+    import nipype modules if they are not already loaded (in which case the
+    object is definitely _not_ a nipype interface), because this import may
+    take several seconds, and we want to load capsul _fast_.
+    '''
+    if 'nipype.interfaces.base' not in sys.modules:
+        return False
+    npype_base = sys.modules['nipype.interfaces.base']
+    NipypeInterface = getattr(npype_base, 'Interface')
+    return isinstance(obj, NipypeInterface)
+
+def _is_nipype_interface_subclass(obj):
+    '''Checks whether the given object is a subclass of a nipype interface.
+
+    It basically behaves like issubclass(obj, NipypeInterface), but avoids to
+    import nipype modules if they are not already loaded (in which case the
+    object is definitely _not_ a nipype interface), because this import may
+    take several seconds, and we want to load capsul _fast_.
+    '''
+    if 'nipype.interfaces.base' not in sys.modules:
+        return False
+    npype_base = sys.modules['nipype.interfaces.base']
+    NipypeInterface = getattr(npype_base, 'Interface')
+    return issubclass(obj, NipypeInterface)
 
 
 class Capsul(Singleton):
@@ -53,7 +77,8 @@ class Capsul(Singleton):
         '''Check if the input item is a process class or function with decorator
         '''
         if isinstance(item, type) and item not in (Pipeline, Process) \
-                and (issubclass(item, Process) or issubclass(item, NipypeInterface)):
+                and (issubclass(item, Process)
+                     or _is_nipype_interface_subclass(item)):
             return True
         if not inspect.isfunction(item):
             return False
@@ -261,12 +286,14 @@ def executable_from_python(definition, item):
 
     # If item is a Nipye
     # interface instance, wrap this structure in a Process class
-    elif isinstance(item, NipypeInterface):
+    elif _is_nipype_interface(item):
+        from .process.nipype_process import nipype_factory
         result = nipype_factory(definition, item)
 
     # If item is a Nipype Interface class.
     elif (isinstance(item, type) and
-        issubclass(item, NipypeInterface)):
+        _is_nipype_interface_subclass(item)):
+        from .process.nipype_process import nipype_factory
         result = nipype_factory(item())
 
     # If item is a function.
