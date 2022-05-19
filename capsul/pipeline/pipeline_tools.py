@@ -1343,6 +1343,9 @@ class %s(Process):
             t_str = field.type_str()
             meta = {k: v for k, v in field.metadata().items()
                     if k not in meta_forbidden}
+            value = getattr(process, name, undefined)
+            if value is not undefined and 'optional' not in meta:
+                meta['optional'] = True
             meta_str = ''
             if meta:
                 meta_str = ', '.join('%s=%s' % (k, repr(v))
@@ -1350,7 +1353,6 @@ class %s(Process):
                 meta_str = ', ' + meta_str
             f.write('        self.add_field("%s", %s%s)\n'
                     % (name, t_str, meta_str))
-            value = getattr(process, name, undefined)
             if value is not undefined:
                 f.write('        self.%s = %s\n' % (name, repr(value)))
 
