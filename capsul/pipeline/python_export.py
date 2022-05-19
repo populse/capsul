@@ -255,6 +255,7 @@ def save_py_pipeline(pipeline, py_file):
 
     def _write_export(pipeline, pyf, param_name):
         plug = pipeline.plugs[param_name]
+        field = pipeline.field(param_name)
         if plug.output:
             link = list(plug.links_from)[0]
         else:
@@ -267,8 +268,9 @@ def save_py_pipeline(pipeline, py_file):
         weak_link = ''
         if link[-1]:
             weak_link = ', weak_link=True'
-        print('        self.export_parameter("%s", "%s"%s%s)'
-              % (node_name, plug_name, param_name, weak_link), file=pyf)
+        is_optional = ', is_optional=%s' % repr(field.optional)
+        print('        self.export_parameter("%s", "%s"%s%s%s)'
+              % (node_name, plug_name, param_name, weak_link, is_optional), file=pyf)
         return node_name, plug_name
 
     def _write_links(pipeline, pyf):
