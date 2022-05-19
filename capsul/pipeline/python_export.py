@@ -224,7 +224,8 @@ def save_py_pipeline(pipeline, py_file):
               file=pyf)
 
     def _write_switch(switch, pyf, name, enabled):
-        inputs = set()
+        inputs_set = set()
+        inputs = []
         outputs = []
         optional = []
         opt_in = []
@@ -237,14 +238,14 @@ def save_py_pipeline(pipeline, py_file):
             else:
                 name_parts = plug_name.split("_switch_")
                 if len(name_parts) == 2 \
-                        and name_parts[0] not in inputs:
-                    inputs.add(name_parts[0])
+                        and name_parts[0] not in inputs_set:
+                    inputs_set.add(name_parts[0])
+                    inputs.append(name_parts[0])
                     if plug.optional:
                         opt_in.append(name_parts[0])
         optional_p = ''
         if len(optional) != 0:
             optional_p = ', make_optional=%s' % repr(optional)
-        inputs = list(inputs)
 
         # output types
         from .pipeline_tools import trait_str
