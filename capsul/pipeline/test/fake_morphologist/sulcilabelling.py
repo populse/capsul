@@ -12,16 +12,16 @@ class SulciLabelling(Pipeline):
         self.add_process("SPAM_recognition09", "capsul.pipeline.test.fake_morphologist.sulcilabellingspam.SulciLabellingSPAM")
         self.nodes["SPAM_recognition09"].process.nodes_activation = {'global_recognition': True, 'local_recognition': True, 'markovian_recognition': True}
         self.add_process("CNN_recognition19", "capsul.pipeline.test.fake_morphologist.sulcideeplabeling.SulciDeepLabeling", skip_invalid=True)
-        self.add_switch("select_Sulci_Recognition", ['CNN_recognition19', 'recognition2000', 'SPAM_recognition09'], ['output_graph'], output_types=[traits.File(output=True, optional=False)], opt_nodes=['recognition2000', 'SPAM_recognition09', 'CNN_recognition19'], export_switch=False)
+        self.add_switch("select_Sulci_Recognition", ['SPAM_recognition09', 'CNN_recognition19', 'recognition2000'], ['output_graph'], output_types=[traits.File(output=True, optional=False)], switch_value='CNN_recognition19', opt_nodes=['recognition2000', 'SPAM_recognition09', 'CNN_recognition19'], export_switch=False)
 
         # links
         self.export_parameter("select_Sulci_Recognition", "switch", "select_Sulci_Recognition", is_optional=False)
-        self.export_parameter("recognition2000", "data_graph", is_optional=False)
+        self.export_parameter("CNN_recognition19", "graph", "data_graph", is_optional=False)
+        self.add_link("data_graph->recognition2000.data_graph")
         self.add_link("data_graph->SPAM_recognition09.data_graph")
-        self.add_link("data_graph->CNN_recognition19.graph")
         self.export_parameter("CNN_recognition19", "fix_random_seed", is_optional=False)
-        self.add_link("fix_random_seed->recognition2000.fix_random_seed")
         self.add_link("fix_random_seed->SPAM_recognition09.fix_random_seed")
+        self.add_link("fix_random_seed->recognition2000.fix_random_seed")
         self.export_parameter("recognition2000", "model", "recognition2000_model", is_optional=True)
         self.export_parameter("recognition2000", "model_hint", "recognition2000_model_hint", is_optional=True)
         self.export_parameter("recognition2000", "rate", "recognition2000_rate", is_optional=True)
