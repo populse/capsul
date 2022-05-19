@@ -75,6 +75,60 @@ def save_py_pipeline(pipeline, py_file):
         print('        self.add_process("%s", "%s"%s)' % (name, procname,
                                                           node_options),
               file=pyf)
+
+        # check that sub-nodes enable and plugs optional states are the
+        # expected ones
+        todo = [('self.nodes["%s"]' % name, process, proc_copy)]
+        while todo:
+            self_str, snode, cnode = todo.pop(0)
+            if not snode.enabled:
+                print('        %s.enabled = False' % self_str,
+                      file=pyf)
+
+            # if the node is a (sub)pipeline, and this pipeline has additional
+            # exported traits compared to the its base module/class instance
+            # (proc_copy),  then we must use explicit exports/links inside it
+            if isinstance(snode, Pipeline):
+                for field in snode.user_fields():
+                    param_name = field.name
+                    optional = None
+                    if cnode.field(param_name) is None:
+                        # param added, not in the original process
+                        is_input = not field.output
+                        if (is_input and snode.plugs[param_name].links_to) \
+                                or (not is_input
+                                    and snode.plugs[param_name].links_from):
+                            if is_input:
+                                for link in snode.plugs[param_name].links_to:
+                                    print(f'        {self_str}.process.add_link("{param_name}->{link[0]}.{link[1]}", allow_export=True)\n',
+                                          file=pyf)
+                            else:
+                                for link in snode.plugs[param_name].links_from:
+                                    print(f'        {self_str}.process.add_link("{link[0]}.{link[1]}->{param_name}", allow_export=True)\n',
+                                          file=pyf)
+
+            for param_name, plug in snode.plugs.items():
+                field = snode.field(param_name)
+                cfield = cnode.field(param_name)
+                optional = None
+                if param_name not in cnode.plugs \
+                        or field.optional != cfield.optional:
+                    optional = field.optional
+                if optional is not None:
+                    print(f'        {self_str}.field("{param_name}").optional = {optional}\n',
+                              file=pyf)
+                    print(f'        {self_str}.plugs["{param_name}"].optional = {optional}\n',
+                          file=pyf)
+
+            if isinstance(snode, Pipeline):
+                sself_str = '%s.nodes["%s"]' % (self_str, '%s')
+                for node_name, snode in snode.nodes.items():
+                    scnode = cnode.nodes[node_name]
+
+                    if node_name == '':
+                        continue
+                    todo.append((sself_str % node_name, snode, scnode))
+
         for field in process.fields():
             pname = field.name
             value = getattr(process, pname, undefined)
