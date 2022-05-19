@@ -13,17 +13,17 @@ class normalization_t1_spm12_reinit(Process):
         self.add_field("anatomy_data", File, read=True, allowed_extensions=['.nii', '.img', '.hdr'], write=False)
         self.add_field("anatomical_template", File, read=True, allowed_extensions=['.nii', '.mnc', '.img', '.hdr'], optional=True, write=False)
         self.anatomical_template = '/host/usr/local/spm12-standalone/spm12_mcr/spm12/toolbox/OldNorm/T1.nii'
-        self.add_field("voxel_size", Literal['[1 1 1]'])
+        self.add_field("voxel_size", Literal['[1 1 1]'], optional=True)
         self.voxel_size = '[1 1 1]'
-        self.add_field("cutoff_option", int)
+        self.add_field("cutoff_option", int, optional=True)
         self.cutoff_option = 25
-        self.add_field("nbiteration", int)
+        self.add_field("nbiteration", int, optional=True)
         self.nbiteration = 16
         self.add_field("transformations_informations", File, write=True, allowed_extensions=['.mat'], read=True)
         self.add_field("normalized_anatomy_data", File, write=True, allowed_extensions=['.nii', '.img', '.hdr'], read=True)
-        self.add_field("allow_retry_initialization", bool)
+        self.add_field("allow_retry_initialization", bool, optional=True)
         self.allow_retry_initialization = True
-        self.add_field("init_translation_origin", Literal[0,1])
+        self.add_field("init_translation_origin", Literal[0,1], optional=True)
         self.init_translation_origin = 0
 
     def execute(self, context):

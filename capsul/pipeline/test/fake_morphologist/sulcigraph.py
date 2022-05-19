@@ -19,15 +19,15 @@ class SulciGraph(Process):
         self.add_field("pial_mesh", File, read=True, allowed_extensions=['.gii', '.mesh', '.obj', '.ply', '.tri'], write=False)
         self.add_field("commissure_coordinates", File, read=True, allowed_extensions=['.APC'], optional=True, write=False)
         self.add_field("talairach_transform", File, read=True, allowed_extensions=['.trm'], write=False)
-        self.add_field("compute_fold_meshes", bool)
+        self.add_field("compute_fold_meshes", bool, optional=True)
         self.compute_fold_meshes = True
-        self.add_field("allow_multithreading", bool)
+        self.add_field("allow_multithreading", bool, optional=True)
         self.allow_multithreading = True
-        self.add_field("graph_version", Literal['3.0','3.1','3.2'])
+        self.add_field("graph_version", Literal['3.0','3.1','3.2'], optional=True)
         self.graph_version = '3.1'
         self.add_field("graph", File, write=True, allowed_extensions=['.arg', '.data'], read=True)
         self.add_field("sulci_voronoi", File, write=True, allowed_extensions=['.nii.gz', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.gif', '.ima', '.dim', '.jpg', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.xbm', '.xpm', '.mnc.gz'], read=True)
-        self.add_field("write_cortex_mid_interface", bool)
+        self.add_field("write_cortex_mid_interface", bool, optional=True)
         self.write_cortex_mid_interface = False
         self.add_field("cortex_mid_interface", File, write=True, allowed_extensions=['.nii.gz', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.gif', '.ima', '.dim', '.jpg', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.xbm', '.xpm', '.mnc.gz'], optional=True, read=True)
 

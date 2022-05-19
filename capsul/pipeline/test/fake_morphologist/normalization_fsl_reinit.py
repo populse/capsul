@@ -12,17 +12,17 @@ class Normalization_FSL_reinit(Process):
 
         self.add_field("anatomy_data", File, read=True, allowed_extensions=['.nii', '.nii.gz'], write=False)
         self.add_field("anatomical_template", File, read=True, allowed_extensions=['.nii', '.nii.gz'], write=False)
-        self.add_field("Alignment", Literal['Already Virtually Aligned','Not Aligned but Same Orientation','Incorrectly Oriented'])
+        self.add_field("Alignment", Literal['Already Virtually Aligned','Not Aligned but Same Orientation','Incorrectly Oriented'], optional=True)
         self.Alignment = 'Not Aligned but Same Orientation'
         self.add_field("transformation_matrix", File, write=True, allowed_extensions=['.mat'], read=True)
         self.add_field("normalized_anatomy_data", File, write=True, allowed_extensions=['.nii.gz'], read=True)
-        self.add_field("cost_function", Literal['corratio','mutualinfo','normcorr','normmi','leastsq','labeldiff'])
+        self.add_field("cost_function", Literal['corratio','mutualinfo','normcorr','normmi','leastsq','labeldiff'], optional=True)
         self.cost_function = 'corratio'
-        self.add_field("search_cost_function", Literal['corratio','mutualinfo','normcorr','normmi','leastsq','labeldiff'])
+        self.add_field("search_cost_function", Literal['corratio','mutualinfo','normcorr','normmi','leastsq','labeldiff'], optional=True)
         self.search_cost_function = 'corratio'
-        self.add_field("allow_retry_initialization", bool)
+        self.add_field("allow_retry_initialization", bool, optional=True)
         self.allow_retry_initialization = True
-        self.add_field("init_translation_origin", Literal[0,1])
+        self.add_field("init_translation_origin", Literal[0,1], optional=True)
         self.init_translation_origin = 0
 
     def execute(self, context):

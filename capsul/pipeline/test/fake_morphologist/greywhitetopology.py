@@ -14,9 +14,9 @@ class GreyWhiteTopology(Process):
         self.add_field("t1mri_nobias", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
         self.add_field("histo_analysis", File, read=True, allowed_extensions=['.han'], write=False)
         self.add_field("hemi_cortex", File, write=True, allowed_extensions=['.nii.gz', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.gif', '.ima', '.dim', '.jpg', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.xbm', '.xpm', '.mnc.gz'], read=True)
-        self.add_field("version", Literal['1','2'])
+        self.add_field("version", Literal['1','2'], optional=True)
         self.version = '2'
-        self.add_field("fix_random_seed", bool)
+        self.add_field("fix_random_seed", bool, optional=True)
         self.fix_random_seed = False
 
     def execute(self, context):

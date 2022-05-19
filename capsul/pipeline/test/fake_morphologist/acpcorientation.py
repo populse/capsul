@@ -13,7 +13,7 @@ class AcpcOrientation(Process):
 
         self.add_field("T1mri", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
         self.add_field("commissure_coordinates", File, write=True, allowed_extensions=['.APC'], read=True)
-        self.add_field("Normalised", Literal['No','MNI from SPM','MNI from Mritotal','Marseille from SPM'])
+        self.add_field("Normalised", Literal['No','MNI from SPM','MNI from Mritotal','Marseille from SPM'], optional=True)
         self.Normalised = 'No'
         self.add_field("Anterior_Commissure", pydantic.conlist(float, min_items=3, max_items=3), optional=True)
         self.Anterior_Commissure = [0.0, 0.0, 0.0]
@@ -23,10 +23,10 @@ class AcpcOrientation(Process):
         self.Interhemispheric_Point = [0.0, 0.0, 0.0]
         self.add_field("Left_Hemisphere_Point", pydantic.conlist(float, min_items=3, max_items=3), optional=True)
         self.Left_Hemisphere_Point = [0.0, 0.0, 0.0]
-        self.add_field("allow_flip_initial_MRI", bool)
+        self.add_field("allow_flip_initial_MRI", bool, optional=True)
         self.allow_flip_initial_MRI = False
         self.add_field("reoriented_t1mri", File, write=True, allowed_extensions=['.nii.gz', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.gif', '.ima', '.dim', '.jpg', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.xbm', '.xpm', '.mnc.gz'], read=True)
-        self.add_field("remove_older_MNI_normalization", bool)
+        self.add_field("remove_older_MNI_normalization", bool, optional=True)
         self.remove_older_MNI_normalization = True
         self.add_field("older_MNI_normalization", File, read=True, allowed_extensions=['.trm'], optional=True, write=False)
 
