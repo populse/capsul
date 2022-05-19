@@ -15,7 +15,7 @@ class BrainOrientation(Pipeline):
         self.nodes["Normalization"].process.nodes["NormalizeBaladin"].process.nodes["ReorientAnatomy"].enabled = False
         self.nodes["Normalization"].process.nodes_activation = {'NormalizeFSL': True, 'NormalizeSPM': True, 'NormalizeBaladin': True, 'Normalization_AimsMIRegister': True}
         self.add_process("TalairachFromNormalization", "capsul.pipeline.test.fake_morphologist.talairachtransformationfromnormalization.TalairachTransformationFromNormalization")
-        self.add_switch("select_AC_PC_Or_Normalization", ['Normalization', 'StandardACPC'], ['commissure_coordinates', 'reoriented_t1mri', 'talairach_transformation'], output_types=[traits.File(output=True, optional=False), traits.File(output=True, optional=False), traits.File(output=True, optional=True)], make_optional=['talairach_transformation'], export_switch=False)
+        self.add_switch("select_AC_PC_Or_Normalization", ['StandardACPC', 'Normalization'], ['commissure_coordinates', 'reoriented_t1mri', 'talairach_transformation'], output_types=[traits.File(output=True, optional=False), traits.File(output=True, optional=False), traits.File(output=True, optional=True)], make_optional=['talairach_transformation'], switch_value='Normalization', export_switch=False)
 
         # links
         self.export_parameter("select_AC_PC_Or_Normalization", "switch", "select_AC_PC_Or_Normalization", is_optional=False)
@@ -60,8 +60,8 @@ class BrainOrientation(Pipeline):
         self.export_parameter("TalairachFromNormalization", "transform_chain_ACPC_to_Normalized", "TalairachFromNormalization_transform_chain_ACPC_to_Normalized", is_optional=True)
         self.add_link("StandardACPC.commissure_coordinates->select_AC_PC_Or_Normalization.StandardACPC_switch_commissure_coordinates")
         self.add_link("StandardACPC.reoriented_t1mri->select_AC_PC_Or_Normalization.StandardACPC_switch_reoriented_t1mri")
-        self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
         self.export_parameter("Normalization", "transformation", "normalization_transformation", weak_link=True, is_optional=True)
+        self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
         self.add_link("Normalization.reoriented_t1mri->TalairachFromNormalization.t1mri")
         self.add_link("Normalization.reoriented_t1mri->select_AC_PC_Or_Normalization.Normalization_switch_reoriented_t1mri")
         self.export_parameter("Normalization", "normalized", "Normalization_normalized", weak_link=True, is_optional=True)

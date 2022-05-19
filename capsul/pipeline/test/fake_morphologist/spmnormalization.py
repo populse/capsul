@@ -13,21 +13,21 @@ class SPMNormalization(Pipeline):
         self.add_process("normalization_t1_spm12_reinit", "capsul.pipeline.test.fake_morphologist.normalization_t1_spm12_reinit.normalization_t1_spm12_reinit")
         self.add_process("normalization_t1_spm8_reinit", "capsul.pipeline.test.fake_morphologist.normalization_t1_spm8_reinit.normalization_t1_spm8_reinit")
         self.nodes["normalization_t1_spm8_reinit"].enabled = False
-        self.add_switch("NormalizeSPM", ['normalization_t1_spm8_reinit', 'normalization_t1_spm12_reinit'], ['spm_transformation', 'normalized_t1mri'], output_types=[traits.File(output=True, optional=False), traits.File(output=True, optional=False)], switch_value='normalization_t1_spm12_reinit', export_switch=False)
+        self.add_switch("NormalizeSPM", ['normalization_t1_spm12_reinit', 'normalization_t1_spm8_reinit'], ['spm_transformation', 'normalized_t1mri'], output_types=[traits.File(output=True, optional=False), traits.File(output=True, optional=False)], export_switch=False)
         self.add_process("converter", "capsul.pipeline.test.fake_morphologist.aimsconverter.AimsConverter")
 
         # links
         self.export_parameter("NormalizeSPM", "switch", "NormalizeSPM", is_optional=False)
         self.export_parameter("ConvertSPMnormalizationToAIMS", "source_volume", "t1mri", is_optional=False)
-        self.add_link("t1mri->ReorientAnatomy.t1mri")
         self.add_link("t1mri->converter.read")
-        self.export_parameter("normalization_t1_spm12_reinit", "anatomical_template", "template", is_optional=True)
-        self.add_link("template->normalization_t1_spm8_reinit.anatomical_template")
+        self.add_link("t1mri->ReorientAnatomy.t1mri")
+        self.export_parameter("normalization_t1_spm8_reinit", "anatomical_template", "template", is_optional=True)
+        self.add_link("template->normalization_t1_spm12_reinit.anatomical_template")
         self.export_parameter("ReorientAnatomy", "allow_flip_initial_MRI", is_optional=False)
-        self.export_parameter("normalization_t1_spm12_reinit", "allow_retry_initialization", is_optional=False)
-        self.add_link("allow_retry_initialization->normalization_t1_spm8_reinit.allow_retry_initialization")
-        self.export_parameter("normalization_t1_spm12_reinit", "init_translation_origin", is_optional=False)
-        self.add_link("init_translation_origin->normalization_t1_spm8_reinit.init_translation_origin")
+        self.export_parameter("normalization_t1_spm8_reinit", "allow_retry_initialization", is_optional=False)
+        self.add_link("allow_retry_initialization->normalization_t1_spm12_reinit.allow_retry_initialization")
+        self.export_parameter("normalization_t1_spm8_reinit", "init_translation_origin", is_optional=False)
+        self.add_link("init_translation_origin->normalization_t1_spm12_reinit.init_translation_origin")
         self.export_parameter("normalization_t1_spm8_reinit", "voxel_size", is_optional=False)
         self.add_link("voxel_size->normalization_t1_spm12_reinit.voxel_size")
         self.export_parameter("normalization_t1_spm12_reinit", "cutoff_option", is_optional=False)
@@ -50,8 +50,8 @@ class SPMNormalization(Pipeline):
         self.export_parameter("NormalizeSPM", "spm_transformation", is_optional=False)
         self.add_link("NormalizeSPM.spm_transformation->ConvertSPMnormalizationToAIMS.read")
         self.export_parameter("NormalizeSPM", "normalized_t1mri", is_optional=False)
-        self.add_link("converter.write->normalization_t1_spm12_reinit.anatomy_data")
         self.add_link("converter.write->normalization_t1_spm8_reinit.anatomy_data")
+        self.add_link("converter.write->normalization_t1_spm12_reinit.anatomy_data")
 
         # parameters order
 

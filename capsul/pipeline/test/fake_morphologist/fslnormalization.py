@@ -15,8 +15,8 @@ class FSLNormalization(Pipeline):
 
         # links
         self.export_parameter("ConvertFSLnormalizationToAIMS", "source_volume", "t1mri", is_optional=False)
-        self.add_link("t1mri->ReorientAnatomy.t1mri")
         self.add_link("t1mri->converter.read")
+        self.add_link("t1mri->ReorientAnatomy.t1mri")
         self.export_parameter("ConvertFSLnormalizationToAIMS", "registered_volume", "template", is_optional=False)
         self.add_link("template->NormalizeFSL.anatomical_template")
         self.export_parameter("NormalizeFSL", "Alignment", "alignment", is_optional=False)
@@ -31,8 +31,8 @@ class FSLNormalization(Pipeline):
         self.export_parameter("NormalizeFSL", "transformation_matrix", "NormalizeFSL_transformation_matrix", is_optional=True)
         self.add_link("NormalizeFSL.transformation_matrix->ConvertFSLnormalizationToAIMS.read")
         self.export_parameter("NormalizeFSL", "normalized_anatomy_data", "NormalizeFSL_normalized_anatomy_data", is_optional=True)
-        self.export_parameter("ConvertFSLnormalizationToAIMS", "write", "ConvertFSLnormalizationToAIMS_write", is_optional=True)
         self.add_link("ConvertFSLnormalizationToAIMS.write->ReorientAnatomy.transformation")
+        self.export_parameter("ConvertFSLnormalizationToAIMS", "write", "ConvertFSLnormalizationToAIMS_write", is_optional=True)
         self.export_parameter("ReorientAnatomy", "output_t1mri", "reoriented_t1mri", is_optional=False)
         self.export_parameter("ReorientAnatomy", "output_transformation", "transformation", is_optional=False)
         self.export_parameter("ReorientAnatomy", "output_commissures_coordinates", "ReorientAnatomy_output_commissures_coordinates", is_optional=True)
