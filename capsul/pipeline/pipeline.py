@@ -21,6 +21,7 @@ import six
 from soma.utils.weak_proxy import weak_proxy, get_ref
 from six.moves import range
 from six.moves import zip
+from collections import OrderedDict
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -2165,14 +2166,14 @@ class Pipeline(Process):
             if node_dict is None:
                 result.append('node "%s" is missing' % node_name)
             else:
-                plugs_list = node_dict.pop('plugs')
+                plugs_list = OrderedDict(node_dict.pop('plugs'))
                 result.extend('in node "%s": %s' % (node_name, i) for i in
                               compare_dict(dict(name=node.name,
                                                 enabled=node.enabled,
                                                 activated=node.activated),
                                            node_dict))
                 ref_plug_names = list(node.plugs)
-                other_plug_names = [i[0] for i in plugs_list]
+                other_plug_names = list(plugs_list.keys())
                 if ref_plug_names != other_plug_names:
                     if sorted(ref_plug_names) == sorted(other_plug_names):
                         result.append('in node "%s": plugs order = %s '
@@ -2187,8 +2188,7 @@ class Pipeline(Process):
                         # go to next node
                         continue
                 for plug_name, plug in six.iteritems(node.plugs):
-                    plug_dict = plugs_list[0][1]
-                    del plugs_list[0]
+                    plug_dict = plugs_list[plug_name]
                     links_to_dict = plug_dict.pop('links_to')
                     links_from_dict = plug_dict.pop('links_from')
                     result.extend('in plug "%s:%s": %s' %
