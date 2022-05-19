@@ -385,6 +385,19 @@ class Node(Controller):
         self._remove_plug(name)
         super().remove_field(name)
 
+    def reorder_fields(self, fields=()):
+        super().reorder_fields(fields)
+        # reorder plugs as well as fields
+        new_plugs = SortedDictionary()
+        for name in fields:
+            if name in self.plugs:
+                new_plugs[name] = self.plugs[name]
+        # append remaining ones in former order
+        for name, plug in self.plugs.items():
+            if name not in new_plugs:
+                new_plugs[name] = plug
+        self.plugs = new_plugs
+
     def __getstate__(self):
         """ Remove the callbacks from the default __getstate__ result because
         they prevent Node instance from being used with pickle.
