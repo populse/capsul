@@ -1445,7 +1445,7 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
             write_fake_process(node, filename, sleep_time=sleep_time)
         try:
             new_proc = executable(filename)
-        except Exception as e:
+        except Exception:
             print('Failed to reload node:', filename)
             raise
         new_proc.__class__.__module__ = modname
