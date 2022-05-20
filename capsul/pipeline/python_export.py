@@ -370,7 +370,7 @@ def save_py_pipeline(pipeline, py_file):
                  if n.name not in ('nodes_activation', 'pipeline_steps',
                                    'visible_groups')]
         print('\n        self.reorder_fields((%s))'
-              % ', '.join(names), file=pyf)
+              % ',\n            '.join(names), file=pyf)
 
     def _write_steps(pipeline, pyf):
         steps = pipeline.field('pipeline_steps')
