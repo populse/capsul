@@ -1453,11 +1453,14 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
         # fix fields state (if modified)
         for field in node.fields():
             name = field.name
-            if new_proc.field(name) is None:
+            new_field = new_proc.field(name)
+            if new_field is None:
                 new_proc.add_field(name, field)
                 continue
             meta = {k: v for k, v in field.metadata().items()
                     if k not in meta_forbidden}
+            meta.update({k: getattr(field, k) for k in new_field.metadata()
+                         if k not in meta and hasattr(field, k)})
             for k, v in meta.items():
                 setattr(new_proc.field(name), k, v)
 
