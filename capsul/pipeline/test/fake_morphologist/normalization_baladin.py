@@ -12,6 +12,7 @@ class Normalization_Baladin(Process):
 
         self.add_field("anatomy_data", File, read=True, allowed_extensions=['.ima', '.dim'], write=False)
         self.add_field("anatomical_template", File, read=True, allowed_extensions=['.ima', '.dim'], write=False)
+        self.anatomical_template = '/casa/host/build/share/brainvisa-share-5.1/anatomical_templates/MNI152_T1_1mm.nii.gz'
         self.add_field("transformation_matrix", File, write=True, allowed_extensions=['.txt'], read=True)
         self.add_field("normalized_anatomy_data", File, write=True, allowed_extensions=['.ima', '.dim', '.nii', '.nii.gz'], read=True)
 
