@@ -1486,6 +1486,8 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
     transformed into a fake one.`
     '''
 
+    meta_forbidden = {'type', '_metadata'}
+
     def replace_node(node, module_name, dirname, done):
         basename = node.process.__class__.__name__.lower()
         modname = '.'.join([module_name, basename])
@@ -1493,9 +1495,25 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
         if modname not in done:
             done.add(modname)
             write_fake_process(node.process, filename, sleep_time=sleep_time)
-        new_proc \
-            = pipeline.get_study_config().engine.get_process_instance(filename)
+        try:
+            new_proc \
+                = pipeline.get_study_config().engine.get_process_instance(
+                    filename)
+        except Exception:
+            print('Failed to reload node:', filename)
+            raise
         new_proc.__class__.__module__ = modname
+
+        # fix fields state (if modified)
+        for name, trait in node.process.user_traits().items():
+            if name not in new_proc.user_traits():
+                new_proc.add_trait(name, trait)
+                continue
+            meta = {k: v for k, v in trait.__dict__.items()
+                    if k not in meta_forbidden}
+            for k, v in meta.items():
+                setattr(new_proc.trait(name), k, v)
+
         node.process = new_proc
 
     sys.path.insert(0, dirname)
