@@ -1413,6 +1413,8 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
     transformed into a fake one.`
     '''
 
+    meta_forbidden = {'order', 'path_type', 'class_field'}
+
     def replace_pipeline_node(old_node, new_node, parent):
         for plug_name, plug in old_node.plugs.items():
             for link in plug.links_from:
@@ -1444,9 +1446,20 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
         try:
             new_proc = executable(filename)
         except Exception as e:
-            print('Failed top reload node:', filename)
+            print('Failed to reload node:', filename)
             raise
         new_proc.__class__.__module__ = modname
+
+        # fix fields state (if modified)
+        for field in node.fields():
+            name = field.name
+            if new_proc.field(name) is None:
+                new_proc.add_field(name, field)
+                continue
+            meta = {k: v for k, v in field.metadata().items()
+                    if k not in meta_forbidden}
+            for k, v in meta.items():
+                setattr(new_proc.field(name), k, v)
 
         if parent is not None and node_name is not None:
             parent.nodes[node_name] = new_proc
