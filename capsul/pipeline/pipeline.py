@@ -2296,6 +2296,7 @@ class Pipeline(Process):
         return result
     
     def dispatch_value(self, node, name, value):
+        enable_parameter_links = self.enable_parameter_links
         self.enable_parameter_links = False
         done = set()
         stack = list(self.get_linked_items(node, 
@@ -2314,7 +2315,7 @@ class Pipeline(Process):
                     in_sub_pipelines=False,
                     activated_only=False,
                     process_only=False))
-        self.enable_parameter_links = True
+        self.enable_parameter_links = enable_parameter_links
 
     def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True, activated_only=True, process_only=True):
         '''Return the real process(es) node and plug connected to the given plug.
