@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import json
 import os
 import sys
+from capsul.pipeline.process_iteration import ProcessIteration
 
 from soma.undefined import undefined
 
-import capsul.debug as capsul_debug
+from .application import Capsul
 from . import execution_context
-
 
 if __name__ == '__main__':
     tmp = os.environ.get('CAPSUL_TMP')
@@ -47,53 +48,47 @@ if __name__ == '__main__':
         }
     command = sys.argv[1]
     args = sys.argv[2:]
-    capsul_debug.debug_messages = []
     invalid_parameters = False
     if command == 'process':
-        if len(args) == 2:
-            process_uuid, iteration_index = args
-            iteration_index = (None if iteration_index == 'None' else int(iteration_index))
+        if len(args) == 1:
+            job_uuid = args[0]
             with database as db:
-                process = db.process(process_uuid)
-                db.update_process(process_uuid, start_time=datetime.now())
-            process_update = {}
-            try:
-                output_parameters = {}
-                output_parameters_list = {}
-                if iteration_index is not None:
-                    process.select_iteration_index(iteration_index)
-                    run_process = process.process
-                else:
-                    run_process = process
-                execution_context.executable = run_process
-                run_process.resolve_paths(execution_context)
-                run_process.before_execute(execution_context)
-                run_process.execute(execution_context)
-                run_process.after_execute(execution_context)
-                for field in run_process.user_fields():
-                    if field.is_output():
-                        value = getattr(run_process, field.name, undefined)
+                row = db.session['jobs'].document(job_uuid, fields=['process', 'parameters_location'], as_list=True)
+            if row is None:
+                raise ValueError(f'No such job: {job_uuid}')
+            process_json, parameters_location = row
+            process = Capsul.executable(process_json)
+            with database as db:
+                workflow_parameters = db.workflow_parameters
+            parameters = workflow_parameters
+            for index in parameters_location:
+                if index.isnumeric():
+                    index = int(index)
+                parameters = parameters[index]
+            for field in process.user_fields():
+                if not field.output and field.name in parameters and parameters[field.name] is not None:
+                    setattr(process, field.name, parameters.no_proxy(parameters[field.name]))
+            execution_context.executable = process
+            process.resolve_paths(execution_context)
+            process.before_execute(execution_context)
+            process.execute(execution_context)
+            process.after_execute(execution_context)
+            workflow_parameters = None
+            with database as db:
+                for field in process.user_fields():
+                    if field.output:
+                        value = getattr(process, field.name, undefined)
                         if value is not undefined:
-                            if iteration_index is not None and field.name in process.iterative_parameters:
-                                output_parameters_list[field.name] = value
-                            else:
-                                output_parameters[field.name] = value
-            finally:
-                process_update['end_time'] = datetime.now()        
-                with database as db:
-                    if iteration_index is not None:
-                        row = db.session['processes'].document(process_uuid, fields=['output_parameters'], as_list=True)
-                        if row and row[0]:
-                            op = row[0]
-                        else:
-                            op = {}
-                        for p, v in output_parameters_list.items():
-                            l = op.get(p, getattr(process, p))
-                            l[iteration_index] = v
-                            output_parameters[p] = l
-                    if output_parameters:
-                        process_update['output_parameters'] = output_parameters
-                    db.update_process(process_uuid, **process_update)
+                            if workflow_parameters is None:
+                                workflow_parameters = db.workflow_parameters
+                                parameters = workflow_parameters
+                                for index in parameters_location:
+                                    if index.isnumeric():
+                                        index = int(index)
+                                    parameters = parameters[index]
+                            parameters[field.name] = value
+                if workflow_parameters is not None:
+                    db.workflow_parameters = workflow_parameters
         else:
             invalid_parameters = True  
     else:

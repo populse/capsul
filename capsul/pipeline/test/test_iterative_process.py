@@ -10,9 +10,8 @@ import shutil
 from soma.controller import undefined, File, field
 
 # Capsul import
-from capsul.api import Process
-from capsul.api import Pipeline
-from capsul.api import Capsul
+from capsul.api import Process, Pipeline, Capsul
+from capsul.execution_context import CapsulWorkflow
 from capsul.pipeline import pipeline_workflow
 from soma_workflow import configuration as swconfig
 
@@ -239,24 +238,19 @@ class TestPipeline(unittest.TestCase):
                          [self.pipeline.other_input,
                           self.pipeline.other_input])
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_pipeline_workflow(self):
         self.small_pipeline.output_image = [
             os.path.join(self.directory, 'toto_out'),
             os.path.join(self.directory, 'tutu_out')]
         self.small_pipeline.other_output = [1., 2.]
-        workflow = pipeline_workflow.workflow_from_pipeline(
-            self.small_pipeline)
-        #expect 2 + 2 (iter) + 2 (barriers) jobs
-        self.assertEqual(len(workflow.jobs), 6)
-        # expect 6 dependencies:
-        # init -> iterative input barrier
-        # iterative output barrier -> end
-        # iterative input barrier -> iterative jobs (2)
-        # iterative jobs -> iterative output barrier (2)
-        self.assertEqual(len(workflow.dependencies), 6)
+        workflow = CapsulWorkflow(self.small_pipeline)
+        #expect 2 + 2 (iter)  jobs
+        self.assertEqual(len(workflow.jobs), 4)
+        # expect 4 dependencies:
+        # init -> iterative jobs (2)
+        # iterative jobs -> end (2)
+        self.assertEqual(sum(len(job['wait_for']) for job in workflow.jobs.values()), 4)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_big_pipeline_workflow(self):
         self.big_pipeline.files_to_create = [["toto", "tutu"],
                                          ["tata", "titi", "tete"]]
@@ -269,24 +263,26 @@ class TestPipeline(unittest.TestCase):
              os.path.join(self.directory, 'titi_out'),
              os.path.join(self.directory, 'tete_out')]]
         self.big_pipeline.other_output = [[1.1, 2.1], [3.1, 4.1, 5.1]]
-        workflow = pipeline_workflow.workflow_from_pipeline(self.big_pipeline)
-        # expect 6 + 7 + 2 jobs
-        self.assertEqual(len(workflow.jobs), 15)
+        workflow = CapsulWorkflow(self.big_pipeline)
+        # expect:
+        #  outer iteration 1: init + 2 iterative jobs + end
+        #  outer iteration 2: init + 3 iterative jobs + end
+        self.assertEqual(len(workflow.jobs), 9)
+
         subjects = set()
-        for job in workflow.jobs:
-            if not job.name.startswith('DummyProcess') or '_map' in job.name \
-                    or '_reduce' in job.name:
+        for job in workflow.jobs.values():
+            if not job['process']['definition'].endswith('.DummyProcess'):
                 continue
-            param_dict = job.param_dict
+            param_dict = workflow.parameters
+            for i in job['parameters_location']:
+                if i.isnumeric():
+                    i = int(i)
+                param_dict = param_dict[i]
             self.assertEqual(param_dict["other_input"], 5)
             subject = param_dict['input_image']
             subjects.add(subject)
-            if sys.version_info >= (2, 7):
-                self.assertIn(subject,
-                              ["toto", "tutu", "tata", "titi", "tete"])
-            else:
-                self.assertTrue(subject in
-                                ["toto", "tutu", "tata", "titi", "tete"])
+            self.assertIn(subject,
+                            ["toto", "tutu", "tata", "titi", "tete"])
         self.assertEqual(subjects,
                          set(["toto", "tutu", "tata", "titi", "tete"]))
 
@@ -347,7 +343,7 @@ if __name__ == "__main__":
     app = QtGui.QApplication.instance()
     if not app:
         app = QtGui.QApplication(sys.argv)
-    pipeline = MySmallPipeline()
+    pipeline = Capsul.executable(MySmallPipeline)
     pipeline.files_to_create = ["toto", "tutu", "titi"]
     pipeline.output_image = ['toto_out', 'tutu_out', 'tata_out']
     pipeline.dynamic_parameter = [3, 1, 4]
@@ -362,7 +358,7 @@ if __name__ == "__main__":
     view1.auto_dot_node_positions()
     view1.show()
 
-    pipeline2 = MyBigPipeline()
+    pipeline2 = Capsul.executable(MyBigPipeline)
     view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
                                     allow_open_controller=True)
     view2.add_embedded_subpipeline('iterative')

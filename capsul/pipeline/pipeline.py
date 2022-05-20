@@ -16,7 +16,6 @@ from capsul.process.process import Process, NipypeProcess
 from .topological_sort import GraphNode
 from .topological_sort import Graph
 from .pipeline_nodes import Switch
-from .pipeline_nodes import OptionalOutputSwitch
 
 from soma.controller import (Controller, 
                              Event,
@@ -117,7 +116,6 @@ class Pipeline(Process):
     * :meth:`add_switch`
     * :meth:`add_custom_node`
     * :meth:`add_iterative_process`
-    * :meth:`add_optional_output_switch`
     * :meth:`add_processes_selection`
     * :meth:`add_link`
     * :meth:`remove_link`
@@ -518,20 +516,6 @@ class Pipeline(Process):
             do_not_export=do_not_export, 
             make_optional=make_optional,
             **kwargs)
-
-    def call_process_method(self, process_name, method,
-                            *args, **kwargs):
-        """ Call a method of a process previously added
-        with add_process or add_iterative_process.
-
-        Parameters
-        ----------
-        process_name: str (mandatory)
-            name given to the process node.
-        method: str (mandatory)
-            name of the method to call.
-        """
-        return getattr(self.nodes[process_name], method)(*args, **kwargs)
     
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=(), output_types=None, switch_value=None,
@@ -611,66 +595,6 @@ class Pipeline(Process):
 
         if switch_value:
             node.switch = switch_value
-
-    def add_optional_output_switch(self, name, input, output=None):
-        """ Add an optional output switch node in the pipeline
-
-        An optional switch activates or disables its input/output link
-        according to the output value. If the output value is not None or
-        Undefined, the link is active, otherwise it is inactive.
-
-        This kind of switch is meant to make a pipeline output optional, but
-        still available for temporary files values inside the pipeline.
-
-        Ex:
-
-        A.output -> B.input
-
-        B.input is mandatory, but we want to make A.output available and
-        optional in the pipeline outputs. If we directlty export A.output, then
-        if the pipeline does not set a value, B.input will be empty and the
-        pipeline run will fail.
-
-        Instead we can add an OptionalOutputSwitch between A.output and
-        pipeline.output. If pipeline.output is set a valid value, then A.output
-        and B.input will have the same valid value. If pipeline.output is left
-        Undefined, then A.output and B.input will get a temporary value during
-        the run.
-
-        Add an optional output switch node in the pipeline
-
-        Parameters
-        ----------
-        name: str (mandatory)
-            name for the switch node (has to be unique)
-        input: str (mandatory)
-            name for switch input.
-            Switch activation will select between it and a hidden input,
-            "_none". Inputs names will actually be a combination of input and
-            output, in the shape "input_switch_output".
-        output: str (optional)
-            name for output. Default is the switch name
-
-        Examples
-        --------
-        >>> pipeline.add_optional_output_switch('out1', 'in1')
-        >>> pipeline.add_link('node1.output->out1.in1_switch_out1')
-
-
-        See Also
-        --------
-        capsul.pipeline.pipeline_nodes.OptionalOutputSwitch
-        """
-        # Check the unicity of the name we want to insert
-        if name in self.nodes:
-            raise ValueError("Pipeline cannot have two nodes with the same "
-                             "name: {0}".format(name))
-
-        if output is None:
-            output = name
-        # Create the node
-        node = OptionalOutputSwitch(self, name, input, output)
-        self.nodes[name] = node
 
     def add_custom_node(self, name, node_type, parameters=None,
                         make_optional=(), do_not_export=None, **kwargs):
@@ -2364,7 +2288,7 @@ class Pipeline(Process):
                         yield (dest_node, dest_plug_name)
 
     def json(self, include_parameters=True):
-        result = super().json()
+        result = super().json(include_parameters=include_parameters)
         result['type'] = 'pipeline'
         if include_parameters:
             parameters = result.setdefault('parameters', {})

@@ -132,7 +132,7 @@ class TestListFile(Process):
 
         self.add_field("in_1", list[File], output=False)
         self.add_field("in_2", list[File], output=False)
-        self.add_field("out", list[File], write=True)
+        self.add_field("out", list[File], output=True)
 
     def execute(self, context):
         self.out = [self.in_1[0], self.in_2[0]]

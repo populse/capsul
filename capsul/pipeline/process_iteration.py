@@ -141,7 +141,8 @@ class ProcessIteration(Process):
                 'process': self.process.json(include_parameters=False),
                 'iterative_parameters': list(self.iterative_parameters),
                 'context_name': getattr(self.process, 'context_name', None),
-            }
+            },
+            'uuid': self.uuid,
         }
         if include_parameters:
             result['parameters'] = super(Process,self).json()

@@ -51,8 +51,7 @@ import io
 from populse_db import json_encode, json_decode
 
 # Capsul import
-from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
-    OptionalOutputSwitch
+from capsul.pipeline.pipeline import Pipeline, Process, Switch
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller, undefined, Any
 from pydantic import ValidationError
@@ -184,8 +183,6 @@ def pipeline_node_colors(pipeline, node):
     }
     if node is pipeline:
         style = 'pipeline_io'
-    elif isinstance(node, OptionalOutputSwitch):
-        style = 'optional_output_switch'
     elif isinstance(node, Switch):
         style = 'switch'
     elif isinstance(node, Pipeline):

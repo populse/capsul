@@ -54,7 +54,7 @@ qt_backend.set_qt_backend(compatible_qt5=True)
 from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
 from soma.qt_gui.qt_backend.Qt import QMessageBox
 from soma.sorted_dictionary import SortedDictionary
-from capsul.api import Switch, OptionalOutputSwitch, Capsul, executable
+from capsul.api import Switch, Capsul, executable
 from capsul.pipeline import pipeline_tools
 from capsul.api import Pipeline
 from capsul.api import Process
@@ -3097,9 +3097,7 @@ class PipelineDeveloperView(QGraphicsView):
         """ right-click popup menu for nodes
         """
         node_type = 'process'
-        if isinstance(process, OptionalOutputSwitch):
-            node_type = 'opt. output switch'
-        elif isinstance(process, Switch):
+        if isinstance(process, Switch):
             node_type = 'switch'
         menu = QtGui.QMenu('Node: %s' % node_name, None)
         title = menu.addAction('Node: %s (%s)' % (node_name, node_type))
@@ -3170,8 +3168,7 @@ class PipelineDeveloperView(QGraphicsView):
             'Check input / output files')
         check_pipeline_action.triggered.connect(self.check_files)
 
-        if isinstance(node, Switch) \
-                and not isinstance(node, OptionalOutputSwitch):
+        if isinstance(node, Switch):
             # allow to select switch value from the menu
             submenu = menu.addMenu('Switch value')
             agroup = QtGui.QActionGroup(submenu)
@@ -3407,10 +3404,10 @@ class PipelineDeveloperView(QGraphicsView):
                 add_proc.triggered.connect(self.add_process)
             add_switch = menu.addAction('Add switch in pipeline')
             add_switch.triggered.connect(self.add_switch)
-            add_optional_output_switch = menu.addAction(
-                'Add optional output switch in pipeline')
-            add_optional_output_switch.triggered.connect(
-                self.add_optional_output_switch)
+            # add_optional_output_switch = menu.addAction(
+            #     'Add optional output switch in pipeline')
+            # add_optional_output_switch.triggered.connect(
+            #     self.add_optional_output_switch)
             add_iter_proc = menu.addAction('Add iterative process in pipeline')
             add_iter_proc.triggered.connect(self.add_iterative_process)
             add_node = menu.addAction('Add custom node in pipeline')
@@ -4191,51 +4188,51 @@ class PipelineDeveloperView(QGraphicsView):
             gnode = self.scene.gnodes[node_name]
             gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
-    def add_optional_output_switch(self):
-        '''
-        Insert an optional output switch node in the pipeline. Asks for the
-        switch inputs/outputs, and the node name before inserting.
-        '''
+    # def add_optional_output_switch(self):
+    #     '''
+    #     Insert an optional output switch node in the pipeline. Asks for the
+    #     switch inputs/outputs, and the node name before inserting.
+    #     '''
 
-        class SwitchInput(QtGui.QDialog):
-            def __init__(self):
-                super(SwitchInput, self).__init__()
-                self.setWindowTitle('switch parameters/name:')
-                layout = QtGui.QGridLayout(self)
-                layout.addWidget(QtGui.QLabel('input:'), 0, 0)
-                self.inputs_line = QtGui.QLineEdit()
-                layout.addWidget(self.inputs_line, 0, 1)
-                layout.addWidget(QtGui.QLabel('output:'), 1, 0)
-                self.outputs_line = QtGui.QLineEdit()
-                layout.addWidget(self.outputs_line, 1, 1)
-                layout.addWidget(QtGui.QLabel('node name'), 2, 0)
-                self.name_line = QtGui.QLineEdit()
-                layout.addWidget(self.name_line, 2, 1)
-                ok = QtGui.QPushButton('OK')
-                layout.addWidget(ok, 3, 0)
-                cancel = QtGui.QPushButton('Cancel')
-                layout.addWidget(cancel, 3, 1)
-                ok.clicked.connect(self.accept)
-                cancel.clicked.connect(self.reject)
+    #     class SwitchInput(QtGui.QDialog):
+    #         def __init__(self):
+    #             super(SwitchInput, self).__init__()
+    #             self.setWindowTitle('switch parameters/name:')
+    #             layout = QtGui.QGridLayout(self)
+    #             layout.addWidget(QtGui.QLabel('input:'), 0, 0)
+    #             self.inputs_line = QtGui.QLineEdit()
+    #             layout.addWidget(self.inputs_line, 0, 1)
+    #             layout.addWidget(QtGui.QLabel('output:'), 1, 0)
+    #             self.outputs_line = QtGui.QLineEdit()
+    #             layout.addWidget(self.outputs_line, 1, 1)
+    #             layout.addWidget(QtGui.QLabel('node name'), 2, 0)
+    #             self.name_line = QtGui.QLineEdit()
+    #             layout.addWidget(self.name_line, 2, 1)
+    #             ok = QtGui.QPushButton('OK')
+    #             layout.addWidget(ok, 3, 0)
+    #             cancel = QtGui.QPushButton('Cancel')
+    #             layout.addWidget(cancel, 3, 1)
+    #             ok.clicked.connect(self.accept)
+    #             cancel.clicked.connect(self.reject)
 
-        switch_name_gui = SwitchInput()
-        switch_name_gui.resize(600, switch_name_gui.sizeHint().height())
+    #     switch_name_gui = SwitchInput()
+    #     switch_name_gui.resize(600, switch_name_gui.sizeHint().height())
 
-        res = switch_name_gui.exec_()
-        if res:
-            pipeline = self.scene.pipeline
-            node_name = str(switch_name_gui.name_line.text()).strip()
-            input = str(switch_name_gui.inputs_line.text()).strip()
-            output = str(switch_name_gui.outputs_line.text()).strip()
-            if output == '' and node_name != '':
-                output = node_name
-            elif output != '' and node_name == '':
-                node_name = output
-            pipeline.add_optional_output_switch(node_name, input, output)
-            # add_optional_output_switch does *not* trigger an update
-            self._reset_pipeline()
-            gnode = self.scene.gnodes[node_name]
-            gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
+    #     res = switch_name_gui.exec_()
+    #     if res:
+    #         pipeline = self.scene.pipeline
+    #         node_name = str(switch_name_gui.name_line.text()).strip()
+    #         input = str(switch_name_gui.inputs_line.text()).strip()
+    #         output = str(switch_name_gui.outputs_line.text()).strip()
+    #         if output == '' and node_name != '':
+    #             output = node_name
+    #         elif output != '' and node_name == '':
+    #             node_name = output
+    #         pipeline.add_optional_output_switch(node_name, input, output)
+    #         # add_optional_output_switch does *not* trigger an update
+    #         self._reset_pipeline()
+    #         gnode = self.scene.gnodes[node_name]
+    #         gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
     def _plug_clicked(self, name):
         if self.is_logical_view() or not self.edition_enabled():

@@ -13,7 +13,6 @@ Classes
 * :class:`~capsul.pipeline.pipeline_nodes.Plug`
 * :class:`~capsul.pipeline.pipeline_nodes.Node`
 * :class:`~capsul.pipeline.pipeline_nodes.Switch`
-* :class:`~capsul.pipeline.pipeline_nodes.OptionalOutputSwitch`
 
 Functions
 ---------
@@ -30,5 +29,4 @@ from .pipeline.pipeline import Pipeline
 from .pipeline.pipeline_nodes import Plug
 from .pipeline.pipeline_nodes import Node
 from .pipeline.pipeline_nodes import Switch
-from .pipeline.pipeline_nodes import OptionalOutputSwitch
 from .application import Capsul, executable

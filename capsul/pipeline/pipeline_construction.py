@@ -66,12 +66,6 @@ class PipelineConstructor(object):
         self._calls.append(('add_iterative_process', args, kwargs))
     
     
-    def call_process_method(self, *args, **kwargs):
-        """ Call a method of a process previously added
-        with add_process or add_itConstructedPipelineerative_process.
-        """
-        self._calls.append(('call_process_method', args, kwargs))
-
         
     def add_link(self, *args, **kwargs):
         """Add a link between pipeline processes.
@@ -113,11 +107,6 @@ class PipelineConstructor(object):
         """ Adds a switch to the pipeline
         """
         self._calls.append(('add_switch', args, kwargs))
-
-    def add_optional_output_switch(self, *args, **kwargs):
-        """ Adds an OptionalOutputswitch to the pipeline
-        """
-        self._calls.append(('add_optional_output_switch', args, kwargs))
 
     def add_custom_node(self, *args, **kwargs):
         """ Adds an custom Node subtype to the pipeline

@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import json
 from uuid import uuid4
+from typing import Union
 
 from populse_db import Database
 from soma.controller import Controller, OpenKeyDictController
+from soma.api import DictWithProxy
 
-from .application import Capsul
+from .application import Capsul, executable
 from .dataset import Dataset
-
+from .pipeline.pipeline import Process, Pipeline
+from .pipeline.process_iteration import ProcessIteration
 
 class ExecutionContext(Controller):
     python_modules: list[str]
@@ -49,16 +53,12 @@ class ExecutionDatabase:
             jobs = session['jobs']
             jobs.add_field('command', list[str])
             jobs.add_field('wait_for', list[str])
-            # status.add_field('start_time', datetime)
-            # status.add_field('end_time', datetime)
-            # status.add_field('exit_status', int)
+            jobs.add_field('process', dict)
+            jobs.add_field('parameters_location', list[str])
 
-            session.add_collection('processes', 'uuid')
-            processes = session['processes']
-            processes.add_field('full_name', str)
-            processes.add_field('json', dict)
-            processes.add_field('jobs', list[str])
-            processes.add_field('output_parameters', dict)
+            session.add_collection('workflow', 'uuid')
+            workflow = session['workflow']
+            workflow.add_field('parameters', dict[str, list])
         return self
     
     def __exit__(self, *args):
@@ -105,39 +105,131 @@ class ExecutionDatabase:
     def start_time(self, value):
         self.session['status'].update_document('', {'start_time': value})
 
-    def process(self, process_uuid):
-        row = self.session['processes'].document(process_uuid, fields=['json'], as_list=True)
+    def save_workflow(self, workflow):
+        for job_uuid, job in workflow.jobs.items():
+            self.session['jobs'][job_uuid] = job
+        self.session['workflow'][''] = {}
+        self.workflow_parameters = workflow.parameters
+
+    @property
+    def workflow_parameters(self):
+        row = self.session['workflow'].document('', fields=['parameters'], as_list=True)
         if row is not None:
-            return Capsul.executable(row[0])
+            return DictWithProxy.from_json(row[0])
+        return None
     
-    def update_process(self, process_uuid, **kwargs):
-        self.session['processes'].update_document(process_uuid,
-            kwargs)
-    
-    def add_process(self, uuid, process, jobs):
-        if jobs is not None and not isinstance(jobs, list):
-            jobs = list(jobs)
-        self.session['processes'][uuid] = {
-            'full_name': process.full_name,
-            'json': process.json(),
-            'jobs': jobs,
-        }
-    
-    def add_process_job(self, process_uuid, iteration_index=None):
-        job_uuid = str(uuid4())
-        command = ['python', '-m', 'capsul.run', 'process', process_uuid, str(iteration_index)]
-        self.session['jobs'][job_uuid] = {
-            'command': command,
-        }
-        return job_uuid
-    
-    def add_job_chronology(self, before_job, after_job):
-        row = self.session['jobs'].document(after_job, fields=['wait_for'], as_list=True)
-        if row is None:
-            raise ValueError(f'No job with uuid {after_job}')
-        wait_for = row[0] or []
-        wait_for.append(before_job)
-        self.session['jobs'].update_document(after_job, {'wait_for': wait_for})
+    @workflow_parameters.setter
+    def workflow_parameters(self, parameters):
+        self.session['workflow'].update_document('', {'parameters': parameters.json()})
 
     def jobs(self):
         return self.session['jobs'].documents()
+
+class CapsulWorkflow(Controller):
+    parameters: DictWithProxy
+    jobs: dict[str, list]
+    chronology: dict[str, list[str]]
+
+    def __init__(self, executable):
+        super().__init__()
+        self.parameters = DictWithProxy()
+        self.jobs = {}
+        jobs_per_process = {}
+        process_chronology = {}
+        processes_proxies = {}
+        job_parameters = self._create_jobs(
+            executable,
+            jobs_per_process,
+            processes_proxies,
+            process_chronology,
+            executable,
+            executable,
+            [])
+        self.parameters.content.update(job_parameters.content)
+
+        # Set jobs chronology based on processes chronology
+        for after_process, before_processes in process_chronology.items():
+            for after_job in jobs_per_process[after_process]:
+                for before_process in before_processes:
+                    for before_job in jobs_per_process[before_process]:
+                        self.jobs[after_job]['wait_for'].append(before_job)
+
+    def _create_jobs(self,
+                     executable,
+                     jobs_per_process,
+                     processes_proxies,
+                     process_chronology,
+                     process,
+                     parent_executable,
+                     parameters_location):
+        parameters = self.parameters
+        for index in parameters_location:
+            if index.isnumeric():
+                index = int(index)
+            parameters = parameters[index]
+        if isinstance(process, Pipeline):
+            pipeline_parameters = DictWithProxy(_proxy_values=parameters.proxy_values)
+            nodes_parameters = DictWithProxy(_proxy_values=parameters.proxy_values)
+            for node_name, node in process.nodes.items():
+                if node is process or not node.activated or not isinstance(node, Process):
+                    continue
+                parameters[node_name] = {}
+                job_parameters = self._create_jobs(
+                    executable,
+                    jobs_per_process,
+                    processes_proxies,
+                    process_chronology,
+                    node,
+                    node,
+                    parameters_location + [node_name])
+                nodes_parameters.content[node_name] = job_parameters.content
+            for field in process.user_fields():
+                for dest_node, plug_name in executable.get_linked_items(process, 
+                                                                        field.name,
+                                                                        in_sub_pipelines=False):
+                    pipeline_parameters.content[field.name] = nodes_parameters.content[dest_node.name][plug_name]
+                    break
+            return pipeline_parameters
+        elif isinstance(process, ProcessIteration):
+            parameters['_iterations'] = []
+            iteration_parameters = DictWithProxy(_proxy_values=parameters.proxy_values)
+            iteration_index = 0
+            for inner_process in process.iterate_over_process_parmeters():
+                parameters['_iterations'].append({})
+                job_parameters = self._create_jobs(
+                    executable,
+                    jobs_per_process,
+                    processes_proxies,
+                    process_chronology,
+                    inner_process,
+                    process, 
+                    parameters_location + ['_iterations', str(iteration_index)])
+                for k, v in job_parameters.content.items():
+                    if k in process.iterative_parameters:
+                        iteration_parameters.content.setdefault(k, []).append(v)
+                    else:
+                        iteration_parameters.content.setdefault(k, v)
+                iteration_index += 1
+            if isinstance(executable, Pipeline):
+                for field in process.user_fields():
+                    if field.is_output():
+                        for dest_node, plug_name in executable.get_linked_items(process, field.name):
+                            process_chronology.setdefault(dest_node.uuid, set()).add(process.uuid)
+            return iteration_parameters
+        elif isinstance(process, Process):
+            job_uuid = str(uuid4())
+            self.jobs[job_uuid] = {
+                'command': ['python', '-m', 'capsul.run', 'process', job_uuid],
+                'wait_for': [],
+                'process': process.json(include_parameters=False),
+                'parameters_location': parameters_location
+            }
+            jobs_per_process.setdefault(parent_executable.uuid, set()).add(job_uuid)
+            for field in process.user_fields():
+                value = getattr(process, field.name, None)
+                proxy = parameters.proxy(executable.json_value(value))
+                parameters[field.name] = proxy
+                if field.is_output() and isinstance(executable, Pipeline):
+                    for dest_node, plug_name in executable.get_linked_items(process, field.name):
+                        process_chronology.setdefault(dest_node.uuid, set()).add(process.uuid)
+            return parameters

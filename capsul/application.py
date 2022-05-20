@@ -310,6 +310,9 @@ def executable_from_json(definition, json_executable):
         )
     else:
         raise ValueError(f'Invalid executable type in {definition}: {type}')
+    uuid = json_executable.get('uuid')
+    if uuid:
+        result._uuid = uuid
     parameters = json_executable.get('parameters')
     if parameters:
         result.import_json(parameters)

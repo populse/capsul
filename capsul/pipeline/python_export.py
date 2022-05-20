@@ -29,7 +29,7 @@ def save_py_pipeline(pipeline, py_file):
     '''
     # imports are done locally to avoid circular imports
     from capsul.api import Process, Pipeline
-    from capsul.pipeline.pipeline_nodes import Switch, OptionalOutputSwitch
+    from capsul.pipeline.pipeline_nodes import Switch
     from capsul.pipeline.process_iteration import ProcessIteration
     from capsul.process.process import NipypeProcess
     from capsul.process_instance import get_process_instance
@@ -195,25 +195,6 @@ def save_py_pipeline(pipeline, py_file):
                  options),
               file=pyf)
 
-    def _write_optional_output_switch(switch, pyf, name, enabled):
-        output = None
-        input = None
-        for plug_name, plug in switch.plugs.items():
-            if plug.output:
-                output = plug_name
-            else:
-                name_parts = plug_name.split("_switch_")
-                if len(name_parts) == 2 and name_parts[0] != '_none':
-                    input = name_parts[0]
-        if not name and output:
-            name = output
-        if not output or output == name:
-            print('        self.add_optional_output_switch("%s", "%s")'
-                  % (name, input), file=pyf)
-        else:
-            print('        self.add_optional_output_switch("%s", "%s", "%s")'
-                  % (name, input, output), file=pyf)
-
     def _write_processes(pipeline, pyf):
         print('        # nodes', file=pyf)
         nodes = []
@@ -227,10 +208,7 @@ def save_py_pipeline(pipeline, py_file):
             else:
                 nodes.append((node_name, node))
         for node_name, node in proc_nodes + nodes:
-            if isinstance(node, OptionalOutputSwitch):
-                _write_optional_output_switch(node, pyf, node_name,
-                                              node.enabled)
-            elif isinstance(node, Switch):
+            if isinstance(node, Switch):
                 _write_switch(node, pyf, node_name, node.enabled)
             elif isinstance(node, Process) \
                     and isinstance(node, ProcessIteration):

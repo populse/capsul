@@ -5,7 +5,6 @@ from soma.controller import File, undefined
 from capsul.api import Process
 from capsul.api import Pipeline
 from capsul.api import executable
-from capsul.pipeline.pipeline_nodes import OptionalOutputSwitch
 import sys
 
 

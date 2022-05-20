@@ -16,12 +16,12 @@ Classes
 
 import os
 from datetime import datetime as datetime
-import shutil
-import sys
 import glob
 import tempfile
+import shutil
+import sys
 import traceback
-
+from uuid import uuid4
 
 from soma.controller import (Controller, undefined, Directory)
 import soma.controller as sc
@@ -125,7 +125,12 @@ class Process(Node):
             raise TypeError(
                 'No definition string given to Process constructor')
         super().__init__(definition=definition, **kwargs)
+        self._uuid = str(uuid4())
 
+    @property
+    def uuid(self):
+        return self._uuid
+    
     @property
     def requirements(self):
         return getattr(super(), 'requirements', {})
@@ -137,10 +142,14 @@ class Process(Node):
         result = {
             'type': 'process',
             'definition': self.definition,
+            'uuid': self.uuid,
         }
         if include_parameters:
-            result['parameters'] = super().json()
+            result['parameters'] = self.json_parameters()
         return result
+    
+    def json_parameters(self):
+        return super(Process, self).json()
     
     def before_execute(self, context):
         """This method is called by CapsulEngine before calling

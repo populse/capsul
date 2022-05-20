@@ -11,13 +11,14 @@ from uuid import uuid4
 
 from soma.undefined import undefined
 
+from capsul.application import Capsul
+
 from ..api import Pipeline, Process
 from ..pipeline.process_iteration import ProcessIteration
 from ..config.configuration import ModuleConfiguration
 from ..dataset import Dataset
-from ..execution_context import ExecutionContext, ExecutionDatabase
-
-        
+from ..execution_context import ExecutionContext, ExecutionDatabase, CapsulWorkflow
+      
 class LocalEngine:
     def __init__(self, label, config):
         self.label = label
@@ -82,11 +83,12 @@ class LocalEngine:
             for name, value in kwargs.items():
                 setattr(executable, name, value)
             execution_context = self.execution_context(executable)
+            workflow = CapsulWorkflow(executable)
             with ExecutionDatabase(db_file.name) as db:
                 db.execution_context = execution_context
                 db.executable = executable
+                db.save_workflow(workflow)
                 db.start_time =  datetime.now()
-                self.create_jobs(executable, db)
                 db.status = 'ready'
             p = subprocess.Popen(
                 [sys.executable, '-m', 'capsul.engine.local', db_file.name],
@@ -146,21 +148,17 @@ class LocalEngine:
 
     def update_executable(self, executable, execution_id):
         with ExecutionDatabase(execution_id) as db:
-            for p in db.session['processes']:
-                output_parameters = p.get('output_parameters')
-                if output_parameters:
-                    if isinstance(executable, Pipeline):
-                        full_name = p['full_name']
-                        stack = full_name.split('.')
-                        node = executable
-                        while stack:
-                            node = node.nodes[stack.pop(0)]
-                        for n, v in output_parameters.items():
-                            setattr(node, n ,v)
-                            executable.dispatch_value(node, n, v)
-                    else:
-                        for n, v in output_parameters.items():
-                            setattr(executable, n, v)
+            parameters = db.workflow_parameters
+        # print('!update_executable!')
+        # from pprint import pprint
+        # pprint(parameters.proxy_values)
+        # pprint(parameters.content)
+        for field in executable.user_fields():
+            if field.output:
+                value = parameters.get(field.name, undefined)
+                if value is not undefined:
+                    value = parameters.no_proxy(value)
+                    setattr(executable, field.name, value)
     
     def run(self, executable, timeout=None, **kwargs):
         execution_id = self.start(executable, **kwargs)
@@ -198,6 +196,8 @@ class LocalEngine:
                     continue
                 if isinstance(node, Pipeline):
                     stack.extend(node for name, node in node.nodes.items() if name)
+                elif isinstance(node, ProcessIteration) and isinstance(node.process, Pipeline):
+                    boom
                 elif isinstance(node, Process):
                     nodes.add(node)
             
@@ -211,7 +211,7 @@ class LocalEngine:
                             chronology.setdefault(second_node, set()).add(first_node)
         else:
             nodes.add(executable)
-            
+        
         # Creates the jobs for each process node
         jobs_per_node = {}
         for node in nodes:
@@ -229,7 +229,7 @@ class LocalEngine:
                             elif len(value) < size:
                                 value += [field.target_field.valid_value()] * (size - len(value))
                     iteration_index = 0
-                    for process in node.iterate_over_process_parmeters():
+                    for process in node.iterate_over_process_parmeters():   
                         job_uuid = execution_database.add_process_job(
                             process_uuid=process_uuid,
                             iteration_index=iteration_index)
@@ -248,7 +248,9 @@ class LocalEngine:
                 for before_node in before_nodes:
                     for before_job in jobs_per_node[before_node]:
                         execution_database.add_job_chronology(before_job, after_job)
-        
+
+
+    
 if __name__ == '__main__':
     import contextlib
 
