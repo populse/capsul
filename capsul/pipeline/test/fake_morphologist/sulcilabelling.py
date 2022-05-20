@@ -62,7 +62,43 @@ class SulciLabelling(Pipeline):
 
         # parameters order
 
-        self.reorder_fields(("select_Sulci_Recognition", "data_graph", "output_graph", "fix_random_seed", "recognition2000_model", "recognition2000_model_hint", "recognition2000_energy_plot_file", "recognition2000_rate", "recognition2000_stopRate", "recognition2000_niterBelowStopProp", "recognition2000_forbid_unknown_label", "SPAM_recognition09_local_or_markovian", "SPAM_recognition09_global_recognition_labels_translation_map", "SPAM_recognition09_global_recognition_labels_priors", "SPAM_recognition09_global_recognition_initial_transformation", "SPAM_recognition09_global_recognition_model_type", "SPAM_recognition09_global_recognition_model", "SPAM_recognition09_global_recognition_posterior_probabilities", "SPAM_recognition09_global_recognition_output_transformation", "SPAM_recognition09_global_recognition_output_t1_to_global_transformation", "SPAM_recognition09_local_recognition_model", "SPAM_recognition09_local_recognition_posterior_probabilities", "SPAM_recognition09_local_recognition_local_referentials", "SPAM_recognition09_local_recognition_direction_priors", "SPAM_recognition09_local_recognition_angle_priors", "SPAM_recognition09_local_recognition_translation_priors", "SPAM_recognition09_local_recognition_output_local_transformations", "SPAM_recognition09_markovian_recognition_model", "SPAM_recognition09_markovian_recognition_posterior_probabilities", "SPAM_recognition09_markovian_recognition_segments_relations_model", "CNN_recognition19_roots", "CNN_recognition19_model_file", "CNN_recognition19_param_file", "CNN_recognition19_rebuild_attributes", "CNN_recognition19_skeleton", "CNN_recognition19_allow_multithreading", "CNN_recognition19_cuda"))
+        self.reorder_fields(("select_Sulci_Recognition",
+            "data_graph",
+            "output_graph",
+            "fix_random_seed",
+            "recognition2000_model",
+            "recognition2000_model_hint",
+            "recognition2000_energy_plot_file",
+            "recognition2000_rate",
+            "recognition2000_stopRate",
+            "recognition2000_niterBelowStopProp",
+            "recognition2000_forbid_unknown_label",
+            "SPAM_recognition09_local_or_markovian",
+            "SPAM_recognition09_global_recognition_labels_translation_map",
+            "SPAM_recognition09_global_recognition_labels_priors",
+            "SPAM_recognition09_global_recognition_initial_transformation",
+            "SPAM_recognition09_global_recognition_model_type",
+            "SPAM_recognition09_global_recognition_model",
+            "SPAM_recognition09_global_recognition_posterior_probabilities",
+            "SPAM_recognition09_global_recognition_output_transformation",
+            "SPAM_recognition09_global_recognition_output_t1_to_global_transformation",
+            "SPAM_recognition09_local_recognition_model",
+            "SPAM_recognition09_local_recognition_posterior_probabilities",
+            "SPAM_recognition09_local_recognition_local_referentials",
+            "SPAM_recognition09_local_recognition_direction_priors",
+            "SPAM_recognition09_local_recognition_angle_priors",
+            "SPAM_recognition09_local_recognition_translation_priors",
+            "SPAM_recognition09_local_recognition_output_local_transformations",
+            "SPAM_recognition09_markovian_recognition_model",
+            "SPAM_recognition09_markovian_recognition_posterior_probabilities",
+            "SPAM_recognition09_markovian_recognition_segments_relations_model",
+            "CNN_recognition19_roots",
+            "CNN_recognition19_model_file",
+            "CNN_recognition19_param_file",
+            "CNN_recognition19_rebuild_attributes",
+            "CNN_recognition19_skeleton",
+            "CNN_recognition19_allow_multithreading",
+            "CNN_recognition19_cuda"))
 
         # default and initial values
         self.fix_random_seed = False

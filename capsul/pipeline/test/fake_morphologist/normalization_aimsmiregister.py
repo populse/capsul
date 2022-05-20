@@ -18,7 +18,7 @@ class normalization_aimsmiregister(Process):
         self.add_field("transformation_to_ACPC", File, write=True, allowed_extensions=['.trm'], optional=True, read=True)
         self.add_field("mni_to_acpc", File, read=True, allowed_extensions=['.trm'], optional=True, write=False)
         self.mni_to_acpc = '/casa/host/build/share/brainvisa-share-5.1/transformation/talairach_TO_spm_template_novoxels.trm'
-        self.add_field("smoothing", float, optional=True)
+        self.add_field("smoothing", float)
         self.smoothing = 1.0
 
     def execute(self, context):

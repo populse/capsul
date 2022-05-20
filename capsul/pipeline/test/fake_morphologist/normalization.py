@@ -21,16 +21,16 @@ class Normalization(Pipeline):
 
         # links
         self.export_parameter("select_Normalization_pipeline", "switch", "select_Normalization_pipeline", is_optional=True)
-        self.export_parameter("NormalizeSPM", "t1mri", is_optional=False)
-        self.add_link("t1mri->NormalizeBaladin.t1mri")
-        self.add_link("t1mri->Normalization_AimsMIRegister.anatomy_data")
+        self.export_parameter("Normalization_AimsMIRegister", "anatomy_data", "t1mri", is_optional=False)
         self.add_link("t1mri->select_Normalization_pipeline.Normalization_AimsMIRegister_switch_reoriented_t1mri")
+        self.add_link("t1mri->NormalizeSPM.t1mri")
         self.add_link("t1mri->NormalizeFSL.t1mri")
+        self.add_link("t1mri->NormalizeBaladin.t1mri")
         self.export_parameter("NormalizeSPM", "allow_flip_initial_MRI", is_optional=False)
-        self.add_link("allow_flip_initial_MRI->NormalizeBaladin.allow_flip_initial_MRI")
         self.add_link("allow_flip_initial_MRI->NormalizeFSL.allow_flip_initial_MRI")
-        self.export_parameter("NormalizeFSL", "ReorientAnatomy_commissures_coordinates", "commissures_coordinates", is_optional=True)
-        self.add_link("commissures_coordinates->NormalizeBaladin.ReorientAnatomy_commissures_coordinates")
+        self.add_link("allow_flip_initial_MRI->NormalizeBaladin.allow_flip_initial_MRI")
+        self.export_parameter("NormalizeBaladin", "ReorientAnatomy_commissures_coordinates", "commissures_coordinates", is_optional=True)
+        self.add_link("commissures_coordinates->NormalizeFSL.ReorientAnatomy_commissures_coordinates")
         self.add_link("commissures_coordinates->NormalizeSPM.ReorientAnatomy_commissures_coordinates")
         self.export_parameter("NormalizeFSL", "NormalizeFSL_init_translation_origin", "init_translation_origin", is_optional=True)
         self.add_link("init_translation_origin->NormalizeSPM.init_translation_origin")
@@ -59,8 +59,7 @@ class Normalization(Pipeline):
         self.add_link("NormalizeFSL.reoriented_t1mri->select_Normalization_pipeline.NormalizeFSL_switch_reoriented_t1mri")
         self.export_parameter("NormalizeFSL", "NormalizeFSL_transformation_matrix", "NormalizeFSL_NormalizeFSL_transformation_matrix", weak_link=True, is_optional=True)
         self.add_link("NormalizeFSL.NormalizeFSL_normalized_anatomy_data->select_Normalization_pipeline.NormalizeFSL_switch_normalized")
-        self.export_parameter("NormalizeBaladin", "ReorientAnatomy_output_commissures_coordinates", "output_commissures_coordinates", is_optional=True)
-        self.add_link("NormalizeFSL.ReorientAnatomy_output_commissures_coordinates->output_commissures_coordinates")
+        self.export_parameter("NormalizeFSL", "ReorientAnatomy_output_commissures_coordinates", "output_commissures_coordinates", is_optional=True)
         self.add_link("NormalizeSPM.transformation->select_Normalization_pipeline.NormalizeSPM_switch_transformation")
         self.export_parameter("NormalizeSPM", "spm_transformation", "NormalizeSPM_spm_transformation", weak_link=True, is_optional=True)
         self.add_link("NormalizeSPM.normalized_t1mri->select_Normalization_pipeline.NormalizeSPM_switch_normalized")
@@ -81,7 +80,41 @@ class Normalization(Pipeline):
 
         # parameters order
 
-        self.reorder_fields(("select_Normalization_pipeline", "t1mri", "transformation", "allow_flip_initial_MRI", "commissures_coordinates", "reoriented_t1mri", "output_commissures_coordinates", "init_translation_origin", "normalized", "NormalizeFSL_template", "NormalizeFSL_alignment", "NormalizeFSL_set_transformation_in_source_volume", "NormalizeFSL_allow_retry_initialization", "NormalizeFSL_NormalizeFSL_transformation_matrix", "NormalizeFSL_NormalizeFSL_cost_function", "NormalizeFSL_NormalizeFSL_search_cost_function", "NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template", "NormalizeSPM_NormalizeSPM", "NormalizeSPM_spm_transformation", "NormalizeSPM_template", "NormalizeSPM_allow_retry_initialization", "NormalizeSPM_voxel_size", "NormalizeSPM_cutoff_option", "NormalizeSPM_nbiteration", "NormalizeSPM_ConvertSPMnormalizationToAIMS_target", "NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume", "NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource", "NormalizeBaladin_template", "NormalizeBaladin_set_transformation_in_source_volume", "NormalizeBaladin_NormalizeBaladin_transformation_matrix", "Normalization_AimsMIRegister_anatomical_template", "Normalization_AimsMIRegister_transformation_to_template", "Normalization_AimsMIRegister_transformation_to_ACPC", "Normalization_AimsMIRegister_mni_to_acpc", "Normalization_AimsMIRegister_smoothing"))
+        self.reorder_fields(("select_Normalization_pipeline",
+            "t1mri",
+            "transformation",
+            "allow_flip_initial_MRI",
+            "commissures_coordinates",
+            "reoriented_t1mri",
+            "output_commissures_coordinates",
+            "init_translation_origin",
+            "normalized",
+            "NormalizeFSL_template",
+            "NormalizeFSL_alignment",
+            "NormalizeFSL_set_transformation_in_source_volume",
+            "NormalizeFSL_allow_retry_initialization",
+            "NormalizeFSL_NormalizeFSL_transformation_matrix",
+            "NormalizeFSL_NormalizeFSL_cost_function",
+            "NormalizeFSL_NormalizeFSL_search_cost_function",
+            "NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template",
+            "NormalizeSPM_NormalizeSPM",
+            "NormalizeSPM_spm_transformation",
+            "NormalizeSPM_template",
+            "NormalizeSPM_allow_retry_initialization",
+            "NormalizeSPM_voxel_size",
+            "NormalizeSPM_cutoff_option",
+            "NormalizeSPM_nbiteration",
+            "NormalizeSPM_ConvertSPMnormalizationToAIMS_target",
+            "NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume",
+            "NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource",
+            "NormalizeBaladin_template",
+            "NormalizeBaladin_set_transformation_in_source_volume",
+            "NormalizeBaladin_NormalizeBaladin_transformation_matrix",
+            "Normalization_AimsMIRegister_anatomical_template",
+            "Normalization_AimsMIRegister_transformation_to_template",
+            "Normalization_AimsMIRegister_transformation_to_ACPC",
+            "Normalization_AimsMIRegister_mni_to_acpc",
+            "Normalization_AimsMIRegister_smoothing"))
 
         # default and initial values
         self.allow_flip_initial_MRI = False

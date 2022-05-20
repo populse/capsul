@@ -13,9 +13,9 @@ class BaladinNormalizationPipeline(Pipeline):
         self.add_process("ReorientAnatomy", "capsul.pipeline.test.fake_morphologist.reorientanatomy.ReorientAnatomy")
 
         # links
-        self.export_parameter("ConvertBaladinNormalizationToAIMS", "source_volume", "t1mri", is_optional=False)
+        self.export_parameter("NormalizeBaladin", "anatomy_data", "t1mri", is_optional=False)
         self.add_link("t1mri->ReorientAnatomy.t1mri")
-        self.add_link("t1mri->NormalizeBaladin.anatomy_data")
+        self.add_link("t1mri->ConvertBaladinNormalizationToAIMS.source_volume")
         self.export_parameter("NormalizeBaladin", "anatomical_template", "template", is_optional=False)
         self.add_link("template->ConvertBaladinNormalizationToAIMS.registered_volume")
         self.export_parameter("ConvertBaladinNormalizationToAIMS", "set_transformation_in_source_volume", is_optional=False)
@@ -32,7 +32,17 @@ class BaladinNormalizationPipeline(Pipeline):
 
         # parameters order
 
-        self.reorder_fields(("t1mri", "transformation", "template", "set_transformation_in_source_volume", "allow_flip_initial_MRI", "reoriented_t1mri", "NormalizeBaladin_transformation_matrix", "NormalizeBaladin_normalized_anatomy_data", "ConvertBaladinNormalizationToAIMS_write", "ReorientAnatomy_commissures_coordinates", "ReorientAnatomy_output_commissures_coordinates"))
+        self.reorder_fields(("t1mri",
+            "transformation",
+            "template",
+            "set_transformation_in_source_volume",
+            "allow_flip_initial_MRI",
+            "reoriented_t1mri",
+            "NormalizeBaladin_transformation_matrix",
+            "NormalizeBaladin_normalized_anatomy_data",
+            "ConvertBaladinNormalizationToAIMS_write",
+            "ReorientAnatomy_commissures_coordinates",
+            "ReorientAnatomy_output_commissures_coordinates"))
 
         # default and initial values
         self.set_transformation_in_source_volume = True

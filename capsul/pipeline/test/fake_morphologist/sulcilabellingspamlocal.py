@@ -14,7 +14,7 @@ class SulciLabellingSPAMLocal(Process):
         self.add_field("output_graph", File, write=True, allowed_extensions=['.arg', '.data'], read=True)
         self.add_field("model", File, read=True, allowed_extensions=['.dat'], write=False)
         self.add_field("posterior_probabilities", File, write=True, allowed_extensions=['.csv'], read=True)
-        self.add_field("labels_translation_map", File, read=True, allowed_extensions=['.trl', '.def'], write=False, optional=True)
+        self.add_field("labels_translation_map", File, read=True, allowed_extensions=['.trl', '.def'], write=False)
         self.labels_translation_map = '/casa/host/build/share/brainvisa-share-5.1/nomenclature/translation/sulci_model_2008.trl'
         self.add_field("labels_priors", File, read=True, allowed_extensions=['.dat'], write=False)
         self.add_field("local_referentials", File, read=True, allowed_extensions=['.dat'], write=False)

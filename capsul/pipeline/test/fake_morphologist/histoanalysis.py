@@ -11,17 +11,17 @@ class HistoAnalysis(Process):
         self.name = 'HistoAnalysis'
 
         self.add_field("t1mri_nobias", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
-        self.add_field("use_hfiltered", bool, optional=True)
+        self.add_field("use_hfiltered", bool)
         self.use_hfiltered = True
         self.add_field("hfiltered", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], optional=True, write=False)
-        self.add_field("use_wridges", bool, optional=True)
+        self.add_field("use_wridges", bool)
         self.use_wridges = True
         self.add_field("white_ridges", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], optional=True, write=False)
-        self.add_field("undersampling", Literal['2','4','8','16','32','auto','iteration'], optional=True)
+        self.add_field("undersampling", Literal['2','4','8','16','32','auto','iteration'])
         self.undersampling = 'iteration'
         self.add_field("histo_analysis", File, write=True, allowed_extensions=['.han'], read=True)
         self.add_field("histo", File, write=True, read=True)
-        self.add_field("fix_random_seed", bool, optional=True)
+        self.add_field("fix_random_seed", bool)
         self.fix_random_seed = False
 
     def execute(self, context):

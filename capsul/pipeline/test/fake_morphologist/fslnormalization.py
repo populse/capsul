@@ -15,8 +15,8 @@ class FSLNormalization(Pipeline):
 
         # links
         self.export_parameter("ConvertFSLnormalizationToAIMS", "source_volume", "t1mri", is_optional=False)
-        self.add_link("t1mri->ReorientAnatomy.t1mri")
         self.add_link("t1mri->converter.read")
+        self.add_link("t1mri->ReorientAnatomy.t1mri")
         self.export_parameter("NormalizeFSL", "anatomical_template", "template", is_optional=False)
         self.add_link("template->ConvertFSLnormalizationToAIMS.registered_volume")
         self.export_parameter("NormalizeFSL", "Alignment", "alignment", is_optional=False)
@@ -28,8 +28,8 @@ class FSLNormalization(Pipeline):
         self.export_parameter("NormalizeFSL", "init_translation_origin", "NormalizeFSL_init_translation_origin", is_optional=True)
         self.export_parameter("ConvertFSLnormalizationToAIMS", "standard_template", "ConvertFSLnormalizationToAIMS_standard_template", is_optional=True)
         self.export_parameter("ReorientAnatomy", "commissures_coordinates", "ReorientAnatomy_commissures_coordinates", is_optional=True)
-        self.add_link("NormalizeFSL.transformation_matrix->ConvertFSLnormalizationToAIMS.read")
         self.export_parameter("NormalizeFSL", "transformation_matrix", "NormalizeFSL_transformation_matrix", is_optional=True)
+        self.add_link("NormalizeFSL.transformation_matrix->ConvertFSLnormalizationToAIMS.read")
         self.export_parameter("NormalizeFSL", "normalized_anatomy_data", "NormalizeFSL_normalized_anatomy_data", is_optional=True)
         self.add_link("ConvertFSLnormalizationToAIMS.write->ReorientAnatomy.transformation")
         self.export_parameter("ConvertFSLnormalizationToAIMS", "write", "ConvertFSLnormalizationToAIMS_write", is_optional=True)
@@ -40,7 +40,23 @@ class FSLNormalization(Pipeline):
 
         # parameters order
 
-        self.reorder_fields(("t1mri", "transformation", "template", "alignment", "set_transformation_in_source_volume", "allow_flip_initial_MRI", "allow_retry_initialization", "reoriented_t1mri", "NormalizeFSL_transformation_matrix", "NormalizeFSL_normalized_anatomy_data", "NormalizeFSL_cost_function", "NormalizeFSL_search_cost_function", "NormalizeFSL_init_translation_origin", "ConvertFSLnormalizationToAIMS_write", "ConvertFSLnormalizationToAIMS_standard_template", "ReorientAnatomy_commissures_coordinates", "ReorientAnatomy_output_commissures_coordinates"))
+        self.reorder_fields(("t1mri",
+            "transformation",
+            "template",
+            "alignment",
+            "set_transformation_in_source_volume",
+            "allow_flip_initial_MRI",
+            "allow_retry_initialization",
+            "reoriented_t1mri",
+            "NormalizeFSL_transformation_matrix",
+            "NormalizeFSL_normalized_anatomy_data",
+            "NormalizeFSL_cost_function",
+            "NormalizeFSL_search_cost_function",
+            "NormalizeFSL_init_translation_origin",
+            "ConvertFSLnormalizationToAIMS_write",
+            "ConvertFSLnormalizationToAIMS_standard_template",
+            "ReorientAnatomy_commissures_coordinates",
+            "ReorientAnatomy_output_commissures_coordinates"))
 
         # default and initial values
         self.alignment = 'Not Aligned but Same Orientation'

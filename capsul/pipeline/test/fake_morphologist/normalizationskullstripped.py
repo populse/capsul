@@ -22,119 +22,31 @@ class NormalizationSkullStripped(Pipeline):
 
         self.nodes["Normalization"].nodes["Normalization_AimsMIRegister"].plugs["transformation_to_MNI"].optional = True
 
-        self.nodes["Normalization"].nodes["Normalization_AimsMIRegister"].field("smoothing").optional = False
-
-        self.nodes["Normalization"].nodes["Normalization_AimsMIRegister"].plugs["smoothing"].optional = False
-
         self.nodes["Normalization"].nodes["select_Normalization_pipeline"].field("reoriented_t1mri").optional = True
 
         self.nodes["Normalization"].nodes["select_Normalization_pipeline"].plugs["reoriented_t1mri"].optional = True
 
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["NormalizeFSL"].field("Alignment").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["NormalizeFSL"].plugs["Alignment"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["NormalizeFSL"].field("cost_function").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["NormalizeFSL"].plugs["cost_function"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["NormalizeFSL"].field("search_cost_function").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["NormalizeFSL"].plugs["search_cost_function"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["NormalizeFSL"].field("allow_retry_initialization").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["NormalizeFSL"].plugs["allow_retry_initialization"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["NormalizeFSL"].field("init_translation_origin").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["NormalizeFSL"].plugs["init_translation_origin"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["ConvertFSLnormalizationToAIMS"].field("standard_template").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["ConvertFSLnormalizationToAIMS"].plugs["standard_template"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["ConvertFSLnormalizationToAIMS"].field("set_transformation_in_source_volume").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["ConvertFSLnormalizationToAIMS"].plugs["set_transformation_in_source_volume"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["ReorientAnatomy"].field("allow_flip_initial_MRI").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeFSL"].nodes["ReorientAnatomy"].plugs["allow_flip_initial_MRI"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["ConvertSPMnormalizationToAIMS"].field("target").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["ConvertSPMnormalizationToAIMS"].plugs["target"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["ConvertSPMnormalizationToAIMS"].field("removeSource").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["ConvertSPMnormalizationToAIMS"].plugs["removeSource"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["ReorientAnatomy"].field("allow_flip_initial_MRI").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["ReorientAnatomy"].plugs["allow_flip_initial_MRI"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].field("voxel_size").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].plugs["voxel_size"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].field("cutoff_option").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].plugs["cutoff_option"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].field("nbiteration").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].plugs["nbiteration"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].field("allow_retry_initialization").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].plugs["allow_retry_initialization"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].field("init_translation_origin").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].plugs["init_translation_origin"].optional = False
-
         self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].enabled = False
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].field("voxel_size").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].plugs["voxel_size"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].field("cutoff_option").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].plugs["cutoff_option"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].field("nbiteration").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].plugs["nbiteration"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].field("allow_retry_initialization").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].plugs["allow_retry_initialization"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].field("init_translation_origin").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].plugs["init_translation_origin"].optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeBaladin"].nodes["ConvertBaladinNormalizationToAIMS"].field("set_transformation_in_source_volume").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeBaladin"].nodes["ConvertBaladinNormalizationToAIMS"].plugs["set_transformation_in_source_volume"].optional = False
-
         self.nodes["Normalization"].nodes["NormalizeBaladin"].nodes["ReorientAnatomy"].enabled = False
-        self.nodes["Normalization"].nodes["NormalizeBaladin"].nodes["ReorientAnatomy"].field("allow_flip_initial_MRI").optional = False
-
-        self.nodes["Normalization"].nodes["NormalizeBaladin"].nodes["ReorientAnatomy"].plugs["allow_flip_initial_MRI"].optional = False
-
         self.nodes["Normalization"].activated = False
-        self.add_process("TalairachFromNormalization", "capsul.pipeline.test.fake_morphologist.talairachtransformationfromnormalization.TalairachTransformationFromNormalization")
+        self.add_process("TalairachFromNormalization", "capsul.pipeline.test.fake_morphologist.talairachtransformationfromnormalization.TalairachTransformationFromNormalization", make_optional=['commissure_coordinates'])
+        self.nodes["TalairachFromNormalization"].field("Talairach_transform").optional = False
+
+        self.nodes["TalairachFromNormalization"].plugs["Talairach_transform"].optional = False
+
+        self.nodes["TalairachFromNormalization"].field("commissure_coordinates").optional = True
+
+        self.nodes["TalairachFromNormalization"].plugs["commissure_coordinates"].optional = True
+
 
         # links
         self.export_parameter("TalairachFromNormalization", "t1mri", is_optional=False)
         self.add_link("t1mri->SkullStripping.t1mri")
         self.export_parameter("SkullStripping", "brain_mask", is_optional=False)
-        self.export_parameter("Normalization", "NormalizeFSL_template", "template", is_optional=True)
-        self.add_link("template->Normalization.NormalizeBaladin_template")
-        self.add_link("template->Normalization.Normalization_AimsMIRegister_anatomical_template")
+        self.export_parameter("Normalization", "NormalizeBaladin_template", "template", is_optional=True)
+        self.add_link("template->Normalization.NormalizeFSL_template")
         self.add_link("template->Normalization.NormalizeSPM_template")
+        self.add_link("template->Normalization.Normalization_AimsMIRegister_anatomical_template")
         self.export_parameter("Normalization", "select_Normalization_pipeline", "Normalization_select_Normalization_pipeline", is_optional=True)
         self.export_parameter("Normalization", "allow_flip_initial_MRI", "Normalization_allow_flip_initial_MRI", is_optional=True)
         self.export_parameter("Normalization", "commissures_coordinates", "Normalization_commissures_coordinates", is_optional=True)
@@ -176,7 +88,45 @@ class NormalizationSkullStripped(Pipeline):
 
         # parameters order
 
-        self.reorder_fields(("t1mri", "brain_mask", "template", "skull_stripped", "transformation", "talairach_transformation", "commissure_coordinates", "Normalization_select_Normalization_pipeline", "Normalization_allow_flip_initial_MRI", "Normalization_commissures_coordinates", "Normalization_reoriented_t1mri", "Normalization_init_translation_origin", "Normalization_normalized", "Normalization_NormalizeFSL_alignment", "Normalization_NormalizeFSL_set_transformation_in_source_volume", "Normalization_NormalizeFSL_allow_retry_initialization", "Normalization_NormalizeFSL_NormalizeFSL_transformation_matrix", "Normalization_NormalizeFSL_NormalizeFSL_cost_function", "Normalization_NormalizeFSL_NormalizeFSL_search_cost_function", "Normalization_NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template", "Normalization_NormalizeSPM_NormalizeSPM", "Normalization_NormalizeSPM_spm_transformation", "Normalization_NormalizeSPM_allow_retry_initialization", "Normalization_NormalizeSPM_voxel_size", "Normalization_NormalizeSPM_cutoff_option", "Normalization_NormalizeSPM_nbiteration", "Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_target", "Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume", "Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource", "Normalization_NormalizeBaladin_set_transformation_in_source_volume", "Normalization_NormalizeBaladin_NormalizeBaladin_transformation_matrix", "Normalization_Normalization_AimsMIRegister_transformation_to_template", "Normalization_Normalization_AimsMIRegister_transformation_to_ACPC", "Normalization_Normalization_AimsMIRegister_mni_to_acpc", "Normalization_Normalization_AimsMIRegister_smoothing", "TalairachFromNormalization_source_referential", "TalairachFromNormalization_normalized_referential", "TalairachFromNormalization_acpc_referential", "TalairachFromNormalization_transform_chain_ACPC_to_Normalized"))
+        self.reorder_fields(("t1mri",
+            "brain_mask",
+            "template",
+            "skull_stripped",
+            "transformation",
+            "talairach_transformation",
+            "commissure_coordinates",
+            "Normalization_select_Normalization_pipeline",
+            "Normalization_allow_flip_initial_MRI",
+            "Normalization_commissures_coordinates",
+            "Normalization_reoriented_t1mri",
+            "Normalization_init_translation_origin",
+            "Normalization_normalized",
+            "Normalization_NormalizeFSL_alignment",
+            "Normalization_NormalizeFSL_set_transformation_in_source_volume",
+            "Normalization_NormalizeFSL_allow_retry_initialization",
+            "Normalization_NormalizeFSL_NormalizeFSL_transformation_matrix",
+            "Normalization_NormalizeFSL_NormalizeFSL_cost_function",
+            "Normalization_NormalizeFSL_NormalizeFSL_search_cost_function",
+            "Normalization_NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template",
+            "Normalization_NormalizeSPM_NormalizeSPM",
+            "Normalization_NormalizeSPM_spm_transformation",
+            "Normalization_NormalizeSPM_allow_retry_initialization",
+            "Normalization_NormalizeSPM_voxel_size",
+            "Normalization_NormalizeSPM_cutoff_option",
+            "Normalization_NormalizeSPM_nbiteration",
+            "Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_target",
+            "Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume",
+            "Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource",
+            "Normalization_NormalizeBaladin_set_transformation_in_source_volume",
+            "Normalization_NormalizeBaladin_NormalizeBaladin_transformation_matrix",
+            "Normalization_Normalization_AimsMIRegister_transformation_to_template",
+            "Normalization_Normalization_AimsMIRegister_transformation_to_ACPC",
+            "Normalization_Normalization_AimsMIRegister_mni_to_acpc",
+            "Normalization_Normalization_AimsMIRegister_smoothing",
+            "TalairachFromNormalization_source_referential",
+            "TalairachFromNormalization_normalized_referential",
+            "TalairachFromNormalization_acpc_referential",
+            "TalairachFromNormalization_transform_chain_ACPC_to_Normalized"))
 
         # default and initial values
         self.Normalization_allow_flip_initial_MRI = False
