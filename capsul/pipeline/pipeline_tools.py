@@ -58,6 +58,7 @@ from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller, undefined, Any
 from pydantic import ValidationError
+import dataclasses
 
 
 def pipeline_node_colors(pipeline, node):
@@ -1343,8 +1344,21 @@ class %s(Process):
             t_str = field.type_str()
             meta = {k: v for k, v in field.metadata().items()
                     if k not in meta_forbidden}
+            has_default = False
+            if field.default not in (undefined, dataclasses.MISSING):
+                meta['default'] = field.default
+                has_default = True
+            elif field.default_factory != dataclasses.MISSING:
+                # difficult/implssible to replicate...
+                class def_fac(object):
+                    def __init__(self, value):
+                        self.value = value
+                    def __repr__(self):
+                        return 'lambda: %s' % repr(value)
+                meta['default_factory'] = def_fac(field.default_factory())
+                has_default = True
             value = getattr(process, name, undefined)
-            if value is not undefined and 'optional' not in meta:
+            if has_default and 'optional' not in meta:
                 meta['optional'] = True
             meta_str = ''
             if meta:
@@ -1427,7 +1441,11 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
         if modname not in done:
             done.add(modname)
             write_fake_process(node, filename, sleep_time=sleep_time)
-        new_proc = executable(filename)
+        try:
+            new_proc = executable(filename)
+        except Exception as e:
+            print('Failed top reload node:', filename)
+            raise
         new_proc.__class__.__module__ = modname
 
         if parent is not None and node_name is not None:

@@ -18,6 +18,8 @@ from soma.undefined import undefined
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import weak_proxy, get_ref
+import dataclasses
+
 
 class Plug(Controller):
     """ A Plug is a connection point in a Node. It is normally linked to a node
@@ -204,6 +206,7 @@ class Node(Controller):
                 "name": field.name,
                 "output" : output,
                 "optional": optional,
+                "has_default_value": field.has_default()
             }
             # generate plug with input parameter and identifier name
             self._add_plug(parameter)
@@ -359,6 +362,14 @@ class Node(Controller):
         # delay notification until we have actually added the plug.
         enable_notif = self.enable_notification
         self.enable_notification = False
+        if (default is not undefined
+            or ('default_factory' in kwargs
+                and kwargs['default_factory'] != dataclasses._MISSING_TYPE)) \
+                and 'optional' not in kwargs \
+                and (metadata is None or 'optional' not in metadata):
+            # a parameter with a default value becomes optional
+            kwargs = dict(kwargs)
+            kwargs['optional'] = True
         try:
             # overload to add the plug
             super().add_field(name, type_, default=default, metadata=metadata,
