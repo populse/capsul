@@ -386,6 +386,10 @@ class Node(Controller):
         super().remove_field(name)
 
     def reorder_fields(self, fields=()):
+        fields_set = set(fields)
+        fields = list(fields) \
+            + [f.name for f in self.fields()
+               if f.name not in fields_set and f.name in self._dyn_fields]
         super().reorder_fields(fields)
         # reorder plugs as well as fields
         new_plugs = SortedDictionary()
