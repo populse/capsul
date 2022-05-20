@@ -32,10 +32,10 @@ def save_py_pipeline(pipeline, py_file):
     from capsul.pipeline.pipeline_nodes import Switch
     from capsul.pipeline.process_iteration import ProcessIteration
     from capsul.process.process import NipypeProcess
-    from capsul.process_instance import get_process_instance
+    from capsul.application import executable
 
     def get_repr_value(value):
-        # TODO: handle None/Undefined in lists/dicts etc
+        # TODO: handle None/undefined in lists/dicts etc
         if value is undefined:
             repvalue = 'undefined'
         elif value is None:
@@ -60,7 +60,7 @@ def save_py_pipeline(pipeline, py_file):
             else:
                 classname = process.__class__.__name__
         procname = '.'.join((mod, classname))
-        proc_copy = get_process_instance(procname)
+        proc_copy = executable(procname)
         make_opt = []
         for field in proc_copy.fields():
             fname = field.name
@@ -75,6 +75,60 @@ def save_py_pipeline(pipeline, py_file):
         print('        self.add_process("%s", "%s"%s)' % (name, procname,
                                                           node_options),
               file=pyf)
+
+        # check that sub-nodes enable and plugs optional states are the
+        # expected ones
+        todo = [('self.nodes["%s"]' % name, process, proc_copy)]
+        while todo:
+            self_str, snode, cnode = todo.pop(0)
+            if not snode.enabled:
+                print('        %s.enabled = False' % self_str,
+                      file=pyf)
+
+            # if the node is a (sub)pipeline, and this pipeline has additional
+            # exported traits compared to the its base module/class instance
+            # (proc_copy),  then we must use explicit exports/links inside it
+            if isinstance(snode, Pipeline):
+                for field in snode.user_fields():
+                    param_name = field.name
+                    optional = None
+                    if cnode.field(param_name) is None:
+                        # param added, not in the original process
+                        is_input = not field.output
+                        if (is_input and snode.plugs[param_name].links_to) \
+                                or (not is_input
+                                    and snode.plugs[param_name].links_from):
+                            if is_input:
+                                for link in snode.plugs[param_name].links_to:
+                                    print(f'        {self_str}.process.add_link("{param_name}->{link[0]}.{link[1]}", allow_export=True)\n',
+                                          file=pyf)
+                            else:
+                                for link in snode.plugs[param_name].links_from:
+                                    print(f'        {self_str}.process.add_link("{link[0]}.{link[1]}->{param_name}", allow_export=True)\n',
+                                          file=pyf)
+
+            for param_name, plug in snode.plugs.items():
+                field = snode.field(param_name)
+                cfield = cnode.field(param_name)
+                optional = None
+                if param_name not in cnode.plugs \
+                        or field.optional != cfield.optional:
+                    optional = field.optional
+                if optional is not None:
+                    print(f'        {self_str}.field("{param_name}").optional = {optional}\n',
+                              file=pyf)
+                    print(f'        {self_str}.plugs["{param_name}"].optional = {optional}\n',
+                          file=pyf)
+
+            if isinstance(snode, Pipeline):
+                sself_str = '%s.nodes["%s"]' % (self_str, '%s')
+                for node_name, snode in snode.nodes.items():
+                    scnode = cnode.nodes[node_name]
+
+                    if node_name == '':
+                        continue
+                    todo.append((sself_str % node_name, snode, scnode))
+
         for field in process.fields():
             pname = field.name
             value = getattr(process, pname, undefined)
@@ -160,7 +214,8 @@ def save_py_pipeline(pipeline, py_file):
               file=pyf)
 
     def _write_switch(switch, pyf, name, enabled):
-        inputs = set()
+        inputs_set = set()
+        inputs = []
         outputs = []
         optional = []
         opt_in = []
@@ -173,14 +228,14 @@ def save_py_pipeline(pipeline, py_file):
             else:
                 name_parts = plug_name.split("_switch_")
                 if len(name_parts) == 2 \
-                        and name_parts[0] not in inputs:
-                    inputs.add(name_parts[0])
+                        and name_parts[0] not in inputs_set:
+                    inputs_set.add(name_parts[0])
+                    inputs.append(name_parts[0])
                     if plug.optional:
                         opt_in.append(name_parts[0])
         optional_p = ''
         if len(optional) != 0:
             optional_p = ', make_optional=%s' % repr(optional)
-        inputs = list(inputs)
         opt_inputs = getattr(switch, '_optional_input_nodes', None)
         if opt_inputs:
             opt_inputs = [i[1] for i in opt_inputs if i[0] in inputs]
@@ -232,6 +287,7 @@ def save_py_pipeline(pipeline, py_file):
 
     def _write_export(pipeline, pyf, param_name):
         plug = pipeline.plugs[param_name]
+        field = pipeline.field(param_name)
         if plug.output:
             link = list(plug.links_from)[0]
         else:
@@ -244,8 +300,9 @@ def save_py_pipeline(pipeline, py_file):
         weak_link = ''
         if link[-1]:
             weak_link = ', weak_link=True'
-        print('        self.export_parameter("%s", "%s"%s%s)'
-              % (node_name, plug_name, param_name, weak_link), file=pyf)
+        is_optional = ', is_optional=%s' % repr(field.optional)
+        print('        self.export_parameter("%s", "%s"%s%s%s)'
+              % (node_name, plug_name, param_name, weak_link, is_optional), file=pyf)
         return node_name, plug_name
 
     def _write_links(pipeline, pyf):
@@ -282,6 +339,17 @@ def save_py_pipeline(pipeline, py_file):
                             print('        self.add_link("%s->%s"%s)'
                                   % (src, dst, weak_link), file=pyf)
 
+    def _write_param_order(pipeline, pyf):
+        user_fields = list(pipeline.user_fields())
+        if len(user_fields) == 0:
+            return
+        print('\n        # parameters order', file=pyf)
+        names = ['"%s"' % n.name for n in user_fields
+                 if n.name not in ('nodes_activation', 'pipeline_steps',
+                                   'visible_groups')]
+        print('\n        self.reorder_fields((%s))'
+              % ',\n            '.join(names), file=pyf)
+
     def _write_steps(pipeline, pyf):
         steps = pipeline.field('pipeline_steps')
         if steps and getattr(pipeline, 'pipeline_steps', None):
@@ -292,8 +360,7 @@ def save_py_pipeline(pipeline, py_file):
                 enabled_str = ''
                 if not enabled:
                     enabled_str = ', enabled=false'
-                nodes = pipeline.pipeline_steps.field(step).metadata(
-                    'nodes', set())
+                nodes = step.metadata('nodes', set())
                 print('        self.add_pipeline_step("%s", %s%s)'
                       % (step_name, repr(nodes), enabled_str), file=pyf)
 
@@ -392,6 +459,7 @@ def save_py_pipeline(pipeline, py_file):
 
     with open(py_file, 'w') as pyf:
 
+        print('# -*- coding: utf-8 -*-\n', file=pyf)
         print('from capsul.api import Pipeline', file=pyf)
         print('from soma.controller import undefined', file=pyf)
         print(file=pyf)
@@ -405,6 +473,7 @@ def save_py_pipeline(pipeline, py_file):
 
         _write_processes(pipeline, pyf)
         _write_links(pipeline, pyf)
+        _write_param_order(pipeline, pyf)
         _write_processes_selections(pipeline, pyf)
         _write_steps(pipeline, pyf)
         _write_values(pipeline, pyf)

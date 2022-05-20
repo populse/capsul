@@ -18,6 +18,8 @@ from soma.undefined import undefined
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
 from soma.utils.weak_proxy import weak_proxy, get_ref
+import dataclasses
+
 
 class Plug(Controller):
     """ A Plug is a connection point in a Node. It is normally linked to a node
@@ -204,6 +206,7 @@ class Node(Controller):
                 "name": field.name,
                 "output" : output,
                 "optional": optional,
+                "has_default_value": field.has_default()
             }
             # generate plug with input parameter and identifier name
             self._add_plug(parameter)
@@ -293,10 +296,16 @@ class Node(Controller):
 
     def _remove_plug(self, plug_name):
         plug = self.plugs[plug_name]
-        if self.pipeline is not None:
+        pipeline = self.pipeline
+        if pipeline is None and hasattr(self, 'remove_link'):
+            pipeline = self  # I am a pipeline
+        if pipeline is not None:
             # remove the event on plug to validate the pipeline
-            plug.on_attribute_change.remove(
-                self.pipeline.update_nodes_and_plugs_activation, "enabled")
+            try:
+                plug.on_attribute_change.remove(
+                    pipeline.update_nodes_and_plugs_activation, "enabled")
+            except KeyError:
+                pass  # there was no such callback. Nevermind.
 
             # clear/remove the associated plug links
             links_to_remove = []
@@ -309,7 +318,7 @@ class Node(Controller):
                 src = f'{link[0]}.{link[1]}'
                 links_to_remove.append(f'{src}->{plug_name}')
             for link in links_to_remove:
-                self.pipeline.remove_link(link)
+                pipeline.remove_link(link)
 
         del self.plugs[plug_name]
 
@@ -353,6 +362,14 @@ class Node(Controller):
         # delay notification until we have actually added the plug.
         enable_notif = self.enable_notification
         self.enable_notification = False
+        if (default is not undefined
+            or ('default_factory' in kwargs
+                and kwargs['default_factory'] != dataclasses._MISSING_TYPE)) \
+                and 'optional' not in kwargs \
+                and (metadata is None or 'optional' not in metadata):
+            # a parameter with a default value becomes optional
+            kwargs = dict(kwargs)
+            kwargs['optional'] = True
         try:
             # overload to add the plug
             super().add_field(name, type_, default=default, metadata=metadata,
@@ -378,6 +395,23 @@ class Node(Controller):
     def remove_field(self, name):
         self._remove_plug(name)
         super().remove_field(name)
+
+    def reorder_fields(self, fields=()):
+        fields_set = set(fields)
+        fields = list(fields) \
+            + [f.name for f in self.fields()
+               if f.name not in fields_set and f.name in self._dyn_fields]
+        super().reorder_fields(fields)
+        # reorder plugs as well as fields
+        new_plugs = SortedDictionary()
+        for name in fields:
+            if name in self.plugs:
+                new_plugs[name] = self.plugs[name]
+        # append remaining ones in former order
+        for name, plug in self.plugs.items():
+            if name not in new_plugs:
+                new_plugs[name] = plug
+        self.plugs = new_plugs
 
     def __getstate__(self):
         """ Remove the callbacks from the default __getstate__ result because

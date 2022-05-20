@@ -9,6 +9,7 @@ Classes
 
 from copy import deepcopy
 import sys
+from collections import OrderedDict
 
 from soma.undefined import undefined
 
@@ -1757,14 +1758,14 @@ class Pipeline(Process):
             if node_dict is None:
                 result.append('node "%s" is missing' % node_name)
             else:
-                plugs_list = node_dict.pop('plugs')
+                plugs_list = OrderedDict(node_dict.pop('plugs'))
                 result.extend('in node "%s": %s' % (node_name, i) for i in
                               compare_dict(dict(name=node.name,
                                                 enabled=node.enabled,
                                                 activated=node.activated),
                                            node_dict))
                 ref_plug_names = list(node.plugs)
-                other_plug_names = [i[0] for i in plugs_list]
+                other_plug_names = list(plugs_list.keys())
                 if ref_plug_names != other_plug_names:
                     if sorted(ref_plug_names) == sorted(other_plug_names):
                         result.append('in node "%s": plugs order = %s '
@@ -1779,8 +1780,7 @@ class Pipeline(Process):
                         # go to next node
                         continue
                 for plug_name, plug in node.plugs.items():
-                    plug_dict = plugs_list[0][1]
-                    del plugs_list[0]
+                    plug_dict = plugs_list[plug_name]
                     links_to_dict = plug_dict.pop('links_to')
                     links_from_dict = plug_dict.pop('links_from')
                     result.extend('in plug "%s:%s": %s' %
@@ -2220,6 +2220,7 @@ class Pipeline(Process):
         return result
     
     def dispatch_value(self, node, name, value):
+        enable_parameter_links = self.enable_parameter_links
         self.enable_parameter_links = False
         done = set()
         stack = list(self.get_linked_items(node, 
@@ -2238,7 +2239,7 @@ class Pipeline(Process):
                     in_sub_pipelines=False,
                     activated_only=False,
                     process_only=False))
-        self.enable_parameter_links = True
+        self.enable_parameter_links = enable_parameter_links
 
     def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True, activated_only=True, process_only=True):
         '''Return the real process(es) node and plug connected to the given plug.
