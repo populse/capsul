@@ -11,6 +11,8 @@ from soma.undefined import undefined
 from .application import Capsul
 from . import execution_context
 
+debug = False
+
 if __name__ == '__main__':
     tmp = os.environ.get('CAPSUL_TMP')
     if not tmp:
@@ -66,13 +68,27 @@ if __name__ == '__main__':
                     index = int(index)
                 parameters = parameters[index]
             for field in process.user_fields():
-                if not field.output and field.name in parameters and parameters[field.name] is not None:
+                if field.name in parameters and parameters[field.name] is not None:
                     setattr(process, field.name, parameters.no_proxy(parameters[field.name]))
             execution_context.executable = process
             process.resolve_paths(execution_context)
+            if debug:
+                print(f'---- start {process.definition} ----')
+                for field in process.user_fields():
+                    if not field.output:
+                        value = getattr(process, field.name, undefined)
+                        if value is not undefined:
+                            print ('   ', field.name, '=', value)
             process.before_execute(execution_context)
             process.execute(execution_context)
             process.after_execute(execution_context)
+            if debug:
+                print(f'---- stop {process.definition} ----')
+                for field in process.user_fields():
+                    if field.output:
+                        value = getattr(process, field.name, undefined)
+                        if value is not undefined:
+                            print ('   ', field.name, '=', value)
             workflow_parameters = None
             with database as db:
                 for field in process.user_fields():

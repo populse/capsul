@@ -124,7 +124,6 @@ class TestPipelineWithTemp(unittest.TestCase):
             except OSError:
                 pass
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_iterative_pipeline_with_temp(self):
         input_f = tempfile.mkstemp(suffix='capsul_input.txt')
         os.close(input_f[0])
@@ -134,7 +133,6 @@ class TestPipelineWithTemp(unittest.TestCase):
         output_f = tempfile.mkstemp(suffix='capsul_output.txt')
         os.close(output_f[0])
         output_name = output_f[1]
-        #os.unlink(output_name)
 
         try:
             self.iter_pipeline.input_images = [input_name, input_name,
@@ -142,7 +140,8 @@ class TestPipelineWithTemp(unittest.TestCase):
             self.iter_pipeline.output = output_name
 
             # run sequentially
-            self.iter_pipeline()
+            with Capsul().engine() as ce:
+                ce.run(self.iter_pipeline, timeout=5)
 
             # test
             self.assertTrue(os.path.exists(output_name))
@@ -151,8 +150,10 @@ class TestPipelineWithTemp(unittest.TestCase):
                     self.assertEqual(f.read() * 3, g.read())
             # check intermediate filenames are empty
             self.assertEqual(
-                self.iter_pipeline.nodes['node1'].process.output_image,
-                ['', '', ''])
+                self.iter_pipeline.nodes['node1'].output_image,
+                ['!{dataset.tmp.path}/node1.output_image_0',
+                 '!{dataset.tmp.path}/node1.output_image_1',
+                 '!{dataset.tmp.path}/node1.output_image_2'])
 
         finally:
             try:

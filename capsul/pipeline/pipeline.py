@@ -10,6 +10,7 @@ Classes
 from copy import deepcopy
 import sys
 from collections import OrderedDict
+from capsul.pipeline.process_iteration import ProcessIteration
 
 from soma.undefined import undefined
 
@@ -1485,6 +1486,11 @@ class Pipeline(Process):
                 # file names
                 return
 
+            if isinstance(node, ProcessIteration):
+                iteration_size = node.iteration_size()
+            else:
+                iteration_size = None
+            
             for plug_name, plug in node.plugs.items():
                 value = getattr(node, plug_name, undefined)
                 if not plug.activated or not plug.enabled:
@@ -1509,6 +1515,9 @@ class Pipeline(Process):
                     break
                 if not temporary:
                     continue
+
+                if value is undefined and iteration_size is not None:
+                    value = [undefined] * iteration_size
                 # if we get here, we are a temporary.
                 e = field.metadata('extensions')
                 if e:
@@ -1519,7 +1528,7 @@ class Pipeline(Process):
                     new_value = []
                     for i in range(len(value)):
                         if value[i] in ('', undefined):
-                            tmp = f'{prefix}.{plug_name}{suffix}'
+                            tmp = f'{prefix}.{plug_name}{suffix}_{i}'
                             new_value.append(tmp)
                         else:
                             new_value.append(value[i])
