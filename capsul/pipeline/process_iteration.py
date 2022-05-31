@@ -47,6 +47,10 @@ class ProcessIteration(Process):
             name = field.name
             if name in iterative_parameters:
                 self.add_list_proxy(name, self.process, name)
+                # set initial value as a single list element
+                value = getattr(self.process, name, undefined)
+                if value is not undefined:
+                    setattr(self, name, [value])
             else:
                 self.regular_parameters.add(name)
                 self.add_proxy(name, self.process, name)
@@ -111,7 +115,12 @@ class ProcessIteration(Process):
                 size = psize
             else:
                 if size != psize:
-                   raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
+                    # size 1 is an exception to the rule: it will be
+                    # "broadcast" (numpy sense) to other lists sizes
+                    if size == 1:
+                       size = psize
+                    elif psize != 1:
+                        raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
         return size
     
     def iterate_over_process_parmeters(self):
@@ -127,8 +136,11 @@ class ProcessIteration(Process):
             setattr(self.process, parameter, getattr(self, parameter, undefined))
         for parameter in self.iterative_parameters:
             values = getattr(self, parameter, undefined)
-            if values is not undefined and len(values) > iteration_index:
-                value = values[iteration_index]
+            if values is not undefined and len(values) != 0:
+                if len(values) > iteration_index:
+                    value = values[iteration_index]
+                else:
+                    value = values[-1]
             else:
                 value = undefined
             setattr(self.process, parameter, value)
