@@ -699,3 +699,12 @@ class TestTinyMorphologist(unittest.TestCase):
     #     view1.show()
     #     app.exec_()
     #     del view1
+
+
+def test():
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestTinyMorphologist)
+    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
+    return runtime.wasSuccessful()
+
+if __name__ == '__main__':
+    test()
