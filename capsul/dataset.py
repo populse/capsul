@@ -222,7 +222,7 @@ class BrainVISASchema(MetadataSchema):
     subject: str
     modality: str = None
     process: str = None
-    analysis:str = 'default'
+    analysis:str = 'default_analysis'
     acquisition: str = None
     preprocessings: str = None
     longitudinal: list[str] = None
@@ -243,7 +243,7 @@ class BrainVISASchema(MetadataSchema):
     def _path_list(self):
         '''
         The path has the following pattern:
-        {center}/{subject}/[{modality}/][{process/][{acquisition}/][{preprocessings}/][{longitudinal}/]{analysis}/[{prefix}_]{subject}[_to_avg_{longitudinal}}[_{suffix}][.{extension}]
+        {center}/{subject}/[{modality}/][{process/][{acquisition}/][{preprocessings}/][{longitudinal}/][{analysis}]/[{prefix}_]{subject}[_to_avg_{longitudinal}}[_{suffix}][.{extension}]
         '''
 
         path_list = [self.center, self.subject]
@@ -251,7 +251,8 @@ class BrainVISASchema(MetadataSchema):
             value = getattr(self, key, None)
             if value:
                 path_list.append(value)
-        path_list.append(self.analysis)
+        if getattr(self, 'analysis', undefined):
+            path_list.append(self.analysis)
 
         filename = []
         prefix = self.get('prefix')
@@ -330,7 +331,7 @@ class Dataset(Controller):
     def register_schema(cls, name, schema):
         cls.schemas[name] = schema
 
-def generate_paths(executable, context, metadata=None, fields=None, ignore=None, debug=False):
+def generate_paths(executable, context, metadata=None, fields=None, ignore=None, datasets=None, debug=False):
     # avoid circular import
     from capsul.pipeline.pipeline import Pipeline
     
@@ -341,9 +342,12 @@ def generate_paths(executable, context, metadata=None, fields=None, ignore=None,
                 file = sys.stderr
             else:
                 file = debug
+            print(*args, file=file, **kwargs)
+
     if metadata is None:
         metadata = {}
-    dprint(metadata)
+    dprint('generate_paths:', executable.name)
+    dprint('metadata:', metadata)
     source_field_per_schema = {}
     target_field_per_schema = {}
     dataset_name_per_field = {}
@@ -369,8 +373,14 @@ def generate_paths(executable, context, metadata=None, fields=None, ignore=None,
         if path_type:
             # Associates a Dataset name with the field
             dataset_name = getattr(field, 'dataset', None)
-            if dataset_name is None:
+            if dataset_name is None and datasets:
+                dataset_name = datasets.get(field.name)
+            if dataset_name is None and (not datasets
+                                         or field.name not in datasets):
                 dataset_name = ('output' if field.is_output() else 'input')
+            if dataset_name is None:
+                # no completion for this field
+                continue
             dataset = getattr(context.dataset, dataset_name, None)
             value = getattr(executable, field.name, undefined)
             if value is undefined:
@@ -394,7 +404,8 @@ def generate_paths(executable, context, metadata=None, fields=None, ignore=None,
     if not target_field_per_schema:
         return
     if len(target_field_per_schema) > 1:
-        raise ValueError(f'Found several metadata schemas in path parameters with missing value: {", ".join(target_field_per_schema)}')
+        print('target_field_per_schema:', {k: [f.name for f in v] for k, v in target_field_per_schema.items()})
+        raise ValueError(f'Found several metadata schemas for executable {executable.name} in path parameters with missing value: {", ".join(target_field_per_schema)}')
     ((target_schema_name, target_fields),) = target_field_per_schema.items()
     target_schema = Dataset.find_schema(target_schema_name)
     if target_schema is None:
@@ -449,7 +460,7 @@ def generate_paths(executable, context, metadata=None, fields=None, ignore=None,
                 path = getattr(executable, field.name)
                 if isinstance(path, list):
                     path = path[list_index]
-                dprint(f'source path: {path}')
+                dprint(f'source path for: {field.name}: {path}')
                 schema = source_schema(context.dataset[dataset_name_per_field[field]].path)
                 path_metadata = schema.metadata(path)
                 dprint(f'path {path} -> {path_metadata}')
