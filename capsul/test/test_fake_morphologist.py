@@ -11,7 +11,7 @@ from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
 from capsul.config.configuration import ModuleConfiguration
-from capsul.dataset import generate_paths
+from capsul.dataset import generate_paths, MetadataSchema, Dataset
 
 class FakeSPMConfiguration(ModuleConfiguration):
     ''' SPM configuration module
@@ -38,16 +38,41 @@ def init_execution_context(execution_context):
     execution_context.spm = FakeSPMConfiguration()
     execution_context.spm.import_dict(config)
 
+class SharedSchema(MetadataSchema):
+    '''Metadata schema for BrainVISA shared dataset
+    '''
+    data_id: str = ''
+
+    def _path_list(self):
+        '''
+        The path has the following pattern:
+        <something>
+        '''
+
+        path_list = []
+        filename = []
+        if self.data_id == 'normalization_template':
+            path_list = ['anatomical_templates']
+            filename.append('MNI152_T1_2mm.nii.gz')
+        else:
+            filename.append(self.data_id)
+        path_list.append(''.join(filename))
+        return path_list
+
+Dataset.schemas['shared'] = SharedSchema
+
 # patch processes to setup their requirements and schemas
 
-from capsul.pipeline.test.fake_morphologist.t1biascorrection \
-    import T1BiasCorrection
 from capsul.pipeline.test.fake_morphologist.morphologist \
     import Morphologist
+from capsul.pipeline.test.fake_morphologist.t1biascorrection \
+    import T1BiasCorrection
 from capsul.pipeline.test.fake_morphologist.normalization_t1_spm12_reinit \
     import normalization_t1_spm12_reinit
 from capsul.pipeline.test.fake_morphologist.normalization_t1_spm8_reinit \
     import normalization_t1_spm8_reinit
+from capsul.pipeline.test.fake_morphologist.normalization_aimsmiregister \
+    import normalization_aimsmiregister
 
 T1BiasCorrection.metadata_schema = dict(
     bids={'output': {'part': 'nobias'}},
@@ -55,32 +80,34 @@ T1BiasCorrection.metadata_schema = dict(
 )
 
 normalization_t1_spm12_reinit.requirements = {
-        'fakespm': {
-            'version': '12'
-        }
+    'fakespm': {
+        'version': '12'
     }
+}
     
 normalization_t1_spm12_reinit.metadata_schema = dict(
-        bids={'output': {'part': 'normalized_fakespm12'}},
-        brainvisa={'output': {'prefix': 'normalized_fakespm12'}}
-    )
+    bids={'output': {'part': 'normalized_fakespm12'}},
+    brainvisa={'output': {'prefix': 'normalized_fakespm12'}},
+    shared={'anatomical_template': {'data_id': 'normalization_template'}},
+)
 
 
 normalization_t1_spm8_reinit.requirements = {
-        'fakespm': {
-            'version': '8'
-        }
+    'fakespm': {
+        'version': '8'
     }
+}
 
 normalization_t1_spm8_reinit.metadata_schema = dict(
-        bids={'output': {'part': 'normalized_fakespm8'}},
-        brainvisa={'output': {'prefix': 'normalized_fakespm8'}}
-    )
+    bids={'output': {'part': 'normalized_fakespm8'}},
+    brainvisa={'output': {'prefix': 'normalized_fakespm8'}}
+)
 
-#AimsNormalization.metadata_schema = dict(
-        #bids={'output': {'part': 'normalized_aims'}},
-        #brainvisa={'output': {'prefix': 'normalized_aims'}}
-    #)
+normalization_aimsmiregister.metadata_schema = dict(
+    bids={'output': {'part': 'normalized_aims'}},
+    brainvisa={'output': {'prefix': 'normalized_aims'}},
+    shared={'anatomical_template': {'data_id': 'normalization_template'}},
+)
 
 
 #SplitBrain.metadata_schema = dict(
@@ -96,11 +123,71 @@ Morphologist.metadata_schema = dict(
             'right_hemisphere': {'part': 'right_hemi'},
         },
         brainvisa={
-            '*': {'process': 'morphologist'},
-            'left_hemisphere': {'prefix': 'left_hemi'},
-            'right_hemisphere': {'prefix': 'right_hemi'},
+            '*': {'process': None, 'modality': 't1mri'},
+            'imported_t1mri': {'analysis': undefined},
+            'left_hemisphere': {'prefix': 'L'},
+            'right_hemisphere': {'prefix': 'R'},
         }
     )
+
+datasets = {
+    't1mri': 'input',
+    'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': 'fakespm',
+    'PrepareSubject_TalairachFromNormalization_normalized_referential': 'shared',
+    'PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized': 'shared',
+    'PrepareSubject_TalairachFromNormalization_acpc_referential': 'shared',
+    'PrepareSubject_StandardACPC_older_MNI_normalization': None,
+    'PrepareSubject_Normalization_commissures_coordinates': None,
+    'PrepareSubject_Normalization_NormalizeFSL_template': 'shared',
+    'PrepareSubject_Normalization_NormalizeSPM_template': 'shared',
+    'PrepareSubject_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume': None,
+    'PrepareSubject_Normalization_NormalizeBaladin_template': 'shared',
+    'PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc': 'shared',
+    'BrainSegmentation_lesion_mask': None,
+    'Renorm_template': 'shared',
+    'Renorm_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume': None,
+    'Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc': 'shared',
+    'HeadMesh_remove_mask': None,
+    'SplitBrain_split_template': 'shared',
+    'GreyWhiteClassification_lesion_mask': None,
+    'SulciRecognition_SPAM_recognition09_global_recognition_labels_priors': 'shared',
+    'SulciRecognition_SPAM_recognition09_global_recognition_initial_transformation': None,
+    'SulciRecognition_SPAM_recognition09_global_recognition_model': 'shared',
+    'SulciRecognition_SPAM_recognition09_local_recognition_model': 'shared',
+    'SulciRecognition_SPAM_recognition09_local_recognition_local_referentials': 'shared',
+    'SulciRecognition_SPAM_recognition09_local_recognition_direction_priors': 'shared',
+    'SulciRecognition_SPAM_recognition09_local_recognition_angle_priors': 'shared',
+    'SulciRecognition_SPAM_recognition09_local_recognition_translation_priors': 'shared',
+    'SulciRecognition_SPAM_recognition09_markovian_recognition_model': 'shared',
+    'SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model': 'shared',
+    'SulciRecognition_CNN_recognition19_model_file': 'shared',
+    'SulciRecognition_CNN_recognition19_param_file': 'shared',
+    'GreyWhiteClassification_1_lesion_mask': None,
+    'SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_global_recognition_initial_transformation': None,
+    'SulciRecognition_1_SPAM_recognition09_global_recognition_model': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_local_recognition_model': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_markovian_recognition_model': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model': 'shared',
+    'SulciRecognition_1_CNN_recognition19_model_file': 'shared',
+    'SulciRecognition_1_CNN_recognition19_param_file': 'shared',
+    'SPAM_recognition_labels_translation_map': 'shared',
+    'SulciRecognition_recognition2000_model': 'shared',
+    'SulciRecognition_1_recognition2000_model': 'shared',
+    'sulcal_morphometry_sulci_file': 'shared',
+}
+
+
+def get_shared_path():
+    try:
+        from soma import aims
+        return aims.carto.Paths.resourceSearchPath()[-1]
+    except Exception:
+        return '/casa/host/build/share/brainvisa-share-5.1'
 
 
 class TestFakeMorphologist(unittest.TestCase):
@@ -198,7 +285,11 @@ class TestFakeMorphologist(unittest.TestCase):
                     'output': {
                         'path': str(self.brainvisa),
                         'metadata_schema': 'brainvisa',
-                    }
+                    },
+                    'shared': {
+                        'path': get_shared_path(),
+                        'metadata_schema': 'shared',
+                    },
                 }
             }
         }
@@ -227,6 +318,8 @@ class TestFakeMorphologist(unittest.TestCase):
         return super().setUp()
 
     def tearDown(self):
+        #print('tmp dir:', self.tmp)
+        #input('continue ?')
         self.capsul = None
         Capsul.delete_singleton()
         shutil.rmtree(self.tmp)
@@ -244,6 +337,10 @@ class TestFakeMorphologist(unittest.TestCase):
                     'output': {
                         'path': str(self.tmp / 'brainvisa'),
                         'metadata_schema': 'brainvisa',
+                    },
+                    'shared': {
+                        'path': get_shared_path(),
+                        'metadata_schema': 'shared',
                     },
                 },
                 'fakespm': {
@@ -278,6 +375,10 @@ class TestFakeMorphologist(unittest.TestCase):
                 'output': {
                     'path': str(self.tmp / 'brainvisa'),
                     'metadata_schema': 'brainvisa',
+                },
+                'shared': {
+                    'path': get_shared_path(),
+                    'metadata_schema': 'shared',
                 },
             },
         }
@@ -330,29 +431,37 @@ class TestFakeMorphologist(unittest.TestCase):
     @unittest.skip('not ready')
     def test_path_generation(self):
         expected = {
-            'none': {
-                'template': '!{fakespm.directory}/template',
+            ('StandardACPC', 'initial', 'NormalizeSPM',
+             'normalization_t1_spm12_reinit'): {
+                'imported_t1mri': '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/aleksander.nii',
+                'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': '!{fakespm.directory}/template',
                 'nobias': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/nobias_aleksander.nii',
                 'normalized': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/nobias_aleksander.nii',
                 'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/right_hemi_aleksander.nii',
                 'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/left_hemi_aleksander.nii',
             },
-            'aims': {
-                'template': '!{fakespm.directory}/template',
+            ('Normalization', 'skull_stripped', 'Normalization_AimsMIRegister',
+             'normalization_t1_spm12_reinit'): {
+                'imported_t1mri': '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/aleksander.nii',
+                'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': '!{fakespm.directory}/template',
                 'nobias': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/nobias_aleksander.nii',
                 'normalized': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/normalized_aims_aleksander.nii',
                 'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/right_hemi_aleksander.nii',
                 'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/left_hemi_aleksander.nii',
             },
-            'fakespm12': {
-                'template': '!{fakespm.directory}/template',
+            ('Normalization', 'skull_stripped', 'NormalizeSPM',
+             'normalization_t1_spm12_reinit'): {
+                'imported_t1mri': '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/aleksander.nii',
+                'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': '!{fakespm.directory}/template',
                 'nobias': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/nobias_aleksander.nii',
                 'normalized': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/normalized_fakespm12_aleksander.nii',
                 'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/right_hemi_aleksander.nii',
                 'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/left_hemi_aleksander.nii',
             },
-            'fakespm8': {
-                'template': '!{fakespm.directory}/template',
+            ('Normalization', 'skull_stripped', 'NormalizeSPM',
+             'normalization_t1_spm8_reinit'): {
+                'imported_t1mri': '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/aleksander.nii',
+                'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': '!{fakespm.directory}/template',
                 'nobias': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/nobias_aleksander.nii',
                 'normalized': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/normalized_fakespm8_aleksander.nii',
                 'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/morphologist/m0/default/right_hemi_aleksander.nii',
@@ -360,20 +469,45 @@ class TestFakeMorphologist(unittest.TestCase):
             },
         }
         engine = self.capsul.engine()
-        for normalization in ('none', 'aims', 'fakespm12', 'fakespm8'):
-            morphologist = self.capsul.executable('capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
-            morphologist.input = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
-            morphologist.normalization = normalization
+        sel_tal = ['StandardACPC', 'Normalization', 'Normalization',
+                   'Normalization']
+        renorm = ['initial', 'skull_stripped', 'skull_stripped',
+                  'skull_stripped']
+        norm = ['NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM']
+        normspm = ['normalization_t1_spm12_reinit',
+                   'normalization_t1_spm12_reinit',
+                   'normalization_t1_spm12_reinit',
+                   'normalization_t1_spm8_reinit']
+        for normalization in zip(sel_tal, renorm, norm, normspm):
+            morphologist = self.capsul.executable(
+                'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
+            #morphologist.field('t1mri').dataset = 'bids'
+
+            morphologist.t1mri = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
+            morphologist.select_Talairach = normalization[0]
+            morphologist.perform_skull_stripped_renormalization \
+                = normalization[1]
+            morphologist.Normalization_select_Normalization_pipeline \
+                = normalization[2]
+            morphologist.spm_normalization_version = normalization[3]
+
             execution_context = engine.execution_context(morphologist)
             # for field in execution_context.dataset.fields():
             #     dataset = getattr(execution_context.dataset, field.name)
             #     print(f'!dataset! {field.name} = {dataset.path} [{dataset.metadata_schema}]')
             # if getattr(execution_context, 'fakespm', undefined) is not undefined:
             #     print('!fakespm dir!', execution_context.fakespm.directory)
-            generate_paths(morphologist, execution_context)
+            generate_paths(morphologist, execution_context, datasets=datasets,
+                           debug=True)
             params = dict((i, 
-                getattr(morphologist, i, undefined)) for i in ('template',
-                    'nobias', 'normalized', 'right_hemisphere', 'left_hemisphere'))
+                getattr(morphologist, i, undefined)) for i in (
+                    'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template',
+                    'imported_t1mri',
+                    't1mri_nobias',
+                    'Talairach_transform',
+                    'left_labelled_graph',
+                    'right_labelled_graph'))
             self.maxDiff = 2000
             self.assertEqual(params, expected[normalization])
             # for field in morphologist.fields():
