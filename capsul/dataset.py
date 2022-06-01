@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+
+'''
+Metadata handling and attributes-based path generation system. In other words, this module is the completion system for Capsul processes and other executables.
+
+The main function to be used contains most of the doc: see :func:`generate_paths`
+'''
+
 import csv
 import functools
 import json
@@ -50,6 +57,11 @@ class MetadataSchema(Controller):
             '_path_list() must be specialized in MetadataSchema subclasses.')
 
     def metadata(self, path):
+        '''
+        Parse the ``path`` argument to extract an attributes dict from it.
+
+        The base method is not implemented, it must be reimplemented in subclasses that allow path -> attributes parsing. Not all schemas will allow it.
+        '''
         raise NotImplementedError(
             'metadata() must be specialized in MetadataSchema subclasses.')
 
@@ -216,7 +228,11 @@ class BIDSSchema(MetadataSchema):
                 
 
 class BrainVISASchema(MetadataSchema):
-    '''Metadata schema for BrainVISA datasets
+    '''Metadata schema for BrainVISA datasets.
+
+    Attributes defined in fields may contain python replacement strings re-
+    using other attributes values (like "%(center)s"). Replacement will be
+    processed in the fields order.
     '''
     center: str
     subject: str
@@ -305,6 +321,12 @@ def bids_to_brainvisa(bids):
     return result
 
 class Dataset(Controller):
+    '''
+    Dataset representation.
+    You don't need to define or instantiate this class yourself, it will be done automatically and internally in the path generation system.
+
+    Instead, users need to define datsets in the Capsul config. See :func:`generate_paths`.
+    '''
     path: Directory
     metadata_schema: str
 
@@ -312,10 +334,16 @@ class Dataset(Controller):
         'bids': BIDSSchema,
         'brainvisa': BrainVISASchema,
     }
+    '''
+    Schemas mapping associating a :class:`MetadataSchema` class to a name
+    '''
 
     schema_mappings = {
         ('bids', 'brainvisa'): bids_to_brainvisa,
     }
+    '''
+    Mapping between schemas couples and conversion functions
+    '''
 
     def __init__(self, path=None, metadata_schema=None):
         super().__init__(self)
@@ -353,7 +381,126 @@ class Dataset(Controller):
     def register_schema(cls, name, schema):
         cls.schemas[name] = schema
 
-def generate_paths(executable, context, metadata=None, fields=None, ignore=None, datasets=None, debug=False, source_fields=None):
+def generate_paths(executable, context, metadata=None, fields=None,
+                   ignore=None, datasets=None, source_fields=None,
+                   debug=False):
+    ''' Generate path values for a given executable (node, process or pipeline), which actually implements completion.
+
+    In order to work, several things need to be setup first:
+
+    - define or use :class:`MetadataSchema` subclasses, such as :class:`BIDSSchema` or :class:`BrainVISASchema`, which role is to store attribute values for executable parameters
+
+    - add new schema classes to :attr:`Dataset.schemas`
+
+    - define Datasets (data directories) and the schema they are using in the Capsul config. Each dataset has a name::
+
+        config = {
+            'local': {
+                'dataset': {
+                    'input': {
+                        'path': '/data/bids_database',
+                        'metadata_schema': 'bids',
+                    },
+                    'output': {
+                        'path': '/data/brainvisa_database',
+                        'metadata_schema': 'brainvisa',
+                    }
+                }
+            }
+        }
+        capsul = Capsul()
+        capsul.config.import_dict(config)
+
+      Note that default names ``input`` and ``output`` are used according to the fields input/output states, if no other are specified, and unless the path generation system is told not to do so.
+
+    - define a mapping between executables fields and the dataset they are using. This can be done in two different ways:
+
+      1. When defining executable traits, set ``dataset`` in their metadata::
+
+          class TestProcess(Process):
+              input_param: field(type_=File, dataset='input_dataset')
+              output_param: field(type_=File, dataset='output_dataset')
+
+      2. Externally by providing the ``datasets`` parameter dict to the ``generate_paths`` function::
+
+            datasets = {
+                't1mri': 'input_dataset',
+                'template': 'shared_dataset',
+                'segmented_mri': 'output_dataset'
+            }
+            generate_paths(executable, context, datasets=datasets)
+
+    - define attributes values associated to executable parameters. This is defined in executables ``metadata_schema`` variable, and it is a dict which can define values for every possible schema. For instance if we have 3 schemas, ``bids``, ``braivisa`` and ``shared`` defined in :attr:`Dataset.schemas`::
+
+        Morphologist.metadata_schema = dict(
+            bids={
+                '*': {'pipeline': 'morphologist'},
+                'left_labelled_graph': {'part': 'left_hemi'},
+                'right_labelled_graph': {'part': 'right_hemi'},
+            },
+            brainvisa={
+                '*': {'modality': 't1mri'},
+                'imported_t1mri': {'analysis': undefined},
+                'left_labelled_graph': {
+                    'seg_directory': 'folds',
+                    'sulci_graph_version': '3.1',
+                    'sulci_recognition_session': 'default_session_auto',
+                    'short_prefix': 'L',
+                    'suffix': 'default_session_auto',
+                    'extension': 'arg'},
+                'right_labelled_graph': {
+                    'seg_directory': 'folds',
+                    'sulci_graph_version': '3.1',
+                    'sulci_recognition_session': 'default_session_auto',
+                    'short_prefix': 'R',
+                    'suffix': 'default_session_auto',
+                    'extension': 'arg'},
+                'Talairach_transform': {
+                    'analysis': undefined,
+                    'seg_directory': 'registration',
+                    'short_prefix': 'RawT1-',
+                    'suffix': '%(acquisition)s_TO_Talairach-ACPC',
+                    'extension': 'trm'},
+            },
+            shared={
+                'template': {'data_id': 'normalization_template'}
+            },
+        )
+
+      The special entry ``*`` in each schema dict is used as default for all parameters in the executable.
+
+    - finally, instantiate the process and set its input parameter(s) and call ``generate_paths``::
+
+        process = executable(
+            'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
+        process.t1mri = '/data/bids_database/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii'
+        execution_context = capsul.engine.execution_context(process)
+        generate_paths(process, execution_context, datasets=datasets,
+                       source_fields=['t1mri'])
+
+    Parameters
+    ----------
+    executable: executable :class:`~capsul.process.node.Node` instance
+        The executable to perform parameters paths generation on. Its parameters values will be modified after the operation (it is the goal).
+    context: Capsul execution context (:class:`capsul.execution_context.ExecutionContext` instance)
+        obtained for the executable from the capsul engine::
+
+            execution_context = capsul.engine.execution_context(process)
+
+    metadata: dict[str, str] (optional)
+        initial metadata values
+    fields: iterable (optional)
+        a list of field instances or names that will be processed in the executable. If not specified, all fields will be used, otherwise the path generation will be limited to the given fields.
+    ignore: list[str] (optional)
+        fields names to be ignored. If ``fields`` is used, ``ignore`` is pretty pointless.
+    datasets: dict[str, str] (optional)
+        mapping between fields names and dataset names. Used when fields themselves do not have the ``dataset`` metadata.
+    source_fields: list[str] (optional)
+        if not specified, any field which actually has a path value in the executable will be considered as a "source", and any path fields with no value will be considered as a "target". A "source" means that it will be parsed for attributes in its dataset schema: attributes will be infered from the parsing of the value (for this, the :class:`MetadataSchema` used for it must have a :meth:`~MetadataSchema.metadata` method defined). Values will then, in turn, be used to generate paths for "target" fields.
+        If ``source_fields`` is specified, then only the fields listed here will be considered as "sources", thus path generation will override other fields values when they already have one.
+    debug: bool or file-like object (optional)
+        Print debug information while generating paths. ``debug`` may be ``True`` (print to ``stdout``) or a file-like object, with a ``write`` method.
+    '''
     # avoid circular import
     from capsul.pipeline.pipeline import Pipeline
     
