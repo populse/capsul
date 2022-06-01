@@ -226,7 +226,11 @@ class BrainVISASchema(MetadataSchema):
     acquisition: str = None
     preprocessings: str = None
     longitudinal: list[str] = None
+    seg_directory: str = None
+    sulci_graph_version: str = None
+    sulci_recognition_session: str = None
     prefix: str = None
+    short_prefix: str = None
     suffix: str = None
     extension: str = None
 
@@ -243,31 +247,49 @@ class BrainVISASchema(MetadataSchema):
     def _path_list(self):
         '''
         The path has the following pattern:
-        {center}/{subject}/[{modality}/][{process/][{acquisition}/][{preprocessings}/][{longitudinal}/][{analysis}]/[{prefix}_]{subject}[_to_avg_{longitudinal}}[_{suffix}][.{extension}]
+        {center}/{subject}/[{modality}/][{process/][{acquisition}/][{preprocessings}/][{longitudinal}/][{analysis}/][seg_directory/][{sulci_graph_version}/[{sulci_recognition_session}]]/[{prefix}_][short_prefix]{subject}[_to_avg_{longitudinal}}[_{suffix}][.{extension}]
         '''
 
-        path_list = [self.center, self.subject]
+        attrib_dict = {}
+
+        attributes = tuple(f.name for f in self.fields())
+
+        for attribute in attributes:
+            value = getattr(self, attribute, None)
+            attrib_dict[attribute] = value
+        # postprocess values (in same order)
+        for attribute in attributes:
+            value = attrib_dict[attribute]
+            if isinstance(value, str):
+                value = value % attrib_dict
+                attrib_dict[attribute] = value
+
+        path_list = [attrib_dict['center'], attrib_dict['subject']]
         for key in ('modality', 'process', 'acquisition', 'preprocessings', 'longitudinal'):
-            value = getattr(self, key, None)
+            value = attrib_dict[key]
             if value:
                 path_list.append(value)
-        if getattr(self, 'analysis', undefined):
-            path_list.append(self.analysis)
+        if attrib_dict['analysis']:
+            path_list.append(attrib_dict['analysis'])
+        if attrib_dict['seg_directory']:
+            path_list += attrib_dict['seg_directory'].split('/')
+        if attrib_dict['sulci_graph_version']:
+            path_list.append(attrib_dict['sulci_graph_version'])
+            if attrib_dict['sulci_recognition_session']:
+                path_list.append(attrib_dict['sulci_recognition_session'])
 
         filename = []
-        prefix = self.get('prefix')
-        if prefix:
-            filename.append(f'{prefix}_')
-        filename.append(self.subject)
-        longitudinal = self.get('longitudinal')
-        if longitudinal:
-            filename.append(f'_to_avg_{longitudinal}')
-        suffix = self.get('suffix')
-        if suffix:
-            filename.append(f'_{suffix}')
-        extension = self.get('extension')
-        if extension:
-            filename.append(f'.{extension}')
+        if attrib_dict['prefix']:
+            filename.append(f'{attrib_dict["prefix"]}_')
+        if attrib_dict['short_prefix']:
+            filename.append(f'{attrib_dict["short_prefix"]}')
+        filename.append(attrib_dict['subject'])
+        if attrib_dict['longitudinal']:
+            filename.append(f'_to_avg_{attrib_dict["longitudinal"]}')
+        if attrib_dict['suffix']:
+            filename.append(f'_{attrib_dict["suffix"]}')
+        if attrib_dict['extension']:
+            filename.append(f'.{attrib_dict["extension"]}')
         path_list.append(''.join(filename))
         return path_list
 
@@ -331,7 +353,7 @@ class Dataset(Controller):
     def register_schema(cls, name, schema):
         cls.schemas[name] = schema
 
-def generate_paths(executable, context, metadata=None, fields=None, ignore=None, datasets=None, debug=False):
+def generate_paths(executable, context, metadata=None, fields=None, ignore=None, datasets=None, debug=False, source_fields=None):
     # avoid circular import
     from capsul.pipeline.pipeline import Pipeline
     
@@ -359,6 +381,8 @@ def generate_paths(executable, context, metadata=None, fields=None, ignore=None,
     for field in fields:
         if ignore and field.name in ignore:
             continue
+        inner_field = None
+        inner_field_name = None
         if isinstance(executable, Pipeline):
             inner_item = next(executable.get_linked_items(
                                 executable, field.name), None)
@@ -373,8 +397,15 @@ def generate_paths(executable, context, metadata=None, fields=None, ignore=None,
         if path_type:
             # Associates a Dataset name with the field
             dataset_name = getattr(field, 'dataset', None)
+            # fallback 1: get in inner_field (of an inner process)
+            if dataset_name and inner_field:
+                dataset_name = getattr(inner_field, 'dataset', None)
+                if dataset_name:
+                    dprint(f'dataset taken from inner field: {inner_process.name}.{inner_field_name}')
+            # fallback 2: get manually given datasets
             if dataset_name is None and datasets:
                 dataset_name = datasets.get(field.name)
+            # fallback 3: use "input" or "output"
             if dataset_name is None and (not datasets
                                          or field.name not in datasets):
                 dataset_name = ('output' if field.is_output() else 'input')
@@ -383,7 +414,9 @@ def generate_paths(executable, context, metadata=None, fields=None, ignore=None,
                 continue
             dataset = getattr(context.dataset, dataset_name, None)
             value = getattr(executable, field.name, undefined)
-            if value is undefined:
+            dprint(f'dataset: {dataset}, value: {value}')
+            if value is undefined or (source_fields is not None
+                                      and field.name not in source_fields):
                 if dataset is None:
                     if not field.optional:
                         raise ValueError(f'No dataset "{dataset_name}" found '
@@ -401,125 +434,130 @@ def generate_paths(executable, context, metadata=None, fields=None, ignore=None,
                 else:
                     dprint(f'source field {field.name} -> ignored because dataset {dataset_name} not found')
 
+    initial_metadata = metadata
+
     if not target_field_per_schema:
         return
-    if len(target_field_per_schema) > 1:
-        print('target_field_per_schema:', {k: [f.name for f in v] for k, v in target_field_per_schema.items()})
-        raise ValueError(f'Found several metadata schemas for executable {executable.name} in path parameters with missing value: {", ".join(target_field_per_schema)}')
-    ((target_schema_name, target_fields),) = target_field_per_schema.items()
-    target_schema = Dataset.find_schema(target_schema_name)
-    if target_schema is None:
-        raise ValueError(f'Cannot find metadata schema {target_schema_name}')
 
-    global_metadata = getattr(executable, 'metadata_schema', {}).get(target_schema_name, {}).get('*', {})
+    for target_schema_name, target_fields in target_field_per_schema.items():
+        target_schema = Dataset.find_schema(target_schema_name)
+        if target_schema is None:
+            raise ValueError(f'Cannot find metadata schema {target_schema_name}')
 
-    target_list_fields = [i for i in target_fields if i.is_list()]
-    if target_list_fields and len(target_list_fields) != len(target_fields):
-        l = ', '.join(i.name for i in target_list_fields)
-        s = ', '.join(i.name for i in target_fields if not i.is_list())
-        raise ValueError(f'Cannot generate paths for parameters {l} that are expecting lists ans {s} that are single paths')
+        metadata = initial_metadata
 
-    if isinstance(metadata, (list, tuple)):
-        target_list_size = len(metadata)
-    else:
-        target_list_size = None
-    if target_list_fields:
+        global_metadata = getattr(executable, 'metadata_schema', {}).get(target_schema_name, {}).get('*', {})
+
+        target_list_fields = [i for i in target_fields if i.is_list()]
+        if target_list_fields and len(target_list_fields) != len(target_fields):
+            l = ', '.join(i.name for i in target_list_fields)
+            s = ', '.join(i.name for i in target_fields if not i.is_list())
+            raise ValueError(f'Cannot generate paths for parameters {l} that are expecting lists ans {s} that are single paths')
+
+        if isinstance(metadata, (list, tuple)):
+            target_list_size = len(metadata)
+        else:
+            target_list_size = None
+        if target_list_fields:
+            for source_schema_name, source_fields in source_field_per_schema.items():
+                for field in source_fields:
+                    value = getattr(executable, field.name, undefined)
+                    if isinstance(value, list):
+                        l = len(value)
+                        if target_list_size is not None and target_list_size != l:
+                            raise ValueError('Lists of different sizes given to generate paths')
+                        target_list_size = l
+        source_metadatas = ([{'list_index': 0}] if target_list_size is None
+                            else [{'list_index': i} for i in range(target_list_size)])
+        if not isinstance(metadata, (list, tuple)):
+            metadata = [metadata] * (1 if target_list_size is None else target_list_size)
+        dprint(f'target schema = {target_schema_name}')
+        dprint(f'target list size = {target_list_size}')
+        dprint(f'global_metadata = {global_metadata}')
+
         for source_schema_name, source_fields in source_field_per_schema.items():
-            for field in source_fields:
-                value = getattr(executable, field.name, undefined)
-                if isinstance(value, list):
-                    l = len(value)
-                    if target_list_size is not None and target_list_size != l:
-                        raise ValueError('Lists of different sizes given to generate paths')
-                    target_list_size = l
-    source_metadatas = ([{'list_index': 0}] if target_list_size is None
-                        else [{'list_index': i} for i in range(target_list_size)])
-    if not isinstance(metadata, (list, tuple)):
-        metadata = [metadata] * (1 if target_list_size is None else target_list_size)
-    dprint(f'target schema = {target_schema_name}')
-    dprint(f'target list size = {target_list_size}')
-    dprint(f'global_metadata = {global_metadata}')
-
-    for source_schema_name, source_fields in source_field_per_schema.items():
-        dprint(f'schema {source_schema_name} -> source fields: {", ".join(i.name for i in source_fields)}')
-        source_schema = Dataset.find_schema(source_schema_name)
-        if not source_schema:
-            dprint(f'cannot get schema {source_schema_name}')
-            continue
-        if source_schema_name != target_schema_name:
-            mapping = Dataset.find_schema_mapping(source_schema_name, target_schema_name)
-            if mapping is None:
-                dprint(f'cannot get mapping between schemas {source_schema_name} and {target_schema_name}')
+            dprint(f'schema {source_schema_name} -> source fields: {", ".join(i.name for i in source_fields)}')
+            source_schema = Dataset.find_schema(source_schema_name)
+            if not source_schema:
+                dprint(f'cannot get schema {source_schema_name}')
                 continue
-        else:
-            mapping = None
-        for list_index in ((None,) if target_list_size is None else range(target_list_size)):
-            merged_metadata = source_metadatas[(0 if list_index is None else list_index)]
-            dprint(f'list_index: {list_index}: {merged_metadata}')
-            for field in source_fields:
-                path = getattr(executable, field.name)
-                if isinstance(path, list):
-                    path = path[list_index]
-                dprint(f'source path for: {field.name}: {path}')
-                schema = source_schema(context.dataset[dataset_name_per_field[field]].path)
-                path_metadata = schema.metadata(path)
-                dprint(f'path {path} -> {path_metadata}')
-                if mapping is not None:
-                    path_metadata = mapping(path_metadata)
-                dprint(f'schema mapping -> {path_metadata}')
-                for k, v in path_metadata.items():
-                    if k in merged_metadata:
-                        if merged_metadata[k] != v:
-                            merged_metadata[k] = undefined
-                    else:
-                        merged_metadata[k] = v
-                dprint(f'merged metadata -> {merged_metadata}')
+            if source_schema_name != target_schema_name:
+                mapping = Dataset.find_schema_mapping(source_schema_name, target_schema_name)
+                if mapping is None:
+                    dprint(f'cannot get mapping between schemas {source_schema_name} and {target_schema_name}')
+                    continue
+            else:
+                mapping = None
+            for list_index in ((None,) if target_list_size is None else range(target_list_size)):
+                merged_metadata = source_metadatas[(0 if list_index is None else list_index)]
+                dprint(f'list_index: {list_index}: {merged_metadata}')
+                for field in source_fields:
+                    path = getattr(executable, field.name)
+                    if isinstance(path, list):
+                        path = path[list_index]
+                    dprint(f'source path for: {field.name}: {path}')
+                    schema = source_schema(context.dataset[dataset_name_per_field[field]].path)
+                    path_metadata = schema.metadata(path)
+                    dprint(f'path {path} -> {path_metadata}')
+                    if mapping is not None:
+                        path_metadata = mapping(path_metadata)
+                    dprint(f'schema mapping -> {path_metadata}')
+                    for k, v in path_metadata.items():
+                        if k in merged_metadata:
+                            if merged_metadata[k] != v:
+                                merged_metadata[k] = undefined
+                        else:
+                            merged_metadata[k] = v
+                    dprint(f'merged metadata -> {merged_metadata}')
 
-    for field in target_fields:
-        if isinstance(executable, Pipeline):
-            inner_item = next(executable.get_linked_items(
-                                executable, field.name), None)
-        else:
-            inner_item = None
-        if inner_item is not None:
-            inner_process, inner_field_name = inner_item
-            inner_field = inner_process.field(inner_field_name)
-        else:
-            inner_process = inner_field = None
-        values = []
-        for source_metadata in source_metadatas:
-            target_metadata = dict((k, v) for k, v in source_metadata.items() if v is not undefined)
-            dprint(f'for {field.name}: source_metadata = {target_metadata}')
-            target_metadata.update(global_metadata)
-            dprint(f'for {field.name}: given metadata = {metadata[source_metadata["list_index"]]}')
-            target_metadata.update(metadata[source_metadata['list_index']])
-            field_metadata = {}
-            if inner_field:
-                inner_metadata_schema = getattr(inner_process, 'metadata_schema',
-                    {}).get(target_schema_name, {})
-                field_metadata.update(inner_metadata_schema.get('*', {}))
-                field_metadata.update(inner_metadata_schema.get(inner_field.name, {}))
-            outer_metadata_schema = getattr(executable, 'metadata_schema',
-             {}).get(target_schema_name,{})
-            field_metadata.update(outer_metadata_schema.get('*', {}))
-            field_metadata.update(outer_metadata_schema.get(field.name, {}))
-            dprint(f'for {field.name}: field_metadata = {field_metadata}')
-            if field_metadata:
-                target_metadata.update(field_metadata)
-            dprint(f'for {field.name}: target_metadata = {target_metadata}')
-            schema = target_schema(f'{{dataset.{dataset_name_per_field[field]}.path}}')
-            d = None
-            for k, v in target_metadata.items():
-                if isinstance(v, str) and v and v.startswith('!'):
-                    if d is None:
-                        d = {
-                            'list_index': source_metadata.get('list_index')
-                        }
-                        d.update(target_metadata)
-                    v = eval(f"f'{v[1:]}'", d, d)
-                setattr(schema, k, v)
-            values.append('!' + str(schema.build_path()))
-        if target_list_size is None:
-            setattr(executable, field.name, values[0])
-        else:
-            setattr(executable, field.name, values)
+        for field in target_fields:
+            if isinstance(executable, Pipeline):
+                inner_item = next(executable.get_linked_items(
+                                    executable, field.name), None)
+            else:
+                inner_item = None
+            if inner_item is not None:
+                inner_process, inner_field_name = inner_item
+                inner_field = inner_process.field(inner_field_name)
+            else:
+                inner_process = inner_field = None
+            values = []
+            for source_metadata in source_metadatas:
+                target_metadata = dict((k, v) for k, v in source_metadata.items() if v is not undefined)
+                dprint(f'for {field.name}: source_metadata = {target_metadata}')
+                target_metadata.update(global_metadata)
+                dprint(f'for {field.name}: given metadata = {metadata[source_metadata["list_index"]]}')
+                target_metadata.update(metadata[source_metadata['list_index']])
+                field_metadata = {}
+                if inner_field:
+                    inner_metadata_schema = getattr(inner_process, 'metadata_schema',
+                        {}).get(target_schema_name, {})
+                    field_metadata.update(inner_metadata_schema.get('*', {}))
+                    field_metadata.update(inner_metadata_schema.get(inner_field.name, {}))
+                    dprint(f'inner meta for {field.name} -> {inner_process.name}.{inner_field.name}:', field_metadata)
+                outer_metadata_schema = getattr(executable, 'metadata_schema',
+                {}).get(target_schema_name,{})
+                field_metadata.update(outer_metadata_schema.get('*', {}))
+                field_metadata.update(outer_metadata_schema.get(field.name, {}))
+                dprint(f'for {field.name}: field_metadata = {field_metadata}')
+                if field_metadata:
+                    target_metadata.update(field_metadata)
+                dprint(f'for {field.name}: target_metadata = {target_metadata}')
+                schema = target_schema(f'{{dataset.{dataset_name_per_field[field]}.path}}')
+                d = None
+                for k, v in target_metadata.items():
+                    if isinstance(v, str) and v and v.startswith('!'):
+                        if d is None:
+                            d = {
+                                'list_index': source_metadata.get('list_index')
+                            }
+                            d.update(target_metadata)
+                        v = eval(f"f'{v[1:]}'", d, d)
+                    setattr(schema, k, v)
+                values.append('!' + str(schema.build_path()))
+            if target_list_size is None:
+                dprint(f'set value for {executable.name}.{field.name}:', values[0])
+                setattr(executable, field.name, values[0])
+            else:
+                dprint(f'set value for {executable.name}.{field.name}:', values)
+                setattr(executable, field.name, values)
