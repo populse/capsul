@@ -121,8 +121,8 @@ normalization_aimsmiregister.metadata_schema = dict(
 Morphologist.metadata_schema = dict(
     bids={
         '*': {'pipeline': 'morphologist'},
-        'left_hemisphere': {'part': 'left_hemi'},
-        'right_hemisphere': {'part': 'right_hemi'},
+        'left_labelled_graph': {'part': 'left_hemi'},
+        'right_labelled_graph': {'part': 'right_hemi'},
     },
     brainvisa={
         '*': {'process': None, 'modality': 't1mri'},
