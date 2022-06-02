@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 
 import unittest
-from capsul.api import Capsul
-from capsul.api import executable
-from capsul.api import Process
-from capsul.api import Pipeline
-from soma.controller import File
 import tempfile
 import os
 import os.path as osp
 import sys
+
+from soma.controller import File
+
+from capsul.api import Capsul
+from capsul.api import executable
+from capsul.api import Process
+from capsul.api import Pipeline
+from capsul.execution_context import CapsulWorkflow
 
 
 class DummyProcess(Process):
@@ -30,7 +31,7 @@ class DummyProcess(Process):
         self.add_field("output_image", File, optional=False, output=True)
         self.add_field("other_output", float, optional=True, output=True)
 
-    def execute(self):
+    def execute(self, context):
         with open(self.output_image, 'w') as f:
             f.write('dummy output.\n')
         self.other_output = 24.6
@@ -64,10 +65,6 @@ class MyPipeline(Pipeline):
         self.export_parameter("node1", "other_input")
         self.export_parameter("node2", "output_image", "output")
         self.export_parameter("node2", "other_output")
-
-        self.nodes['constant'].name = 'MyPipeline.constant'
-        self.nodes['node1'].name = 'MyPipeline.node1'
-        self.nodes['node2'].name = 'MyPipeline.node2'
 
         # initial internal values
         self.nodes['constant'].other_input = 14.65
@@ -130,7 +127,6 @@ class TestPipeline(unittest.TestCase):
                                   for x in workflow_repr)
         self.assertEqual(workflow_repr, "")
 
-    @unittest.skip('run() is not reimplemented yet.')
     def test_run_pipeline(self):
         setattr(self.pipeline.nodes_activation, "node2", True)
         tmp = tempfile.mkstemp('', prefix='capsul_test_pipeline')
@@ -148,14 +144,12 @@ class TestPipeline(unittest.TestCase):
                 os.unlink(tmp[1])
         Capsul.delete_singleton()
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def run_pipeline_io(self, filename):
         pipeline = executable(MyPipeline)
         from capsul.pipeline import pipeline_tools
         pipeline_tools.save_pipeline(pipeline, filename)
         pipeline2 = executable(filename)
-        workflow_repr = pipeline2.workflow_ordered_nodes()
-
+        wf = CapsulWorkflow(pipeline2)
         if self.debug:
             from soma.qt_gui.qt_backend import QtGui
             from capsul.qt_gui.widgets import PipelineDeveloperView
@@ -174,13 +168,12 @@ class TestPipeline(unittest.TestCase):
             view2.show()
             app.exec_()
 
-        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
-                                  for x in workflow_repr)
-        self.assertTrue(
-            workflow_repr in
-                ("constant->node1->node2", "node1->constant->node2"),
-            '%s not in ("constant->node1->node2", "node1->constant->node2")'
-                % workflow_repr)
+        constant_uuid, constant_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['constant'])
+        node1_uuid, node1_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['node1'])
+        node2_uuid, node2_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['node2'])
+        self.assertEqual(constant_job['wait_for'], [])
+        self.assertEqual(node1_job['wait_for'], [])
+        self.assertEqual(sorted(node2_job['wait_for']), sorted([constant_uuid, node1_uuid]))
         d1 = pipeline_tools.dump_pipeline_state_as_dict(pipeline)
         d2 = pipeline_tools.dump_pipeline_state_as_dict(pipeline2)
         self.assertEqual(d1, d2)
@@ -195,13 +188,12 @@ class TestPipeline(unittest.TestCase):
             self.add_py_tmpfile(filename)
         self.run_pipeline_io(filename)
 
-    @unittest.skip('XML is no longer supported')
-    def test_pipeline_xml(self):
+    def test_pipeline_json(self):
         if self.debug:
-            filename = '/tmp/pipeline.xml'
+            filename = '/tmp/pipeline.json'
         else:
             fd, filename = tempfile.mkstemp(prefix='test_pipeline',
-                                            suffix='.xml')
+                                            suffix='.json')
             os.close(fd)
             self.temp_files.append(filename)
         self.run_pipeline_io(filename)

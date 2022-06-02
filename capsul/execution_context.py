@@ -129,8 +129,7 @@ class ExecutionDatabase:
 
 class CapsulWorkflow(Controller):
     parameters: DictWithProxy
-    jobs: dict[str, list]
-    chronology: dict[str, list[str]]
+    jobs: dict
     
     def __init__(self, executable):
         super().__init__()

@@ -1196,7 +1196,7 @@ def save_pipeline(pipeline, filename):
 
 
 def save_json_pipeline(pipeline, filename):
-    json_def = CustomPipeline.json_definition(pipeline)
+    json_def = pipeline.json()
     if hasattr(filename, 'write'):
         json.dump(json_def, filename)
     else:
