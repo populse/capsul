@@ -225,6 +225,7 @@ class TestProcessWrap(unittest.TestCase):
             self.assertEqual(
                 self.process.result,
                 "ALL FUNCTION PARAMETERS::\n\nfnamedirectory1.2choice1['a_string']")
+        Capsul.delete_singleton()
 
 
 if __name__ == "__main__":

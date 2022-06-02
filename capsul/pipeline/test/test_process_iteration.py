@@ -9,8 +9,7 @@ from tempfile import NamedTemporaryFile
 import struct
 
 # Capsul import
-from capsul.api import Process
-from capsul.api import Pipeline
+from capsul.api import Capsul, Process, Pipeline
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import File, field
 
@@ -32,7 +31,7 @@ class ProcessSlice(Process):
     output_image_dependency: File
     output_image: File = field(output=True)
     
-    def execute(self):
+    def execute(self, context):
         file_size = os.stat(self.output_image).st_size
         if self.slice_number >= int(file_size/2):
             raise ValueError('Due to output file size, slice_number cannot '
@@ -46,8 +45,8 @@ class MyPipeline(Pipeline):
     """ Simple Pipeline to test the iterative Node
     """
     
-    def __init__(self):
-        super(MyPipeline, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.on_attribute_change.add(self.input_image_changed, 'input_image')
         
     def input_image_changed(self):
@@ -64,9 +63,9 @@ class MyPipeline(Pipeline):
         self.export_parameter('write_output', 'output_image')
         
         # Create an iterative processe
-        self.add_process(
-            'process_slices', ProcessIteration( ProcessSlice,
-                iterative_parameters = ['slice_number']))
+        self.add_iterative_process('process_slices', 
+            ProcessSlice,
+            iterative_plugs = ['slice_number'])
         
         self.export_parameter('process_slices', 'slice_number', 'slices')
         self.add_link('write_output.output_image->process_slices.output_image_dependency')
@@ -85,7 +84,7 @@ class TestPipeline(unittest.TestCase):
         """ In the setup construct the pipeline and set some input parameters.
         """
         # Construct the pipelHine
-        self.pipeline = MyPipeline()
+        self.pipeline = Capsul.executable(MyPipeline)
 
         # Set some input parameters
         self.parallel_processes = 10
@@ -98,14 +97,17 @@ class TestPipeline(unittest.TestCase):
         self.output_file.close()
         self.pipeline.output_image = self.output_file.name
 
-    @unittest.skip('reimplementation expected for capsul v3')
+    def tearDown(self):
+        Capsul.delete_singleton()
+
     def test_iterative_pipeline_connection(self):
         """ Method to test if an iterative node and built in iterative
         process are correctly connected.
         """
 
         # Test the output connection
-        self.pipeline()
+        with Capsul().engine() as ce:
+            ce.run(self.pipeline, timeout=5)
         with open(self.pipeline.output_image,'rb') as f:
             result = f.read()
         numbers = struct.unpack_from('H' * self.parallel_processes, result)

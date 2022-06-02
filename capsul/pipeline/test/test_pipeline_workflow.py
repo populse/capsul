@@ -5,9 +5,8 @@ import os
 import os.path as osp
 import sys
 from soma.controller import File
-from capsul.api import Process
-from capsul.api import Pipeline
-from capsul.pipeline import pipeline_workflow
+from capsul.api import Capsul, Process, Pipeline
+from capsul.execution_context import CapsulWorkflow
 import tempfile
 import shutil
 
@@ -15,8 +14,8 @@ import shutil
 class DummyProcess(Process):
     """ Dummy Test Process
     """
-    def __init__(self):
-        super(DummyProcess, self).__init__()
+    def __init__(self, definition):
+        super(DummyProcess, self).__init__(definition)
 
         # inputs
         self.add_field("input", File, optional=False)
@@ -36,13 +35,12 @@ class DummyProcess(Process):
 class DummyProcessSPM(DummyProcess):
     """ Dummy Test Process with config requirement
     """
-    def requirements(self):
-        return {'spm': 'standalone == True'}
+    # requirements = {'spm': {'standalone': True}}
 
 
 class DummyListProcess(Process):
-    def __init__(self):
-        super(DummyListProcess, self).__init__()
+    def __init__(self, definition):
+        super(DummyListProcess, self).__init__(definition)
 
         # inputs
         self.add_field("inputs", list[File], optional=False)
@@ -152,41 +150,19 @@ class DummyPipelineIterSimple(Pipeline):
 class TestPipelineWorkflow(unittest.TestCase):
 
     def setUp(self):
-        study_config = StudyConfig() #modules=StudyConfig.default_modules \
-                                   #+ ['FomConfig'])
-        self.pipeline = DummyPipeline()
-        self.pipeline.set_study_config(study_config)
+        self.pipeline = Capsul.executable(DummyPipeline)
         self.tmpdir = tempfile.mkdtemp()
         self.pipeline.input = osp.join(self.tmpdir, 'file_in.nii')
         self.pipeline.output1 = osp.join(self.tmpdir, '/tmp/file_out1.nii')
         self.pipeline.output2 = osp.join(self.tmpdir, '/tmp/file_out2.nii')
         self.pipeline.output3 = osp.join(self.tmpdir, '/tmp/file_out3.nii')
-        study_config.input_directory = self.tmpdir
-        study_config.somaworkflow_computing_resource = 'localhost'
-        study_config.somaworkflow_computing_resources_config.localhost = {
-            'transfer_paths': [study_config.input_directory],
-        }
-        self.study_config = study_config
-        engine = self.study_config.engine
-        engine.load_module('spm')
-        #with engine.settings as session:
-            #ids = [c.config_id for c in session.configs('spm', 'global')]
-            #for id in ids:
-                #session.remove_config('spm', 'global', {'config_id': id})
-            #session.new_config('spm', 'global',
-                               #{'version': '12', 'standalone': True})
-        study_config.spm_standalone = True
-        study_config.spm_version = '12'
-        study_config.somaworkflow_keep_succeeded_workflows = False
-        self.exec_ids = []
 
     def tearDown(self):
-        for exec_id in self.exec_ids:
-            self.study_config.engine.dispose(exec_id)
         try:
             shutil.rmtree(self.tmpdir)
         except Exception:
             pass
+        Capsul.delete_singleton()
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_requirements(self):
@@ -199,84 +175,56 @@ class TestPipelineWorkflow(unittest.TestCase):
                 self.pipeline, study_config=self.study_config)
 
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_full_wf(self):
-        engine = self.study_config.engine
         self.pipeline.enable_all_pipeline_steps()
-        wf = pipeline_workflow.workflow_from_pipeline(
-            self.pipeline, study_config=self.study_config)
-        # 5 jobs including the output directories creation
-        self.assertEqual(len(wf.jobs), 5)
-        # 4 deps (1 additional, dirs->node1)
-        self.assertEqual(len(wf.dependencies), 4)
+        wf = CapsulWorkflow(self.pipeline)
+        # 4 jobs
+        self.assertEqual(len(wf.jobs), 4)
+        # 3 deps
+        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 3)
 
-        # DEBUG
-        #import soma_workflow.client as swc
-        #swc.Helper.serialize('/tmp/workflow1.wf', wf)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_partial_wf1(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step3 = False
-        wf = pipeline_workflow.workflow_from_pipeline(
-            self.pipeline, study_config=self.study_config,
-            create_directories=False)
+        wf = CapsulWorkflow(self.pipeline)
         self.assertEqual(len(wf.jobs), 3)
-        self.assertEqual(len(wf.dependencies), 2)
+        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 2)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_partial_wf2(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step2 = False
-        wf = pipeline_workflow.workflow_from_pipeline(
-            self.pipeline, study_config=self.study_config,
-            create_directories=False)
+        wf = CapsulWorkflow(self.pipeline)
         self.assertEqual(len(wf.jobs), 3)
-        self.assertEqual(len(wf.dependencies), 0)
+        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 0)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_partial_wf3_fail(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step1 = False
-        try:
-            wf = pipeline_workflow.workflow_from_pipeline(
-                self.pipeline, study_config=self.study_config)
-        except ValueError:
-            pass # OK
-        else:
-            # no exception, this is a bug.
-            raise ValueError('workflow should have failed due to a missing '
-                'temporary file')
+        wf = CapsulWorkflow(self.pipeline)
+        self.assertEqual(len(wf.jobs), 3)
+        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 2)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_wf_run(self):
-        print()
-        engine = self.study_config.engine
         pipeline = self.pipeline
         pipeline.enable_all_pipeline_steps()
+        
         with open(pipeline.input, 'w') as f:
             print('MAIN INPUT', file=f)
+        with Capsul().engine() as engine:
+            engine.run(pipeline)
 
-        exec_id = engine.start(pipeline)
-        self.exec_ids.append(exec_id)
-        print('execution started')
-        status = engine.wait(exec_id, pipeline=pipeline)
-        print('finished:', status)
         self.assertTrue(osp.exists(pipeline.output1))
         self.assertTrue(osp.exists(pipeline.output2))
         self.assertTrue(osp.exists(pipeline.output3))
         lens = [4, 5, 5]
         for o in range(3):
-            #print('** output%d: **' % (o+1))
             with open(getattr(pipeline, 'output%d' % (o+1))) as f:
                 text = f.read()
-                #print(text)
                 self.assertEqual(len(text.split('\n')), lens[o])
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_iter_workflow_without_temp(self):
-        engine = self.study_config.engine
-        pipeline = engine.get_process_instance(DummyPipelineIterSimple)
+        pipeline = Capsul.executable(DummyPipelineIterSimple)
         self.assertTrue(pipeline is not None)
         niter = 2
         pipeline.input = [osp.join(self.tmpdir, 'file_in%d' % i)
@@ -285,44 +233,25 @@ class TestPipelineWorkflow(unittest.TestCase):
         pipeline.intermediate = [osp.join(self.tmpdir, 'file_out1'),
                                  osp.join(self.tmpdir, 'file_out2')]
 
-        wf = pipeline_workflow.workflow_from_pipeline(
-            pipeline, study_config=self.study_config,
-            create_directories=False)
-        njobs = niter + 1 + 2  # 1 after + map / reduce
+        wf = CapsulWorkflow(pipeline)
+        njobs = niter + 1  # 1 after 
         self.assertEqual(len(wf.jobs), njobs)
-        #for job in wf.jobs:
-            #print(job.name)
-            #print(job.command)
-            #print('ref inputs:', job.referenced_input_files)
-            #print('ref outputs:', job.referenced_output_files)
-            #print()
-
-        #import soma_workflow.client as swc
-        #swc.Helper.serialize('/tmp/workflow2.wf', wf)
 
         for i, filein in enumerate(pipeline.input):
             with open(filein, 'w') as f:
                 print('MAIN INPUT %d' % i, file=f)
+        with Capsul().engine() as engine:
+            status = engine.run(pipeline)
 
-        exec_id = engine.start(pipeline, workflow=wf)
-        self.exec_ids.append(exec_id)
-        print('execution started')
-        status = engine.wait(exec_id, pipeline=pipeline)
-        print('finished:', status)
-
-        self.assertEqual(status, 'workflow_done')
+        self.assertEqual(status['status'], 'ended')
         self.assertTrue(osp.exists(pipeline.output))
         olen = 12
-        #print('** output: **')
         with open(pipeline.output) as f:
             text = f.read()
-            #print(text)
             self.assertEqual(len(text.split('\n')), olen)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_iter_workflow(self):
-        engine = self.study_config.engine
-        pipeline = engine.get_process_instance(DummyPipelineIter)
+        pipeline = Capsul.executable(DummyPipelineIter)
         self.assertTrue(pipeline is not None)
         niter = 2
         pipeline.input = [osp.join(self.tmpdir, 'file_in%d' % i)
@@ -331,42 +260,25 @@ class TestPipelineWorkflow(unittest.TestCase):
         pipeline.output2 = osp.join(self.tmpdir, 'file_out2')
         pipeline.output3 = osp.join(self.tmpdir, 'file_out3')
 
-        wf = pipeline_workflow.workflow_from_pipeline(
-            pipeline, study_config=self.study_config,
-            create_directories=False)
-        njobs = 4*niter + 3 + 2  # 3 after + map / reduce
+        wf = CapsulWorkflow(pipeline)
+        njobs = 4*niter + 3  # 3 after
         self.assertEqual(len(wf.jobs), njobs)
-        #for job in wf.jobs:
-            #print(job.name)
-            #print(job.command)
-            #print('ref inputs:', job.referenced_input_files)
-            #print('ref outputs:', job.referenced_output_files)
-            #print()
-
-        #import soma_workflow.client as swc
-        #swc.Helper.serialize('/tmp/workflow.wf', wf)
 
         for i, filein in enumerate(pipeline.input):
             with open(filein, 'w') as f:
                 print('MAIN INPUT %d' % i, file=f)
 
-        exec_id = engine.start(pipeline, workflow=wf)
-        self.exec_ids.append(exec_id)
+        with Capsul().engine() as engine:
+            status = engine.run(pipeline)
 
-        print('execution started')
-        status = engine.wait(exec_id, pipeline=pipeline)
-        print('finished:', status)
-
-        self.assertEqual(status, 'workflow_done')
+        self.assertEqual(status['status'], 'ended')
         self.assertTrue(osp.exists(pipeline.output1))
         self.assertTrue(osp.exists(pipeline.output2))
         self.assertTrue(osp.exists(pipeline.output3))
         lens = [16, 20, 20]
         for o in range(3):
-            #print('** output%d: **' % (o+1))
             with open(getattr(pipeline, 'output%d' % (o+1))) as f:
                 text = f.read()
-                #print(text)
                 self.assertEqual(len(text.split('\n')), lens[o])
 
 

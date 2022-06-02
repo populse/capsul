@@ -7,8 +7,8 @@ import sys
 import tempfile
 import time
 import traceback
-from uuid import uuid4
 
+from soma.controller import Controller
 from soma.undefined import undefined
 
 from capsul.application import Capsul
@@ -56,6 +56,8 @@ class LocalEngine:
             setattr(execution_context.dataset, name, Dataset(path=cfg.path, metadata_schema=cfg.metadata_schema))
         for module_name, requirements in self.executable_requirements(executable).items():
             module_configs = getattr(self.config, module_name, {})
+            if not isinstance(module_configs, Controller):
+                raise ValueError(f'Unknown requirement: "{module_name}"')
             valid_configs = []
             for module_field in module_configs.fields():
                 module_config = getattr(module_configs, module_field.name)
@@ -75,15 +77,17 @@ class LocalEngine:
         return execution_context
 
     def start(self, executable, **kwargs):
-        set_temporary_file_names = getattr(executable, 'set_temporary_file_names', None)
-        if set_temporary_file_names is not None:
-            set_temporary_file_names()
         db_file = tempfile.NamedTemporaryFile(prefix='capsul_local_engine_', delete=False)
         try:
             for name, value in kwargs.items():
                 setattr(executable, name, value)
             execution_context = self.execution_context(executable)
             workflow = CapsulWorkflow(executable)
+            # from pprint import pprint
+            # print('!start!')
+            # pprint(workflow.parameters.proxy_values)
+            # pprint(workflow.parameters.content)
+            # pprint(workflow.parameters.no_proxy())
             with ExecutionDatabase(db_file.name) as db:
                 db.execution_context = execution_context
                 db.executable = executable
@@ -153,18 +157,37 @@ class LocalEngine:
         # from pprint import pprint
         # pprint(parameters.proxy_values)
         # pprint(parameters.content)
-        for field in executable.user_fields():
-            if field.output:
-                value = parameters.get(field.name, undefined)
-                if value is not undefined:
-                    value = parameters.no_proxy(value)
-                    setattr(executable, field.name, value)
+        # pprint(parameters.no_proxy())
+        if isinstance(executable, Pipeline):
+            enable_parameter_links = executable.enable_parameter_links
+            executable.enable_parameter_links = False
+        else:
+            enable_parameter_links = None
+        try:
+            stack = [(executable, parameters)]
+            while stack:
+                node, parameters = stack.pop(0)
+                for field in node.user_fields():
+                    value = parameters.get(field.name, undefined)
+                    if value is not undefined:
+                        value = parameters.no_proxy(value)
+                        if value is None:
+                            value = undefined
+                        # print('!update_executable!', node.full_name, field.name, '<-', value)
+                        setattr(node, field.name, value)
+                    # else:
+                    #     print('!update_executable! ignore', node.full_name, field.name, value)
+                if isinstance(node, Pipeline):
+                    stack.extend((n, parameters[n.name]) for n in node.all_nodes() if n is not node and isinstance(n, Process))
+        finally:
+            if enable_parameter_links is not None:
+                executable.enable_parameter_links = enable_parameter_links
     
     def run(self, executable, timeout=None, **kwargs):
         execution_id = self.start(executable, **kwargs)
         try:
             self.wait(execution_id, timeout=timeout)
-            status = self.status(execution_id, keys=['error', 'error_detail', 'debug_messages', 'output_parameters'])
+            status = self.status(execution_id, keys=['status', 'error', 'error_detail', 'debug_messages', 'output_parameters'])
             self.print_debug_messages(status)
             self.raise_for_status(status)
             self.update_executable(executable, execution_id)
@@ -237,8 +260,9 @@ if __name__ == '__main__':
                 job_uuid = ready.pop()
                 job = jobs[job_uuid]
                 command = job['command']
-                subprocess.check_call(command, env=env, stdout=sys.stdout, 
-                    stderr=subprocess.STDOUT,)
+                if command is not None:
+                    subprocess.check_call(command, env=env, stdout=sys.stdout, 
+                        stderr=subprocess.STDOUT,)
                 done.add(job_uuid)
                 for waiting_uuid in list(waiting):
                     waiting_job = jobs[waiting_uuid]
