@@ -213,6 +213,7 @@ class Process(Node):
                 if value:
                     setattr(self, field.name, self._resolve_path_value(value, execution_context, context_dict))
 
+
 class FileCopyProcess(Process):
     """ A specific process that copies all the input files.
 

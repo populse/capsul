@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-# System import
-from __future__ import print_function
-from __future__ import absolute_import
-
 import unittest
 import sys
 import shutil
@@ -12,8 +7,7 @@ import tempfile
 from soma.controller import File
 
 # Capsul import
-from capsul.api import Process
-from capsul.api import Pipeline
+from capsul.api import Capsul, Process, Pipeline
 
 
 class DummyProcess(Process):
@@ -94,12 +88,10 @@ class TestQCNodes(unittest.TestCase):
     def setUp(self):
         """ Initialize the TestQCNodes class
         """
-        self.pipeline = MyPipeline()
+        self.pipeline = Capsul.executable(MyPipeline)
         self.pipeline.input = 'dummy_input'
         self.pipeline.output = 'dummy_output'
         self.output_directory = tempfile.mkdtemp()
-        self.study_config = StudyConfig(output_directory=self.output_directory)
-        self.pipeline.set_study_config(self.study_config)
 
     def tearDown(self):
         """ Remove temporary items.
@@ -111,7 +103,8 @@ class TestQCNodes(unittest.TestCase):
         """ Method to test if the run qc option works properly.
         """
         # Execute all the pipeline nodes
-        self.study_config.run(self.pipeline, execute_qc_nodes=True)
+        with Capsul().engine() as engine:
+            engine.run(self.pipeline, execute_qc_nodes=True)
 
         # Get the list of all the nodes that havec been executed
         execution_list = self.pipeline.workflow_ordered_nodes()

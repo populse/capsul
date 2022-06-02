@@ -189,6 +189,7 @@ class TestPipelineMethods(unittest.TestCase):
         """
 
         shutil.rmtree(self.temp_folder)
+        Capsul.delete_singleton()
 
     def test_int(self):
         def create_pipeline():
@@ -209,7 +210,6 @@ class TestPipelineMethods(unittest.TestCase):
 
         with Capsul().engine() as ce:
             ce.run(pipeline1, timeout=5)
-
         save_pipeline_parameters(self.path, pipeline1)
 
         # Reinitializing pipeline and loading parameters

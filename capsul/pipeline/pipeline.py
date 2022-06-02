@@ -518,6 +518,8 @@ class Pipeline(Process):
             do_not_export=do_not_export, 
             make_optional=make_optional,
             **kwargs)
+        iterative_process.process.name = f'{name}.{iterative_process.process.name}'
+
     
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=(), output_types=None, switch_value=None,
@@ -1468,78 +1470,7 @@ class Pipeline(Process):
         workflow_list = []
         walk_workflow(ordered_list, workflow_list)
 
-        return workflow_list
-
-    def set_temporary_file_names(self):
-        """ Check temporary outputs and allocate files for them.
-
-        Temporary files or directories will be appended to the temp_files list,
-        and the node parameters will be set to temp file names.
-        """
-        self._plugs_with_internal_value = set()
-        for node in self.nodes.values():
-            if node is self:
-                continue
-            prefix = f'!{{dataset.tmp.path}}/{node.full_name}'
-            if isinstance(node, NipypeProcess):
-                #nipype processes do not use temporaries, they produce output
-                # file names
-                return
-
-            if isinstance(node, ProcessIteration):
-                iteration_size = node.iteration_size()
-            else:
-                iteration_size = None
-            
-            for plug_name, plug in node.plugs.items():
-                value = getattr(node, plug_name, undefined)
-                if not plug.activated or not plug.enabled:
-                    continue
-                field = node.field(plug_name)
-                if not field.is_output():
-                    continue
-                if field.is_list() and field.path_type is not None:
-                    if value is not undefined and len([x for x in value if x in ('', undefined)]) == 0:
-                        continue
-                elif value not in (undefined, '') \
-                        or (field.path_type is None
-                            or len(plug.links_to) == 0):
-                    continue
-                # check that it is really temporary: not exported
-                # to the main pipeline
-                temporary = False
-                for n, pn in self.get_linked_items(node, plug_name, in_sub_pipelines=False, process_only=False):
-                    if n is self:
-                        continue
-                    temporary = True
-                    break
-                if not temporary:
-                    continue
-
-                if value is undefined and iteration_size is not None:
-                    value = [undefined] * iteration_size
-                # if we get here, we are a temporary.
-                e = field.metadata('extensions')
-                if e:
-                    suffix = e[0]
-                else:
-                    suffix = ''
-                if isinstance(value, list):
-                    new_value = []
-                    for i in range(len(value)):
-                        if value[i] in ('', undefined):
-                            tmp = f'{prefix}.{plug_name}{suffix}_{i}'
-                            new_value.append(tmp)
-                        else:
-                            new_value.append(value[i])
-                else:
-                    new_value = f'{prefix}.{plug_name}{suffix}'
-                self._plugs_with_internal_value.add((node, plug_name))
-                node.set_plug_value(plug_name, new_value)
-                self.dispatch_value(node, plug_name, new_value)
-            if node is not self and isinstance(node, Pipeline):
-                node.set_temporary_file_names()
- 
+        return workflow_list 
 
     def find_empty_parameters(self):
         """ Find internal File/Directory parameters not exported to the main
@@ -1931,17 +1862,17 @@ class Pipeline(Process):
 
         Returns
         -------
-        disabled_nodes: list
-            list of pipeline nodes (Node instances) which will not run in
+        disabled_nodes: set
+            set of pipeline nodes (Node instances) which will not run in
             a workflow created from this pipeline state.
         '''
         steps = getattr(self, 'pipeline_steps', Controller())
-        disabled_nodes = []
+        disabled_nodes = set()
         for field in steps.fields():  # noqa: F402
             if not getattr(steps, field.name, True):
                 # disabled step
                 nodes = field.nodes
-                disabled_nodes.extend([self.nodes[node] for node in nodes])
+                disabled_nodes.update(self.nodes[node] for node in nodes)
         return disabled_nodes
 
     def get_pipeline_step_nodes(self, step_name):
@@ -2229,9 +2160,13 @@ class Pipeline(Process):
         return result
     
     def dispatch_value(self, node, name, value):
+        for node, plug in self.dispatch_plugs(node, name):
+            setattr(node, plug, value)
+    
+    def dispatch_plugs(self, node, name):
         enable_parameter_links = self.enable_parameter_links
         self.enable_parameter_links = False
-        done = set()
+        done = {(node, name)}
         stack = list(self.get_linked_items(node, 
             name, 
             in_sub_pipelines=False,
@@ -2241,7 +2176,7 @@ class Pipeline(Process):
             item = stack.pop()
             if item not in done:
                 node, plug = item
-                setattr(node, plug, value)
+                yield (node, plug)
                 done.add(item)
                 stack.extend(self.get_linked_items(node, 
                     plug, 
@@ -2271,10 +2206,14 @@ class Pipeline(Process):
                 else:
                     direction = 'links_from'
                 for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
+                    if dest_node is node:
+                        continue
                     if isinstance(dest_node, Pipeline):
                         if in_sub_pipelines:
                             if dest_node is not self:
-                                yield from dest_node.get_linked_items(dest_node, dest_plug_name)
+                                for n, p in dest_node.get_linked_items(dest_node, dest_plug_name):
+                                    if n is not node:
+                                        yield (n, p)
                         else:
                             yield (dest_node, dest_plug_name)
                     elif isinstance(dest_node, Switch):
@@ -2293,7 +2232,6 @@ class Pipeline(Process):
                                         if not process_only:
                                             yield (dest_node, input_plug_name)
                                         stack.append((dest_node, input_plug_name))
-                    #elif isinstance(dest_node, Process):
                     else:
                         yield (dest_node, dest_plug_name)
 

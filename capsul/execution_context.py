@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-import json
+from itertools import chain
 from uuid import uuid4
-from typing import Union
 
 from populse_db import Database
 from soma.controller import Controller, OpenKeyDictController
 from soma.api import DictWithProxy
+from soma.undefined import undefined
 
 from .application import Capsul, executable
 from .dataset import Dataset
 from .pipeline.pipeline import Process, Pipeline
+from capsul.process.process import NipypeProcess
 from .pipeline.process_iteration import ProcessIteration
 
 class ExecutionContext(Controller):
@@ -58,6 +59,7 @@ class ExecutionDatabase:
 
             session.add_collection('workflow', 'uuid')
             workflow = session['workflow']
+            workflow.add_field('temporaries', dict)
             workflow.add_field('parameters', dict[str, list])
         return self
     
@@ -129,107 +131,259 @@ class CapsulWorkflow(Controller):
     parameters: DictWithProxy
     jobs: dict[str, list]
     chronology: dict[str, list[str]]
-
+    
     def __init__(self, executable):
         super().__init__()
-        self.parameters = DictWithProxy()
+        self.find_temporary_to_generate(executable)
+        self.parameters = DictWithProxy(all_proxies=True)
         self.jobs = {}
         jobs_per_process = {}
         process_chronology = {}
         processes_proxies = {}
         job_parameters = self._create_jobs(
-            executable,
-            jobs_per_process,
-            processes_proxies,
-            process_chronology,
-            executable,
-            executable,
-            [])
+            executable=executable,
+            jobs_per_process=jobs_per_process,
+            processes_proxies=processes_proxies,
+            process_chronology=process_chronology,
+            process=executable,
+            parent_executables=[],
+            parameters_location=[],
+            disabled=False)
         self.parameters.content.update(job_parameters.content)
 
         # Set jobs chronology based on processes chronology
         for after_process, before_processes in process_chronology.items():
-            for after_job in jobs_per_process[after_process]:
+            for after_job in jobs_per_process.get(after_process, ()):
                 for before_process in before_processes:
                     for before_job in jobs_per_process[before_process]:
-                        self.jobs[after_job]['wait_for'].append(before_job)
+                        aj = self.jobs[after_job]
+                        aj['wait_for'].append(before_job)
+                        bj = self.jobs[before_job]
+                        if bj['command'] is None:
+                            bj['waited_by'].append(after_job)
 
+        # Resolve disabled jobs
+        disabled_jobs = [(uuid, job) for uuid, job in self.jobs.items() if job['command'] is None]
+        for disabled_job in disabled_jobs:
+            wait_for = []
+            stack = disabled_job[1]['wait_for']
+            while stack:
+                job = stack.pop(0)
+                if self.jobs[job]['command'] is None:
+                    stack.extend(self.jobs[job]['wait_for'])
+                else:
+                    wait_for.append(job)
+            waited_by = []
+            stack = list(disabled_job[1]['waited_by'])
+            while stack:
+                job = stack.pop(0)
+                if self.jobs[job]['command'] is None:
+                    stack.extend(self.jobs[job]['waited_by'])
+                else:
+                    waited_by.append(job)
+            for job in disabled_job[1]['waited_by']:
+                self.jobs[job]['wait_for'].remove(disabled_job[0])
+            del self.jobs[disabled_job[0]]
+    
     def _create_jobs(self,
                      executable,
                      jobs_per_process,
                      processes_proxies,
                      process_chronology,
                      process,
-                     parent_executable,
-                     parameters_location):
+                     parent_executables,
+                     parameters_location,
+                     disabled):
         parameters = self.parameters
         for index in parameters_location:
             if index.isnumeric():
                 index = int(index)
             parameters = parameters[index]
+        nodes = []
         if isinstance(process, Pipeline):
-            pipeline_parameters = DictWithProxy(_proxy_values=parameters.proxy_values)
-            nodes_parameters = DictWithProxy(_proxy_values=parameters.proxy_values)
+            # pipeline_parameters = DictWithProxy(_proxy_values=parameters.proxy_values)
+            # nodes_parameters = DictWithProxy(_proxy_values=parameters.proxy_values)
+            disabled_nodes = process.disabled_pipeline_steps_nodes()
             for node_name, node in process.nodes.items():
-                if node is process or not node.activated or not isinstance(node, Process):
+                if (node is process 
+                    or not node.activated
+                    or not isinstance(node, Process)
+                    or node in disabled_nodes):
                     continue
                 parameters[node_name] = {}
                 job_parameters = self._create_jobs(
-                    executable,
-                    jobs_per_process,
-                    processes_proxies,
-                    process_chronology,
-                    node,
-                    node,
-                    parameters_location + [node_name])
-                nodes_parameters.content[node_name] = job_parameters.content
+                    executable=executable,
+                    jobs_per_process=jobs_per_process,
+                    processes_proxies=processes_proxies,
+                    process_chronology=process_chronology,
+                    process=node,
+                    parent_executables=parent_executables,
+                    parameters_location=parameters_location + [node_name],
+                    disabled=disabled or node in disabled_nodes)
+                parameters[node_name].content.update(job_parameters.content)
+                nodes.append(node)
             for field in process.user_fields():
                 for dest_node, plug_name in executable.get_linked_items(process, 
                                                                         field.name,
                                                                         in_sub_pipelines=False):
-                    pipeline_parameters.content[field.name] = nodes_parameters.content[dest_node.name][plug_name]
+                    if dest_node in disabled_nodes:
+                        continue
+                    parameters.content[field.name] = parameters.content[dest_node.name][plug_name]
                     break
-            return pipeline_parameters
+            for node in nodes:
+                for plug_name, plug in node.plugs.items():
+                    first = parameters.content[node.name].get(plug_name)
+                    for dest_node, dest_plug_name in executable.get_linked_items(node, plug_name,
+                                                                                    in_sub_pipelines=False):
+                        second = parameters.content.get(dest_node.name, {}).get(dest_plug_name)
+                        if not parameters.is_proxy(first):
+                            if parameters.is_proxy(second):
+                                if first is not None:
+                                    parameters.set_proxy_value(second, first)
+                        elif not parameters.is_proxy(second):
+                            if second is not None:
+                                parameters.set_proxy_value(first, second)
+                        else:
+                            first_index = first[1]
+                            second_index = second[1]
+                            if first_index == second_index:
+                                continue
+                            elif first_index > second_index:
+                                tmp = second
+                                second = first
+                                first = tmp
+                                first_index = first[1]
+                                second_index = second[1]
+                            parameters.proxy_values[second_index] = first
         elif isinstance(process, ProcessIteration):
             parameters['_iterations'] = []
-            iteration_parameters = DictWithProxy(_proxy_values=parameters.proxy_values)
             iteration_index = 0
             for inner_process in process.iterate_over_process_parmeters():
                 parameters['_iterations'].append({})
                 job_parameters = self._create_jobs(
-                    executable,
-                    jobs_per_process,
-                    processes_proxies,
-                    process_chronology,
-                    inner_process,
-                    process, 
-                    parameters_location + ['_iterations', str(iteration_index)])
+                    executable=executable,
+                    jobs_per_process=jobs_per_process,
+                    processes_proxies=processes_proxies,
+                    process_chronology=process_chronology,
+                    process=inner_process,
+                    parent_executables=parent_executables + [process], 
+                    parameters_location=parameters_location + ['_iterations', str(iteration_index)],
+                    disabled=disabled)
                 for k, v in job_parameters.content.items():
                     if k in process.iterative_parameters:
-                        iteration_parameters.content.setdefault(k, []).append(v)
+                        parameters.content.setdefault(k, []).append(v)
                     else:
-                        iteration_parameters.content.setdefault(k, v)
+                        parameters.content[k] = v
                 iteration_index += 1
             if isinstance(executable, Pipeline):
                 for field in process.user_fields():
                     if field.is_output():
                         for dest_node, plug_name in executable.get_linked_items(process, field.name):
                             process_chronology.setdefault(dest_node.uuid, set()).add(process.uuid)
-            return iteration_parameters
         elif isinstance(process, Process):
             job_uuid = str(uuid4())
-            self.jobs[job_uuid] = {
-                'command': ['python', '-m', 'capsul.run', 'process', job_uuid],
-                'wait_for': [],
-                'process': process.json(include_parameters=False),
-                'parameters_location': parameters_location
-            }
-            jobs_per_process.setdefault(parent_executable.uuid, set()).add(job_uuid)
+            if disabled:
+                self.jobs[job_uuid] = {
+                    'command': None,
+                    'wait_for': [],
+                    'waited_by': [],
+                }
+            else:
+                self.jobs[job_uuid] = {
+                    'command': ['python', '-m', 'capsul.run', 'process', job_uuid],
+                    'wait_for': [],
+                    'process': process.json(include_parameters=False),
+                    'parameters_location': parameters_location
+                }
+            for parent_executable in parent_executables:
+                jobs_per_process.setdefault(parent_executable.uuid, set()).add(job_uuid)
+            jobs_per_process.setdefault(process.uuid, set()).add(job_uuid)
             for field in process.user_fields():
-                value = getattr(process, field.name, None)
+                if getattr(field, 'generate_temporary', False):
+                    prefix = f'!{{dataset.tmp.path}}/{process.full_name}'
+                    e = field.metadata('extensions')
+                    if e:
+                        suffix = e[0]
+                    else:
+                        suffix = ''
+                    uuid = str(uuid4())
+                    value = f'{prefix}.{field.name}_{uuid}{suffix}'
+                else:
+                    value = getattr(process, field.name, None)
                 proxy = parameters.proxy(executable.json_value(value))
                 parameters[field.name] = proxy
                 if field.is_output() and isinstance(executable, Pipeline):
                     for dest_node, plug_name in executable.get_linked_items(process, field.name):
                         process_chronology.setdefault(dest_node.uuid, set()).add(process.uuid)
-            return parameters
+        return parameters
+
+    def find_temporary_to_generate(self, executable):
+        if isinstance(executable, Pipeline):
+            nodes = executable.all_nodes()
+        else:
+            nodes = [executable]
+        for node in nodes:
+            for field in node.user_fields():
+                field.generate_temporary = False
+        self._find_temporary_to_generate(executable)
+    
+    
+    def _find_temporary_to_generate(self, executable):
+        """Finds all output fields that are empty and linked to an input
+        and set their generate_temporary attribute to True (ans set it to
+        False for other fields).
+        """
+        if isinstance(executable, Pipeline):
+            for node in executable.nodes.values():
+                if node is executable:
+                    continue
+                if isinstance(node, NipypeProcess):
+                    #nipype processes do not use temporaries, they produce output
+                    # file names
+                    return
+
+                if isinstance(node, ProcessIteration):
+                    iteration_size = node.iteration_size()
+                else:
+                    iteration_size = None
+
+                for plug_name, plug in node.plugs.items():
+                    value = getattr(node, plug_name, undefined)
+                    if not plug.activated or not plug.enabled:
+                        continue
+                    field = node.field(plug_name)
+                    if not field.is_output():
+                        continue
+                    if field.is_list() and field.path_type is not None:
+                        if value is not undefined and len([x for x in value if x in ('', undefined)]) == 0:
+                            continue
+                    elif value not in (undefined, '') \
+                            or (field.path_type is None
+                                or len(plug.links_to) == 0):
+                        continue
+                    # check that it is really temporary: not exported
+                    # to the main pipeline
+                    temporary = False
+                    for n, pn in executable.get_linked_items(node, plug_name, in_sub_pipelines=False, process_only=False):
+                        if n is executable:
+                            continue
+                        temporary = True
+                        break
+                    temporary = temporary or getattr(field, 'generate_temporary', False)
+                    field.generate_temporary = temporary
+                    for n, p in executable.get_linked_items(node, field.name):
+                        f = n.field(p)
+                        if f.is_output():
+                            setattr(n.field(p), 'generate_temporary', temporary)
+                self._find_temporary_to_generate(node)
+        elif isinstance(executable, ProcessIteration):
+            for name in executable.iterative_parameters:
+                temporary = getattr(executable.field(name), 'generate_temporary', False)
+                executable.process.field(name).generate_temporary = temporary
+                if isinstance(executable.process, Pipeline):
+                    for n, p in executable.process.get_linked_items(executable.process, name):
+                        f = n.field(p)
+                        if f.is_output():
+                            setattr(n.field(p), 'generate_temporary', temporary)
+            if isinstance(executable.process, Pipeline):
+                self._find_temporary_to_generate(executable.process)

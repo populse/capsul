@@ -1132,9 +1132,7 @@ def get_output_directories(process):
     nodes = [(process, '', root_dirs)]
     disabled_nodes = set()
     if isinstance(process, Pipeline):
-        disabled_nodes = set(process.disabled_pipeline_steps_nodes())
-    elif isinstance(process, Pipeline):
-        disabled_nodes = set(process.disabled_pipeline_steps_nodes())
+        disabled_nodes = process.disabled_pipeline_steps_nodes()
 
     while nodes:
         node, node_name, dirs = nodes.pop(0)

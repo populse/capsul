@@ -13,6 +13,7 @@ from soma.controller import undefined
 
 from capsul.process.process import Process
 
+
 class ProcessIteration(Process):
 
     _doc_path = 'api/pipeline.html#processiteration'
@@ -23,9 +24,7 @@ class ProcessIteration(Process):
         from capsul.api import executable
 
         super(ProcessIteration, self).__init__(definition=definition)
-
         self.process = executable(process)
-
         if context_name is not None:
             self.process.context_name = context_name
         self.regular_parameters = set()

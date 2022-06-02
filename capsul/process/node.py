@@ -255,7 +255,8 @@ class Node(Controller):
                 yield f
 
     def set_pipeline(self, pipeline):
-
+        from capsul.api import Pipeline
+        
         self._release_pipeline()
 
         if pipeline is None:
@@ -264,14 +265,15 @@ class Node(Controller):
 
         self.pipeline = weak_proxy(pipeline)
 
-        for plug in self.plugs.values():
-            # add an event on plug to validate the pipeline
-            plug.on_attribute_change.add(
-                pipeline.update_nodes_and_plugs_activation, "enabled")
+        if isinstance(self.pipeline, Pipeline):
+            for plug in self.plugs.values():
+                # add an event on plug to validate the pipeline
+                plug.on_attribute_change.add(
+                    pipeline.update_nodes_and_plugs_activation, "enabled")
 
-        # add an event on the Node instance attributes to validate the pipeline
-        self.on_attribute_change.add(
-            pipeline.update_nodes_and_plugs_activation, "enabled")
+            # add an event on the Node instance attributes to validate the pipeline
+            self.on_attribute_change.add(
+                pipeline.update_nodes_and_plugs_activation, "enabled")
 
     def get_pipeline(self):
         if self.pipeline is None:

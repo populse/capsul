@@ -90,6 +90,9 @@ class TestPipelineWithTemp(unittest.TestCase):
         self.pipeline = Capsul.executable(MyPipeline)
         self.iter_pipeline = Capsul.executable(MyIterativePipeline)
 
+    def tearDown(self):
+        Capsul.delete_singleton()
+
     def test_pipeline_with_temp(self):
         input_f = tempfile.mkstemp(suffix='capsul_input.txt')
         output_f = tempfile.mkstemp(suffix='capsul_output.txt')
@@ -148,12 +151,11 @@ class TestPipelineWithTemp(unittest.TestCase):
             with open(input_name) as f:
                 with open(output_name) as g:
                     self.assertEqual(f.read() * 3, g.read())
-            # check intermediate filenames are empty
-            self.assertEqual(
-                self.iter_pipeline.nodes['node1'].output_image,
-                ['!{dataset.tmp.path}/node1.output_image_0',
-                 '!{dataset.tmp.path}/node1.output_image_1',
-                 '!{dataset.tmp.path}/node1.output_image_2'])
+            # check temporary filenames
+            o = self.iter_pipeline.nodes['node1'].output_image
+            self.assertEqual(len(o), 3)
+            for f in o:
+                self.assertTrue(f.startswith('!{dataset.tmp.path}/node1.DummyProcess.output_image_'))
 
         finally:
             try:
