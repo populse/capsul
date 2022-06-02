@@ -42,6 +42,9 @@ class SharedSchema(MetadataSchema):
     '''Metadata schema for BrainVISA shared dataset
     '''
     data_id: str = ''
+    side: str = None
+    graph_version: str = None
+    model_version: str = None
 
     def _path_list(self):
         '''
@@ -49,11 +52,84 @@ class SharedSchema(MetadataSchema):
         <something>
         '''
 
+        full_side = {'L': 'left', 'R': 'right'}
         path_list = []
         filename = []
         if self.data_id == 'normalization_template':
             path_list = ['anatomical_templates']
             filename.append('MNI152_T1_2mm.nii.gz')
+        elif self.data_id == 'trans_mni_to_acpc':
+            path_list = ['transformation']
+            filename.append('spm_template_novoxels_TO_talairach.trm')
+        elif self.data_id == 'acpc_ref':
+            path_list = ['registration']
+            filename.append('Talairach-AC_PC-Anatomist.referential')
+        elif self.data_id == 'trans_acpc_to_mni':
+            path_list = ['transformation']
+            filename.append('talairach_TO_spm_template_novoxels.trm')
+        elif self.data_id == 'icbm152_ref':
+            path_list = ['registration']
+            filename.append('Talairach-MNI_template-SPM.referential')
+        elif self.data_id == 'hemi_split_template':
+            path_list = ['hemitemplate']
+            filename.append('closedvoronoi.ima')
+        elif self.data_id == 'sulcal_morphometry_sulci_file':
+            path_list = ['nomenclature', 'translation']
+            filename.append('sulci_default_list.json')
+        elif self.data_id == 'sulci_spam_recognition_labels_trans':
+            path_list = ['nomenclature', 'translation']
+            filename.append(f'sulci_model_20{self.model_version}.trl')
+        elif self.data_id == 'sulci_ann_recognition_model':
+            path_list = ['models', f'models_20{self.model_version}', 'discriminative_models', self.graph_version, f'{self.side}folds_noroots']
+            filename.append(f'{self.side}folds_noroots.arg')
+        elif self.data_id == 'sulci_spam_recognition_global_model':
+            path_list = [
+                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
+                f'global_registered_spam_{full_side[self.side]}']
+            filename.append('spam_distribs.dat')
+        elif self.data_id == 'sulci_spam_recognition_local_model':
+            path_list = [
+                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
+                f'locally_from_global_registred_spam_{full_side[self.side]}']
+            filename.append('spam_distribs.dat')
+        elif self.data_id == 'sulci_spam_recognition_global_labels_priors':
+            path_list = [
+                'models', f'models_20{self.model_version}', 'descriptive_models', 'labels_priors',
+                f'frequency_segments_priors_{full_side[self.side]}']
+            filename.append('frequency_segments_priors.dat')
+        elif self.data_id == 'sulci_spam_recognition_local_refs':
+            path_list = [
+                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
+                f'locally_from_global_registred_spam_{full_side[self.side]}']
+            filename.append('local_referentials.dat')
+        elif self.data_id == 'sulci_spam_recognition_local_dir_priors':
+            path_list = [
+                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
+                f'locally_from_global_registred_spam_{full_side[self.side]}']
+            filename.append('bingham_direction_trm_priors.dat')
+        elif self.data_id == 'sulci_spam_recognition_local_angle_priors':
+            path_list = [
+                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
+                f'locally_from_global_registred_spam_{full_side[self.side]}']
+            filename.append('vonmises_angle_trm_priors.dat')
+        elif self.data_id == 'sulci_spam_recognition_local_trans_priors':
+            path_list = [
+                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
+                f'locally_from_global_registred_spam_{full_side[self.side]}']
+            filename.append('gaussian_translation_trm_priors.dat')
+        elif self.data_id == 'sulci_spam_recognition_markov_rels':
+            path_list = [
+                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments_relations',
+                f'mindist_relations_{full_side[self.side]}']
+            filename.append('gamma_exponential_mixture_distribs.dat')
+        elif self.data_id == 'sulci_cnn_recognition_model':
+            path_list = [
+                'models', f'models_20{self.model_version}', 'cnn_models']
+            filename.append(f'sulci_unet_model_{full_side[self.side]}.mdsm')
+        elif self.data_id == 'sulci_cnn_recognition_param':
+            path_list = [
+                'models', f'models_20{self.model_version}', 'cnn_models']
+            filename.append(f'sulci_unet_model_params_{full_side[self.side]}.mdsm')
         else:
             filename.append(self.data_id)
         path_list.append(''.join(filename))
@@ -149,7 +225,43 @@ Morphologist.metadata_schema = dict(
             'extension': 'trm'},
     },
     shared={
-        'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': {'data_id': 'normalization_template'}
+        'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': {'data_id': 'normalization_template'},
+        'PrepareSubject_Normalization_NormalizeFSL_template': {'data_id': 'normalization_template'},
+        'PrepareSubject_Normalization_NormalizeSPM_template': {'data_id': 'normalization_template'},
+        'PrepareSubject_Normalization_NormalizeBaladin_template': {'data_id': 'normalization_template'},
+        'PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc': {'data_id': 'trans_acpc_to_mni'},
+        'PrepareSubject_TalairachFromNormalization_acpc_referential': {'data_id': 'acpc_ref'},
+        'Renorm_template':  {'data_id': 'normalization_template'},
+        'Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc': {'data_id': 'trans_mni_to_acpc'},
+        'PrepareSubject_TalairachFromNormalization_normalized_referential':{'data_id': 'icbm152_ref'},
+        'PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized': {'data_id': 'trans_acpc_to_mni'},
+        'SplitBrain_split_template': {'data_id': 'hemi_split_template'},
+        'sulcal_morphometry_sulci_file': {'data_id': 'sulcal_morphometry_sulci_file'},
+        'SulciRecognition_recognition2000_model': {'data_id': 'sulci_ann_recognition_model', 'side': 'L', 'graph_version': '3.1'},
+        'SulciRecognition_1_recognition2000_model': {'data_id': 'sulci_ann_recognition_model', 'side': 'R', 'graph_version': '3.1'},
+        'SPAM_recognition_labels_translation_map': {'data_id': 'sulci_spam_recognition_labels_trans', 'model_version': '08'},
+        'SulciRecognition_SPAM_recognition09_global_recognition_model': {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'L'},
+        'SulciRecognition_1_SPAM_recognition09_global_recognition_model': {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'R'},
+        'SulciRecognition_SPAM_recognition09_local_recognition_model': {'data_id': 'sulci_spam_recognition_local_model', 'model_version': '08', 'side': 'L'},
+        'SulciRecognition_1_SPAM_recognition09_local_recognition_model': {'data_id': 'sulci_spam_recognition_local_model', 'model_version': '08', 'side': 'R'},
+        'SulciRecognition_SPAM_recognition09_markovian_recognition_model': {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'L'},
+        'SulciRecognition_1_SPAM_recognition09_markovian_recognition_model': {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'R'},
+        'SulciRecognition_SPAM_recognition09_global_recognition_labels_priors': {'data_id': 'sulci_spam_recognition_global_labels_priors', 'model_version': '08', 'side': 'L'},
+        'SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors': {'data_id': 'sulci_spam_recognition_global_labels_priors', 'model_version': '08', 'side': 'R'},
+        'SulciRecognition_SPAM_recognition09_local_recognition_local_referentials': {'data_id': 'sulci_spam_recognition_local_refs', 'model_version': '08', 'side': 'L'},
+        'SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials': {'data_id': 'sulci_spam_recognition_local_refs', 'model_version': '08', 'side': 'R'},
+        'SulciRecognition_SPAM_recognition09_local_recognition_direction_priors': {'data_id': 'sulci_spam_recognition_local_dir_priors', 'model_version': '08', 'side': 'L'},
+        'SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors': {'data_id': 'sulci_spam_recognition_local_dir_priors', 'model_version': '08', 'side': 'L'},
+        'SulciRecognition_SPAM_recognition09_local_recognition_angle_priors': {'data_id': 'sulci_spam_recognition_local_angle_priors', 'model_version': '08', 'side': 'L'},
+        'SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors': {'data_id': 'sulci_spam_recognition_local_angle_priors', 'model_version': '08', 'side': 'R'},
+        'SulciRecognition_SPAM_recognition09_local_recognition_translation_priors': {'data_id': 'sulci_spam_recognition_local_trans_priors', 'model_version': '08', 'side': 'L'},
+        'SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors': {'data_id': 'sulci_spam_recognition_local_trans_priors', 'model_version': '08', 'side': 'R'},
+        'SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model': {'data_id': 'sulci_spam_recognition_markov_rels', 'model_version': '08', 'side': 'L'},
+        'SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model': {'data_id': 'sulci_spam_recognition_markov_rels', 'model_version': '08', 'side': 'R'},
+        'SulciRecognition_CNN_recognition19_model_file': {'data_id': 'sulci_cnn_recognition_model', 'model_version': '19', 'side': 'L'},
+        'SulciRecognition_1_CNN_recognition19_model_file': {'data_id': 'sulci_cnn_recognition_model', 'model_version': '19', 'side': 'R'},
+        'SulciRecognition_CNN_recognition19_param_file': {'data_id': 'sulci_cnn_recognition_param', 'model_version': '19', 'side': 'L'},
+        'SulciRecognition_1_CNN_recognition19_param_file': {'data_id': 'sulci_cnn_recognition_param', 'model_version': '19', 'side': 'R'},
     },
 )
 
@@ -454,6 +566,17 @@ class TestFakeMorphologist(unittest.TestCase):
 
     #@unittest.skip('not ready')
     def test_path_generation(self):
+        def clear_values(morphologist):
+            for field in morphologist.user_fields(): # noqa: F402
+                if field.path_type:
+                    value = getattr(morphologist, field.name, undefined)
+                    if value in (None, undefined):
+                        continue
+                    if isinstance(value, list):
+                        setattr(morphologist, field.name, [])
+                    else:
+                        setattr(morphologist, field.name, undefined)
+
         expected = {
             ('StandardACPC', 'initial', 'NormalizeSPM',
              'normalization_t1_spm12_reinit'): {
@@ -506,6 +629,7 @@ class TestFakeMorphologist(unittest.TestCase):
         for normalization in zip(sel_tal, renorm, norm, normspm):
             morphologist = self.capsul.executable(
                 'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
+            clear_values(morphologist)
             #morphologist.field('t1mri').dataset = 'bids'
 
             morphologist.t1mri = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
@@ -524,6 +648,19 @@ class TestFakeMorphologist(unittest.TestCase):
             #     print('!fakespm dir!', execution_context.fakespm.directory)
             generate_paths(morphologist, execution_context, datasets=datasets,
                            source_fields=['t1mri'], debug=False)
+
+            debug = False
+            if debug:
+                from soma.qt_gui.qt_backend import Qt
+                from capsul.qt_gui.widgets.pipeline_developer_view import PipelineDeveloperView
+
+                app = Qt.QApplication.instance()
+                if app is None:
+                    app = Qt.QApplication([])
+                pv = PipelineDeveloperView(morphologist, allow_open_controller=True, enable_edition=True, show_sub_pipelines=True)
+                pv.show()
+                app.exec_()
+
             params = dict((i, 
                 getattr(morphologist, i, undefined)) for i in (
                     'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template',
