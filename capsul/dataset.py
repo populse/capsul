@@ -545,7 +545,7 @@ def generate_paths(executable, context, metadata=None, fields=None,
             # Associates a Dataset name with the field
             dataset_name = getattr(field, 'dataset', None)
             # fallback 1: get in inner_field (of an inner process)
-            if dataset_name and inner_field:
+            if dataset_name is None and inner_field:
                 dataset_name = getattr(inner_field, 'dataset', None)
                 if dataset_name:
                     dprint(f'dataset taken from inner field: {inner_process.name}.{inner_field_name}')
@@ -666,6 +666,7 @@ def generate_paths(executable, context, metadata=None, fields=None,
             if inner_item is not None:
                 inner_process, inner_field_name = inner_item
                 inner_field = inner_process.field(inner_field_name)
+                dprint(f'inner field for {field.name}: {inner_process.name}.{inner_field_name}')
             else:
                 inner_process = inner_field = None
             values = []
