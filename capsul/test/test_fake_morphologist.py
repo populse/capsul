@@ -141,19 +141,28 @@ Dataset.schemas['shared'] = SharedSchema
 
 from capsul.pipeline.test.fake_morphologist.morphologist \
     import Morphologist
-from capsul.pipeline.test.fake_morphologist.t1biascorrection \
-    import T1BiasCorrection
 from capsul.pipeline.test.fake_morphologist.normalization_t1_spm12_reinit \
     import normalization_t1_spm12_reinit
 from capsul.pipeline.test.fake_morphologist.normalization_t1_spm8_reinit \
     import normalization_t1_spm8_reinit
 from capsul.pipeline.test.fake_morphologist.normalization_aimsmiregister \
     import normalization_aimsmiregister
-
-T1BiasCorrection.metadata_schema = dict(
-    bids={'t1mri_nobias': {'part': 'nobias'}},
-    brainvisa={'t1mri_nobias': {'prefix': 'nobias'}}
-)
+from capsul.pipeline.test.fake_morphologist.normalization_fsl_reinit \
+    import Normalization_FSL_reinit
+from capsul.pipeline.test.fake_morphologist.t1biascorrection \
+    import T1BiasCorrection
+from capsul.pipeline.test.fake_morphologist.histoanalysis \
+    import HistoAnalysis
+from capsul.pipeline.test.fake_morphologist.brainsegmentation \
+    import BrainSegmentation
+from capsul.pipeline.test.fake_morphologist.skullstripping \
+    import skullstripping
+from capsul.pipeline.test.fake_morphologist.scalpmesh \
+    import ScalpMesh
+from capsul.pipeline.test.fake_morphologist.splitbrain \
+    import SplitBrain
+from capsul.pipeline.test.fake_morphologist.greywhiteclassificationhemi \
+    import GreyWhiteClassificationHemi
 
 normalization_t1_spm12_reinit.requirements = {
     'fakespm': {
@@ -161,11 +170,17 @@ normalization_t1_spm12_reinit.requirements = {
     }
 }
     
-#normalization_t1_spm12_reinit.metadata_schema = dict(
-    #bids={'output': {'part': 'normalized_fakespm12'}},
-    #brainvisa={'output': {'prefix': 'normalized_fakespm12'}},
-    #shared={'anatomical_template': {'data_id': 'normalization_template'}},
-#)
+normalization_t1_spm12_reinit.metadata_schema = dict(
+    bids={'output': {'part': 'normalized_fakespm12'}},
+    brainvisa={
+        'transformations_informations': {'analysis': undefined,
+                                         'suffix': 'sn',
+                                         'extension': 'mat'},
+        'normalized_anatomy_data': {'analysis': undefined,
+                                    'prefix': 'normalized_SPM'},
+    },
+    shared={'anatomical_template': {'data_id': 'normalization_template'}},
+)
 
 
 normalization_t1_spm8_reinit.requirements = {
@@ -174,24 +189,89 @@ normalization_t1_spm8_reinit.requirements = {
     }
 }
 
-#normalization_t1_spm8_reinit.metadata_schema = dict(
-    #bids={'output': {'part': 'normalized_fakespm8'}},
-    #brainvisa={'output': {'prefix': 'normalized_fakespm8'}}
-#)
+normalization_t1_spm8_reinit.metadata_schema = dict(
+    bids={'output': {'part': 'normalized_fakespm8'}},
+    brainvisa={
+        'transformations_informations': {'analysis': undefined,
+                                         'suffix': 'sn',
+                                         'extension': 'mat'},
+        'normalized_anatomy_data': {'analysis': undefined,
+                                    'prefix': 'normalized_SPM'},
+    }
+)
 
 normalization_aimsmiregister.metadata_schema = dict(
     bids={'transformation_to_ACPC': {'part': 'normalized_aims',
                                      'extension': 'trm'}},
-    brainvisa={'transformation_to_ACPC': {'prefix': 'normalized_aims',
-                                          'extension': 'trm'}},
+    brainvisa={
+        'transformation_to_ACPC': {'prefix': 'normalized_aims',
+                                   'extension': 'trm'},
+    },
     shared={'anatomical_template': {'data_id': 'normalization_template'}},
 )
 
+Normalization_FSL_reinit.metadata_schema = dict(
+    brainvisa={'transformation_matrix': {'analysis': undefined,
+                                         'suffix': 'fsl',
+                                         'extension': 'mat'}},
+)
 
-#SplitBrain.metadata_schema = dict(
-        #bids={'output': {'part': 'split'}},
-        #brainvisa={'output': {'prefix': 'split'}}
-    #)
+T1BiasCorrection.metadata_schema = dict(
+    bids={'t1mri_nobias': {'part': 'nobias'}},
+    brainvisa={
+        't1mri_nobias': {'prefix': 'nobias'},
+        'b_field': {'prefix': 'biasfield'},
+        'hfiltered': {'prefix': 'hfiltered'},
+        'white_ridges': {'prefix': 'whiteridge'},
+        'variance': {'prefix': 'variance'},
+        'edges': {'prefix': 'edges'},
+        'meancurvature': {'prefix': 'meancurvature'},
+    }
+)
+
+HistoAnalysis.metadata_schema = dict(
+    brainvisa={
+        'histo': {'prefix': 'nobias', 'extension': 'his'},
+        'histo_analysis': {'prefix': 'nobias', 'extension': 'han'},
+    }
+)
+
+BrainSegmentation.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'segmentation'},
+        'brain_mask': {'prefix': 'brain'},
+    }
+)
+
+skullstripping.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'segmentation'},
+        'skull_stripped': {'prefix': 'skull_stripped'},
+    }
+)
+
+ScalpMesh.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'segmentation'},
+        'head_mask': {'prefix': 'head'},
+        'head_mesh': {'seg_directory': 'segmentation/mesh', 'suffix': 'head', 'extension': 'gii'},
+    }
+)
+
+SplitBrain.metadata_schema = dict(
+    bids={'split_brain': {'part': 'split'}},
+    brainvisa={
+        '*': {'seg_directory': 'segmentation'},
+        'split_brain': {'prefix': 'voronoi'},
+    }
+)
+
+GreyWhiteClassificationHemi.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'segmentation'},
+        'grey_white': {'prefix': 'grey_white'},
+    }
+)
 
 
 Morphologist.metadata_schema = dict(
@@ -203,6 +283,14 @@ Morphologist.metadata_schema = dict(
     brainvisa={
         '*': {'process': None, 'modality': 't1mri'},
         'imported_t1mri': {'analysis': undefined},
+        't1mri_referential': {
+            'analysis': undefined,
+            'seg_directory': 'registration',
+            'short_prefix': 'RawT1-',
+            'suffix': '%(acquisition)s',
+            'extension': 'referential'},
+        'reoriented_t1mri': {'analysis': undefined},
+
         'left_labelled_graph': {
             'seg_directory': 'folds',
             'sulci_graph_version': '3.1',
@@ -630,7 +718,6 @@ class TestFakeMorphologist(unittest.TestCase):
             morphologist = self.capsul.executable(
                 'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
             clear_values(morphologist)
-            #morphologist.field('t1mri').dataset = 'bids'
 
             morphologist.t1mri = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
             morphologist.select_Talairach = normalization[0]
@@ -649,7 +736,7 @@ class TestFakeMorphologist(unittest.TestCase):
             generate_paths(morphologist, execution_context, datasets=datasets,
                            source_fields=['t1mri'], debug=False)
 
-            debug = False
+            debug = True
             if debug:
                 from soma.qt_gui.qt_backend import Qt
                 from capsul.qt_gui.widgets.pipeline_developer_view import PipelineDeveloperView
