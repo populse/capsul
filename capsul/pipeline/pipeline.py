@@ -438,6 +438,7 @@ class Pipeline(Process):
         # Observer
         self.nodes_activation.on_attribute_change.add(self._set_node_enabled,
                                                       name)
+        return node
 
     def remove_node(self, node_name):
         """ Remove a node from the pipeline
@@ -505,7 +506,6 @@ class Pipeline(Process):
             iterative_plugs = [field.name for field in process.fields()
                               if field.name not in forbidden]
 
-        from .process_iteration import ProcessIteration
         context_name = self._make_subprocess_context_name(name)
         iterative_process = ProcessIteration(
                 definition=f'{self.definition}#{name}', 
@@ -599,6 +599,7 @@ class Pipeline(Process):
 
         if switch_value:
             node.switch = switch_value
+        return node
 
     def add_custom_node(self, name, node_type, parameters=None,
                         make_optional=(), do_not_export=None, **kwargs):
@@ -2185,7 +2186,8 @@ class Pipeline(Process):
                     process_only=False))
         self.enable_parameter_links = enable_parameter_links
 
-    def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True, activated_only=True, process_only=True):
+    def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True,
+                         activated_only=True, process_only=True):
         '''Return the real process(es) node and plug connected to the given plug.
         Going through switches and inside subpipelines, ignoring nodes that are
         not activated.
