@@ -170,6 +170,10 @@ from capsul.pipeline.test.fake_morphologist.greywhitemesh \
     import GreyWhiteMesh
 from capsul.pipeline.test.fake_morphologist.pialmesh \
     import PialMesh
+from capsul.pipeline.test.fake_morphologist.sulciskeleton \
+    import SulciSkeleton
+from capsul.pipeline.test.fake_morphologist.sulcigraph \
+    import SulciGraph
 
 normalization_t1_spm12_reinit.requirements = {
     'fakespm': {
@@ -301,6 +305,24 @@ PialMesh.metadata_schema = dict(
     }
 )
 
+SulciSkeleton.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'segmentation'},
+        'skeleton': {'prefix': 'skeleton'},
+        'roots': {'prefix': 'roots'},
+    }
+)
+
+SulciGraph.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'folds'},
+        'graph': {'extension': 'arg', 'sulci_graph_version': '!{executable.graph_version}'},
+        'sulci_voronoi': {'prefix': 'sulcivoronoi'},
+        'cortex_mid_interface': {'seg_directory': 'segmentation',
+                                 'prefix': 'gw_interface'},
+    }
+)
+
 
 Morphologist.metadata_schema = dict(
     bids={
@@ -329,6 +351,8 @@ Morphologist.metadata_schema = dict(
         '*_1.*': {'side': 'R'},
         'GreyWhiteMesh_1.*': {'sidebis': 'R', 'side': None},
         'PialMesh_1.*': {'sidebis': 'R', 'side': None},
+
+        #'*.*': {'suffix': '!{field}'},
 
         'left_labelled_graph': {
             'seg_directory': 'folds',
