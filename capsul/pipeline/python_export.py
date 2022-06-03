@@ -119,6 +119,15 @@ def save_py_pipeline(pipeline, py_file):
                               file=pyf)
                     print(f'        {self_str}.plugs["{param_name}"].optional = {optional}\n',
                           file=pyf)
+                if getattr(snode, param_name, undefined) \
+                        != getattr(cnode, param_name, undefined):
+                    #splug = snode.plugs[param_name]
+                    #if splug.output and len(splug.links_to) == 0 \
+                            #or not splug.output and len(splug.links_from) == 0:
+                        ## unconnected with non-default value
+                    print(f'        {self_str}.{param_name} =',
+                          get_repr_value(getattr(snode, param_name,
+                                                  undefined)), file=pyf)
 
             if isinstance(snode, Pipeline):
                 sself_str = '%s.nodes["%s"]' % (self_str, '%s')
@@ -129,15 +138,6 @@ def save_py_pipeline(pipeline, py_file):
                         continue
                     todo.append((sself_str % node_name, snode, scnode))
 
-        for field in process.fields():
-            pname = field.name
-            value = getattr(process, pname, undefined)
-            init_value = getattr(proc_copy, pname, undefined)
-            if value != init_value \
-                    and not (value is undefined and init_value == ''):
-                repvalue = get_repr_value(value)
-                print('        self.nodes["%s"].%s = %s'
-                      % (name, pname, repvalue), file=pyf)
         #if isinstance(process, NipypeProcess):
             ## WARNING: not sure I'm doing the right things for nipype. To be
             ## fixed if needed.
