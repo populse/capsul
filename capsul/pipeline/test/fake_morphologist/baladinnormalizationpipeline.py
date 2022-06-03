@@ -11,6 +11,7 @@ class BaladinNormalizationPipeline(Pipeline):
         self.add_process("NormalizeBaladin", "capsul.pipeline.test.fake_morphologist.normalization_baladin.Normalization_Baladin")
         self.add_process("ConvertBaladinNormalizationToAIMS", "capsul.pipeline.test.fake_morphologist.baladinnormalizationtoaims.BaladinNormalizationToAims")
         self.add_process("ReorientAnatomy", "capsul.pipeline.test.fake_morphologist.reorientanatomy.ReorientAnatomy")
+        self.nodes["ReorientAnatomy"].enabled = False
 
         # links
         self.export_parameter("ConvertBaladinNormalizationToAIMS", "source_volume", "t1mri", is_optional=False)
@@ -24,8 +25,8 @@ class BaladinNormalizationPipeline(Pipeline):
         self.add_link("NormalizeBaladin.transformation_matrix->ConvertBaladinNormalizationToAIMS.read")
         self.export_parameter("NormalizeBaladin", "transformation_matrix", "NormalizeBaladin_transformation_matrix", is_optional=True)
         self.export_parameter("NormalizeBaladin", "normalized_anatomy_data", "NormalizeBaladin_normalized_anatomy_data", is_optional=True)
-        self.export_parameter("ConvertBaladinNormalizationToAIMS", "write", "ConvertBaladinNormalizationToAIMS_write", is_optional=True)
         self.add_link("ConvertBaladinNormalizationToAIMS.write->ReorientAnatomy.transformation")
+        self.export_parameter("ConvertBaladinNormalizationToAIMS", "write", "ConvertBaladinNormalizationToAIMS_write", is_optional=True)
         self.export_parameter("ReorientAnatomy", "output_t1mri", "reoriented_t1mri", is_optional=False)
         self.export_parameter("ReorientAnatomy", "output_transformation", "transformation", is_optional=False)
         self.export_parameter("ReorientAnatomy", "output_commissures_coordinates", "ReorientAnatomy_output_commissures_coordinates", is_optional=True)

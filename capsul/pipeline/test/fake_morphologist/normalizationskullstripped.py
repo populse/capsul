@@ -41,10 +41,10 @@ class NormalizationSkullStripped(Pipeline):
         self.export_parameter("SkullStripping", "t1mri", is_optional=False)
         self.add_link("t1mri->TalairachFromNormalization.t1mri")
         self.export_parameter("SkullStripping", "brain_mask", is_optional=False)
-        self.export_parameter("Normalization", "NormalizeSPM_template", "template", is_optional=True)
-        self.add_link("template->Normalization.NormalizeFSL_template")
-        self.add_link("template->Normalization.Normalization_AimsMIRegister_anatomical_template")
+        self.export_parameter("Normalization", "NormalizeFSL_template", "template", is_optional=True)
         self.add_link("template->Normalization.NormalizeBaladin_template")
+        self.add_link("template->Normalization.NormalizeSPM_template")
+        self.add_link("template->Normalization.Normalization_AimsMIRegister_anatomical_template")
         self.export_parameter("Normalization", "select_Normalization_pipeline", "Normalization_select_Normalization_pipeline", is_optional=True)
         self.export_parameter("Normalization", "allow_flip_initial_MRI", "Normalization_allow_flip_initial_MRI", is_optional=True)
         self.export_parameter("Normalization", "commissures_coordinates", "Normalization_commissures_coordinates", is_optional=True)
@@ -127,7 +127,6 @@ class NormalizationSkullStripped(Pipeline):
             "TalairachFromNormalization_transform_chain_ACPC_to_Normalized"))
 
         # default and initial values
-        self.Normalization_select_Normalization_pipeline = 'NormalizeSPM'
         self.Normalization_allow_flip_initial_MRI = False
         self.Normalization_init_translation_origin = 0
         self.Normalization_NormalizeFSL_alignment = 'Not Aligned but Same Orientation'

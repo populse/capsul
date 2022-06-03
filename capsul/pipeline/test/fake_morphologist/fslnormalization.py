@@ -15,8 +15,8 @@ class FSLNormalization(Pipeline):
 
         # links
         self.export_parameter("ReorientAnatomy", "t1mri", is_optional=False)
-        self.add_link("t1mri->converter.read")
         self.add_link("t1mri->ConvertFSLnormalizationToAIMS.source_volume")
+        self.add_link("t1mri->converter.read")
         self.export_parameter("NormalizeFSL", "anatomical_template", "template", is_optional=False)
         self.add_link("template->ConvertFSLnormalizationToAIMS.registered_volume")
         self.export_parameter("NormalizeFSL", "Alignment", "alignment", is_optional=False)
