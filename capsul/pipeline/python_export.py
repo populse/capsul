@@ -130,6 +130,15 @@ def save_py_pipeline(pipeline, py_file):
                               file=pyf)
                     print(f'        {self_str}.plugs["{param_name}"].optional = {optional}\n',
                           file=pyf)
+                value = snode.get_plug_value(param_name)
+                if value != cnode.get_plug_value(param_name):
+                    #splug = snode.plugs[param_name]
+                    #if splug.output and len(splug.links_to) == 0 \
+                            #or not splug.output and len(splug.links_from) == 0:
+                        ## unconnected with non-default value
+                    print(
+                        f'        {self_str}.set_plug_value("{param_name}", %s)'
+                        % get_repr_value(value), file=pyf)
 
             if isinstance(snode, PipelineNode):
                 sself_str = '%s.process.nodes["%s"]' % (self_str, '%s')

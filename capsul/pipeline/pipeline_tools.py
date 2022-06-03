@@ -1513,6 +1513,8 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
                     if k not in meta_forbidden}
             for k, v in meta.items():
                 setattr(new_proc.trait(name), k, v)
+            # set back old value
+            setattr(new_proc, name, getattr(node.process, name))
 
         node.process = new_proc
 
