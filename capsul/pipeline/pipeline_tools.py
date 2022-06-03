@@ -1459,6 +1459,8 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
                          if k not in meta and hasattr(field, k)})
             for k, v in meta.items():
                 setattr(new_proc.field(name), k, v)
+            # set back old value
+            setattr(new_proc, name, getattr(node, name, undefined))
 
         if parent is not None and node_name is not None:
             parent.nodes[node_name] = new_proc
