@@ -12,6 +12,7 @@ import json
 import operator
 from pathlib import Path
 import re
+import fnmatch
 
 from soma.controller import Controller, Literal, Directory
 from soma.undefined import undefined
@@ -229,16 +230,12 @@ class BIDSSchema(MetadataSchema):
 
 class BrainVISASchema(MetadataSchema):
     '''Metadata schema for BrainVISA datasets.
-
-    Attributes defined in fields may contain python replacement strings re-
-    using other attributes values (like "%(center)s"). Replacement will be
-    processed in the fields order.
     '''
     center: str
     subject: str
     modality: str = None
     process: str = None
-    analysis:str = 'default_analysis'
+    analysis: str = 'default_analysis'
     acquisition: str = None
     preprocessings: str = None
     longitudinal: list[str] = None
@@ -249,6 +246,8 @@ class BrainVISASchema(MetadataSchema):
     short_prefix: str = None
     suffix: str = None
     extension: str = None
+    side: str = None
+    sidebis: str = None  # when used as a sufffix
 
     find_attrs = re.compile(
         r'(?P<folder>[^-_/]*)/'
@@ -263,49 +262,43 @@ class BrainVISASchema(MetadataSchema):
     def _path_list(self):
         '''
         The path has the following pattern:
-        {center}/{subject}/[{modality}/][{process/][{acquisition}/][{preprocessings}/][{longitudinal}/][{analysis}/][seg_directory/][{sulci_graph_version}/[{sulci_recognition_session}]]/[{prefix}_][short_prefix]{subject}[_to_avg_{longitudinal}}[_{suffix}][.{extension}]
+        {center}/{subject}/[{modality}/][{process/][{acquisition}/][{preprocessings}/][{longitudinal}/][{analysis}/][seg_directory/][{sulci_graph_version}/[{sulci_recognition_session}]]/[side][{prefix}_][short_prefix]{subject}[_to_avg_{longitudinal}}[_{sidebis}{suffix}][.{extension}]
         '''
-
-        attrib_dict = {}
 
         attributes = tuple(f.name for f in self.fields())
 
-        for attribute in attributes:
-            value = getattr(self, attribute, None)
-            attrib_dict[attribute] = value
-        # postprocess values (in same order)
-        for attribute in attributes:
-            value = attrib_dict[attribute]
-            if isinstance(value, str):
-                value = value % attrib_dict
-                attrib_dict[attribute] = value
-
-        path_list = [attrib_dict['center'], attrib_dict['subject']]
+        path_list = [self.center, self.subject]
         for key in ('modality', 'process', 'acquisition', 'preprocessings', 'longitudinal'):
-            value = attrib_dict[key]
+            value = getattr(self, key, None)
             if value:
                 path_list.append(value)
-        if attrib_dict['analysis']:
-            path_list.append(attrib_dict['analysis'])
-        if attrib_dict['seg_directory']:
-            path_list += attrib_dict['seg_directory'].split('/')
-        if attrib_dict['sulci_graph_version']:
-            path_list.append(attrib_dict['sulci_graph_version'])
-            if attrib_dict['sulci_recognition_session']:
-                path_list.append(attrib_dict['sulci_recognition_session'])
+        if getattr(self, 'analysis', None):
+            path_list.append(self.analysis)
+        if self.seg_directory:
+            path_list += self.seg_directory.split('/')
+        if self.sulci_graph_version:
+            path_list.append(self.sulci_graph_version)
+            if self.sulci_recognition_session:
+                path_list.append(self.sulci_recognition_session)
 
         filename = []
-        if attrib_dict['prefix']:
-            filename.append(f'{attrib_dict["prefix"]}_')
-        if attrib_dict['short_prefix']:
-            filename.append(f'{attrib_dict["short_prefix"]}')
-        filename.append(attrib_dict['subject'])
-        if attrib_dict['longitudinal']:
-            filename.append(f'_to_avg_{attrib_dict["longitudinal"]}')
-        if attrib_dict['suffix']:
-            filename.append(f'_{attrib_dict["suffix"]}')
-        if attrib_dict['extension']:
-            filename.append(f'.{attrib_dict["extension"]}')
+        if self.side:
+            filename.append(f'{self.side}')
+        if self.prefix:
+            filename.append(f'{self.prefix}_')
+        if self.short_prefix:
+            filename.append(f'{self.short_prefix}')
+        filename.append(self.subject)
+        if self.longitudinal:
+            filename.append(f'_to_avg_{self.longitudinal}')
+        if self.suffix or self.sidebis:
+            filename.append('_')
+            if self.sidebis:
+                filename.append(f'{self.sidebis}')
+            if self.suffix:
+                filename.append(f'{self.suffix}')
+        if self.extension:
+            filename.append(f'.{self.extension}')
         path_list.append(''.join(filename))
         return path_list
 
@@ -503,7 +496,8 @@ def generate_paths(executable, context, metadata=None, fields=None,
     '''
     # avoid circular import
     from capsul.pipeline.pipeline import Pipeline
-    
+    from capsul.pipeline import pipeline_tools
+
     def dprint(*args, **kwargs):
         if debug:
             if debug is True:
@@ -512,6 +506,38 @@ def generate_paths(executable, context, metadata=None, fields=None,
             else:
                 file = debug
             print(*args, file=file, **kwargs)
+
+    def _merged_metadata(metadata_schema, field_name,
+                         inner_node=None, inner_field_name=None,
+                         node_names=None, executable=None):
+        full_name = field_name
+        if inner_node:
+            if not node_names:
+                # build node -> full name map
+                nnames = pipeline_tools.nodes_full_names(executable)
+                if node_names is not None:
+                    node_names.update(nnames)
+                else:
+                    node_names = nnames
+            full_name = f'{node_names[inner_node]}.{inner_field_name}'
+        rules1 = []  # '*': lowest prioriry
+        rules2 = []  # patterns for unqualified field
+        rules3 = []  # patterns for inner full named field
+        rules4 = []  # exact match
+        for rule, meta in metadata_schema.items():
+            if rule == '*':
+                rules1.append(meta)
+            elif rule == field_name or rule == full_name:
+                rules4.append(meta)
+            elif '*' in rule:
+                if inner_node and fnmatch.fnmatch(full_name, rule):
+                    rules3.append(meta)
+                elif fnmatch.fnmatch(field_name, rule):
+                    rules2.append(meta)
+        metadata = {}
+        for meta in rules1 + rules2 + rules3 + rules4:
+            metadata.update(meta)
+        return metadata
 
     if metadata is None:
         metadata = {}
@@ -593,7 +619,8 @@ def generate_paths(executable, context, metadata=None, fields=None,
 
         metadata = initial_metadata
 
-        global_metadata = getattr(executable, 'metadata_schema', {}).get(target_schema_name, {}).get('*', {})
+        global_metadata = getattr(executable, 'metadata_schema',
+                                  {}).get(target_schema_name, {}).get('*', {})
 
         target_list_fields = [i for i in target_fields if i.is_list()]
         if target_list_fields and len(target_list_fields) != len(target_fields):
@@ -657,6 +684,8 @@ def generate_paths(executable, context, metadata=None, fields=None,
                             merged_metadata[k] = v
                     dprint(f'merged metadata -> {merged_metadata}')
 
+        nodes_names = {}
+
         for field in target_fields:
             if isinstance(executable, Pipeline):
                 inner_item = next(executable.get_linked_items(
@@ -668,7 +697,7 @@ def generate_paths(executable, context, metadata=None, fields=None,
                 inner_field = inner_process.field(inner_field_name)
                 dprint(f'inner field for {field.name}: {inner_process.name}.{inner_field_name}')
             else:
-                inner_process = inner_field = None
+                inner_process = inner_field = inner_field_name = None
             values = []
             for source_metadata in source_metadatas:
                 target_metadata = dict((k, v) for k, v in source_metadata.items() if v is not undefined)
@@ -680,13 +709,14 @@ def generate_paths(executable, context, metadata=None, fields=None,
                 if inner_field:
                     inner_metadata_schema = getattr(inner_process, 'metadata_schema',
                         {}).get(target_schema_name, {})
-                    field_metadata.update(inner_metadata_schema.get('*', {}))
-                    field_metadata.update(inner_metadata_schema.get(inner_field.name, {}))
+                    field_metadata.update(_merged_metadata(
+                        inner_metadata_schema, inner_field_name))
                     dprint(f'inner meta for {field.name} -> {inner_process.name}.{inner_field.name}:', field_metadata)
                 outer_metadata_schema = getattr(executable, 'metadata_schema',
                 {}).get(target_schema_name,{})
-                field_metadata.update(outer_metadata_schema.get('*', {}))
-                field_metadata.update(outer_metadata_schema.get(field.name, {}))
+                field_metadata.update(_merged_metadata(
+                    outer_metadata_schema, field.name,
+                    inner_process, inner_field_name, nodes_names, executable))
                 dprint(f'for {field.name}: field_metadata = {field_metadata}')
                 if field_metadata:
                     target_metadata.update(field_metadata)
@@ -697,11 +727,23 @@ def generate_paths(executable, context, metadata=None, fields=None,
                     if isinstance(v, str) and v and v.startswith('!'):
                         if d is None:
                             d = {
-                                'list_index': source_metadata.get('list_index')
+                                'list_index': source_metadata.get('list_index'),
+                                'executable': executable,
+                                'pipeline': executable,
+                                'field': field.name,
+                                'pipeline_field': field.name,
                             }
+                            if inner_process:
+                                d['executable'] = inner_process
+                                d['field'] = inner_field_name
                             d.update(target_metadata)
+                        #print('eval:', f"f'{v[1:]}'", 'with exec:', d['executable'])
                         v = eval(f"f'{v[1:]}'", d, d)
+                        #print('->', v)
                     setattr(schema, k, v)
+                    # update d
+                    if d is not None:
+                        d[k] = v
                 values.append('!' + str(schema.build_path()))
             if target_list_size is None:
                 dprint(f'set value for {executable.name}.{field.name}:', values[0])

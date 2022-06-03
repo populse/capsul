@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
+import time
 
 from soma.controller import field, File
 from soma.controller import Directory, undefined
@@ -163,6 +164,12 @@ from capsul.pipeline.test.fake_morphologist.splitbrain \
     import SplitBrain
 from capsul.pipeline.test.fake_morphologist.greywhiteclassificationhemi \
     import GreyWhiteClassificationHemi
+from capsul.pipeline.test.fake_morphologist.greywhitetopology \
+    import GreyWhiteTopology
+from capsul.pipeline.test.fake_morphologist.greywhitemesh \
+    import GreyWhiteMesh
+from capsul.pipeline.test.fake_morphologist.pialmesh \
+    import PialMesh
 
 normalization_t1_spm12_reinit.requirements = {
     'fakespm': {
@@ -273,6 +280,27 @@ GreyWhiteClassificationHemi.metadata_schema = dict(
     }
 )
 
+GreyWhiteTopology.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'segmentation'},
+        'hemi_cortex': {'prefix': 'cortex'},
+    }
+)
+
+GreyWhiteMesh.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'segmentation/mesh'},
+        'white_mesh': {'suffix': 'white', 'extension': 'gii'},
+    }
+)
+
+PialMesh.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'segmentation/mesh'},
+        'pial_mesh': {'suffix': 'hemi', 'extension': 'gii'},
+    }
+)
+
 
 Morphologist.metadata_schema = dict(
     bids={
@@ -287,29 +315,38 @@ Morphologist.metadata_schema = dict(
             'analysis': undefined,
             'seg_directory': 'registration',
             'short_prefix': 'RawT1-',
-            'suffix': '%(acquisition)s',
+            'suffix': '!{acquisition}',
             'extension': 'referential'},
         'reoriented_t1mri': {'analysis': undefined},
+
+        'GreyWhiteClassification.*': {'side': 'L'},
+        'GreyWhiteTopology.*': {'side': 'L'},
+        'GreyWhiteMesh.*': {'sidebis': 'L'},
+        'PialMesh.*': {'sidebis': 'L'},
+        'SulciSkeleton.*': {'side': 'L'},
+        'CorticalFoldsGraph.*': {'side': 'L'},
+        'SulciRecognition.*': {'side': 'L'},
+        '*_1.*': {'side': 'R'},
+        'GreyWhiteMesh_1.*': {'sidebis': 'R', 'side': None},
+        'PialMesh_1.*': {'sidebis': 'R', 'side': None},
 
         'left_labelled_graph': {
             'seg_directory': 'folds',
             'sulci_graph_version': '3.1',
             'sulci_recognition_session': 'default_session_auto',
-            'short_prefix': 'L',
             'suffix': 'default_session_auto',
             'extension': 'arg'},
         'right_labelled_graph': {
             'seg_directory': 'folds',
             'sulci_graph_version': '3.1',
             'sulci_recognition_session': 'default_session_auto',
-            'short_prefix': 'R',
             'suffix': 'default_session_auto',
             'extension': 'arg'},
         'Talairach_transform': {
             'analysis': undefined,
             'seg_directory': 'registration',
             'short_prefix': 'RawT1-',
-            'suffix': '%(acquisition)s_TO_Talairach-ACPC',
+            'suffix': '!{acquisition}_TO_Talairach-ACPC',
             'extension': 'trm'},
     },
     shared={
@@ -733,8 +770,11 @@ class TestFakeMorphologist(unittest.TestCase):
             #     print(f'!dataset! {field.name} = {dataset.path} [{dataset.metadata_schema}]')
             # if getattr(execution_context, 'fakespm', undefined) is not undefined:
             #     print('!fakespm dir!', execution_context.fakespm.directory)
+            t0 = time.time()
             generate_paths(morphologist, execution_context, datasets=datasets,
                            source_fields=['t1mri'], debug=False)
+            t1 = time.time()
+            print('completion time:', t1 - t0, 's')
 
             debug = False
             if debug:
