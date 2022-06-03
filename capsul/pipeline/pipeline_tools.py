@@ -1261,6 +1261,23 @@ def find_node(pipeline, node):
     raise KeyError('Node %s not found in the pipeline %s'
                    % (node.name, pipeline.name))
 
+
+def nodes_full_names(executable):
+    # build node -> full name map
+    todo = [('', executable)]
+    node_names = {}
+    while todo:
+        name, node = todo.pop(0)
+        node_names[node] = name
+        prefix = f'{name}.' if name else ''
+        if isinstance(node, Pipeline):
+            todo += [(f'{prefix}{nn}', n) for nn, n in node.nodes.items()
+                     if n is not node]
+        elif isinstance(node, ProcessIteration):
+            todo .append((f'{prefix}{node.process.name}', node.process))
+    return node_names
+
+
 def is_node_enabled(pipeline, node_name=None, node=None):
     ''' Checks if the given node is enabled in the pipeline.
     It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a disabled step.
