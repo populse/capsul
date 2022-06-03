@@ -736,7 +736,7 @@ class TestFakeMorphologist(unittest.TestCase):
             generate_paths(morphologist, execution_context, datasets=datasets,
                            source_fields=['t1mri'], debug=False)
 
-            debug = True
+            debug = False
             if debug:
                 from soma.qt_gui.qt_backend import Qt
                 from capsul.qt_gui.widgets.pipeline_developer_view import PipelineDeveloperView
