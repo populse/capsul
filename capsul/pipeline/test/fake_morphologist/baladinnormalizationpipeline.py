@@ -9,21 +9,27 @@ class BaladinNormalizationPipeline(Pipeline):
     def pipeline_definition(self):
         # nodes
         self.add_process("NormalizeBaladin", "capsul.pipeline.test.fake_morphologist.normalization_baladin.Normalization_Baladin")
+        self.nodes["NormalizeBaladin"].set_plug_value("anatomy_data", traits.Undefined)
         self.add_process("ConvertBaladinNormalizationToAIMS", "capsul.pipeline.test.fake_morphologist.baladinnormalizationtoaims.BaladinNormalizationToAims")
+        self.nodes["ConvertBaladinNormalizationToAIMS"].set_plug_value("read", traits.Undefined)
+        self.nodes["ConvertBaladinNormalizationToAIMS"].set_plug_value("source_volume", traits.Undefined)
         self.add_process("ReorientAnatomy", "capsul.pipeline.test.fake_morphologist.reorientanatomy.ReorientAnatomy")
         self.nodes["ReorientAnatomy"].enabled = False
+        self.nodes["ReorientAnatomy"].set_plug_value("t1mri", traits.Undefined)
+        self.nodes["ReorientAnatomy"].set_plug_value("transformation", traits.Undefined)
+        self.nodes["ReorientAnatomy"].set_plug_value("commissures_coordinates", traits.Undefined)
 
         # links
-        self.export_parameter("ReorientAnatomy", "t1mri", is_optional=False)
+        self.export_parameter("ConvertBaladinNormalizationToAIMS", "source_volume", "t1mri", is_optional=False)
+        self.add_link("t1mri->ReorientAnatomy.t1mri")
         self.add_link("t1mri->NormalizeBaladin.anatomy_data")
-        self.add_link("t1mri->ConvertBaladinNormalizationToAIMS.source_volume")
         self.export_parameter("NormalizeBaladin", "anatomical_template", "template", is_optional=False)
         self.add_link("template->ConvertBaladinNormalizationToAIMS.registered_volume")
         self.export_parameter("ConvertBaladinNormalizationToAIMS", "set_transformation_in_source_volume", is_optional=False)
         self.export_parameter("ReorientAnatomy", "allow_flip_initial_MRI", is_optional=False)
         self.export_parameter("ReorientAnatomy", "commissures_coordinates", "ReorientAnatomy_commissures_coordinates", is_optional=True)
-        self.export_parameter("NormalizeBaladin", "transformation_matrix", "NormalizeBaladin_transformation_matrix", is_optional=True)
         self.add_link("NormalizeBaladin.transformation_matrix->ConvertBaladinNormalizationToAIMS.read")
+        self.export_parameter("NormalizeBaladin", "transformation_matrix", "NormalizeBaladin_transformation_matrix", is_optional=True)
         self.export_parameter("NormalizeBaladin", "normalized_anatomy_data", "NormalizeBaladin_normalized_anatomy_data", is_optional=True)
         self.add_link("ConvertBaladinNormalizationToAIMS.write->ReorientAnatomy.transformation")
         self.export_parameter("ConvertBaladinNormalizationToAIMS", "write", "ConvertBaladinNormalizationToAIMS_write", is_optional=True)

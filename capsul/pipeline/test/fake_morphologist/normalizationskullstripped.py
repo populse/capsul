@@ -9,11 +9,17 @@ class NormalizationSkullStripped(Pipeline):
     def pipeline_definition(self):
         # nodes
         self.add_process("SkullStripping", "capsul.pipeline.test.fake_morphologist.skullstripping.skullstripping")
+        self.nodes["SkullStripping"].set_plug_value("t1mri", traits.Undefined)
+        self.nodes["SkullStripping"].set_plug_value("brain_mask", traits.Undefined)
         self.add_process("Normalization", "capsul.pipeline.test.fake_morphologist.normalization.Normalization", make_optional=['reoriented_t1mri'])
         self.nodes["Normalization"].process.trait("reoriented_t1mri").optional = True
 
         self.nodes["Normalization"].plugs["reoriented_t1mri"].optional = True
 
+        self.nodes["Normalization"].set_plug_value("NormalizeSPM_template", '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz')
+        self.nodes["Normalization"].set_plug_value("NormalizeBaladin_template", '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz')
+        self.nodes["Normalization"].process.nodes["NormalizeSPM"].set_plug_value("template", '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz')
+        self.nodes["Normalization"].process.nodes["NormalizeBaladin"].set_plug_value("template", '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz')
         self.nodes["Normalization"].process.nodes["Normalization_AimsMIRegister"].process.trait("normalized_anatomy_data").optional = True
 
         self.nodes["Normalization"].process.nodes["Normalization_AimsMIRegister"].plugs["normalized_anatomy_data"].optional = True
@@ -24,12 +30,21 @@ class NormalizationSkullStripped(Pipeline):
 
         self.nodes["Normalization"].process.nodes["select_Normalization_pipeline"].plugs["reoriented_t1mri"].optional = True
 
+        self.nodes["Normalization"].process.nodes["NormalizeSPM"].process.nodes["normalization_t1_spm12_reinit"].set_plug_value("anatomical_template", '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz')
         self.nodes["Normalization"].process.nodes["NormalizeSPM"].process.nodes["normalization_t1_spm8_reinit"].enabled = False
+        self.nodes["Normalization"].process.nodes["NormalizeSPM"].process.nodes["normalization_t1_spm8_reinit"].set_plug_value("anatomical_template", '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz')
+        self.nodes["Normalization"].process.nodes["NormalizeBaladin"].process.nodes["NormalizeBaladin"].set_plug_value("anatomical_template", '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz')
+        self.nodes["Normalization"].process.nodes["NormalizeBaladin"].process.nodes["ConvertBaladinNormalizationToAIMS"].set_plug_value("registered_volume", '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz')
         self.nodes["Normalization"].process.nodes["NormalizeBaladin"].process.nodes["ReorientAnatomy"].enabled = False
         self.nodes["Normalization"].process.nodes_activation = {'NormalizeFSL': True, 'NormalizeSPM': True, 'NormalizeBaladin': True, 'Normalization_AimsMIRegister': True}
         self.nodes["Normalization"].process.NormalizeSPM_template = '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz'
         self.nodes["Normalization"].process.NormalizeBaladin_template = '/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz'
         self.add_process("TalairachFromNormalization", "capsul.pipeline.test.fake_morphologist.talairachtransformationfromnormalization.TalairachTransformationFromNormalization", make_optional=['commissure_coordinates'])
+        self.nodes["TalairachFromNormalization"].set_plug_value("normalization_transformation", traits.Undefined)
+        self.nodes["TalairachFromNormalization"].set_plug_value("t1mri", traits.Undefined)
+        self.nodes["TalairachFromNormalization"].set_plug_value("source_referential", traits.Undefined)
+        self.nodes["TalairachFromNormalization"].set_plug_value("normalized_referential", traits.Undefined)
+        self.nodes["TalairachFromNormalization"].set_plug_value("transform_chain_ACPC_to_Normalized", traits.Undefined)
         self.nodes["TalairachFromNormalization"].process.trait("Talairach_transform").optional = False
 
         self.nodes["TalairachFromNormalization"].plugs["Talairach_transform"].optional = False
@@ -43,8 +58,8 @@ class NormalizationSkullStripped(Pipeline):
         self.export_parameter("TalairachFromNormalization", "t1mri", is_optional=False)
         self.add_link("t1mri->SkullStripping.t1mri")
         self.export_parameter("SkullStripping", "brain_mask", is_optional=False)
-        self.export_parameter("Normalization", "Normalization_AimsMIRegister_anatomical_template", "template", is_optional=True)
-        self.add_link("template->Normalization.NormalizeFSL_template")
+        self.export_parameter("Normalization", "NormalizeFSL_template", "template", is_optional=True)
+        self.add_link("template->Normalization.Normalization_AimsMIRegister_anatomical_template")
         self.add_link("template->Normalization.NormalizeSPM_template")
         self.add_link("template->Normalization.NormalizeBaladin_template")
         self.export_parameter("Normalization", "select_Normalization_pipeline", "Normalization_select_Normalization_pipeline", is_optional=True)
@@ -72,8 +87,8 @@ class NormalizationSkullStripped(Pipeline):
         self.export_parameter("TalairachFromNormalization", "normalized_referential", "TalairachFromNormalization_normalized_referential", is_optional=True)
         self.export_parameter("TalairachFromNormalization", "acpc_referential", "TalairachFromNormalization_acpc_referential", is_optional=True)
         self.export_parameter("TalairachFromNormalization", "transform_chain_ACPC_to_Normalized", "TalairachFromNormalization_transform_chain_ACPC_to_Normalized", is_optional=True)
-        self.add_link("SkullStripping.skull_stripped->Normalization.t1mri")
         self.export_parameter("SkullStripping", "skull_stripped", is_optional=False)
+        self.add_link("SkullStripping.skull_stripped->Normalization.t1mri")
         self.export_parameter("Normalization", "transformation", is_optional=True)
         self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
         self.export_parameter("Normalization", "reoriented_t1mri", "Normalization_reoriented_t1mri", is_optional=True)

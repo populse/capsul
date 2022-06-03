@@ -9,9 +9,15 @@ class SulciLabelling(Pipeline):
     def pipeline_definition(self):
         # nodes
         self.add_process("recognition2000", "capsul.pipeline.test.fake_morphologist.sulcilabellingann.SulciLabellingANN")
+        self.nodes["recognition2000"].set_plug_value("data_graph", traits.Undefined)
         self.add_process("SPAM_recognition09", "capsul.pipeline.test.fake_morphologist.sulcilabellingspam.SulciLabellingSPAM")
         self.nodes["SPAM_recognition09"].process.nodes_activation = {'global_recognition': True, 'local_recognition': True, 'markovian_recognition': True}
         self.add_process("CNN_recognition19", "capsul.pipeline.test.fake_morphologist.sulcideeplabeling.SulciDeepLabeling", skip_invalid=True)
+        self.nodes["CNN_recognition19"].set_plug_value("graph", traits.Undefined)
+        self.nodes["CNN_recognition19"].set_plug_value("roots", traits.Undefined)
+        self.nodes["CNN_recognition19"].set_plug_value("model_file", traits.Undefined)
+        self.nodes["CNN_recognition19"].set_plug_value("param_file", traits.Undefined)
+        self.nodes["CNN_recognition19"].set_plug_value("skeleton", traits.Undefined)
         self.add_switch("select_Sulci_Recognition", ['recognition2000', 'SPAM_recognition09', 'CNN_recognition19'], ['output_graph'], output_types=[traits.File(output=True, optional=False)], switch_value='CNN_recognition19', opt_nodes=True, export_switch=False)
 
         # links
@@ -19,9 +25,9 @@ class SulciLabelling(Pipeline):
         self.export_parameter("SPAM_recognition09", "data_graph", is_optional=False)
         self.add_link("data_graph->recognition2000.data_graph")
         self.add_link("data_graph->CNN_recognition19.graph")
-        self.export_parameter("SPAM_recognition09", "fix_random_seed", is_optional=False)
-        self.add_link("fix_random_seed->recognition2000.fix_random_seed")
+        self.export_parameter("recognition2000", "fix_random_seed", is_optional=False)
         self.add_link("fix_random_seed->CNN_recognition19.fix_random_seed")
+        self.add_link("fix_random_seed->SPAM_recognition09.fix_random_seed")
         self.export_parameter("recognition2000", "model", "recognition2000_model", is_optional=True)
         self.export_parameter("recognition2000", "model_hint", "recognition2000_model_hint", is_optional=True)
         self.export_parameter("recognition2000", "rate", "recognition2000_rate", is_optional=True)
