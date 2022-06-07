@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import datetime
 import importlib
 import os
@@ -88,7 +89,7 @@ class LocalEngine:
             # pprint(workflow.parameters.proxy_values)
             # pprint(workflow.parameters.content)
             # pprint(workflow.parameters.no_proxy())
-            with ExecutionDatabase(db_file.name) as db:
+            with ExecutionDatabase('sqlite:\\' + db_file.name) as db:
                 db.execution_context = execution_context
                 db.executable = executable
                 db.save_workflow(workflow)
