@@ -174,7 +174,16 @@ from capsul.pipeline.test.fake_morphologist.sulciskeleton \
     import SulciSkeleton
 from capsul.pipeline.test.fake_morphologist.sulcigraph \
     import SulciGraph
-
+from capsul.pipeline.test.fake_morphologist.sulcilabellingann \
+    import SulciLabellingANN
+from capsul.pipeline.test.fake_morphologist.sulcilabellingspamglobal \
+    import SulciLabellingSPAMGlobal
+from capsul.pipeline.test.fake_morphologist.sulcilabellingspamlocal \
+    import SulciLabellingSPAMLocal
+from capsul.pipeline.test.fake_morphologist.sulcilabellingspammarkov \
+    import SulciLabellingSPAMMarkov
+from capsul.pipeline.test.fake_morphologist.sulcideeplabeling \
+    import SulciDeepLabeling
 normalization_t1_spm12_reinit.requirements = {
     'fakespm': {
         'version': '12'
@@ -323,6 +332,69 @@ SulciGraph.metadata_schema = dict(
     }
 )
 
+SulciLabellingANN.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'folds'},
+        'output_graph': {'suffix': '!{sulci_recognition_session}',
+                         'extension': 'arg'},
+        'energy_plot_file': {'suffix': '!{sulci_recognition_session}',
+                             'extension': 'nrj'},
+    }
+)
+
+SulciLabellingSPAMGlobal.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'folds'},
+        'output_graph': {'suffix': '!{sulci_recognition_session}',
+                         'extension': 'arg'},
+        'posterior_probabilities':
+        {
+            'suffix': '!{sulci_recognition_session}_proba',
+            'extension': 'csv'},
+        'output_transformation': {
+            'suffix': '!{sulci_recognition_session}_Tal_TO_SPAM',
+            'extension': 'trm'},
+        'output_t1_to_global_transformation': {
+            'suffix': '!{sulci_recognition_session}_T1_TO_SPAM',
+            'extension': 'trm'},
+    }
+)
+
+SulciLabellingSPAMLocal.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'folds'},
+        'output_graph': {'suffix': '!{sulci_recognition_session}',
+                         'extension': 'arg'},
+        'posterior_probabilities':
+        {
+            'suffix': '!{sulci_recognition_session}_proba',
+            'extension': 'csv'},
+        'output_local_transformations': {
+            'suffix': '!{sulci_recognition_session}_global_TO_local',
+            'extension': None},
+    }
+)
+
+SulciLabellingSPAMMarkov.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'folds'},
+        'output_graph': {'suffix': '!{sulci_recognition_session}',
+                         'extension': 'arg'},
+        'posterior_probabilities':
+        {
+            'suffix': '!{sulci_recognition_session}_proba',
+            'extension': 'csv'},
+    }
+)
+
+SulciDeepLabeling.metadata_schema = dict(
+    brainvisa={
+        '*': {'seg_directory': 'folds'},
+        'labeled_graph': {'suffix': '!{sulci_recognition_session}',
+                          'extension': 'arg'},
+    }
+)
+
 
 Morphologist.metadata_schema = dict(
     bids={
@@ -351,21 +423,26 @@ Morphologist.metadata_schema = dict(
         '*_1.*': {'side': 'R'},
         'GreyWhiteMesh_1.*': {'sidebis': 'R', 'side': None},
         'PialMesh_1.*': {'sidebis': 'R', 'side': None},
+        'SulciRecognition*.*': {
+            'sulci_graph_version':
+                '!{pipeline.CorticalFoldsGraph_graph_version}',
+            'sulci_recognition_session': 'default_session_auto',
+        },
 
         #'*.*': {'suffix': '!{field}'},
 
-        'left_labelled_graph': {
-            'seg_directory': 'folds',
-            'sulci_graph_version': '3.1',
-            'sulci_recognition_session': 'default_session_auto',
-            'suffix': 'default_session_auto',
-            'extension': 'arg'},
-        'right_labelled_graph': {
-            'seg_directory': 'folds',
-            'sulci_graph_version': '3.1',
-            'sulci_recognition_session': 'default_session_auto',
-            'suffix': 'default_session_auto',
-            'extension': 'arg'},
+        #'left_labelled_graph': {
+            #'seg_directory': 'folds',
+            #'sulci_graph_version': '3.1',
+            #'sulci_recognition_session': 'default_session_auto',
+            #'suffix': 'default_session_auto',
+            #'extension': 'arg'},
+        #'right_labelled_graph': {
+            #'seg_directory': 'folds',
+            #'sulci_graph_version': '3.1',
+            #'sulci_recognition_session': 'default_session_auto',
+            #'suffix': 'default_session_auto',
+            #'extension': 'arg'},
         'Talairach_transform': {
             'analysis': undefined,
             'seg_directory': 'registration',
@@ -787,6 +864,7 @@ class TestFakeMorphologist(unittest.TestCase):
             morphologist.Normalization_select_Normalization_pipeline \
                 = normalization[2]
             morphologist.spm_normalization_version = normalization[3]
+            morphologist.select_sulci_recognition = 'CNN_recognition19' # 'SPAM_recognition09'
 
             execution_context = engine.execution_context(morphologist)
             # for field in execution_context.dataset.fields():
