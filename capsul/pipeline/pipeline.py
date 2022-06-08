@@ -2187,7 +2187,8 @@ class Pipeline(Process):
         self.enable_parameter_links = enable_parameter_links
 
     def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True,
-                         activated_only=True, process_only=True):
+                         activated_only=True, process_only=True,
+                         in_iterations=False):
         '''Return the real process(es) node and plug connected to the given plug.
         Going through switches and inside subpipelines, ignoring nodes that are
         not activated.
@@ -2234,6 +2235,17 @@ class Pipeline(Process):
                                         if not process_only:
                                             yield (dest_node, input_plug_name)
                                         stack.append((dest_node, input_plug_name))
+                    elif isinstance(dest_node, ProcessIteration):
+                        if in_iterations:
+                            if isinstance(dest_node.process, Pipeline):
+                                for n, p in dest_node.process.get_linked_items(
+                                        dest_node.process, dest_plug_name):
+                                    if n is not node:
+                                        yield (n, p)
+                            else:
+                                yield (dest_node.process, plug_name)
+                        else:
+                            yield (dest_node, dest_plug_name)
                     else:
                         yield (dest_node, dest_plug_name)
 
