@@ -156,33 +156,37 @@ class CapsulWorkflow(Controller):
                 for before_process in before_processes:
                     for before_job in jobs_per_process[before_process]:
                         aj = self.jobs[after_job]
-                        aj['wait_for'].append(before_job)
+                        aj['wait_for'].add(before_job)
                         bj = self.jobs[before_job]
                         if bj['command'] is None:
-                            bj['waited_by'].append(after_job)
+                            bj['waited_by'].add(after_job)
 
         # Resolve disabled jobs
         disabled_jobs = [(uuid, job) for uuid, job in self.jobs.items() if job['command'] is None]
         for disabled_job in disabled_jobs:
-            wait_for = []
+            wait_for = set()
             stack = disabled_job[1]['wait_for']
             while stack:
-                job = stack.pop(0)
+                job = stack.pop()
                 if self.jobs[job]['command'] is None:
-                    stack.extend(self.jobs[job]['wait_for'])
+                    stack.update(self.jobs[job]['wait_for'])
                 else:
-                    wait_for.append(job)
-            waited_by = []
+                    wait_for.add(job)
+            waited_by = set()
             stack = list(disabled_job[1]['waited_by'])
             while stack:
                 job = stack.pop(0)
                 if self.jobs[job]['command'] is None:
                     stack.extend(self.jobs[job]['waited_by'])
                 else:
-                    waited_by.append(job)
+                    waited_by.add(job)
             for job in disabled_job[1]['waited_by']:
                 self.jobs[job]['wait_for'].remove(disabled_job[0])
             del self.jobs[disabled_job[0]]
+    
+        # Transform wait_for sets to lists for json storage
+        for job in self.jobs.values():
+            job['wait_for'] = list(job['wait_for'])
     
     def _create_jobs(self,
                      executable,
@@ -200,8 +204,6 @@ class CapsulWorkflow(Controller):
             parameters = parameters[index]
         nodes = []
         if isinstance(process, Pipeline):
-            # pipeline_parameters = DictWithProxy(_proxy_values=parameters.proxy_values)
-            # nodes_parameters = DictWithProxy(_proxy_values=parameters.proxy_values)
             disabled_nodes = process.disabled_pipeline_steps_nodes()
             for node_name, node in process.nodes.items():
                 if (node is process 
@@ -216,10 +218,10 @@ class CapsulWorkflow(Controller):
                     processes_proxies=processes_proxies,
                     process_chronology=process_chronology,
                     process=node,
-                    parent_executables=parent_executables,
+                    parent_executables=parent_executables + [process],
                     parameters_location=parameters_location + [node_name],
                     disabled=disabled or node in disabled_nodes)
-                parameters[node_name].content.update(job_parameters.content)
+                # parameters[node_name].content.update(job_parameters.content)
                 nodes.append(node)
             for field in process.user_fields():
                 for dest_node, plug_name in executable.get_linked_items(process, 
@@ -229,12 +231,19 @@ class CapsulWorkflow(Controller):
                         continue
                     parameters.content[field.name] = parameters.content[dest_node.name][plug_name]
                     break
+                if field.is_output():
+                    for dest_node_name, dest_plug_name, dest_node, dest_plug, is_weak in process.plugs[field.name].links_to:
+                        if dest_node.activated and dest_node not in disabled_nodes and not dest_node.field(dest_plug_name).is_output():
+                            process_chronology.setdefault(dest_node.uuid, set()).add(process.uuid)
             for node in nodes:
-                for plug_name, plug in node.plugs.items():
+                for plug_name in node.plugs:
                     first = parameters.content[node.name].get(plug_name)
-                    for dest_node, dest_plug_name in executable.get_linked_items(node, plug_name,
-                                                                                    in_sub_pipelines=False):
+                    for dest_node, dest_plug_name in process.get_linked_items(node, plug_name,
+                                                                              in_sub_pipelines=False):
+                        
                         second = parameters.content.get(dest_node.name, {}).get(dest_plug_name)
+                        if dest_node.pipeline is not node.pipeline:
+                            continue
                         if not parameters.is_proxy(first):
                             if parameters.is_proxy(second):
                                 if first is not None:
@@ -271,7 +280,7 @@ class CapsulWorkflow(Controller):
                 for k, v in job_parameters.content.items():
                     if k in process.iterative_parameters:
                         parameters.content.setdefault(k, []).append(v)
-                    else:
+                    elif k in process.regular_parameters:
                         parameters.content[k] = v
                 iteration_index += 1
             if isinstance(executable, Pipeline):
@@ -284,13 +293,13 @@ class CapsulWorkflow(Controller):
             if disabled:
                 self.jobs[job_uuid] = {
                     'command': None,
-                    'wait_for': [],
-                    'waited_by': [],
+                    'wait_for': set(),
+                    'waited_by': set(),
                 }
             else:
                 self.jobs[job_uuid] = {
                     'command': ['python', '-m', 'capsul.run', 'process', job_uuid],
-                    'wait_for': [],
+                    'wait_for': set(),
                     'process': process.json(include_parameters=False),
                     'parameters_location': parameters_location
                 }

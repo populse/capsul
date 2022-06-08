@@ -85,11 +85,12 @@ class LocalEngine:
             execution_context = self.execution_context(executable)
             workflow = CapsulWorkflow(executable)
             # from pprint import pprint
-            # print('!start!', db_file.name)
-            # pprint(os.listdir('/tmp'))
+            # print('!start!')
             # pprint(workflow.parameters.proxy_values)
             # pprint(workflow.parameters.content)
             # pprint(workflow.parameters.no_proxy())
+            # print('----')
+            # pprint(workflow.jobs)
             with ExecutionDatabase('sqlite://' + db_file.name) as db:
                 db.execution_context = execution_context
                 db.executable = executable
@@ -167,6 +168,8 @@ class LocalEngine:
             enable_parameter_links = None
         try:
             stack = [(executable, parameters)]
+            # print('!update_executable! stack', executable.full_name)
+            # pprint(parameters.content)
             while stack:
                 node, parameters = stack.pop(0)
                 for field in node.user_fields():
@@ -180,7 +183,7 @@ class LocalEngine:
                     # else:
                     #     print('!update_executable! ignore', node.full_name, field.name, value)
                 if isinstance(node, Pipeline):
-                    stack.extend((n, parameters[n.name]) for n in node.all_nodes() if n is not node and isinstance(n, Process) and n.activated)
+                    stack.extend((n, parameters[n.name]) for n in node.nodes.values() if n is not node and isinstance(n, Process) and n.activated)
         finally:
             if enable_parameter_links is not None:
                 executable.enable_parameter_links = enable_parameter_links

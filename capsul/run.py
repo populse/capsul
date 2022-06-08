@@ -61,7 +61,7 @@ if __name__ == '__main__':
             process_json, parameters_location = row
             process = Capsul.executable(process_json)
             if debug:
-                print(f'---- start {process.definition} ----')
+                print(f'---- init {process.definition} {parameters_location} ----')
             with database as db:
                 workflow_parameters = db.workflow_parameters
             parameters = workflow_parameters

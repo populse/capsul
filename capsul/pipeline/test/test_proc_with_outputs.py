@@ -165,29 +165,29 @@ class PipelineWithSubpipeline(Pipeline):
             "node1",
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess1')
         self.add_process(
-            "pipeline1",
+            "pipeline_a",
             'capsul.pipeline.test.test_proc_with_outputs.DummyPipeline2')
         self.add_process(
-            "node2",
+            "node_b",
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess1')
-        self.add_link("node1.output->pipeline1.input")
-        self.add_link("pipeline1.output->node2.input")
+        self.add_link("node1.output->pipeline_a.input")
+        self.add_link("pipeline_a.output->node_b.input")
 
 class PipelineWithIteration(Pipeline):
 
     def pipeline_definition(self):
         self.add_process(
-            "node1",
+            "node_a",
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess2')
         self.add_iterative_process(
-            "pipeline1",
+            "pipeline_a",
             'capsul.pipeline.test.test_proc_with_outputs.DummyPipeline2',
             iterative_plugs=['input', 'output'])
         self.add_process(
-            "node2",
+            "node_b",
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess3')
-        self.add_link("node1.outputs->pipeline1.input")
-        self.add_link("pipeline1.output->node2.input")
+        self.add_link("node_a.outputs->pipeline_a.input")
+        self.add_link("pipeline_a.output->node_b.input")
 
 
 # def setUpModule():
@@ -244,7 +244,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
     def test_direct_run(self):
         self.pipeline.node2_switch = 'node2'
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(self.pipeline, timeout=5)
         self.assertEqual(self.pipeline.nodes["node1"].output,
                          os.path.join(self.tmpdir, 'file_in_output.nii'))
@@ -260,19 +260,14 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'This is an output file\n',
                           'And a second output file\n'])
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_full_wf(self):
-        self.study_config.use_soma_workflow = True
         self.pipeline.node2_switch = 'node2'
 
-        #workflow = pipeline_workflow.workflow_from_pipeline(self.pipeline)
-        #import soma_workflow.client as swc
-        #swc.Helper.serialize('/tmp/workflow.workflow', workflow)
-
-        result = self.study_config.run(self.pipeline, verbose=True)
-        self.assertEqual(self.pipeline.nodes["node1"].process.output,
+        with self.capsul.engine() as ce:
+            ce.run(self.pipeline, timeout=5)
+        self.assertEqual(self.pipeline.nodes["node1"].output,
                          os.path.join(self.tmpdir, 'file_in_output.nii'))
-        self.assertEqual(self.pipeline.nodes["node3"].process.input,
+        self.assertEqual(self.pipeline.nodes["node3"].input,
                          [os.path.join(self.tmpdir, 'file_in_output.nii'),
                           os.path.join(self.tmpdir, 'file_in_output_bis.nii')])
         with open(self.pipeline.output) as f:
@@ -284,15 +279,14 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'This is an output file\n',
                           'And a second output file\n'])
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_direct_run_switch(self):
-        self.study_config.use_soma_workflow = False
         # change switch and re-run
         self.pipeline.node2_switch = 'node2alt'
-        self.pipeline()
-        self.assertEqual(self.pipeline.nodes["node1"].process.output,
+        with self.capsul.engine() as ce:
+            ce.run(self.pipeline, timeout=5)
+        self.assertEqual(self.pipeline.nodes["node1"].output,
                          os.path.join(self.tmpdir, 'file_in_output.nii'))
-        self.assertEqual(self.pipeline.nodes["node3"].process.input,
+        self.assertEqual(self.pipeline.nodes["node3"].input,
                          [os.path.join(self.tmpdir, 'file_in_output_ter.nii')])
         with open(self.pipeline.output) as f:
             res_out = f.readlines()
@@ -301,20 +295,16 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'This is an output file\n',
                           'And another output file\n'])
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_full_wf_switch(self):
-        self.study_config.use_soma_workflow = True
         # change switch and re-run
         self.pipeline.node2_switch = 'node2alt'
 
-        #workflow = pipeline_workflow.workflow_from_pipeline(self.pipeline)
-        #import soma_workflow.client as swc
-        #swc.Helper.serialize('/tmp/workflow.workflow', workflow)
 
-        result = self.study_config.run(self.pipeline, verbose=True)
-        self.assertEqual(self.pipeline.nodes["node1"].process.output,
+        with self.capsul.engine() as ce:
+            ce.run(self.pipeline, timeout=5)
+        self.assertEqual(self.pipeline.nodes["node1"].output,
                          os.path.join(self.tmpdir, 'file_in_output.nii'))
-        self.assertEqual(self.pipeline.nodes["node3"].process.input,
+        self.assertEqual(self.pipeline.nodes["node3"].input,
                          [os.path.join(self.tmpdir, 'file_in_output_ter.nii')])
         with open(self.pipeline.output) as f:
             res_out = f.readlines()
@@ -323,14 +313,13 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'This is an output file\n',
                           'And another output file\n'])
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_direct_run_subpipeline(self):
-        self.study_config.use_soma_workflow = False
-        pipeline = self.study_config.get_process_instance(
+        pipeline = Capsul.executable(
             'capsul.pipeline.test.test_proc_with_outputs.'
             'PipelineWithSubpipeline')
         pipeline.input = os.path.join(self.tmpdir, 'file_in.nii')
-        pipeline()
+        with self.capsul.engine() as ce:
+            ce.run(pipeline, timeout=5)
         with open(pipeline.output) as f:
             res_out = f.readlines()
         self.assertEqual(res_out,
