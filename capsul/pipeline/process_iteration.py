@@ -107,7 +107,7 @@ class ProcessIteration(Process):
         size = None
         for parameter in self.iterative_parameters:
             value = getattr(self, parameter, undefined)
-            if value is undefined:
+            if value in (undefined, None, []):
                 continue
             psize = len(value)
             if size is None:
@@ -119,7 +119,7 @@ class ProcessIteration(Process):
                     if size == 1:
                        size = psize
                     elif psize != 1:
-                        raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
+                        raise ValueError('Iterative parameter values must be lists of the same size: %s' % ', '.join('%s=%d' % (n, len(getattr(self, n, []))) for n in self.iterative_parameters))
         return size
     
     def iterate_over_process_parmeters(self):
