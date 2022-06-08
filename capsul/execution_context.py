@@ -351,7 +351,7 @@ class CapsulWorkflow(Controller):
                     if not plug.activated or not plug.enabled:
                         continue
                     field = node.field(plug_name)
-                    if not field.is_output():
+                    if field.output or not field.metadata('write', False):
                         continue
                     if field.is_list() and field.path_type is not None:
                         if value is not undefined and len([x for x in value if x in ('', undefined)]) == 0:

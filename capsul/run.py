@@ -60,6 +60,8 @@ if __name__ == '__main__':
                 raise ValueError(f'No such job: {job_uuid}')
             process_json, parameters_location = row
             process = Capsul.executable(process_json)
+            if debug:
+                print(f'---- start {process.definition} ----')
             with database as db:
                 workflow_parameters = db.workflow_parameters
             parameters = workflow_parameters
@@ -67,9 +69,14 @@ if __name__ == '__main__':
                 if index.isnumeric():
                     index = int(index)
                 parameters = parameters[index]
+            if debug:
+                from pprint import pprint
+                pprint(parameters.no_proxy())
+                print(f'----')
             for field in process.user_fields():
                 if field.name in parameters and parameters[field.name] is not None:
-                    setattr(process, field.name, parameters.no_proxy(parameters[field.name]))
+                    value = parameters.no_proxy(parameters[field.name])
+                    setattr(process, field.name, value)
             execution_context.executable = process
             process.resolve_paths(execution_context)
             if debug:

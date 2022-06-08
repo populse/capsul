@@ -28,7 +28,7 @@ class DummyProcess(Process):
         self.add_field("other_input", float, optional=True)
 
         # outputs
-        self.add_field("output_image", File, optional=False, output=True)
+        self.add_field("output_image", File, optional=False, write=True)
         self.add_field("other_output", float, optional=True, output=True)
 
     def execute(self, context):
