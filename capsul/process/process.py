@@ -23,7 +23,7 @@ import sys
 import traceback
 from uuid import uuid4
 
-from soma.controller import (Controller, undefined, Directory)
+from soma.controller import (Controller, undefined, Directory, Any)
 import soma.controller as sc
 from .node import Node
 
@@ -208,9 +208,10 @@ class Process(Node):
     def resolve_paths(self, execution_context):
         context_dict = {}
         for field in self.user_fields():
-            if field.path_type:
+            if field.path_type or field.type in (Any, list[Any]):
                 value = getattr(self, field.name, None)
                 if value:
+                    #print('resolve path', field.name, ':', value, '->', self._resolve_path_value(value, execution_context, context_dict))
                     setattr(self, field.name, self._resolve_path_value(value, execution_context, context_dict))
 
 
