@@ -11,7 +11,7 @@ from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
 from capsul.config.configuration import ModuleConfiguration
-from capsul.dataset import generate_paths
+from capsul.dataset import generate_paths, ProcessSchema
 
 class FakeSPMConfiguration(ModuleConfiguration):
     ''' SPM configuration module
@@ -52,10 +52,12 @@ class BiasCorrection(Process):
         with open(self.output, 'w') as f:
             f.write(content)
 
-    metadata_schema = dict(
-        bids={'output': {'part': 'nobias'}},
-        brainvisa={'output': {'prefix': 'nobias'}}
-    )
+class BiasCorrectionBIDS(ProcessSchema, schema='bids', process_class=BiasCorrection):
+    output = {'part': 'nobias'}
+
+class BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa', process_class=BiasCorrection):
+    output = {'prefix': 'nobias'}
+
 
 class FakeSPMNormalization12(Process):
     input: field(type_=File, extensions=('.nii',))
@@ -73,11 +75,6 @@ class FakeSPMNormalization12(Process):
         }
     }
     
-    metadata_schema = dict(
-        bids={'output': {'part': 'normalized_fakespm12'}},
-        brainvisa={'output': {'prefix': 'normalized_fakespm12'}}
-    )
-
     def execute(self, context):
         fakespmdir = Path(context.fakespm.directory)
         real_version = (fakespmdir / 'fakespm').read_text().strip()
@@ -89,6 +86,13 @@ class FakeSPMNormalization12(Process):
         with open(self.output, 'w') as f:
             f.write(content)
 
+class FakeSPMNormalization12BIDS(ProcessSchema, schema='bids', process_class=FakeSPMNormalization12):
+    output = {'part': 'normalized_fakespm12'}
+
+class FakeSPMNormalization12BrainVISA(ProcessSchema, schema='brainvisa', process_class=FakeSPMNormalization12):
+    output = {'prefix': 'normalized_fakespm12'}
+
+
 class FakeSPMNormalization8(FakeSPMNormalization12):
     requirements = {
         'fakespm': {
@@ -96,10 +100,12 @@ class FakeSPMNormalization8(FakeSPMNormalization12):
         }
     }
 
-    metadata_schema = dict(
-        bids={'output': {'part': 'normalized_fakespm8'}},
-        brainvisa={'output': {'prefix': 'normalized_fakespm8'}}
-    )
+class FakeSPMNormalization8BIDS(ProcessSchema, schema='bids', process_class=FakeSPMNormalization8):
+    output = {'part': 'normalized_fakespm8'}
+
+class FakeSPMNormalization8BrainVISA(ProcessSchema, schema='brainvisa', process_class=FakeSPMNormalization8):
+    output = {'prefix': 'normalized_fakespm8'}
+
 
 class AimsNormalization(Process):
     input: field(type_=File, extensions=('.nii',))
@@ -119,15 +125,16 @@ class AimsNormalization(Process):
         with open(self.output, 'w') as f:
             f.write(content)
 
+class AimsNormalizationBIDS(ProcessSchema, schema='bids', process_class=AimsNormalization):
+    output = {'part': 'normalized_aims'}
+
+class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_class=AimsNormalization):
+    output = {'prefix': 'normalized_aims'}
+
 class SplitBrain(Process):
     input: field(type_=File, extensions=('.nii',))
     right_output: field(type_=File, write=True, extensions=('.nii',))
     left_output: field(type_=File, write=True, extensions=('.nii',))
-
-    metadata_schema = dict(
-        bids={'output': {'part': 'split'}},
-        brainvisa={'output': {'prefix': 'split'}}
-    )
 
     def execute(self, context):
         with open(self.input) as f:
@@ -138,6 +145,14 @@ class SplitBrain(Process):
             Path(output).parent.mkdir(parents=True, exist_ok=True)
             with open(output, 'w') as f:
                 f.write(side_content)
+
+
+class SplitBrainBIDS(ProcessSchema, schema='bids', process_class=SplitBrain):
+    output = {'part': 'split'}
+
+
+class SplitBrainBrainVISA(ProcessSchema, schema='brainvisa', process_class=SplitBrain):
+    output = {'prefix': 'split'}
 
 
 class ProcessHemisphere(Process):
@@ -183,18 +198,15 @@ class TinyMorphologist(Pipeline):
         self.add_link('split.left_output->left_hemi.input')
         self.export_parameter('left_hemi', 'output', 'left_hemisphere')
 
-    metadata_schema = dict(
-        bids={
-            '*': {'pipeline': 'tinymorphologist'},
-            'left_hemisphere': {'part': 'left_hemi'},
-            'right_hemisphere': {'part': 'right_hemi'},
-        },
-        brainvisa={
-            '*': {'process': 'tinymorphologist'},
-            'left_hemisphere': {'prefix': 'left_hemi'},
-            'right_hemisphere': {'prefix': 'right_hemi'},
-        }
-    )
+class TinyMorphologistBIDS(ProcessSchema, schema='bids', process_class=TinyMorphologist):
+    _ = {'process': 'tinymorphologist'}
+    left_hemisphere = {'part': 'left_hemi'}
+    right_hemisphere = {'part': 'right_hemi'}
+
+class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process_class=TinyMorphologist):
+    _ = {'process': 'tinymorphologist'}
+    left_hemisphere = {'prefix': 'left_hemi'}
+    right_hemisphere = {'prefix': 'right_hemi'}
 
 def concatenate(inputs: list[File], result: File):
     with open(result, 'w') as o:

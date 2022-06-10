@@ -302,6 +302,50 @@ class BrainVISASchema(MetadataSchema):
         path_list.append(''.join(filename))
         return path_list
 
+class ProcessSchema:
+    def __init_subclass__(cls, schema, process_class) -> None:
+        super().__init_subclass__()
+        if 'metadata_schemas' not in process_class.__dict__:
+            process_class.metadata_schemas = {}
+        schemas = process_class.metadata_schemas
+        schemas[schema] = cls
+        setattr(process_class, 'metadata_schemas', schemas)
+    
+    @classmethod
+    def _update_metadata(cls, metadata, process, parameter, iteration_index):
+        stack = [
+            getattr(cls, parameter, None),
+            getattr(cls, '_', None),
+        ]
+        while stack:
+            item = stack.pop(0)
+            if item is None:
+                continue
+            elif isinstance(item, list):
+                stack = item + stack
+            elif isinstance(item, dict):
+                metadata.update(item)
+            else:
+                stack.insert(0, item(metadata, process, parameter, iteration_index))
+
+
+    @staticmethod
+    def prepend(key, value, sep='_'):
+        def prepend(metadata, process, parameter, iteration_index,
+                    key=key, value=value,sep=sep):
+            current_prefix = metadata.get(key)
+            metadata[key] = value + (sep + current_prefix if current_prefix else '')
+        return prepend
+
+    @staticmethod
+    def append(key, value, sep='_'):
+        def append(metadata, process, parameter, iteration_index,
+                   key=key, value=value,sep=sep):
+            current_prefix = metadata.get(key)
+            metadata[key] = (current_prefix + sep if current_prefix else '') + value
+        return append
+
+
 def bids_to_brainvisa(bids):
     result = dict(
         center='whaterver',
@@ -505,39 +549,6 @@ def generate_paths(executable, context, metadata=None, fields=None,
                 file = sys.stderr
             else:
                 file = debug
-            print(*args, file=file, **kwargs)
-
-    def _merged_metadata(metadata_schema, field_name,
-                         inner_node=None, inner_field_name=None,
-                         node_names=None, executable=None):
-        full_name = field_name
-        if inner_node:
-            if not node_names:
-                # build node -> full name map
-                nnames = pipeline_tools.nodes_full_names(executable)
-                if node_names is not None:
-                    node_names.update(nnames)
-                else:
-                    node_names = nnames
-            full_name = f'{node_names[inner_node]}.{inner_field_name}'
-        rules1 = []  # '*': lowest prioriry
-        rules2 = []  # patterns for unqualified field
-        rules3 = []  # patterns for inner full named field
-        rules4 = []  # exact match
-        for rule, meta in metadata_schema.items():
-            if rule == '*':
-                rules1.append(meta)
-            elif rule == field_name or rule == full_name:
-                rules4.append(meta)
-            elif '*' in rule:
-                if inner_node and fnmatch.fnmatch(full_name, rule):
-                    rules3.append(meta)
-                elif fnmatch.fnmatch(field_name, rule):
-                    rules2.append(meta)
-        metadata = {}
-        for meta in rules1 + rules2 + rules3 + rules4:
-            metadata.update(meta)
-        return metadata
 
     if metadata is None:
         metadata = {}
@@ -684,8 +695,6 @@ def generate_paths(executable, context, metadata=None, fields=None,
                             merged_metadata[k] = v
                     dprint(f'merged metadata -> {merged_metadata}')
 
-        nodes_names = {}
-
         for field in target_fields:
             if isinstance(executable, Pipeline):
                 inner_item = next(executable.get_linked_items(
@@ -695,7 +704,7 @@ def generate_paths(executable, context, metadata=None, fields=None,
             if inner_item is not None:
                 inner_process, inner_field_name = inner_item
                 inner_field = inner_process.field(inner_field_name)
-                dprint(f'inner field for {field.name}: {inner_process.name}.{inner_field_name}')
+                dprint(f'inner field for {field.name}: {inner_process.name}.{inner_field_name} ({inner_process.definition})')
             else:
                 inner_process = inner_field = inner_field_name = None
             values = []
@@ -705,23 +714,34 @@ def generate_paths(executable, context, metadata=None, fields=None,
                 target_metadata.update(global_metadata)
                 dprint(f'for {field.name}: given metadata = {metadata[source_metadata["list_index"]]}')
                 target_metadata.update(metadata[source_metadata['list_index']])
-                field_metadata = {}
+                #--------------------------------------------------------------------------
+                # field_metadata = {}
+                # if inner_field:
+                #     inner_metadata_schema = getattr(inner_process, 'metadata_schema',
+                #         {}).get(target_schema_name, {})
+                #     field_metadata.update(_merged_metadata(
+                #         inner_metadata_schema, inner_field_name))
+                #     dprint(f'inner meta for {field.name} -> {inner_process.name}.{inner_field.name}:', field_metadata)
+                # outer_metadata_schema = getattr(executable, 'metadata_schema',
+                # {}).get(target_schema_name,{})
+                # field_metadata.update(_merged_metadata(
+                #     outer_metadata_schema, field.name,
+                #     inner_process, inner_field_name, nodes_names, executable))
+                # dprint(f'for {field.name}: field_metadata = {field_metadata}')
+                # if field_metadata:
+                #     target_metadata.update(field_metadata)
+                #--------------------------------------------------------------------------
                 if inner_field:
-                    inner_metadata_schema = getattr(inner_process, 'metadata_schema',
-                        {}).get(target_schema_name, {})
-                    field_metadata.update(_merged_metadata(
-                        inner_metadata_schema, inner_field_name))
-                    dprint(f'inner meta for {field.name} -> {inner_process.name}.{inner_field.name}:', field_metadata)
-                outer_metadata_schema = getattr(executable, 'metadata_schema',
-                {}).get(target_schema_name,{})
-                field_metadata.update(_merged_metadata(
-                    outer_metadata_schema, field.name,
-                    inner_process, inner_field_name, nodes_names, executable))
-                dprint(f'for {field.name}: field_metadata = {field_metadata}')
-                if field_metadata:
-                    target_metadata.update(field_metadata)
+                    inner_metadata_schema = getattr(inner_process, 'metadata_schemas', {}).get(target_schema_name)
+                    if inner_metadata_schema:
+                        inner_metadata_schema._update_metadata(target_metadata, inner_process, inner_field.name, None)
+                outer_metadata_schema = getattr(executable, 'metadata_schemas', {}).get(target_schema_name)
+                if outer_metadata_schema:
+                    outer_metadata_schema._update_metadata(target_metadata, executable, field.name, None)
+                
                 dprint(f'for {field.name}: target_metadata = {target_metadata}')
                 schema = target_schema(f'{{dataset.{dataset_name_per_field[field]}.path}}')
+                dprint('schema:', schema)
                 d = None
                 for k, v in target_metadata.items():
                     if isinstance(v, str) and v and v.startswith('!'):
