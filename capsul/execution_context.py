@@ -154,7 +154,7 @@ class CapsulWorkflow(Controller):
         for after_process, before_processes in process_chronology.items():
             for after_job in jobs_per_process.get(after_process, ()):
                 for before_process in before_processes:
-                    for before_job in jobs_per_process[before_process]:
+                    for before_job in jobs_per_process.get(before_process, ()):
                         aj = self.jobs[after_job]
                         aj['wait_for'].add(before_job)
                         bj = self.jobs[before_job]

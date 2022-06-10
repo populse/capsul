@@ -165,13 +165,13 @@ class PipelineWithSubpipeline(Pipeline):
             "node1",
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess1')
         self.add_process(
-            "pipeline_a",
+            "pipeline1",
             'capsul.pipeline.test.test_proc_with_outputs.DummyPipeline2')
         self.add_process(
-            "node_b",
+            "node2",
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess1')
-        self.add_link("node1.output->pipeline_a.input")
-        self.add_link("pipeline_a.output->node_b.input")
+        self.add_link("node1.output->pipeline1.input")
+        self.add_link("pipeline1.output->node2.input")
 
 class PipelineWithIteration(Pipeline):
 
@@ -332,20 +332,14 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'And a second output file\n',
                           'This is an output file\n'])
 
-    @unittest.skip('reimplementation expected for capsul v3')
-    def xtest_full_wf_subpipeline(self):
-        self.study_config.use_soma_workflow = True
-        pipeline = self.study_config.get_process_instance(
+    def test_full_wf_subpipeline(self):
+        pipeline = Capsul.executable(
             'capsul.pipeline.test.test_proc_with_outputs.'
             'PipelineWithSubpipeline')
         pipeline.input = os.path.join(self.tmpdir, 'file_in.nii')
 
-        #workflow = pipeline_workflow.workflow_from_pipeline(pipeline)
-        #import soma_workflow.client as swc
-        #swc.Helper.serialize('/tmp/workflow.workflow', workflow)
-
-        pipeline()
-        result = self.study_config.run(self.pipeline, verbose=True)
+        with self.capsul.engine() as ce:
+            ce.run(pipeline, timeout=5)
         with open(pipeline.output) as f:
             res_out = f.readlines()
         self.assertEqual(res_out,
@@ -358,15 +352,15 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'And a second output file\n',
                           'This is an output file\n'])
 
-    @unittest.skip('reimplementation expected for capsul v3')
+    @unittest.skip('Dynamic iteration not supported yet')
     def test_direct_run_sub_iter(self):
-        self.study_config.use_soma_workflow = False
-        pipeline = self.study_config.get_process_instance(
+        pipeline = Capsul.executable(
             'capsul.pipeline.test.test_proc_with_outputs.'
             'PipelineWithIteration')
         pipeline.input = os.path.join(self.tmpdir, 'file_in.nii')
         pipeline.output = os.path.join(self.tmpdir, 'file_out.nii')
-        pipeline()
+        with self.capsul.engine() as ce:
+            ce.run(pipeline, timeout=5)
         with open(pipeline.output) as f:
             res_out = f.readlines()
         self.assertEqual(res_out,
@@ -388,21 +382,15 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                           'And a second output file\n',
                          ])
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def xtest_full_wf_sub_iter(self):
-        self.study_config.use_soma_workflow = True
-        pipeline = self.study_config.get_process_instance(
+        pipeline = Capsul.executable(
             'capsul.pipeline.test.test_proc_with_outputs.'
             'PipelineWithIteration')
         pipeline.input = os.path.join(self.tmpdir, 'file_in.nii')
         pipeline.output = os.path.join(self.tmpdir, 'file_out.nii')
 
-        #workflow = pipeline_workflow.workflow_from_pipeline(pipeline)
-        #import soma_workflow.client as swc
-        #swc.Helper.serialize('/tmp/workflow.workflow', workflow)
-
-        pipeline()
-        result = self.study_config.run(self.pipeline, verbose=True)
+        with self.capsul.engine() as ce:
+            ce.run(pipeline, timeout=5)
         with open(pipeline.output) as f:
             res_out = f.readlines()
         self.assertEqual(res_out,
