@@ -26,6 +26,21 @@ class MetadataSchema(Controller):
 
     This class is a :class:`~soma.controller.controller.Controller`: attributes
     are stored as fields.
+
+    Patterns in attributes values
+    -----------------------------
+
+    A string starting with ``!`` will be interpreted using a "f-string": variables between brackets will be interpreted. Available variables are:
+
+    - all attributes
+    - ``executable``
+    - ``pipeline``: in the case the executable is a sub-process of a pipeline
+    - ``field``
+    - ``pipeline_field``
+
+    ex::
+
+        "!{executable.param_1}/{subject}"
     '''
     def __init__(self, base_path, **kwargs):
         super().__init__(**kwargs)
@@ -462,6 +477,8 @@ def generate_paths(executable, context, metadata=None, fields=None,
 
       The special entry ``*`` in each schema dict is used as default for all parameters in the executable.
 
+      See the doc of :class:`MetadataSchema` for allowed replacement patterns in attribute values.
+
     - finally, instantiate the process and set its input parameter(s) and call ``generate_paths``::
 
         process = executable(
@@ -497,6 +514,7 @@ def generate_paths(executable, context, metadata=None, fields=None,
     # avoid circular import
     from capsul.pipeline.pipeline import Pipeline
     from capsul.pipeline import pipeline_tools
+    from capsul.pipeline.process_iteration import ProcessIteration
 
     def dprint(*args, **kwargs):
         if debug:
@@ -539,6 +557,67 @@ def generate_paths(executable, context, metadata=None, fields=None,
             metadata.update(meta)
         return metadata
 
+    def _merge_dicts(d1, d2):
+        ''' merge d2 into d1, d1 has priority
+        '''
+        for k, v in d2.items():
+            if k in d1 and isinstance(v, dict):
+                v = _merge_dicts(d1[k], v)
+            d1[k] = v
+        return d1
+
+    def _merged_metadata_schema(executable):
+        schema = getattr(executable, 'merged_metadata_schema', None)
+        if schema is not None:
+            return schema   ## FIME when do we need to clear this cache ?
+        # merge inner schemas dicts
+        #print('_merged_metadata_schema for:', executable)
+        schema = {}
+        todo = [(executable, None)]
+        while todo:
+            node, name = todo.pop(0)
+            if name:
+                prefix = f'{name}.'
+            else:
+                prefix = ''
+
+            #print('pop:', name, ':', prefix)
+
+            if isinstance(node, Pipeline):
+                todo += [(nd, f'{prefix}{nm}')
+                          for nm, nd in node.nodes.items()
+                          if nd is not node]
+            elif isinstance(node, ProcessIteration):
+                todo.append((node.process, f'{prefix}{node.process.name}'))
+            node_schema = {sk: {f'{prefix}{k}': v
+                                for k, v in sv.items()}
+                           for sk, sv in getattr(node, 'metadata_schema',
+                                                 {}).items()}
+            # merge values
+            _merge_dicts(schema, node_schema)
+
+        # merge linked parameters into top ones
+        linked = pipeline_tools.get_all_linked_values(executable)
+        sorted_linked = {}
+        for param, param_id in linked.items():
+            sorted_linked.setdefault(param_id, []).append(param)
+        for param_id, v in sorted_linked.items():
+            linked = sorted(v, key=lambda x: len(x.split('.')))
+            sc_m = {}
+            for sc_name in schema:
+                sc_m[sc_name] = {}
+            for pname in linked:
+                for sc_name, sc_content in schema.items():
+                    sc_p = sc_content.get(pname, {})
+                    _merge_dicts(sc_m[sc_name], sc_p)
+            for sc_name, sc in schema.items():
+                sm = sc_m[sc_name]
+                for param in linked:
+                    sc[param] = sm
+
+        type(executable).merged_metadata_schema = schema
+        return schema
+
     if metadata is None:
         metadata = {}
     dprint('generate_paths:', executable.name)
@@ -558,7 +637,8 @@ def generate_paths(executable, context, metadata=None, fields=None,
         inner_field_name = None
         if isinstance(executable, Pipeline):
             inner_item = next(executable.get_linked_items(
-                                executable, field.name), None)
+                              executable, field.name, in_iterations=True),
+            None)
         else:
             inner_item = None
         if inner_item is not None:
@@ -619,8 +699,8 @@ def generate_paths(executable, context, metadata=None, fields=None,
 
         metadata = initial_metadata
 
-        global_metadata = getattr(executable, 'metadata_schema',
-                                  {}).get(target_schema_name, {}).get('*', {})
+        global_metadata = _merged_metadata_schema(executable).get(
+            target_schema_name, {}).get('*', {})
 
         target_list_fields = [i for i in target_fields if i.is_list()]
         if target_list_fields and len(target_list_fields) != len(target_fields):
@@ -638,9 +718,11 @@ def generate_paths(executable, context, metadata=None, fields=None,
                     value = getattr(executable, field.name, undefined)
                     if isinstance(value, list):
                         l = len(value)
-                        if target_list_size is not None and target_list_size != l:
+                        if target_list_size is not None and target_list_size != l and l not in (0, 1):
                             raise ValueError('Lists of different sizes given to generate paths')
-                        target_list_size = l
+                        if l not in (None, 0, 1) \
+                                or target_list_size in (None, 0):
+                            target_list_size = l
         source_metadatas = ([{'list_index': 0}] if target_list_size is None
                             else [{'list_index': i} for i in range(target_list_size)])
         if not isinstance(metadata, (list, tuple)):
@@ -668,7 +750,9 @@ def generate_paths(executable, context, metadata=None, fields=None,
                 for field in source_fields:
                     path = getattr(executable, field.name)
                     if isinstance(path, list):
-                        path = path[list_index]
+                        if len(path) == 0:
+                            continue
+                        path = path[min(list_index, len(path)-1)]
                     dprint(f'source path for: {field.name}: {path}')
                     schema = source_schema(context.dataset[dataset_name_per_field[field]].path)
                     path_metadata = schema.metadata(path)
@@ -689,7 +773,8 @@ def generate_paths(executable, context, metadata=None, fields=None,
         for field in target_fields:
             if isinstance(executable, Pipeline):
                 inner_item = next(executable.get_linked_items(
-                                    executable, field.name), None)
+                                  executable, field.name, in_iterations=True),
+                None)
             else:
                 inner_item = None
             if inner_item is not None:
@@ -705,18 +790,18 @@ def generate_paths(executable, context, metadata=None, fields=None,
                 target_metadata.update(global_metadata)
                 dprint(f'for {field.name}: given metadata = {metadata[source_metadata["list_index"]]}')
                 target_metadata.update(metadata[source_metadata['list_index']])
-                field_metadata = {}
-                if inner_field:
-                    inner_metadata_schema = getattr(inner_process, 'metadata_schema',
-                        {}).get(target_schema_name, {})
-                    field_metadata.update(_merged_metadata(
-                        inner_metadata_schema, inner_field_name))
-                    dprint(f'inner meta for {field.name} -> {inner_process.name}.{inner_field.name}:', field_metadata)
-                outer_metadata_schema = getattr(executable, 'metadata_schema',
-                {}).get(target_schema_name,{})
-                field_metadata.update(_merged_metadata(
+                #field_metadata = {}
+                #if inner_field:
+                    #inner_metadata_schema = _merged_metadata_schema(
+                        #inner_process).get(target_schema_name, {})
+                    #field_metadata.update(_merged_metadata(
+                        #inner_metadata_schema, inner_field_name))
+                    #dprint(f'inner meta for {field.name} -> {inner_process.name}.{inner_field.name}:', field_metadata)
+                outer_metadata_schema = _merged_metadata_schema(
+                    executable).get(target_schema_name,{})
+                field_metadata = _merged_metadata(
                     outer_metadata_schema, field.name,
-                    inner_process, inner_field_name, nodes_names, executable))
+                    inner_process, inner_field_name, nodes_names, executable)
                 dprint(f'for {field.name}: field_metadata = {field_metadata}')
                 if field_metadata:
                     target_metadata.update(field_metadata)
@@ -736,9 +821,26 @@ def generate_paths(executable, context, metadata=None, fields=None,
                             if inner_process:
                                 d['executable'] = inner_process
                                 d['field'] = inner_field_name
+                            # include all metadata from schema (even empty ones)
+                            for sf in schema.fields():
+                                if sf.name not in d:
+                                    sv = getattr(schema, sf.name, None)
+                                    d[sf.name] = sv
                             d.update(target_metadata)
                         #print('eval:', f"f'{v[1:]}'", 'with exec:', d['executable'])
-                        v = eval(f"f'{v[1:]}'", d, d)
+                        try:
+                            v = eval(f"f'{v[1:]}'", d, d)
+                            if '__builtins__' in d:
+                                #print('**** __builtins__ in d -2- ***')
+                                #print(d.keys())
+                                del d['__builtins__']
+                        except Exception as e:
+                            import sys
+                            print(f'Error in eval of: {v}', file=sys.stderr)
+                            if '__builtins__' in d:
+                                del d['__builtins__']
+                            print(f'using dict: {d}', file=sys.stderr)
+                            raise
                         #print('->', v)
                     setattr(schema, k, v)
                     # update d

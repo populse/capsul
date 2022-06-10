@@ -1263,7 +1263,8 @@ def find_node(pipeline, node):
 
 
 def nodes_full_names(executable):
-    # build node -> full name map
+    ''' build node -> full name map
+    '''
     todo = [('', executable)]
     node_names = {}
     while todo:
@@ -1276,6 +1277,126 @@ def nodes_full_names(executable):
         elif isinstance(node, ProcessIteration):
             todo .append((f'{prefix}{node.process.name}', node.process))
     return node_names
+
+
+def get_all_linked_values(pipeline, in_iterations=True, only_active=True):
+    ''' Group all parameters which are linked together, at all levels of a
+    pipeline
+    '''
+    def _replace_values(params, id0, id1):
+        #print('replace', id0, 'with', id1)
+        for k, v in params.items():
+            if v == id0:
+                params[k] = id1
+
+    params = {}
+    todo = [(pipeline, None)]
+    done = set()
+    done_todo = {pipeline}
+    count = 0
+
+    while todo:
+        node, name = todo.pop(0)
+        #print('pop:', name, len(todo), len(done))
+        done.add(node)
+        if only_active and not node.activated:
+            continue
+
+        if name:
+            prefix = f'{name}.'
+            parent_name = name.rsplit('.', 1)
+            if len(parent_name) < 2:
+                parent_prefix = ''
+            else:
+                parent_prefix = f'{parent_name[0]}.'
+        else:
+            prefix = ''
+            parent_prefix = ''
+
+        if isinstance(node, Switch):
+            # add internal links
+            for iparam, oparam in node.connections():
+                ipname = f'{prefix}{iparam}'
+                opname = f'{prefix}{oparam}'
+                param_id = params.get(ipname)
+                if param_id is None:
+                    param_id = params.get(opname)
+                    if param_id is None:
+                        param_id = count
+                        count += 1
+                params[iparam] = param_id
+                params[oparam] = param_id
+
+        for pname, plug in node.plugs.items():
+            plug_name = f'{prefix}{pname}'
+            param_id = params.get(plug_name)
+            if param_id is None:
+                param_id = count
+                count += 1
+            params[plug_name] = param_id
+            # external links first (same level)
+            if plug.output:
+                direction = 'links_to'
+                other_direction = 'links_from'
+            else:
+                direction = 'links_from'
+                other_direction = 'links_to'
+            for link in getattr(plug, direction):
+                nname, lpname, lnode = link[:3]
+                if only_active and not lnode.activated:
+                    continue
+                lnode_name = f'{parent_prefix}{nname}'
+                if lnode_name.endswith('.'):  # if nname is ""
+                    lnode_name = lnode_name[:-1]
+                if lnode_name:
+                    lnode_prefix = f'{lnode_name}.'
+                else:
+                    lnode_prefix = ''
+                lpfname = f'{lnode_prefix}{lpname}'
+                if lpfname in params and params[lpfname] != param_id:
+                    _replace_values(params, params[lpfname], param_id)
+                params[lpfname] = param_id
+                if lnode not in done_todo:
+                    todo.append((lnode, lnode_name))
+                    done_todo.add(lnode)
+
+            if isinstance(node, Pipeline):
+                # inner links
+                for link in getattr(plug, other_direction):
+                    nname, lpname, lnode = link[:3]
+                    if only_active and not lnode.activated:
+                        continue
+                    lnode_name = f'{prefix}{nname}'
+                    if lnode_name:
+                        lnode_prefix = f'{lnode_name}.'
+                    else:
+                        lnode_prefix = ''
+                    lpfname = f'{lnode_prefix}{lpname}'
+                    if lpfname in params and params[lpfname] != param_id:
+                        _replace_values(params, params[lpfname], param_id)
+                    params[lpfname] = param_id
+                    if lnode not in done_todo:
+                        todo.append((lnode, lnode_name))
+                        done_todo.add(lnode)
+
+        if isinstance(node, ProcessIteration):
+            it_name = f'{prefix}{node.process.name}'
+            if node.process not in done_todo:
+                todo.append((node.process, it_name))
+                done_todo.add(node.process)
+            it_prefix = f'{it_name}.'
+            # all iterated process params as "links" to the iterative node
+            for pname in node.process.plugs:
+                if node.field(pname):
+                    plug_name = f'{prefix}{pname}'
+                    it_plug_name = f'{it_prefix}{pname}'
+                    param_id = params.get(plug_name)
+                    if it_plug_name in params \
+                            and params[it_plug_name] != param_id:
+                        _replace_values(params, params[it_plug_name], param_id)
+                    params[it_plug_name] = param_id
+
+    return params
 
 
 def is_node_enabled(pipeline, node_name=None, node=None):

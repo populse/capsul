@@ -326,7 +326,7 @@ class Switch(Node):
             links = connected_plug.links_to
         dest_plugs = []
         for link in links:
-            if link[2] is self.pipeline.pipeline_node:
+            if link[2] is self.pipeline:
                 other_end = [(link[2], link[1], link[3])]
             else:
                 other_end = link[2].get_connections_through(link[1], single)
