@@ -714,31 +714,13 @@ def generate_paths(executable, context, metadata=None, fields=None,
                 target_metadata.update(global_metadata)
                 dprint(f'for {field.name}: given metadata = {metadata[source_metadata["list_index"]]}')
                 target_metadata.update(metadata[source_metadata['list_index']])
-                #--------------------------------------------------------------------------
-                # field_metadata = {}
-                # if inner_field:
-                #     inner_metadata_schema = getattr(inner_process, 'metadata_schema',
-                #         {}).get(target_schema_name, {})
-                #     field_metadata.update(_merged_metadata(
-                #         inner_metadata_schema, inner_field_name))
-                #     dprint(f'inner meta for {field.name} -> {inner_process.name}.{inner_field.name}:', field_metadata)
-                # outer_metadata_schema = getattr(executable, 'metadata_schema',
-                # {}).get(target_schema_name,{})
-                # field_metadata.update(_merged_metadata(
-                #     outer_metadata_schema, field.name,
-                #     inner_process, inner_field_name, nodes_names, executable))
-                # dprint(f'for {field.name}: field_metadata = {field_metadata}')
-                # if field_metadata:
-                #     target_metadata.update(field_metadata)
-                #--------------------------------------------------------------------------
                 if inner_field:
                     inner_metadata_schema = getattr(inner_process, 'metadata_schemas', {}).get(target_schema_name)
                     if inner_metadata_schema:
                         inner_metadata_schema._update_metadata(target_metadata, inner_process, inner_field.name, None)
                 outer_metadata_schema = getattr(executable, 'metadata_schemas', {}).get(target_schema_name)
                 if outer_metadata_schema:
-                    outer_metadata_schema._update_metadata(target_metadata, executable, field.name, None)
-                
+                    outer_metadata_schema._update_metadata(target_metadata, executable, field.name, None)                
                 dprint(f'for {field.name}: target_metadata = {target_metadata}')
                 schema = target_schema(f'{{dataset.{dataset_name_per_field[field]}.path}}')
                 dprint('schema:', schema)
