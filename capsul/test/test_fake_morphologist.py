@@ -231,9 +231,10 @@ normalization_aimsmiregister.metadata_schema = dict(
 )
 
 Normalization_FSL_reinit.metadata_schema = dict(
-    brainvisa={'transformation_matrix': {'analysis': undefined,
-                                         'suffix': 'fsl',
-                                         'extension': 'mat'}},
+    brainvisa={
+        'transformation_matrix': {'analysis': undefined, 'suffix': 'fsl',
+                                  'extension': 'mat'},
+    },
 )
 
 T1BiasCorrection.metadata_schema = dict(
@@ -424,25 +425,13 @@ Morphologist.metadata_schema = dict(
         'GreyWhiteMesh_1.*': {'sidebis': 'R', 'side': None},
         'PialMesh_1.*': {'sidebis': 'R', 'side': None},
         'SulciRecognition*.*': {
-            'sulci_graph_version':
-                '!{pipeline.CorticalFoldsGraph_graph_version}',
+            #'sulci_graph_version':
+                #'!{pipeline.CorticalFoldsGraph_graph_version}',
+            # FIXME the above doesn't work if pipeline is an iteration
+            'sulci_graph_version': '3.1',
             'sulci_recognition_session': 'default_session_auto',
         },
 
-        #'*.*': {'suffix': '!{field}'},
-
-        #'left_labelled_graph': {
-            #'seg_directory': 'folds',
-            #'sulci_graph_version': '3.1',
-            #'sulci_recognition_session': 'default_session_auto',
-            #'suffix': 'default_session_auto',
-            #'extension': 'arg'},
-        #'right_labelled_graph': {
-            #'seg_directory': 'folds',
-            #'sulci_graph_version': '3.1',
-            #'sulci_recognition_session': 'default_session_auto',
-            #'suffix': 'default_session_auto',
-            #'extension': 'arg'},
         'Talairach_transform': {
             'analysis': undefined,
             'seg_directory': 'registration',
@@ -790,18 +779,18 @@ class TestFakeMorphologist(unittest.TestCase):
         dict_context = context.asdict()
         self.assertEqual(dict_context, expected_context)
 
-    #@unittest.skip('not ready')
+    def clear_values(self, morphologist):
+        for field in morphologist.user_fields(): # noqa: F402
+            if field.path_type:
+                value = getattr(morphologist, field.name, undefined)
+                if value in (None, undefined):
+                    continue
+                if isinstance(value, list):
+                    setattr(morphologist, field.name, [])
+                else:
+                    setattr(morphologist, field.name, undefined)
+
     def test_path_generation(self):
-        def clear_values(morphologist):
-            for field in morphologist.user_fields(): # noqa: F402
-                if field.path_type:
-                    value = getattr(morphologist, field.name, undefined)
-                    if value in (None, undefined):
-                        continue
-                    if isinstance(value, list):
-                        setattr(morphologist, field.name, [])
-                    else:
-                        setattr(morphologist, field.name, undefined)
 
         expected = {
             ('StandardACPC', 'initial', 'NormalizeSPM',
@@ -855,7 +844,7 @@ class TestFakeMorphologist(unittest.TestCase):
         for normalization in zip(sel_tal, renorm, norm, normspm):
             morphologist = self.capsul.executable(
                 'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
-            clear_values(morphologist)
+            self.clear_values(morphologist)
 
             morphologist.t1mri = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
             morphologist.select_Talairach = normalization[0]
@@ -908,25 +897,27 @@ class TestFakeMorphologist(unittest.TestCase):
     @unittest.skip('not ready')
     def test_pipeline_iteration(self):
         expected_completion = {
-            'input': [f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+            't1mri': [
                         f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
                         f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
                         f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
                         f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
                         f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii'],
-            'left_hemisphere': ['!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/left_hemi_casimiro_{executable.normalization[0]}.nii',
+                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+            ],
+            'left_labelled_graph': ['!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/left_hemi_casimiro_{executable.normalization[0]}.nii',
                                 '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/left_hemi_casimiro_{executable.normalization[1]}.nii',
                                 '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/left_hemi_casimiro_{executable.normalization[2]}.nii',
                                 '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/left_hemi_casimiro_{executable.normalization[3]}.nii',
@@ -944,7 +935,7 @@ class TestFakeMorphologist(unittest.TestCase):
                                 '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/left_hemi_aleksander_{executable.normalization[15]}.nii',
                                 '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/left_hemi_aleksander_{executable.normalization[16]}.nii',
                                 '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/left_hemi_aleksander_{executable.normalization[17]}.nii'],
-            'nobias': ['!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/casimiro_{executable.normalization[0]}.nii',
+            't1mri_nobias': ['!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/casimiro_{executable.normalization[0]}.nii',
                         '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/casimiro_{executable.normalization[1]}.nii',
                         '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/casimiro_{executable.normalization[2]}.nii',
                         '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/casimiro_{executable.normalization[3]}.nii',
@@ -962,7 +953,7 @@ class TestFakeMorphologist(unittest.TestCase):
                         '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/aleksander_{executable.normalization[15]}.nii',
                         '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/aleksander_{executable.normalization[16]}.nii',
                         '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/aleksander_{executable.normalization[17]}.nii'],
-            'normalization': ['none',
+            'Normalization_select_Normalization_pipeline': ['none',
                                 'aims',
                                 'fakespm8',
                                 'none',
@@ -980,7 +971,7 @@ class TestFakeMorphologist(unittest.TestCase):
                                 'none',
                                 'aims',
                                 'fakespm8'],
-            'right_hemisphere': ['!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/right_hemi_casimiro_{executable.normalization[0]}.nii',
+            'right_labelled_graph': ['!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/right_hemi_casimiro_{executable.normalization[0]}.nii',
                                     '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/right_hemi_casimiro_{executable.normalization[1]}.nii',
                                     '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/right_hemi_casimiro_{executable.normalization[2]}.nii',
                                     '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/right_hemi_casimiro_{executable.normalization[3]}.nii',
@@ -1095,36 +1086,80 @@ class TestFakeMorphologist(unittest.TestCase):
 
         morphologist_iteration = self.capsul.iteration_pipeline(
             'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist',
-            non_iterative_plugs=['template'],
+            #non_iterative_plugs=['template'],
         )
-        
+        self.clear_values(morphologist_iteration)
+        self.clear_values(morphologist_iteration.nodes['iteration'].process)
+
         # Parse the dataset with BIDS-specific query (here "suffix" is part
         #  of BIDS specification). The object returned contains info for main
         # BIDS fields (sub, ses, acq, etc.)
         count = 0
-        inputs = []
-        normalizations = []
-        for path in self.capsul.config.local.dataset.input.find(suffix='T1w', extension='nii'):
-            inputs.extend([str(path)]*3)
-            normalizations += ['none', 'aims', 'fakespm8']
+        t1mri = []
+        select_Talairach = []
+        perform_skull_stripped_renormalization = []
+        Normalization_select_Normalization_pipeline = []
+        spm_normalization_version = []
+
+        for path in sorted(
+                self.capsul.config.local.dataset.input.find(suffix='T1w', extension='nii')):
+            t1mri.extend([str(path)]*3)
+            select_Talairach += ['StandardACPC', 'Normalization',
+                                 'Normalization']
+            perform_skull_stripped_renormalization += [
+                'initial', 'skull_stripped', 'skull_stripped']
+            Normalization_select_Normalization_pipeline += [
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM']
+            spm_normalization_version += [
+                'normalization_t1_spm12_reinit',
+                'normalization_t1_spm12_reinit',
+                'normalization_t1_spm8_reinit']
         # Set the input data
-        morphologist_iteration.input = inputs
-        morphologist_iteration.normalization = normalizations
-        morphologist_iteration.metadata_schema = {
-            'brainvisa': {
-                '*': {
-                    'suffix': '!{{executable.normalization[{list_index}]}}',
-                }
-            }
-        }
+        morphologist_iteration.t1mri = t1mri
+        morphologist_iteration.select_Talairach = select_Talairach
+        morphologist_iteration.perform_skull_stripped_renormalization \
+            = perform_skull_stripped_renormalization
+        morphologist_iteration.Normalization_select_Normalization_pipeline \
+            = Normalization_select_Normalization_pipeline
+        morphologist_iteration.spm_normalization_version \
+            = spm_normalization_version
+
+        #morphologist_iteration.metadata_schema = {
+            #'brainvisa': {
+                #'*': {
+                    #'suffix': '!{{executable.normalization[{list_index}]}}',
+                #}
+            #}
+        #}
         engine = self.capsul.engine()
         execution_context = engine.execution_context(morphologist_iteration)
-        generate_paths(morphologist_iteration, execution_context)
+        generate_paths(morphologist_iteration, execution_context,
+                       source_fields=['t1mri'], datasets=datasets, debug=True)
+
+        print('full schema:')
+        print(morphologist_iteration.merged_metadata_schema)
+        import json, sys
+        #json.dump(morphologist_iteration.merged_metadata_schema, sys.stdout)
+
+        debug = True
+        if debug:
+            from soma.qt_gui.qt_backend import Qt
+            from capsul.qt_gui.widgets.pipeline_developer_view import PipelineDeveloperView
+
+            app = Qt.QApplication.instance()
+            if app is None:
+                app = Qt.QApplication([])
+            pv = PipelineDeveloperView(morphologist_iteration, allow_open_controller=True, enable_edition=True, show_sub_pipelines=True)
+            pv.show()
+            app.exec_()
+
         for name, value in expected_completion.items():
-            self.assertEqual(getattr(morphologist_iteration, name), value)
+            self.assertEqual(getattr(morphologist_iteration, name, undefined),
+                             value, msg=f'for parameter {name}')
         morphologist_iteration.resolve_paths(execution_context)
         for name, value in expected_resolution.items():
-            self.assertEqual(getattr(morphologist_iteration, name), value)
+            self.assertEqual(getattr(morphologist_iteration, name, undefined),
+                             value, msg=f'for parameter {name}')
     #     try:
     #         with capsul.engine() as ce:
     #             # Finally execute all the Morphologist instances
