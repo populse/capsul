@@ -58,7 +58,7 @@ The simplest is to use a `casa-distro <https://github.com/brainvisa/casa-distro>
 
       python3/bin/bv_maker
 
-* It's ready. You can us it using either::
+* It's ready. You can use it using either::
 
       python3/bin/bv bash
       python3/bin/bv ipython3
