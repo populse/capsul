@@ -58,10 +58,6 @@ The simplest is to use a `casa-distro <https://github.com/brainvisa/casa-distro>
 
       python3/bin/bv_maker
 
-* Temporarily (until we ship it in a newer dev image), you need to install pydantic:
-
-      python3/bin/bv pip3 install pydantic
-
 * It's ready. You can us it using either::
 
       python3/bin/bv bash
