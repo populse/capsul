@@ -34,7 +34,7 @@ The simplest is to use a `casa-distro <https://github.com/brainvisa/casa-distro>
         brainvisa casa-distro \$CASA_BRANCH
         git https://github.com/populse/soma-base.git pydantic_controller soma/soma-base
         git https://github.com/populse/soma-workflow.git master soma/soma-workflow
-        git https://github.com/populse/populse_db.git master populse_db
+        git https://github.com/populse/populse_db.git 3.0 populse_db
         git https://github.com/populse/capsul.git pydantic_controller capsul
 
       [ build \$CASA_BUILD ]
