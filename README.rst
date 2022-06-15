@@ -1,45 +1,67 @@
-===============================================================
-CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean 
-===============================================================
+======
+CAPSUL 
+======
 
-.. image:: https://travis-ci.org/populse/capsul.svg?branch=master
-    :target: https://travis-ci.org/populse/capsul
+Future Capsul version 3
+=======================
 
-.. image:: https://ci.appveyor.com/api/projects/status/75hbw4yvnnus1kn1?svg=true
-    :target: https://ci.appveyor.com/project/denisri/capsul-pfy4x/branch/master
+This branch contains the code of the future 3.0 release. This is still work in progress and using it is not possible through standards installation means such as Pypi.
 
-.. image:: https://pypip.in/version/capsul/badge.png
-    :target: https://pypi.python.org/pypi/capsul/
-    :alt: Latest Version
-    
-.. image:: https://pypip.in/status/capsul/badge.png
-    :target: https://pypi.python.org/pypi/capsul/
-    :alt: Development Status
+Using development version od Capsul v3
+======================================
 
-.. image:: https://pypip.in/license/capsul/badge.png
-    :target: https://pypi.python.org/pypi/capsul/
-    :alt: License
+To use Capsul v3 it is mandatory to have at least Python 3.9 and the @pydantic_controller@ branch of projects `soma-base <https://github.com/populse/soma-base>`_ and `capsul <https://github.com/populse/capsul>`_ .
 
-.. image:: https://codecov.io/github/populse/capsul/coverage.svg?branch=master
-    :target: https://codecov.io/github/populse/capsul
-    :alt: Coverage
+The simplest is to use a `casa-distro <https://github.com/brainvisa/casa-distro>`_ container for developers, and setup a minimalist dev environment, based on an Ubuntu 22.04 container with singularity:
 
-.. image:: https://img.shields.io/badge/python-2.7%2C%203.7-yellow.svg
-    :target: http://github.com/populse/capsul
+* `install singularity <https://brainvisa.info/web/download.html#prerequisites-for-singularity-on-linux>`_
 
-.. image:: https://img.shields.io/badge/platform-Linux%2C%20OSX%2C%20Windows-orange.svg
-    :target: http://github.com/populse/capsul
 
-Documentation
-=============
-
-  Visit CAPSUL (http://populse.github.io/capsul) main page for the docs of the git master branch.
+* get a recent `developer image <https://brainvisa.info/web/download.html#installing-a-singularity-developer-environment>`_::
   
-  See the BrianVISA website (http://brainvisa.info/capsul/) for the docs of the released versions.
+        wget https://brainvisa.info/download/casa-dev-5.3-6.sif
 
-Download
-========
+* setup a developer environment::
 
-  CAPSUL is available on `pypi <https://pypi.org/project/capsul/>`_ to download:,
-  
-  or via the `BrainVISA distribution <http://brainvisa.info/web/download.html>`_.
+      mkdir capsul3
+      singularity run -B capsul3:/casa/setup casa-dev-5.3-6.sif distro=opensource
+
+* change the `bv_maker.cfg` file for a ligher one, which switches to the expected branches::
+
+      cat > capsul3/conf/bv_maker.cfg << EOF
+      [ source \$CASA_SRC ]
+        brainvisa brainvisa-cmake \$CASA_BRANCH
+        brainvisa casa-distro \$CASA_BRANCH
+        git https://github.com/populse/soma-base.git pydantic_controller soma/soma-base
+        git https://github.com/populse/soma-workflow.git master soma/soma-workflow
+        git https://github.com/populse/populse_db.git 3.0 populse_db
+        git https://github.com/populse/capsul.git pydantic_controller capsul
+
+      [ build \$CASA_BUILD ]
+        default_steps = configure build
+        make_options = -j\$NCPU
+        build_type = Release
+        packaging_thirdparty = OFF
+        clean_config = ON
+        clean_build = ON
+        test_ref_data_dir = \$CASA_TESTS/ref
+        test_run_data_dir = \$CASA_TESTS/test
+        brainvisa brainvisa-cmake \$CASA_BRANCH \$CASA_SRC
+        brainvisa casa-distro \$CASA_BRANCH \$CASA_SRC
+        + \$CASA_SRC/soma/soma-base
+        + \$CASA_SRC/soma/soma-workflow
+        + $CASA_SRC/populse_db
+        + \$CASA_SRC/capsul
+      EOF
+
+* get the code and build::
+
+      python3/bin/bv_maker
+
+* It's ready. You can use it using either::
+
+      python3/bin/bv bash
+      python3/bin/bv ipython3
+      python3/bin/bv python <script>
+
+  You can also set the python3/bin directory into your `PATH` configuration.
