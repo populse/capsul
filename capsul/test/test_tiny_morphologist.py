@@ -11,7 +11,7 @@ from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
 from capsul.config.configuration import ModuleConfiguration
-from capsul.dataset import generate_paths, ProcessSchema
+from capsul.dataset import ProcessMetadata, ProcessSchema
 
 class FakeSPMConfiguration(ModuleConfiguration):
     ''' SPM configuration module
@@ -451,18 +451,51 @@ class TestTinyMorphologist(unittest.TestCase):
                 'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander.nii',
             },
         }
+        tiny_morphologist = self.capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')            
         engine = self.capsul.engine()
+        execution_context = engine.execution_context(tiny_morphologist)
+        input = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
+        input_metadata = execution_context.dataset['input'].schema.metadata(input)
+        self.assertEqual(input_metadata, {
+            'folder': 'rawdata', 
+            'sub': 'aleksander',
+            'ses': 'm0',
+            'data_type': 'anat',
+            'suffix': 'T1w',
+            'extension': 'nii',
+            'session_metadata': 'session metadata for sub-aleksander_ses-m0_T2w.nii',
+            'scan_metadata': 'scan metadata for sub-aleksander_ses-m0_T1w.nii',
+            'json_metadata': 'JSON metadata for sub-aleksander_ses-m0_T1w.nii'})
         for normalization in ('none', 'aims', 'fakespm12', 'fakespm8'):
-            tiny_morphologist = self.capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
-            tiny_morphologist.input = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
             tiny_morphologist.normalization = normalization
-            execution_context = engine.execution_context(tiny_morphologist)
-            # for field in execution_context.dataset.fields():
-            #     dataset = getattr(execution_context.dataset, field.name)
-            #     print(f'!dataset! {field.name} = {dataset.path} [{dataset.metadata_schema}]')
-            # if getattr(execution_context, 'fakespm', undefined) is not undefined:
-            #     print('!fakespm dir!', execution_context.fakespm.directory)
-            generate_paths(tiny_morphologist, execution_context)
+            metadata = ProcessMetadata(tiny_morphologist, execution_context)
+            self.assertEqual(
+                metadata.parameters_per_schema,
+                {
+                    'brainvisa': ['nobias', 'normalized', 'right_hemisphere', 'left_hemisphere'],
+                    'bids': ['input']
+                }
+            )
+            metadata.bids = input_metadata
+            self.assertEqual(
+                metadata.bids.asdict(),
+                {
+                    'folder': 'rawdata',
+                    'pipeline': None, 
+                    'sub': 'aleksander', 
+                    'ses': 'm0', 
+                    'data_type': 'anat', 
+                    'task': None, 
+                    'acq': None, 
+                    'ce': None, 
+                    'rec': None, 
+                    'run': None, 
+                    'echo': None, 
+                    'part': None, 
+                    'suffix': 'T1w', 
+                    'extension': 'nii'
+                })
+            metadata.generate_paths(tiny_morphologist)
             params = dict((i, 
                 getattr(tiny_morphologist, i, undefined)) for i in ('template', 
                     'nobias', 'normalized', 'right_hemisphere', 'left_hemisphere'))

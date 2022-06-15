@@ -236,44 +236,39 @@ class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_clas
         'prefix': 'normalized_aims',
         'extension': 'trm'
     }
-                               'prefix': 'normalized_SPM'},
 
 class AimsNormalizationShared(ProcessSchema, schema='shared', process_class=normalization_aimsmiregister):
     anatomical_template = {'data_id': 'normalization_template'}
 
 
-Normalization_FSL_reinit.metadata_schema = dict(
-    brainvisa={'transformation_matrix': {'analysis': undefined,
-                                         'suffix': 'fsl',
-                                         'extension': 'mat'}},
-)
-
-T1BiasCorrection.metadata_schema = dict(
-    bids={'t1mri_nobias': {'part': 'nobias'}},
-    brainvisa={
-        't1mri_nobias': {'prefix': 'nobias'},
-        'b_field': {'prefix': 'biasfield'},
-        'hfiltered': {'prefix': 'hfiltered'},
-        'white_ridges': {'prefix': 'whiteridge'},
-        'variance': {'prefix': 'variance'},
-        'edges': {'prefix': 'edges'},
-        'meancurvature': {'prefix': 'meancurvature'},
+class FSLNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_class=Normalization_FSL_reinit):
+    transformation_matrix = {
+        'analysis': undefined,
+        'suffix': 'fsl',
+        'extension': 'mat'
     }
-)
 
-HistoAnalysis.metadata_schema = dict(
-    brainvisa={
-        'histo': {'prefix': 'nobias', 'extension': 'his'},
-        'histo_analysis': {'prefix': 'nobias', 'extension': 'han'},
-    }
-)
+class T1BiasCorrectionBIDS(ProcessSchema, schema='bids', process_class=T1BiasCorrection):
+    t1mri_nobias = {'part': 'nobias'}
 
-BrainSegmentation.metadata_schema = dict(
-    brainvisa={
-        '*': {'seg_directory': 'segmentation'},
-        'brain_mask': {'prefix': 'brain'},
+class T1BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa', process_class=T1BiasCorrection):
+    t1mri_nobias = {'prefix': 'nobias'}
+    b_field = {'prefix': 'biasfield'}
+    hfiltered = {'prefix': 'hfiltered'}
+    white_ridges = {'prefix': 'whiteridge'}
+    variance = {'prefix': 'variance'}
+    edges = {'prefix': 'edges'}
+    meancurvature = {'prefix': 'meancurvature'}
+
+class HistoAnalysisBrainVISA(ProcessSchema, schema='brainvisa', process_class=HistoAnalysis):
+    histo = {'prefix': 'nobias', 'extension': 'his'}
+    histo_analysis = {'prefix': 'nobias', 'extension': 'han'}
+
+class BrainSegmentationBrainVISA(ProcessSchema, schema='brainvisa', process_class=BrainSegmentation):
+    _ = {
+        '*': {'seg_directory': 'segmentation'}
     }
-)
+    brain_mask = {'prefix': 'brain'}
 
 skullstripping.metadata_schema = dict(
     brainvisa={
