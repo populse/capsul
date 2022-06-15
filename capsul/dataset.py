@@ -13,6 +13,7 @@ import operator
 from pathlib import Path
 import re
 import fnmatch
+from capsul.pipeline.process_iteration import ProcessIteration
 
 from soma.controller import Controller, Literal, Directory
 from soma.undefined import undefined
@@ -326,8 +327,8 @@ class ProcessSchema:
             elif isinstance(item, dict):
                 metadata.update(item)
             else:
-                stack.insert(0, item(metadata, process, parameter, iteration_index))
-
+                stack.insert(0, item(metadata, process, parameter, iteration_index))                
+                
 
     @staticmethod
     def prepend(key, value, sep='_'):
@@ -384,7 +385,7 @@ class Dataset(Controller):
 
     def __init__(self, path=None, metadata_schema=None):
         super().__init__(self)
-        self.on_attribute_change.add(self.changed_schema, 'metadata_schema')
+        self.on_attribute_change.add(self.schema_change_callback, 'metadata_schema')
         if path is not None:
             if isinstance(path, Path):
                 self.path = str(path)
@@ -409,7 +410,7 @@ class Dataset(Controller):
     def find(self, **kwargs):
         yield from self.schema(self.path).find(**kwargs)
 
-    def changed_schema(self):
+    def schema_change_callback(self):
         self.schema = self.find_schema(self.metadata_schema)
         if not self.schema:
             raise ValueError(f'Invalid metadata schema "{self.metadata_schema}" for path "{self.path}"')
@@ -417,6 +418,52 @@ class Dataset(Controller):
     @classmethod
     def register_schema(cls, name, schema):
         cls.schemas[name] = schema
+
+def follow_links(pipeline, parameter_name):
+    main_field = pipeline.field(parameter_name)
+    if main_field.is_output():
+        direction = 'links_from'
+    else:
+        direction = 'links_to'
+    stack = [([], pipeline, main_field, result)]
+    done = set()
+    while stack:
+        node_name_path, node, field, path = stack.pop(0)
+        if node in done or not node.activated:
+            continue
+        done.add(node)
+        plug = node.plugs.get(field.name)
+        next = []
+        if isinstance(node, Switch):
+            if field.name != 'switch':
+                for input_plug_name, output_plug_name in node.connections():
+                    if not main_field.is_output():
+                        if dest_plug_name == input_plug_name:
+                            stack.append((node_name_path, dest_node, output_plug_name))
+                    else:
+                        if dest_plug_name == output_plug_name:
+                            stack.append((node_name_path, dest_node, input_plug_name))
+        elif isinstance(node, Process):
+            if node is not pipeline:
+                path.append((node_name_path + [node.name], node, field.name))
+            if isinstance(node, Pipeline):
+                node_name = node.name
+            else:
+                node_name = None
+            for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
+                if dest_node in done or not dest_node.activated:
+                    continue
+                next.append((node_name, dest_node, dest_plug_name))
+        if next:
+            for next_node_name, next_node, next_plug in next:
+                if next_node_name:
+                    next_node_name_path = node_name_path + [next_node_name]
+                else:
+                    next_node_name_path = node_name_path
+                stack.append((next_node_name_path, next_node, next_plug))
+        else:
+            yield path
+
 
 def generate_paths(executable, context, metadata=None, fields=None,
                    ignore=None, datasets=None, source_fields=None,

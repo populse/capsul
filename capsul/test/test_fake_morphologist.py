@@ -189,18 +189,19 @@ normalization_t1_spm12_reinit.requirements = {
         'version': '12'
     }
 }
-    
-normalization_t1_spm12_reinit.metadata_schema = dict(
-    bids={'output': {'part': 'normalized_fakespm12'}},
-    brainvisa={
-        'transformations_informations': {'analysis': undefined,
-                                         'suffix': 'sn',
-                                         'extension': 'mat'},
-        'normalized_anatomy_data': {'analysis': undefined,
-                                    'prefix': 'normalized_SPM'},
-    },
-    shared={'anatomical_template': {'data_id': 'normalization_template'}},
-)
+
+class SPM12NormalizationBIDS(ProcessSchema, schema='bids', process_class=normalization_t1_spm12_reinit):
+    output = {'part': 'normalized_fakespm12'}
+
+class SPM12NormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_class=normalization_t1_spm12_reinit):
+    transformations_information = {'analysis': undefined,
+                                   'suffix': 'sn',
+                                   'extension': 'mat'},
+    normalized_anatomy_data = {'analysis': undefined,
+                               'prefix': 'normalized_SPM'},
+
+class SPM12NormalizationShared(ProcessSchema, schema='shared', process_class=normalization_t1_spm12_reinit):
+    anatomical_template = {'data_id': 'normalization_template'}
 
 
 normalization_t1_spm8_reinit.requirements = {
@@ -209,26 +210,37 @@ normalization_t1_spm8_reinit.requirements = {
     }
 }
 
-normalization_t1_spm8_reinit.metadata_schema = dict(
-    bids={'output': {'part': 'normalized_fakespm8'}},
-    brainvisa={
-        'transformations_informations': {'analysis': undefined,
-                                         'suffix': 'sn',
-                                         'extension': 'mat'},
-        'normalized_anatomy_data': {'analysis': undefined,
-                                    'prefix': 'normalized_SPM'},
-    }
-)
 
-normalization_aimsmiregister.metadata_schema = dict(
-    bids={'transformation_to_ACPC': {'part': 'normalized_aims',
-                                     'extension': 'trm'}},
-    brainvisa={
-        'transformation_to_ACPC': {'prefix': 'normalized_aims',
-                                   'extension': 'trm'},
-    },
-    shared={'anatomical_template': {'data_id': 'normalization_template'}},
-)
+class SPM8NormalizationBIDS(ProcessSchema, schema='bids', process_class=normalization_t1_spm8_reinit):
+    output = {'part': 'normalized_fakespm8'}
+
+class SPM8NormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_class=normalization_t1_spm8_reinit):
+    transformations_information = {'analysis': undefined,
+                                   'suffix': 'sn',
+                                   'extension': 'mat'},
+    normalized_anatomy_data = {'analysis': undefined,
+                               'prefix': 'normalized_SPM'},
+
+class SPM8NormalizationShared(ProcessSchema, schema='shared', process_class=normalization_t1_spm8_reinit):
+    anatomical_template = {'data_id': 'normalization_template'}
+
+
+class AimsNormalizationBIDS(ProcessSchema, schema='bids', process_class=normalization_aimsmiregister):
+    transformation_to_ACPC = {
+        'part': 'normalized_aims',
+        'extension': 'trm'
+    }
+
+class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_class=normalization_aimsmiregister):
+    transformation_to_ACPC = {
+        'prefix': 'normalized_aims',
+        'extension': 'trm'
+    }
+                               'prefix': 'normalized_SPM'},
+
+class AimsNormalizationShared(ProcessSchema, schema='shared', process_class=normalization_aimsmiregister):
+    anatomical_template = {'data_id': 'normalization_template'}
+
 
 Normalization_FSL_reinit.metadata_schema = dict(
     brainvisa={'transformation_matrix': {'analysis': undefined,
