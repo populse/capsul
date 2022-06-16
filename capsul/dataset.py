@@ -12,8 +12,7 @@ import json
 import operator
 from pathlib import Path
 import re
-import fnmatch
-from capsul.pipeline.process_iteration import ProcessIteration
+from capsul.pipeline.pipeline import Process, Pipeline, Switch
 
 from soma.controller import Controller, Literal, Directory
 from soma.undefined import undefined
@@ -379,6 +378,7 @@ class BidsToBrainVISA(SchemaMapping):
     source_schema = 'bids'
     dest_schema = 'brainvisa'
 
+    @staticmethod
     def map_schemas(source, dest):
         dest.center = 'whaterver'
         dest.subject = source.sub
@@ -398,10 +398,11 @@ class ProcessSchema:
         setattr(process_class, 'metadata_schemas', schemas)
     
     @classmethod
-    def _update_metadata(cls, metadata, process, parameter, iteration_index):
+    def _update_metadata(cls, metadata, process, pipeline_name, parameter):
         stack = [
             getattr(cls, parameter, None),
-            getattr(cls, '_', None),
+            getattr(cls, f'{pipeline_name}.{parameter}', None),
+            getattr(cls, '_', {}).get('*'),
         ]
         while stack:
             item = stack.pop(0)
@@ -410,9 +411,10 @@ class ProcessSchema:
             elif isinstance(item, list):
                 stack = item + stack
             elif isinstance(item, dict):
-                metadata.update(item)
+                for k, v in item.items():
+                    setattr(metadata, k, v)
             else:
-                stack.insert(0, item(metadata, process, parameter, iteration_index))                
+                stack.insert(0, item(metadata, process, parameter, pipeline_parameter))                
                 
 
     @staticmethod
@@ -431,61 +433,34 @@ class ProcessSchema:
             metadata[key] = (current_prefix + sep if current_prefix else '') + value
         return append
 
-def follow_links(pipeline, parameter_name):
-    main_field = pipeline.field(parameter_name)
-    if main_field.is_output():
-        direction = 'links_from'
-    else:
-        direction = 'links_to'
-    stack = [([], pipeline, main_field, result)]
-    done = set()
-    while stack:
-        node_name_path, node, field, path = stack.pop(0)
-        if node in done or not node.activated:
-            continue
-        done.add(node)
-        plug = node.plugs.get(field.name)
-        next = []
-        if isinstance(node, Switch):
-            if field.name != 'switch':
-                for input_plug_name, output_plug_name in node.connections():
-                    if not main_field.is_output():
-                        if dest_plug_name == input_plug_name:
-                            stack.append((node_name_path, dest_node, output_plug_name))
-                    else:
-                        if dest_plug_name == output_plug_name:
-                            stack.append((node_name_path, dest_node, input_plug_name))
-        elif isinstance(node, Process):
-            if node is not pipeline:
-                path.append((node_name_path + [node.name], node, field.name))
-            if isinstance(node, Pipeline):
-                node_name = node.name
-            else:
-                node_name = None
-            for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
-                if dest_node in done or not dest_node.activated:
-                    continue
-                next.append((node_name, dest_node, dest_plug_name))
-        if next:
-            for next_node_name, next_node, next_plug in next:
-                if next_node_name:
-                    next_node_name_path = node_name_path + [next_node_name]
-                else:
-                    next_node_name_path = node_name_path
-                stack.append((next_node_name_path, next_node, next_plug))
-        else:
-            yield path
+
+def dprint(debug, *args, **kwargs):
+    if debug:
+        import inspect
+        frame = inspect.stack(context=0)[1]
+        try:
+            head = f'!{frame.function}:{frame.lineno}!'
+        finally:
+            del frame
+        print(head, *args, **kwargs)
+
+
+def dpprint(debug, item):
+    if debug:
+        from pprint import pprint
+        dprint(debug=debug)
+        pprint(item)
 
 
 class ProcessMetadata(Controller):
-    parameters_per_schema = dict[str, list[str]]
+    parameters_per_schema : dict[str, list[str]]
+    dataset_per_parameter : dict
 
     def __init__(self, executable, execution_context, datasets=None):
         super().__init__()
-        # avoid circular import
-        from capsul.pipeline.pipeline import Pipeline
 
         self.parameters_per_schema = {}
+        self.dataset_per_parameter = {}
 
         # Associate each field to a dataset
         for field in executable.user_fields():
@@ -519,6 +494,7 @@ class ProcessMetadata(Controller):
                     continue
                 dataset = getattr(execution_context.dataset, dataset_name, None)
                 if dataset:
+                    self.dataset_per_parameter[field.name] = dataset_name
                     schema = dataset.metadata_schema
                     self.parameters_per_schema.setdefault(schema, []).append(field.name)
         
@@ -528,3 +504,94 @@ class ProcessMetadata(Controller):
                 raise ValueError(f'Cannot find metadata schema named "{schema_name}"')
             self.add_field(schema_name, type_=Controller)
             setattr(self, schema_name, schema_cls())
+
+    def generate_paths(self, executable, debug=False):
+        dprint(debug, executable.definition)
+        for schema, parameters in self.parameters_per_schema.items():
+            for parameter in parameters:
+                dataset = self.dataset_per_parameter[parameter]
+                metadata = Dataset.find_schema(schema)(base_path=f'!{{dataset.{dataset}.path}}')
+                for other_schema in self.parameters_per_schema:
+                    if other_schema == schema:
+                        continue
+                    mapping_class = Dataset.find_schema_mapping(other_schema, schema)
+                    if not mapping_class:
+                        continue
+                    mapping_class.map_schemas(getattr(self, other_schema), metadata)
+                schema_metadata = getattr(self, schema)
+                for field in schema_metadata.fields():
+                    value = getattr(schema_metadata, field.name, None)
+                    if value is not None:
+                        setattr(metadata, field.name, value)
+                dprint(debug, '->', parameter, ':', schema)
+                for path in self.follow_links(executable, parameter, debug=debug):
+                    dprint(debug, 'path length', len(path))
+                    for pipeline_name, process, process_parameter in reversed(path):
+                        dprint(debug, pipeline_name, process.definition, process_parameter)
+                        metadata_schema = getattr(process, 'metadata_schemas', {}).get(schema)
+                        dprint(debug, 'metadata_schema =', metadata_schema)
+                        if metadata_schema:
+                            metadata_schema._update_metadata(metadata, executable, pipeline_name, process_parameter)
+                dpprint(debug, metadata.asdict())
+                path = str(metadata.build_path())
+                dprint(debug, parameter, '=', path)
+                setattr(executable, parameter, path)
+
+
+
+
+    @staticmethod        
+    def follow_links(executable, parameter_name, debug=False):
+        dprint(debug, executable.definition, parameter_name)
+        main_field = executable.field(parameter_name)
+        if main_field.is_output():
+            direction = 'links_from'
+        else:
+            direction = 'links_to'
+        stack = [([], executable, main_field.name, [])]
+        done = set()
+        while stack:
+            node_name_path, node, field_name, path = stack.pop(0)
+            dprint(debug, node_name_path, str(node), field_name, '...')
+            field = node.field(field_name)
+            if node in done or not node.activated:
+                continue
+            done.add(node)
+            plug = node.plugs.get(field.name)
+            followers = []
+            if isinstance(node, Switch):
+                if field.name != 'switch':
+                    for input_plug_name, output_plug_name in node.connections():
+                        dprint(debug, 'switch', dest_plug_name, input_plug_name, output_plug_name, not main_field.is_output())
+                        if not main_field.is_output():
+                            if dest_plug_name == input_plug_name:
+                                dprint(debug, 'append')
+                                next_node, next_plug = next(executable.get_linked_items(
+                                    node, output_plug_name))
+                                stack.append((node_name_path, next_node, next_plug, path))
+                        else:
+                            if dest_plug_name == output_plug_name:
+                                dprint(debug, 'append')
+                                next_node, next_plug = next(executable.get_linked_items(
+                                    node, input_plug_name))
+                                stack.append((node_name_path, next_node, next_plug, path))
+            elif isinstance(node, Process):
+                path.append(('.'.join(node_name_path + [node.name]), node, field.name))
+                if isinstance(node, Pipeline):
+                    node_name = node.name
+                else:
+                    node_name = None
+                for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
+                    if dest_node in done or not dest_node.activated:
+                        continue
+                    followers.append((node_name, dest_node, dest_plug_name))
+            if followers:
+                for next_node_name, next_node, next_plug in followers:
+                    if next_node_name:
+                        next_node_name_path = node_name_path + [next_node_name]
+                    else:
+                        next_node_name_path = node_name_path
+                    stack.append((next_node_name_path, next_node, next_plug, path))
+            else:
+                yield path
+

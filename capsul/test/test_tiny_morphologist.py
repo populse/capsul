@@ -112,11 +112,6 @@ class AimsNormalization(Process):
     origin: field(type_=list[float], default_factory=lambda: [1.2, 3.4, 5.6])
     output: field(type_=File, write=True, extensions=('.nii',))
 
-    metadata_schema = dict(
-        bids={'output': {'part': 'normalized_aims'}},
-        brainvisa={'output': {'prefix': 'normalized_aims'}}
-    )
-
     def execute(self, context):
         with open(self.input) as f:
             content = f.read()
@@ -199,12 +194,16 @@ class TinyMorphologist(Pipeline):
         self.export_parameter('left_hemi', 'output', 'left_hemisphere')
 
 class TinyMorphologistBIDS(ProcessSchema, schema='bids', process_class=TinyMorphologist):
-    _ = {'process': 'tinymorphologist'}
+    _ = {
+        '*': {'process': 'tinymorphologist'}
+    }
     left_hemisphere = {'part': 'left_hemi'}
     right_hemisphere = {'part': 'right_hemi'}
 
 class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process_class=TinyMorphologist):
-    _ = {'process': 'tinymorphologist'}
+    _ = {
+        '*': {'process': 'tinymorphologist'}
+    }
     left_hemisphere = {'prefix': 'left_hemi'}
     right_hemisphere = {'prefix': 'right_hemi'}
 
