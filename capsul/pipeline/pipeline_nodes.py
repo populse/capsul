@@ -784,7 +784,7 @@ class ProcessNode(Node):
             if True or False, force the "protected" status of the plug. If None,
             keep it as is.
         """
-        if value in ["", "<undefined>"]:
+        if value in ["<undefined>"]:
             value = Undefined
         elif is_trait_pathname(self.process.trait(plug_name)) and value is None:
             value = Undefined

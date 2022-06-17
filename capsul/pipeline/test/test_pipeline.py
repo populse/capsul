@@ -163,6 +163,7 @@ class TestPipeline(unittest.TestCase):
                 % pipeline2.workflow_repr)
         d1 = pipeline_tools.dump_pipeline_state_as_dict(pipeline)
         d2 = pipeline_tools.dump_pipeline_state_as_dict(pipeline2)
+        self.maxDiff = None
         self.assertEqual(d1, d2)
 
     def test_pipeline_io_py(self):
