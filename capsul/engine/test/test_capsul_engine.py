@@ -302,6 +302,10 @@ print(sys.argv)
             spm_path = check_nipype_spm()
             t1_src = osp.join(spm_path,
                               'spm12_mcr/spm12/toolbox/OldNorm/T1.nii')
+            if not osp.exists(t1_src):
+                # spm12 has suddenly changed directories structure...
+                t1_src = osp.join(
+                    spm_path, 'spm12_mcr/spm12/spm12/toolbox/OldNorm/T1.nii')
             t1 = osp.join(tdir, 'T1.nii')
             shutil.copyfile(t1_src, t1)
 
