@@ -139,7 +139,9 @@ def activate_configurations():
     in order to use them via :mod:`capsul.in_context.spm` functions
     '''
     conf = engine.configurations.get('capsul.engine.module.spm', {})
+    mlab_conf = engine.configurations.get('capsul.engine.module.matlab', {})
     spm_dir = conf.get('directory')
+    mcr_dir = mlab_conf.get('mcr_directory')
     if spm_dir:
         os.environ['SPM_DIRECTORY'] = six.ensure_str(spm_dir)
     elif 'SPM_DIRECTORY' in os.environ:
@@ -150,8 +152,10 @@ def activate_configurations():
     elif 'SPM_VERSION' in os.environ:
         del os.environ['SPM_VERSION']
     spm_standalone = conf.get('standalone')
-    if spm_standalone:
+    if spm_standalone is not None:
         os.environ['SPM_STANDALONE'] = 'yes' if spm_standalone else 'no'
+        if spm_standalone and mcr_dir:
+            os.environ['MCR_HOME'] = mcr_dir
     elif 'SPM_STANDALONE' in os.environ:
         del os.environ['SPM_STANDALONE']
 

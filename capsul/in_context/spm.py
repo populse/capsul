@@ -30,17 +30,19 @@ def spm_command(spm_batch_filename):
         # Check that batch file exists and raise appropriate error if not
         open(spm_batch_filename)
         spm_directory = os.environ.get('SPM_DIRECTORY', '')
-        spm_exec_glob = osp.join(spm_directory, 'mcr', 'v*')
-        spm_exec = glob.glob(spm_exec_glob)
-        if not spm_exec:
-            raise ValueError('Cannot find SPM executable: %s' % spm_exec_glob)
-        spm_exec = spm_exec[0]
+        mcr_dir = os.environ.get('MCR_HOME')
+        if mcr_dir is None:
+            mcr_glob = osp.join(spm_directory, 'mcr', 'v*')
+            mcr_dir = glob.glob(mcr_glob)
+            if not mcr_dir:
+                raise ValueError('Cannot find Matlab MCR dir: %s' % mcr_glob)
+            mcr_dir = mcr_dir[0]
         print('---- BATCH SMP ----')
         print(open(spm_batch_filename).read())
         print('-------------------')
         cmd = [osp.join(spm_directory, 
                         'run_spm%s.sh' % os.environ.get('SPM_VERSION', '')),
-               spm_exec,
+               mcr_dir,
                'batch',
                spm_batch_filename]
     else:

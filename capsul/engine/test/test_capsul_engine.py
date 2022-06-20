@@ -96,19 +96,28 @@ def check_nipype_spm():
     if not spm_standalone_path:
         return None
     spm_standalone_path = spm_standalone_path[0]
+    mcr_path = None
     mcr = glob.glob(osp.join(spm_standalone_path, 'mcr', 'v*'))
-    if not mcr:
-        return None
-        mcr_paths = ['/usr/local/matlab/MATLAB_Runtime',
-                     '/i2bm/local/matlab/MATLAB_Runtime', ]
-        for p in mcr_path:
-            mcr = glob.glob(osp.join(mcr_path, 'v*'))
-            if mcr and len(mcr) == 1:
-                break
+    if not mcr or len(mcr) != 1:
+        spm_exe = distutils.spawn.find_executable('spm12')
+        if spm_exe:
+            # installes as in neurospin
+            with open(spm_exe) as f:
+                for l in f.readlines():
+                    if l.startswith('MCR_HOME='):
+                        mcr_path = l.split('=', 1)[1]
+        if not mcr_path:
+            mcr_paths = ['/usr/local/matlab/MATLAB_Runtime',
+                         '/i2bm/local/matlab/MATLAB_Runtime', ]
+            for p in mcr_paths:
+                mcr = glob.glob(osp.join(mcr_path, 'v*'))
+                if mcr and len(mcr) == 1:
+                    break
+    if not mcr_path:
         if not mcr or len(mcr) != 1:
             # not found or ambiguous
             return None
-    mcr_path = mcr[0]
+        mcr_path = mcr[0]
     try:
         import nipype
     except ImportError:
