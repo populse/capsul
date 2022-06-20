@@ -10,6 +10,7 @@ import sys
 import os.path as osp
 import shutil
 import json
+import glob
 
 from capsul.api import capsul_engine
 from capsul.api import Process, Pipeline
