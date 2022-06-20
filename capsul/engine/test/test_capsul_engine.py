@@ -110,7 +110,7 @@ def check_nipype_spm():
             mcr_paths = ['/usr/local/matlab/MATLAB_Runtime',
                          '/i2bm/local/matlab/MATLAB_Runtime', ]
             for p in mcr_paths:
-                mcr = glob.glob(osp.join(mcr_path, 'v*'))
+                mcr = glob.glob(osp.join(p, 'v*'))
                 if mcr and len(mcr) == 1:
                     break
     if not mcr_path:
