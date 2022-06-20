@@ -101,7 +101,7 @@ def check_nipype_spm():
     if not mcr or len(mcr) != 1:
         spm_exe = distutils.spawn.find_executable('spm12')
         if spm_exe:
-            # installes as in neurospin
+            # installed as in neurospin
             with open(spm_exe) as f:
                 for l in f.readlines():
                     if l.startswith('MCR_HOME='):
