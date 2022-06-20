@@ -26,6 +26,8 @@ def configure_spm():
     the appropriate configuration variables in os.environ.
     '''
     spm_directory = os.environ.get('SPM_DIRECTORY')
+    if not spm_directory:
+        spm_directory = os.environ.get('SPM_HOME')
     if spm_directory:
         from nipype.interfaces import spm
         
