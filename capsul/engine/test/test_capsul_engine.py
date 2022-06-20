@@ -99,7 +99,7 @@ def check_nipype_spm():
     mcr_path = None
     mcr = glob.glob(osp.join(spm_standalone_path, 'mcr', 'v*'))
     if not mcr or len(mcr) != 1:
-        spm_exe = distutils.spawn.find_executable('spm12')
+        spm_exe = shutil.which('spm12')
         if spm_exe:
             # installed as in neurospin
             with open(spm_exe) as f:
