@@ -20,6 +20,13 @@ from soma_workflow import configuration as swconfig
 from traits.api import File
 
 
+which = getattr(shutil, 'which', None)
+if which is None:
+    # python2 doesn't have shutil.which
+    import distutils.spawn
+    which = distutils.spawn.find_executable
+
+
 def setUpModule():
     global old_home
     global temp_home_dir
@@ -99,7 +106,7 @@ def check_nipype_spm():
     mcr_path = None
     mcr = glob.glob(osp.join(spm_standalone_path, 'mcr', 'v*'))
     if not mcr or len(mcr) != 1:
-        spm_exe = shutil.which('spm12')
+        spm_exe = which('spm12')
         if spm_exe:
             # installed as in neurospin
             with open(spm_exe) as f:
