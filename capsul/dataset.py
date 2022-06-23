@@ -13,6 +13,7 @@ import operator
 from pathlib import Path
 import re
 from capsul.pipeline.pipeline import Process, Pipeline, Switch
+from capsul.pipeline.process_iteration import ProcessIteration
 
 from soma.controller import Controller, Literal, Directory
 from soma.undefined import undefined
@@ -64,17 +65,13 @@ class Dataset(Controller):
         return cls.schema_mappings.get((source_schema, target_schema))
 
     def find(self, **kwargs):
-        yield from self.schema(self.path).find(**kwargs)
+        yield from self.schema.find(**kwargs)
 
     def schema_change_callback(self):
         schema_cls = self.find_schema(self.metadata_schema)
         if not schema_cls:
             raise ValueError(f'Invalid metadata schema "{self.metadata_schema}" for path "{self.path}"')
         self.schema = schema_cls(base_path=self.path)
-
-    @classmethod
-    def register_schema(cls, name, schema):
-        cls.schemas[name] = schema
 
 class MetadataSchema(Controller):
     '''Schema of metadata associated to a file in a :class:`Dataset`
@@ -389,21 +386,28 @@ class BidsToBrainVISA(SchemaMapping):
             dest.process = process
 
 class ProcessSchema:
-    def __init_subclass__(cls, schema, process_class) -> None:
+    def __init_subclass__(cls, schema, process) -> None:
         super().__init_subclass__()
-        if 'metadata_schemas' not in process_class.__dict__:
-            process_class.metadata_schemas = {}
-        schemas = process_class.metadata_schemas
+        if 'metadata_schemas' not in process.__dict__:
+            process.metadata_schemas = {}
+        schemas = process.metadata_schemas
         schemas[schema] = cls
-        setattr(process_class, 'metadata_schemas', schemas)
+        cls.schema = schema
+        setattr(process, 'metadata_schemas', schemas)
     
     @classmethod
-    def _update_metadata(cls, metadata, process, pipeline_name, parameter):
+    def _update_metadata(cls, metadata, process, pipeline_name, parameter, iteration_index):
         stack = [
-            getattr(cls, parameter, None),
-            getattr(cls, f'{pipeline_name}.{parameter}', None),
             getattr(cls, '_', {}).get('*'),
+            getattr(cls, f'{pipeline_name}.{parameter}', None),
+            getattr(cls, parameter, None),
         ]
+        instance_process_schema = getattr(process, 'metadata_schemas', None)
+        if instance_process_schema:
+            stack.append(getattr(instance_process_schema, '_', {}).get('*'))
+            stack.append(getattr(instance_process_schema, f'{pipeline_name}.{parameter}', None))
+            stack.append(getattr(instance_process_schema, parameter, None))
+        
         while stack:
             item = stack.pop(0)
             if item is None:
@@ -412,9 +416,18 @@ class ProcessSchema:
                 stack = item + stack
             elif isinstance(item, dict):
                 for k, v in item.items():
+                    if callable(v):
+                        v = v(metadata=metadata, 
+                              process=process,
+                              parameter=parameter,
+                              iteration_index=iteration_index)
                     setattr(metadata, k, v)
             else:
-                stack.insert(0, item(metadata, process, parameter, pipeline_parameter))                
+                stack.insert(0, item(
+                    metadata=metadata, 
+                    process=process,
+                    parameter=parameter,
+                    iteration_index=iteration_index))                
                 
 
     @staticmethod
@@ -434,10 +447,10 @@ class ProcessSchema:
         return append
 
 
-def dprint(debug, *args, **kwargs):
+def dprint(debug, *args, _frame_depth=1, **kwargs):
     if debug:
         import inspect
-        frame = inspect.stack(context=0)[1]
+        frame = inspect.stack(context=0)[_frame_depth]
         try:
             head = f'!{frame.function}:{frame.lineno}!'
         finally:
@@ -448,7 +461,7 @@ def dprint(debug, *args, **kwargs):
 def dpprint(debug, item):
     if debug:
         from pprint import pprint
-        dprint(debug=debug)
+        dprint(debug=debug, _frame_depth=2)
         pprint(item)
 
 
@@ -461,14 +474,21 @@ class ProcessMetadata(Controller):
 
         self.parameters_per_schema = {}
         self.dataset_per_parameter = {}
+        self.iterative_schemas = set()
+        if isinstance(executable, ProcessIteration):
+            process = executable.process
+            iterative_parameters = executable.iterative_parameters
+        else:
+            iterative_parameters = set()
+            process = executable
 
         # Associate each field to a dataset
-        for field in executable.user_fields():
+        for field in process.user_fields():
             inner_field = None
             inner_field_name = None
-            if isinstance(executable, Pipeline):
-                inner_item = next(executable.get_linked_items(
-                                    executable, field.name), None)
+            if isinstance(process, Pipeline):
+                inner_item = next(process.get_linked_items(
+                                    process, field.name), None)
             else:
                 inner_item = None
             if inner_item is not None:
@@ -497,16 +517,59 @@ class ProcessMetadata(Controller):
                     self.dataset_per_parameter[field.name] = dataset_name
                     schema = dataset.metadata_schema
                     self.parameters_per_schema.setdefault(schema, []).append(field.name)
+                    if field.name in iterative_parameters:
+                        self.iterative_schemas.add(schema)
         
         for schema_name in self.parameters_per_schema:
             schema_cls = Dataset.find_schema(schema_name)
             if schema_cls is None:
                 raise ValueError(f'Cannot find metadata schema named "{schema_name}"')
-            self.add_field(schema_name, type_=Controller)
-            setattr(self, schema_name, schema_cls())
+            if schema_name in self.iterative_schemas:
+                self.add_field(schema_name, type_=list[schema_cls])
+                setattr(self, schema_name, [])
+            else:
+                self.add_field(schema_name, type_=schema_cls)
+                setattr(self, schema_name, schema_cls())
 
     def generate_paths(self, executable, debug=False):
         dprint(debug, executable.definition)
+        if isinstance(executable, ProcessIteration):
+            iteration_size = 0
+            for schema in self.iterative_schemas:
+                schema_iteration_size = len(getattr(self, schema))
+                if schema_iteration_size:
+                    if iteration_size == 0:
+                        iteration_size = schema_iteration_size
+                        first_schema = schema
+                    elif iteration_size != schema_iteration_size:
+                        raise ValueError(f'Iteration on schema {first_schema} has {iteration_size} element(s) which is not equal to schema {schema} ({schema_iteration_size} element(s))')
+            iteration_values = {}
+            dprint(debug, f'{iteration_size=}')
+            for iteration in range(iteration_size):
+                metadatas = {}
+                for i in self.parameters_per_schema:
+                    if i in self.iterative_schemas:
+                        metadata_list = getattr(self, i)
+                        if metadata_list:
+                            metadatas[i] = metadata_list[iteration]
+                        else:
+                            metadatas[i] = Dataset.find_schema(i)()
+                    else:
+                        metadatas[i] = getattr(self, i)
+                self._generate_paths(executable=executable, metadatas=metadatas, iteration_index=iteration, debug=debug)
+                for i in executable.iterative_parameters:
+                    if executable.field(i).path_type:
+                        value = getattr(executable.process, i, undefined)
+                        iteration_values.setdefault(i, []).append(value)
+            dpprint(debug, iteration_values)
+            for k, v in iteration_values.items():
+                setattr(executable, k, v)
+        else:
+            metadatas = dict((i, getattr(self, i)) for i in self.parameters_per_schema)
+            self._generate_paths(executable=executable, metadatas=metadatas, iteration_index=None, debug=debug)
+
+    def _generate_paths(self, executable, metadatas, iteration_index, debug):
+        dprint(debug, executable.definition, f'{iteration_index=}')
         for schema, parameters in self.parameters_per_schema.items():
             for parameter in parameters:
                 dataset = self.dataset_per_parameter[parameter]
@@ -517,8 +580,8 @@ class ProcessMetadata(Controller):
                     mapping_class = Dataset.find_schema_mapping(other_schema, schema)
                     if not mapping_class:
                         continue
-                    mapping_class.map_schemas(getattr(self, other_schema), metadata)
-                schema_metadata = getattr(self, schema)
+                    mapping_class.map_schemas(metadatas[other_schema], metadata)
+                schema_metadata = metadatas[schema]
                 for field in schema_metadata.fields():
                     value = getattr(schema_metadata, field.name, None)
                     if value is not None:
@@ -528,16 +591,22 @@ class ProcessMetadata(Controller):
                     dprint(debug, 'path length', len(path))
                     for pipeline_name, process, process_parameter in reversed(path):
                         dprint(debug, pipeline_name, process.definition, process_parameter)
+                        if isinstance(process, ProcessIteration):
+                            metadata_schema = getattr(process.process, 'metadata_schemas', {}).get(schema)
+                            dprint(debug, f'{metadata_schema=}')
+                            if metadata_schema:
+                                metadata_schema._update_metadata(metadata, executable, pipeline_name, process_parameter, iteration_index)
                         metadata_schema = getattr(process, 'metadata_schemas', {}).get(schema)
-                        dprint(debug, 'metadata_schema =', metadata_schema)
+                        dprint(debug, f'{metadata_schema=}')
                         if metadata_schema:
-                            metadata_schema._update_metadata(metadata, executable, pipeline_name, process_parameter)
+                            metadata_schema._update_metadata(metadata, executable, pipeline_name, process_parameter, iteration_index)
                 dpprint(debug, metadata.asdict())
                 path = str(metadata.build_path())
                 dprint(debug, parameter, '=', path)
-                setattr(executable, parameter, path)
-
-
+                if isinstance(executable, ProcessIteration):
+                    setattr(executable.process, parameter, path)
+                else:
+                    setattr(executable, parameter, path)
 
 
     @staticmethod        

@@ -190,17 +190,17 @@ normalization_t1_spm12_reinit.requirements = {
     }
 }
 
-class SPM12NormalizationBIDS(ProcessSchema, schema='bids', process_class=normalization_t1_spm12_reinit):
+class SPM12NormalizationBIDS(ProcessSchema, schema='bids', process=normalization_t1_spm12_reinit):
     output = {'part': 'normalized_fakespm12'}
 
-class SPM12NormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_class=normalization_t1_spm12_reinit):
+class SPM12NormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=normalization_t1_spm12_reinit):
     transformations_information = {'analysis': undefined,
                                    'suffix': 'sn',
                                    'extension': 'mat'},
     normalized_anatomy_data = {'analysis': undefined,
                                'prefix': 'normalized_SPM'},
 
-class SPM12NormalizationShared(ProcessSchema, schema='shared', process_class=normalization_t1_spm12_reinit):
+class SPM12NormalizationShared(ProcessSchema, schema='shared', process=normalization_t1_spm12_reinit):
     anatomical_template = {'data_id': 'normalization_template'}
 
 
@@ -211,47 +211,47 @@ normalization_t1_spm8_reinit.requirements = {
 }
 
 
-class SPM8NormalizationBIDS(ProcessSchema, schema='bids', process_class=normalization_t1_spm8_reinit):
+class SPM8NormalizationBIDS(ProcessSchema, schema='bids', process=normalization_t1_spm8_reinit):
     output = {'part': 'normalized_fakespm8'}
 
-class SPM8NormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_class=normalization_t1_spm8_reinit):
+class SPM8NormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=normalization_t1_spm8_reinit):
     transformations_information = {'analysis': undefined,
                                    'suffix': 'sn',
                                    'extension': 'mat'},
     normalized_anatomy_data = {'analysis': undefined,
                                'prefix': 'normalized_SPM'},
 
-class SPM8NormalizationShared(ProcessSchema, schema='shared', process_class=normalization_t1_spm8_reinit):
+class SPM8NormalizationShared(ProcessSchema, schema='shared', process=normalization_t1_spm8_reinit):
     anatomical_template = {'data_id': 'normalization_template'}
 
 
-class AimsNormalizationBIDS(ProcessSchema, schema='bids', process_class=normalization_aimsmiregister):
+class AimsNormalizationBIDS(ProcessSchema, schema='bids', process=normalization_aimsmiregister):
     transformation_to_ACPC = {
         'part': 'normalized_aims',
         'extension': 'trm'
     }
 
-class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_class=normalization_aimsmiregister):
+class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=normalization_aimsmiregister):
     transformation_to_ACPC = {
         'prefix': 'normalized_aims',
         'extension': 'trm'
     }
 
-class AimsNormalizationShared(ProcessSchema, schema='shared', process_class=normalization_aimsmiregister):
+class AimsNormalizationShared(ProcessSchema, schema='shared', process=normalization_aimsmiregister):
     anatomical_template = {'data_id': 'normalization_template'}
 
 
-class FSLNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_class=Normalization_FSL_reinit):
+class FSLNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=Normalization_FSL_reinit):
     transformation_matrix = {
         'analysis': undefined,
         'suffix': 'fsl',
         'extension': 'mat'
     }
 
-class T1BiasCorrectionBIDS(ProcessSchema, schema='bids', process_class=T1BiasCorrection):
+class T1BiasCorrectionBIDS(ProcessSchema, schema='bids', process=T1BiasCorrection):
     t1mri_nobias = {'part': 'nobias'}
 
-class T1BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa', process_class=T1BiasCorrection):
+class T1BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa', process=T1BiasCorrection):
     t1mri_nobias = {'prefix': 'nobias'}
     b_field = {'prefix': 'biasfield'}
     hfiltered = {'prefix': 'hfiltered'}
@@ -260,11 +260,11 @@ class T1BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa', process_class
     edges = {'prefix': 'edges'}
     meancurvature = {'prefix': 'meancurvature'}
 
-class HistoAnalysisBrainVISA(ProcessSchema, schema='brainvisa', process_class=HistoAnalysis):
+class HistoAnalysisBrainVISA(ProcessSchema, schema='brainvisa', process=HistoAnalysis):
     histo = {'prefix': 'nobias', 'extension': 'his'}
     histo_analysis = {'prefix': 'nobias', 'extension': 'han'}
 
-class BrainSegmentationBrainVISA(ProcessSchema, schema='brainvisa', process_class=BrainSegmentation):
+class BrainSegmentationBrainVISA(ProcessSchema, schema='brainvisa', process=BrainSegmentation):
     _ = {
         '*': {'seg_directory': 'segmentation'}
     }
@@ -777,7 +777,7 @@ class TestFakeMorphologist(unittest.TestCase):
         dict_context = context.asdict()
         self.assertEqual(dict_context, expected_context)
 
-        morphologist_iteration = self.capsul.iteration_pipeline(
+        morphologist_iteration = self.capsul.executable_iteration(
             'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist',
             #non_iterative_plugs=['template'],
         )
@@ -1100,7 +1100,7 @@ class TestFakeMorphologist(unittest.TestCase):
                                     f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/default_analysis/right_hemi_aleksander_fakespm8.nii']
         }
 
-        morphologist_iteration = self.capsul.iteration_pipeline(
+        morphologist_iteration = self.capsul.executable_iteration(
             'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist',
             non_iterative_plugs=['template'],
         )

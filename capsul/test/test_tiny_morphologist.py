@@ -52,10 +52,10 @@ class BiasCorrection(Process):
         with open(self.output, 'w') as f:
             f.write(content)
 
-class BiasCorrectionBIDS(ProcessSchema, schema='bids', process_class=BiasCorrection):
+class BiasCorrectionBIDS(ProcessSchema, schema='bids', process=BiasCorrection):
     output = {'part': 'nobias'}
 
-class BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa', process_class=BiasCorrection):
+class BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa', process=BiasCorrection):
     output = {'prefix': 'nobias'}
 
 
@@ -86,10 +86,10 @@ class FakeSPMNormalization12(Process):
         with open(self.output, 'w') as f:
             f.write(content)
 
-class FakeSPMNormalization12BIDS(ProcessSchema, schema='bids', process_class=FakeSPMNormalization12):
+class FakeSPMNormalization12BIDS(ProcessSchema, schema='bids', process=FakeSPMNormalization12):
     output = {'part': 'normalized_fakespm12'}
 
-class FakeSPMNormalization12BrainVISA(ProcessSchema, schema='brainvisa', process_class=FakeSPMNormalization12):
+class FakeSPMNormalization12BrainVISA(ProcessSchema, schema='brainvisa', process=FakeSPMNormalization12):
     output = {'prefix': 'normalized_fakespm12'}
 
 
@@ -100,10 +100,10 @@ class FakeSPMNormalization8(FakeSPMNormalization12):
         }
     }
 
-class FakeSPMNormalization8BIDS(ProcessSchema, schema='bids', process_class=FakeSPMNormalization8):
+class FakeSPMNormalization8BIDS(ProcessSchema, schema='bids', process=FakeSPMNormalization8):
     output = {'part': 'normalized_fakespm8'}
 
-class FakeSPMNormalization8BrainVISA(ProcessSchema, schema='brainvisa', process_class=FakeSPMNormalization8):
+class FakeSPMNormalization8BrainVISA(ProcessSchema, schema='brainvisa', process=FakeSPMNormalization8):
     output = {'prefix': 'normalized_fakespm8'}
 
 
@@ -120,10 +120,10 @@ class AimsNormalization(Process):
         with open(self.output, 'w') as f:
             f.write(content)
 
-class AimsNormalizationBIDS(ProcessSchema, schema='bids', process_class=AimsNormalization):
+class AimsNormalizationBIDS(ProcessSchema, schema='bids', process=AimsNormalization):
     output = {'part': 'normalized_aims'}
 
-class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process_class=AimsNormalization):
+class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=AimsNormalization):
     output = {'prefix': 'normalized_aims'}
 
 class SplitBrain(Process):
@@ -142,11 +142,11 @@ class SplitBrain(Process):
                 f.write(side_content)
 
 
-class SplitBrainBIDS(ProcessSchema, schema='bids', process_class=SplitBrain):
+class SplitBrainBIDS(ProcessSchema, schema='bids', process=SplitBrain):
     output = {'part': 'split'}
 
 
-class SplitBrainBrainVISA(ProcessSchema, schema='brainvisa', process_class=SplitBrain):
+class SplitBrainBrainVISA(ProcessSchema, schema='brainvisa', process=SplitBrain):
     output = {'prefix': 'split'}
 
 
@@ -193,14 +193,14 @@ class TinyMorphologist(Pipeline):
         self.add_link('split.left_output->left_hemi.input')
         self.export_parameter('left_hemi', 'output', 'left_hemisphere')
 
-class TinyMorphologistBIDS(ProcessSchema, schema='bids', process_class=TinyMorphologist):
+class TinyMorphologistBIDS(ProcessSchema, schema='bids', process=TinyMorphologist):
     _ = {
         '*': {'process': 'tinymorphologist'}
     }
     left_hemisphere = {'part': 'left_hemi'}
     right_hemisphere = {'part': 'right_hemi'}
 
-class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process_class=TinyMorphologist):
+class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process=TinyMorphologist):
     _ = {
         '*': {'process': 'tinymorphologist'}
     }
@@ -403,7 +403,7 @@ class TestTinyMorphologist(unittest.TestCase):
         dict_context = context.asdict()
         self.assertEqual(dict_context, expected_context)
 
-        tiny_morphologist_iteration = self.capsul.iteration_pipeline(
+        tiny_morphologist_iteration = self.capsul.executable_iteration(
             'capsul.test.test_tiny_morphologist.TinyMorphologist',
             non_iterative_plugs=['template'],
         )
@@ -508,24 +508,24 @@ class TestTinyMorphologist(unittest.TestCase):
     def test_pipeline_iteration(self):
         expected_completion = {
             'input': [
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+                        '!{dataset.input.path}/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
             ],
             'left_hemisphere': [
                                 '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander_{executable.normalization[0]}.nii',
@@ -708,33 +708,39 @@ class TestTinyMorphologist(unittest.TestCase):
             ]
         }
 
-        tiny_morphologist_iteration = self.capsul.iteration_pipeline(
+        tiny_morphologist_iteration = self.capsul.executable_iteration(
             'capsul.test.test_tiny_morphologist.TinyMorphologist',
             non_iterative_plugs=['template'],
         )
-        
+
+        class TinyMorphologistIterationBrainVISA(ProcessSchema, schema='brainvisa', process=tiny_morphologist_iteration):
+            _ = {
+                '*': {
+                    'suffix': lambda iteration_index, **kwargs: f'{{executable.normalization[{iteration_index}]}}',
+                }
+            }
+
+        engine = self.capsul.engine()
+        execution_context = engine.execution_context(tiny_morphologist_iteration)
+
         # Parse the dataset with BIDS-specific query (here "suffix" is part
         #  of BIDS specification). The object returned contains info for main
         # BIDS fields (sub, ses, acq, etc.)
-        count = 0
         inputs = []
         normalizations = []
         for path in sorted(self.capsul.config.local.dataset.input.find(suffix='T1w', extension='nii')):
-            inputs.extend([str(path)]*3)
+            input_metadata = execution_context.dataset['input'].schema.metadata(path)
+            inputs.extend([input_metadata]*3)
             normalizations += ['none', 'aims', 'fakespm8']
         # Set the input data
-        tiny_morphologist_iteration.input = inputs
+#        tiny_morphologist_iteration.input = inputs
         tiny_morphologist_iteration.normalization = normalizations
-        tiny_morphologist_iteration.metadata_schema = {
-            'brainvisa': {
-                '*': {
-                    'suffix': '!{{executable.normalization[{list_index}]}}',
-                }
-            }
-        }
-        engine = self.capsul.engine()
-        execution_context = engine.execution_context(tiny_morphologist_iteration)
-        generate_paths(tiny_morphologist_iteration, execution_context)
+
+        
+        metadata = ProcessMetadata(tiny_morphologist_iteration, execution_context)
+        metadata.bids = inputs
+        metadata.generate_paths(tiny_morphologist_iteration)
+        self.maxDiff = 11000
         for name, value in expected_completion.items():
             self.assertEqual(getattr(tiny_morphologist_iteration, name), value)
         tiny_morphologist_iteration.resolve_paths(execution_context)

@@ -149,7 +149,7 @@ class TestCompletion(unittest.TestCase):
 
 
     def test_iteration(self):
-        pipeline = Capsul().iteration_pipeline(
+        pipeline = Capsul().executable_iteration(
             'capsul.process.test.test_metadata_schema.DummyProcess',
             iterative_plugs=['truc', 'bidule'])
         execution_context = Capsul().engine().execution_context(pipeline)
@@ -206,7 +206,7 @@ class TestCompletion(unittest.TestCase):
 
     def test_run_iteraton(self):
 
-        pipeline = Capsul().iteration_pipeline(
+        pipeline = Capsul().executable_iteration(
             'capsul.process.test.test_metadata_schema.DummyProcess',
             iterative_plugs=['truc', 'bidule'])
         execution_context = Capsul().engine().execution_context(pipeline)
