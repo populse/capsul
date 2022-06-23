@@ -663,4 +663,3 @@ class ProcessMetadata(Controller):
                     stack.append((next_node_name_path, next_node, next_plug, path))
             else:
                 yield path
-
