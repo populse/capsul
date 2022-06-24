@@ -12,7 +12,7 @@ from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
 from capsul.config.configuration import ModuleConfiguration
-from capsul.dataset import generate_paths, MetadataSchema, Dataset
+from capsul.dataset import ProcessMetadata, ProcessSchema, MetadataSchema
 
 class FakeSPMConfiguration(ModuleConfiguration):
     ''' SPM configuration module
@@ -42,6 +42,7 @@ def init_execution_context(execution_context):
 class SharedSchema(MetadataSchema):
     '''Metadata schema for BrainVISA shared dataset
     '''
+    schema_name = 'shared'
     data_id: str = ''
     side: str = None
     graph_version: str = None
@@ -136,7 +137,7 @@ class SharedSchema(MetadataSchema):
         path_list.append(''.join(filename))
         return path_list
 
-Dataset.schemas['shared'] = SharedSchema
+#Dataset.schemas['shared'] = SharedSchema
 
 # patch processes to setup their requirements and schemas
 
@@ -184,6 +185,8 @@ from capsul.pipeline.test.fake_morphologist.sulcilabellingspammarkov \
     import SulciLabellingSPAMMarkov
 from capsul.pipeline.test.fake_morphologist.sulcideeplabeling \
     import SulciDeepLabeling
+
+
 normalization_t1_spm12_reinit.requirements = {
     'fakespm': {
         'version': '12'
@@ -264,162 +267,170 @@ class HistoAnalysisBrainVISA(ProcessSchema, schema='brainvisa', process=HistoAna
     histo = {'prefix': 'nobias', 'extension': 'his'}
     histo_analysis = {'prefix': 'nobias', 'extension': 'han'}
 
-class BrainSegmentationBrainVISA(ProcessSchema, schema='brainvisa', process=BrainSegmentation):
+class BrainSegmentationBrainVISA(ProcessSchema, schema='brainvisa',
+                                 process=BrainSegmentation):
     _ = {
         '*': {'seg_directory': 'segmentation'}
     }
     brain_mask = {'prefix': 'brain'}
 
-skullstripping.metadata_schema = dict(
-    brainvisa={
-        '*': {'seg_directory': 'segmentation'},
-        'skull_stripped': {'prefix': 'skull_stripped'},
-    }
-)
 
-ScalpMesh.metadata_schema = dict(
-    brainvisa={
+class skullstrippingBrainVISA(ProcessSchema, schema='brainvisa',
+                              process=skullstripping):
+    _ = {
         '*': {'seg_directory': 'segmentation'},
-        'head_mask': {'prefix': 'head'},
-        'head_mesh': {'seg_directory': 'segmentation/mesh', 'suffix': 'head', 'extension': 'gii'},
     }
-)
+    skull_stripped = {'prefix': 'skull_stripped'}
 
-SplitBrain.metadata_schema = dict(
-    bids={'split_brain': {'part': 'split'}},
-    brainvisa={
+
+class ScalpMeshBrainVISA(ProcessSchema, schema='brainvisa', process=ScalpMesh):
+    _ = {
         '*': {'seg_directory': 'segmentation'},
-        'split_brain': {'prefix': 'voronoi'},
     }
-)
+    head_mask = {'prefix': 'head'}
+    head_mesh = {'seg_directory': 'segmentation/mesh', 'suffix': 'head',
+                 'extension': 'gii'}
 
-GreyWhiteClassificationHemi.metadata_schema = dict(
-    brainvisa={
+
+class SplitBrainBIDS(ProcessSchema, schema='bids', process=SplitBrain):
+    split_brain = {'part': 'split'}
+
+
+class SplitBrainBrainVISA(ProcessSchema, schema='brainvisa',
+                          process=SplitBrain):
+    _ = {
         '*': {'seg_directory': 'segmentation'},
-        'grey_white': {'prefix': 'grey_white'},
     }
-)
+    split_brain = {'prefix': 'voronoi'}
 
-GreyWhiteTopology.metadata_schema = dict(
-    brainvisa={
+
+class GreyWhiteClassificationHemiBrainVISA(
+    ProcessSchema, schema='brainvisa', process=GreyWhiteClassificationHemi):
+    _ = {
         '*': {'seg_directory': 'segmentation'},
-        'hemi_cortex': {'prefix': 'cortex'},
     }
-)
+    grey_white = {'prefix': 'grey_white'}
 
-GreyWhiteMesh.metadata_schema = dict(
-    brainvisa={
+
+class GreyWhiteTopologyBrainVISA(ProcessSchema, schema='brainvisa',
+                                 process=GreyWhiteTopology):
+    _ = {
+        '*': {'seg_directory': 'segmentation'},
+    }
+    hemi_cortex = {'prefix': 'cortex'}
+
+
+class GreyWhiteMeshBrainVISA(ProcessSchema, schema='brainvisa',
+                             process=GreyWhiteMesh):
+    _ = {
         '*': {'seg_directory': 'segmentation/mesh'},
-        'white_mesh': {'suffix': 'white', 'extension': 'gii'},
     }
-)
+    white_mesh = {'suffix': 'white', 'extension': 'gii'}
 
-PialMesh.metadata_schema = dict(
-    brainvisa={
+
+class PialMeshBrainVISA(ProcessSchema, schema='brainvisa', process=PialMesh):
+    _ = {
         '*': {'seg_directory': 'segmentation/mesh'},
-        'pial_mesh': {'suffix': 'hemi', 'extension': 'gii'},
     }
-)
+    pial_mesh = {'suffix': 'hemi', 'extension': 'gii'}
 
-SulciSkeleton.metadata_schema = dict(
-    brainvisa={
+
+class SulciSkeletonBrainVISA(ProcessSchema, schema='brainvisa',
+                             process=SulciSkeleton):
+    _ = {
         '*': {'seg_directory': 'segmentation'},
-        'skeleton': {'prefix': 'skeleton'},
-        'roots': {'prefix': 'roots'},
     }
-)
+    skeleton = {'prefix': 'skeleton'}
+    roots = {'prefix': 'roots'}
 
-SulciGraph.metadata_schema = dict(
-    brainvisa={
+
+class SulciGraphBrainVISA(ProcessSchema, schema='brainvisa',
+                          process=SulciGraph):
+    _ = {
         '*': {'seg_directory': 'folds'},
-        'graph': {'extension': 'arg', 'sulci_graph_version': '!{executable.graph_version}'},
-        'sulci_voronoi': {'prefix': 'sulcivoronoi'},
-        'cortex_mid_interface': {'seg_directory': 'segmentation',
-                                 'prefix': 'gw_interface'},
     }
-)
+    graph = {'extension': 'arg',
+             'sulci_graph_version': '!{executable.graph_version}'}
+    sulci_voronoi = {'prefix': 'sulcivoronoi'}
+    cortex_mid_interface = {'seg_directory': 'segmentation',
+                            'prefix': 'gw_interface'}
 
-SulciLabellingANN.metadata_schema = dict(
-    brainvisa={
+
+class SulciLabellingANNBrainVISA(ProcessSchema, schema='brainvisa', process=SulciLabellingANN):
+    _ = {
         '*': {'seg_directory': 'folds'},
-        'output_graph': {'suffix': '!{sulci_recognition_session}',
-                         'extension': 'arg'},
-        'energy_plot_file': {'suffix': '!{sulci_recognition_session}',
-                             'extension': 'nrj'},
     }
-)
+    output_graph = {'suffix': '!{sulci_recognition_session}',
+                    'extension': 'arg'}
+    energy_plot_file = {'suffix': '!{sulci_recognition_session}',
+                        'extension': 'nrj'}
 
-SulciLabellingSPAMGlobal.metadata_schema = dict(
-    brainvisa={
+
+class SulciLabellingSPAMGlobalBrainVISA(ProcessSchema, schema='brainvisa',
+                                        process=SulciLabellingSPAMGlobal):
+    _ = {
         '*': {'seg_directory': 'folds'},
-        'output_graph': {'suffix': '!{sulci_recognition_session}',
-                         'extension': 'arg'},
-        'posterior_probabilities':
-        {
-            'suffix': '!{sulci_recognition_session}_proba',
-            'extension': 'csv'},
-        'output_transformation': {
-            'suffix': '!{sulci_recognition_session}_Tal_TO_SPAM',
-            'extension': 'trm'},
-        'output_t1_to_global_transformation': {
-            'suffix': '!{sulci_recognition_session}_T1_TO_SPAM',
-            'extension': 'trm'},
     }
-)
+    output_graph = {'suffix': '!{sulci_recognition_session}',
+                    'extension': 'arg'}
+    posterior_probabilities = {
+        'suffix': '!{sulci_recognition_session}_proba',
+        'extension': 'csv'}
+    output_transformation = {
+        'suffix': '!{sulci_recognition_session}_Tal_TO_SPAM',
+        'extension': 'trm'}
+    output_t1_to_global_transformation = {
+        'suffix': '!{sulci_recognition_session}_T1_TO_SPAM',
+        'extension': 'trm'}
 
-SulciLabellingSPAMLocal.metadata_schema = dict(
-    brainvisa={
+
+class SulciLabellingSPAMLocalBrainVISA(ProcessSchema, schema='brainvisa',
+                                       process=SulciLabellingSPAMLocal):
+    _ = {
         '*': {'seg_directory': 'folds'},
-        'output_graph': {'suffix': '!{sulci_recognition_session}',
-                         'extension': 'arg'},
-        'posterior_probabilities':
-        {
-            'suffix': '!{sulci_recognition_session}_proba',
-            'extension': 'csv'},
-        'output_local_transformations': {
-            'suffix': '!{sulci_recognition_session}_global_TO_local',
-            'extension': None},
     }
-)
+    output_graph = {'suffix': '!{sulci_recognition_session}',
+                    'extension': 'arg'}
+    posterior_probabilities = {
+        'suffix': '!{sulci_recognition_session}_proba',
+        'extension': 'csv'}
+    output_local_transformations = {
+        'suffix': '!{sulci_recognition_session}_global_TO_local',
+        'extension': None}
 
-SulciLabellingSPAMMarkov.metadata_schema = dict(
-    brainvisa={
+
+class SulciLabellingSPAMMarkovBrainVISA(ProcessSchema, schema='brainvisa',
+                                        process=SulciLabellingSPAMMarkov):
+    _ = {
         '*': {'seg_directory': 'folds'},
-        'output_graph': {'suffix': '!{sulci_recognition_session}',
-                         'extension': 'arg'},
-        'posterior_probabilities':
-        {
-            'suffix': '!{sulci_recognition_session}_proba',
-            'extension': 'csv'},
     }
-)
+    output_graph = {'suffix': '!{sulci_recognition_session}',
+                    'extension': 'arg'}
+    posterior_probabilities = {
+        'suffix': '!{sulci_recognition_session}_proba',
+        'extension': 'csv'}
 
-SulciDeepLabeling.metadata_schema = dict(
-    brainvisa={
-        '*': {'seg_directory': 'folds'},
-        'labeled_graph': {'suffix': '!{sulci_recognition_session}',
-                          'extension': 'arg'},
+
+class SulciDeepLabelingBrainVISA(ProcessSchema, schema='brainvisa',
+                                 process=SulciDeepLabeling):
+    _ = {
+        '*': {'seg_directory': 'folds'}}
+    labeled_graph = {'suffix': '!{sulci_recognition_session}',
+                     'extension': 'arg'}
+
+
+class MorphologistBIDS(ProcessSchema, schema='bids', process=Morphologist):
+    _ = {
+        '*': {'process': 'morphologist'},
     }
-)
+    left_labelled_graph = {'part': 'left_hemi'}
+    right_labelled_graph = {'part': 'right_hemi'}
 
 
-Morphologist.metadata_schema = dict(
-    bids={
-        '*': {'pipeline': 'morphologist'},
-        'left_labelled_graph': {'part': 'left_hemi'},
-        'right_labelled_graph': {'part': 'right_hemi'},
-    },
-    brainvisa={
+class MorphologistBrainVISA(ProcessSchema, schema='brainvisa',
+                            process=Morphologist):
+    _ = {
         '*': {'process': None, 'modality': 't1mri'},
-        'imported_t1mri': {'analysis': undefined},
-        't1mri_referential': {
-            'analysis': undefined,
-            'seg_directory': 'registration',
-            'short_prefix': 'RawT1-',
-            'suffix': '!{acquisition}',
-            'extension': 'referential'},
-        'reoriented_t1mri': {'analysis': undefined},
-
         'GreyWhiteClassification.*': {'side': 'L'},
         'GreyWhiteTopology.*': {'side': 'L'},
         'GreyWhiteMesh.*': {'sidebis': 'L'},
@@ -435,68 +446,62 @@ Morphologist.metadata_schema = dict(
                 '!{pipeline.CorticalFoldsGraph_graph_version}',
             'sulci_recognition_session': 'default_session_auto',
         },
+    }
+    imported_t1mri = {'analysis': undefined}
+    t1mri_referential= {
+        'analysis': undefined,
+        'seg_directory': 'registration',
+        'short_prefix': 'RawT1-',
+        'suffix': '!{acquisition}',
+        'extension': 'referential'}
+    reoriented_t1mri = {'analysis': undefined}
+    Talairach_transform = {
+        'analysis': undefined,
+        'seg_directory': 'registration',
+        'short_prefix': 'RawT1-',
+        'suffix': '!{acquisition}_TO_Talairach-ACPC',
+        'extension': 'trm'}
 
-        #'*.*': {'suffix': '!{field}'},
 
-        #'left_labelled_graph': {
-            #'seg_directory': 'folds',
-            #'sulci_graph_version': '3.1',
-            #'sulci_recognition_session': 'default_session_auto',
-            #'suffix': 'default_session_auto',
-            #'extension': 'arg'},
-        #'right_labelled_graph': {
-            #'seg_directory': 'folds',
-            #'sulci_graph_version': '3.1',
-            #'sulci_recognition_session': 'default_session_auto',
-            #'suffix': 'default_session_auto',
-            #'extension': 'arg'},
-        'Talairach_transform': {
-            'analysis': undefined,
-            'seg_directory': 'registration',
-            'short_prefix': 'RawT1-',
-            'suffix': '!{acquisition}_TO_Talairach-ACPC',
-            'extension': 'trm'},
-    },
-    shared={
-        'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': {'data_id': 'normalization_template'},
-        'PrepareSubject_Normalization_NormalizeFSL_template': {'data_id': 'normalization_template'},
-        'PrepareSubject_Normalization_NormalizeSPM_template': {'data_id': 'normalization_template'},
-        'PrepareSubject_Normalization_NormalizeBaladin_template': {'data_id': 'normalization_template'},
-        'PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc': {'data_id': 'trans_acpc_to_mni'},
-        'PrepareSubject_TalairachFromNormalization_acpc_referential': {'data_id': 'acpc_ref'},
-        'Renorm_template':  {'data_id': 'normalization_template'},
-        'Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc': {'data_id': 'trans_mni_to_acpc'},
-        'PrepareSubject_TalairachFromNormalization_normalized_referential':{'data_id': 'icbm152_ref'},
-        'PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized': {'data_id': 'trans_acpc_to_mni'},
-        'SplitBrain_split_template': {'data_id': 'hemi_split_template'},
-        'sulcal_morphometry_sulci_file': {'data_id': 'sulcal_morphometry_sulci_file'},
-        'SulciRecognition_recognition2000_model': {'data_id': 'sulci_ann_recognition_model', 'side': 'L', 'graph_version': '3.1'},
-        'SulciRecognition_1_recognition2000_model': {'data_id': 'sulci_ann_recognition_model', 'side': 'R', 'graph_version': '3.1'},
-        'SPAM_recognition_labels_translation_map': {'data_id': 'sulci_spam_recognition_labels_trans', 'model_version': '08'},
-        'SulciRecognition_SPAM_recognition09_global_recognition_model': {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'L'},
-        'SulciRecognition_1_SPAM_recognition09_global_recognition_model': {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'R'},
-        'SulciRecognition_SPAM_recognition09_local_recognition_model': {'data_id': 'sulci_spam_recognition_local_model', 'model_version': '08', 'side': 'L'},
-        'SulciRecognition_1_SPAM_recognition09_local_recognition_model': {'data_id': 'sulci_spam_recognition_local_model', 'model_version': '08', 'side': 'R'},
-        'SulciRecognition_SPAM_recognition09_markovian_recognition_model': {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'L'},
-        'SulciRecognition_1_SPAM_recognition09_markovian_recognition_model': {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'R'},
-        'SulciRecognition_SPAM_recognition09_global_recognition_labels_priors': {'data_id': 'sulci_spam_recognition_global_labels_priors', 'model_version': '08', 'side': 'L'},
-        'SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors': {'data_id': 'sulci_spam_recognition_global_labels_priors', 'model_version': '08', 'side': 'R'},
-        'SulciRecognition_SPAM_recognition09_local_recognition_local_referentials': {'data_id': 'sulci_spam_recognition_local_refs', 'model_version': '08', 'side': 'L'},
-        'SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials': {'data_id': 'sulci_spam_recognition_local_refs', 'model_version': '08', 'side': 'R'},
-        'SulciRecognition_SPAM_recognition09_local_recognition_direction_priors': {'data_id': 'sulci_spam_recognition_local_dir_priors', 'model_version': '08', 'side': 'L'},
-        'SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors': {'data_id': 'sulci_spam_recognition_local_dir_priors', 'model_version': '08', 'side': 'L'},
-        'SulciRecognition_SPAM_recognition09_local_recognition_angle_priors': {'data_id': 'sulci_spam_recognition_local_angle_priors', 'model_version': '08', 'side': 'L'},
-        'SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors': {'data_id': 'sulci_spam_recognition_local_angle_priors', 'model_version': '08', 'side': 'R'},
-        'SulciRecognition_SPAM_recognition09_local_recognition_translation_priors': {'data_id': 'sulci_spam_recognition_local_trans_priors', 'model_version': '08', 'side': 'L'},
-        'SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors': {'data_id': 'sulci_spam_recognition_local_trans_priors', 'model_version': '08', 'side': 'R'},
-        'SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model': {'data_id': 'sulci_spam_recognition_markov_rels', 'model_version': '08', 'side': 'L'},
-        'SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model': {'data_id': 'sulci_spam_recognition_markov_rels', 'model_version': '08', 'side': 'R'},
-        'SulciRecognition_CNN_recognition19_model_file': {'data_id': 'sulci_cnn_recognition_model', 'model_version': '19', 'side': 'L'},
-        'SulciRecognition_1_CNN_recognition19_model_file': {'data_id': 'sulci_cnn_recognition_model', 'model_version': '19', 'side': 'R'},
-        'SulciRecognition_CNN_recognition19_param_file': {'data_id': 'sulci_cnn_recognition_param', 'model_version': '19', 'side': 'L'},
-        'SulciRecognition_1_CNN_recognition19_param_file': {'data_id': 'sulci_cnn_recognition_param', 'model_version': '19', 'side': 'R'},
-    },
-)
+class MorphologistShared(ProcessSchema, schema='shared', process=Morphologist):
+    PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template = {'data_id': 'normalization_template'}
+    PrepareSubject_Normalization_NormalizeFSL_template = {'data_id': 'normalization_template'}
+    PrepareSubject_Normalization_NormalizeSPM_template = {'data_id': 'normalization_template'}
+    PrepareSubject_Normalization_NormalizeBaladin_template = {'data_id': 'normalization_template'}
+    PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc = {'data_id': 'trans_acpc_to_mni'}
+    PrepareSubject_TalairachFromNormalization_acpc_referential = {'data_id': 'acpc_ref'}
+    Renorm_template =  {'data_id': 'normalization_template'}
+    Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc = {'data_id': 'trans_mni_to_acpc'}
+    PrepareSubject_TalairachFromNormalization_normalized_referential = {'data_id': 'icbm152_ref'}
+    PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized = {'data_id': 'trans_acpc_to_mni'}
+    SplitBrain_split_template = {'data_id': 'hemi_split_template'}
+    sulcal_morphometry_sulci_file = {'data_id': 'sulcal_morphometry_sulci_file'}
+    SulciRecognition_recognition2000_model = {'data_id': 'sulci_ann_recognition_model', 'side': 'L', 'graph_version': '3.1'}
+    SulciRecognition_1_recognition2000_model = {'data_id': 'sulci_ann_recognition_model', 'side': 'R', 'graph_version': '3.1'}
+    SPAM_recognition_labels_translation_map = {'data_id': 'sulci_spam_recognition_labels_trans', 'model_version': '08'}
+    SulciRecognition_SPAM_recognition09_global_recognition_model = {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'L'}
+    SulciRecognition_1_SPAM_recognition09_global_recognition_model = {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'R'}
+    SulciRecognition_SPAM_recognition09_local_recognition_model = {'data_id': 'sulci_spam_recognition_local_model', 'model_version': '08', 'side': 'L'}
+    SulciRecognition_1_SPAM_recognition09_local_recognition_model = {'data_id': 'sulci_spam_recognition_local_model', 'model_version': '08', 'side': 'R'}
+    SulciRecognition_SPAM_recognition09_markovian_recognition_model = {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'L'}
+    SulciRecognition_1_SPAM_recognition09_markovian_recognition_model = {'data_id': 'sulci_spam_recognition_global_model', 'model_version': '08', 'side': 'R'}
+    SulciRecognition_SPAM_recognition09_global_recognition_labels_priors = {'data_id': 'sulci_spam_recognition_global_labels_priors', 'model_version': '08', 'side': 'L'}
+    SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors = {'data_id': 'sulci_spam_recognition_global_labels_priors', 'model_version': '08', 'side': 'R'}
+    SulciRecognition_SPAM_recognition09_local_recognition_local_referentials = {'data_id': 'sulci_spam_recognition_local_refs', 'model_version': '08', 'side': 'L'}
+    SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials = {'data_id': 'sulci_spam_recognition_local_refs', 'model_version': '08', 'side': 'R'}
+    SulciRecognition_SPAM_recognition09_local_recognition_direction_priors = {'data_id': 'sulci_spam_recognition_local_dir_priors', 'model_version': '08', 'side': 'L'}
+    SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors = {'data_id': 'sulci_spam_recognition_local_dir_priors', 'model_version': '08', 'side': 'L'}
+    SulciRecognition_SPAM_recognition09_local_recognition_angle_priors = {'data_id': 'sulci_spam_recognition_local_angle_priors', 'model_version': '08', 'side': 'L'}
+    SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors = {'data_id': 'sulci_spam_recognition_local_angle_priors', 'model_version': '08', 'side': 'R'}
+    SulciRecognition_SPAM_recognition09_local_recognition_translation_priors = {'data_id': 'sulci_spam_recognition_local_trans_priors', 'model_version': '08', 'side': 'L'}
+    SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors = {'data_id': 'sulci_spam_recognition_local_trans_priors', 'model_version': '08', 'side': 'R'}
+    SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model = {'data_id': 'sulci_spam_recognition_markov_rels', 'model_version': '08', 'side': 'L'}
+    SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model = {'data_id': 'sulci_spam_recognition_markov_rels', 'model_version': '08', 'side': 'R'}
+    SulciRecognition_CNN_recognition19_model_file = {'data_id': 'sulci_cnn_recognition_model', 'model_version': '19', 'side': 'L'}
+    SulciRecognition_1_CNN_recognition19_model_file = {'data_id': 'sulci_cnn_recognition_model', 'model_version': '19', 'side': 'R'}
+    SulciRecognition_CNN_recognition19_param_file = {'data_id': 'sulci_cnn_recognition_param', 'model_version': '19', 'side': 'L'}
+    SulciRecognition_1_CNN_recognition19_param_file = {'data_id': 'sulci_cnn_recognition_param', 'model_version': '19', 'side': 'R'}
+
 
 datasets = {
     't1mri': 'input',
@@ -859,12 +864,32 @@ class TestFakeMorphologist(unittest.TestCase):
                    'normalization_t1_spm12_reinit',
                    'normalization_t1_spm12_reinit',
                    'normalization_t1_spm8_reinit']
-        for normalization in zip(sel_tal, renorm, norm, normspm):
-            morphologist = self.capsul.executable(
-                'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
-            clear_values(morphologist)
 
-            morphologist.t1mri = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
+        morphologist = self.capsul.executable(
+            'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
+        clear_values(morphologist)
+
+        execution_context = engine.execution_context(morphologist)
+
+        input = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/
+                    'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
+        input_metadata \
+            = execution_context.dataset['input'].schema.metadata(input)
+        self.assertEqual(input_metadata, {
+            'folder': 'rawdata',
+            'sub': 'aleksander',
+            'ses': 'm0',
+            'data_type': 'anat',
+            'suffix': 'T1w',
+            'extension': 'nii',
+            'session_metadata': 'session metadata for sub-aleksander_ses-m0_T2w.nii',
+            'scan_metadata': 'scan metadata for sub-aleksander_ses-m0_T1w.nii',
+            'json_metadata': 'JSON metadata for sub-aleksander_ses-m0_T1w.nii'})
+
+        # iterate manually
+        for normalization in zip(sel_tal, renorm, norm, normspm):
+
+            #morphologist.t1mri = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
             morphologist.select_Talairach = normalization[0]
             morphologist.perform_skull_stripped_renormalization \
                 = normalization[1]
@@ -873,15 +898,135 @@ class TestFakeMorphologist(unittest.TestCase):
             morphologist.spm_normalization_version = normalization[3]
             morphologist.select_sulci_recognition = 'CNN_recognition19' # 'SPAM_recognition09'
 
-            execution_context = engine.execution_context(morphologist)
-            # for field in execution_context.dataset.fields():
-            #     dataset = getattr(execution_context.dataset, field.name)
-            #     print(f'!dataset! {field.name} = {dataset.path} [{dataset.metadata_schema}]')
-            # if getattr(execution_context, 'fakespm', undefined) is not undefined:
-            #     print('!fakespm dir!', execution_context.fakespm.directory)
+            metadata = ProcessMetadata(morphologist, execution_context,
+                                       datasets=datasets)
+
+            self.maxDiff = None
+            self.assertEqual(
+                metadata.parameters_per_schema,
+                {
+                    'brainvisa': [
+                        'imported_t1mri', 'commissure_coordinates',
+                        'Talairach_transform', 't1mri_nobias',
+                        'histo_analysis',
+                        'BrainSegmentation_brain_mask',
+                        'split_brain',
+                        'HeadMesh_head_mesh',
+                        'GreyWhiteClassification_grey_white',
+                        'GreyWhiteClassification_1_grey_white',
+                        'GreyWhiteTopology_hemi_cortex',
+                        'GreyWhiteTopology_1_hemi_cortex',
+                        'GreyWhiteMesh_white_mesh',
+                        'GreyWhiteMesh_1_white_mesh',
+                        'SulciSkeleton_skeleton',
+                        'SulciSkeleton_1_skeleton',
+                        'PialMesh_pial_mesh',
+                        'PialMesh_1_pial_mesh',
+                        'left_graph',
+                        'right_graph',
+                        'left_labelled_graph',
+                        'right_labelled_graph',
+                        'sulcal_morpho_measures',
+                        't1mri_referential',
+                        'reoriented_t1mri',
+                        'normalization_fsl_native_transformation_pass1',
+                        'normalization_fsl_native_transformation',
+                        'normalization_baladin_native_transformation_pass1',
+                        'normalization_baladin_native_transformation',
+                        'BiasCorrection_b_field',
+                        'BiasCorrection_hfiltered',
+                        'BiasCorrection_white_ridges',
+                        'BiasCorrection_variance',
+                        'BiasCorrection_edges',
+                        'BiasCorrection_meancurvature',
+                        'HistoAnalysis_histo',
+                        'Renorm_skull_stripped',
+                        'HeadMesh_head_mask',
+                        'SulciSkeleton_roots',
+                        'CorticalFoldsGraph_sulci_voronoi',
+                        'CorticalFoldsGraph_cortex_mid_interface',
+                        'SulciRecognition_recognition2000_energy_plot_file',
+                        'SulciRecognition_SPAM_recognition09_global_recognition_posterior_probabilities',
+                        'SulciRecognition_SPAM_recognition09_global_recognition_output_transformation',
+                        'SulciRecognition_SPAM_recognition09_global_recognition_output_t1_to_global_transformation',
+                        'SulciRecognition_SPAM_recognition09_local_recognition_posterior_probabilities',
+                        'SulciRecognition_SPAM_recognition09_local_recognition_output_local_transformations',
+                        'SulciRecognition_SPAM_recognition09_markovian_recognition_posterior_probabilities',
+                        'SulciSkeleton_1_roots',
+                        'CorticalFoldsGraph_1_sulci_voronoi',
+                        'CorticalFoldsGraph_1_cortex_mid_interface',
+                        'SulciRecognition_1_recognition2000_energy_plot_file',
+                        'SulciRecognition_1_SPAM_recognition09_global_recognition_posterior_probabilities',
+                        'SulciRecognition_1_SPAM_recognition09_global_recognition_output_transformation',
+                        'SulciRecognition_1_SPAM_recognition09_global_recognition_output_t1_to_global_transformation',
+                        'SulciRecognition_1_SPAM_recognition09_local_recognition_posterior_probabilities',
+                        'SulciRecognition_1_SPAM_recognition09_local_recognition_output_local_transformations',
+                        'SulciRecognition_1_SPAM_recognition09_markovian_recognition_posterior_probabilities',
+                    ],
+                    'bids': ['t1mri'],
+                    'shared': [
+                        'PrepareSubject_TalairachFromNormalization_normalized_referential',
+                        'PrepareSubject_TalairachFromNormalization_acpc_referential',
+                        'PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized',
+                        'SPAM_recognition_labels_translation_map',
+                        'sulcal_morphometry_sulci_file',
+                        'PrepareSubject_Normalization_NormalizeFSL_template',
+                        'PrepareSubject_Normalization_NormalizeSPM_template',
+                        'PrepareSubject_Normalization_NormalizeBaladin_template',
+                        'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template',
+                        'PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc',
+                        'Renorm_template',
+                        'Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc',
+                        'SplitBrain_split_template',
+                        'SulciRecognition_recognition2000_model',
+                        'SulciRecognition_SPAM_recognition09_global_recognition_labels_priors',
+                        'SulciRecognition_SPAM_recognition09_global_recognition_model',
+                        'SulciRecognition_SPAM_recognition09_local_recognition_model',
+                        'SulciRecognition_SPAM_recognition09_local_recognition_local_referentials',
+                        'SulciRecognition_SPAM_recognition09_local_recognition_direction_priors',
+                        'SulciRecognition_SPAM_recognition09_local_recognition_angle_priors',
+                        'SulciRecognition_SPAM_recognition09_local_recognition_translation_priors',
+                        'SulciRecognition_SPAM_recognition09_markovian_recognition_model',
+                        'SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model',
+                        'SulciRecognition_CNN_recognition19_model_file',
+                        'SulciRecognition_CNN_recognition19_param_file',
+                        'SulciRecognition_1_recognition2000_model',
+                        'SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors',
+                        'SulciRecognition_1_SPAM_recognition09_global_recognition_model',
+                        'SulciRecognition_1_SPAM_recognition09_local_recognition_model',
+                        'SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials',
+                        'SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors',
+                        'SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors',
+                        'SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors',
+                        'SulciRecognition_1_SPAM_recognition09_markovian_recognition_model',
+                        'SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model',
+                        'SulciRecognition_1_CNN_recognition19_model_file',
+                        'SulciRecognition_1_CNN_recognition19_param_file'
+                    ],
+                }
+            )
+            metadata.bids = input_metadata
+            self.assertEqual(
+                metadata.bids.asdict(),
+                {
+                    'folder': 'rawdata',
+                    'pipeline': None,
+                    'sub': 'aleksander',
+                    'ses': 'm0',
+                    'data_type': 'anat',
+                    'task': None,
+                    'acq': None,
+                    'ce': None,
+                    'rec': None,
+                    'run': None,
+                    'echo': None,
+                    'part': None,
+                    'suffix': 'T1w',
+                    'extension': 'nii'
+                })
+
             t0 = time.time()
-            generate_paths(morphologist, execution_context, datasets=datasets,
-                           source_fields=['t1mri'], debug=False)
+            metadata.generate_paths(morphologist, debug=False)
             t1 = time.time()
             print('completion time:', t1 - t0, 's')
 
@@ -1126,7 +1271,11 @@ class TestFakeMorphologist(unittest.TestCase):
         }
         engine = self.capsul.engine()
         execution_context = engine.execution_context(morphologist_iteration)
-        generate_paths(morphologist_iteration, execution_context)
+
+        metadata = ProcessMetadata(morphologist_iteration, execution_context,
+                                   datasets=datasets)
+
+        metadata.generate_paths(morphologist_iteration)
         for name, value in expected_completion.items():
             self.assertEqual(getattr(morphologist_iteration, name), value)
         morphologist_iteration.resolve_paths(execution_context)
