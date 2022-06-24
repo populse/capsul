@@ -12,6 +12,7 @@ import json
 import operator
 from pathlib import Path
 import re
+import fnmatch
 from capsul.pipeline.pipeline import Process, Pipeline, Switch
 from capsul.pipeline.process_iteration import ProcessIteration
 
@@ -396,16 +397,28 @@ class ProcessSchema:
         setattr(process, 'metadata_schemas', schemas)
     
     @classmethod
-    def _update_metadata(cls, metadata, process, pipeline_name, parameter, iteration_index):
-        stack = [
-            getattr(cls, '_', {}).get('*'),
-            getattr(cls, f'{pipeline_name}.{parameter}', None),
+    def _update_metadata(cls, metadata, process, pipeline_name, parameter,
+                         iteration_index):
+        # remove top pipeline name
+        if '.' in pipeline_name:
+            pipeline_name = pipeline_name.split('.', 1)[-1]
+            long_parmater = f'{pipeline_name}.{parameter}'
+        else:
+            pipeline_name = ''
+            long_parmater = parameter
+        stack = [v for p, v in getattr(cls, '_', {}).items()
+                 if fnmatch.fnmatch(long_parmater, p)] \
+            + [
+            #getattr(cls, f'{pipeline_name}.{parameter}', None),
             getattr(cls, parameter, None),
         ]
         instance_process_schema = getattr(process, 'metadata_schemas', None)
         if instance_process_schema:
-            stack.append(getattr(instance_process_schema, '_', {}).get('*'))
-            stack.append(getattr(instance_process_schema, f'{pipeline_name}.{parameter}', None))
+            stack += [v
+                      for p, v in getattr(instance_process_schema, '_',
+                                          {}).items()
+                      if fnmatch.fnmatch(long_parmater, p)]
+            #stack.append(getattr(instance_process_schema, f'{pipeline_name}.{parameter}', None))
             stack.append(getattr(instance_process_schema, parameter, None))
         
         while stack:
@@ -544,7 +557,7 @@ class ProcessMetadata(Controller):
                     elif iteration_size != schema_iteration_size:
                         raise ValueError(f'Iteration on schema {first_schema} has {iteration_size} element(s) which is not equal to schema {schema} ({schema_iteration_size} element(s))')
             iteration_values = {}
-            dprint(debug, f'{iteration_size=}')
+            dprint(debug, f'{iteration_size}')
             for iteration in range(iteration_size):
                 metadatas = {}
                 for i in self.parameters_per_schema:
@@ -569,7 +582,7 @@ class ProcessMetadata(Controller):
             self._generate_paths(executable=executable, metadatas=metadatas, iteration_index=None, debug=debug)
 
     def _generate_paths(self, executable, metadatas, iteration_index, debug):
-        dprint(debug, executable.definition, f'{iteration_index=}')
+        dprint(debug, executable.definition, f'{iteration_index}')
         for schema, parameters in self.parameters_per_schema.items():
             for parameter in parameters:
                 dataset = self.dataset_per_parameter[parameter]
@@ -585,23 +598,53 @@ class ProcessMetadata(Controller):
                 for field in schema_metadata.fields():
                     value = getattr(schema_metadata, field.name, None)
                     if value is not None:
+                        #value = value % metadata.asdict()
                         setattr(metadata, field.name, value)
                 dprint(debug, '->', parameter, ':', schema)
                 for path in self.follow_links(executable, parameter, debug=debug):
                     dprint(debug, 'path length', len(path))
+                    # get all pattern rules along the path
+                    path_schemas = []
+                    for pipeline_name, process, process_parameter in path:
+                        metadata_schema = getattr(process, 'metadata_schemas',
+                                                  {}).get(schema)
+                        path_schemas.append(metadata_schema)
+                        if isinstance(process, ProcessIteration):
+                            metadata_schema = getattr(
+                                process.process, 'metadata_schemas',
+                                {}).get(schema)
+                            path_schemas.append(metadata_schema)
+
+                    # merge attributes
+                    level = len(path_schemas) - 1
                     for pipeline_name, process, process_parameter in reversed(path):
                         dprint(debug, pipeline_name, process.definition, process_parameter)
                         if isinstance(process, ProcessIteration):
-                            metadata_schema = getattr(process.process, 'metadata_schemas', {}).get(schema)
-                            dprint(debug, f'{metadata_schema=}')
+                            metadata_schema = path_schemas[level]
                             if metadata_schema:
-                                metadata_schema._update_metadata(metadata, executable, pipeline_name, process_parameter, iteration_index)
-                        metadata_schema = getattr(process, 'metadata_schemas', {}).get(schema)
-                        dprint(debug, f'{metadata_schema=}')
+                                metadata_schema._update_metadata(
+                                    metadata, executable, pipeline_name,
+                                    process_parameter, iteration_index)
+                            level -= 1
+                        metadata_schema = path_schemas[level]
                         if metadata_schema:
-                            metadata_schema._update_metadata(metadata, executable, pipeline_name, process_parameter, iteration_index)
+                            metadata_schema._update_metadata(
+                                metadata, executable, pipeline_name,
+                                process_parameter, iteration_index)
+                        level -= 1
+                        # we must also call all parent pipelines schemas with
+                        # the current depth parameter name, since some upper-
+                        # level schemas may use them witht a lower-level name
+                        # (especially for pattern rules such as
+                        # "LeftPipeline.*'
+                        for ilevel in range(level, -1, -1):
+                            metadata_schema = path_schemas[level]
+                            if metadata_schema:
+                                metadata_schema._update_metadata(
+                                    metadata, executable, pipeline_name,
+                                    process_parameter, iteration_index)
                 dpprint(debug, metadata.asdict())
-                path = str(metadata.build_path())
+                path = str(metadata.build_path()) % metadata.asdict()
                 dprint(debug, parameter, '=', path)
                 if isinstance(executable, ProcessIteration):
                     setattr(executable.process, parameter, path)
