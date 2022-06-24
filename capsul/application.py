@@ -118,43 +118,43 @@ class Capsul(Singleton):
     def custom_pipeline():
         return CustomPipeline()
 
-    def iteration_pipeline(self, executable,
+    @classmethod
+    def executable_iteration(cls, executable,
             non_iterative_plugs=None, 
-            iterative_plugs=None, 
-            do_not_export=None,
-            make_optional=None,
-            **kwargs):
-            """ Create a pipeline with an iteration node iterating the given
-            process.
+            iterative_plugs=None):
+            """ Create a ProcessIteration to run several times (in parallel
+            if possible) the same executable with different parameters.
+
             Parameters
             ----------
-            pipeline_name: str
-                pipeline name
-            node_name: str
-                iteration node name in the pipeline
-            process_or_id: process description
-                as in :meth:`get_process_instance`
+            non_iterative_plugs: list (optional)
+                passed to :meth:`ProcessIteration.__init__`
             iterative_plugs: list (optional)
-                passed to :meth:`Pipeline.add_iterative_process`
-            do_not_export: list
-                passed to :meth:`Pipeline.add_iterative_process`
-            make_optional: list
-                passed to :meth:`Pipeline.add_iterative_process`
+                passed to :meth:`ProcessIteration.__init__`
             Returns
             -------
-            pipeline: :class:`Pipeline` instance
+            iteration: :class:`ProcessIteration` instance
             """
-            from capsul.pipeline.pipeline import Pipeline
+            process = cls.executable(executable)
+            if iterative_plugs is not None:
+                if non_iterative_plugs is not None:
+                    raise ValueError(
+                        'Both iterative_plugs and non_iterative_plugs are '
+                        'specified - they are mutually exclusive')
+            else:
+                forbidden = {'nodes_activation', 'selection_changed',
+                            'pipeline_steps', 'visible_groups', 'enabled',
+                            'activated', 'node_type'}
+                if non_iterative_plugs:
+                    forbidden.update(non_iterative_plugs)
+                iterative_plugs = [field.name for field in process.fields()
+                                if field.name not in forbidden]
 
-            pipeline = self.custom_pipeline()
-            pipeline.add_iterative_process('iteration', executable,
-                non_iterative_plugs=non_iterative_plugs,
-                iterative_plugs=iterative_plugs,
-                do_not_export=do_not_export,
-                make_optional=make_optional,
-                **kwargs)
-            pipeline.autoexport_nodes_parameters(include_optional=True)
-            return pipeline
+            iterative_process = ProcessIteration(
+                    definition=f'{process.definition}[]', 
+                    process=process,
+                    iterative_parameters=iterative_plugs)
+            return iterative_process
 
 
 def executable(definition, **kwargs):

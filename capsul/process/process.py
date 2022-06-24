@@ -200,9 +200,12 @@ class Process(Node):
             if not context_dict:
                 context_dict.update((f.name, getattr(execution_context, f.name, None)) for f in execution_context.fields())
                 context_dict['executable'] = execution_context.executable
-            return eval(f"f'{value[1:]}'", 
-                context_dict, 
-                context_dict)
+            try:
+                value = eval(f"f'{value[1:]}'", 
+                             context_dict, 
+                             context_dict)
+            except NameError:
+                pass
         return value
 
     def resolve_paths(self, execution_context):
