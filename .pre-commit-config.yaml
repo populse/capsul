@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.1.0  # DO NOT UPDATE: last version to be compatible with Python 3.6
     hooks:
     -   id: check-added-large-files
     -   id: check-case-conflict
@@ -26,3 +26,6 @@ repos:
         name: flake8 under python3
         language_version: python3
         exclude: ^(doc/source|capsul)/sphinxext/
+
+ci:  # configuration for https://pre-commit.ci/
+    autoupdate_schedule: quarterly  # prevent too frequent PRs
