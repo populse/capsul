@@ -16,9 +16,10 @@ import logging
 
 from .process import NipypeProcess
 import soma.controller as sc
+import pydantic
 try:
     import traits.api as traits
-except:
+except ImportError:
     # Nipype is using traits but there is no mandatory dependency on Nipype.
     # Therefore, Capsul must be usable without traits (which is a dependency
     # of Nipype).
@@ -458,6 +459,23 @@ def parse_trait(trait):
             ftype = (handler.aClass, None)
         elif getattr(handler, 'aType', None):
             ftype = (handler.aType, None)
+        elif isinstance(handler, traits.Range):
+            vtype = type(handler._low)
+            ftype1 = getattr(pydantic, 'con' + vtype.__name__, None)
+            if not ftype1:
+                print('cannot find a constrained type for range of '
+                      f'{vtype.__name__}')
+                ftype1 = vtype
+            else:
+                l = 'ge'
+                if handler._exclude_low:
+                    l = 'gt'
+                h = 'le'
+                if handler._exclude_high:
+                    h = 'lt'
+                kwargs = {l: handler._low, h: handler._high}
+                ftype1 = ftype1(**kwargs)
+            ftype = (ftype1, None)
         else:
             print('trait type', ttype, 'not found')
             return tree
