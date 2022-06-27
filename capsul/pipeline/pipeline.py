@@ -23,6 +23,7 @@ from soma.controller import (Controller,
                              Event,
                              Literal)
 from soma.sorted_dictionary import SortedDictionary
+from pydantic import ValidationError
 
 
 class Pipeline(Process):
@@ -986,10 +987,10 @@ class Pipeline(Process):
 
         # Propagate the parameter value to the new exported one
         v = getattr(node, plug_name, undefined)
-        setattr(self, pipeline_parameter, v)
-        # TODO: catch appropriate error type
-        # except dataclass.ValidationError:
-        #     pass
+        try:
+            setattr(self, pipeline_parameter, v)
+        except ValidationError:
+            pass
 
         # Do not forget to link the node with the pipeline node
 
