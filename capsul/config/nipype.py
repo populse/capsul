@@ -16,6 +16,12 @@ def init_execution_context(execution_context):
     '''
     Configure an execution context given a capsul_engine and some requirements.
     '''
-    config =  execution_context.config['modules']['nipype']
+    config = execution_context.config['modules']['nipype']
     execution_context.nipype = NipypeConfiguration()
     execution_context.nipype.import_from_dict(config)
+    for module in ('matlab', 'spm', 'fsl', 'freesurfer', 'afni', 'ants'):
+        if module in execution_context.config['modules']:
+            mod = __import__('.%s' % module)
+            init = getattr(mod, 'init_execution_context', None)
+            if init:
+                init(execution_context)

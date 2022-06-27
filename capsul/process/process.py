@@ -15,6 +15,7 @@ Classes
 '''
 
 import os
+import os.path as osp
 from datetime import datetime as datetime
 import glob
 import tempfile
@@ -283,10 +284,15 @@ class FileCopyProcess(Process):
             self.copied_files = None
         self.use_temp_output_dir = use_temp_output_dir
 
+    def execute(self, context):
+        self._before_run_process()
+        self.execute_copyprocess(context)
+        self._after_run_process()
+
     def _before_run_process(self):
         """ Method to copy files before executing the process.
         """
-        super(FileCopyProcess, self)._before_run_process()
+        #super(FileCopyProcess, self)._before_run_process()
 
         if self.destination is None:
             output_directory = getattr(self, 'output_directory', None)
@@ -323,12 +329,17 @@ class FileCopyProcess(Process):
                 self._recorded_params[name] = getattr(self, name, undefined)
                 setattr(self, name, value)
 
+    def execute_copyprocess(self, context):
+        raise NotImplementedError(
+            'FileCopyProcess execute_copyprocess() must be defined in '
+            'subclasses.')
+
     def _after_run_process(self, run_process_result):
         """ Method to clean-up temporary workspace after process
         execution.
         """
-        run_process_result = super(FileCopyProcess, self)._after_run_process(
-            run_process_result)
+        #run_process_result = super(FileCopyProcess, self)._after_run_process(
+            #run_process_result)
         if self.use_temp_output_dir:
             self._move_outputs()
         # The copy option is activated
@@ -731,7 +742,7 @@ class NipypeProcess(FileCopyProcess):
         same name as in their nipype interface, and outputs are prefixed with
         an underscore ('_') to avoid names collisions when a trait exists both
         in inputs and outputs in nipype. A special field name
-        `_spm_script_file` is also used in SPM interfaces to write the matlab
+        `spm_script_file` is also used in SPM interfaces to write the matlab
         script. It can also be translated to a different name in this dict.
 
         Subclasses should preferably *not* define an __init__ method, because
@@ -745,7 +756,7 @@ class NipypeProcess(FileCopyProcess):
                 _nipype_class_type = spm.Smooth
                 _nipype_trait_mapping = {
                     'smoothed_files': 'smoothed_files',
-                    '_spm_script_file': 'spm_script_file'}
+                    'spm_script_file': 'spm_script_file'}
 
             smooth = Smooth()
 
@@ -884,17 +895,127 @@ class NipypeProcess(FileCopyProcess):
         """
         setattr(self._nipype_interface.inputs, parameter, value)
 
+    def configure_nipype(self, context):
+        #with open('/tmp/debug.txt', 'a') as f:
+            #print('CONTEXT:', context.asdict(), file=f)
+        print('IN EXEC CONTEXT:', context.asdict())
+        self.configure_matlab(context)
+        self.configure_spm(context)
+        self.configure_fsl(context)
+        self.configure_freesurfer(context)
+        self.configure_afni(context)
+        self.configure_ants(context)
+
+    def configure_spm(self, context):
+        '''
+        Configure Nipype SPM interface if CapsulEngine had been used to set
+        the appropriate configuration variables in os.environ.
+        '''
+        conf = getattr(context, 'spm', None)
+        spm_directory = None
+        standalone = None
+        if conf:
+            spm_directory = conf.get('directory')
+            standalone = conf.get('standalone')
+
+        if not spm_directory:
+            spm_directory = os.environ.get('SPM_HOME')
+        if standalone is None:
+            standalone = (os.environ.get('SPM_STANDALONE') == 'yes')
+        if spm_directory:
+            from nipype.interfaces import spm
+
+            if standalone:
+                import glob
+                spm_exec_glob = osp.join(spm_directory, 'mcr', 'v*')
+                spm_exec = glob.glob(spm_exec_glob)
+                if spm_exec:
+                    spm_exec = spm_exec[0]
+                    spm.SPMCommand.set_mlab_paths(
+                        matlab_cmd=osp.join(spm_directory, 'run_spm%s.sh' % os.environ.get('SPM_VERSION','')) + ' ' + spm_exec + ' script',
+                        use_mcr=True)
+
+            else:
+                # Matlab spm version
+
+                from nipype.interfaces import matlab
+
+                matlab.MatlabCommand.set_default_paths(
+                    [spm_directory])  # + add_to_default_matlab_path)
+                spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)
+
+
+    def configure_matlab(self, context):
+        '''
+        Configure matlab for nipype
+        '''
+        conf = getattr(context, 'matlab', None)
+        if conf and conf.get('executable'):
+            matlab_exe = conf['executable']
+
+            from nipype.interfaces import matlab
+
+            matlab.MatlabCommand.set_default_matlab_cmd(
+                matlab_exe + " -nodesktop -nosplash")
+
+
+    def configure_fsl(self, context):
+        '''
+        Configure FSL for nipype
+        '''
+        conf = getattr(context, 'fsl', None)
+        if conf:
+            from capsul.in_context import fsl as fslrun
+            env = fslrun.fsl_env()
+            for var, value in env.items():
+                os.environ[var] = value
+
+
+    def configure_freesurfer(self, context):
+        '''
+        Configure Freesurfer for nipype
+        '''
+        conf = getattr(context, 'freesurfer', None)
+        if conf:
+            subjects_dir = conf.get('subjects_dir')
+            if subjects_dir:
+                from nipype.interfaces import freesurfer
+                freesurfer.FSCommand.set_default_subjects_dir(subjects_dir)
+            from capsul.in_context import freesurfer as fsrun
+            env = fsrun.freesurfer_env()
+            for var, value in env.items():
+                os.environ[var] = value
+
+
+    def configure_afni(self, context):
+        '''
+        Configure AFNI for nipype
+        '''
+        conf = getattr(context, 'afni', None)
+        if conf:
+            from capsul.in_context import afni as afnirun
+            env = afnirun.afni_env()
+            for var, value in env.items():
+                os.environ[var] = value
+
+    def configure_ants(self, context):
+        '''
+        Configure ANTS for nipype
+        '''
+        conf = getattr(context, 'ants', None)
+        if conf:
+            from capsul.in_context import ants as antsrun
+            env = antsrun.ants_env()
+            for var, value in env.items():
+                os.environ[var] = value
+
     def _before_run_process(self):
         if self._nipype_interface_name == "spm":
             # Set the spm working
             self.destination = None
         super()._before_run_process()
-        # configure nipype from config env variables (which should have been set
-        # before now)
-        from capsul.in_context import nipype as inp_npp
-        inp_npp.configure_all()
 
-    def run(self):
+    def execute_copyprocess(self, context):
         """ Method that do the processings when the instance is called.
 
         Returns
@@ -906,16 +1027,19 @@ class NipypeProcess(FileCopyProcess):
             cwd = os.getcwd()
         except OSError:
             cwd = None
-        if self.output_directory is None or self.output_directory is undefined:
+        if getattr(self, 'output_directory', undefined) in (None, undefined):
             raise ValueError('output_directory is not set but is mandatory '
                              'to run a NipypeProcess')
         os.chdir(self.output_directory)
+
+        self.configure_nipype(context)
+
         self.synchronize.fire()
 
         # Force nipype update
         for trait_name in self._nipype_interface.inputs.traits().keys():
-            field_name = self.getattr(
-                '_nipype_trait_mapping', {}).get(trait_name, trait_name)
+            field_name = getattr(
+                self, '_nipype_trait_mapping', {}).get(trait_name, trait_name)
             if field_name in self.user_fields():
                 old = getattr(self._nipype_interface.inputs, trait_name)
                 new = getattr(self, field_name)
@@ -946,7 +1070,7 @@ class NipypeProcess(FileCopyProcess):
 
     def _after_run_process(self, run_process_result):
         trait_map = getattr(self, '_nipype_trait_mapping', {})
-        script_tname = trait_map.get('_spm_script_file', '_spm_script_file')
+        script_tname = trait_map.get('spm_script_file', 'spm_script_file')
         if getattr(self, script_tname, None) not in (None, undefined, ''):
             script_file = os.path.join(
                 self.output_directory,
