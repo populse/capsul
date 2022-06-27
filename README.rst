@@ -50,7 +50,7 @@ The simplest is to use a `casa-distro <https://github.com/brainvisa/casa-distro>
         brainvisa casa-distro \$CASA_BRANCH \$CASA_SRC
         + \$CASA_SRC/soma/soma-base
         + \$CASA_SRC/soma/soma-workflow
-        + $CASA_SRC/populse_db
+        + \$CASA_SRC/populse_db
         + \$CASA_SRC/capsul
       EOF
 
