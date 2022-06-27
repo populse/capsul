@@ -56,12 +56,12 @@ The simplest is to use a `casa-distro <https://github.com/brainvisa/casa-distro>
 
 * get the code and build::
 
-      python3/bin/bv_maker
+      capsul3/bin/bv_maker
 
 * It's ready. You can use it using either::
 
-      python3/bin/bv bash
-      python3/bin/bv ipython3
-      python3/bin/bv python <script>
+      capsul3/bin/bv bash
+      capsul3/bin/bv ipython3
+      capsul3/bin/bv python <script>
 
   You can also set the python3/bin directory into your `PATH` configuration.
