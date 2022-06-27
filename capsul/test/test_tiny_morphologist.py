@@ -754,23 +754,21 @@ class TestTinyMorphologist(unittest.TestCase):
     #         import traceback
     #         traceback.print_exc()
 
-    #     import sys
-    #     sys.stdout.flush()
-    #     from soma.qt_gui.qt_backend import QtGui
-    #     from capsul.qt_gui.widgets import PipelineDeveloperView
-    #     app = QtGui.QApplication.instance()
-    #     if not app:
-    #         app = QtGui.QApplication(sys.argv)
-    #     view1 = PipelineDeveloperView(processing_pipeline, show_sub_pipelines=True)
-    #     view1.show()
-    #     app.exec_()
-    #     del view1
-
-
 def test():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestTinyMorphologist)
     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
     return runtime.wasSuccessful()
 
 if __name__ == '__main__':
-    test()
+    import sys
+    sys.stdout.flush()
+    from soma.qt_gui.qt_backend import QtGui
+    from capsul.qt_gui.widgets import PipelineDeveloperView
+    tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
+    app = QtGui.QApplication.instance()
+    if not app:
+        app = QtGui.QApplication(sys.argv)
+    view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True)
+    view1.show()
+    app.exec_()
+    del view1
