@@ -286,8 +286,8 @@ class FileCopyProcess(Process):
 
     def execute(self, context):
         self._before_run_process()
-        self.execute_copyprocess(context)
-        self._after_run_process()
+        result = self.execute_copyprocess(context)
+        self._after_run_process(result)
 
     def _before_run_process(self):
         """ Method to copy files before executing the process.
@@ -402,9 +402,9 @@ class FileCopyProcess(Process):
         moved_dict = {}
         for field in self.user_fields():
             param = field.name
-            if self.metadata(field, 'output', False):
+            if field.is_output():
                 new_value = self._move_files(tmp_output, dst_output,
-                                             getattr(self, param),
+                                             getattr(self, param, undefined),
                                              moved_dict=moved_dict)
                 output_values[param] = new_value
                 setattr(self, param, new_value)
@@ -864,6 +864,7 @@ class NipypeProcess(FileCopyProcess):
     @property
     def requirements(self):
         result = super().requirements.copy()
+        result['nipype'] = {}
         if self._nipype_interface_name == "spm":
             result['spm'] = {}
         elif self._nipype_interface_name == "fsl":
@@ -895,156 +896,6 @@ class NipypeProcess(FileCopyProcess):
         """
         setattr(self._nipype_interface.inputs, parameter, value)
 
-    def configure_nipype(self, context):
-        #with open('/tmp/debug.txt', 'a') as f:
-            #print('CONTEXT:', context.asdict(), file=f)
-        print('IN EXEC CONTEXT:', context.asdict())
-        self.configure_matlab(context)
-        self.configure_spm(context)
-        self.configure_fsl(context)
-        self.configure_freesurfer(context)
-        self.configure_afni(context)
-        self.configure_ants(context)
-
-    def configure_spm(self, context):
-        '''
-        Configure Nipype SPM interface if CapsulEngine had been used to set
-        the appropriate configuration variables in os.environ.
-        '''
-        if self._nipype_interface_name != 'spm':
-            return
-
-        conf = getattr(context, 'spm', None)
-        print('spm conf:', conf)
-        spm_directory = None
-        standalone = None
-        if conf:
-            spm_directory = conf.get('directory')
-            standalone = conf.get('standalone')
-
-        if not spm_directory:
-            spm_directory = os.environ.get('SPM_HOME')
-        if standalone is None:
-            standalone = (os.environ.get('SPM_STANDALONE') == 'yes')
-        if spm_directory:
-            from nipype.interfaces import spm
-
-            spm_version = conf.get('version')
-            if standalone:
-                mlab_conf = getattr(context, 'matlab', None)
-                mcr_directory = None
-                if mlab_conf and mlab_conf.get('mcr_directory'):
-                    mcr_directory = mlab_conf['mcr_directory']
-
-                if not mcr_directory:
-                    print('guess mcr_directory')
-                    import glob
-                    spm_exec_glob = osp.join(spm_directory, 'mcr', 'v*')
-                    spm_exec = glob.glob(spm_exec_glob)
-                    if spm_exec:
-                        mcr_directory = spm_exec[0]
-                print('mcr_directory:', mcr_directory)
-                if mcr_directory:
-                    print('set spm set_mlab_paths:', osp.join(
-                            spm_directory,
-                            'run_spm%s.sh' % spm_version) + ' ' + mcr_directory
-                                + ' script')
-                    spm.SPMCommand.set_mlab_paths(
-                        matlab_cmd=osp.join(
-                            spm_directory,
-                            'run_spm%s.sh' % spm_version) + ' ' + mcr_directory
-                                + ' script',
-                        use_mcr=True)
-
-            else:
-                # Matlab spm version
-
-                from nipype.interfaces import matlab
-
-                matlab.MatlabCommand.set_default_paths(
-                    [spm_directory])  # + add_to_default_matlab_path)
-                mlab_conf = getattr(context, 'matlab', None)
-                matlab_cmd = ''
-                if mlab_conf and mlab_conf.get('executable'):
-                    matlab_cmd = mlab_conf['executable']
-                spm.SPMCommand.set_mlab_paths(matlab_cmd=matlab_cmd,
-                                              use_mcr=False)
-
-
-    def configure_matlab(self, context):
-        '''
-        Configure matlab for nipype
-        '''
-        conf = getattr(context, 'matlab', None)
-        print('matlab conf:', conf)
-        if not conf:
-            return
-        if conf.get('executable'):
-            matlab_exe = conf['executable']
-
-            from nipype.interfaces import matlab
-
-            matlab.MatlabCommand.set_default_matlab_cmd(
-                matlab_exe + " -nodesktop -nosplash")
-        #elif conf.get('mcr_directory'):
-            #mcr_directory = cong['mcr_directory']
-
-            #from nipype.interfaces import matlab
-
-            #matlab.MatlabCommand.set_default_matlab_cmd(
-                #mcr_directory)
-
-
-    def configure_fsl(self, context):
-        '''
-        Configure FSL for nipype
-        '''
-        conf = getattr(context, 'fsl', None)
-        if conf:
-            from capsul.in_context import fsl as fslrun
-            env = fslrun.fsl_env()
-            for var, value in env.items():
-                os.environ[var] = value
-
-
-    def configure_freesurfer(self, context):
-        '''
-        Configure Freesurfer for nipype
-        '''
-        conf = getattr(context, 'freesurfer', None)
-        if conf:
-            subjects_dir = conf.get('subjects_dir')
-            if subjects_dir:
-                from nipype.interfaces import freesurfer
-                freesurfer.FSCommand.set_default_subjects_dir(subjects_dir)
-            from capsul.in_context import freesurfer as fsrun
-            env = fsrun.freesurfer_env()
-            for var, value in env.items():
-                os.environ[var] = value
-
-
-    def configure_afni(self, context):
-        '''
-        Configure AFNI for nipype
-        '''
-        conf = getattr(context, 'afni', None)
-        if conf:
-            from capsul.in_context import afni as afnirun
-            env = afnirun.afni_env()
-            for var, value in env.items():
-                os.environ[var] = value
-
-    def configure_ants(self, context):
-        '''
-        Configure ANTS for nipype
-        '''
-        conf = getattr(context, 'ants', None)
-        if conf:
-            from capsul.in_context import ants as antsrun
-            env = antsrun.ants_env()
-            for var, value in env.items():
-                os.environ[var] = value
-
     def _before_run_process(self):
         if self._nipype_interface_name == "spm":
             # Set the spm working
@@ -1067,8 +918,6 @@ class NipypeProcess(FileCopyProcess):
             raise ValueError('output_directory is not set but is mandatory '
                              'to run a NipypeProcess')
         os.chdir(self.output_directory)
-
-        self.configure_nipype(context)
 
         self.synchronize.fire()
 
