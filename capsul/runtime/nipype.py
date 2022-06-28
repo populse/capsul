@@ -26,8 +26,8 @@ def configure_spm(context):
     spm_directory = None
     standalone = None
     if conf:
-        spm_directory = conf.get('directory')
-        standalone = conf.get('standalone')
+        spm_directory = getattr(conf, 'directory', None)
+        standalone = getattr(conf, 'standalone', None)
 
     if not spm_directory:
         spm_directory = os.environ.get('SPM_HOME')
@@ -36,7 +36,7 @@ def configure_spm(context):
     if spm_directory:
         from nipype.interfaces import spm
 
-        spm_version = conf.get('version')
+        spm_version = getattr(conf, 'version', None)
         if standalone:
             mlab_conf = getattr(context, 'matlab', None)
             mcr_directory = None
@@ -86,8 +86,8 @@ def configure_matlab(context):
     print('matlab conf:', conf)
     if not conf:
         return
-    if conf.get('executable'):
-        matlab_exe = conf['executable']
+    if getattr(conf, 'executable', None):
+        matlab_exe = conf.executable
 
         from nipype.interfaces import matlab
 
@@ -120,7 +120,7 @@ def configure_freesurfer(context):
     '''
     conf = getattr(context, 'freesurfer', None)
     if conf:
-        subjects_dir = conf.get('subjects_dir')
+        subjects_dir = getattr(conf, 'subjects_dir', None)
         if subjects_dir:
             from nipype.interfaces import freesurfer
             freesurfer.FSCommand.set_default_subjects_dir(subjects_dir)
