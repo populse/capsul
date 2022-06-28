@@ -14,6 +14,7 @@ from .dataset import Dataset
 from .pipeline.pipeline import Process, Pipeline
 from capsul.process.process import NipypeProcess
 from .pipeline.process_iteration import ProcessIteration
+from capsul.config.configuration import get_config_class
 
 class ExecutionContext(Controller):
     python_modules: list[str]
@@ -27,6 +28,12 @@ class ExecutionContext(Controller):
         super().__init__()
         self.dataset = OpenKeyDictController[Dataset]()
         if config is not None:
+            for k in config:
+                cls = get_config_class(k, exception=False)
+                if cls:
+                    self.add_field(k, OpenKeyDictController[cls],
+                                doc=cls.__doc__,
+                                default_factory=OpenKeyDictController[cls])
             self.import_dict(config)
         self.executable = executable
 

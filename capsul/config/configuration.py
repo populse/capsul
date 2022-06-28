@@ -25,6 +25,38 @@ def full_module_name(module_name):
     return module_name
 
 
+def get_config_class(module_name, exception=True):
+    full_mod = full_module_name(module_name)
+
+    try:
+        python_module = importlib.import_module(full_mod)
+    except ModuleNotFoundError:
+        if exception:
+            raise
+        else:
+            return None
+
+    classes = []
+    for c in python_module.__dict__.values():
+        if c is ModuleConfiguration:
+            continue
+        try:
+            if issubclass(c, ModuleConfiguration):
+                classes.append(c)
+        except TypeError:
+            pass
+    if len(classes) == 0:
+        if exception:
+            raise ValueError(f'No ModuleClass found in module {module_name}')
+        else:
+            return None
+    if len(classes) > 1:
+        if exception:
+            raise ValueError(f'Several ModuleClass found {len(classes)} in module {module_name}: {classes}')
+        else:
+            return None
+    return classes[0]
+
 class ModuleConfiguration(Controller):
     ''' Module-level configuration object.
 
@@ -87,26 +119,7 @@ class EngineConfiguration(Controller):
         This operation is performed automatically, thus should not need to be
         called manually.
         '''
-        full_mod = full_module_name(module_name)
-
-        python_module = importlib.import_module(full_mod)
-        if python_module is None:
-            raise ValueError('Module %s cannot be loaded.' % full_mod)
-
-        classes = []
-        for c in python_module.__dict__.values():
-            if c is ModuleConfiguration:
-                continue
-            try:
-                if issubclass(c, ModuleConfiguration):
-                    classes.append(c)
-            except TypeError:
-                pass
-        if len(classes) == 0:
-            raise ValueError(f'No ModuleClass found in module {module_name}')
-        if len(classes) > 1:
-            raise ValueError(f'Several ModuleClass found {len(classes)} in module {module_name}: {classes}')
-        cls = classes[0]
+        cls = get_config_class(module_name)
         old_module_name = module_name
         module_name = getattr(cls, 'name', module_name.rsplit('.')[-1])
         if not module_name:
