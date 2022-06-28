@@ -16,6 +16,11 @@ def init_execution_context(execution_context):
     '''
     Configure an execution context given a capsul_engine and some requirements.
     '''
+    print('init_execution_context nipype')
+    pymods = execution_context.config.setdefault('python_modules', [])
+    if 'capsul.runtime.nipype' not in pymods:
+        pymods.append('capsul.runtime.nipype')
+
     config = execution_context.config['modules']['nipype']
     execution_context.nipype = NipypeConfiguration()
     execution_context.nipype.import_from_dict(config)
