@@ -27,6 +27,7 @@ class TestConfiguration(unittest.TestCase):
         user_file = osp.join(self.tmp_dir, 'user_conf.json')
         conf_dict = {
             'local': {
+                'matlab': {},
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/usr/local/spm12_standalone',
@@ -52,6 +53,7 @@ class TestConfiguration(unittest.TestCase):
 
         conf_dict = {
             'local': {
+                'matlab': {},
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/usr/local/spm12_standalone',
@@ -60,7 +62,8 @@ class TestConfiguration(unittest.TestCase):
                         'directory': '/usr/local/spm8',
                         'version': '8',
                         'standalone': False,
-                    }}}}
+                    }},
+            }}
 
         app_config = ApplicationConfiguration('single_conf2',
                                               user_file=None)
