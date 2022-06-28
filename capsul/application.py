@@ -191,6 +191,12 @@ def executable(definition, **kwargs):
                 f'beacause variable {object_name} of module {module_name} '
                 f'contains {cls}')
         result = definition(definition=f'{module_name}.{object_name}')
+    elif inspect.isfunction(definition):
+        if definition.__module__ == '__main__':
+            raise ValueError('Cannot create a process from a function defined in a script. Please provide a function defined in a Python module.')
+        function = definition
+        definition = f'{function.__module__}.{function.__name__}'
+        result = executable_from_python(definition, function)
     else:
         if definition.endswith('.json'):
             with open(definition) as f:
