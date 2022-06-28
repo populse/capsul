@@ -3,6 +3,7 @@
 from datetime import datetime
 from itertools import chain
 from uuid import uuid4
+import importlib
 
 from populse_db import Database
 from soma.controller import Controller, OpenKeyDictController
@@ -21,10 +22,14 @@ class ExecutionContext(Controller):
     dataset: OpenKeyDictController[Dataset]
 
     def __init__(self, config=None, executable=None):
+        print('CREATE ExecutionContext from config:', config)
+        mods = []
         if config:
             python_modules = config.get('python_modules', ())
+            print('python_modules:', python_modules)
             for m in python_modules:
-                __import__(m)
+                mod = importlib.import_module(m)
+                mods.append(mod)
         super().__init__()
         self.dataset = OpenKeyDictController[Dataset]()
         if config is not None:
@@ -36,6 +41,11 @@ class ExecutionContext(Controller):
                                 default_factory=OpenKeyDictController[cls])
             self.import_dict(config)
         self.executable = executable
+
+        for m in mods:
+            if hasattr(m, 'init_runtime'):
+                print('init runtime module', m)
+                m.init_runtime(self)
 
 class ExecutionDatabase:
     def __init__(self, path):
