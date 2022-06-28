@@ -22,12 +22,11 @@ class ExecutionContext(Controller):
     dataset: OpenKeyDictController[Dataset]
 
     def __init__(self, config=None, executable=None):
-        mods = []
+        mod_classes = []
         if config:
             python_modules = config.get('python_modules', ())
             for m in python_modules:
                 mod = importlib.import_module(m)
-                mods.append(mod)
         super().__init__()
         self.dataset = OpenKeyDictController[Dataset]()
         if config is not None:
@@ -37,12 +36,13 @@ class ExecutionContext(Controller):
                     self.add_field(k, cls,
                                 doc=cls.__doc__,
                                 default_factory=cls)
+                    mod_classes.append(cls)
             self.import_dict(config)
         self.executable = executable
 
-        for m in mods:
-            if hasattr(m, 'init_runtime'):
-                m.init_runtime(self)
+        for cls in mod_classes:
+            if hasattr(cls, 'init_execution_context'):
+                cls.init_execution_context(self)
 
 class ExecutionDatabase:
     def __init__(self, path):
