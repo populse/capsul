@@ -57,6 +57,7 @@ def get_config_class(module_name, exception=True):
             return None
     return classes[0]
 
+
 class ModuleConfiguration(Controller):
     ''' Module-level configuration object.
 
@@ -76,9 +77,9 @@ class ModuleConfiguration(Controller):
       list of other module names which it depends on: these modules will be
       also added to the configuration.
 
-    - declare a function ``init_execution_context(execution_context)`` which
-      takes an :class:`~capsul.execution_context.ExecutionContext` object. It
-      should extract from the context configuration dict
+    - declare a static method ``init_execution_context(execution_context)``
+      which takes an :class:`~capsul.execution_context.ExecutionContext`
+      object. It should extract from the context configuration dict
       (execution_context.config) its own module config, and do whatever is
       needed to configure things and/or add in the context itself things that
       can be used during execution.
@@ -287,7 +288,7 @@ class ApplicationConfiguration(Controller):
       be known in the Capsul config system, and is accessed as a module. The
       default search path for modules is capsul.config.<module_name>. Each
       config module should contain one class inheriting the
-      :class:`ModuleConfiguration` class, and a function
+      :class:`ModuleConfiguration` class, and a static method
       ``init_execution_context(execution_context)``. Otherwise loading and
       initialization of modules is automatic when inserting items in the config
       object.
