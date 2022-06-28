@@ -911,7 +911,11 @@ class NipypeProcess(FileCopyProcess):
         Configure Nipype SPM interface if CapsulEngine had been used to set
         the appropriate configuration variables in os.environ.
         '''
+        if self._nipype_interface_name != 'spm':
+            return
+
         conf = getattr(context, 'spm', None)
+        print('spm conf:', conf)
         spm_directory = None
         standalone = None
         if conf:
@@ -925,14 +929,31 @@ class NipypeProcess(FileCopyProcess):
         if spm_directory:
             from nipype.interfaces import spm
 
+            spm_version = conf.get('version')
             if standalone:
-                import glob
-                spm_exec_glob = osp.join(spm_directory, 'mcr', 'v*')
-                spm_exec = glob.glob(spm_exec_glob)
-                if spm_exec:
-                    spm_exec = spm_exec[0]
+                mlab_conf = getattr(context, 'matlab', None)
+                mcr_directory = None
+                if mlab_conf and mlab_conf.get('mcr_directory'):
+                    mcr_directory = mlab_conf['mcr_directory']
+
+                if not mcr_directory:
+                    print('guess mcr_directory')
+                    import glob
+                    spm_exec_glob = osp.join(spm_directory, 'mcr', 'v*')
+                    spm_exec = glob.glob(spm_exec_glob)
+                    if spm_exec:
+                        mcr_directory = spm_exec[0]
+                print('mcr_directory:', mcr_directory)
+                if mcr_directory:
+                    print('set spm set_mlab_paths:', osp.join(
+                            spm_directory,
+                            'run_spm%s.sh' % spm_version) + ' ' + mcr_directory
+                                + ' script')
                     spm.SPMCommand.set_mlab_paths(
-                        matlab_cmd=osp.join(spm_directory, 'run_spm%s.sh' % os.environ.get('SPM_VERSION','')) + ' ' + spm_exec + ' script',
+                        matlab_cmd=osp.join(
+                            spm_directory,
+                            'run_spm%s.sh' % spm_version) + ' ' + mcr_directory
+                                + ' script',
                         use_mcr=True)
 
             else:
@@ -942,7 +963,12 @@ class NipypeProcess(FileCopyProcess):
 
                 matlab.MatlabCommand.set_default_paths(
                     [spm_directory])  # + add_to_default_matlab_path)
-                spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)
+                mlab_conf = getattr(context, 'matlab', None)
+                matlab_cmd = ''
+                if mlab_conf and mlab_conf.get('executable'):
+                    matlab_cmd = mlab_conf['executable']
+                spm.SPMCommand.set_mlab_paths(matlab_cmd=matlab_cmd,
+                                              use_mcr=False)
 
 
     def configure_matlab(self, context):
@@ -950,13 +976,23 @@ class NipypeProcess(FileCopyProcess):
         Configure matlab for nipype
         '''
         conf = getattr(context, 'matlab', None)
-        if conf and conf.get('executable'):
+        print('matlab conf:', conf)
+        if not conf:
+            return
+        if conf.get('executable'):
             matlab_exe = conf['executable']
 
             from nipype.interfaces import matlab
 
             matlab.MatlabCommand.set_default_matlab_cmd(
                 matlab_exe + " -nodesktop -nosplash")
+        #elif conf.get('mcr_directory'):
+            #mcr_directory = cong['mcr_directory']
+
+            #from nipype.interfaces import matlab
+
+            #matlab.MatlabCommand.set_default_matlab_cmd(
+                #mcr_directory)
 
 
     def configure_fsl(self, context):
