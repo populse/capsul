@@ -174,7 +174,7 @@ class Pipeline(Process):
     # pipeline class. This makes it possible to change this default value
     # in derived classes (for instance in DynamicPipeline).
     do_autoexport_nodes_parameters = True
-    
+
     # By default nodes_activation attribute is hidden in user interface. Changing
     # this value to False will make it visible.
     hide_nodes_activation = True
@@ -940,6 +940,10 @@ class Pipeline(Process):
         allow_existing_plug:bool (optional)
             the same pipeline plug may be connected to several process plugs
         """
+        # Get value of allow_existing_plug if specified
+        if allow_existing_plug is None:
+            allow_existing_plug = getattr(self, 'allow_existing_plug', False)
+
         # If a tuned name is not specified, used the plug name
         if not pipeline_parameter:
             pipeline_parameter = plug_name
