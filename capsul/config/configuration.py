@@ -70,7 +70,11 @@ class ModuleConfiguration(Controller):
 
     - the subclass should declare its own configuration parameters using
       fields, and overload the method :meth:`is_valid_config` to check if a
-      requirements dictionary matches the current config module parameterss
+      requirements dictionary matches the current config module parameterss.
+
+    - the subclass may declare an attribute ``module_dependencies`` which is a
+      list of other module names which it depends on: these modules will be
+      also added to the configuration.
 
     - declare a function ``init_execution_context(execution_context)`` which
       takes an :class:`~capsul.execution_context.ExecutionContext` object. It
@@ -86,14 +90,6 @@ class ModuleConfiguration(Controller):
         '''
         raise NotImplementedError('A subclass of ModuleConfiguration must '
                                   'define is_valid_config()')
-
-    #def init_execution_context(execution_context):
-        #'''
-        #Configure an execution context given a capsul_engine and some
-        #requirements.
-        #'''
-        #raise NotImplementedError('A subclass of ModuleConfiguration must '
-                                  #'define init_execution_context()')
 
 
 class EngineConfiguration(Controller):
@@ -134,6 +130,11 @@ class EngineConfiguration(Controller):
         self.add_field(module_name, OpenKeyDictController[cls],
                        doc=cls.__doc__,
                        default_factory=OpenKeyDictController[cls])
+
+        if hasattr(cls, 'module_dependencies'):
+            module_dependencies = getattr(cls, 'module_dependencies')
+            for dependency in module_dependencies:
+                self.add_module(dependency, allow_existing=True)
 
     def remove_module(self, module_name):
         ''' Remove the given module

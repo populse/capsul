@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from .configuration import ModuleConfiguration
-from soma.controller import Directory, undefined
+from soma.controller import Directory, undefined, File, field
 
 
-class SPMConfiguration(ModuleConfiguration):
-    ''' SPM configuration module
+class MatlabConfiguration(ModuleConfiguration):
+    ''' Matlab configuration module
     '''
-    directory: Directory
+    executable: File = field(optional=True)
+    mcr_directory: Directory = field(optional=True)
     version: str
-    standalone: bool = False
-    name = 'spm'
-
-    module_dependencies = ['matlab']
+    name = 'matlab'
 
     def is_valid_config(self, requirements):
         required_version = requirements.get('version')
@@ -25,6 +23,6 @@ def init_execution_context(execution_context):
     '''
     Configure an execution context given a capsul_engine and some requirements.
     '''
-    config =  execution_context.config['modules']['spm']
-    execution_context.spm = SPMConfiguration()
-    execution_context.spm.import_dict(config)
+    config =  execution_context.config['modules']['matlab']
+    execution_context.matlab = MatlabConfiguration()
+    execution_context.matlab.import_dict(config)
