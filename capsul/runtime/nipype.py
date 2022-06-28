@@ -19,7 +19,6 @@ def configure_spm(context):
     the appropriate configuration variables in os.environ.
     '''
     conf = getattr(context, 'spm', None)
-    print('spm conf:', conf)
     if conf is None:
         return
 
@@ -44,18 +43,12 @@ def configure_spm(context):
                 mcr_directory = mlab_conf['mcr_directory']
 
             if not mcr_directory:
-                print('guess mcr_directory')
                 import glob
                 spm_exec_glob = osp.join(spm_directory, 'mcr', 'v*')
                 spm_exec = glob.glob(spm_exec_glob)
                 if spm_exec:
                     mcr_directory = spm_exec[0]
-            print('mcr_directory:', mcr_directory)
             if mcr_directory:
-                print('set spm set_mlab_paths:', osp.join(
-                        spm_directory,
-                        'run_spm%s.sh' % spm_version) + ' ' + mcr_directory
-                            + ' script')
                 spm.SPMCommand.set_mlab_paths(
                     matlab_cmd=osp.join(
                         spm_directory,
@@ -83,7 +76,6 @@ def configure_matlab(context):
     Configure matlab for nipype
     '''
     conf = getattr(context, 'matlab', None)
-    print('matlab conf:', conf)
     if not conf:
         return
     if getattr(conf, 'executable', None):
