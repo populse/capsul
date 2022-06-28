@@ -104,6 +104,7 @@ class TestConfiguration(unittest.TestCase):
                     }}}}
         merged_conf_dict = {
             'local': {
+                'matlab': {},
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/usr/local/spm12_standalone',
