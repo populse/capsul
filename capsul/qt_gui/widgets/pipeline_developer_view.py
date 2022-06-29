@@ -2673,7 +2673,7 @@ class PipelineDeveloperView(QGraphicsView):
         Check that we have a pipeline or a process
         '''
         if pipeline is None:
-            pipeline = Pipeline()
+            pipeline = CustomPipeline()
             enable_edition = True
 
         if not isinstance(pipeline, Pipeline):
