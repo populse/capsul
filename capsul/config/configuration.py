@@ -109,6 +109,7 @@ class EngineConfiguration(Controller):
     dataset: OpenKeyDictController[Dataset]
     config_modules: list[str]
     python_modules: list[str]
+    engine_type: str = 'builtin'
 
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.
@@ -180,7 +181,7 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     def __init__(self):
         super().__init__()
         self.add_field(
-            'local', EngineConfiguration,default_factory=EngineConfiguration,
+            'local', EngineConfiguration, default_factory=EngineConfiguration,
             doc='Default local computing resource config. Elements are config '
             'modules which should be registered in the application (spm, fsl, '
             '...)')

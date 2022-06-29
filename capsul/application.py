@@ -98,11 +98,37 @@ class Capsul(Singleton):
     def engine(self, name='local'):
         ''' Get a :class:`~capsul.engine.CapsulEngine` instance
         '''
-        # Avoid circular import
-        from .engine.local import LocalEngine
+        # get engine type from config
+        resource_config = getattr(self.config, name, None)
+        if resource_config is None:
+            raise ValueError(f'resource "{name}" is not configured.')
+        engine_type = resource_config.engine_type
+        if engine_type == 'builtin':
+            engine_type = 'local'
+        try:
+            engine_mod = importlib.import_module(
+                f'capsul.engine.{engine_type}')
+        except ImportError:
+            raise ValueError(f'engine type {engine_type} is not known.')
 
-        engine_config = self.config.get(name, {})
-        return LocalEngine(name, engine_config)
+        from .engine import Engine
+
+        # find en Engine subclass in the module
+        engines = []
+        for k, v in engine_mod.__dict__.items():
+            if isinstance(v, type) and v is not Engine \
+                    and issubclass(v, Engine):
+                engines.append((k, v))
+        if len(engines) == 0:
+            raise ValueError(
+                f'No Engine defined in module {engine_mod.__name__}')
+        if len(engines) > 1:
+            raise ValueError(
+                f'Several Engines are defined in module {engine_mod.__name__}'
+                f': {[e[1].__name__ for e in engines]}')
+
+        engine_class = engines[0][1]
+        return engine_class(name, resource_config)
 
     def dataset(self, path):
         ''' Get a :class:`~.dataset.DataSet` instance associated with the given path
