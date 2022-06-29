@@ -30,14 +30,6 @@ class FakeSPMConfiguration(ModuleConfiguration):
             return False
         return True
 
-def init_execution_context(execution_context):
-    '''
-    Configure an execution context given a capsul_engine and some requirements.
-    '''
-    config =  execution_context.config['modules']['spm']
-    execution_context.spm = SPMConfiguration()
-    execution_context.spm.import_dict(config)
-
 
 class BiasCorrection(Process):
     input: field(type_=File, extensions=('.nii',))
@@ -349,6 +341,7 @@ class TestTinyMorphologist(unittest.TestCase):
         self.maxDiff = 2000
         expected_config = {
             'local': {
+                'engine_type': 'builtin',
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),
@@ -742,10 +735,12 @@ class TestTinyMorphologist(unittest.TestCase):
         metadata.generate_paths(tiny_morphologist_iteration)
         self.maxDiff = 11000
         for name, value in expected_completion.items():
-            self.assertEqual(getattr(tiny_morphologist_iteration, name), value)
+            self.assertEqual(getattr(tiny_morphologist_iteration, name), value,
+                             f'Differing value for parameter {name}')
         tiny_morphologist_iteration.resolve_paths(execution_context)
         for name, value in expected_resolution.items():
-            self.assertEqual(getattr(tiny_morphologist_iteration, name), value)
+            self.assertEqual(getattr(tiny_morphologist_iteration, name), value,
+                             f'Differing value for parameter {name}')
     #     try:
     #         with capsul.engine() as ce:
     #             # Finally execute all the TinyMorphologist instances

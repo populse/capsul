@@ -722,6 +722,7 @@ class TestFakeMorphologist(unittest.TestCase):
         self.maxDiff = 2000
         expected_config = {
             'local': {
+                'engine_type': 'builtin',
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),
@@ -1340,7 +1341,11 @@ class TestFakeMorphologist(unittest.TestCase):
         metadata = ProcessMetadata(morphologist_iteration, execution_context,
                                    datasets=datasets)
         metadata.bids = iter_meta
-        metadata.generate_paths(morphologist_iteration, debug=True)
+        print('ITER:', morphologist_iteration.iterative_parameters)
+        print('left_labelled_graph is path:', morphologist_iteration.field('left_labelled_graph').path_type)
+        print('BEFORE GENERATE PATHS')
+        metadata.generate_paths(morphologist_iteration, debug=False)
+        print('AFTER GENERATE PATHS')
         print('left_labelled_graph:', getattr(morphologist_iteration, 'left_labelled_graph', undefined))
 
         debug = False
