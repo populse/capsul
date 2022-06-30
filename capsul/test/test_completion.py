@@ -145,6 +145,7 @@ class TestCompletion(unittest.TestCase):
             if os.path.exists(self.tmp_dir):
                 shutil.rmtree(self.tmp_dir)
             del self.tmp_dir
+        Capsul.delete_singleton()
 
     def test_pipeline_completion(self):
 
