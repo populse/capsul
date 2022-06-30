@@ -18,7 +18,7 @@ from . import Engine
 class LocalEngine(Engine):
     
     def start(self, executable, **kwargs):
-        db_file = tempfile.NamedTemporaryFile(prefix='capsul_local_engine_', delete=False)
+        execution_id = tempfile.mkdtemp(prefix='capsul_local_engine_')
         try:
             for name, value in kwargs.items():
                 setattr(executable, name, value)
@@ -31,7 +31,7 @@ class LocalEngine(Engine):
             # pprint(workflow.parameters.no_proxy())
             # print('----')
             # pprint(workflow.jobs)
-            database = ExecutionDatabase(db_file.name)
+            database = ExecutionDatabase(execution_id)
             database.claim_redis_server()
             with database as db:
                 db.execution_context = execution_context
@@ -41,13 +41,12 @@ class LocalEngine(Engine):
                 db.status = 'ready'
                 db.save()
             p = subprocess.Popen(
-                [sys.executable, '-m', 'capsul.engine.local', db_file.name],
+                [sys.executable, '-m', 'capsul.engine.local', execution_id],
             )
             p.wait()
-            return db_file.name
+            return execution_id
         except Exception:
-            db_file.close()
-            os.remove(db_file.name)
+            shutil.rmtree(execution_id)
             raise
 
     def status(self, execution_id):
@@ -65,19 +64,19 @@ class LocalEngine(Engine):
             error = db.error
         return error
     
-    def error_details(self, execution_id):
+    def error_detail(self, execution_id):
         with ExecutionDatabase(execution_id) as db:
-            error_details = db.error_details
-        return error_details
+            error_detail = db.error_detail
+        return error_detail
     
     def update_executable(self, executable, execution_id):
         with ExecutionDatabase(execution_id) as db:
             parameters = db.workflow_parameters
-        # print('!update_executable!')
-        # from pprint import pprint
-        # pprint(parameters.proxy_values)
-        # pprint(parameters.content)
-        # pprint(parameters.no_proxy())
+        print('!update_executable!')
+        from pprint import pprint
+        pprint(parameters.proxy_values)
+        pprint(parameters.content)
+        pprint(parameters.no_proxy())
         if isinstance(executable, Pipeline):
             enable_parameter_links = executable.enable_parameter_links
             executable.enable_parameter_links = False
@@ -85,8 +84,8 @@ class LocalEngine(Engine):
             enable_parameter_links = None
         try:
             stack = [(executable, parameters)]
-            # print('!update_executable! stack', executable.full_name)
-            # pprint(parameters.content)
+            print('!update_executable! stack', executable.full_name)
+            pprint(parameters.content)
             while stack:
                 node, parameters = stack.pop(0)
                 for field in node.user_fields():
@@ -95,10 +94,10 @@ class LocalEngine(Engine):
                         value = parameters.no_proxy(value)
                         if value is None:
                             value = undefined
-                        # print('!update_executable!', node.full_name, field.name, '<-', value)
+                        print('!update_executable!', node.full_name, field.name, '<-', repr(value))
                         setattr(node, field.name, value)
-                    # else:
-                    #     print('!update_executable! ignore', node.full_name, field.name, value)
+                    else:
+                        print('!update_executable! ignore', node.full_name, field.name, repr(value))
                 if isinstance(node, Pipeline):
                     stack.extend((n, parameters['nodes'][n.name]) for n in node.nodes.values() if n is not node and isinstance(n, Process) and n.activated)
         finally:
@@ -108,6 +107,8 @@ class LocalEngine(Engine):
     def dispose(self, execution_id):
         database = ExecutionDatabase(execution_id)
         database.release_redis_server()
+        if os.path.exists(execution_id):
+            shutil.rmtree(execution_id)
 
     
 if __name__ == '__main__':
@@ -115,11 +116,14 @@ if __name__ == '__main__':
 
     if len(sys.argv) != 2:
         raise ValueError('This command must be called with a single '
-            'parameter containing a capsul execution database file name')
-    output = open(sys.argv[1] + '.stdouterr', 'w')
+            'parameter containing a capsul execution temporary directory')
+    execution_id = sys.argv[1]
+    if not os.path.isdir(execution_id):
+        raise ValueError(f'"{execution_id} is not an existing directory')
+    output = open(f'{execution_id}/stdouterr', 'w')
     contextlib.redirect_stdout(output)
     contextlib.redirect_stderr(output)
-    database = ExecutionDatabase(sys.argv[1])
+    database = ExecutionDatabase(execution_id)
     with database as db:
         db.status = 'submited'
 
@@ -134,8 +138,7 @@ if __name__ == '__main__':
         if not sys.platform.startswith('win'):
             os.setsid()
         # Create temporary directory
-        tmp = tempfile.mkdtemp(prefix='capsul_local_engine_')
-        db_update = {}
+        tmp = execution_id
         try:
             # create environment variables for jobs
             env = os.environ.copy()
@@ -173,11 +176,10 @@ if __name__ == '__main__':
                         waiting.remove(waiting_uuid)
                         ready.add(waiting_uuid)
         except Exception as e:
-            db_update['error'] = f'{e}'
-            db_update['error_detail'] = f'{traceback.format_exc()}'
-        finally:
-            shutil.rmtree(tmp)
-            db_update['status'] = 'ended'
-            db_update['end_time'] = datetime.now()
             with database as db:
-                db.session['status'].update_document('', db_update)
+                db.error = f'{e}'
+                db.error_detail = f'{traceback.format_exc()}'
+        finally:
+            with database as db:
+                db.status = 'ended'
+                db.end_time = datetime.now()
