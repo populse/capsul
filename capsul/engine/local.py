@@ -10,7 +10,8 @@ import traceback
 from soma.undefined import undefined
 
 from ..api import Pipeline, Process
-from ..execution_context import ExecutionDatabase, CapsulWorkflow
+from ..database import ExecutionDatabase
+from ..execution_context import CapsulWorkflow
 from . import Engine
 
       
@@ -30,12 +31,15 @@ class LocalEngine(Engine):
             # pprint(workflow.parameters.no_proxy())
             # print('----')
             # pprint(workflow.jobs)
-            with ExecutionDatabase('sqlite://' + db_file.name) as db:
+            database = ExecutionDatabase(db_file.name)
+            database.claim_redis_server()
+            with database as db:
                 db.execution_context = execution_context
                 db.executable = executable
                 db.save_workflow(workflow)
                 db.start_time =  datetime.now()
                 db.status = 'ready'
+                db.save()
             p = subprocess.Popen(
                 [sys.executable, '-m', 'capsul.engine.local', db_file.name],
             )
@@ -46,17 +50,25 @@ class LocalEngine(Engine):
             os.remove(db_file.name)
             raise
 
-    def status(self, execution_id, keys=['status', 'start_time']):
-        if isinstance(keys, str):
-            keys = [keys]
+    def status(self, execution_id):
         with ExecutionDatabase(execution_id) as db:
-            status = db.session['status'].document('', fields=keys)
-        filename = execution_id + '.stdouterr'
-        if os.path.exists(filename):
-            with open(filename) as f:
-                output = f.read()
-            status['engine_output'] = output
+            status = db.status
         return status
+    
+    def engine_output(self, execution_id):
+        with ExecutionDatabase(execution_id) as db:
+            engine_output = db.engine_output
+        return engine_output
+
+    def error(self, execution_id):
+        with ExecutionDatabase(execution_id) as db:
+            error = db.error
+        return error
+    
+    def error_details(self, execution_id):
+        with ExecutionDatabase(execution_id) as db:
+            error_details = db.error_details
+        return error_details
     
     def update_executable(self, executable, execution_id):
         with ExecutionDatabase(execution_id) as db:
@@ -94,11 +106,8 @@ class LocalEngine(Engine):
                 executable.enable_parameter_links = enable_parameter_links
     
     def dispose(self, execution_id):
-        std = f'{execution_id}.stdouterr'
-        if os.path.exists(std):
-            os.remove(std)
-        if os.path.exists(execution_id):
-            os.remove(execution_id)
+        database = ExecutionDatabase(execution_id)
+        database.release_redis_server()
 
     
 if __name__ == '__main__':

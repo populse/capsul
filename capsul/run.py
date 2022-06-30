@@ -6,7 +6,7 @@ import sys
 from soma.undefined import undefined
 
 from .application import Capsul
-from . import execution_context
+from .database import ExecutionDatabase
 
 debug = False
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
               file=sys.stderr)
         sys.exit(1)
 
-    database = execution_context.ExecutionDatabase(db_url)
+    database = ExecutionDatabase(db_url)
     with database as db:
         execution_context = db.execution_context
         execution_context.dataset.tmp = {
@@ -52,10 +52,11 @@ if __name__ == '__main__':
         if len(args) == 1:
             job_uuid = args[0]
             with database as db:
-                row = db.session['jobs'].document(job_uuid, fields=['process', 'parameters_location'], as_list=True)
-            if row is None:
+                job = db.job(job_uuid)
+            if job is None:
                 raise ValueError(f'No such job: {job_uuid}')
-            process_json, parameters_location = row
+            process_json = job['process']
+            parameters_location = job['parameters_location']
             process = Capsul.executable(process_json)
             if debug:
                 print(f'---- init {process.definition} {parameters_location} ----')

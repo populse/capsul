@@ -73,39 +73,51 @@ class Engine:
         raise NotImplementedError(
             'start must be implemented in Engine subclasses.')
 
-    def status(self, execution_id, keys=['status', 'start_time']):
+    def status(self, execution_id):
         raise NotImplementedError(
             'status must be implemented in Engine subclasses.')
 
+    def engine_output(self, execution_id):
+        raise NotImplementedError(
+            'engine_output must be implemented in Engine subclasses.')
+
+    def error(self, execution_id):
+        raise NotImplementedError(
+            'error must be implemented in Engine subclasses.')
+
+    def error_details(self, execution_id):
+        raise NotImplementedError(
+            'error_details must be implemented in Engine subclasses.')
+
     def wait(self, execution_id, timeout=None):
         start = time.time()
-        status = self.status(execution_id, keys='status')
-        if status['status'] == 'submited':
+        status = self.status(execution_id)
+        if status == 'submited':
             for i in range(50):
                 time.sleep(0.1)
-                status = self.status(execution_id, keys='status')
-                if status['status'] != 'submited':
+                status = self.status(execution_id)
+                if status != 'submited':
                     break
             else:
                 raise SystemError('executable too slow to start')
-        status = self.status(execution_id, keys='status')
-        while status['status'] == 'running':
+        status = self.status(execution_id)
+        while status == 'running':
             if timeout is not None and (time.time() - start) > timeout:
                 raise TimeoutError('Process execution timeout')
             time.sleep(0.1)
-            status = self.status(execution_id, keys='status')
+            status = self.status(execution_id)
 
-    def raise_for_status(self, status):
-        output = status.get('engine_output')
+    def raise_for_status(self, execution_id):
+        output = self.engine_output(execution_id)
         if output is not None:
             output = output.strip()
         if output:
             print('----- local engine output -----')
             print(output)
             print('-------------------------------')
-        error = status.get('error')
+        error = self.error(execution_id)
         if error:
-            detail = status.get('error_detail')
+            detail = self.error_detail(execution_id)
             if detail:
                 raise RuntimeError(f'{error}\n\n{detail}')
             else:
@@ -119,9 +131,8 @@ class Engine:
         execution_id = self.start(executable, **kwargs)
         try:
             self.wait(execution_id, timeout=timeout)
-            status = self.status(execution_id, keys=['status', 'error', 'error_detail', 'debug_messages', 'output_parameters'])
-            self.print_debug_messages(status)
-            self.raise_for_status(status)
+            status = self.status(execution_id)
+            self.raise_for_status(execution_id)
             self.update_executable(executable, execution_id)
         finally:
             self.dispose(execution_id)
@@ -130,7 +141,3 @@ class Engine:
     def dispose(self, execution_id):
         raise NotImplementedError(
             'dispose must be implemented in Engine subclasses.')
-
-    def print_debug_messages(self, status):
-        for debug in status.get('debug_messages', []):
-            print('!', *debug)
