@@ -72,11 +72,11 @@ class LocalEngine(Engine):
     def update_executable(self, executable, execution_id):
         with ExecutionDatabase(execution_id) as db:
             parameters = db.workflow_parameters
-        print('!update_executable!')
-        from pprint import pprint
-        pprint(parameters.proxy_values)
-        pprint(parameters.content)
-        pprint(parameters.no_proxy())
+        # print('!update_executable!')
+        # from pprint import pprint
+        # pprint(parameters.proxy_values)
+        # pprint(parameters.content)
+        # pprint(parameters.no_proxy())
         if isinstance(executable, Pipeline):
             enable_parameter_links = executable.enable_parameter_links
             executable.enable_parameter_links = False
@@ -84,8 +84,8 @@ class LocalEngine(Engine):
             enable_parameter_links = None
         try:
             stack = [(executable, parameters)]
-            print('!update_executable! stack', executable.full_name)
-            pprint(parameters.content)
+            # print('!update_executable! stack', executable.full_name)
+            # pprint(parameters.content)
             while stack:
                 node, parameters = stack.pop(0)
                 for field in node.user_fields():
@@ -94,10 +94,10 @@ class LocalEngine(Engine):
                         value = parameters.no_proxy(value)
                         if value is None:
                             value = undefined
-                        print('!update_executable!', node.full_name, field.name, '<-', repr(value))
+                        # print('!update_executable!', node.full_name, field.name, '<-', repr(value))
                         setattr(node, field.name, value)
-                    else:
-                        print('!update_executable! ignore', node.full_name, field.name, repr(value))
+                    # else:
+                    #     print('!update_executable! ignore', node.full_name, field.name, repr(value))
                 if isinstance(node, Pipeline):
                     stack.extend((n, parameters['nodes'][n.name]) for n in node.nodes.values() if n is not node and isinstance(n, Process) and n.activated)
         finally:

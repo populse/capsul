@@ -243,7 +243,7 @@ class TestPipelineWorkflow(unittest.TestCase):
         with Capsul().engine() as engine:
             status = engine.run(pipeline)
 
-        self.assertEqual(status['status'], 'ended')
+        self.assertEqual(status, 'ended')
         self.assertTrue(osp.exists(pipeline.output))
         olen = 12
         with open(pipeline.output) as f:
@@ -271,7 +271,7 @@ class TestPipelineWorkflow(unittest.TestCase):
         with Capsul().engine() as engine:
             status = engine.run(pipeline)
 
-        self.assertEqual(status['status'], 'ended')
+        self.assertEqual(status, 'ended')
         self.assertTrue(osp.exists(pipeline.output1))
         self.assertTrue(osp.exists(pipeline.output2))
         self.assertTrue(osp.exists(pipeline.output3))
