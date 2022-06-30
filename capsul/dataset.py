@@ -389,6 +389,9 @@ class BidsToBrainVISA(SchemaMapping):
 class ProcessSchema:
     def __init_subclass__(cls, schema, process) -> None:
         super().__init_subclass__()
+        if isinstance(process, str):
+            from .application import get_node_class
+            process = get_node_class(process)[1]
         if 'metadata_schemas' not in process.__dict__:
             process.metadata_schemas = {}
         schemas = process.metadata_schemas
@@ -618,12 +621,13 @@ class ProcessMetadata(Controller):
                     # merge attributes
                     level = len(path_schemas) - 1
                     for pipeline_name, process, process_parameter in reversed(path):
-                        dprint(debug, pipeline_name, process.definition, process_parameter)
+                        dprint(debug, 'pname:', pipeline_name, ', def:', process.definition, ', par:', process_parameter)
                         if isinstance(process, ProcessIteration):
                             metadata_schema = path_schemas[level]
                             if metadata_schema:
+                                dprint(debug, 'iter meta_schema:', metadata_schema, level, iteration_index)
                                 metadata_schema._update_metadata(
-                                    metadata, executable, pipeline_name,
+                                    metadata, executable, process.process.name,
                                     process_parameter, iteration_index)
                             level -= 1
                         metadata_schema = path_schemas[level]
@@ -664,7 +668,7 @@ class ProcessMetadata(Controller):
         done = set()
         while stack:
             node_name_path, node, field_name, path = stack.pop(0)
-            dprint(debug, node_name_path, str(node), field_name, '...')
+            dprint(debug, 'p:', node_name_path, ', node:', str(node), ', field:', field_name, '...')
             field = node.field(field_name)
             if node in done or not node.activated:
                 continue
@@ -697,6 +701,8 @@ class ProcessMetadata(Controller):
                     if dest_node in done or not dest_node.activated:
                         continue
                     followers.append((node_name, dest_node, dest_plug_name))
+                #if isinstance(node, ProcessIteration):
+                    #followers.append((node.process.name, node.process, field.name))
             if followers:
                 for next_node_name, next_node, next_plug in followers:
                     if next_node_name:
