@@ -100,7 +100,7 @@ class LocalEngine(Engine):
                     # else:
                     #     print('!update_executable! ignore', node.full_name, field.name, value)
                 if isinstance(node, Pipeline):
-                    stack.extend((n, parameters[n.name]) for n in node.nodes.values() if n is not node and isinstance(n, Process) and n.activated)
+                    stack.extend((n, parameters['nodes'][n.name]) for n in node.nodes.values() if n is not node and isinstance(n, Process) and n.activated)
         finally:
             if enable_parameter_links is not None:
                 executable.enable_parameter_links = enable_parameter_links
