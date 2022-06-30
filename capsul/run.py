@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
-import json
 import os
 import sys
-from capsul.pipeline.process_iteration import ProcessIteration
 
 from soma.undefined import undefined
 
