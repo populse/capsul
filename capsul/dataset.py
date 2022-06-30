@@ -388,9 +388,10 @@ class BidsToBrainVISA(SchemaMapping):
 
 class ProcessSchema:
     def __init_subclass__(cls, schema, process) -> None:
+        from .application import get_node_class
+
         super().__init_subclass__()
         if isinstance(process, str):
-            from .application import get_node_class
             process = get_node_class(process)[1]
         if 'metadata_schemas' not in process.__dict__:
             process.metadata_schemas = {}

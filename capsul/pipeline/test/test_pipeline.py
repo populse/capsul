@@ -168,9 +168,9 @@ class TestPipeline(unittest.TestCase):
             view2.show()
             app.exec_()
 
-        constant_uuid, constant_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['constant'])
-        node1_uuid, node1_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['node1'])
-        node2_uuid, node2_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['node2'])
+        constant_uuid, constant_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['nodes', 'constant'])
+        node1_uuid, node1_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['nodes', 'node1'])
+        node2_uuid, node2_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['nodes', 'node2'])
         self.assertEqual(constant_job['wait_for'], [])
         self.assertEqual(node1_job['wait_for'], [])
         self.assertEqual(sorted(node2_job['wait_for']), sorted([constant_uuid, node1_uuid]))

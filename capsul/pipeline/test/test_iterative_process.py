@@ -214,6 +214,7 @@ class TestPipeline(unittest.TestCase):
             print('directory %s not removed.' % self.directory)
         else:
             shutil.rmtree(self.directory)
+        Capsul.delete_singleton()
         self.capsul = None
         
     def test_iterative_pipeline_connection(self):
