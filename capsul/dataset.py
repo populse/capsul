@@ -678,15 +678,15 @@ class ProcessMetadata(Controller):
             if isinstance(node, Switch):
                 if field.name != 'switch':
                     for input_plug_name, output_plug_name in node.connections():
-                        dprint(debug, 'switch', dest_plug_name, input_plug_name, output_plug_name, not main_field.is_output())
+                        dprint(debug, 'switch', field_name, input_plug_name, output_plug_name, not main_field.is_output())
                         if not main_field.is_output():
-                            if dest_plug_name == input_plug_name:
+                            if field_name == input_plug_name:
                                 dprint(debug, 'append')
                                 next_node, next_plug = next(executable.get_linked_items(
                                     node, output_plug_name))
                                 stack.append((node_name_path, next_node, next_plug, path))
                         else:
-                            if dest_plug_name == output_plug_name:
+                            if field_name == output_plug_name:
                                 dprint(debug, 'append')
                                 next_node, next_plug = next(executable.get_linked_items(
                                     node, input_plug_name))
