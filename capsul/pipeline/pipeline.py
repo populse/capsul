@@ -2213,7 +2213,8 @@ class Pipeline(Process):
                 else:
                     direction = 'links_from'
                 for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
-                    if dest_node is node or (activated_only and not dest_node.activated):
+                    if dest_node is node or (activated_only
+                                             and not dest_node.activated):
                         continue
                     if isinstance(dest_node, Pipeline):
                         if in_sub_pipelines:
