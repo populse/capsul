@@ -31,6 +31,19 @@ def get_config_class(module_name, exception=True):
     try:
         python_module = importlib.import_module(full_mod)
     except ModuleNotFoundError:
+        # maybe module + class name
+        full_mod2 = full_mod.rsplit('.', 1)
+        if len(full_mod2) == 2:
+            try:
+                python_module = importlib.import_module(full_mod2[0])
+                cls = getattr(python_module, full_mod2[1])
+                if cls:
+                    return cls
+            except (ModuleNotFoundError, AttributeError):
+                if exception:
+                    raise
+                else:
+                    return None
         if exception:
             raise
         else:

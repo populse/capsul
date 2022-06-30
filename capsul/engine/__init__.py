@@ -2,6 +2,7 @@
 
 import time
 import importlib
+import os
 
 from soma.controller import Controller
 
@@ -128,8 +129,11 @@ class Engine:
         return status
 
     def dispose(self, execution_id):
-        raise NotImplementedError(
-            'dispose must be implemented in Engine subclasses.')
+        std = f'{execution_id}.stdouterr'
+        if os.path.exists(std):
+            os.remove(std)
+        if os.path.exists(execution_id):
+            os.remove(execution_id)
 
     def print_debug_messages(self, status):
         for debug in status.get('debug_messages', []):

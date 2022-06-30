@@ -15,7 +15,7 @@ from .dataset import Dataset
 from .pipeline.pipeline import Process, Pipeline
 from capsul.process.process import NipypeProcess
 from .pipeline.process_iteration import ProcessIteration
-from capsul.config.configuration import get_config_class
+from capsul.config.configuration import get_config_class, ModuleConfiguration
 
 class ExecutionContext(Controller):
     python_modules: list[str]
@@ -30,8 +30,18 @@ class ExecutionContext(Controller):
         super().__init__()
         self.dataset = OpenKeyDictController[Dataset]()
         if config is not None:
-            for k in config:
+            for k in list(config.keys()):
                 cls = get_config_class(k, exception=False)
+                if cls:
+                    new_k = cls.name
+                    config[new_k] = config[k]
+                    del config[k]
+                    k = new_k
+                elif '.' in k:
+                    new_k = k.rsplit('.', 1)[-1]
+                    config[new_k] = config[k]
+                    del config[k]
+                    k = new_k
                 if cls:
                     self.add_field(k, cls,
                                 doc=cls.__doc__,
@@ -99,7 +109,19 @@ class ExecutionDatabase:
 
     @execution_context.setter
     def execution_context(self, execution_context):
-        self.session['status'].update_document('', {'execution_context': execution_context.json()})
+        json_context = execution_context.json()
+        for k in list(json_context):
+            # replace module classes with long name, if they are not in the
+            # standard location (capsul.config)
+            m = getattr(execution_context, k)
+            if isinstance(m, ModuleConfiguration) \
+                    and m.__class__.__module__.split('.') \
+                        != ['capsul', 'config', m.name]:
+                cls_name = f'{m.__class__.__module__}.{m.__class__.__name__}'
+                json_context[cls_name] = json_context[k]
+                del json_context[k]
+
+        self.session['status'].update_document('', {'execution_context': json_context})
     
     @property
     def executable(self):
@@ -140,6 +162,7 @@ class ExecutionDatabase:
 
     def jobs(self):
         return self.session['jobs'].documents()
+
 
 class CapsulWorkflow(Controller):
     parameters: DictWithProxy
@@ -217,6 +240,7 @@ class CapsulWorkflow(Controller):
                 index = int(index)
             parameters = parameters[index]
         nodes = []
+        nodes_dict = parameters.content.setdefault('nodes', {})
         if isinstance(process, Pipeline):
             disabled_nodes = process.disabled_pipeline_steps_nodes()
             for node_name, node in process.nodes.items():
@@ -225,7 +249,7 @@ class CapsulWorkflow(Controller):
                     or not isinstance(node, Process)
                     or node in disabled_nodes):
                     continue
-                parameters[node_name] = {}
+                nodes_dict[node_name] = {}
                 job_parameters = self._create_jobs(
                     executable=executable,
                     jobs_per_process=jobs_per_process,
@@ -233,9 +257,10 @@ class CapsulWorkflow(Controller):
                     process_chronology=process_chronology,
                     process=node,
                     parent_executables=parent_executables + [process],
-                    parameters_location=parameters_location + [node_name],
+                    parameters_location=parameters_location + ['nodes',
+                                                               node_name],
                     disabled=disabled or node in disabled_nodes)
-                # parameters[node_name].content.update(job_parameters.content)
+                # nodes_dict[node_name].content.update(job_parameters.content)
                 nodes.append(node)
             for field in process.user_fields():
                 for dest_node, plug_name in executable.get_linked_items(process, 
@@ -243,7 +268,9 @@ class CapsulWorkflow(Controller):
                                                                         in_sub_pipelines=False):
                     if dest_node in disabled_nodes:
                         continue
-                    parameters.content[field.name] = parameters.content[dest_node.name][plug_name]
+                    #print('field name:', field.name, ', plug:', plug_name, ', dest_node:', dest_node.name, dest_node.name in nodes_dict, type(dest_node), ', executable:', executable.name, ', process:', process.name)
+                    #print('parameters:', parameters.content)
+                    parameters.content[field.name] = nodes_dict[dest_node.name][plug_name]
                     break
                 if field.is_output():
                     for dest_node_name, dest_plug_name, dest_node, dest_plug, is_weak in process.plugs[field.name].links_to:
@@ -251,11 +278,11 @@ class CapsulWorkflow(Controller):
                             process_chronology.setdefault(dest_node.uuid, set()).add(process.uuid)
             for node in nodes:
                 for plug_name in node.plugs:
-                    first = parameters.content[node.name].get(plug_name)
+                    first = nodes_dict[node.name].get(plug_name)
                     for dest_node, dest_plug_name in process.get_linked_items(node, plug_name,
                                                                               in_sub_pipelines=False):
                         
-                        second = parameters.content.get(dest_node.name, {}).get(dest_plug_name)
+                        second = nodes_dict.get(dest_node.name, {}).get(dest_plug_name)
                         if dest_node.pipeline is not node.pipeline:
                             continue
                         if not parameters.is_proxy(first):
