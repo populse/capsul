@@ -150,16 +150,28 @@ class Engine:
             self.raise_for_status(status)
             self.update_executable(executable, execution_id)
         finally:
-            self.dispose(execution_id)
+            self.dispose(execution_id, retry=0.5)
         return status
 
-    def dispose(self, execution_id):
+    def dispose(self, execution_id, retry=0):
         db_file = self.filename_from_url(execution_id)
         std = f'{db_file}.stdouterr'
         if os.path.exists(std):
             os.remove(std)
-        if os.path.exists(db_file):
-            os.remove(db_file)
+        t0 = time.time()
+        ok = False
+        err = None
+        while not ok and time.time() - t0 < retry:
+            if os.path.exists(db_file):
+                try:
+                    os.remove(db_file)
+                except PermissionError as e:
+                    err = str(e)
+                    time.sleep(0.02)
+                    continue
+            ok = True
+        if not ok:
+            raise PermissionError(err)
 
     def print_debug_messages(self, status):
         for debug in status.get('debug_messages', []):

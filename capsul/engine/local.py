@@ -17,7 +17,8 @@ from . import Engine
 class LocalEngine(Engine):
     
     def start(self, executable, **kwargs):
-        db_file = tempfile.NamedTemporaryFile(prefix='capsul_local_engine_', delete=False)
+        db_file = tempfile.NamedTemporaryFile(prefix='capsul_local_engine_',
+                                              suffix='.sqlite', delete=False)
         try:
             for name, value in kwargs.items():
                 setattr(executable, name, value)
@@ -168,3 +169,4 @@ if __name__ == '__main__':
             db_update['end_time'] = datetime.now()
             with database as db:
                 db.session['status'].update_document('', db_update)
+            del database
