@@ -2,6 +2,7 @@ from datetime import datetime
 import importlib
 import os
 import shutil
+import sys
 import tempfile
 import time
 
@@ -170,31 +171,85 @@ class Engine:
             time.sleep(0.1)
             status = self.status(execution_id)
 
+    def print_execution_report(self, execution_id, file=sys.stderr):
+        with self.database(execution_id) as db:
+            executable = db.executable
+            status = db.status
+            error = db.error
+            error_detail = db.error_detail
+            engine_output = db.engine_output
+            start_time = db.start_time
+            end_time = db.end_time
+            waiting = list(db.waiting)
+            ready = set(db.ready)
+            ongoing = set(db.ongoing)
+            done = set(db.done)
+            failed = set(db.failed)
+            jobs = []
+            for job in db.jobs():
+                job_uuid = job['uuid']
+                if job_uuid in done:
+                    job['status'] = 'done'
+                elif job_uuid in failed:
+                    job['status'] = 'failed'
+                elif job_uuid in ongoing:
+                    job['status'] = 'ongoing'
+                elif job_uuid in ready:
+                    job['status'] = 'ready'
+                elif job_uuid in waiting:
+                    job['status'] = 'waiting'
+                else:
+                    job['status'] = 'unknown'
+                jobs.append(job)
+
+        print('====================\n'
+              '| Execution report |\n'
+              '====================\n', file=file)
+        print('executable:', executable.definition, file=file)
+        print('status:', status, file=file)
+        print('start time:', start_time, file=file)
+        print('end time:', end_time, file=file)
+        if error:
+            print('error:', error, file=file)
+        if error_detail:
+            print('-' * 50, file=file)
+            print(error_detail, file=file)
+            print('-' * 50, file=file)
+        print('\n---------------\n'
+              '| Jobs status |\n'
+              '---------------\n', file=file)
+        now = datetime.now()
+        for job in sorted(jobs, key=lambda j: j.get('start_time', now)):
+            process_definition = job.get('process', {}).get('definition')
+            start_time = job.get('start_time')
+            end_time = job.get('end_time')
+            pipeline_node = '.'.join(i for i in job['parameters_location'] if i != 'nodes')
+            returncode = job.get('returncode')
+            status = job['status']
+            command = ' '.join(f"'{i}'" for i in job['command'])
+            stdout = job.get('stdout')
+            stderr = job.get('stderr')
+
+            print('=' * 50, file=file)
+            print('process:', process_definition, file=file)
+            print('pipeline node:', pipeline_node, file=file)
+            print('status:', status, file=file)
+            print('returncode:', returncode, file=file)
+            print('start time:', start_time, file=file)
+            print('end time:', end_time, file=file)
+            print('command:', command, file=file)
+            if stdout:
+                print('---------- standard output ----------', file=file)
+                print(stdout, file=file)
+            if stderr:
+                print('---------- error output ----------', file=file)
+                print(stderr, file=file)
+
     def raise_for_status(self, execution_id):
-        output = self.engine_output(execution_id)
-        if output is not None:
-            output = output.strip()
-        if output:
-            print('----- local engine output -----')
-            print(output)
-            print('-------------------------------')
-        # from pprint import pprint
-        # with self.database(execution_id) as db:
-        #     print('!waiting!', list(db.waiting))
-        #     print('!ready!', list(db.ready))
-        #     print('!ongoing!', list(db.ongoing))
-        #     print('!done!', list(db.done))
-        #     print('!failed!', list(db.failed))
-        #     for job in db.jobs():
-        #         pprint(job)
-        #         print('-'*60)
         error = self.error(execution_id)
         if error:
-            detail = self.error_detail(execution_id)
-            if detail:
-                raise RuntimeError(f'{error}\n\n{detail}')
-            else:
-                raise RuntimeError(error)
+            self.print_execution_report(execution_id)
+            raise RuntimeError(error)
 
     def update_executable(self, executable, execution_id):
         with self.database(execution_id) as db:

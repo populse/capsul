@@ -503,10 +503,7 @@ class TestTinyMorphologist(unittest.TestCase):
             # self.capsul.config.local.engine_type = 'soma_workflow'
             with self.capsul.engine() as engine:
                 status = engine.run(tiny_morphologist)
-            self.assertEqual(
-                status,
-                {'status': 'ended', 'error': None, 'error_detail': None,
-                 'engine_output': ''})
+                self.assertEqual(status, 'ended')
 
 
     def test_pipeline_iteration(self):

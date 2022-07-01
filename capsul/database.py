@@ -160,7 +160,7 @@ class ExecutionDatabase:
             if s.startswith('!'):
                 j = json_decode(json.loads(s[1:]))
             else:
-                j = json.laods(s)
+                j = json.loads(s)
             return Capsul.executable(j)
 
     @executable.setter
