@@ -101,6 +101,25 @@ class ModuleConfiguration(Controller):
 
     def is_valid_config(self, requirements):
         ''' Checks validity of this config in regard to given requirements
+
+        Parameters
+        ----------
+        requirements: dict
+            requirements dict for the current module. May specify version, or
+            other requirements. The implementation is free to interpret it as
+            it needs. Thus modules implementations should document how they
+            define and check their requirements.
+
+        Returns
+        -------
+        valid: bool or None or dict
+            If the return value is True, then it means the module is valid in
+            regards to the requirements.
+            If the retuen value is False or None, then it means the module is
+            invalid in regards to the requirements.
+            If the return value is a dict, then it means the module is valid,
+            if additional requirements for other dependent modules are met. For
+            instance a SPM module may return ``{'matlab': {'mcr': True'}}``
         '''
         raise NotImplementedError('A subclass of ModuleConfiguration must '
                                   'define is_valid_config()')

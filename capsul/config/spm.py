@@ -19,7 +19,10 @@ class SPMConfiguration(ModuleConfiguration):
         if required_version \
                 and getattr(self, 'version', undefined) != required_version:
             return False
-        return True
+        if self.standalone:
+            return {'matlab': {'mcr': True}}
+        else:
+            return {'matlab': {'mcr': False}}
 
 def init_execution_context(execution_context):
     '''
