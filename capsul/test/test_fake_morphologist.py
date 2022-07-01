@@ -1098,6 +1098,15 @@ class TestFakeMorphologist(unittest.TestCase):
             #     value = getattr(morphologist, field.name, undefined)
             #     print(f'!{normalization}!', field.name, value)
 
+            # run it
+            #with self.capsul.engine() as engine:
+                #status = engine.run(morphologist)
+            #print('run status:', status)
+            #self.assertEqual(
+                #status,
+                #{'status': 'ended', 'error': None, 'error_detail': None,
+                 #'engine_output': ''})
+
 
     @unittest.skip('not ready')
     def test_pipeline_iteration(self):

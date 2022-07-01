@@ -54,26 +54,47 @@ class Engine:
             execution_context.python_modules = python_modules
         for name, cfg in getattr(self.config, 'dataset', {}).items():
             setattr(execution_context.dataset, name, Dataset(path=cfg.path, metadata_schema=cfg.metadata_schema))
-        for module_name, requirements in self.executable_requirements(executable).items():
+
+        req_to_check = self.executable_requirements(executable)
+        done_req = []  # record requirements to avoid loops
+        valid_configs = {}
+        needed_modules = set()
+
+        while req_to_check:
+            module_name, requirements = req_to_check.popitem()
+            if (module_name, requirements) in done_req:
+                continue
+            done_req.append((module_name, requirements))
+            needed_modules.add(module_name)
+
             module_configs = getattr(self.config, module_name, {})
             if not isinstance(module_configs, Controller):
                 raise ValueError(f'Unknown requirement: "{module_name}"')
-            valid_configs = []
             for module_field in module_configs.fields():
                 module_config = getattr(module_configs, module_field.name)
-                if module_config.is_valid_config(requirements):
-                    valid_configs.append(module_config)
-            if not valid_configs:
+                added_req = module_config.is_valid_config(requirements)
+                if added_req not in (False, None):
+                    valid_configs.setdefault(
+                        module_name, {})[module_field] = module_config
+                    if isinstance(added_req, dict):
+                        req_to_check.update(added_req)
+
+        # now check we have only one module for each
+        for module_name in needed_modules:
+            valid_module_configs = valid_configs.get(module_name)
+            if not valid_module_configs:
                 raise RuntimeError(
                     f'Execution environment "{self.label}" has no '
                     f'valid configuration for module {module_name}')
-            if len(valid_configs) > 1:
+            if len(valid_module_configs) > 1:
                 raise RuntimeError(
                     f'Execution environment "{self.label}" has '
                     f'{len(valid_configs)} possible configurations for '
                     f'module {module_name}')
+            # get the single remaining config
+            valid_config = next(iter(valid_module_configs.values()))
             execution_context.add_field(module_name, type_=ModuleConfiguration)
-            setattr(execution_context, module_name,  valid_configs[0])
+            setattr(execution_context, module_name,  valid_config)
         return execution_context
 
     def start(self, executable, **kwargs):

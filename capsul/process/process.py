@@ -159,7 +159,7 @@ class Process(Node):
         """
         pass
 
-    def after_execute(self, context):
+    def after_execute(self, exec_result, context):
         """This method is called by CapsulEngine after calling
         execute(). By default it does nothing but can be overridden
         in derived classes.
@@ -284,15 +284,10 @@ class FileCopyProcess(Process):
             self.copied_files = None
         self.use_temp_output_dir = use_temp_output_dir
 
-    def execute(self, context):
-        self._before_run_process()
-        result = self.execute_copyprocess(context)
-        self._after_run_process(result)
-
-    def _before_run_process(self):
+    def before_execute(self, context):
         """ Method to copy files before executing the process.
         """
-        #super(FileCopyProcess, self)._before_run_process()
+        #super(FileCopyProcess, self).before_execute(context)
 
         if self.destination is None:
             output_directory = getattr(self, 'output_directory', None)
@@ -329,17 +324,12 @@ class FileCopyProcess(Process):
                 self._recorded_params[name] = getattr(self, name, undefined)
                 setattr(self, name, value)
 
-    def execute_copyprocess(self, context):
-        raise NotImplementedError(
-            'FileCopyProcess execute_copyprocess() must be defined in '
-            'subclasses.')
-
-    def _after_run_process(self, run_process_result):
+    def after_execute(self, exec_result, context):
         """ Method to clean-up temporary workspace after process
         execution.
         """
-        #run_process_result = super(FileCopyProcess, self)._after_run_process(
-            #run_process_result)
+        #exec_result = super(FileCopyProcess, self).after_execute(
+            #exec_result, context)
         if self.use_temp_output_dir:
             self._move_outputs()
         # The copy option is activated
@@ -378,7 +368,7 @@ class FileCopyProcess(Process):
         if hasattr(self, '_recorded_params'):
             del self._recorded_params
 
-        return run_process_result
+        return exec_result
 
     def _clean_workspace(self):
         """ Removed some copied inputs that can be deleted at the end of the
@@ -865,12 +855,8 @@ class NipypeProcess(FileCopyProcess):
     def requirements(self):
         result = super().requirements.copy()
         result['nipype'] = {}
-        if self._nipype_interface_name == "spm":
-            result['spm'] = {}
-        elif self._nipype_interface_name == "fsl":
-            result['fsl'] = {}
-        elif self._nipype_interface_name == "freesurfer":
-            result['freesurfer'] = {}
+        # require module for interface name (spm, fsl, etc)
+        result[self._nipype_interface_name] = {}
         return result
 
 
@@ -896,13 +882,13 @@ class NipypeProcess(FileCopyProcess):
         """
         setattr(self._nipype_interface.inputs, parameter, value)
 
-    def _before_run_process(self):
+    def before_execute(self, context):
         if self._nipype_interface_name == "spm":
             # Set the spm working
             self.destination = None
-        super()._before_run_process()
+        super().before_execute(context)
 
-    def execute_copyprocess(self, context):
+    def execute(self, context):
         """ Method that do the processings when the instance is called.
 
         Returns
@@ -953,7 +939,7 @@ class NipypeProcess(FileCopyProcess):
         #return results.__dict__
         return None
 
-    def _after_run_process(self, run_process_result):
+    def after_execute(self, exec_result, context):
         trait_map = getattr(self, '_nipype_trait_mapping', {})
         script_tname = trait_map.get('spm_script_file', 'spm_script_file')
         if getattr(self, script_tname, None) not in (None, undefined, ''):
@@ -963,4 +949,4 @@ class NipypeProcess(FileCopyProcess):
             if os.path.exists(script_file):
                 shutil.move(script_file, getattr(self, script_tname))
         return super(NipypeProcess,
-                     self)._after_run_process(run_process_result)
+                     self).after_execute(exec_result, context)

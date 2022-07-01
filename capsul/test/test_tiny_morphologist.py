@@ -153,6 +153,7 @@ class ProcessHemisphere(Process):
         with open(self.output, 'w') as f:
             f.write(content)
 
+
 class TinyMorphologist(Pipeline):
     def pipeline_definition(self):
         self.add_process('nobias', BiasCorrection)
@@ -497,6 +498,16 @@ class TestTinyMorphologist(unittest.TestCase):
             #     value = getattr(tiny_morphologist, field.name, undefined)
             #     print(f'!{normalization}!', field.name, value)
 
+            # run it
+            # Note: to run via soma-workflow, just set this:
+            # self.capsul.config.local.engine_type = 'soma_workflow'
+            with self.capsul.engine() as engine:
+                status = engine.run(tiny_morphologist)
+            self.assertEqual(
+                status,
+                {'status': 'ended', 'error': None, 'error_detail': None,
+                 'engine_output': ''})
+
 
     def test_pipeline_iteration(self):
         expected_completion = {
@@ -741,13 +752,23 @@ class TestTinyMorphologist(unittest.TestCase):
         for name, value in expected_resolution.items():
             self.assertEqual(getattr(tiny_morphologist_iteration, name), value,
                              f'Differing value for parameter {name}')
-    #     try:
-    #         with capsul.engine() as ce:
-    #             # Finally execute all the TinyMorphologist instances
-    #             execution_id = ce.run(processing_pipeline)
-    #     except Exception:
-    #         import traceback
-    #         traceback.print_exc()
+
+        # run it
+        # Note: to run via soma-workflow, just set this:
+        # self.capsul.config.local.engine_type = 'soma_workflow'
+
+        #status = None
+        #try:
+            #with self.capsul.engine() as engine:
+                #status = engine.run(tiny_morphologist_iteration)
+        #except Exception:
+            #import traceback
+            #traceback.print_exc()
+
+        #self.assertEqual(
+            #status,
+            #{'status': 'ended', 'error': None, 'error_detail': None,
+              #'engine_output': ''})
 
 def test():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestTinyMorphologist)
@@ -763,7 +784,7 @@ if __name__ == '__main__':
     app = QtGui.QApplication.instance()
     if not app:
         app = QtGui.QApplication(sys.argv)
-    view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True)
+    view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
     view1.show()
     app.exec_()
     del view1
