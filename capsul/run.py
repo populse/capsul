@@ -22,24 +22,13 @@ if __name__ == '__main__':
               f'tmp="{tmp}", command={sys.argv}',
               file=sys.stderr)
         sys.exit(1)
-    db_url = os.environ.get('CAPSUL_DATABASE')
-    if not db_url:
-        print('Capsul cannot run command because CAPSUL_DATABASE is not defined: '
+    if len(sys.argv) < 2:
+        print('Capsul cannot run command because parameters are missing: '
               f'tmp="{tmp}", command={sys.argv}',
               file=sys.stderr)
         sys.exit(1)
-    if not os.path.exists(db_url):
-        print('Capsul cannot run command because database file does not exist: '
-              f'tmp="{tmp}", database="{db_url}", command={sys.argv}',
-              file=sys.stderr)
-        sys.exit(1)
-    if len(sys.argv) < 2:
-        print('Capsul cannot run command because parameters are missing: '
-              f'tmp="{tmp}", database="{db_url}", command={sys.argv}',
-              file=sys.stderr)
-        sys.exit(1)
 
-    database = ExecutionDatabase(db_url)
+    database = ExecutionDatabase(tmp)
     with database as db:
         execution_context = db.execution_context
         execution_context.dataset.tmp = {
@@ -117,6 +106,6 @@ if __name__ == '__main__':
 
     if invalid_parameters:
         print('Capsul cannot run command because parameters are invalid: '
-            f'tmp="{tmp}", database="{db_url}", command={sys.argv}',
+            f'tmp="{tmp}", command={sys.argv}',
             file=sys.stderr)
         sys.exit(1)

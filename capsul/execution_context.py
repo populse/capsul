@@ -110,9 +110,13 @@ class CapsulWorkflow(Controller):
             del self.jobs[disabled_job[0]]
     
         # Transform wait_for sets to lists for json storage
-        for job in self.jobs.values():
-            job['wait_for'] = list(job['wait_for'])
-    
+        # Adn add waited_by
+        for waiting, job in self.jobs.items():
+            wait_for = list(job['wait_for'])
+            job['wait_for'] = wait_for
+            for waited in wait_for:
+                self.jobs[waited].setdefault('waited_by',[]).append(waiting)
+        
     def _create_jobs(self,
                      executable,
                      jobs_per_process,

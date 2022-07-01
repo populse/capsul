@@ -1,12 +1,14 @@
-# -*- coding: utf-8 -*-
-
-import time
+from datetime import datetime
 import importlib
 import os
+import shutil
+import tempfile
+import time
 
 from soma.controller import Controller
+from soma.undefined import undefined
 
-from ..execution_context import ExecutionContext
+from ..execution_context import CapsulWorkflow, ExecutionContext
 from ..pipeline.process_iteration import ProcessIteration
 from ..api import Pipeline, Process
 from ..config.configuration import ModuleConfiguration
@@ -27,6 +29,10 @@ class Engine:
     @staticmethod
     def module(module_name):
         return importlib.import_module(f'capsul.config.{module_name}')
+
+    def database(self, execution_id):
+        raise NotImplementedError(
+            'database must be implemented in Engine subclasses.')
 
     def executable_requirements(self, executable):
         result = {}
@@ -71,24 +77,59 @@ class Engine:
         return execution_context
 
     def start(self, executable, **kwargs):
+        execution_id = tempfile.mkdtemp(prefix='capsul_local_engine_')
+        try:
+            for name, value in kwargs.items():
+                setattr(executable, name, value)
+            execution_context = self.execution_context(executable)
+            workflow = CapsulWorkflow(executable)
+            # from pprint import pprint
+            # print('!start!')
+            # pprint(workflow.parameters.proxy_values)
+            # pprint(workflow.parameters.content)
+            # pprint(workflow.parameters.no_proxy())
+            # print('----')
+            # pprint(workflow.jobs)
+            database = self.database(execution_id)
+            database.claim_server()
+            with database as db:
+                db.execution_context = execution_context
+                db.executable = executable
+                db.save_workflow(workflow)
+                db.start_time =  datetime.now()
+                db.status = 'ready'
+                db.save()
+
+            self._start(execution_id)
+
+            return execution_id
+        except Exception:
+            shutil.rmtree(execution_id)
+            raise
+
+    def _start(self, execution_id):
         raise NotImplementedError(
-            'start must be implemented in Engine subclasses.')
+            '_start must be implemented in Engine subclasses.')
 
     def status(self, execution_id):
-        raise NotImplementedError(
-            'status must be implemented in Engine subclasses.')
-
+        with self.database(execution_id) as db:
+            status = db.status
+        return status
+    
     def engine_output(self, execution_id):
-        raise NotImplementedError(
-            'engine_output must be implemented in Engine subclasses.')
+        with self.database(execution_id) as db:
+            engine_output = db.engine_output
+        return engine_output
 
     def error(self, execution_id):
-        raise NotImplementedError(
-            'error must be implemented in Engine subclasses.')
-
-    def error_details(self, execution_id):
-        raise NotImplementedError(
-            'error_details must be implemented in Engine subclasses.')
+        with self.database(execution_id) as db:
+            error = db.error
+        return error
+    
+    def error_detail(self, execution_id):
+        with self.database(execution_id) as db:
+            error_detail = db.error_detail
+        return error_detail
 
     def wait(self, execution_id, timeout=None):
         start = time.time()
@@ -116,6 +157,16 @@ class Engine:
             print('----- local engine output -----')
             print(output)
             print('-------------------------------')
+        # from pprint import pprint
+        # with self.database(execution_id) as db:
+        #     print('!waiting!', list(db.waiting))
+        #     print('!ready!', list(db.ready))
+        #     print('!ongoing!', list(db.ongoing))
+        #     print('!done!', list(db.done))
+        #     print('!failed!', list(db.failed))
+        #     for job in db.jobs():
+        #         pprint(job)
+        #         print('-'*60)
         error = self.error(execution_id)
         if error:
             detail = self.error_detail(execution_id)
@@ -125,8 +176,39 @@ class Engine:
                 raise RuntimeError(error)
 
     def update_executable(self, executable, execution_id):
-        raise NotImplementedError(
-            'update_executable must be implemented in Engine subclasses.')
+        with self.database(execution_id) as db:
+            parameters = db.workflow_parameters
+        # print('!update_executable!')
+        # from pprint import pprint
+        # pprint(parameters.proxy_values)
+        # pprint(parameters.content)
+        # pprint(parameters.no_proxy())
+        if isinstance(executable, Pipeline):
+            enable_parameter_links = executable.enable_parameter_links
+            executable.enable_parameter_links = False
+        else:
+            enable_parameter_links = None
+        try:
+            stack = [(executable, parameters)]
+            # print('!update_executable! stack', executable.full_name)
+            # pprint(parameters.content)
+            while stack:
+                node, parameters = stack.pop(0)
+                for field in node.user_fields():
+                    value = parameters.get(field.name, undefined)
+                    if value is not undefined:
+                        value = parameters.no_proxy(value)
+                        if value is None:
+                            value = undefined
+                        # print('!update_executable!', node.full_name, field.name, '<-', repr(value))
+                        setattr(node, field.name, value)
+                    # else:
+                    #     print('!update_executable! ignore', node.full_name, field.name, repr(value))
+                if isinstance(node, Pipeline):
+                    stack.extend((n, parameters['nodes'][n.name]) for n in node.nodes.values() if n is not node and isinstance(n, Process) and n.activated)
+        finally:
+            if enable_parameter_links is not None:
+                executable.enable_parameter_links = enable_parameter_links
 
     def run(self, executable, timeout=None, **kwargs):
         execution_id = self.start(executable, **kwargs)
@@ -140,5 +222,12 @@ class Engine:
         return status
 
     def dispose(self, execution_id):
+        self._dispose(execution_id)
+        database = self.database(execution_id)
+        database.release_server()
+        if os.path.exists(execution_id):
+            shutil.rmtree(execution_id)
+
+    def _dispose(self, execution_id):
         raise NotImplementedError(
-            'dispose must be implemented in Engine subclasses.')
+            '_dispose must be implemented in Engine subclasses.')
