@@ -11,7 +11,7 @@ from soma.controller import File, field
 
 from capsul.api import Process, executable, Capsul
 from ...dataset import Dataset, MetadataSchema
-from capsul.dataset import generate_paths
+from capsul.dataset import ProcessSchema
 
 
 class DummyProcess(Process):
@@ -55,6 +55,7 @@ class DummyListProcess(Process):
     }
 
 class CustomMetadataSchema(MetadataSchema):
+    schema_name = 'test_schema'
     process: str
     parameter: str
     center: str
@@ -70,8 +71,6 @@ class CustomMetadataSchema(MetadataSchema):
                 items.append(value)
         return ['_'.join(items)]
     
-Dataset.register_schema('custom', CustomMetadataSchema)
-
 
 def setUpModule():
     global old_home
