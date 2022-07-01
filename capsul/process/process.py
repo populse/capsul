@@ -855,12 +855,8 @@ class NipypeProcess(FileCopyProcess):
     def requirements(self):
         result = super().requirements.copy()
         result['nipype'] = {}
-        if self._nipype_interface_name == "spm":
-            result['spm'] = {}
-        elif self._nipype_interface_name == "fsl":
-            result['fsl'] = {}
-        elif self._nipype_interface_name == "freesurfer":
-            result['freesurfer'] = {}
+        # require module for interface name (spm, fsl, etc)
+        result[self._nipype_interface_name] = {}
         return result
 
 
