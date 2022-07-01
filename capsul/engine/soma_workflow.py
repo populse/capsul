@@ -30,18 +30,18 @@ class SomaWorkflowEngine(Engine):
             # pprint(workflow.parameters.no_proxy())
             # print('----')
             # pprint(workflow.jobs)
-            with ExecutionDatabase(f'sqlite://{db_file.name}') as db:
+            db_url = f'sqlite://{db_file.name}'
+            with ExecutionDatabase(db_url) as db:
                 db.execution_context = execution_context
                 db.executable = executable
                 db.save_workflow(workflow)
                 db.start_time =  datetime.now()
                 db.status = 'ready'
             p = subprocess.Popen(
-                [sys.executable, '-m', 'capsul.engine.soma_workflow',
-                 f'sqlite://{db_file.name}'],
+                [sys.executable, '-m', 'capsul.engine.soma_workflow', db_url],
             )
             p.wait()
-            return db_file.name
+            return db_url
         except Exception:
             db_file.close()
             os.remove(db_file.name)
@@ -52,7 +52,7 @@ class SomaWorkflowEngine(Engine):
             keys = [keys]
         with ExecutionDatabase(execution_id) as db:
             status = db.session['status'].document('', fields=keys)
-        filename = execution_id + '.stdouterr'
+        filename = self.filename_from_url(execution_id) + '.stdouterr'
         if os.path.exists(filename):
             with open(filename) as f:
                 output = f.read()
@@ -131,10 +131,12 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         raise ValueError('This command must be called with a single '
             'parameter containing a capsul execution database file name')
-    output = open(sys.argv[1] + '.stdouterr', 'w')
+    db_url = sys.argv[1]
+    db_file = SomaWorkflowEngine.filename_from_url(db_url)
+    output = open(db_file + '.stdouterr', 'w')
     contextlib.redirect_stdout(output)
     contextlib.redirect_stderr(output)
-    database = ExecutionDatabase(sys.argv[1])
+    database = ExecutionDatabase(db_url)
     with database as db:
         db.status = 'submited'
 
@@ -156,7 +158,7 @@ if __name__ == '__main__':
             #env = os.environ.copy()
             env = {}
             env.update({
-                'CAPSUL_DATABASE': sys.argv[1],
+                'CAPSUL_DATABASE': db_url,
                 'CAPSUL_TMP': tmp,
             })
             # Read jobs workflow

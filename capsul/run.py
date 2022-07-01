@@ -10,6 +10,9 @@ from . import execution_context
 
 debug = False
 
+def filename_from_url(url):
+    return url.split('://', 1)[-1]
+
 if __name__ == '__main__':
     tmp = os.environ.get('CAPSUL_TMP')
     if not tmp:
@@ -28,7 +31,7 @@ if __name__ == '__main__':
               f'tmp="{tmp}", command={sys.argv}',
               file=sys.stderr)
         sys.exit(1)
-    if not os.path.exists(db_url):
+    if not os.path.exists(filename_from_url(db_url)):
         print('Capsul cannot run command because database file does not exist: '
               f'tmp="{tmp}", database="{db_url}", command={sys.argv}',
               file=sys.stderr)

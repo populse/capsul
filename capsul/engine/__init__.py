@@ -91,6 +91,10 @@ class Engine:
             setattr(execution_context, module_name,  valid_config)
         return execution_context
 
+    @staticmethod
+    def filename_from_url(url):
+        return url.split('://', 1)[-1]
+
     def start(self, executable, **kwargs):
         raise NotImplementedError(
             'start must be implemented in Engine subclasses.')
@@ -150,11 +154,12 @@ class Engine:
         return status
 
     def dispose(self, execution_id):
-        std = f'{execution_id}.stdouterr'
+        db_file = self.filename_from_url(execution_id)
+        std = f'{db_file}.stdouterr'
         if os.path.exists(std):
             os.remove(std)
-        if os.path.exists(execution_id):
-            os.remove(execution_id)
+        if os.path.exists(db_file):
+            os.remove(db_file)
 
     def print_debug_messages(self, status):
         for debug in status.get('debug_messages', []):
