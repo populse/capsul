@@ -66,6 +66,7 @@ class TestNipypeWrap(unittest.TestCase):
         if not osp.isdir(mcr_dir):
             return False
 
+        Capsul.delete_singleton()
         c = Capsul()
 
         config = ApplicationConfiguration('capsul_test_nipype_spm')
@@ -91,7 +92,7 @@ class TestNipypeWrap(unittest.TestCase):
         config.merge_configs()
 
         c.config = config.merged_config
-        # print('local config:', c.config.asdict())
+        print('local config:', c.config.asdict())
 
         return True
 
@@ -122,6 +123,10 @@ class TestNipypeWrap(unittest.TestCase):
     @unittest.skipIf(not init_spm_config(),
                      'SPM is not configured to run this test')
     def test_nipype_spm_exec(self):
+        # we must do this again because when multiple tests are run, the init
+        # function may be called at the wrong time (too early, at import), then
+        # other tests will run and define a different Capsul object
+        TestNipypeWrap.init_spm_config()
 
         c = Capsul()
 
