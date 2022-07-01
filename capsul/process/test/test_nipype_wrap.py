@@ -92,7 +92,7 @@ class TestNipypeWrap(unittest.TestCase):
         config.merge_configs()
 
         c.config = config.merged_config
-        print('local config:', c.config.asdict())
+        # print('local config:', c.config.asdict())
 
         return True
 
