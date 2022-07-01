@@ -22,6 +22,66 @@ except ImportError:
     nipype = None
 
 
+def init_spm_config():
+    if nipype is None:
+        return False
+
+    spm_search_dirs = ['/host/usr/local/spm12-standalone',
+                        '/usr/local/spm12-standalone',
+                        '/i2bm/local/spm12-standalone']
+    mcr_search_dirs = ['/host/usr/local/Matlab/mcr/v97',
+                        '/usr/local/Matlab/mcr/v97',
+                        '/i2bm/local/Matlab/mcr/v97']
+
+    spm_dir = None
+    for spm_dir in spm_search_dirs:
+        if osp.isdir(spm_dir):
+            break
+    if not osp.isdir(spm_dir):
+        return False
+
+    mcr_dir = None
+    mcr_dirs = glob.glob(osp.join(spm_dir, 'mcr', 'v*'))
+    if len(mcr_dirs) == 1:
+        mcr_dir = mcr_dirs[0]
+    else:
+        for mcr_dir in mcr_search_dirs:
+            if osp.isdir(mcr_dir):
+                break
+    if not osp.isdir(mcr_dir):
+        return False
+
+    Capsul.delete_singleton()
+    c = Capsul()
+
+    config = ApplicationConfiguration('capsul_test_nipype_spm')
+    user_conf_dict = {
+        'local': {
+            'spm': {
+                'spm12_standalone': {
+                    'directory': spm_dir,
+                    'standalone': True,
+                    'version': '12'},
+                },
+            'nipype': {
+                'nipype': {},
+            },
+            'matlab': {
+                'matlab_mcr': {
+                    'mcr_directory': mcr_dir,
+                },
+            },
+        }
+    }
+    config.user = user_conf_dict
+    config.merge_configs()
+
+    c.config = config.merged_config
+    # print('local config:', c.config.asdict())
+
+    return True
+
+
 class TestNipypeWrap(unittest.TestCase):
     """ Class to test the nipype interfaces wrapping.
     """
@@ -35,66 +95,6 @@ class TestNipypeWrap(unittest.TestCase):
         else:
             # default is nifti
             self.output_extension = '.nii'
-
-    @staticmethod
-    def init_spm_config():
-        if nipype is None:
-            return False
-
-        spm_search_dirs = ['/host/usr/local/spm12-standalone',
-                           '/usr/local/spm12-standalone',
-                           '/i2bm/local/spm12-standalone']
-        mcr_search_dirs = ['/host/usr/local/Matlab/mcr/v97',
-                           '/usr/local/Matlab/mcr/v97',
-                           '/i2bm/local/Matlab/mcr/v97']
-
-        spm_dir = None
-        for spm_dir in spm_search_dirs:
-            if osp.isdir(spm_dir):
-                break
-        if not osp.isdir(spm_dir):
-            return False
-
-        mcr_dir = None
-        mcr_dirs = glob.glob(osp.join(spm_dir, 'mcr', 'v*'))
-        if len(mcr_dirs) == 1:
-            mcr_dir = mcr_dirs[0]
-        else:
-            for mcr_dir in mcr_search_dirs:
-                if osp.isdir(mcr_dir):
-                    break
-        if not osp.isdir(mcr_dir):
-            return False
-
-        Capsul.delete_singleton()
-        c = Capsul()
-
-        config = ApplicationConfiguration('capsul_test_nipype_spm')
-        user_conf_dict = {
-            'local': {
-                'spm': {
-                    'spm12_standalone': {
-                        'directory': spm_dir,
-                        'standalone': True,
-                        'version': '12'},
-                    },
-                'nipype': {
-                    'nipype': {},
-                },
-                'matlab': {
-                    'matlab_mcr': {
-                        'mcr_directory': mcr_dir,
-                    },
-                },
-            }
-        }
-        config.user = user_conf_dict
-        config.merge_configs()
-
-        c.config = config.merged_config
-        # print('local config:', c.config.asdict())
-
-        return True
 
     #@unittest.skip('reimplementation expected for capsul v3')
     @unittest.skipIf(nipype is None, 'nipype is not installed')
@@ -126,7 +126,7 @@ class TestNipypeWrap(unittest.TestCase):
         # we must do this again because when multiple tests are run, the init
         # function may be called at the wrong time (too early, at import), then
         # other tests will run and define a different Capsul object
-        TestNipypeWrap.init_spm_config()
+        init_spm_config()
 
         c = Capsul()
 
