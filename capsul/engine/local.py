@@ -30,14 +30,15 @@ class LocalEngine(Engine):
             # pprint(workflow.parameters.no_proxy())
             # print('----')
             # pprint(workflow.jobs)
-            with ExecutionDatabase('sqlite://' + db_file.name) as db:
+            with ExecutionDatabase(f'sqlite://{db_file.name}') as db:
                 db.execution_context = execution_context
                 db.executable = executable
                 db.save_workflow(workflow)
                 db.start_time =  datetime.now()
                 db.status = 'ready'
             p = subprocess.Popen(
-                [sys.executable, '-m', 'capsul.engine.local', db_file.name],
+                [sys.executable, '-m', 'capsul.engine.local',
+                 f'sqlite://{db_file.name}'],
             )
             p.wait()
             return db_file.name
