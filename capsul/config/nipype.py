@@ -53,8 +53,8 @@ class NipypeConfiguration(ModuleConfiguration):
             if standalone:
                 mlab_conf = getattr(context, 'matlab', None)
                 mcr_directory = None
-                if mlab_conf and mlab_conf.get('mcr_directory'):
-                    mcr_directory = mlab_conf['mcr_directory']
+                if mlab_conf and getattr(mlab_conf, 'mcr_directory', None):
+                    mcr_directory = mlab_conf.mcr_directory
 
                 if not mcr_directory:
                     import glob
@@ -79,8 +79,8 @@ class NipypeConfiguration(ModuleConfiguration):
                     [spm_directory])  # + add_to_default_matlab_path)
                 mlab_conf = getattr(context, 'matlab', None)
                 matlab_cmd = ''
-                if mlab_conf and mlab_conf.get('executable'):
-                    matlab_cmd = mlab_conf['executable']
+                if mlab_conf and getattr(mlab_conf, 'executable', None):
+                    matlab_cmd = mlab_conf.executable
                 spm.SPMCommand.set_mlab_paths(matlab_cmd=matlab_cmd,
                                               use_mcr=False)
 
