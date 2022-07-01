@@ -17,6 +17,7 @@ from capsul.process.process import NipypeProcess
 from .pipeline.process_iteration import ProcessIteration
 from capsul.config.configuration import get_config_class, ModuleConfiguration
 
+
 class ExecutionContext(Controller):
     python_modules: list[str]
     dataset: OpenKeyDictController[Dataset]
@@ -34,9 +35,10 @@ class ExecutionContext(Controller):
                 cls = get_config_class(k, exception=False)
                 if cls:
                     new_k = cls.name
-                    config[new_k] = config[k]
-                    del config[k]
-                    k = new_k
+                    if k != new_k:
+                        config[new_k] = config[k]
+                        del config[k]
+                        k = new_k
                 elif '.' in k:
                     new_k = k.rsplit('.', 1)[-1]
                     config[new_k] = config[k]
@@ -53,6 +55,7 @@ class ExecutionContext(Controller):
         for cls in mod_classes:
             if hasattr(cls, 'init_execution_context'):
                 cls.init_execution_context(self)
+
 
 class ExecutionDatabase:
     def __init__(self, path):
