@@ -84,8 +84,8 @@ if __name__ == '__main__':
                         if value is not undefined:
                             print ('   ', field.name, '=', value)
             process.before_execute(execution_context)
-            process.execute(execution_context)
-            process.after_execute(execution_context)
+            result = process.execute(execution_context)
+            process.after_execute(result, execution_context)
             if debug:
                 print(f'---- stop {process.definition} ----')
                 for field in process.user_fields():
