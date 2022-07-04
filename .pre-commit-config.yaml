@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0  # DO NOT UPDATE: last version to be compatible with Python 3.6
+    rev: v4.3.0  # DO NOT UPDATE: last version to be compatible with Python 3.6
     hooks:
     -   id: check-added-large-files
     -   id: check-case-conflict
