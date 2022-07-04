@@ -413,7 +413,7 @@ class TestTinyMorphologist(unittest.TestCase):
         dict_context = context.asdict()
         self.assertEqual(dict_context, expected_context)
 
-    def test_path_generation(self):
+    def test_tiny_path_generation(self):
         expected = {
             'none': {
                 'template': '!{fakespm.directory}/template',

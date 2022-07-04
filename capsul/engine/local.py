@@ -5,19 +5,17 @@ import sys
 import traceback
 
 
-from ..database import ExecutionDatabase
+from ..database import execution_database
 from . import Engine
 
       
-class LocalEngine(Engine):
-    
-    def database(self, execution_id):
-        return ExecutionDatabase(execution_id)
-    
+class LocalEngine(Engine): 
+    database_type = 'populse_db'
+
     def _start(self, execution_id):
         r = subprocess.run(
             [sys.executable, '-m', 'capsul.engine.local', execution_id],
-            capture_output=True, check=True
+            capture_output=False, check=True
         )
         
     def _dispose(self, execution_id):
@@ -31,9 +29,6 @@ if __name__ == '__main__':
     execution_id = sys.argv[1]
     if not os.path.isdir(execution_id):
         raise ValueError(f'"{execution_id} is not an existing directory')
-    database = ExecutionDatabase(execution_id)
-    with database as db:
-        db.status = 'submited'
 
     # Really detach the process from the parent.
     # Whthout this fork, performing Capsul tests shows warning
@@ -46,6 +41,7 @@ if __name__ == '__main__':
         if not sys.platform.startswith('win'):
             os.setsid()
         tmp = execution_id
+        database = execution_database(execution_id)
         try:
             # create environment variables for jobs
             env = os.environ.copy()
@@ -54,7 +50,6 @@ if __name__ == '__main__':
             })
 
 
-            database = ExecutionDatabase(tmp)
             with database as db:
                 db.start_time = datetime.now()
                 db.status = 'running'
@@ -83,7 +78,7 @@ if __name__ == '__main__':
                         stack.extend(db.ready)
         except Exception as e:
             with database as db:
-                db.error = f'{e}'
+                db.error = f'Local engine loop failure: {e}'
                 db.error_detail = f'{traceback.format_exc()}'
         finally:
             with database as db:

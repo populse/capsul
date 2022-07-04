@@ -5,6 +5,7 @@ import shutil
 import sys
 import tempfile
 import time
+from capsul.database import create_execution_database
 
 from soma.controller import Controller
 from soma.undefined import undefined
@@ -14,7 +15,7 @@ from ..pipeline.process_iteration import ProcessIteration
 from ..api import Pipeline, Process
 from ..config.configuration import ModuleConfiguration
 from ..dataset import Dataset
-
+from ..database import create_execution_database, execution_database
 
 class Engine:
     def __init__(self, label, config):
@@ -30,10 +31,6 @@ class Engine:
     @staticmethod
     def module(module_name):
         return importlib.import_module(f'capsul.config.{module_name}')
-
-    def database(self, execution_id):
-        raise NotImplementedError(
-            'database must be implemented in Engine subclasses.')
 
     def executable_requirements(self, executable):
         result = {}
@@ -101,6 +98,7 @@ class Engine:
     def start(self, executable, **kwargs):
         execution_id = tempfile.mkdtemp(prefix='capsul_local_engine_')
         try:
+            create_execution_database(execution_id, self.database_type)
             for name, value in kwargs.items():
                 setattr(executable, name, value)
             execution_context = self.execution_context(executable)
@@ -112,7 +110,7 @@ class Engine:
             # pprint(workflow.parameters.no_proxy())
             # print('----')
             # pprint(workflow.jobs)
-            database = self.database(execution_id)
+            database = execution_database(execution_id)
             database.claim_server()
             with database as db:
                 db.execution_context = execution_context
@@ -134,33 +132,28 @@ class Engine:
             '_start must be implemented in Engine subclasses.')
 
     def status(self, execution_id):
-        with self.database(execution_id) as db:
+        with execution_database(execution_id) as db:
             status = db.status
         return status
     
-    def engine_output(self, execution_id):
-        with self.database(execution_id) as db:
-            engine_output = db.engine_output
-        return engine_output
-
     def error(self, execution_id):
-        with self.database(execution_id) as db:
+        with execution_database(execution_id) as db:
             error = db.error
         return error
     
     def error_detail(self, execution_id):
-        with self.database(execution_id) as db:
+        with execution_database(execution_id) as db:
             error_detail = db.error_detail
         return error_detail
 
     def wait(self, execution_id, timeout=None):
         start = time.time()
         status = self.status(execution_id)
-        if status == 'submited':
+        if status == 'ready':
             for i in range(50):
                 time.sleep(0.1)
                 status = self.status(execution_id)
-                if status != 'submited':
+                if status != 'ready':
                     break
             else:
                 raise SystemError('executable too slow to start')
@@ -172,12 +165,11 @@ class Engine:
             status = self.status(execution_id)
 
     def print_execution_report(self, execution_id, file=sys.stderr):
-        with self.database(execution_id) as db:
+        with execution_database(execution_id) as db:
             executable = db.executable
             status = db.status
             error = db.error
             error_detail = db.error_detail
-            engine_output = db.engine_output
             start_time = db.start_time
             end_time = db.end_time
             waiting = list(db.waiting)
@@ -252,7 +244,7 @@ class Engine:
             raise RuntimeError(error)
 
     def update_executable(self, executable, execution_id):
-        with self.database(execution_id) as db:
+        with execution_database(execution_id) as db:
             parameters = db.workflow_parameters
         # print('!update_executable!')
         # from pprint import pprint
@@ -292,6 +284,7 @@ class Engine:
             self.wait(execution_id, timeout=timeout)
             status = self.status(execution_id)
             self.raise_for_status(execution_id)
+            # self.print_execution_report(execution_id)
             self.update_executable(executable, execution_id)
         finally:
             self.dispose(execution_id)
@@ -299,7 +292,7 @@ class Engine:
 
     def dispose(self, execution_id):
         self._dispose(execution_id)
-        database = self.database(execution_id)
+        database = execution_database(execution_id)
         database.release_server()
         if os.path.exists(execution_id):
             shutil.rmtree(execution_id)

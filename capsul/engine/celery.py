@@ -12,7 +12,7 @@ from celery import Celery
 from soma.undefined import undefined
 
 from ..api import Pipeline, Process
-from ..database import ExecutionDatabase
+from ..database import execution_database
 from ..execution_context import CapsulWorkflow
 from . import Engine
 
@@ -22,22 +22,14 @@ if capsul_tmp:
 
     @celery_app.task(ignore_result=True)
     def start_ready_processes():
-        database = ExecutionDatabase(capsul_tmp)
+        database = execution_database(capsul_tmp)
         with database as db:
             for ready_uuid in db.ready:
                 execute_process.delay(ready_uuid)
-            # done  = set(db.done)
-            # for waiting_uuid in list(db.waiting):
-            #     waiting_job = db.job(waiting_uuid)
-            #     waiting_for = waiting_job.get('waiting_for', [])
-            #     if len(done.intersection(waiting_for)) == len(waiting_for):
-            #         ready = waiting_job['primary_key']
-            #         db.move_to_ready(ready)
-            #         execute_process.delay(ready)
 
     @celery_app.task(ignore_result=True)
     def initial_task():
-        database = ExecutionDatabase(capsul_tmp)
+        database = execution_database(capsul_tmp)
         database.claim_server()
         start_ready_processes()
 
@@ -49,7 +41,7 @@ if capsul_tmp:
                 pid = int(f.read().strip())
         else:
             pid = None
-        database = ExecutionDatabase(capsul_tmp)
+        database = execution_database(capsul_tmp)
         database.release_server()
         if pid:
             os.kill(pid, signal.SIGTERM)
@@ -57,7 +49,7 @@ if capsul_tmp:
 
     @celery_app.task(ignore_result=True)
     def execute_process(job_uuid):
-        database = ExecutionDatabase(capsul_tmp)
+        database = execution_database(capsul_tmp)
         with database as db:
             job = db.job(job_uuid)
             db.move_to_ongoing(job_uuid)
@@ -80,6 +72,7 @@ if capsul_tmp:
 
 
 class CeleryEngine(Engine):
+    database_type = 'redis'    
     
     def start(self, executable, **kwargs):
         capsul_tmp = tempfile.mkdtemp(prefix='capsul_local_engine_')
@@ -100,7 +93,7 @@ class CeleryEngine(Engine):
             # pprint(workflow.parameters.no_proxy())
             # print('----')
             # pprint(workflow.jobs)
-            database = ExecutionDatabase(capsul_tmp)
+            database = create_execution_database(capsul_tmp, 'redis')
             database.claim_server()
             with database as db:
                 db.execution_context = execution_context
@@ -126,27 +119,27 @@ class CeleryEngine(Engine):
             raise
 
     def status(self, execution_id):
-        with ExecutionDatabase(execution_id) as db:
+        with execution_database(execution_id) as db:
             status = db.status
         return status
     
     def engine_output(self, execution_id):
-        with ExecutionDatabase(execution_id) as db:
+        with execution_database(execution_id) as db:
             engine_output = db.engine_output
         return engine_output
 
     def error(self, execution_id):
-        with ExecutionDatabase(execution_id) as db:
+        with execution_database(execution_id) as db:
             error = db.error
         return error
     
     def error_detail(self, execution_id):
-        with ExecutionDatabase(execution_id) as db:
+        with execution_database(execution_id) as db:
             error_detail = db.error_detail
         return error_detail
     
     def update_executable(self, executable, execution_id):
-        with ExecutionDatabase(execution_id) as db:
+        with execution_database(execution_id) as db:
             parameters = db.workflow_parameters
         # print('!update_executable!')
         # from pprint import pprint
@@ -184,7 +177,7 @@ class CeleryEngine(Engine):
         with open(self.redis_pid_file) as f:
             pid = int(f.read().strip())
         os.kill(pid, signal.SIGTERM)
-        database = ExecutionDatabase(execution_id)
+        database = execution_database(execution_id)
         database.release_server()
         if os.path.exists(execution_id):
             shutil.rmtree(execution_id)
@@ -202,7 +195,7 @@ if __name__ == '__main__':
     output = open(f'{execution_id}/stdouterr', 'w')
     contextlib.redirect_stdout(output)
     contextlib.redirect_stderr(output)
-    database = ExecutionDatabase(execution_id)
+    database = execution_database(execution_id)
     with database as db:
         db.status = 'submited'
 

@@ -58,7 +58,7 @@ def json_decode(value):
                 return decode(encoded_value)
     return value
 
-class ExecutionDatabase:
+class RedisExecutionDatabase:
     def __init__(self, directory):
         self.directory = os.path.abspath(directory)
         self.redis_socket = f'{self.directory}/redis.socket'
@@ -118,14 +118,6 @@ class ExecutionDatabase:
     @status.setter
     def status(self, status):
         self.redis.set('status', status)
-
-    @property
-    def engine_output(self):
-        return self.redis.get('engine_output')
-
-    @engine_output.setter
-    def engine_output(self, engine_output):
-        self.redis.set('engine_output', engine_output)
 
     @property
     def error(self):

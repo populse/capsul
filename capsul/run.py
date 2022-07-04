@@ -6,7 +6,7 @@ import sys
 from soma.undefined import undefined
 
 from .application import Capsul
-from .database import ExecutionDatabase
+from .database import execution_database
 
 debug = False
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
               file=sys.stderr)
         sys.exit(1)
 
-    database = ExecutionDatabase(tmp)
+    database = execution_database(tmp)
     with database as db:
         execution_context = db.execution_context
         execution_context.dataset.tmp = {
