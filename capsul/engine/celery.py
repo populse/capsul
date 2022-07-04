@@ -123,11 +123,6 @@ class CeleryEngine(Engine):
             status = db.status
         return status
     
-    def engine_output(self, execution_id):
-        with execution_database(execution_id) as db:
-            engine_output = db.engine_output
-        return engine_output
-
     def error(self, execution_id):
         with execution_database(execution_id) as db:
             error = db.error

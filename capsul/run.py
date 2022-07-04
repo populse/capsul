@@ -10,6 +10,9 @@ from .database import execution_database
 
 debug = False
 
+def filename_from_url(url):
+    return url.split('://', 1)[-1]
+
 if __name__ == '__main__':
     tmp = os.environ.get('CAPSUL_TMP')
     if not tmp:

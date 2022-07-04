@@ -95,6 +95,10 @@ class Engine:
             setattr(execution_context, module_name,  valid_config)
         return execution_context
 
+    @staticmethod
+    def filename_from_url(url):
+        return url.split('://', 1)[-1]
+
     def start(self, executable, **kwargs):
         execution_id = tempfile.mkdtemp(prefix='capsul_local_engine_')
         try:
@@ -287,16 +291,27 @@ class Engine:
             # self.print_execution_report(execution_id)
             self.update_executable(executable, execution_id)
         finally:
-            self.dispose(execution_id)
+            self.dispose(execution_id, retry=0.5)
         return status
 
-    def dispose(self, execution_id):
+    def dispose(self, execution_id, retry=0.5):
         self._dispose(execution_id)
         database = execution_database(execution_id)
         database.release_server()
-        if os.path.exists(execution_id):
-            shutil.rmtree(execution_id)
-
+        t0 = time.time()
+        ok = False
+        err = None
+        while not ok and time.time() - t0 < retry:
+            if os.path.exists(execution_id):
+                try:
+                    shutil.rmtree(execution_id)
+                except PermissionError as e:
+                    err = str(e)
+                    time.sleep(0.02)
+                    continue
+            ok = True
+        if not ok:
+            raise PermissionError(err)
     def _dispose(self, execution_id):
         raise NotImplementedError(
             '_dispose must be implemented in Engine subclasses.')
