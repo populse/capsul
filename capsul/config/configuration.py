@@ -141,7 +141,7 @@ class EngineConfiguration(Controller):
     dataset: OpenKeyDictController[Dataset]
     config_modules: list[str]
     python_modules: list[str]
-    workers_type: str = 'local'
+    workers_type: str = 'builtin'
     database_url: str = 'sqlite:///tmp/capsul_engine_database.sqlite'
 
     def add_module(self, module_name, allow_existing=False):
@@ -208,14 +208,14 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
 
     A ConfigurationLayer contains sub-configs corresponding to computing
     resources, which are keys in this :class:`Controller`. A "default" config
-    resource could be named "local".
+    resource could be named "builtin".
     '''
 
     def __init__(self):
         super().__init__()
         self.add_field(
-            'local', EngineConfiguration, default_factory=EngineConfiguration,
-            doc='Default local computing resource config. Elements are config '
+            'builtin', EngineConfiguration, default_factory=EngineConfiguration,
+            doc='Default builtin computing resource config. Elements are config '
             'modules which should be registered in the application (spm, fsl, '
             '...)')
 
@@ -235,8 +235,8 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     def add_field(self, name, *args, **kwargs):
         if 'doc' not in kwargs:
             kwargs = dict(kwargs)
-            if name == 'local':
-                kwargs['doc'] = 'Default local computing resource config. ' \
+            if name == 'builtin':
+                kwargs['doc'] = 'Default builtin computing resource config. ' \
                     'Elements are config modules which should be registered ' \
                     'in the application (spm, fsl, ...)'
             else:
@@ -292,7 +292,7 @@ class ApplicationConfiguration(Controller):
         app_config = ApplicationConfiguration(
             'my_app_name', site_file='/usr/local/etc/my_app_name.json')
         user_conf_dict = {
-            'local': {
+            'builtin': {
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/usr/local/spm12_standalone',
@@ -314,9 +314,9 @@ class ApplicationConfiguration(Controller):
     In each configuration (``user``, ``site``,, ``merged_config``):
 
     * The first level, "environment" corresponds to a "computing resource"
-      name. The default (and always existing) is "local" and means the local
-      computer configuration. Additional configs may be added to store settings
-      for remote computing resources.
+      name. The default (and always existing) is "builtin" and is using the local
+      computer configuration without parallelism. Additional configs may be added
+      to store settings for remote computing resources.
 
     * the second level corresponds to configuration modules. Each module has to
       be known in the Capsul config system, and is accessed as a module. The

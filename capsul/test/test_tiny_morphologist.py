@@ -292,7 +292,7 @@ class TestTinyMorphologist(unittest.TestCase):
 
         # Configuration base dictionary
         config = {
-            'local': {
+            'builtin': {
                 'config_modules': [
                     'capsul.test.test_tiny_morphologist',
                 ],
@@ -321,7 +321,7 @@ class TestTinyMorphologist(unittest.TestCase):
                 'directory': str(fakespm),
                 'version': version,
             }
-            config['local'].setdefault('fakespm', {})[f'fakespm_{version}'] = fakespm_config
+            config['builtin'].setdefault('fakespm', {})[f'fakespm_{version}'] = fakespm_config
             
 
         # Create a configuration file
@@ -341,8 +341,8 @@ class TestTinyMorphologist(unittest.TestCase):
     def test_tiny_morphologist_config(self):
         self.maxDiff = 2000
         expected_config = {
-            'local': {
-                'workers_type': 'local',
+            'builtin': {
+                'workers_type': 'builtin',
                 'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                 'dataset': {
                     'input': {
@@ -501,7 +501,7 @@ class TestTinyMorphologist(unittest.TestCase):
 
             # run it
             # Note: to run via soma-workflow, just set this:
-            # self.capsul.config.local.engine_type = 'soma_workflow'
+            # self.capsul.config.builtin.engine_type = 'soma_workflow'
             with self.capsul.engine() as engine:
                 status = engine.run(tiny_morphologist, timeout=5)
                 self.assertEqual(status, 'ended')
@@ -730,7 +730,7 @@ class TestTinyMorphologist(unittest.TestCase):
         # BIDS fields (sub, ses, acq, etc.)
         inputs = []
         normalizations = []
-        for path in sorted(self.capsul.config.local.dataset.input.find(suffix='T1w', extension='nii')):
+        for path in sorted(self.capsul.config.builtin.dataset.input.find(suffix='T1w', extension='nii')):
             input_metadata = execution_context.dataset['input'].schema.metadata(path)
             inputs.extend([input_metadata]*3)
             normalizations += ['none', 'aims', 'fakespm8']
@@ -753,7 +753,7 @@ class TestTinyMorphologist(unittest.TestCase):
 
         # run it
         # Note: to run via soma-workflow, just set this:
-        # self.capsul.config.local.engine_type = 'soma_workflow'
+        # self.capsul.config.builtin.engine_type = 'soma_workflow'
 
         #status = None
         #try:

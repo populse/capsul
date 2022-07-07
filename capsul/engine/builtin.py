@@ -13,10 +13,10 @@ from capsul.database import execution_database
 from . import Workers
 
       
-class LocalWorkers(Workers): 
+class BuiltinWorkers(Workers): 
     def _start(self, execution_id):
         subprocess.run(
-            [sys.executable, '-m', 'capsul.engine.local', self.database.url, execution_id],
+            [sys.executable, '-m', 'capsul.engine.builtin', self.database.url, execution_id],
             capture_output=False, check=True
         )
         
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     if pid == 0:
         if not sys.platform.startswith('win'):
             os.setsid()
-        tmp = tempfile.mkdtemp(prefix='caspul_local_')
+        tmp = tempfile.mkdtemp(prefix='caspul_builtin_')
         try:
             database = execution_database(database_url)
             try:
@@ -72,7 +72,7 @@ if __name__ == '__main__':
                     job = database.start_next_job(execution_id, start_time=datetime.now())
             except Exception as e:
                 database.set_error(execution_id,
-                    error=f'Local engine loop failure: {e}',
+                    error=f'Builtin engine loop failure: {e}',
                     error_detail=f'{traceback.format_exc()}'
                 )
                 raise

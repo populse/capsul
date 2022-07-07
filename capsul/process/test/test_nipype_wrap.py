@@ -56,7 +56,7 @@ def init_spm_config():
 
     config = ApplicationConfiguration('capsul_test_nipype_spm')
     user_conf_dict = {
-        'local': {
+        'builtin': {
             'spm': {
                 'spm12_standalone': {
                     'directory': spm_dir,
@@ -135,7 +135,7 @@ class TestNipypeWrap(unittest.TestCase):
                          'spm12']
         for template_dir_s in template_dirs:
             template_dir = osp.join(
-                c.config.local.spm.spm12_standalone.directory, template_dir_s)
+                c.config.builtin.spm.spm12_standalone.directory, template_dir_s)
             if osp.isdir(template_dir):
                 break
         self.assertTrue(

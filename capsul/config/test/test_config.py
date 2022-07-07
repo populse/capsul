@@ -26,8 +26,8 @@ class TestConfiguration(unittest.TestCase):
 
         user_file = osp.join(self.tmp_dir, 'user_conf.json')
         conf_dict = {
-            'local': {
-                'workers_type': 'local',
+            'builtin': {
+                'workers_type': 'builtin',
                 'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                 'matlab': {},
                 'spm': {
@@ -47,8 +47,8 @@ class TestConfiguration(unittest.TestCase):
         self.assertEqual(
             app_config.asdict(), {
                 'site': {
-                    'local': {
-                        'workers_type': 'local',
+                    'builtin': {
+                        'workers_type': 'builtin',
                         'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                     }
                 },
@@ -62,8 +62,8 @@ class TestConfiguration(unittest.TestCase):
     def test_config_assignment(self):
 
         conf_dict = {
-            'local': {
-                'workers_type': 'local',
+            'builtin': {
+                'workers_type': 'builtin',
                 'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                 'matlab': {},
                 'spm': {
@@ -84,27 +84,27 @@ class TestConfiguration(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(
             app_config.asdict(),
-            {'site': {'local': {
-                'workers_type': 'local',
+            {'site': {'builtin': {
+                'workers_type': 'builtin',
                 'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
               }},
              'app_name': 'single_conf2',
              'user': conf_dict,
-             'merged_config': {'local': {
-                'workers_type': 'local',
+             'merged_config': {'builtin': {
+                'workers_type': 'builtin',
                 'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
              }}})
 
     def test_config_merge(self):
         user_conf_dict = {
-            'local': {
+            'builtin': {
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/usr/local/spm12_standalone',
                         'standalone': True},
                     }}}
         site_conf_dict = {
-            'local': {
+            'builtin': {
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/i2bm/local/spm12_standalone',
@@ -121,8 +121,8 @@ class TestConfiguration(unittest.TestCase):
                         'setup_script': '/i2bm/local/fsl/etc/fslconf/fsl.sh'
                     }}}}
         merged_conf_dict = {
-            'local': {
-                'workers_type': 'local',
+            'builtin': {
+                'workers_type': 'builtin',
                 'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                 'matlab': {},
                 'spm': {

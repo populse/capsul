@@ -95,7 +95,7 @@ class Capsul(Singleton):
         '''
         return executable(definition, **kwargs)
 
-    def engine(self, name='local'):
+    def engine(self, name='builtin'):
         ''' Get a :class:`~capsul.engine.Engine` instance
         '''
         from .engine import Engine

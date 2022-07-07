@@ -115,7 +115,7 @@ class TestCompletion(unittest.TestCase):
 
         # Configuration base dictionary
         config = {
-            'local': {
+            'builtin': {
                 'config_modules': [
                     'capsul.test.test_fake_morphologist',
                 ],

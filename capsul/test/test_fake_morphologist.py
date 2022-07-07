@@ -666,7 +666,7 @@ class TestFakeMorphologist(unittest.TestCase):
 
         # Configuration base dictionary
         config = {
-            'local': {
+            'builtin': {
                 'config_modules': [
                     'capsul.test.test_fake_morphologist',
                 ],
@@ -699,7 +699,7 @@ class TestFakeMorphologist(unittest.TestCase):
                 'directory': str(fakespm),
                 'version': version,
             }
-            config['local'].setdefault('fakespm', {})[f'fakespm_{version}'] = fakespm_config
+            config['builtin'].setdefault('fakespm', {})[f'fakespm_{version}'] = fakespm_config
             
 
         # Create a configuration file
@@ -721,8 +721,8 @@ class TestFakeMorphologist(unittest.TestCase):
     def test_fake_morphologist_config(self):
         self.maxDiff = 2000
         expected_config = {
-            'local': {
-                'workers_type': 'local',
+            'builtin': {
+                'workers_type': 'builtin',
                 'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                 'dataset': {
                     'input': {
@@ -1323,7 +1323,7 @@ class TestFakeMorphologist(unittest.TestCase):
         spm_normalization_version = []
 
         for path in sorted(
-                self.capsul.config.local.dataset.input.find(suffix='T1w',
+                self.capsul.config.builtin.dataset.input.find(suffix='T1w',
                                                             extension='nii')):
             input_metadata \
                 = execution_context.dataset['input'].schema.metadata(path)
