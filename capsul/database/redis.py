@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import re
 import dateutil
 import dateutil.parser
 import json
@@ -12,8 +13,8 @@ import redis
 
 from soma.api import DictWithProxy
 
-from .application import Capsul
-from .execution_context import ExecutionContext
+from ..application import Capsul
+from ..execution_context import ExecutionContext
 
 def json_dumps(value):
     return json.dumps(value, separators=(',', ':'))
@@ -158,7 +159,7 @@ class RedisExecutionDatabase:
 
     @executable.setter
     def executable(self, executable):
-        j = executable.json()
+        j = executable.json(include_parameters=False)
         try:
             s = json_dumps(j)
         except TypeError:
@@ -267,18 +268,17 @@ class RedisExecutionDatabase:
         return self.redis.smembers('failed')
    
     def move_to_ready(self, job_uuid):
-        self.redis.srem('waiting', job_uuid)
         self.redis.sadd('ready', job_uuid)
+        self.redis.srem('waiting', job_uuid)
 
     def move_to_ongoing(self, job_uuid):
         job = self.job(job_uuid)
         job['start_time'] = datetime.datetime.now()
         self.set_job(job_uuid, job)
-        self.redis.srem('ready', job_uuid)
         self.redis.sadd('ongoing', job_uuid)
+        self.redis.srem('ready', job_uuid)
 
     def move_to_done(self, job_uuid, returncode, stdout, stderr):
-        self.redis.srem('ongoing', job_uuid)
         job = self.job(job_uuid)
         job['returncode'] = returncode
         job['stdout'] = stdout
@@ -306,6 +306,8 @@ class RedisExecutionDatabase:
                 else:
                     self.redis.srem('waiting', waiting_uuid)
                     self.redis.sadd('ready', waiting_uuid)
+        self.redis.srem('ongoing', job_uuid)
+        print(f"move_to_done {job_uuid} ongoing={self.redis.scard('ongoing')} ready={self.redis.scard('ready')}")
         if self.redis.scard('ongoing') or self.redis.scard('ready'):
             return False
         else:

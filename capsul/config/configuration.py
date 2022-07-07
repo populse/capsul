@@ -141,7 +141,8 @@ class EngineConfiguration(Controller):
     dataset: OpenKeyDictController[Dataset]
     config_modules: list[str]
     python_modules: list[str]
-    engine_type: str = 'builtin'
+    workers_type: str = 'local'
+    database_url: str = 'sqlite:///tmp/capsul_engine_database.sqlite'
 
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.

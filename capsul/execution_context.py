@@ -12,6 +12,7 @@ from .pipeline.pipeline import Process, Pipeline
 from capsul.process.process import NipypeProcess
 from .pipeline.process_iteration import ProcessIteration
 from capsul.config.configuration import get_config_class
+from .config.configuration import ModuleConfiguration
 
 
 class ExecutionContext(Controller):
@@ -51,6 +52,33 @@ class ExecutionContext(Controller):
         for cls in mod_classes:
             if hasattr(cls, 'init_execution_context'):
                 cls.init_execution_context(self)
+
+    def json(self):
+        json_context = super().json()
+        for k in list(json_context):
+            # replace module classes with long name, if they are not in the
+            # standard location (capsul.config)
+            m = getattr(self, k)
+            if isinstance(m, ModuleConfiguration) \
+                    and m.__class__.__module__.split('.') \
+                        != ['capsul', 'config', m.name]:
+                cls_name = f'{m.__class__.__module__}.{m.__class__.__name__}'
+                json_context[cls_name] = json_context[k]
+                del json_context[k]
+        return json_context
+
+    def executable_requirements(self, executable):
+        result = {}
+        if isinstance(executable, ProcessIteration):
+            for process in executable.iterate_over_process_parmeters():
+                if process.activated:
+                    result.update(self.executable_requirements(process))
+        elif isinstance(executable, Pipeline):
+            for node in executable.all_nodes():
+                if node is not executable and isinstance(node, Process) and node.activated:
+                    result.update(self.executable_requirements(node))
+        result.update(getattr(executable, 'requirements', {}))
+        return result
 
 
 class CapsulWorkflow(Controller):
@@ -111,7 +139,7 @@ class CapsulWorkflow(Controller):
             del self.jobs[disabled_job[0]]
     
         # Transform wait_for sets to lists for json storage
-        # Adn add waited_by
+        # and add waited_by
         for waiting, job in self.jobs.items():
             wait_for = list(job['wait_for'])
             job['wait_for'] = wait_for
@@ -226,12 +254,14 @@ class CapsulWorkflow(Controller):
             job_uuid = str(uuid4())
             if disabled:
                 self.jobs[job_uuid] = {
+                    'uuid': job_uuid,
                     'command': None,
                     'wait_for': set(),
                     'waited_by': set(),
                 }
             else:
                 self.jobs[job_uuid] = {
+                    'uuid': job_uuid,
                     'command': ['python', '-m', 'capsul.run', 'process', job_uuid],
                     'wait_for': set(),
                     'process': process.json(include_parameters=False),

@@ -27,7 +27,8 @@ class TestConfiguration(unittest.TestCase):
         user_file = osp.join(self.tmp_dir, 'user_conf.json')
         conf_dict = {
             'local': {
-                'engine_type': 'builtin',
+                'workers_type': 'local',
+                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -44,18 +45,26 @@ class TestConfiguration(unittest.TestCase):
                                               user_file=user_file)
         self.maxDiff = 2000
         self.assertEqual(
-            app_config.asdict(),
-            {'site': {'local': {'engine_type': 'builtin'}},
-             'app_name': 'single_conf',
-             'user': conf_dict,
-             'merged_config': conf_dict,
-             'user_file': user_file})
+            app_config.asdict(), {
+                'site': {
+                    'local': {
+                        'workers_type': 'local',
+                        'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
+                    }
+                },
+                'app_name': 'single_conf',
+                'user': conf_dict,
+                'merged_config': conf_dict,
+                'user_file': user_file
+            }
+        )
 
     def test_config_assignment(self):
 
         conf_dict = {
             'local': {
-                'engine_type': 'builtin',
+                'workers_type': 'local',
+                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -72,14 +81,19 @@ class TestConfiguration(unittest.TestCase):
                                               user_file=None)
         app_config.user = conf_dict
 
-        # print(app_config.asdict())
         self.maxDiff = None
         self.assertEqual(
             app_config.asdict(),
-            {'site': {'local': {'engine_type': 'builtin'}},
+            {'site': {'local': {
+                'workers_type': 'local',
+                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
+              }},
              'app_name': 'single_conf2',
              'user': conf_dict,
-             'merged_config': {'local': {'engine_type': 'builtin'}}})
+             'merged_config': {'local': {
+                'workers_type': 'local',
+                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
+             }}})
 
     def test_config_merge(self):
         user_conf_dict = {
@@ -108,7 +122,8 @@ class TestConfiguration(unittest.TestCase):
                     }}}}
         merged_conf_dict = {
             'local': {
-                'engine_type': 'builtin',
+                'workers_type': 'local',
+                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {

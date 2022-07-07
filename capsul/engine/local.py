@@ -1,39 +1,41 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 import traceback
 
+from capsul.database import execution_database
 
-from ..database import execution_database
-from . import Engine
+
+from . import Workers
 
       
-class LocalEngine(Engine): 
-    database_type = 'populse_db'
-
+class LocalWorkers(Workers): 
     def _start(self, execution_id):
-        r = subprocess.run(
-            [sys.executable, '-m', 'capsul.engine.local', execution_id],
+        subprocess.run(
+            [sys.executable, '-m', 'capsul.engine.local', self.database.url, execution_id],
             capture_output=False, check=True
         )
         
-    def _dispose(self, execution_id):
+    def close(self):
         pass
 
+    def _debug_info(self, execution_id):
+        return {}
     
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        raise ValueError('This command must be called with a single '
-            'parameter containing a capsul execution temporary directory')
-    execution_id = sys.argv[1]
-    if not os.path.isdir(execution_id):
-        raise ValueError(f'"{execution_id} is not an existing directory')
+    if len(sys.argv) != 3:
+        raise ValueError('This command must be called with two '
+            'parameters: a database URL and an execution_id')
+    database_url = sys.argv[1]
+    execution_id = sys.argv[2]
 
     # Really detach the process from the parent.
     # Whthout this fork, performing Capsul tests shows warning
-    # about child processes not properly wait for.
+    # about child processes not properly waited for.
     if sys.platform.startswith('win'):
         pid = 0
     else:
@@ -41,47 +43,38 @@ if __name__ == '__main__':
     if pid == 0:
         if not sys.platform.startswith('win'):
             os.setsid()
-        tmp = execution_id
-        database = execution_database(execution_id)
+        tmp = tempfile.mkdtemp(prefix='caspul_local_')
         try:
-            # create environment variables for jobs
-            env = os.environ.copy()
-            env.update({
-                'CAPSUL_TMP': tmp,
-            })
-
-
-            with database as db:
-                db.start_time = datetime.now()
-                db.status = 'running'
-                stack  = list(db.ready)
-
-            while stack:
-                job_uuid = stack.pop()
-                with database as db:
-                    job = db.job(job_uuid)
-                    db.move_to_ongoing(job_uuid)
-                command = job['command']
-                if command is not None:
-                    result = subprocess.run(command, env=env, capture_output=True)
-                    returncode = result.returncode
-                    stdout = result.stdout.decode()
-                    stderr = result.stderr.decode()
-                else:
-                    returncode = stdout = stderr = None
-                with database as db:
-                    all_done = db.move_to_done(job_uuid, returncode, stdout, stderr)
-
-                if all_done:
-                    break
-                else:
-                    with database as db:
-                        stack.extend(db.ready)
-        except Exception as e:
-            with database as db:
-                db.error = f'Local engine loop failure: {e}'
-                db.error_detail = f'{traceback.format_exc()}'
+            database = execution_database(database_url)
+            try:
+                env = os.environ.copy()
+                env['CAPSUL_DATABASE'] = database_url
+                env['CAPSUL_TMP'] = tmp
+                env['CAPSUL_EXECUTION_ID'] = execution_id
+                job = database.start_next_job(execution_id, start_time=datetime.now())
+                while job is not None:
+                    command = job['command']
+                    if command is not None:
+                        result = subprocess.run(command, env=env, capture_output=True)
+                        returncode = result.returncode
+                        stdout = result.stdout.decode()
+                        stderr = result.stderr.decode()
+                    else:
+                        returncode = stdout = stderr = None
+                    command = job['command']
+                    all_done = database.job_finished(execution_id, job['uuid'], 
+                        end_time=datetime.now(),
+                        returncode=returncode,
+                        stdout=stdout,
+                        stderr=stderr)
+                    if all_done:
+                        break
+                    job = database.start_next_job(execution_id, start_time=datetime.now())
+            except Exception as e:
+                database.set_error(execution_id,
+                    error=f'Local engine loop failure: {e}',
+                    error_detail=f'{traceback.format_exc()}'
+                )
+                raise
         finally:
-            with database as db:
-                db.status = 'ended'
-                db.end_time = datetime.now()
+            shutil.rmtree(tmp)

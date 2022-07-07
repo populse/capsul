@@ -722,7 +722,8 @@ class TestFakeMorphologist(unittest.TestCase):
         self.maxDiff = 2000
         expected_config = {
             'local': {
-                'engine_type': 'builtin',
+                'workers_type': 'local',
+                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),

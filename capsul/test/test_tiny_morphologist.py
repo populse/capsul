@@ -342,7 +342,8 @@ class TestTinyMorphologist(unittest.TestCase):
         self.maxDiff = 2000
         expected_config = {
             'local': {
-                'engine_type': 'builtin',
+                'workers_type': 'local',
+                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),
@@ -502,7 +503,7 @@ class TestTinyMorphologist(unittest.TestCase):
             # Note: to run via soma-workflow, just set this:
             # self.capsul.config.local.engine_type = 'soma_workflow'
             with self.capsul.engine() as engine:
-                status = engine.run(tiny_morphologist)
+                status = engine.run(tiny_morphologist, timeout=5)
                 self.assertEqual(status, 'ended')
 
 

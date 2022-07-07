@@ -10,18 +10,15 @@ from .database import execution_database
 
 debug = False
 
-def filename_from_url(url):
-    return url.split('://', 1)[-1]
-
 if __name__ == '__main__':
     tmp = os.environ.get('CAPSUL_TMP')
     if not tmp:
-        print('Capsul cannot run command because CAPSUL_TMP is not defined: '
+        print('Capsul cannot run job because CAPSUL_TMP is not defined: '
               f'command={sys.argv}',
               file=sys.stderr)
         sys.exit(1)
     if not os.path.exists(tmp):
-        print('Capsul cannot run command because temporary directory does not exist: '
+        print('Capsul cannot run job because temporary directory does not exist: '
               f'tmp="{tmp}", command={sys.argv}',
               file=sys.stderr)
         sys.exit(1)
@@ -30,21 +27,29 @@ if __name__ == '__main__':
               f'tmp="{tmp}", command={sys.argv}',
               file=sys.stderr)
         sys.exit(1)
-
-    database = execution_database(tmp)
-    with database as db:
-        execution_context = db.execution_context
-        execution_context.dataset.tmp = {
-            'path': tmp
-        }
+    database_url = os.environ.get('CAPSUL_DATABASE')
+    if not database_url:
+        print('Capsul cannot run job because CAPSUL_DATABASE is not defined: '
+              f'command={sys.argv}',
+              file=sys.stderr)
+    execution_id = os.environ.get('CAPSUL_EXECUTION_ID')
+    if not execution_id:
+        print('Capsul cannot run job because CAPSUL_EXECUTION_ID is not defined: '
+              f'command={sys.argv}',
+              file=sys.stderr)
+        sys.exit(1)
+    database = execution_database(database_url)
+    execution_context = database.execution_context(execution_id)
+    execution_context.dataset.tmp = {
+        'path': tmp
+    }
     command = sys.argv[1]
     args = sys.argv[2:]
     invalid_parameters = False
     if command == 'process':
         if len(args) == 1:
             job_uuid = args[0]
-            with database as db:
-                job = db.job(job_uuid)
+            job = database.job(execution_id, job_uuid)
             if job is None:
                 raise ValueError(f'No such job: {job_uuid}')
             process_json = job['process']
@@ -52,8 +57,7 @@ if __name__ == '__main__':
             process = Capsul.executable(process_json)
             if debug:
                 print(f'---- init {process.definition} {parameters_location} ----')
-            with database as db:
-                workflow_parameters = db.workflow_parameters
+            workflow_parameters = database.workflow_parameters(execution_id)
             parameters = workflow_parameters
             for index in parameters_location:
                 if index.isnumeric():
@@ -87,21 +91,20 @@ if __name__ == '__main__':
                         if value is not undefined:
                             print ('   ', field.name, '=', value)
             workflow_parameters = None
-            with database as db:
-                for field in process.user_fields():
-                    if field.output:
-                        value = getattr(process, field.name, undefined)
-                        if value is not undefined:
-                            if workflow_parameters is None:
-                                workflow_parameters = db.workflow_parameters
-                                parameters = workflow_parameters
-                                for index in parameters_location:
-                                    if index.isnumeric():
-                                        index = int(index)
-                                    parameters = parameters[index]
-                            parameters[field.name] = value
-                if workflow_parameters is not None:
-                    db.workflow_parameters = workflow_parameters
+            for field in process.user_fields():
+                if field.output:
+                    value = getattr(process, field.name, undefined)
+                    if value is not undefined:
+                        if workflow_parameters is None:
+                            workflow_parameters = database.workflow_parameters(execution_id)
+                            parameters = workflow_parameters
+                            for index in parameters_location:
+                                if index.isnumeric():
+                                    index = int(index)
+                                parameters = parameters[index]
+                        parameters[field.name] = value
+            if workflow_parameters is not None:
+                database.set_workflow_parameters(execution_id, workflow_parameters)
         else:
             invalid_parameters = True  
     else:
