@@ -172,8 +172,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
             if schema not in ('input', 'output', 'shared'):
                 # exclude incompatible FOMs
-                found = False
                 for fs in ('input', 'output', 'shared'):
+                    found = False
                     f = modules_data.foms.get(fs)
                     if f is None:
                         if fs == 'shared':
@@ -202,6 +202,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
         fom_modified = False
 
+        found = False
         for schema, fom_type in sel_foms.items():
             fom = modules_data.all_foms[fom_type]
             atp = modules_data.fom_atp.get(schema) \
@@ -217,6 +218,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 # print('process', names_search_list, 'not found in', fom_type)
                 continue
 
+            found = True
             #print('completion using FOM:', schema, fom_type, 'for', process.id)
             #break
 
@@ -240,6 +242,11 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 modules_data.fom_atp[schema] = atp
                 setattr(study_config, '%s_fom' % schema, fom_type)
                 fom_modified = True
+
+        if not found:
+            # no FOM contains the process
+            raise KeyError('No matching FOM for process %s'
+                           % repr(names_search_list))
 
         #if fom_modified:
             # the modif will trigger another completion
@@ -553,10 +560,10 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
                 % repr(names_search_list))
 
         iter_attrib = set()
-        if not self.process.iterative_parameters:
+        if not process.iterative_parameters:
             params = list(subprocess.user_traits().keys())
         else:
-            params = self.process.iterative_parameters
+            params = process.iterative_parameters
         for parameter in params:
             if subprocess.trait(parameter).output:
                 atp = output_atp
