@@ -353,8 +353,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                 pname = '.'.join([name, node_name])
 
                 subprocess_compl = \
-                    ProcessCompletionEngine.get_completion_engine(
-                        node, pname)
+                    ProcessCompletionEngine.get_completion_engine(node, pname)
                 self._install_subprogress_moniotoring(subprocess_compl)
                 try:
                     subprocess_compl.complete_parameters(

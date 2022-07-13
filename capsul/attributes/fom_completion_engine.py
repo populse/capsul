@@ -14,14 +14,11 @@ Classes
 '''
 
 from __future__ import print_function
-
 from __future__ import absolute_import
+
 import os
 import six
-try:
-    from traits.api import Str, HasTraits, List
-except ImportError:
-    from enthought.traits.api import Str, HasTraits, List
+from traits.api import Str, HasTraits, List, Undefined
 
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
@@ -100,11 +97,6 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 and hasattr(self, 'capsul_attributes'):
             return self.capsul_attributes
 
-        schemas = self._get_schemas()
-        #schemas = self.process.get_study_config().modules_data.foms.keys()
-        if not hasattr(self, 'capsul_attributes'):
-            self.add_trait('capsul_attributes', ControllerTrait(Controller()))
-            self.capsul_attributes = ProcessAttributes(self.process, schemas)
         self._rebuild_attributes = False
 
         self.create_attributes_with_fom()
@@ -115,6 +107,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
     def create_attributes_with_fom(self):
         """To get useful attributes by the fom"""
 
+        # print('create_attributes_with_fom for', self.process, ', FCE:', self)
         process = self.process
         if isinstance(process, ProcessNode):
             process = process.process
@@ -129,10 +122,19 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             names_search_list.append(id)
         names_search_list += [process.name,
                              getattr(process, 'context_name', '')]
-        capsul_attributes = self.get_attribute_values()
+
+        schemas = self._get_schemas()
+        if not hasattr(self, 'capsul_attributes'):
+            self.add_trait('capsul_attributes', ControllerTrait(Controller()))
+            self.capsul_attributes = ProcessAttributes(self.process, schemas)
+        capsul_attributes = self.capsul_attributes
+
         matching_fom = False
         input_found = False
         output_found = False
+        shared_fom = None
+
+        # print('create_attributes_with_fom for', self.process, ', FCE:', self, ', foms:', {n: f.fom_names[-1] for n, f in modules_data.foms.items()})
 
         foms = SortedDictionary()
         foms.update(modules_data.foms)
@@ -154,13 +156,56 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 ea.add_trait(attribute, Str(default_value, optional=True))
             return ea
 
-        for schema, fom in six.iteritems(foms):
+        sel_foms = {}
+        if study_config.input_fom:
+            sel_foms['input'] = study_config.input_fom
+        if study_config.output_fom:
+            sel_foms['output'] = study_config.output_fom
+        if study_config.shared_fom:
+            sel_foms['shared'] = study_config.shared_fom
+
+        for schema, fom in foms.items():
             if fom is None:
                 fom, atp, pta \
                     = study_config.modules['FomConfig'].load_fom(schema)
-            else:
-                atp = modules_data.fom_atp.get(schema) \
-                    or modules_data.fom_atp['all'].get(schema)
+                foms[schema] = fom
+
+            if schema not in ('input', 'output', 'shared'):
+                # exclude incompatible FOMs
+                found = False
+                for fs in ('input', 'output', 'shared'):
+                    f = modules_data.foms.get(fs)
+                    if f is None:
+                        if fs == 'shared':
+                            if 'shared' in schema:
+                                sel_foms['shared'] = schema
+                                found = True
+                        elif 'shared' not in schema:
+                            sel_foms[fs] = schema
+                            found = True
+                    else:
+                        if sum([n in fom.fom_names
+                                for n in f.fom_names]) \
+                                == len(f.fom_names):
+                            # all sub-foms of f included in fom:
+                            # possibly keep it
+                            if fs != 'shared':
+                                for name in names_search_list:
+                                    fom_patterns = fom.patterns.get(name)
+                                    if fom_patterns is not None:
+                                        found = True
+                                        break
+                            else:
+                                found = True
+                            if found:
+                                sel_foms[fs] = schema
+
+        fom_modified = False
+
+        for schema, fom_type in sel_foms.items():
+            fom = modules_data.all_foms[fom_type]
+            atp = modules_data.fom_atp.get(schema) \
+                or modules_data.fom_atp['all'].get(schema)
 
             if atp is None:
                 continue
@@ -169,17 +214,10 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 if fom_patterns is not None:
                     break
             else:
+                # print('process', names_search_list, 'not found in', fom_type)
                 continue
 
-            if not matching_fom:
-                matching_fom = True
-            if schema == 'input':
-                input_found = True
-            elif schema == 'output':
-                output_found = True
-            elif matching_fom in (False, True, None):
-                matching_fom = schema, fom, atp, fom_patterns
-            # print('completion using FOM:', schema, 'for', process.id)
+            #print('completion using FOM:', schema, fom_type, 'for', process.id)
             #break
 
             for parameter in fom_patterns:
@@ -193,45 +231,19 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                     # param already registered
                     pass
 
-        if not matching_fom:
-            raise KeyError('Process not found in FOMs')
-        #if isinstance(matching_fom, tuple): print('matching_fom:', matching_fom[0])
-        #else: print('matching fom:', matching_fom)
+            if (schema not in modules_data.foms
+                    or modules_data.foms[schema] != fom
+                    or schema not in modules_data.fom_atp
+                    or modules_data.fom_atp[schema] != atp
+                    or getattr(study_config, '%s_fom' % schema) != fom_type):
+                modules_data.foms[schema] = fom
+                modules_data.fom_atp[schema] = atp
+                setattr(study_config, '%s_fom' % schema, fom_type)
+                fom_modified = True
 
-        if not input_found and matching_fom is not True:
-            fom_type, fom, atp, fom_patterns = matching_fom
-            schema = 'input'
-            for parameter in fom_patterns:
-                param_attributes = atp.find_discriminant_attributes(
-                        fom_parameter=parameter, fom_process=name)
-                ea = editable_attributes(param_attributes, fom)
-                try:
-                    capsul_attributes.set_parameter_attributes(
-                        parameter, schema, ea, {})
-                except KeyError:
-                    # param already registered
-                    pass
-            modules_data.foms[schema] = fom
-            modules_data.fom_atp[schema] = atp
-            study_config.input_fom = fom_type
-
-        if not output_found and matching_fom is not True:
-            fom_type, fom, atp, fom_patterns = matching_fom
-            schema = 'output'
-            for parameter in fom_patterns:
-                param_attributes = atp.find_discriminant_attributes(
-                        fom_parameter=parameter, fom_process=name)
-                ea = editable_attributes(param_attributes, fom)
-                try:
-                    capsul_attributes.set_parameter_attributes(
-                        parameter, schema, ea, {})
-                except KeyError:
-                    # param already registered
-                    pass
-            modules_data.foms[schema] = fom
-            modules_data.fom_atp[schema] = atp
-            study_config.output_fom = fom_type
-
+        #if fom_modified:
+            # the modif will trigger another completion
+            #return
 
         # in a pipeline, we still must iterate over nodes to find switches,
         # which have their own behaviour.
@@ -239,7 +251,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             attributes = self.capsul_attributes
             name = process.name
 
-            for node_name, node in six.iteritems(process.nodes):
+            for node_name, node in list(process.nodes.items()):
                 if isinstance(node, Switch):
                     subprocess = node
                     if subprocess is None:
@@ -268,10 +280,18 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             self._get_linked_attributes()
 
         # remember foms for later
-        self.input_fom = study_config.input_fom
-        self.output_fom = study_config.output_fom
-        self.shared_fom = study_config.shared_fom
-
+        if 'input' in sel_foms:
+            self.input_fom = sel_foms['input']
+        else:
+            self.input_fom = study_config.input_fom
+        if 'output' in sel_foms:
+            self.output_fom = sel_foms['output']
+        else:
+            self.output_fom = study_config.output_fom
+        if 'shared' in sel_foms:
+            self.shared_fom = sel_foms['shared']
+        else:
+            self.shared_fom = study_config.shared_fom
 
     @staticmethod
     def setup_fom(process):
