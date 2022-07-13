@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-import unittest
-from capsul.config import (ApplicationConfiguration, ConfigurationLayer,
-                           EngineConfiguration)
-from soma.controller import undefined
-import sys
+import json
 import os
 import os.path as osp
 import shutil
 import tempfile
-import json
+import unittest
+
+from soma.controller import undefined
+
+from capsul.config import ApplicationConfiguration
+from capsul.config.configuration import default_workers_type, default_database_url
 
 
 class TestConfiguration(unittest.TestCase):
@@ -27,8 +28,8 @@ class TestConfiguration(unittest.TestCase):
         user_file = osp.join(self.tmp_dir, 'user_conf.json')
         conf_dict = {
             'builtin': {
-                'workers_type': 'builtin',
-                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -48,8 +49,8 @@ class TestConfiguration(unittest.TestCase):
             app_config.asdict(), {
                 'site': {
                     'builtin': {
-                        'workers_type': 'builtin',
-                        'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
+                        'workers_type': default_workers_type,
+                        'database_url': default_database_url,
                     }
                 },
                 'app_name': 'single_conf',
@@ -63,8 +64,8 @@ class TestConfiguration(unittest.TestCase):
 
         conf_dict = {
             'builtin': {
-                'workers_type': 'builtin',
-                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -85,14 +86,14 @@ class TestConfiguration(unittest.TestCase):
         self.assertEqual(
             app_config.asdict(),
             {'site': {'builtin': {
-                'workers_type': 'builtin',
-                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
               }},
              'app_name': 'single_conf2',
              'user': conf_dict,
              'merged_config': {'builtin': {
-                'workers_type': 'builtin',
-                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
              }}})
 
     def test_config_merge(self):
@@ -122,8 +123,8 @@ class TestConfiguration(unittest.TestCase):
                     }}}}
         merged_conf_dict = {
             'builtin': {
-                'workers_type': 'builtin',
-                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {

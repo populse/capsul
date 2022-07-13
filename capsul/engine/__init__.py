@@ -134,6 +134,9 @@ class Workers(Controller):
     def raise_for_status(self, *args, **kwargs):
         self.database.raise_for_status(*args, **kwargs)
 
+    def execution_report(self, *args, **kwargs):
+        return self.database.execution_report(*args, **kwargs)
+
     def print_execution_report(self, *args, **kwargs):
         self.database.print_execution_report(*args, **kwargs)
 
@@ -146,11 +149,15 @@ class Workers(Controller):
     def run(self, executable, timeout=None, print_report=False, **kwargs):
         execution_id = self.start(executable, **kwargs)
         try:
-            self.wait(execution_id, timeout=timeout)
+            try:
+                self.wait(execution_id, timeout=timeout)
+            except TimeoutError:
+                self.print_execution_report(self.execution_report(execution_id), sys.stderr)
+                raise
             status = self.status(execution_id)
             self.raise_for_status(execution_id)
             if print_report:
-                self.print_execution_report(execution_id, file=sys.stdout)
+                self.print_execution_report(self.execution_report(execution_id), file=sys.stdout)
             self.update_executable(executable, execution_id)
         finally:
             self.dispose(execution_id)

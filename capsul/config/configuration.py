@@ -11,6 +11,11 @@ from soma.undefined import undefined
 
 from ..dataset import Dataset
 
+
+default_workers_type = 'builtin'
+default_database_url = 'sqlite:///tmp/capsul_engine_database.sqlite'
+# default_database_url = 'redis+socket:///tmp/capsul_engine_database.redis'
+
 def full_module_name(module_name):
     '''
     Return a complete module name (which must be a valid Python module
@@ -141,8 +146,8 @@ class EngineConfiguration(Controller):
     dataset: OpenKeyDictController[Dataset]
     config_modules: list[str]
     python_modules: list[str]
-    workers_type: str = 'builtin'
-    database_url: str = 'sqlite:///tmp/capsul_engine_database.sqlite'
+    workers_type: str = default_workers_type
+    database_url: str = default_database_url
 
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.

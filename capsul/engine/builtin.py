@@ -76,5 +76,7 @@ if __name__ == '__main__':
                     error_detail=f'{traceback.format_exc()}'
                 )
                 raise
+            finally:
+                database.close()
         finally:
             shutil.rmtree(tmp)

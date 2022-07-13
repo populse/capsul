@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+import os
 from uuid import uuid4
 
 from populse_db import Database
@@ -11,9 +11,15 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
         super().__init__(url)
         if url.query or url.fragment:
             raise ValueError(f'Invalid URL: {self.url}')
-        self.database = Database(f'sqlite://{url.netloc}{url.path}')
+        self.sqlite_file = f'{url.netloc}{url.path}'
+        self.database = Database(f'sqlite://{self.sqlite_file}')
         with self.database as session:
             if not session.has_collection('execution'):
+                session.add_collection('global')
+                session['global'].add_field('capsul_connection_count', int)
+                session['global'][''] = {
+                    'capsul_connection_count': 1,
+                }
                 session.add_collection('execution')
                 execution = session['execution']
                 execution.add_field('status', str)
@@ -21,20 +27,32 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
                 execution.add_field('error_detail', str)
                 execution.add_field('execution_context', dict)
                 execution.add_field('executable', dict)
-                execution.add_field('start_time', datetime)
-                execution.add_field('end_time', datetime)
+                execution.add_field('start_time', str)
+                execution.add_field('end_time', str)
                 execution.add_field('waiting', list[str])
                 execution.add_field('ready', list[str])
                 execution.add_field('ongoing', list[str])
                 execution.add_field('done', list[str])
                 execution.add_field('failed', list[str])
                 execution.add_field('workflow_parameters', dict)
+                execution.add_field('dispose', bool)
 
                 session.add_collection('job', ('execution_id', 'uuid'))
     
     def close(self):
-        del self.database
+        with self.database as session:
+            connection_count = session['global']['']['capsul_connection_count']
+            if connection_count > 0:
+               connection_count -= 1
+               session['global'][''] = {'capsul_connection_count': connection_count}
+               delete_database = (connection_count == 0)
+            else:
+                delete_database = False
         
+        del self.database
+        if delete_database:
+            os.remove(self.sqlite_file)
+    
     def _get(self, execution_id, name):
         with self.database as session:
             row = session['execution'].document(execution_id, fields=[name], as_list=True)
@@ -66,7 +84,8 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
             'waiting': waiting,
             'ongoing': [],
             'done': [],
-            'failed': []
+            'failed': [],
+            'dispose': False,
         }
         if not ready:
             execution['status']  = 'ended'
@@ -111,18 +130,17 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
                 }
             )
 
-    def start_time(self, execution_id):
+    def start_time_json(self, execution_id):
         return self._get(execution_id, 'start_time')
 
-    def end_time(self, execution_id):
+    def end_time_json(self, execution_id):
         return self._get(execution_id, 'end_time')
 
-    def jobs(self, execution_id):
+    def jobs_json(self, execution_id):
         with self.database as session:
-            result = list(session['job'].filter(f'{{execution_id}}=="{execution_id}"'))
-        return result
+            yield from session['job'].filter(f'{{execution_id}}=="{execution_id}"')
 
-    def job(self, execution_id, job_uuid):
+    def job_json(self, execution_id, job_uuid):
         with self.database as session:
             result = session['job'][(execution_id, job_uuid)]
             return result
@@ -142,7 +160,7 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
     def failed(self ,execution_id):
         return self._get(execution_id, 'failed')
    
-    def start_next_job(self, execution_id, start_time):
+    def start_next_job_json(self, execution_id, start_time):
         with self.database as session:
             execution= {}
             executions = session['execution']
@@ -165,7 +183,7 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
             executions.update_document(execution_id, execution)
             return result
     
-    def job_finished(self, execution_id, job_uuid, end_time, returncode, stdout, stderr):
+    def job_finished_json(self, execution_id, job_uuid, end_time, returncode, stdout, stderr):
         with self.database as session:
             session['job'].update_document(
                 (execution_id, job_uuid),
@@ -207,49 +225,32 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
                 result = False
             else:
                 if execution['failed']:
-                    execution['status'] = 'error'
                     execution['error'] = 'Some jobs failed'
-                else:
-                    execution['status'] = 'ended'
+                execution['status'] = 'ended'
                 execution['end_time'] = end_time
                 result = True
             session['execution'].update_document(execution_id, execution)
             return result
 
-    def full_report(self, execution_id):
+    def execution_report_json(self, execution_id):
         with self.database as session:
-            jobs = []
             result = dict(
-                executable = self.executable(execution_id),
-                execution_context = self.execution_context(execution_id),
+                executable = self.executable_json(execution_id),
+                execution_context = self.execution_context_json(execution_id),
                 status = self.status(execution_id),
                 error = self.error(execution_id),
                 error_detail = self.error_detail(execution_id),
-                start_time = self.start_time(execution_id),
-                end_time = self.end_time(execution_id),
+                start_time = self.start_time_json(execution_id),
+                end_time = self.end_time_json(execution_id),
                 waiting = self.waiting(execution_id),
                 ready = self.ready(execution_id),
                 ongoing = self.ongoing(execution_id),
                 done = self.done(execution_id),
                 failed = self.failed(execution_id),
-                jobs = jobs,
-                workflow_parameters = self.workflow_parameters(execution_id),
+                jobs = self.jobs_json(execution_id),
+                workflow_parameters = self.workflow_parameters_json(execution_id),
+                engine_debug = {}
             )
-            for job in self.jobs(execution_id):
-                job_uuid = job['uuid']
-                if job_uuid in result['done']:
-                    job['status'] = 'done'
-                elif job_uuid in result['failed']:
-                    job['status'] = 'failed'
-                elif job_uuid in result['ongoing']:
-                    job['status'] = 'ongoing'
-                elif job_uuid in result['ready']:
-                    job['status'] = 'ready'
-                elif job_uuid in result['waiting']:
-                    job['status'] = 'waiting'
-                else:
-                    job['status'] = 'unknown'
-                jobs.append(job)
         return result
         
     def dispose(self, execution_id):
@@ -257,6 +258,6 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
             if self.status(execution_id) == 'ended':
                 session['job'].delete(f'{{execution_id}}=="{execution_id}"')
                 del session['execution'][execution_id]
-    
-    def debug_info(self, execution_id):
-        return {}
+            else:
+                session['execution'].update_document(execution_id, {'dispose': True})
+        

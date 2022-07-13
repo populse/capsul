@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+import dateutil.parser
 import importlib
-import os
 from pprint import pprint
 from urllib.parse import urlsplit, urlunsplit
 import sys
 import time
+
+from populse_db.database import json_encode, json_decode
 
 from soma.api import DictWithProxy, undefined
 
@@ -38,19 +40,19 @@ class ExecutionDatabase:
         return urlunsplit(self._url)
 
     def new_execution(self, executable, execution_context, workflow, start_time):
-        executable_json = executable.json(include_parameters=False)
+        executable_json = json_encode(executable.json(include_parameters=False))
         execution_context_json = execution_context.json()
-        workflow_parameters_json = workflow.parameters.json()
+        workflow_parameters_json = json_encode(workflow.parameters.json())
         ready = []
         waiting = []
-        jobs = list(workflow.jobs.values())
+        jobs = [self._job_to_json(job.copy()) for job in workflow.jobs.values()]
         for job in jobs:
             if job['wait_for']:
                 waiting.append(job['uuid'])
             else:
                 ready.append(job['uuid'])
         execution_id = self.store_execution(
-            start_time=start_time,
+            start_time=self._time_to_json(start_time),
             executable_json=executable_json,
             execution_context_json=execution_context_json,
             workflow_parameters_json=workflow_parameters_json,
@@ -60,27 +62,88 @@ class ExecutionDatabase:
         )
         return execution_id
 
+    def _execution_context_from_json(self, execution_context_json):
+        return ExecutionContext(config=execution_context_json)
+
     def execution_context(self, execution_id):
         j = self.execution_context_json(execution_id)
         if j is not None:
-            return ExecutionContext(config=j)
+            return self._execution_context_from_json(j)
 
+    def _executable_from_json(self, executable_json):
+        return Capsul.executable(json_decode(executable_json))
+    
     def executable(self, execution_id):
         j = self.executable_json(execution_id)
         if j is not None:
-            return Capsul.executable(j)
+            return self._executable_from_json(j)
 
+    def _workflow_parameters_from_json(self, workflow_parameters_json):
+        return DictWithProxy.from_json(json_decode(workflow_parameters_json))
+    
     def workflow_parameters(self, execution_id):
         j = self.workflow_parameters_json(execution_id)
         if j:
-            return DictWithProxy.from_json(j)
+            return self._workflow_parameters_from_json(j)
 
     def set_workflow_parameters(self, execution_id, workflow_parameters):
-        self.set_workflow_parameters_json(execution_id, workflow_parameters.json())
+        self.set_workflow_parameters_json(execution_id, json_encode(workflow_parameters.json()))
 
-    def print_execution_report(self, execution_id, file=sys.stdout):
-        report = self.full_report(execution_id)
+    @staticmethod
+    def _time_from_json(time_json):
+        return dateutil.parser.parse(time_json)
+
+    @staticmethod
+    def _time_to_json(time):
+        return time.isoformat()
+    
+    def start_time(self, execution_id):
+        j = self.start_time_json(execution_id)
+        if j:
+            return self._time_from_json(j)
+        return None
+
+    def end_time(self, execution_id):
+        j = self.end_time_json(execution_id)
+        if j:
+            return self._time_from_json(j)
+        return None
+
+    def _job_from_json(self, job):
+        for k in ('start_time', 'end_time'):
+            t = job.get(k)
+            if t:
+                job[k] = self._time_from_json(t)
+        return job
+
+    def _job_to_json(self, job):
+        for k in ('start_time', 'end_time'):
+            t = job.get(k)
+            if t:
+                job[k] = self._time_to_json(t)
+        return job
+
+    def jobs(self, execution_id):
+        return [self._job_from_json(i) for i in self.jobs_json(execution_id)]
+
+    def job(self, execution_id, job_uuid):
+        j = self.job_json(execution_id, job_uuid)
+        if j:
+            return self._job_from_json(j)
+        return None
+
+    def execution_report(self, execution_id):
+        report = self.execution_report_json(execution_id)
+        for n in ('executable', 'execution_context', 'workflow_parameters'):
+            convert = getattr(self, f'_{n}_from_json')
+            report[n] = convert(report[n])
+        for n in ('start_time', 'end_time'):
+            j = report.get(n)
+            if j:
+                report[n] = self._time_from_json(j)
+        
         for job in report['jobs']:
+            self._job_from_json(job)
             if job['uuid'] in report['done']:
                 job['status'] = 'done'
             elif job['uuid'] in report['failed']:
@@ -93,8 +156,9 @@ class ExecutionDatabase:
                 job['status'] = 'waiting'
             else:
                 job['status'] = 'unknown'
-        report['engine_debug'] = self.debug_info(execution_id)
-
+        return report
+    
+    def print_execution_report(self, report, file=sys.stdout):
         print('====================\n'
               '| Execution report |\n'
               '====================\n', file=file)
@@ -113,6 +177,12 @@ class ExecutionDatabase:
         print('\n---------------\n'
               '| Jobs status |\n'
               '---------------\n', file=file)
+        print('waiting:', report['waiting'])
+        print('ready:', report['ready'])
+        print('ongoing:', report['ongoing'])
+        print('done:', report['done'])
+        print('failed:', report['failed'])
+
         now = datetime.now()
         for job in sorted(report['jobs'], key=lambda j: (j.get('start_time') if j.get('start_time') else now)):
             job_uuid = job['uuid']
@@ -188,7 +258,7 @@ class ExecutionDatabase:
     def raise_for_status(self, execution_id):
         error = self.error(execution_id)
         if error:
-            self.print_execution_report(execution_id, file=sys.stderr)
+            self.print_execution_report(self.execution_report(execution_id), file=sys.stderr)
             raise RuntimeError(error)
 
     def update_executable(self, executable, execution_id):
@@ -224,3 +294,9 @@ class ExecutionDatabase:
         finally:
             if enable_parameter_links is not None:
                 executable.enable_parameter_links = enable_parameter_links
+
+    def start_next_job(self, execution_id, start_time):
+        return self.start_next_job_json(execution_id, self._time_to_json(start_time))
+    
+    def job_finished(self, execution_id, job_uuid, end_time, returncode, stdout, stderr):
+        return self.job_finished_json(execution_id, job_uuid, self._time_to_json(end_time), returncode, stdout, stderr)

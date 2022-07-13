@@ -12,7 +12,7 @@ from soma.controller import field, File
 from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
-from capsul.config.configuration import ModuleConfiguration
+from capsul.config.configuration import ModuleConfiguration, default_workers_type, default_database_url
 from capsul.dataset import ProcessMetadata, ProcessSchema, MetadataSchema
 
 class FakeSPMConfiguration(ModuleConfiguration):
@@ -722,8 +722,8 @@ class TestFakeMorphologist(unittest.TestCase):
         self.maxDiff = 2000
         expected_config = {
             'builtin': {
-                'workers_type': 'builtin',
-                'database_url': 'sqlite:///tmp/capsul_engine_database.sqlite',
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),
