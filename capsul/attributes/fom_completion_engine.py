@@ -97,9 +97,8 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 and hasattr(self, 'capsul_attributes'):
             return self.capsul_attributes
 
-        self._rebuild_attributes = False
-
         self.create_attributes_with_fom()
+        self._rebuild_attributes = False
 
         return self.capsul_attributes
 
@@ -134,17 +133,13 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         output_found = False
         shared_fom = None
 
-        # print('create_attributes_with_fom for', self.process, ', FCE:', self, ', foms:', {n: f.fom_names[-1] for n, f in modules_data.foms.items()})
+       # print('create_attributes_with_fom for', self.process, ', FCE:', self, ', foms:', {n: f.fom_names[-1] for n, f in modules_data.foms.items()})
 
         foms = SortedDictionary()
         foms.update(modules_data.foms)
         if study_config.auto_fom:
             # in auto-fom mode, also search in additional and non-loaded FOMs
-            for schema, fom in six.iteritems(modules_data.all_foms):
-                if schema not in (study_config.input_fom,
-                                  study_config.output_fom,
-                                  study_config.shared_fom):
-                    foms[schema] = fom
+            foms.update(modules_data.all_foms)
 
         def editable_attributes(attributes, fom):
             ea = EditableAttributes()
@@ -183,22 +178,27 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                         elif 'shared' not in schema:
                             sel_foms[fs] = schema
                             found = True
-                    else:
+                    elif fom is not f:
                         if sum([n in fom.fom_names
                                 for n in f.fom_names]) \
                                 == len(f.fom_names):
                             # all sub-foms of f included in fom:
                             # possibly keep it
                             if fs != 'shared':
+                                # print('extend fom:', schema, 'for', fs, ':', f.fom_names)
                                 for name in names_search_list:
                                     fom_patterns = fom.patterns.get(name)
                                     if fom_patterns is not None:
                                         found = True
                                         break
+                                #else:
+                                    #print('process not found - discard it')
                             else:
                                 found = True
                             if found:
                                 sel_foms[fs] = schema
+
+        # print('new foms:', sel_foms)
 
         fom_modified = False
 
@@ -308,6 +308,13 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             return
         if not hasattr(completion_engine, 'input_fom') \
                 or completion_engine.input_fom is None:
+            if process.study_config.input_fom != completion_engine.input_fom \
+                    or process.study_config.output_fom \
+                        != completion_engine.output_fom \
+                    or process.study_config.shared_fom \
+                        != completion_engine.shared_fom:
+                # FOMs have changed: rebuild attributes
+                completion_engine._rebuild_attributes = True
             completion_engine.create_attributes_with_fom()
         if process.study_config.input_fom != completion_engine.input_fom:
             process.study_config.input_fom = completion_engine.input_fom
