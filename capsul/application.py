@@ -232,7 +232,10 @@ def executable(definition, **kwargs):
                 item = getattr(module, object_name, None)
                 if item is None:
                     # maybe a sub-module to be imported
-                    module = importlib.import_module(definition)
+                    try:
+                        module = importlib.import_module(definition)
+                    except ModuleNotFoundError:
+                        module = None
                     if module is not None:
                         item = module
                 # check if item is a module containing a single process
