@@ -12,12 +12,17 @@ class SPMConfiguration(ModuleConfiguration):
     standalone: bool = False
     name = 'spm'
 
+    module_dependencies = ['matlab']
+
     def is_valid_config(self, requirements):
         required_version = requirements.get('version')
         if required_version \
                 and getattr(self, 'version', undefined) != required_version:
             return False
-        return True
+        if self.standalone:
+            return {'matlab': {'mcr': True}}
+        else:
+            return {'matlab': {'mcr': False}}
 
 def init_execution_context(execution_context):
     '''

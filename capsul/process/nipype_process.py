@@ -16,9 +16,11 @@ import logging
 
 from .process import NipypeProcess
 import soma.controller as sc
+import pydantic
+from functools import partial
 try:
     import traits.api as traits
-except:
+except ImportError:
     # Nipype is using traits but there is no mandatory dependency on Nipype.
     # Therefore, Capsul must be usable without traits (which is a dependency
     # of Nipype).
@@ -139,7 +141,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             value = os.path.join(directory, os.path.basename(value))
         return value
 
-    def sync_process_output_traits(value, old, name, process_instance):
+    def sync_process_output_traits(process_instance):
         """ Event handler function to update the process instance outputs
 
         This callback is only called when an input process instance field is
@@ -157,6 +159,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             the process instance that contain the nipype interface we want
             to update.
         """
+        name = 'output_directory'
         # Get all the input fields
         input_fields = {f.name for f in process_instance.fields()
                         if f.is_input()}
@@ -197,7 +200,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             # Synchronize traits: check file existence
             for out_name, out_value in nipype_outputs.items():
 
-                pname = trait_map.get(out_name, '_' + out_name)
+                pname = trait_map.get(out_name, out_name)
 
                 try:
                     # if we have an output directory, replace it
@@ -230,7 +233,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
             for name in names:
                 # check if the input trait is duplicated as an output
                 field = process_instance.field(name)
-                if process_instance.metadata(field, 'copyfile', False):
+                if field.metadata('copyfile', False):
                     out_field = process_instance.field('_modified_%s' % name)
                     if out_field:
                         new_value = getattr(process_instance, name,
@@ -366,7 +369,8 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
 
     # Add callback to synchronize output process instance traits with nipype
     # autocompleted output traits
-    process_instance.synchronize.add(sync_process_output_traits)
+    process_instance.synchronize.add(
+        partial(sync_process_output_traits, process_instance=process_instance))
 
     # > output traits
     for trait_name, trait in nipype_instance.output_spec().items():
@@ -404,7 +408,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
     # allow to save the SPM .m script
     if nipype_instance.__class__.__module__.startswith(
             'nipype.interfaces.spm.'):
-        script_name = trait_map.get('_spm_script_file', '_spm_script_file')
+        script_name = trait_map.get('spm_script_file', 'spm_script_file')
 
         process_instance.add_field(script_name, sc.File, write=True,
                                    optional=True)
@@ -458,6 +462,23 @@ def parse_trait(trait):
             ftype = (handler.aClass, None)
         elif getattr(handler, 'aType', None):
             ftype = (handler.aType, None)
+        elif isinstance(handler, traits.Range):
+            vtype = type(handler._low)
+            ftype1 = getattr(pydantic, 'con' + vtype.__name__, None)
+            if not ftype1:
+                print('cannot find a constrained type for range of '
+                      f'{vtype.__name__}')
+                ftype1 = vtype
+            else:
+                l = 'ge'
+                if handler._exclude_low:
+                    l = 'gt'
+                h = 'le'
+                if handler._exclude_high:
+                    h = 'lt'
+                kwargs = {l: handler._low, h: handler._high}
+                ftype1 = ftype1(**kwargs)
+            ftype = (ftype1, None)
         else:
             print('trait type', ttype, 'not found')
             return tree

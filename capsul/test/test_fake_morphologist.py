@@ -722,6 +722,7 @@ class TestFakeMorphologist(unittest.TestCase):
         self.maxDiff = 2000
         expected_config = {
             'local': {
+                'engine_type': 'builtin',
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),
@@ -821,19 +822,18 @@ class TestFakeMorphologist(unittest.TestCase):
         dict_context = context.asdict()
         self.assertEqual(dict_context, expected_context)
 
-    #@unittest.skip('not ready')
-    def test_path_generation(self):
-        def clear_values(morphologist):
-            for field in morphologist.user_fields(): # noqa: F402
-                if field.path_type:
-                    value = getattr(morphologist, field.name, undefined)
-                    if value in (None, undefined):
-                        continue
-                    if isinstance(value, list):
-                        setattr(morphologist, field.name, [])
-                    else:
-                        setattr(morphologist, field.name, undefined)
+    def clear_values(self, morphologist):
+        for field in morphologist.user_fields(): # noqa: F402
+            if field.path_type:
+                value = getattr(morphologist, field.name, undefined)
+                if value in (None, undefined):
+                    continue
+                if isinstance(value, list):
+                    setattr(morphologist, field.name, [])
+                else:
+                    setattr(morphologist, field.name, undefined)
 
+    def test_path_generation(self):
         expected = {
             ('StandardACPC', 'initial', 'NormalizeSPM',
              'normalization_t1_spm12_reinit'): {
@@ -886,7 +886,7 @@ class TestFakeMorphologist(unittest.TestCase):
 
         morphologist = self.capsul.executable(
             'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
-        clear_values(morphologist)
+        self.clear_values(morphologist)
 
         execution_context = engine.execution_context(morphologist)
 
@@ -1098,193 +1098,198 @@ class TestFakeMorphologist(unittest.TestCase):
             #     value = getattr(morphologist, field.name, undefined)
             #     print(f'!{normalization}!', field.name, value)
 
+            # run it
+            #with self.capsul.engine() as engine:
+                #status = engine.run(morphologist)
+            #print('run status:', status)
+            #self.assertEqual(
+                #status,
+                #{'status': 'ended', 'error': None, 'error_detail': None,
+                 #'engine_output': ''})
+
 
     @unittest.skip('not ready')
     def test_pipeline_iteration(self):
         expected_completion = {
-            'input': [f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii'],
-            'left_hemisphere': ['!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/left_hemi_casimiro_{executable.normalization[0]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/left_hemi_casimiro_{executable.normalization[1]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/left_hemi_casimiro_{executable.normalization[2]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/left_hemi_casimiro_{executable.normalization[3]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/left_hemi_casimiro_{executable.normalization[4]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/left_hemi_casimiro_{executable.normalization[5]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/default_analysis/left_hemi_casimiro_{executable.normalization[6]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/default_analysis/left_hemi_casimiro_{executable.normalization[7]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/default_analysis/left_hemi_casimiro_{executable.normalization[8]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/default_analysis/left_hemi_aleksander_{executable.normalization[9]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/default_analysis/left_hemi_aleksander_{executable.normalization[10]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/default_analysis/left_hemi_aleksander_{executable.normalization[11]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/default_analysis/left_hemi_aleksander_{executable.normalization[12]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/default_analysis/left_hemi_aleksander_{executable.normalization[13]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/default_analysis/left_hemi_aleksander_{executable.normalization[14]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/left_hemi_aleksander_{executable.normalization[15]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/left_hemi_aleksander_{executable.normalization[16]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/left_hemi_aleksander_{executable.normalization[17]}.nii'],
-            'nobias': ['!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/casimiro_{executable.normalization[0]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/casimiro_{executable.normalization[1]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/casimiro_{executable.normalization[2]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/casimiro_{executable.normalization[3]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/casimiro_{executable.normalization[4]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/casimiro_{executable.normalization[5]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/default_analysis/casimiro_{executable.normalization[6]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/default_analysis/casimiro_{executable.normalization[7]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/default_analysis/casimiro_{executable.normalization[8]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/default_analysis/aleksander_{executable.normalization[9]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/default_analysis/aleksander_{executable.normalization[10]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/default_analysis/aleksander_{executable.normalization[11]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/default_analysis/aleksander_{executable.normalization[12]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/default_analysis/aleksander_{executable.normalization[13]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/default_analysis/aleksander_{executable.normalization[14]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/aleksander_{executable.normalization[15]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/aleksander_{executable.normalization[16]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/aleksander_{executable.normalization[17]}.nii'],
-            'normalization': ['none',
-                                'aims',
-                                'fakespm8',
-                                'none',
-                                'aims',
-                                'fakespm8',
-                                'none',
-                                'aims',
-                                'fakespm8',
-                                'none',
-                                'aims',
-                                'fakespm8',
-                                'none',
-                                'aims',
-                                'fakespm8',
-                                'none',
-                                'aims',
-                                'fakespm8'],
-            'right_hemisphere': ['!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/right_hemi_casimiro_{executable.normalization[0]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/right_hemi_casimiro_{executable.normalization[1]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/default_analysis/right_hemi_casimiro_{executable.normalization[2]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/right_hemi_casimiro_{executable.normalization[3]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/right_hemi_casimiro_{executable.normalization[4]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/default_analysis/right_hemi_casimiro_{executable.normalization[5]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/default_analysis/right_hemi_casimiro_{executable.normalization[6]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/default_analysis/right_hemi_casimiro_{executable.normalization[7]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/default_analysis/right_hemi_casimiro_{executable.normalization[8]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/default_analysis/right_hemi_aleksander_{executable.normalization[9]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/default_analysis/right_hemi_aleksander_{executable.normalization[10]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/default_analysis/right_hemi_aleksander_{executable.normalization[11]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/default_analysis/right_hemi_aleksander_{executable.normalization[12]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/default_analysis/right_hemi_aleksander_{executable.normalization[13]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/default_analysis/right_hemi_aleksander_{executable.normalization[14]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/right_hemi_aleksander_{executable.normalization[15]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/right_hemi_aleksander_{executable.normalization[16]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/default_analysis/right_hemi_aleksander_{executable.normalization[17]}.nii'],
+            't1mri': [
+                '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+                '!{dataset.input.path}/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+            ],
+            'left_labelled_graph': [
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/{executable.select_Talairach[0]}-{executable.Normalization_select_Normalization_pipeline[0]}/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/{executable.select_Talairach[1]}-{executable.Normalization_select_Normalization_pipeline[1]}/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/{executable.select_Talairach[2]}-{executable.Normalization_select_Normalization_pipeline[2]}/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/{executable.select_Talairach[3]}-{executable.Normalization_select_Normalization_pipeline[3]}/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/{executable.select_Talairach[4]}-{executable.Normalization_select_Normalization_pipeline[4]}/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/{executable.select_Talairach[5]}-{executable.Normalization_select_Normalization_pipeline[5]}/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/{executable.select_Talairach[6]}-{executable.Normalization_select_Normalization_pipeline[6]}/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/{executable.select_Talairach[7]}-{executable.Normalization_select_Normalization_pipeline[7]}/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/{executable.select_Talairach[8]}-{executable.Normalization_select_Normalization_pipeline[8]}/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/{executable.select_Talairach[9]}-{executable.Normalization_select_Normalization_pipeline[9]}/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/{executable.select_Talairach[10]}-{executable.Normalization_select_Normalization_pipeline[10]}/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/{executable.select_Talairach[11]}-{executable.Normalization_select_Normalization_pipeline[11]}/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/{executable.select_Talairach[12]}-{executable.Normalization_select_Normalization_pipeline[12]}/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/{executable.select_Talairach[13]}-{executable.Normalization_select_Normalization_pipeline[13]}/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/{executable.select_Talairach[14]}-{executable.Normalization_select_Normalization_pipeline[14]}/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/{executable.select_Talairach[15]}-{executable.Normalization_select_Normalization_pipeline[15]}/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/{executable.select_Talairach[16]}-{executable.Normalization_select_Normalization_pipeline[16]}/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/{executable.select_Talairach[17]}-{executable.Normalization_select_Normalization_pipeline[17]}/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+            ],
+            't1mri_nobias': [
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/{executable.select_Talairach[0]}-{executable.Normalization_select_Normalization_pipeline[0]}/nobias_aleksander.nii',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/{executable.select_Talairach[1]}-{executable.Normalization_select_Normalization_pipeline[1]}/nobias_aleksander.nii',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/{executable.select_Talairach[2]}-{executable.Normalization_select_Normalization_pipeline[2]}/nobias_aleksander.nii',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/{executable.select_Talairach[3]}-{executable.Normalization_select_Normalization_pipeline[3]}/nobias_aleksander.nii',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/{executable.select_Talairach[4]}-{executable.Normalization_select_Normalization_pipeline[4]}/nobias_aleksander.nii',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/{executable.select_Talairach[5]}-{executable.Normalization_select_Normalization_pipeline[5]}/nobias_aleksander.nii',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/{executable.select_Talairach[6]}-{executable.Normalization_select_Normalization_pipeline[6]}/nobias_aleksander.nii',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/{executable.select_Talairach[7]}-{executable.Normalization_select_Normalization_pipeline[7]}/nobias_aleksander.nii',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/{executable.select_Talairach[8]}-{executable.Normalization_select_Normalization_pipeline[8]}/nobias_aleksander.nii',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/{executable.select_Talairach[9]}-{executable.Normalization_select_Normalization_pipeline[9]}/nobias_casimiro.nii',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/{executable.select_Talairach[10]}-{executable.Normalization_select_Normalization_pipeline[10]}/nobias_casimiro.nii',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/{executable.select_Talairach[11]}-{executable.Normalization_select_Normalization_pipeline[11]}/nobias_casimiro.nii',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/{executable.select_Talairach[12]}-{executable.Normalization_select_Normalization_pipeline[12]}/nobias_casimiro.nii',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/{executable.select_Talairach[13]}-{executable.Normalization_select_Normalization_pipeline[13]}/nobias_casimiro.nii',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/{executable.select_Talairach[14]}-{executable.Normalization_select_Normalization_pipeline[14]}/nobias_casimiro.nii',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/{executable.select_Talairach[15]}-{executable.Normalization_select_Normalization_pipeline[15]}/nobias_casimiro.nii',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/{executable.select_Talairach[16]}-{executable.Normalization_select_Normalization_pipeline[16]}/nobias_casimiro.nii',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/{executable.select_Talairach[17]}-{executable.Normalization_select_Normalization_pipeline[17]}/nobias_casimiro.nii',
+            ],
+            'Normalization_select_Normalization_pipeline': [
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+            ],
+            'right_labelled_graph': [
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/{executable.select_Talairach[0]}-{executable.Normalization_select_Normalization_pipeline[0]}/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/{executable.select_Talairach[1]}-{executable.Normalization_select_Normalization_pipeline[1]}/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m0/{executable.select_Talairach[2]}-{executable.Normalization_select_Normalization_pipeline[2]}/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/{executable.select_Talairach[3]}-{executable.Normalization_select_Normalization_pipeline[3]}/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/{executable.select_Talairach[4]}-{executable.Normalization_select_Normalization_pipeline[4]}/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m12/{executable.select_Talairach[5]}-{executable.Normalization_select_Normalization_pipeline[5]}/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/{executable.select_Talairach[6]}-{executable.Normalization_select_Normalization_pipeline[6]}/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/{executable.select_Talairach[7]}-{executable.Normalization_select_Normalization_pipeline[7]}/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/aleksander/t1mri/m24/{executable.select_Talairach[8]}-{executable.Normalization_select_Normalization_pipeline[8]}/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/{executable.select_Talairach[9]}-{executable.Normalization_select_Normalization_pipeline[9]}/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/{executable.select_Talairach[10]}-{executable.Normalization_select_Normalization_pipeline[10]}/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m0/{executable.select_Talairach[11]}-{executable.Normalization_select_Normalization_pipeline[11]}/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/{executable.select_Talairach[12]}-{executable.Normalization_select_Normalization_pipeline[12]}/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/{executable.select_Talairach[13]}-{executable.Normalization_select_Normalization_pipeline[13]}/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m12/{executable.select_Talairach[14]}-{executable.Normalization_select_Normalization_pipeline[14]}/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/{executable.select_Talairach[15]}-{executable.Normalization_select_Normalization_pipeline[15]}/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/{executable.select_Talairach[16]}-{executable.Normalization_select_Normalization_pipeline[16]}/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                '!{dataset.output.path}/whaterver/casimiro/t1mri/m24/{executable.select_Talairach[17]}-{executable.Normalization_select_Normalization_pipeline[17]}/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+            ],
         }
 
         expected_resolution = {
-            'input': [f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
-                        f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii'],
-            'left_hemisphere': [f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/default_analysis/left_hemi_casimiro_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/default_analysis/left_hemi_casimiro_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/default_analysis/left_hemi_casimiro_fakespm8.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/default_analysis/left_hemi_casimiro_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/default_analysis/left_hemi_casimiro_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/default_analysis/left_hemi_casimiro_fakespm8.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/default_analysis/left_hemi_casimiro_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/default_analysis/left_hemi_casimiro_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/default_analysis/left_hemi_casimiro_fakespm8.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/default_analysis/left_hemi_aleksander_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/default_analysis/left_hemi_aleksander_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/default_analysis/left_hemi_aleksander_fakespm8.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/default_analysis/left_hemi_aleksander_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/default_analysis/left_hemi_aleksander_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/default_analysis/left_hemi_aleksander_fakespm8.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/default_analysis/left_hemi_aleksander_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/default_analysis/left_hemi_aleksander_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/default_analysis/left_hemi_aleksander_fakespm8.nii'],
-            'nobias': [f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/default_analysis/casimiro_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/default_analysis/casimiro_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/default_analysis/casimiro_fakespm8.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/default_analysis/casimiro_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/default_analysis/casimiro_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/default_analysis/casimiro_fakespm8.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/default_analysis/casimiro_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/default_analysis/casimiro_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/default_analysis/casimiro_fakespm8.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/default_analysis/aleksander_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/default_analysis/aleksander_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/default_analysis/aleksander_fakespm8.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/default_analysis/aleksander_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/default_analysis/aleksander_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/default_analysis/aleksander_fakespm8.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/default_analysis/aleksander_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/default_analysis/aleksander_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/default_analysis/aleksander_fakespm8.nii'],
-            'normalization': ['none',
-                                'aims',
-                                'fakespm8',
-                                'none',
-                                'aims',
-                                'fakespm8',
-                                'none',
-                                'aims',
-                                'fakespm8',
-                                'none',
-                                'aims',
-                                'fakespm8',
-                                'none',
-                                'aims',
-                                'fakespm8',
-                                'none',
-                                'aims',
-                                'fakespm8'],
-            'right_hemisphere': [f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/default_analysis/right_hemi_casimiro_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/default_analysis/right_hemi_casimiro_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/default_analysis/right_hemi_casimiro_fakespm8.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/default_analysis/right_hemi_casimiro_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/default_analysis/right_hemi_casimiro_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/default_analysis/right_hemi_casimiro_fakespm8.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/default_analysis/right_hemi_casimiro_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/default_analysis/right_hemi_casimiro_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/default_analysis/right_hemi_casimiro_fakespm8.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/default_analysis/right_hemi_aleksander_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/default_analysis/right_hemi_aleksander_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/default_analysis/right_hemi_aleksander_fakespm8.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/default_analysis/right_hemi_aleksander_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/default_analysis/right_hemi_aleksander_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/default_analysis/right_hemi_aleksander_fakespm8.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/default_analysis/right_hemi_aleksander_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/default_analysis/right_hemi_aleksander_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/default_analysis/right_hemi_aleksander_fakespm8.nii']
+            't1mri': [
+                f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m12/anat/sub-aleksander_ses-m12_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-aleksander/ses-m24/anat/sub-aleksander_ses-m24_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m0/anat/sub-casimiro_ses-m0_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m12/anat/sub-casimiro_ses-m12_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+                f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
+            ],
+            'left_labelled_graph': [
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Laleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Lcasimiro_default_session_auto.arg',
+            ],
+            't1mri_nobias': [
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/StandardACPC-NormalizeSPM/nobias_aleksander.nii',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/Normalization-Normalization_AimsMIRegister/nobias_aleksander.nii',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/Normalization-NormalizeSPM/nobias_aleksander.nii',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/StandardACPC-NormalizeSPM/nobias_aleksander.nii',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/Normalization-Normalization_AimsMIRegister/nobias_aleksander.nii',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/Normalization-NormalizeSPM/nobias_aleksander.nii',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/StandardACPC-NormalizeSPM/nobias_aleksander.nii',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/Normalization-Normalization_AimsMIRegister/nobias_aleksander.nii',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/Normalization-NormalizeSPM/nobias_aleksander.nii',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/StandardACPC-NormalizeSPM/nobias_casimiro.nii',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/Normalization-Normalization_AimsMIRegister/nobias_casimiro.nii',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/Normalization-NormalizeSPM/nobias_casimiro.nii',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/StandardACPC-NormalizeSPM/nobias_casimiro.nii',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/Normalization-Normalization_AimsMIRegister/nobias_casimiro.nii',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/Normalization-NormalizeSPM/nobias_casimiro.nii',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/StandardACPC-NormalizeSPM/nobias_casimiro.nii',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/Normalization-Normalization_AimsMIRegister/nobias_casimiro.nii',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/Normalization-NormalizeSPM/nobias_casimiro.nii',
+            ],
+            'Normalization_select_Normalization_pipeline': [
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM',
+            ],
+            'right_labelled_graph': [
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m0/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m12/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/aleksander/t1mri/m24/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Raleksander_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m0/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m12/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/StandardACPC-NormalizeSPM/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/Normalization-Normalization_AimsMIRegister/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+                f'{self.tmp}/brainvisa/whaterver/casimiro/t1mri/m24/Normalization-NormalizeSPM/folds/3.1/default_session_auto/Rcasimiro_default_session_auto.arg',
+            ],
         }
 
         morphologist_iteration = self.capsul.executable_iteration(
@@ -1292,37 +1297,86 @@ class TestFakeMorphologist(unittest.TestCase):
             non_iterative_plugs=['template'],
         )
         
+        self.clear_values(morphologist_iteration)
+        self.clear_values(morphologist_iteration.process)
+
+        #class MorphologistIterationBrainVISA(ProcessSchema, schema='brainvisa',
+                                             #process=morphologist_iteration):
+            #_ = {
+                #'*': {
+                    #'suffix': lambda iteration_index, **kwargs: f'{{executable.normalization[{iteration_index}]}}',
+                #}
+            #}
+
+        engine = self.capsul.engine()
+        execution_context = engine.execution_context(morphologist_iteration)
+
         # Parse the dataset with BIDS-specific query (here "suffix" is part
         #  of BIDS specification). The object returned contains info for main
         # BIDS fields (sub, ses, acq, etc.)
         count = 0
-        inputs = []
-        normalizations = []
-        for path in self.capsul.config.local.dataset.input.find(suffix='T1w', extension='nii'):
-            inputs.extend([str(path)]*3)
-            normalizations += ['none', 'aims', 'fakespm8']
+        iter_meta = []
+        select_Talairach = []
+        perform_skull_stripped_renormalization = []
+        Normalization_select_Normalization_pipeline = []
+        spm_normalization_version = []
+
+        for path in sorted(
+                self.capsul.config.local.dataset.input.find(suffix='T1w',
+                                                            extension='nii')):
+            input_metadata \
+                = execution_context.dataset['input'].schema.metadata(path)
+            iter_meta.extend([input_metadata]*3)
+            select_Talairach += ['StandardACPC', 'Normalization',
+                                 'Normalization']
+            perform_skull_stripped_renormalization += [
+                'initial', 'skull_stripped', 'skull_stripped']
+            Normalization_select_Normalization_pipeline += [
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM']
+            spm_normalization_version += [
+                'normalization_t1_spm12_reinit',
+                'normalization_t1_spm12_reinit',
+                'normalization_t1_spm8_reinit']
+
         # Set the input data
-        morphologist_iteration.input = inputs
-        morphologist_iteration.normalization = normalizations
-        morphologist_iteration.metadata_schema = {
-            'brainvisa': {
-                '*': {
-                    'suffix': '!{{executable.normalization[{list_index}]}}',
-                }
-            }
-        }
-        engine = self.capsul.engine()
-        execution_context = engine.execution_context(morphologist_iteration)
+        morphologist_iteration.select_Talairach = select_Talairach
+        morphologist_iteration.perform_skull_stripped_renormalization \
+            = perform_skull_stripped_renormalization
+        morphologist_iteration.Normalization_select_Normalization_pipeline \
+            = Normalization_select_Normalization_pipeline
+        morphologist_iteration.spm_normalization_version \
+            = spm_normalization_version
 
         metadata = ProcessMetadata(morphologist_iteration, execution_context,
                                    datasets=datasets)
+        metadata.bids = iter_meta
+        print('ITER:', morphologist_iteration.iterative_parameters)
+        print('left_labelled_graph is path:', morphologist_iteration.field('left_labelled_graph').path_type)
+        print('BEFORE GENERATE PATHS')
+        metadata.generate_paths(morphologist_iteration, debug=False)
+        print('AFTER GENERATE PATHS')
+        print('left_labelled_graph:', getattr(morphologist_iteration, 'left_labelled_graph', undefined))
 
-        metadata.generate_paths(morphologist_iteration)
+        debug = False
+        if debug:
+            from soma.qt_gui.qt_backend import Qt
+            from capsul.qt_gui.widgets.pipeline_developer_view import PipelineDeveloperView
+
+            app = Qt.QApplication.instance()
+            if app is None:
+                app = Qt.QApplication([])
+            pv = PipelineDeveloperView(morphologist_iteration, allow_open_controller=True, enable_edition=True, show_sub_pipelines=True)
+            pv.show()
+            app.exec_()
+
         for name, value in expected_completion.items():
-            self.assertEqual(getattr(morphologist_iteration, name), value)
+            print('test name:', name)
+            self.assertEqual(getattr(morphologist_iteration, name, undefined),
+                             value)
         morphologist_iteration.resolve_paths(execution_context)
         for name, value in expected_resolution.items():
-            self.assertEqual(getattr(morphologist_iteration, name), value)
+            self.assertEqual(getattr(morphologist_iteration, name, undefined),
+                             value)
     #     try:
     #         with capsul.engine() as ce:
     #             # Finally execute all the Morphologist instances

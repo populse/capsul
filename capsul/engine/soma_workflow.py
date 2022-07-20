@@ -13,11 +13,11 @@ from ..api import Pipeline, Process
 from ..execution_context import ExecutionDatabase, CapsulWorkflow
 from . import Engine
 
-      
-class LocalEngine(Engine):
-    
+
+class SomaWorkflowEngine(Engine):
+
     def start(self, executable, **kwargs):
-        db_file = tempfile.NamedTemporaryFile(prefix='capsul_local_engine_',
+        db_file = tempfile.NamedTemporaryFile(prefix='capsul_swf_engine_',
                                               suffix='.sqlite', delete=False)
         try:
             for name, value in kwargs.items():
@@ -39,7 +39,7 @@ class LocalEngine(Engine):
                 db.start_time =  datetime.now()
                 db.status = 'ready'
             p = subprocess.Popen(
-                [sys.executable, '-m', 'capsul.engine.local', db_url],
+                [sys.executable, '-m', 'capsul.engine.soma_workflow', db_url],
             )
             p.wait()
             return db_url
@@ -94,16 +94,46 @@ class LocalEngine(Engine):
         finally:
             if enable_parameter_links is not None:
                 executable.enable_parameter_links = enable_parameter_links
-    
-    
+
+    @staticmethod
+    def capsul_to_swf_workflow(c_workflow):
+        from soma_workflow import client as swc
+
+        jobs = []
+        jobs_map = {}
+        deps = []
+
+        for jid, cjob in c_workflow.jobs.items():
+            name = jid
+            loc = cjob.get('parameters_location', [])
+            if loc:
+                name = '.'.join(loc) + f' ({name})'
+            command = cjob['command']
+            job_desc = cjob['process']
+            sjob = swc.Job(command=command,
+                           name=name,
+                           user_storage=job_desc)
+            jobs.append(sjob)
+            jobs_map[jid] = sjob
+            # print(name, ', deps:', cjob['wait_for'])
+            deps += [(dep, sjob) for dep in cjob['wait_for']]
+
+        jobs_deps = [(jobs_map[dep], sjob) for dep, sjob in deps]
+
+        s_workflow = swc.Workflow(jobs=jobs, dependencies=jobs_deps)
+
+        return s_workflow
+
+
 if __name__ == '__main__':
     import contextlib
+    from soma_workflow import client as swc
 
     if len(sys.argv) != 2:
         raise ValueError('This command must be called with a single '
             'parameter containing a capsul execution database file name')
     db_url = sys.argv[1]
-    db_file = LocalEngine.filename_from_url(db_url)
+    db_file = SomaWorkflowEngine.filename_from_url(db_url)
     output = open(db_file + '.stdouterr', 'w')
     contextlib.redirect_stdout(output)
     contextlib.redirect_stderr(output)
@@ -122,11 +152,12 @@ if __name__ == '__main__':
         if not sys.platform.startswith('win'):
             os.setsid()
         # Create temporary directory
-        tmp = tempfile.mkdtemp(prefix='capsul_local_engine_')
+        tmp = tempfile.mkdtemp(prefix='capsul_swf_engine_')
         db_update = {}
         try:
             # create environment variables for jobs
-            env = os.environ.copy()
+            #env = os.environ.copy()
+            env = {}
             env.update({
                 'CAPSUL_DATABASE': db_url,
                 'CAPSUL_TMP': tmp,
@@ -145,21 +176,35 @@ if __name__ == '__main__':
                         waiting.add(job['uuid'])
                     else:
                         ready.add(job['uuid'])
-            
-            # Execute jobs sequentially
-            while ready:
-                job_uuid = ready.pop()
-                job = jobs[job_uuid]
-                command = job['command']
-                if command is not None:
-                    subprocess.check_call(command, env=env, stdout=sys.stdout, 
-                        stderr=subprocess.STDOUT,)
-                done.add(job_uuid)
-                for waiting_uuid in list(waiting):
-                    waiting_job = jobs[waiting_uuid]
-                    if not any(i for i in waiting_job['wait_for'] if i not in done):
-                        waiting.remove(waiting_uuid)
-                        ready.add(waiting_uuid)
+
+            # soma-workflow part
+            class CWF:
+                pass
+
+            cwf = CWF()
+            cwf.jobs = jobs
+
+            swf = SomaWorkflowEngine.capsul_to_swf_workflow(cwf)
+            swf.env = env
+
+            wc = swc.WorkflowController()
+
+            wf_id = wc.submit_workflow(swf)
+            wc.wait_workflow(wf_id)
+
+            status = wc.workflow_status(wf_id)
+            if status != swc.constants.WORKFLOW_DONE:
+                db_update['error'] = status
+            failed = swc.Helper.list_failed_jobs(wf_id, wc,
+                                                 include_user_killed_jobs=True)
+            if failed:
+                failed = set(failed)
+                db_update['error'] = 'some jobs have failed'
+                jstat = wc.workflow_elements_status(wf_id)
+                failed_stat = {js[0]: js[1:] for js in jstat[0]
+                               if js[0] in failed}
+                db_update['error_detail'] = repr(failed_stat)
+
         except Exception as e:
             db_update['error'] = f'{e}'
             db_update['error_detail'] = f'{traceback.format_exc()}'

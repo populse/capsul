@@ -25,6 +25,52 @@ def full_module_name(module_name):
     return module_name
 
 
+def get_config_class(module_name, exception=True):
+    full_mod = full_module_name(module_name)
+
+    try:
+        python_module = importlib.import_module(full_mod)
+    except ModuleNotFoundError:
+        # maybe module + class name
+        full_mod2 = full_mod.rsplit('.', 1)
+        if len(full_mod2) == 2:
+            try:
+                python_module = importlib.import_module(full_mod2[0])
+                cls = getattr(python_module, full_mod2[1])
+                if cls:
+                    return cls
+            except (ModuleNotFoundError, AttributeError):
+                if exception:
+                    raise
+                else:
+                    return None
+        if exception:
+            raise
+        else:
+            return None
+
+    classes = []
+    for c in python_module.__dict__.values():
+        if c is ModuleConfiguration:
+            continue
+        try:
+            if issubclass(c, ModuleConfiguration):
+                classes.append(c)
+        except TypeError:
+            pass
+    if len(classes) == 0:
+        if exception:
+            raise ValueError(f'No ModuleClass found in module {module_name}')
+        else:
+            return None
+    if len(classes) > 1:
+        if exception:
+            raise ValueError(f'Several ModuleClass found {len(classes)} in module {module_name}: {classes}')
+        else:
+            return None
+    return classes[0]
+
+
 class ModuleConfiguration(Controller):
     ''' Module-level configuration object.
 
@@ -38,11 +84,15 @@ class ModuleConfiguration(Controller):
 
     - the subclass should declare its own configuration parameters using
       fields, and overload the method :meth:`is_valid_config` to check if a
-      requirements dictionary matches the current config module parameterss
+      requirements dictionary matches the current config module parameterss.
 
-    - declare a function ``init_execution_context(execution_context)`` which
-      takes an :class:`~capsul.execution_context.ExecutionContext` object. It
-      should extract from the context configuration dict
+    - the subclass may declare an attribute ``module_dependencies`` which is a
+      list of other module names which it depends on: these modules will be
+      also added to the configuration.
+
+    - declare a static method ``init_execution_context(execution_context)``
+      which takes an :class:`~capsul.execution_context.ExecutionContext`
+      object. It should extract from the context configuration dict
       (execution_context.config) its own module config, and do whatever is
       needed to configure things and/or add in the context itself things that
       can be used during execution.
@@ -51,17 +101,28 @@ class ModuleConfiguration(Controller):
 
     def is_valid_config(self, requirements):
         ''' Checks validity of this config in regard to given requirements
+
+        Parameters
+        ----------
+        requirements: dict
+            requirements dict for the current module. May specify version, or
+            other requirements. The implementation is free to interpret it as
+            it needs. Thus modules implementations should document how they
+            define and check their requirements.
+
+        Returns
+        -------
+        valid: bool or None or dict
+            If the return value is True, then it means the module is valid in
+            regards to the requirements.
+            If the retuen value is False or None, then it means the module is
+            invalid in regards to the requirements.
+            If the return value is a dict, then it means the module is valid,
+            if additional requirements for other dependent modules are met. For
+            instance a SPM module may return ``{'matlab': {'mcr': True'}}``
         '''
         raise NotImplementedError('A subclass of ModuleConfiguration must '
                                   'define is_valid_config()')
-
-    #def init_execution_context(execution_context):
-        #'''
-        #Configure an execution context given a capsul_engine and some
-        #requirements.
-        #'''
-        #raise NotImplementedError('A subclass of ModuleConfiguration must '
-                                  #'define init_execution_context()')
 
 
 class EngineConfiguration(Controller):
@@ -80,6 +141,7 @@ class EngineConfiguration(Controller):
     dataset: OpenKeyDictController[Dataset]
     config_modules: list[str]
     python_modules: list[str]
+    engine_type: str = 'builtin'
 
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.
@@ -87,26 +149,7 @@ class EngineConfiguration(Controller):
         This operation is performed automatically, thus should not need to be
         called manually.
         '''
-        full_mod = full_module_name(module_name)
-
-        python_module = importlib.import_module(full_mod)
-        if python_module is None:
-            raise ValueError('Module %s cannot be loaded.' % full_mod)
-
-        classes = []
-        for c in python_module.__dict__.values():
-            if c is ModuleConfiguration:
-                continue
-            try:
-                if issubclass(c, ModuleConfiguration):
-                    classes.append(c)
-            except TypeError:
-                pass
-        if len(classes) == 0:
-            raise ValueError(f'No ModuleClass found in module {module_name}')
-        if len(classes) > 1:
-            raise ValueError(f'Several ModuleClass found {len(classes)} in module {module_name}: {classes}')
-        cls = classes[0]
+        cls = get_config_class(module_name)
         old_module_name = module_name
         module_name = getattr(cls, 'name', module_name.rsplit('.')[-1])
         if not module_name:
@@ -121,6 +164,11 @@ class EngineConfiguration(Controller):
         self.add_field(module_name, OpenKeyDictController[cls],
                        doc=cls.__doc__,
                        default_factory=OpenKeyDictController[cls])
+
+        if hasattr(cls, 'module_dependencies'):
+            module_dependencies = getattr(cls, 'module_dependencies')
+            for dependency in module_dependencies:
+                self.add_module(dependency, allow_existing=True)
 
     def remove_module(self, module_name):
         ''' Remove the given module
@@ -165,7 +213,7 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     def __init__(self):
         super().__init__()
         self.add_field(
-            'local', EngineConfiguration,default_factory=EngineConfiguration,
+            'local', EngineConfiguration, default_factory=EngineConfiguration,
             doc='Default local computing resource config. Elements are config '
             'modules which should be registered in the application (spm, fsl, '
             '...)')
@@ -273,7 +321,7 @@ class ApplicationConfiguration(Controller):
       be known in the Capsul config system, and is accessed as a module. The
       default search path for modules is capsul.config.<module_name>. Each
       config module should contain one class inheriting the
-      :class:`ModuleConfiguration` class, and a function
+      :class:`ModuleConfiguration` class, and a static method
       ``init_execution_context(execution_context)``. Otherwise loading and
       initialization of modules is automatic when inserting items in the config
       object.

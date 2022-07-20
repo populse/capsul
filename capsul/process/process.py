@@ -15,6 +15,7 @@ Classes
 '''
 
 import os
+import os.path as osp
 from datetime import datetime as datetime
 import glob
 import tempfile
@@ -158,7 +159,7 @@ class Process(Node):
         """
         pass
 
-    def after_execute(self, context):
+    def after_execute(self, exec_result, context):
         """This method is called by CapsulEngine after calling
         execute(). By default it does nothing but can be overridden
         in derived classes.
@@ -283,10 +284,10 @@ class FileCopyProcess(Process):
             self.copied_files = None
         self.use_temp_output_dir = use_temp_output_dir
 
-    def _before_run_process(self):
+    def before_execute(self, context):
         """ Method to copy files before executing the process.
         """
-        super(FileCopyProcess, self)._before_run_process()
+        #super(FileCopyProcess, self).before_execute(context)
 
         if self.destination is None:
             output_directory = getattr(self, 'output_directory', None)
@@ -323,12 +324,12 @@ class FileCopyProcess(Process):
                 self._recorded_params[name] = getattr(self, name, undefined)
                 setattr(self, name, value)
 
-    def _after_run_process(self, run_process_result):
+    def after_execute(self, exec_result, context):
         """ Method to clean-up temporary workspace after process
         execution.
         """
-        run_process_result = super(FileCopyProcess, self)._after_run_process(
-            run_process_result)
+        #exec_result = super(FileCopyProcess, self).after_execute(
+            #exec_result, context)
         if self.use_temp_output_dir:
             self._move_outputs()
         # The copy option is activated
@@ -367,7 +368,7 @@ class FileCopyProcess(Process):
         if hasattr(self, '_recorded_params'):
             del self._recorded_params
 
-        return run_process_result
+        return exec_result
 
     def _clean_workspace(self):
         """ Removed some copied inputs that can be deleted at the end of the
@@ -391,9 +392,9 @@ class FileCopyProcess(Process):
         moved_dict = {}
         for field in self.user_fields():
             param = field.name
-            if self.metadata(field, 'output', False):
+            if field.is_output():
                 new_value = self._move_files(tmp_output, dst_output,
-                                             getattr(self, param),
+                                             getattr(self, param, undefined),
                                              moved_dict=moved_dict)
                 output_values[param] = new_value
                 setattr(self, param, new_value)
@@ -731,7 +732,7 @@ class NipypeProcess(FileCopyProcess):
         same name as in their nipype interface, and outputs are prefixed with
         an underscore ('_') to avoid names collisions when a trait exists both
         in inputs and outputs in nipype. A special field name
-        `_spm_script_file` is also used in SPM interfaces to write the matlab
+        `spm_script_file` is also used in SPM interfaces to write the matlab
         script. It can also be translated to a different name in this dict.
 
         Subclasses should preferably *not* define an __init__ method, because
@@ -745,7 +746,7 @@ class NipypeProcess(FileCopyProcess):
                 _nipype_class_type = spm.Smooth
                 _nipype_trait_mapping = {
                     'smoothed_files': 'smoothed_files',
-                    '_spm_script_file': 'spm_script_file'}
+                    'spm_script_file': 'spm_script_file'}
 
             smooth = Smooth()
 
@@ -853,12 +854,9 @@ class NipypeProcess(FileCopyProcess):
     @property
     def requirements(self):
         result = super().requirements.copy()
-        if self._nipype_interface_name == "spm":
-            result['spm'] = {}
-        elif self._nipype_interface_name == "fsl":
-            result['fsl'] = {}
-        elif self._nipype_interface_name == "freesurfer":
-            result['freesurfer'] = {}
+        result['nipype'] = {}
+        # require module for interface name (spm, fsl, etc)
+        result[self._nipype_interface_name] = {}
         return result
 
 
@@ -884,17 +882,13 @@ class NipypeProcess(FileCopyProcess):
         """
         setattr(self._nipype_interface.inputs, parameter, value)
 
-    def _before_run_process(self):
+    def before_execute(self, context):
         if self._nipype_interface_name == "spm":
             # Set the spm working
             self.destination = None
-        super()._before_run_process()
-        # configure nipype from config env variables (which should have been set
-        # before now)
-        from capsul.in_context import nipype as inp_npp
-        inp_npp.configure_all()
+        super().before_execute(context)
 
-    def run(self):
+    def execute(self, context):
         """ Method that do the processings when the instance is called.
 
         Returns
@@ -906,16 +900,17 @@ class NipypeProcess(FileCopyProcess):
             cwd = os.getcwd()
         except OSError:
             cwd = None
-        if self.output_directory is None or self.output_directory is undefined:
+        if getattr(self, 'output_directory', undefined) in (None, undefined):
             raise ValueError('output_directory is not set but is mandatory '
                              'to run a NipypeProcess')
         os.chdir(self.output_directory)
+
         self.synchronize.fire()
 
         # Force nipype update
         for trait_name in self._nipype_interface.inputs.traits().keys():
-            field_name = self.getattr(
-                '_nipype_trait_mapping', {}).get(trait_name, trait_name)
+            field_name = getattr(
+                self, '_nipype_trait_mapping', {}).get(trait_name, trait_name)
             if field_name in self.user_fields():
                 old = getattr(self._nipype_interface.inputs, trait_name)
                 new = getattr(self, field_name)
@@ -944,9 +939,9 @@ class NipypeProcess(FileCopyProcess):
         #return results.__dict__
         return None
 
-    def _after_run_process(self, run_process_result):
+    def after_execute(self, exec_result, context):
         trait_map = getattr(self, '_nipype_trait_mapping', {})
-        script_tname = trait_map.get('_spm_script_file', '_spm_script_file')
+        script_tname = trait_map.get('spm_script_file', 'spm_script_file')
         if getattr(self, script_tname, None) not in (None, undefined, ''):
             script_file = os.path.join(
                 self.output_directory,
@@ -954,4 +949,4 @@ class NipypeProcess(FileCopyProcess):
             if os.path.exists(script_file):
                 shutil.move(script_file, getattr(self, script_tname))
         return super(NipypeProcess,
-                     self)._after_run_process(run_process_result)
+                     self).after_execute(exec_result, context)

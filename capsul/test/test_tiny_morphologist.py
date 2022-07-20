@@ -30,14 +30,6 @@ class FakeSPMConfiguration(ModuleConfiguration):
             return False
         return True
 
-def init_execution_context(execution_context):
-    '''
-    Configure an execution context given a capsul_engine and some requirements.
-    '''
-    config =  execution_context.config['modules']['spm']
-    execution_context.spm = SPMConfiguration()
-    execution_context.spm.import_dict(config)
-
 
 class BiasCorrection(Process):
     input: field(type_=File, extensions=('.nii',))
@@ -160,6 +152,7 @@ class ProcessHemisphere(Process):
         content = f'{content}Process hemisphere\n'
         with open(self.output, 'w') as f:
             f.write(content)
+
 
 class TinyMorphologist(Pipeline):
     def pipeline_definition(self):
@@ -349,6 +342,7 @@ class TestTinyMorphologist(unittest.TestCase):
         self.maxDiff = 2000
         expected_config = {
             'local': {
+                'engine_type': 'builtin',
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),
@@ -503,6 +497,16 @@ class TestTinyMorphologist(unittest.TestCase):
             # for field in tiny_morphologist.fields():
             #     value = getattr(tiny_morphologist, field.name, undefined)
             #     print(f'!{normalization}!', field.name, value)
+
+            # run it
+            # Note: to run via soma-workflow, just set this:
+            # self.capsul.config.local.engine_type = 'soma_workflow'
+            with self.capsul.engine() as engine:
+                status = engine.run(tiny_morphologist)
+            self.assertEqual(
+                status,
+                {'status': 'ended', 'error': None, 'error_detail': None,
+                 'engine_output': ''})
 
 
     def test_pipeline_iteration(self):
@@ -742,17 +746,29 @@ class TestTinyMorphologist(unittest.TestCase):
         metadata.generate_paths(tiny_morphologist_iteration)
         self.maxDiff = 11000
         for name, value in expected_completion.items():
-            self.assertEqual(getattr(tiny_morphologist_iteration, name), value)
+            self.assertEqual(getattr(tiny_morphologist_iteration, name), value,
+                             f'Differing value for parameter {name}')
         tiny_morphologist_iteration.resolve_paths(execution_context)
         for name, value in expected_resolution.items():
-            self.assertEqual(getattr(tiny_morphologist_iteration, name), value)
-    #     try:
-    #         with capsul.engine() as ce:
-    #             # Finally execute all the TinyMorphologist instances
-    #             execution_id = ce.run(processing_pipeline)
-    #     except Exception:
-    #         import traceback
-    #         traceback.print_exc()
+            self.assertEqual(getattr(tiny_morphologist_iteration, name), value,
+                             f'Differing value for parameter {name}')
+
+        # run it
+        # Note: to run via soma-workflow, just set this:
+        # self.capsul.config.local.engine_type = 'soma_workflow'
+
+        #status = None
+        #try:
+            #with self.capsul.engine() as engine:
+                #status = engine.run(tiny_morphologist_iteration)
+        #except Exception:
+            #import traceback
+            #traceback.print_exc()
+
+        #self.assertEqual(
+            #status,
+            #{'status': 'ended', 'error': None, 'error_detail': None,
+              #'engine_output': ''})
 
 def test():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestTinyMorphologist)
@@ -768,7 +784,7 @@ if __name__ == '__main__':
     app = QtGui.QApplication.instance()
     if not app:
         app = QtGui.QApplication(sys.argv)
-    view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True)
+    view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
     view1.show()
     app.exec_()
     del view1

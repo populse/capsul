@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
-import json
 import os
 import sys
-from capsul.pipeline.process_iteration import ProcessIteration
 
 from soma.undefined import undefined
 
@@ -12,6 +9,9 @@ from .application import Capsul
 from . import execution_context
 
 debug = False
+
+def filename_from_url(url):
+    return url.split('://', 1)[-1]
 
 if __name__ == '__main__':
     tmp = os.environ.get('CAPSUL_TMP')
@@ -31,7 +31,7 @@ if __name__ == '__main__':
               f'tmp="{tmp}", command={sys.argv}',
               file=sys.stderr)
         sys.exit(1)
-    if not os.path.exists(db_url):
+    if not os.path.exists(filename_from_url(db_url)):
         print('Capsul cannot run command because database file does not exist: '
               f'tmp="{tmp}", database="{db_url}", command={sys.argv}',
               file=sys.stderr)
@@ -87,8 +87,8 @@ if __name__ == '__main__':
                         if value is not undefined:
                             print ('   ', field.name, '=', value)
             process.before_execute(execution_context)
-            process.execute(execution_context)
-            process.after_execute(execution_context)
+            result = process.execute(execution_context)
+            process.after_execute(result, execution_context)
             if debug:
                 print(f'---- stop {process.definition} ----')
                 for field in process.user_fields():
