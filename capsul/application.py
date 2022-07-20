@@ -193,7 +193,7 @@ def executable(definition, **kwargs):
         result = definition(definition=f'{module_name}.{object_name}')
     else:
         if definition.endswith('.json'):
-            with open(definition) as f:
+            with open(definition, encoding='utf-8') as f:
                 json_executable = json.load(f)
             result =  executable_from_json(definition, json_executable)
         elif definition.endswith('.py') or len(definition.rsplit('.py#')) == 2:
