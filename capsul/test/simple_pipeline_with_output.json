@@ -1,0 +1,18 @@
+{
+    "type": "custom_pipeline",
+    "name": "simple_pipeline_with_output",
+    "definition": {
+        "export_parameters": false,
+        "executables": {
+            "process": {
+                "definition": "capsul.test.test_simple.ProcessWithOutputFile",
+                "type": "process"
+            }
+        },
+        "parameters": {
+        },
+        "links": [
+            "process.output_file->output_file"
+        ]
+    }
+}
