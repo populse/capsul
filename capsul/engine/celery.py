@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from glob import glob
 import os
+import shutil
 import signal
 import subprocess
 
@@ -9,16 +11,35 @@ import warnings
 warnings.filterwarnings('ignore', 'SelectableGroups dict interface')
 from celery import Celery
 
-from soma.undefined import undefined
-
-from ..api import Pipeline, Process
 from ..database import execution_database
-from ..execution_context import CapsulWorkflow
-from . import Engine
+from ..database.redis import RedisExecutionDatabase
+from . import Workers
+
+shutdown_countdown = 10
 
 capsul_tmp = os.environ.get('CAPSUL_TMP')
 if capsul_tmp:
     celery_app = Celery('capsul.engine.celery', broker=f'redis+socket://{capsul_tmp}/redis.socket')
+
+    @celery_app.task(bind=True, ignore_result=True)
+    def check_shutdown(self):
+        global capsul_tmp
+        celery_app.control.revoke(self.id) # prevent this task from being executed again
+        try:
+            database = execution_database(capsul_tmp)
+            executions_count = database.redis.llen('capsul_running_executions')
+            #TODO: possible race condition here if a connection to the celery workers
+            # is done right now
+            if not executions_count:
+                # Shutdown database
+                capsul_tmp = database.capsul_tmp
+                database.redis.shutdown()
+                shutil.rmtree(capsul_tmp)
+                celery_app.control.shutdown() # send shutdown signal to all workers
+                return
+        except Exception:
+            pass
+        celery_app.send_task('capsul.engine.celery.check_shutdown', countdown=shutdown_countdown)
 
     @celery_app.task(ignore_result=True)
     def start_ready_processes():
@@ -85,35 +106,33 @@ if capsul_tmp:
             start_ready_processes()
 
 
-class CeleryEngine(Engine):
-    database_type = 'redis'    
-    
-    def _start(self, execution_directory):
-        env = os.environ.copy()
-        env.update({
-            'CAPSUL_TMP': execution_directory,
-        })
+class CeleryWorkers(Workers):
+    def _start(self, execution_id):
+        if not isinstance(self.database, RedisExecutionDatabase):
+            raise TypeError('Celery workers can only work with a Redis execution database')
 
-        celery_dir = execution_directory
-        cmd = [
-            'celery',
-            '-A', 'capsul.engine.celery',
-            'multi', 'start',
-            'capsul_celery_worker',
-            f'--pidfile={celery_dir}/%n.pid',
-            f'--logfile={celery_dir}/%n%I.log'
-        ]
-        subprocess.Popen(cmd, env=env, start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-        celery_app = Celery('capsul.engine.celery', broker=f'redis+socket://{execution_directory}/redis.socket')
-        celery_app.send_task('capsul.engine.celery.initial_task')
-
-    def _debug_info(self, execution_directory):
-        result = {}
-        for log_file in glob(f'{execution_directory}/capsul_celery_worker*.log'):
-            with open(log_file) as f:
-                result[log_file] = f.read()
-        return result
-
-    
+        capsul_tmp = self.database.capsul_tmp
+        workers_pid_file = f'{capsul_tmp}/capsul_celery_workers.pid'
+        if not os.path.exist(workers_pid_file):
+            self.database.redis.set('capsul_workers_pid_file', workers_pid_file)
+            env = os.environ.copy()
+            env.update({
+                'CAPSUL_DATABASE': self.database.url,
+                'CAPSUL_TMP': capsul_tmp,
+            })
+            cmd = [
+                'celery',
+                '-A', 'capsul.engine.celery',
+                'multi', 'start',
+                'capsul_celery_workers',
+                f'--pidfile={capsul_tmp}/%n.pid',
+                f'--logfile={capsul_tmp}/%n%I.log'
+            ]
+            subprocess.Popen(cmd, env=env, start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            celery_app = Celery('capsul.engine.celery', broker=self.database_url)
+            celery_app.send_task('capsul.engine.celery.initial_task')
+            celery_app.send_task('capsul.engine.celery.check_shutdown', countdown=shutdown_countdown)
+        
+ 
     def _cleanup(self, execution_directory):
         pass

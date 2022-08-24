@@ -50,16 +50,16 @@ class RedisExecutionDatabase(ExecutionDatabase):
             self.redis_socket = f'{url.netloc}{url.path}'
             if not os.path.exists(self.redis_socket):
                 # Start the redis server
-                directory = tempfile.mkdtemp(prefix='capsul_redis_')
+                tmp = tempfile.mkdtemp(prefix='capsul_redis_')
                 try:
-                    pid_file = f'{directory}/redis.pid'
+                    pid_file = f'{tmp}/redis.pid'
                     cmd = [
                         'redis-server',
                         '--unixsocket', self.redis_socket,
                         '--port', '0', # port 0 means no TCP connection
                         '--daemonize', 'yes',
                         '--pidfile', pid_file,
-                        '--dir', directory,
+                        '--dir', tmp,
                         '--dbfilename', 'redis.rdb',
                     ]
                     subprocess.run(cmd)
@@ -69,10 +69,10 @@ class RedisExecutionDatabase(ExecutionDatabase):
                         time.sleep(0.1)
                     self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
                                               decode_responses=True)
-                    self.redis.set('capsul_directory', directory)
+                    self.redis.set('capsul_tmp', tmp)
                     self.redis.set('capsul_redis_pid_file', pid_file)
                 except Exception:
-                    shutil.rmtree(directory)
+                    shutil.rmtree(tmp)
             else:
                 self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
                                            decode_responses=True)
@@ -237,7 +237,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
         pipe.hlen('capsul_connections')
         connections_count = pipe.execute()[-1]
         if connections_count == 0:
-            directory = self.redis.get('capsul_directory')
+            tmp = self.redis.get('capsul_tmp')
             pid_file = self.redis.get('capsul_redis_pid_file')
             
             # Kill the redis server
@@ -249,8 +249,12 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     break
                 time.sleep(0.1)
 
-            shutil.rmtree(directory)
+            shutil.rmtree(tmp)
 
+    @property
+    def capsul_tmp(self):
+        return self.redis.get('capsul_tmp')
+    
     def key(self, execution_id, name):
         return f'capsul:{execution_id}:{name}'
 
@@ -274,6 +278,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
         ):
         execution_id = str(uuid4())
         pipe = self.pipeline(execution_id)
+        pipe.rpush('capsul_execution_ids', execution_id)
         pipe.set( 'status', ('ready' if ready else 'ended'))
         pipe.set('start_time', start_time)
         pipe.set('executable', json.dumps(executable_json))
