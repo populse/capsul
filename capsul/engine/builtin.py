@@ -20,9 +20,6 @@ class BuiltinWorkers(Workers):
             capture_output=False, check=True
         )
         
-    def close(self):
-        pass
-
     def _debug_info(self, execution_id):
         return {}
     

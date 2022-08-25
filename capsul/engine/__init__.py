@@ -116,10 +116,6 @@ class Workers(Controller):
         raise NotImplementedError(
             '_start must be implemented in Workers subclasses.')
 
-    def close(self):
-        raise NotImplementedError(
-            'close must be implemented in Workers subclasses.')
-
     def debug_info(self, execution_id):
         raise NotImplementedError(
             'debug_info must be implemented in Workers subclasses.')
