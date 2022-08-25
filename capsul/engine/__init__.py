@@ -81,7 +81,6 @@ class Engine(Controller):
         return self.workers
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
-        self.workers.close()
         del self.workers
         self.database.close()
         del self.database
@@ -117,7 +116,7 @@ class Workers(Controller):
         raise NotImplementedError(
             '_start must be implemented in Workers subclasses.')
 
-    def close(self, execution_id):
+    def close(self):
         raise NotImplementedError(
             'close must be implemented in Workers subclasses.')
 

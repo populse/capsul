@@ -113,7 +113,7 @@ class CeleryWorkers(Workers):
 
         capsul_tmp = self.database.capsul_tmp
         workers_pid_file = f'{capsul_tmp}/capsul_celery_workers.pid'
-        if not os.path.exist(workers_pid_file):
+        if not os.path.exists(workers_pid_file):
             self.database.redis.set('capsul_workers_pid_file', workers_pid_file)
             env = os.environ.copy()
             env.update({
@@ -129,10 +129,14 @@ class CeleryWorkers(Workers):
                 f'--logfile={capsul_tmp}/%n%I.log'
             ]
             subprocess.Popen(cmd, env=env, start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-            celery_app = Celery('capsul.engine.celery', broker=self.database_url)
+            celery_app = Celery('capsul.engine.celery', broker=self.database.url)
             celery_app.send_task('capsul.engine.celery.initial_task')
             celery_app.send_task('capsul.engine.celery.check_shutdown', countdown=shutdown_countdown)
         
  
     def _cleanup(self, execution_directory):
         pass
+
+    def _debug_info(self, execution_id):
+        #TODO: return the workers log
+        return {}

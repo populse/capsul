@@ -36,6 +36,9 @@ class RedisExecutionPipeline:
     def hset(self, name, item, value):
         self.pipeline.hset(self.key(name), item, value)
 
+    def rpush(self, name, value):
+        self.pipeline.rpush(self.key(name), value)
+
     def delete(self, name):
         self.pipeline.delete(self.key(name))
 
