@@ -1,11 +1,9 @@
-Path generation API
-===================
+# Path generation API
 
 We call path generation the automatic creation of paths values for a process instance. This document describes the path generation system of Capsul.
 
 
-General principles
-------------------
+## General principles
 
 The path generation system is designed to be fully automatic. Path generation must not need any user input except the selection of a few input parameters of the process. This is important to be able to use path generation on iteration of hundreds of executions. 
 
@@ -15,8 +13,19 @@ Metadata given to create a path name can have various origins. For instance, the
 
 The path generation system must be able to deal with several metadata schemas for a single process. If not it woul mean that all process parameters must be in the same schema. This is the case if all input and output data are following the BIDS standard. However, in many cases a process will have to deal with several metadata schemas. For instance, there could be one schema for input data (i.e. BIDS), another schema for output data (for use cases not covered by BIDS) and other schemas for third party data (for instance template images in SPM software directory). To support several metadata schema, Capsul make a link between a dataset (i.e. a directory) and the metadata schema used throughout that directory using he `Dataset` class.
 
-Datasets
---------
+### Using path generation
+
+Path generation is done for all path parameters of a process. The following diagram illustrate the case of a process with one `input`parameter supposed to follow BIDS schema and one `output` parameter following another schema called BrainVISA. In oder to use path generation, the user must create a ̀ProcessMetadata` instance that allows to set user metadata for all schemas used by the process. These user metadata are combined with process metadata in order to generate values for all path parameters.
+
+```mermaid
+graph LR
+    P["Process<br/><code>input</code> → 'bids' schema<br/><code>output</code> → 'brainvisa' schema"]
+    -- 1 - create metadata for process -->
+    M["ProcessMetadata<br/><code>bids</code> → metadata for bids schema<br/><code>brainvisa</code> → metadata for brainvisa schema"]
+    -- 2 - Generate paths --> P
+```
+
+## Datasets
 
 A dataset is an object that is attached to a directory (it contains its path) and makes the link between the directory content and a schema of metadata. A `Dataset` is based on a `MetadataSchema` that is a `Controller` whose fields describes the metadata schema. For instance, a BIDS dataset class could be defined as follows:
 
@@ -43,8 +52,7 @@ class BIDSSchema(MetadataSchema):
 
 The fields are the various elements that one can find in a complete BIDS path. Given valid values for these fields, it is possible to build a path (relative to a base path).
 
-Using dataset to create paths for a process
--------------------------------------------
+## Using dataset to create paths for a process
 
 A full path name can be generated given a `Dataset` and metadata values for this dataset (a kind of `dict`). Therefore, the completion algorithm takes some user given metadata values does the following:
 
