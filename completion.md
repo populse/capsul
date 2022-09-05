@@ -55,10 +55,70 @@ class BIDSSchema(MetadataSchema):
     part: str = None
     suffix: str = None
     extension: str
-
 ```
 
 The fields are the various elements that one can find in a complete BIDS path. Given valid values for these fields, it is possible to build any valid BIDS paths (relative to a base path).
+
+## Simple example
+
+```python {.line-numbers}
+from capsul.api import Capsul, Process
+from capsul.dataset import ProcessMetadata, ProcessSchema
+
+from soma.controller import field, File
+
+
+class SegmentHemispheres(Process):
+    input: File
+    voronoi: field(type_=File, write=True)
+    left_output: field(type_=File, write=True)
+    right_output: field(type_=File, write=True)
+
+
+
+class SegmentHemispheresBids(ProcessSchema, 
+                            schema='bids',
+                            process=SegmentHemispheres):
+    _ = {
+        '*': {
+            'process': 'segment_hemispheres',
+            'extension': 'nii'
+        }
+    }
+    voronoi = {'suffix': 'voronoi'}
+    left_output = {'suffix': 'lhemi'}
+    right_output = {'suffix': 'rhemi'}
+
+
+if __name__ == '__main__':
+    config = {
+        'builtin': {
+            'dataset': {
+                'input': {
+                    'path': '/input',
+                    'metadata_schema': 'bids',
+                },
+                'output': {
+                    'path': '/output',
+                    'metadata_schema': 'bids',
+                },
+            }
+        }
+    }
+    capsul = Capsul()
+    capsul.config.import_dict(config)
+    process = Capsul.executable('__main__.SegmentHemispheres')
+    engine = capsul.engine()
+    execution_context = engine.execution_context(process)
+    metadata = ProcessMetadata(process, execution_context)
+    metadata.bids.folder = 'derivative'
+    metadata.bids.sub = 'thesubject'
+    metadata.bids.ses = 'thesession'
+    metadata.generate_paths(process)
+
+    for field in process.user_fields():
+        print(field.name, '=', getattr(process, field.name, None))
+```
 
 ## Using dataset to create paths for a process
 
