@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import dataclasses
 import importlib
+import importlib.resources
 import json
 from pathlib import Path
 import types
@@ -201,7 +202,7 @@ def executable(definition, **kwargs):
         result = executable_from_python(definition, function)
     else:
         if definition.endswith('.json'):
-            with open(definition) as f:
+            with open(definition, encoding='utf-8') as f:
                 json_executable = json.load(f)
             result =  executable_from_json(definition, json_executable)
         elif definition.endswith('.py') or len(definition.rsplit('.py#')) == 2:
@@ -240,7 +241,10 @@ def executable(definition, **kwargs):
                 item = getattr(module, object_name, None)
                 if item is None:
                     # maybe a sub-module to be imported
-                    module = importlib.import_module(definition)
+                    try:
+                        module = importlib.import_module(definition)
+                    except ModuleNotFoundError:
+                        module = None
                     if module is not None:
                         item = module
                 # check if item is a module containing a single process
@@ -256,7 +260,21 @@ def executable(definition, **kwargs):
                     elif len(items) > 1:
                         raise ValueError(
                             f'Several process classes found in {definition}')
-                result = executable_from_python(definition, item)
+                if item is not None:
+                    result = executable_from_python(definition, item)
+                if result is None:
+                    # maybe a JSON-defined pipeline
+                    try:
+                        is_resource = importlib.resources.is_resource(
+                            module_name, object_name + '.json')
+                    except TypeError:  # if module_name is not a package
+                        is_resource = False
+                    if is_resource:
+                        with importlib.resources.open_text(
+                            module_name, object_name + '.json') as f:
+                            json_executable = json.load(f)
+                        result =  executable_from_json(definition,
+                                                       json_executable)
 
     if result is not None:
         for name, value in kwargs.items():
