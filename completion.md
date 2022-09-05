@@ -25,19 +25,27 @@ graph LR
     -- 2 - Generate paths --> P
 ```
 
-## Datasets
+## Datasets and relative directory reference
 
-A dataset is an object that is attached to a directory (it contains its path) and makes the link between the directory content and a schema of metadata. A `Dataset` is based on a `MetadataSchema` that is a `Controller` whose fields describes the metadata schema. For instance, a BIDS dataset class could be defined as follows:
+In Capsul, during a process creation, the authors can define how many different datasets the process will use. For instance, a normalization process could be defined with three datasets : one for input data, one for output data and one containing normalization templates. Except the list of datasets, no other information is known about them at process creation time (neither the base path of the dataset nor the schema it uses). Therefore, a process simply defines one name for each dataset it uses. By default, two datasets are defined : ̀input` for input files and `output`for output files. But a processes can define there own dataset symbolic names. For instance `SPM templates` could be used to designate the directory containing the template images bundled with the SPM software. Of course, it is necessary that all processes uses the same symbolic name for a given directory.
+
+To ba able to do something with a dataset name, one must know two things:
+* What is the path of the base directory for this dataset ?
+* How the file names are organized in this directory ? In other words, what is the metadata schema associated with this dataset.
+
+This information depends on the execution environment. Indeed, the path of a directory that will be used by a process may only be valid on the execution environment. If the user is on a remote computer this path may be invalid on this machine. Therefore, the link between a dataset global name and its actual location and schema is done in Capsul's execution environment configuration. This configuration contains a series of `Dataset` objects making the link between the global name and the base path location as well as the metadata schema. A metadata schema represents the orgranization of the paths within the dataset. For instance their is a metadata schema for BIDS organization. Each metadata schema is a subclass of `MetadataSchema` that derives from `Controller`. A schema contains controller fields describing the metadata that can be used to create a single path. For instance, a BIDS dataset class could be defined as follows:
 
 ```
 class BIDSSchema(MetadataSchema):
-    ''' BIDS metadata schema
+    ''' Metadata schema for BIDS datasets
     '''
+    schema_name = 'bids'
+
     folder: Literal['sourcedata', 'rawdata', 'derivative']
-    pipeline: str = None
+    process: str = None
     sub: str
     ses: str
-    data_type: str
+    data_type: str = None
     task: str = None
     acq: str = None
     ce: str = None
@@ -45,12 +53,12 @@ class BIDSSchema(MetadataSchema):
     run: str = None
     echo: str = None
     part: str = None
-    suffix: str
-    extension: st
+    suffix: str = None
+    extension: str
 
 ```
 
-The fields are the various elements that one can find in a complete BIDS path. Given valid values for these fields, it is possible to build a path (relative to a base path).
+The fields are the various elements that one can find in a complete BIDS path. Given valid values for these fields, it is possible to build any valid BIDS paths (relative to a base path).
 
 ## Using dataset to create paths for a process
 
