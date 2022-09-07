@@ -234,7 +234,11 @@ class Settings:
                         id = '%s-%s' % (config._id, env)
                         doc = session._dbs.get_document(
                             session.collection_name(module), id)
-                        mod_conf[config._id] = dict(doc._items())
+                        items = dict(doc._items())
+                        if 'config_id' in items:
+                            items['config_id'] \
+                                = items['config_id'][:-len(env)-1]
+                        mod_conf[config._id] = items
                     if mod_conf:
                         env_conf[module] = mod_conf
 
