@@ -381,6 +381,12 @@ class SettingsSession:
         collection = self.collection_name(module)
         if self._dbs.get_collection(collection) is not None:
             if selection:
+                if 'config_id' in selection:
+                    x = selection.find('config_id')
+                    x = selection.find('"', x + 9)
+                    x = selection.find('"', x + 1)
+                    selection = '%s-%s%s'% (selection[:x], environment,
+                                            selection[x:])
                 full_query = '%s == "%s" AND (%s)' % (
                     Settings.environment_field, environment, selection)
                 docs = self._dbs.filter_documents(collection, full_query)
@@ -471,9 +477,11 @@ class SettingsConfig(object):
             self.notify(name, value)
 
     def __getattr__(self, name):
-        if name in ('_id', 'environment'):
+        if name in ('_id', '_environment'):
             return super(SettingsConfig, self).__getattribute__(name)
-        return self._dbs.get_value(self._collection, self._id, name)
+        return self._dbs.get_value(self._collection,
+                                   '%s-%s' % (self._id, self._environment),
+                                   name)
 
     def set_values(self, values):
         id = '%s-%s' % (self._id, self._environment)
