@@ -17,7 +17,8 @@ class BuiltinWorkers(Workers):
     def _start(self, execution_id):
         subprocess.run(
             [sys.executable, '-m', 'capsul.engine.builtin', self.database.url, execution_id],
-            capture_output=False, check=True
+            capture_output=False,
+            check=True
         )
         
     def _debug_info(self, execution_id):

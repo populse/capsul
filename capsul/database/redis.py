@@ -88,7 +88,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     return 'capsul:' .. ARGV[1] .. ':' .. name
                 end
 
-                print('!redis:start_next_job!')
                 local job_uuid = redis.call('lpop', key('ready'))
                 if job_uuid then
                     redis.call('set', key('status'), 'running')

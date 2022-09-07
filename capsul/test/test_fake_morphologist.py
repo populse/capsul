@@ -1053,7 +1053,7 @@ class TestFakeMorphologist(unittest.TestCase):
                 metadata.bids.asdict(),
                 {
                     'folder': 'rawdata',
-                    'pipeline': None,
+                    'process': None,
                     'sub': 'aleksander',
                     'ses': 'm0',
                     'data_type': 'anat',

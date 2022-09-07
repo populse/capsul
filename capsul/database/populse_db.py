@@ -38,6 +38,9 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
                 execution.add_field('dispose', bool)
 
                 session.add_collection('job', ('execution_id', 'uuid'))
+            else:
+                connection_count = session['global']['']['capsul_connection_count'] + 1
+                session['global'][''] = {'capsul_connection_count': connection_count}
     
     def close(self):
         with self.database as session:

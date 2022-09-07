@@ -191,6 +191,7 @@ class TinyMorphologistBIDS(ProcessSchema, schema='bids', process=TinyMorphologis
     _ = {
         '*': {'process': 'tinymorphologist'}
     }
+    input = {'process': None}
     left_hemisphere = {'part': 'left_hemi'}
     right_hemisphere = {'part': 'right_hemi'}
 
@@ -198,6 +199,7 @@ class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process=TinyM
     _ = {
         '*': {'process': 'tinymorphologist'}
     }
+    input = {'process': None}
     left_hemisphere = {'prefix': 'left_hemi'}
     right_hemisphere = {'prefix': 'right_hemi'}
 
@@ -476,7 +478,7 @@ class TestTinyMorphologist(unittest.TestCase):
                 metadata.bids.asdict(),
                 {
                     'folder': 'rawdata',
-                    'pipeline': None, 
+                    'process': None, 
                     'sub': 'aleksander', 
                     'ses': 'm0', 
                     'data_type': 'anat', 
@@ -775,15 +777,19 @@ def test():
     return runtime.wasSuccessful()
 
 if __name__ == '__main__':
-    import sys
-    sys.stdout.flush()
-    from soma.qt_gui.qt_backend import QtGui
-    from capsul.qt_gui.widgets import PipelineDeveloperView
-    tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
-    app = QtGui.QApplication.instance()
-    if not app:
-        app = QtGui.QApplication(sys.argv)
-    view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
-    view1.show()
-    app.exec_()
-    del view1
+    # import sys
+    # sys.stdout.flush()
+    # from soma.qt_gui.qt_backend import QtGui
+    # from capsul.qt_gui.widgets import PipelineDeveloperView
+    # tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
+    # app = QtGui.QApplication.instance()
+    # if not app:
+    #     app = QtGui.QApplication(sys.argv)
+    # view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
+    # view1.show()
+    # app.exec_()
+    # del view1
+    t = TestTinyMorphologist()
+    t.setUp()
+    t.test_tiny_path_generation()
+    t.tearDown()

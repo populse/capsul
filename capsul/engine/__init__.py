@@ -101,7 +101,7 @@ class Workers(Controller):
         econtext = execution_context(self.engine_label, self.engine_config, executable)
         workflow = CapsulWorkflow(executable)
         # from pprint import pprint
-        # print('!start!')
+        # print('!start!', flush=True)
         # pprint(workflow.jobs)
         # pprint(workflow.parameters.proxy_values)
         # pprint(workflow.parameters.content)

@@ -80,7 +80,7 @@ class FakeSPMNormalization12BrainVISA(
 class TestPipelineBIDS(ProcessSchema, schema='bids',
                        process=TestPipeline):
     _ = {
-        '*': {'process': 'test_pipeline'}
+        '*': {'pipeline': 'test_pipeline'}
     }
 
 class TestPipelineBrainVISA(ProcessSchema, schema='brainvisa',
