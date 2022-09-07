@@ -15,7 +15,7 @@ The path generation system must be able to deal with several metadata schemas fo
 
 ### Using path generation
 
-Path generation is done for all path parameters of a process. The following diagram illustrate the case of a process with one `input`parameter supposed to follow BIDS schema and one `output` parameter following another schema called BrainVISA. In oder to use path generation, the user must create a ̀ProcessMetadata` instance that allows to set user metadata for all schemas used by the process. These user metadata are combined with process metadata in order to generate values for all path parameters.
+Path generation is done for all path parameters of a process. The following diagram illustrate the case of a process with one `input` parameter supposed to follow BIDS schema and one `output` parameter following another schema called BrainVISA. In oder to use path generation, the user must create a ̀ProcessMetadata` instance that allows to set user metadata for all schemas used by the process. These user metadata are combined with process metadata in order to generate values for all path parameters.
 
 ```mermaid
 graph LR
@@ -27,7 +27,7 @@ graph LR
 
 ## Datasets and relative directory reference
 
-In Capsul, during a process creation, the authors can define how many different datasets the process will use. For instance, a normalization process could be defined with three datasets : one for input data, one for output data and one containing normalization templates. Except the list of datasets, no other information is known about them at process creation time (neither the base path of the dataset nor the schema it uses). Therefore, a process simply defines one name for each dataset it uses. By default, two datasets are defined : ̀input` for input files and `output`for output files. But a processes can define there own dataset symbolic names. For instance `SPM templates` could be used to designate the directory containing the template images bundled with the SPM software. Of course, it is necessary that all processes uses the same symbolic name for a given directory.
+In Capsul, during a process creation, the authors can define how many different datasets the process will use. For instance, a normalization process could be defined with three datasets : one for input data, one for output data and one containing normalization templates. Except the list of datasets, no other information is known about them at process creation time (neither the base path of the dataset nor the schema it uses). Therefore, a process simply defines one name for each dataset it uses. By default, two datasets are defined : ̀`input` for input files and `output`for output files. But a processes can define there own dataset symbolic names. For instance `SPM templates` could be used to designate the directory containing the template images bundled with the SPM software. Of course, it is necessary that all processes uses the same symbolic name for a given directory.
 
 To ba able to do something with a dataset name, one must know two things:
 * What is the path of the base directory for this dataset ?
@@ -61,7 +61,7 @@ The fields are the various elements that one can find in a complete BIDS path. G
 
 ## Simple example
 
-```python {.line-numbers}
+```python
 from capsul.api import Capsul, Process
 from capsul.dataset import ProcessMetadata, ProcessSchema
 
@@ -116,17 +116,38 @@ if __name__ == '__main__':
     metadata.bids.ses = 'thesession'
     metadata.generate_paths(process)
 
+    print('Paths before execution:')
     for field in process.user_fields():
-        print(field.name, '=', getattr(process, field.name, None))
+        value =  getattr(process, field.name)
+        print(field.name, f"= '{value}'",)
+
+    print('Paths during execution:')
+    process.resolve_paths(execution_context)
+    for field in process.user_fields():
+        value =  getattr(process, field.name)
+        print(field.name, f"= '{value}'",)
 ```
 
-## Using dataset to create paths for a process
+In this example, a fake process with one input parameter and three outputs is created. Then the `SegmentHemispheresBids` definition gives the BIDS specific metadata for this process. This metadata indicate that when a `BIDSSchema` is created for this process, two attributes will be set for all parameters: `process='segment_hemisphere'` and `extension='nii'`; and each output parameter have its own `suffix` value.
 
-A full path name can be generated given a `Dataset` and metadata values for this dataset (a kind of `dict`). Therefore, the completion algorithm takes some user given metadata values does the following:
+A configuration is created containing two datasets for the symbolic names `input` and `output`. These dataset names are used by default for input and output parameters.
 
-For each parameter of type path:
-    Identify a dataset for the parameter
-    Complete the given metadata with others metadata defined globally for this parameter and dataset schema
-    Create a path for the parameter with the completed metadata
+After the creation of a process instance and an execution context, a `ProcessMetadata` class is created, some user metadata attributes are set (BIDS values for `folder`, `sub`, `ses`) and `generate_paths()` is called to create path values for each parameters given process and user and metadatas. 
 
-Things are not as simple as that when iterations comes into the game. But, let's discover it step by step. The complexity of the path generation framework is hidden in a `ProcessMetadata` class. An instance of this class is created given a process and an execution context. It is a controller whose fields represent all the metadata that are necessary to generate all paths for the process in the given context (execution context is necessary to identify the datasets that are available in the execution environment).
+Finally, this script prints the process parameters twice. The output is:
+```
+Paths before execution:
+input = '!{dataset.input.path}/derivative/segment_hemispheres/sub-thesubject/ses-thesession/sub-thesubject_ses-thesession.nii'
+voronoi = '!{dataset.output.path}/derivative/segment_hemispheres/sub-thesubject/ses-thesession/sub-thesubject_ses-thesession_voronoi.nii'
+left_output = '!{dataset.output.path}/derivative/segment_hemispheres/sub-thesubject/ses-thesession/sub-thesubject_ses-thesession_lhemi.nii'
+right_output = '!{dataset.output.path}/derivative/segment_hemispheres/sub-thesubject/ses-thesession/sub-thesubject_ses-thesession_rhemi.nii'
+Paths during execution:
+input = '/input/derivative/segment_hemispheres/sub-thesubject/ses-thesession/sub-thesubject_ses-thesession.nii'
+voronoi = '/output/derivative/segment_hemispheres/sub-thesubject/ses-thesession/sub-thesubject_ses-thesession_voronoi.nii'
+left_output = '/output/derivative/segment_hemispheres/sub-thesubject/ses-thesession/sub-thesubject_ses-thesession_lhemi.nii'
+right_output = '/output/derivative/segment_hemispheres/sub-thesubject/ses-thesession/sub-thesubject_ses-thesession_rhemi.nii'
+```
+
+First, the parameters are printed as they are created by `generate_paths()`. These paths (starting with `!` character) are using expressions that will be resolved at runtime using the execution context. This allows to make paths that uses symbolic dataset names (`input` and `output` in this case) and can be used on client side independently of the final configuration. 
+
+Then, the final real path value after the resolution of special expressions is printed.
