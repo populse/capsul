@@ -231,8 +231,9 @@ class Settings:
                 for module in modules:
                     mod_conf = {}
                     for config in session.configs(module, env):
+                        id = '%s-%s' % (config._id, env)
                         doc = session._dbs.get_document(
-                            session.collection_name(module), config._id)
+                            session.collection_name(module), id)
                         mod_conf[config._id] = dict(doc._items())
                     if mod_conf:
                         env_conf[module] = mod_conf
@@ -354,11 +355,11 @@ class SettingsSession:
         id = document.get(Settings.config_id_field)
         if id is None:
             id = str(uuid4())
-            document[Settings.config_id_field] = id
+        document[Settings.config_id_field] = '%s-%s' % (id, environment)
         collection = self.collection_name(module)
         self._dbs.add_document(collection, document)
         config = SettingsConfig(
-            self._dbs, collection, id,
+            self._dbs, collection, id, environment,
             notifiers=self.module_notifiers.get(Settings.module_name(module),
                                                 []))
         config.notify()
@@ -389,8 +390,9 @@ class SettingsSession:
                     '%s=="%s"' % (Settings.environment_field, environment))
             for d in docs:
                 id = d[Settings.config_id_field]
+                id = id[:-len(environment)-1]
                 yield SettingsConfig(
-                    self._dbs, collection, id,
+                    self._dbs, collection, id, environment,
                     notifiers=self.module_notifiers.get(Settings.module_name(
                         module), []))
 
@@ -451,27 +453,35 @@ class SettingsSession:
         return environments
 
 class SettingsConfig(object):
-    def __init__(self, populse_session, collection, id, notifiers=[]):
+    def __init__(self, populse_session, collection, id, environment,
+                 notifiers=[]):
         super(SettingsConfig, self).__setattr__('_dbs', populse_session)
         super(SettingsConfig, self).__setattr__('_collection', collection)
+        super(SettingsConfig, self).__setattr__('_environment', environment)
         super(SettingsConfig, self).__setattr__('_id', id)
         super(SettingsConfig, self).__setattr__('_notifiers', notifiers)
 
     def __setattr__(self, name, value):
+        id = '%s-%s' % (super(SettingsConfig, self).__getattribute__('_id'),
+                        super(SettingsConfig,
+                              self).__getattribute__('_environment'))
         if getattr(self, name) != value:
-            self._dbs.set_value(self._collection, self._id, name, value)
+            self._dbs.set_value(self._collection, id, name, value)
             # notify change for listeners
             self.notify(name, value)
 
     def __getattr__(self, name):
+        if name in ('_id', 'environment'):
+            return super(SettingsConfig, self).__getattribute__(name)
         return self._dbs.get_value(self._collection, self._id, name)
 
     def set_values(self, values):
-        old = self._dbs.get_document(self._collection, self._id,
+        id = '%s-%s' % (self._id, self._environment)
+        old = self._dbs.get_document(self._collection, id,
                                      fields=values.keys(), as_list=True)
         mod_values = {k: v for o, (k, v) in zip(old, values.items()) if o != v}
         if mod_values:
-            self._dbs.set_values(self._collection, self._id, mod_values)
+            self._dbs.set_values(self._collection, id, mod_values)
             for name, value in mod_values.items():
                 self.notify(name, value)
 

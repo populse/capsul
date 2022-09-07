@@ -28,6 +28,7 @@ class SettingsEditor(Qt.QDialog):
             Qt.QComboBox.InsertAlphabetically)
         self.environment_combo.addItem('global')
         env_layout.addWidget(self.environment_combo)
+        self.environment = 'global'
 
         #htab_layout = Qt.QHBoxLayout()
         self.tab_wid = QVTabWidget()  # Qt.QTabWidget()
@@ -39,14 +40,20 @@ class SettingsEditor(Qt.QDialog):
         layout.addLayout(buttons_layout)
         buttons_layout.addStretch(1)
         ok = Qt.QPushButton('OK')
+        ok.setDefault(False)
+        ok.setAutoDefault(False)
         buttons_layout.addWidget(ok)
         cancel = Qt.QPushButton('Cancel')
+        cancel.setDefault(False)
+        cancel.setAutoDefault(False)
         buttons_layout.addWidget(cancel)
 
         ok.clicked.connect(self.accept)
         cancel.clicked.connect(self.reject)
         #ok.setDefault(True)
         self.environment_combo.activated.connect(self.change_environment)
+        self.environment_combo.textActivated.connect(
+            self.change_environment_text)
 
         self.update_gui()
         #self.tab_wid.currentChanged.connect(self.mod_tab_changed)
@@ -54,7 +61,7 @@ class SettingsEditor(Qt.QDialog):
     def update_gui(self):
         self.tab_wid.clear()
         self.module_tabs = {}
-        environment = self.environment_combo.currentText()
+        environment = self.environment
         mod_map = dict([(module_name.split('.')[-1], module_name)
                         for module_name in self.engine._loaded_modules])
         for short_module_name in sorted(mod_map.keys()):
@@ -91,7 +98,14 @@ class SettingsEditor(Qt.QDialog):
                                                         short_module_name))
 
     def change_environment(self, index):
+        self.validate()
+        self.environment = self.environment_combo.currentText()
+        self.update_gui()
+
+    def change_environment_text(self, text):
+        self.validate()
         environment = self.environment_combo.currentText()
+        self.environment = environment
         self.update_gui()
 
     def validate(self):
@@ -107,14 +121,14 @@ class SettingsEditor(Qt.QDialog):
         super(SettingsEditor, self).accept()
 
     def tab_closed(self, module, index):
-        print('close:', module, index)
+        # print('close:', module, index)
         mod_index = [i for i in range(self.tab_wid.count())
                      if self.tab_wid.tabText(i) == module][0]
         mod_widget = self.tab_wid.widget(mod_index)
         if mod_widget.count() == 2 or index == mod_widget.count() - 1:
             return  # don't allow to remove the last config
         config_id = mod_widget.tabText(index)
-        environment = self.environment_combo.currentText()
+        environment = self.environment
         self._modifying = True
         mod_widget.removeTab(index)
         with self.engine.settings as session:
@@ -166,7 +180,7 @@ class SettingsEditor(Qt.QDialog):
             if config_id == '':
                 mod_widget.setCurrentIndex(former_index)
                 return
-            environment = self.environment_combo.currentText()
+            environment = self.environment
             with self.engine.settings as session:
                 config = session.config(module_name, environment,
                                         'config_id=="%s"' % config_id)
