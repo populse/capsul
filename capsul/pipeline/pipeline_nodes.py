@@ -402,10 +402,16 @@ class Node(Controller):
     def __getstate__(self):
         """ Remove the callbacks from the default __getstate__ result because
         they prevent Node instance from being used with pickle.
+        Also remove the _weakref attribute eventually set by
+        soma.utils.weak_proxy because it prevent Process instance
+        from being used with pickle.
         """
         state = super(Node, self).__getstate__()
-        state['_callbacks'] = list(state['_callbacks'].keys())
-        state['pipeline'] = get_ref(state['pipeline'])
+        state['_callbacks'] = [(c[0], get_ref(c[1]), c[2])
+                               for c in state['_callbacks'].keys()]
+        #state['pipeline'] = get_ref(state['pipeline'])
+        state.pop('_weakref', None)
+        state = {k: get_ref(v) for k, v in state.items()}
         return state
 
     def __setstate__(self, state):

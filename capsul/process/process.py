@@ -248,6 +248,9 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         """
         state = super(Process, self).__getstate__()
         state.pop('_weakref', None)
+        state.pop('_user_traits', None)
+        state.pop('__doc__', None)
+        state.pop('study_config', None)
         return state
     
     def add_trait(self, name, trait):
