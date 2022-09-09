@@ -1634,7 +1634,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         # the pipeline is temporary - it will be deleted if we don't save a ref
         # to it somewhere else in the workflow
         workflow._pipeline = pipeline
-    workflow._do_not_pickle = ['pipeline']
+    workflow._do_not_pickle = ['pipeline', '_pipeline']
     if hasattr(pipeline, 'uuid'):
         workflow.uuid = pipeline.uuid
 
