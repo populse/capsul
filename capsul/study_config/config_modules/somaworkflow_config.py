@@ -251,7 +251,7 @@ class SomaWorkflowConfig(StudyConfigModule):
         config = getattr(r, 'config', None)
         if config is None:
             config = swclient.configuration.Configuration.load_from_file(
-                config_file_path=conf_file)
+                resource_id=resource_id, config_file_path=conf_file)
             r.config = config
         password = getattr(r, 'password', None)
         rsa_key_pass = getattr(r, 'rsa_key_password', None)
