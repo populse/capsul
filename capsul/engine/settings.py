@@ -139,6 +139,12 @@ class Settings:
             uses_stack = list(uses.items())
             while uses_stack:
                 module, query = uses_stack.pop(-1)
+                # append environment to config_id if it is given in the filter
+                if 'config_id=="' in query:
+                    i = query.index('config_id=="')
+                    i = query.index('"', i+12)
+                    query = '%s-%s%s' % (query[:i], environment, query[i:])
+
                 module = self.module_name(module)
                 if module in configurations:
                     continue
@@ -193,6 +199,10 @@ class Settings:
                         # older populse_db 1.x
                         items = selected_config.items
                     selected_config = dict(items())
+                    if 'config_id' in selected_config:
+                        selected_config['config_id'] \
+                            = selected_config['config_id'][
+                                :-len(environment)-1]
                     for k, v in list(items()):
                         if v is None:
                             del selected_config[k]
@@ -483,9 +493,11 @@ class SettingsConfig(object):
     def __getattr__(self, name):
         if name in ('_id', '_environment'):
             return super(SettingsConfig, self).__getattribute__(name)
-        return self._dbs.get_value(self._collection,
-                                   '%s-%s' % (self._id, self._environment),
-                                   name)
+        value = self._dbs.get_value(self._collection,
+                                    '%s-%s' % (self._id, self._environment),
+                                    name)
+        if name == 'config_id':
+            return value[:-len(self._environment)-1]
 
     def set_values(self, values):
         id = '%s-%s' % (self._id, self._environment)
