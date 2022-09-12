@@ -385,7 +385,8 @@ class SettingsSession:
         environment, idenfified by its `Settings.config_id_field` value.
         '''
         collection = self.collection_name(module)
-        self._dbs.remove_document(collection, config_id)
+        id = '%s-%s' % (config_id, environment)
+        self._dbs.remove_document(collection, id)
 
     def configs(self, module, environment, selection=None):
         '''
