@@ -128,7 +128,9 @@ def parse_env_lines(text):
                     escape = not escape
                     if escape:
                        push(char, groups, depth, tags)
-                if char in rev_char:
+                #if char in rev_char:
+
+                if char in rev_char and char != current_tag(tags, depth):
                     start_char = char
                     push([char], groups, depth, tags, char)
                     depth += 1
