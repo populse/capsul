@@ -52,8 +52,7 @@ class SettingsEditor(Qt.QDialog):
         cancel.clicked.connect(self.reject)
         #ok.setDefault(True)
         self.environment_combo.activated.connect(self.change_environment)
-        self.environment_combo.textActivated.connect(
-            self.change_environment_text)
+        self.environment_combo.activated.connect(self.change_environment_text)
 
         self.update_gui()
         #self.tab_wid.currentChanged.connect(self.mod_tab_changed)
@@ -102,7 +101,7 @@ class SettingsEditor(Qt.QDialog):
         self.environment = self.environment_combo.currentText()
         self.update_gui()
 
-    def change_environment_text(self, text):
+    def change_environment_text(self, index):
         self.validate()
         environment = self.environment_combo.currentText()
         self.environment = environment
