@@ -498,6 +498,7 @@ class SettingsConfig(object):
                                     name)
         if name == 'config_id':
             return value[:-len(self._environment)-1]
+        return value
 
     def set_values(self, values):
         id = '%s-%s' % (self._id, self._environment)
