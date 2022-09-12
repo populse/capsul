@@ -40,10 +40,10 @@ def init_settings(capsul_engine):
                  type='list_string',
                  description='list of paths where files have to be transferred '
                     'by soma-workflow'),
-            #dict(name='path_translations',
-                 #type='dict',
-                 #description='Soma-workflow paths translations mapping: '
-                    #'{local_path: (identifier, uuid)}'),
+            dict(name='path_translations',
+                 type='json',
+                 description='Soma-workflow paths translations mapping: '
+                    '{local_path: (identifier, uuid)}'),
             ])
     initialize_callbacks(capsul_engine)
 
@@ -132,10 +132,13 @@ def edition_widget(engine, environment, config_id='any'):
                          traits.List(traits.Directory,
                             [], output=False,
                             desc=''))
-    #controller.add_trait('path_translations',
-                         #traits.Dict(
-                            #traits.Undefined, output=False,
-                            #desc=''))
+    controller.add_trait('path_translations',
+                         traits.Dict(
+                            key_trait=traits.Directory,
+                            value_trait=traits.ListStr(['', ''], minlen=2,
+                                                       maxlen=2),
+                            value={}, output=False,
+                            desc=''))
 
     conf = None
     if config_id == 'any':
@@ -168,6 +171,9 @@ def edition_widget(engine, environment, config_id='any'):
             'capsul.engine.module.somaworkflow', {}).get('queue', Undefined)
         controller.transfer_paths = conf.get(
             'capsul.engine.module.somaworkflow', {}).get('transfer_paths', [])
+        controller.path_translations = conf.get(
+            'capsul.engine.module.somaworkflow', {}).get(
+                'path_translations', {})
 
     # TODO handle several configs
 
