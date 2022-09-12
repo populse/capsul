@@ -26,7 +26,8 @@ class SettingsEditor(Qt.QDialog):
         self.environment_combo.setEditable(True)
         self.environment_combo.setInsertPolicy(
             Qt.QComboBox.InsertAlphabetically)
-        self.environment_combo.addItem('global')
+        self.environment_combo.addItems(engine.settings.get_all_environments())
+        self.environment_combo.setCurrentText('global')
         env_layout.addWidget(self.environment_combo)
         self.environment = 'global'
 
