@@ -2,6 +2,8 @@
 from __future__ import absolute_import
 
 from capsul import engine
+import traits.api as traits
+from traits.api import Undefined
 import os
 import six
 
@@ -38,11 +40,12 @@ def init_settings(capsul_engine):
                  type='list_string',
                  description='list of paths where files have to be transferred '
                     'by soma-workflow'),
-            #dict(name='path_translations',
-                 #type='dict',
-                 #description='Soma-workflow paths translations mapping: '
-                    #'{local_path: (identifier, uuid)}'),
+            dict(name='path_translations',
+                 type='json',
+                 description='Soma-workflow paths translations mapping: '
+                    '{local_path: (identifier, uuid)}'),
             ])
+    initialize_callbacks(capsul_engine)
 
 
 def activate_configurations():
@@ -60,7 +63,6 @@ def edition_widget(engine, environment, config_id='any'):
     from soma.qt_gui.controller_widget import ScrollControllerWidget
     from soma.controller import Controller
     import types
-    import traits.api as traits
 
     def validate_config(widget):
         widget.update_controller()
@@ -110,7 +112,7 @@ def edition_widget(engine, environment, config_id='any'):
                             desc='Soma-workflow computing resource to be used '
                             'to run processing'))
     controller.add_trait('config_file',
-                         traits.Str(
+                         traits.File(
                             traits.Undefined, output=False,
                             desc=''))
     controller.add_trait('keep_failed_workflows',
@@ -127,13 +129,16 @@ def edition_widget(engine, environment, config_id='any'):
                             traits.Undefined, output=False,
                             desc=''))
     controller.add_trait('transfer_paths',
-                         traits.ListStr(
+                         traits.List(traits.Directory,
                             [], output=False,
                             desc=''))
-    #controller.add_trait('path_translations',
-                         #traits.Dict(
-                            #traits.Undefined, output=False,
-                            #desc=''))
+    controller.add_trait('path_translations',
+                         traits.Dict(
+                            key_trait=traits.Directory,
+                            value_trait=traits.ListStr(['', ''], minlen=2,
+                                                       maxlen=2),
+                            value={}, output=False,
+                            desc=''))
 
     conf = None
     if config_id == 'any':
@@ -146,7 +151,7 @@ def edition_widget(engine, environment, config_id='any'):
         except Exception:
             pass
     if conf:
-        controller.directory = conf.get(
+        controller.use = conf.get(
             'capsul.engine.module.somaworkflow', {}).get('use', True)
         controller.computing_resource = conf.get(
             'capsul.engine.module.somaworkflow', {}).get('computing_resource',
@@ -156,6 +161,19 @@ def edition_widget(engine, environment, config_id='any'):
                                                          traits.Undefined)
         config_id = conf.get(
             'capsul.engine.module.somaworkflow', {}).get('config_id', config_id)
+        controller.keep_failed_workflows = conf.get(
+            'capsul.engine.module.somaworkflow',
+            {}).get('keep_failed_workflows', True)
+        controller.keep_succeeded_workflows = conf.get(
+            'capsul.engine.module.somaworkflow',
+            {}).get('keep_succeeded_workflows', False)
+        controller.queue = conf.get(
+            'capsul.engine.module.somaworkflow', {}).get('queue', Undefined)
+        controller.transfer_paths = conf.get(
+            'capsul.engine.module.somaworkflow', {}).get('transfer_paths', [])
+        controller.path_translations = conf.get(
+            'capsul.engine.module.somaworkflow', {}).get(
+                'path_translations', {})
 
     # TODO handle several configs
 
@@ -166,3 +184,93 @@ def edition_widget(engine, environment, config_id='any'):
     widget.accept = types.MethodType(validate_config, widget)
 
     return widget
+
+
+def initialize_callbacks(engine):
+    #  WARNING ref to engine in callback
+    engine.study_config.on_trait_change(
+        lambda param=None, value=None: sync_from_sc(engine, param, value),
+        '[use_soma_workflow, somaworkflow_computing_resource, '
+        'somaworkflow_config_file, somaworkflow_keep_failed_workflows, '
+        'somaworkflow_keep_succeeded_workflows, '
+        'somaworkflow_computing_resources_config]')
+    #  WARNING ref to engine in callback
+    engine.study_config.engine.settings.module_notifiers[
+        'capsul.engine.module.somaworkflow'] \
+            = [lambda param=None, value=None: sync_to_sc(engine, param, value)]
+
+
+def sync_from_sc(engine, param=None, value=None):
+    # print('sync_from_sc')
+    if getattr(engine, '_swf_syncing', False):
+        # manage recursive calls
+        return
+    engine._swf_syncing = True
+    sc = engine.study_config
+    try:
+        if 'SomaWorkflowConfig' in sc.modules \
+                and 'capsul.engine.module.somaworkflow' \
+                    in engine._loaded_modules:
+            with engine.settings as session:
+                cif = engine.settings.config_id_field
+                config = session.config('somaworkflow', 'global')
+                params = {
+                    'use_soma_workflow': 'use',
+                    'somaworkflow_computing_resource': 'computing_resource',
+                    'somaworkflow_config_file': 'config_file',
+                    'somaworkflow_keep_failed_workflows':
+                        'keep_failed_workflows',
+                    'somaworkflow_keep_succeeded_workflows':
+                        'keep_succeeded_workflows',
+                }
+                values = {}
+                for sc_param, param in params.items():
+                    value = getattr(sc, sc_param, None)
+                    if value is Undefined:
+                        value = None
+                    values[param] = value
+                if config is None:
+                    values[cif] = 'somaworkflow'
+                    session.new_config('somaworkflow', 'global', values)
+                else:
+                    for param, value in values.items():
+                        setattr(config, param, value)
+                del config
+            del session
+    finally:
+        del engine._swf_syncing
+
+
+def sync_to_sc(engine, param=None, value=None):
+    # print('sync_to_sc')
+    if getattr(engine, '_swf_syncing', False):
+        # manage recursive calls
+        return
+    engine._swf_syncing = True
+    sc = engine.study_config
+    try:
+        if 'SomaWorkflowConfig' in sc.modules \
+                and 'capsul.engine.module.somaworkflow' \
+                    in engine._loaded_modules:
+            with engine.settings as session:
+                config = session.config('somaworkflow', 'global')
+                if config:
+                    params = {
+                        'use': 'use_soma_workflow',
+                        'computing_resource':
+                            'somaworkflow_computing_resource',
+                        'config_file': 'somaworkflow_config_file',
+                        'keep_failed_workflows':
+                            'somaworkflow_keep_failed_workflows',
+                        'keep_succeeded_workflows':
+                            'somaworkflow_keep_succeeded_workflows',
+                    }
+                    for param, sc_param in params.items():
+                        value = getattr(config, param, Undefined)
+                        if value is None:
+                            value = Undefined
+                        setattr(sc, sc_param, value)
+    except ReferenceError:
+        pass
+    finally:
+        del engine._swf_syncing

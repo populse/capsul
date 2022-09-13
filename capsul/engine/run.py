@@ -170,22 +170,37 @@ def start(engine, process, workflow=None, history=True, get_pipeline=False, **kw
     from capsul.pipeline.pipeline_workflow import workflow_from_pipeline
     import soma_workflow.client as swclient
 
-    if workflow is None:
-        workflow = workflow_from_pipeline(process)
-
+    swf_config = engine.settings.select_configurations(
+        'global', {'somaworkflow': 'config_id=="somaworkflow"'})
     swm = engine.study_config.modules['SomaWorkflowConfig']
     swm.connect_resource(engine.connected_to())
     controller = swm.get_workflow_controller()
     resource_id = swm.get_resource_id()
-    queue = None
-    if hasattr(engine.study_config.somaworkflow_computing_resources_config,
-               resource_id):
-        res_conf = getattr(
-            engine.study_config.somaworkflow_computing_resources_config,
-            resource_id)
-        queue = res_conf.queue
-        if queue is Undefined:
-            queue = None
+
+    resource_config_d = engine.settings.select_configurations(
+        resource_id, {'somaworkflow': 'config_id=="somaworkflow"'})
+    resource_config = resource_config_d.get(
+        'capsul.engine.module.somaworkflow', {})
+    has_resource_config = ('capsul.engine.module.somaworkflow'
+        in resource_config_d)
+
+    if has_resource_config:
+        environment = resource_id
+    else:
+        environment = 'global'
+
+    if workflow is None:
+        workflow = workflow_from_pipeline(process, environment=environment)
+
+    queue = getattr(resource_config, 'queue', None)
+    #if hasattr(engine.study_config.somaworkflow_computing_resources_config,
+               #resource_id):
+        #res_conf = getattr(
+            #engine.study_config.somaworkflow_computing_resources_config,
+            #resource_id)
+        #queue = res_conf.queue
+        #if queue is Undefined:
+            #queue = None
     workflow_name = process.name
     wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name,
                                        queue=queue)

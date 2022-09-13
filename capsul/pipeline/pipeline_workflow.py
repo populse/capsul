@@ -604,7 +604,16 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
           else:
               setattr(process, plug_name, Undefined)
 
-    def _get_swf_paths(study_config):
+    def _get_swf_paths(engine, environment):
+        resource_conf = engine.settings.select_configurations(
+            environment, {'somaworkflow': 'config_id=="somaworkflow"'})
+        if 'capsul.engine.module.somaworkflow' in resource_conf:
+            resource_conf = resource_conf['capsul.engine.module.somaworkflow']
+            return (resource_conf.get('transfer_paths', []),
+                    resource_conf.get('path_translations', {}))
+
+        # otherwise fallback to old StudyConfig config -- OBSOLETE...
+        study_config = engine.study_config
         computing_resource = getattr(
             study_config, 'somaworkflow_computing_resource', None)
         if computing_resource in (None, Undefined):
@@ -1498,6 +1507,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
     if study_config is None:
         study_config = pipeline.get_study_config()
+    engine = study_config.engine
 
     if check_requirements:
         if pipeline.check_requirements(environment) is None:
@@ -1528,7 +1538,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     temp_subst_map = dict(temp_subst_list)
     shared_map = {}
 
-    swf_paths = _get_swf_paths(study_config)
+    swf_paths = _get_swf_paths(engine, environment)
     transfers = _get_transfers(pipeline, swf_paths[0], merged_formats)
     # get complete list of disabled leaf nodes
     if disabled_nodes is None:
