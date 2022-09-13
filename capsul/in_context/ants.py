@@ -57,10 +57,6 @@ def ants_command_with_environment(command, use_runtime_env=True):
 
     return cmd
 
-
-
-
-
 def parse_env_lines(text):
     ''' Separate text into multi-line elements, avoiding separations inside ()
     or {} blocks
@@ -88,8 +84,7 @@ def parse_env_lines(text):
         return tags[0]
 
     def parse_parentheses(s):
-        rev_char = {'(': ')', '{': '}',
-                    #'[': ']',
+        rev_char = {'(': ')', '{': '}', '[': ']',
                     '"': '"', "'": "'"}
         groups = []
         tags = [None, []]
@@ -102,18 +97,22 @@ def parse_env_lines(text):
                     escape = not escape
                     if escape:
                        push(char, groups, depth, tags)
-                if char in rev_char:
-                    start_char = char
-                    push([char], groups, depth, tags, char)
-                    depth += 1
-                elif char == rev_char.get(current_tag(tags, depth)):
+
+                if char == rev_char.get(current_tag(tags, depth)):
+                    # close tag (counterpart of the tag)
                     push(char, groups, depth, tags)
                     depth -= 1
+
+                elif char in rev_char:
+                    # open/start tag
+                    push([char], groups, depth, tags, char)
+                    depth += 1
+
                 else:
                     push(char, groups, depth, tags)
+
         except IndexError:
             raise ValueError('Parentheses mismatch', depth, groups)
-
         if depth > 0:
             raise ValueError('Parentheses mismatch 2', depth, groups)
         else:
@@ -138,8 +137,6 @@ def parse_env_lines(text):
 
     return rebuild_lines(parse_parentheses(text))
 
-
-
 def ants_env():
     '''
     get ANTS env variables
@@ -154,13 +151,9 @@ def ants_env():
     kwargs = {}
 
     cmd = ants_command_with_environment(['env'], use_runtime_env=False)
-    #new_env = soma.subprocess.check_output(cmd, **kwargs).decode(
-    #    'utf-8').strip().split('\n')
-#########
     new_env = soma.subprocess.check_output(cmd, **kwargs).decode(
          'utf-8').strip()
     new_env = parse_env_lines(new_env)
-#############
     env = {}
     for l in new_env:
         name, val = l.strip().split('=', 1)
