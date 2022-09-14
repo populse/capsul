@@ -865,9 +865,9 @@ class NodeGWidget(QtGui.QGraphicsItem):
 
     def _color_disabled(self, color):
         target = [220, 240, 220]
-        new_color = QtGui.QColor((color.red() + target[0]) / 2,
-                                 (color.green() + target[1]) / 2,
-                                 (color.blue() + target[2]) / 2)
+        new_color = QtGui.QColor(int((color.red() + target[0]) / 2),
+                                 int((color.green() + target[1]) / 2),
+                                 int((color.blue() + target[2]) / 2))
         return new_color
 
     def _create_parameter(self, param_name, pipeline_plug):
@@ -1280,7 +1280,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             else:
                 process = self.sub_pipeline
             self.scene().subpipeline_clicked.emit(self.name, process,
-                                                  event.modifiers())
+                                                  int(event.modifiers()))
             event.accept()
         else:
             event.ignore()

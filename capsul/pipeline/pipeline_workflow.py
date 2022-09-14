@@ -39,6 +39,72 @@ from soma_workflow.custom_jobs import MapJob, ReduceJob
 from six.moves import range
 
 
+class TempFile(str):
+    # class needed temporary to identify temporary paths in the pipeline.
+    # must inherit a string type since it is used as a trait value
+    def __init__(self, string=''):
+        # in python3 super(..).__init__() cannot take an argument
+        # moreover the str value is assigned anyway.
+        super(TempFile, self).__init__()
+        if isinstance(string, TempFile):
+            self.pattern = string.pattern
+            self.value = string.value
+            self.ref = string.ref if string.ref else string
+        else:
+            self.pattern = '%s'
+            self.value = string
+            self.ref = None
+
+    def referent(self):
+        return self.ref if self.ref else self
+
+    def get_value(self):
+        return self.referent().value
+
+    def __add__(self, other):
+        res = TempFile(str(self) + str(other))
+        res.pattern = self.pattern + str(other)
+        res.value = self.value
+        res.ref = self.referent()
+        return res
+
+    def __radd__(self, other):
+        res = TempFile(str(other) + str(self))
+        res.pattern = str(other) + self.pattern
+        res.value = self.value
+        res.ref = self.referent()
+        return res
+
+    def __iadd__(self, other):
+        self.pattern += str(other)
+        str(TempFile, self).__iadd__(str(other))
+
+    def __str__(self):
+        return self.pattern % self.get_value()
+
+    def __hash__(self):
+        if self.ref:
+            return self.referent().__hash__()
+        return super(TempFile, self).__hash__()
+
+    def __eq__(self, other):
+        if not isinstance(other, TempFile):
+            return False
+        return self.referent() is other.referent()
+
+    def __lt__(self, other):
+        return str(self) < other
+
+    def __gt__(self, other):
+        return str(self) > other
+
+    def __le__(self, other):
+        return str(self) <= other
+
+    def __ge__(self, other):
+        return str(self) >= other
+
+
 def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                            jobs_priority=0, create_directories=True,
                            environment='global', check_requirements=True,
@@ -86,60 +152,6 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     workflow: Workflow
         a soma-workflow workflow
     """
-
-    class TempFile(str):
-        # class needed temporary to identify temporary paths in the pipeline.
-        # must inherit a string type since it is used as a trait value
-        def __init__(self, string=''):
-            # in python3 super(..).__init__() cannot take an argument
-            # moreover the str value is assigned anyway.
-            super(TempFile, self).__init__()
-            if isinstance(string, TempFile):
-                self.pattern = string.pattern
-                self.value = string.value
-                self.ref = string.ref if string.ref else string
-            else:
-                self.pattern = '%s'
-                self.value = string
-                self.ref = None
-
-        def referent(self):
-            return self.ref if self.ref else self
-
-        def get_value(self):
-            return self.referent().value
-
-        def __add__(self, other):
-            res = TempFile(str(self) + str(other))
-            res.pattern = self.pattern + str(other)
-            res.value = self.value
-            res.ref = self.referent()
-            return res
-
-        def __radd__(self, other):
-            res = TempFile(str(other) + str(self))
-            res.pattern = str(other) + self.pattern
-            res.value = self.value
-            res.ref = self.referent()
-            return res
-
-        def __iadd__(self, other):
-            self.pattern += str(other)
-            str(TempFile, self).__iadd__(str(other))
-
-        def __str__(self):
-            return self.pattern % self.get_value()
-
-        def __hash__(self):
-            if self.ref:
-                return self.referent().__hash__()
-            return super(TempFile, self).__hash__()
-
-        def __eq__(self, other):
-            if not isinstance(other, TempFile):
-                return False
-            return self.referent() is other.referent()
-
 
     def _files_group(path, merged_formats):
         bname = os.path.basename(path)
@@ -725,7 +737,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         or type(trait.trait_type) is Any:
                     # is value in paths
                     path = getattr(process, param)
-                    if path is None or path is Undefined:
+                    if path is None or path is Undefined \
+                            or isinstance(path, TempFile) or path == '':
                         continue
                     output = bool(trait.output)
                     existing_transfers = transfers[output].get(process, {})
