@@ -57,6 +57,85 @@ def afni_command_with_environment(command, use_runtime_env=True):
 
     return cmd
 
+def parse_env_lines(text):
+    ''' Separate text into multi-line elements, avoiding separations inside ()
+    or {} blocks
+    '''
+    def push(obj, l, depth, tags, start_tag=None):
+        while depth:
+            l = l[-1]
+            tags = tags[-1]
+            depth -= 1
+
+        if start_tag:
+            tags.append([start_tag, []])
+        if isinstance(obj, str):
+            if len(l) == 0 or isinstance(l[-1], list):
+                l.append(obj)
+            else:
+                l[-1] += obj
+        else:
+            l.append(obj)
+
+    def current_tag(tags, depth):
+        while depth:
+            tags = tags[-1]
+            depth -= 1
+        return tags[0]
+
+    def parse_parentheses(s):
+        rev_char = {'(': ')', '{': '}', '[': ']',
+                    '"': '"', "'": "'"}
+        groups = []
+        tags = [None, []]
+        depth = 0
+        escape = None
+
+        try:
+            for char in s:
+                if s == '\\':
+                    escape = not escape
+                    if escape:
+                       push(char, groups, depth, tags)
+
+                if char == rev_char.get(current_tag(tags, depth)):
+                    # close tag (counterpart of the tag)
+                    push(char, groups, depth, tags)
+                    depth -= 1
+
+                elif char in rev_char:
+                    # open/start tag
+                    push([char], groups, depth, tags, char)
+                    depth += 1
+
+                else:
+                    push(char, groups, depth, tags)
+
+        except IndexError:
+            raise ValueError('Parentheses mismatch', depth, groups)
+        if depth > 0:
+            raise ValueError('Parentheses mismatch 2', depth, groups)
+        else:
+            return groups
+
+    def rebuild_lines(parsed, breaks=True):
+        lines = []
+        for item in parsed:
+            if isinstance(item, str):
+                if breaks:
+                    newlines = item.split('\n')
+                else:
+                    newlines = [item]
+            else:
+                newlines = rebuild_lines(item, breaks=False)
+            if lines:
+                lines[-1] += newlines[0]
+                lines += newlines[1:]
+            else:
+                lines = newlines
+        return lines
+
+    return rebuild_lines(parse_parentheses(text))
 
 def afni_env():
     '''
@@ -73,7 +152,8 @@ def afni_env():
 
     cmd = afni_command_with_environment(['env'], use_runtime_env=False)
     new_env = soma.subprocess.check_output(cmd, **kwargs).decode(
-        'utf-8').strip().split('\n')
+        'utf-8').strip()
+    new_env = parse_env_lines(new_env)
     env = {}
     for l in new_env:
         name, val = l.strip().split('=', 1)

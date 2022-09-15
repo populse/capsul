@@ -114,8 +114,7 @@ def parse_env_lines(text):
         return tags[0]
 
     def parse_parentheses(s):
-        rev_char = {'(': ')', '{': '}',
-                    #'[': ']',
+        rev_char = {'(': ')', '{': '}', '[': ']',
                     '"': '"', "'": "'"}
         groups = []
         tags = [None, []]
@@ -128,18 +127,22 @@ def parse_env_lines(text):
                     escape = not escape
                     if escape:
                        push(char, groups, depth, tags)
-                if char in rev_char:
-                    start_char = char
-                    push([char], groups, depth, tags, char)
-                    depth += 1
-                elif char == rev_char.get(current_tag(tags, depth)):
+
+                if char == rev_char.get(current_tag(tags, depth)):
+                    # close tag (counterpart of the tag)
                     push(char, groups, depth, tags)
                     depth -= 1
+
+                elif char in rev_char:
+                    # open/start tag
+                    push([char], groups, depth, tags, char)
+                    depth += 1
+
                 else:
                     push(char, groups, depth, tags)
+
         except IndexError:
             raise ValueError('Parentheses mismatch', depth, groups)
-
         if depth > 0:
             raise ValueError('Parentheses mismatch 2', depth, groups)
         else:
