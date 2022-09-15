@@ -675,6 +675,11 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                             or isinstance(trait.trait_type, Directory):
                         transfers[bool(trait.output)].setdefault(process, {})[
                             param] = (transfer_item, path)
+                        if trait.output:
+                            # it's an output of a "real" process: the transfer
+                            # will be as output only
+                            transfer_item.initial_status \
+                                = swclient.constants.FILES_DO_NOT_EXIST
                     #output = not output # invert IO status
 
             #if plug is None or not plug.enabled or not plug.activated \
