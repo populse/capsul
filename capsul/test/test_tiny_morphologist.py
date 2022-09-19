@@ -502,9 +502,6 @@ class TestTinyMorphologist(unittest.TestCase):
             #     value = getattr(tiny_morphologist, field.name, undefined)
             #     print(f'!{normalization}!', field.name, value)
 
-            # run it
-            # Note: to run via soma-workflow, just set this:
-            # self.capsul.config.builtin.engine_type = 'soma_workflow'
             with self.capsul.engine() as engine:
                 status = engine.run(tiny_morphologist, timeout=5)
                 self.assertEqual(status, 'ended')
@@ -771,10 +768,6 @@ class TestTinyMorphologist(unittest.TestCase):
             #{'status': 'ended', 'error': None, 'error_detail': None,
               #'engine_output': ''})
 
-def test():
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestTinyMorphologist)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
 
 if __name__ == '__main__':
     # import sys
