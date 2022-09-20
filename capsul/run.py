@@ -11,20 +11,9 @@ from .database import execution_database
 debug = False
 
 if __name__ == '__main__':
-    tmp = os.environ.get('CAPSUL_TMP')
-    if not tmp:
-        print('Capsul cannot run job because CAPSUL_TMP is not defined: '
-              f'command={sys.argv}',
-              file=sys.stderr)
-        sys.exit(1)
-    if not os.path.exists(tmp):
-        print('Capsul cannot run job because temporary directory does not exist: '
-              f'tmp="{tmp}", command={sys.argv}',
-              file=sys.stderr)
-        sys.exit(1)
     if len(sys.argv) < 2:
         print('Capsul cannot run command because parameters are missing: '
-              f'tmp="{tmp}", command={sys.argv}',
+              f'command={sys.argv}',
               file=sys.stderr)
         sys.exit(1)
     database_url = os.environ.get('CAPSUL_DATABASE')
@@ -42,7 +31,7 @@ if __name__ == '__main__':
     try:
         execution_context = database.execution_context(execution_id)
         execution_context.dataset.tmp = {
-            'path': tmp
+            'path': database.tmp(execution_id),
         }
         command = sys.argv[1]
         args = sys.argv[2:]
@@ -91,21 +80,14 @@ if __name__ == '__main__':
                             value = getattr(process, field.name, undefined)
                             if value is not undefined:
                                 print ('   ', field.name, '=', value)
-                workflow_parameters = None
+                output_values = {}
                 for field in process.user_fields():
                     if field.output:
                         value = getattr(process, field.name, undefined)
                         if value is not undefined:
-                            if workflow_parameters is None:
-                                workflow_parameters = database.workflow_parameters(execution_id)
-                                parameters = workflow_parameters
-                                for index in parameters_location:
-                                    if index.isnumeric():
-                                        index = int(index)
-                                    parameters = parameters[index]
-                            parameters[field.name] = value
-                if workflow_parameters is not None:
-                    database.set_workflow_parameters(execution_id, workflow_parameters)
+                            output_values[field.name] = value
+                if output_values is not None:
+                    database.update_workflow_parameters(execution_id, parameters_location, output_values)
             else:
                 invalid_parameters = True  
         else:
@@ -115,6 +97,6 @@ if __name__ == '__main__':
     
     if invalid_parameters:
         print('Capsul cannot run command because parameters are invalid: '
-            f'tmp="{tmp}", command={sys.argv}',
+            f'command={sys.argv}',
             file=sys.stderr)
         sys.exit(1)

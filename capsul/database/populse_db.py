@@ -36,6 +36,7 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
                 execution.add_field('failed', list[str])
                 execution.add_field('workflow_parameters', dict)
                 execution.add_field('dispose', bool)
+                execution.add_field('tmp', str)
 
                 session.add_collection('job', ('execution_id', 'uuid'))
             else:
@@ -133,6 +134,17 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
                 }
             )
 
+    def update_workflow_parameters_json(self, execution_id, parameters_location, output_values):
+        workflow_parameters = self.workflow_parameters(execution_id)
+        parameters = workflow_parameters
+        for index in parameters_location:
+            if index.isnumeric():
+                index = int(index)
+            parameters = parameters[index]
+        for k, v in output_values.items():
+            parameters[k] = v
+        self.set_workflow_parameters(execution_id, workflow_parameters)
+
     def start_time_json(self, execution_id):
         return self._get(execution_id, 'start_time')
 
@@ -163,7 +175,7 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
     def failed(self ,execution_id):
         return self._get(execution_id, 'failed')
    
-    def start_next_job_json(self, execution_id, start_time):
+    def start_one_job_json(self, execution_id, start_time):
         with self.database as session:
             execution= {}
             executions = session['execution']
@@ -264,3 +276,8 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
             else:
                 session['execution'].update_document(execution_id, {'dispose': True})
         
+    def set_tmp(self, execution_id, tmp):
+        self._set(execution_id, 'tmp', tmp)
+
+    def tmp(self, execution_id):
+        return self._get(execution_id, 'tmp')

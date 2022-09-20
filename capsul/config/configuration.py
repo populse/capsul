@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import importlib
+import tempfile
 
 from soma.controller import (Controller, field,
                              OpenKeyDictController, File)
@@ -13,7 +14,9 @@ from ..dataset import Dataset
 
 
 default_workers_type = 'builtin'
-default_database_url = 'sqlite:///tmp/capsul_engine_database.sqlite'
+default_database_url = f'sqlite://{tempfile.gettempdir()}/capsul_engine_database.sqlite'
+default_workers_type = 'celery'
+default_database_url = f'redis+socket://{tempfile.gettempdir()}/capsul_engine_database.redis'
 
 def full_module_name(module_name):
     '''

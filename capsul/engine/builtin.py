@@ -47,9 +47,9 @@ if __name__ == '__main__':
             try:
                 env = os.environ.copy()
                 env['CAPSUL_DATABASE'] = database_url
-                env['CAPSUL_TMP'] = tmp
                 env['CAPSUL_EXECUTION_ID'] = execution_id
-                job = database.start_next_job(execution_id, start_time=datetime.now())
+                database.set_tmp(execution_id, tmp)
+                job = database.start_one_job(execution_id, start_time=datetime.now())
                 while job is not None:
                     command = job['command']
                     if command is not None:
@@ -67,7 +67,7 @@ if __name__ == '__main__':
                         stderr=stderr)
                     if all_done:
                         break
-                    job = database.start_next_job(execution_id, start_time=datetime.now())
+                    job = database.start_one_job(execution_id, start_time=datetime.now())
             except Exception as e:
                 database.set_error(execution_id,
                     error=f'Builtin engine loop failure: {e}',

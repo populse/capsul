@@ -37,8 +37,11 @@ class ExecutionDatabase:
 
     @property
     def url(self):
-        return urlunsplit(self._url)
-
+        url = urlunsplit(self._url)
+        if not self._url.netloc:
+            url = url.replace(':', '://', 1)
+        return url
+    
     def new_execution(self, executable, execution_context, workflow, start_time):
         executable_json = json_encode(executable.json(include_parameters=False))
         execution_context_json = execution_context.json()
@@ -89,6 +92,9 @@ class ExecutionDatabase:
     def set_workflow_parameters(self, execution_id, workflow_parameters):
         self.set_workflow_parameters_json(execution_id, json_encode(workflow_parameters.json()))
 
+    def update_workflow_parameters(self, execution_id, parameters_location, output_values):
+        self.update_workflow_parameters_json(execution_id, parameters_location, json_encode(output_values))
+
     @staticmethod
     def _time_from_json(time_json):
         return dateutil.parser.parse(time_json)
@@ -134,6 +140,7 @@ class ExecutionDatabase:
 
     def execution_report(self, execution_id):
         report = self.execution_report_json(execution_id)
+        report['execution_id'] = execution_id
         for n in ('executable', 'execution_context', 'workflow_parameters'):
             convert = getattr(self, f'_{n}_from_json')
             report[n] = convert(report[n])
@@ -166,6 +173,7 @@ class ExecutionDatabase:
         print('status:', report['status'], file=file)
         print('start time:', report['start_time'], file=file)
         print('end time:', report['end_time'], file=file)
+        print('execution_id:', report['execution_id'], file=file)
         print('execution context:', file=file)
         pprint(report['execution_context'].asdict(), stream=file)
         if report['error']:
@@ -247,7 +255,8 @@ class ExecutionDatabase:
                 if status != 'ready':
                     break
             else:
-                raise SystemError('workers are too slow to start execution')
+                self.print_execution_report(self.execution_report(execution_id), file=sys.stderr)
+                raise SystemError(f'workers are too slow to start execution ({datetime.now()})')
         status = self.status(execution_id)
         while status == 'running':
             if timeout is not None and (time.time() - start) > timeout:
@@ -295,8 +304,8 @@ class ExecutionDatabase:
             if enable_parameter_links is not None:
                 executable.enable_parameter_links = enable_parameter_links
 
-    def start_next_job(self, execution_id, start_time):
-        return self.start_next_job_json(execution_id, self._time_to_json(start_time))
+    def start_one_job(self, execution_id, start_time):
+        return self.start_one_job_json(execution_id, self._time_to_json(start_time))
     
     def job_finished(self, execution_id, job_uuid, end_time, returncode, stdout, stderr):
         return self.job_finished_json(execution_id, job_uuid, self._time_to_json(end_time), returncode, stdout, stderr)
