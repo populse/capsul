@@ -176,7 +176,6 @@ def test():
 
 
 if __name__ == "__main__":
-    import sys
     from soma.qt_gui.qt_backend import QtGui
     from capsul.qt_gui.widgets import PipelineDeveloperView
 

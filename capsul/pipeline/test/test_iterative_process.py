@@ -25,26 +25,6 @@ def setUpModule():
     temp_home_dir = None
     old_home = os.environ.get('HOME')
     try:
-        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
-        os.environ['HOME'] = temp_home_dir
-        swconfig.change_soma_workflow_directory(temp_home_dir)
-    except BaseException:  # clean up in case of interruption
-        if old_home is None:
-            del os.environ['HOME']
-        else:
-            os.environ['HOME'] = old_home
-        if temp_home_dir:
-            shutil.rmtree(temp_home_dir)
-        raise
-
-def setUpModule():
-    global old_home
-    global temp_home_dir
-    # Run tests with a temporary HOME directory so that they are isolated from
-    # the user's environment
-    temp_home_dir = None
-    old_home = os.environ.get('HOME')
-    try:
         app_name = 'test_iterative_process'
         temp_home_dir = Path(tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
         os.environ['HOME'] = str(temp_home_dir)

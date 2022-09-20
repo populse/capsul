@@ -155,13 +155,13 @@ class TestTemporary(unittest.TestCase):
         self.output = tmpout[1]
         self.pipeline.input = '/tmp/file_in.nii'
         self.pipeline.output = self.output
-        study_config = StudyConfig(modules=['SomaWorkflowConfig'])
-        study_config.input_directory = '/tmp'
-        study_config.somaworkflow_computing_resource = 'localhost'
-        study_config.somaworkflow_computing_resources_config.localhost = {
-            'transfer_paths': [],
-        }
-        self.study_config = study_config
+        # study_config = StudyConfig(modules=['SomaWorkflowConfig'])
+        # study_config.input_directory = '/tmp'
+        # study_config.somaworkflow_computing_resource = 'localhost'
+        # study_config.somaworkflow_computing_resources_config.localhost = {
+        #     'transfer_paths': [],
+        # }
+        # self.study_config = study_config
 
     def tearDown(self):
         swm = self.study_config.modules['SomaWorkflowConfig']
