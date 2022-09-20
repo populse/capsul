@@ -59,7 +59,6 @@ if __name__ == '__main__':
                         stderr = result.stderr.decode()
                     else:
                         returncode = stdout = stderr = None
-                    command = job['command']
                     all_done = database.job_finished(execution_id, job['uuid'], 
                         end_time=datetime.now(),
                         returncode=returncode,
