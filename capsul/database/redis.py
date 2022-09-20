@@ -176,13 +176,13 @@ class RedisExecutionDatabase(ExecutionDatabase):
             if (redis.call('llen', key('ongoing')) ~= 0) or (redis.call('llen', key('ready')) ~= 0) then
                 return false
             else
+                redis.call('hdel', 'capsul_ongoing_executions', execution_id)
                 if redis.call('hexists', 'capsul_undisposed_executions', execution_id) then
                     if redis.call('llen', key('failed')) ~= 0 then
                         redis.call('set', key('error'), 'Some jobs failed')
                     end
                     redis.call('set', key('status'), 'ended')
                     redis.call('set', key('end_time'), end_time)
-                    redis.call('hdel', 'capsul_ongoing_executions', execution_id)
                     return true
                 else
                     -- TODO: reuse _dispose script

@@ -23,17 +23,20 @@ if database_url:
 
     @celery_app.task(bind=True, ignore_result=True)
     def check_shutdown(self):
+        print('!check_shutdown!')
         global database_url
         celery_app.control.revoke(self.request.id) # prevent this task from being executed again
         try:
             database = execution_database(database_url)
             try:
-                executions_count = database.redis.llen('capsul_running_executions')
+                executions_count = database.redis.llen('capsul_ongoing_executions')
+                print(f'!executions_count! {executions_count}')
                 #TODO: possible race condition here if a connection to the celery workers
                 # is done right now
                 if not executions_count:
                     # Release special database connection
-                    database.redis.hdel('capsul_connections', 'celery_workers_connection', self.uuid)
+                    print('!shutting down celery!')
+                    database.redis.hdel('capsul_connections', 'celery_workers_connection')
                     celery_app.control.shutdown() # send shutdown signal to all workers
                     return
             finally:
@@ -81,7 +84,7 @@ class CeleryWorkers(Workers):
     def _start(self, execution_id):
         if not isinstance(self.database, RedisExecutionDatabase):
             raise TypeError('Celery workers can only work with a Redis execution database')
-        tmp = tempfile.gettempdir()
+        tmp = self.database.redis.get('capsul_redis_tmp')
         workers_pid_file = f'{tmp}/capsul_celery_workers.pid'
         if not os.path.exists(workers_pid_file):
             env = os.environ.copy()

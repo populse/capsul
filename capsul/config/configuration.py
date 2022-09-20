@@ -15,8 +15,8 @@ from ..dataset import Dataset
 
 default_workers_type = 'builtin'
 default_database_url = f'sqlite://{tempfile.gettempdir()}/capsul_engine_database.sqlite'
-default_workers_type = 'celery'
-default_database_url = f'redis+socket://{tempfile.gettempdir()}/capsul_engine_database.redis'
+# default_workers_type = 'celery'
+# default_database_url = f'redis+socket://{tempfile.gettempdir()}/capsul_engine_database.redis'
 
 def full_module_name(module_name):
     '''
