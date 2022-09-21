@@ -152,6 +152,7 @@ class Settings:
                                           {}).setdefault('uses', 
                                                          {})[module] = query
                 selected_config = None
+                query_env = environment
                 full_query = '%s == "%s" AND (%s)' % (
                     Settings.environment_field, environment, (
                         'ALL' if query == 'any' else query))
@@ -176,6 +177,7 @@ class Settings:
                                                           Settings.global_environment,
                                                           ('ALL' if query == 'any' 
                                                            else query))
+                    query_env = Settings.global_environment
                     if settings._dbs.get_collection(collection):
                         docs = list(settings._dbs.filter_documents(collection, 
                                                                    full_query))
@@ -190,8 +192,7 @@ class Settings:
                             raise EnvironmentError('Cannot create '
                                 'configurations for environment "%s" because '
                                 'global settings returned %d instances for '
-                                'module %s' % (environment, len(docs),
-                                               module))
+                                'module %s' % (query_env, len(docs), module))
                 if selected_config:
                     # Remove values that are None
                     items = getattr(selected_config, '_items', None)
@@ -202,7 +203,7 @@ class Settings:
                     if 'config_id' in selected_config:
                         selected_config['config_id'] \
                             = selected_config['config_id'][
-                                :-len(environment)-1]
+                                :-len(query_env)-1]
                     for k, v in list(items()):
                         if v is None:
                             del selected_config[k]
