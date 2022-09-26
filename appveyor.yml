@@ -2,7 +2,8 @@ image: Ubuntu
 
 environment:
   matrix:
-    - TOXENV: py39
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
+      stack: python 3.9
 
 build: off
 
