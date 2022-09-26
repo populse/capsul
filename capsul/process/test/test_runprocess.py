@@ -20,6 +20,7 @@ class DummyProcess(Process):
 
 class TestRunProcess(unittest.TestCase):
     """Test case for CAPSUL command-line usage."""
+    @unittest.skip('reimplementation expected for capsul v3')
     def test_python_m_capsul(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([sys.executable, "-m", "capsul", "--help"],

@@ -3,9 +3,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import sys
-from capsul.engine import CapsulEngine
 from soma.qt_gui.qt_backend import Qt
-from soma.qt_gui.qvtabbar import QVTabBar, QVTabWidget
+from soma.qt_gui.qvtabbar import QVTabWidget
 
 
 class SettingsEditor(Qt.QDialog):

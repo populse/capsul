@@ -345,7 +345,7 @@
     "    import sys\n",
     "    # note that the qt backend may be either PyQt4 or PySide.\n",
     "    from soma.qt_gui.qt_backend import QtGui\n",
-    "    from capsul.qt_gui.widgets import PipelineDevelopperView\n",
+    "    from capsul.qt_gui.widgets import PipelineDeveloperView\n",
     "\n",
     "    # here we determine whether the Qt GUI is already running or not.\n",
     "    run_qt_loop = False\n",
@@ -357,7 +357,7 @@
     "    # in the following we will reuse this run_qt_loop variable for simplicity\n",
     "\n",
     "    # now the real thing for pipeline viewing    \n",
-    "    view1 = PipelineDevelopperView(pipeline1)\n",
+    "    view1 = PipelineDeveloperView(pipeline1)\n",
     "    view1.show()\n",
     "\n",
     "    if run_qt_loop:\n",
@@ -445,7 +445,7 @@
    "source": [
     "pipeline2 = Pipeline2()\n",
     "if globals().get('use_gui', True):\n",
-    "    view2 = PipelineDevelopperView(pipeline2)\n",
+    "    view2 = PipelineDeveloperView(pipeline2)\n",
     "    view2.show()\n",
     "    if run_qt_loop:\n",
     "        app.exec_()"
@@ -556,10 +556,10 @@
     "if globals().get('use_gui', True):\n",
     "    import sys\n",
     "    from soma.qt_gui.qt_backend import QtGui\n",
-    "    from capsul.qt_gui.widgets import PipelineDevelopperView\n",
+    "    from capsul.qt_gui.widgets import PipelineDeveloperView\n",
     "    from soma.qt_gui.controller_widget import ControllerWidget\n",
     "\n",
-    "    view = PipelineDevelopperView(xmlpipe)\n",
+    "    view = PipelineDeveloperView(xmlpipe)\n",
     "    controller = ControllerWidget(xmlpipe, live=True)\n",
     "    view.show()\n",
     "    controller.show()\n",
@@ -618,7 +618,7 @@
    "source": [
     "pipeline3 = Pipeline3()\n",
     "if globals().get('use_gui', True):\n",
-    "    view3 = PipelineDevelopperView(pipeline3, allow_open_controller=True, show_sub_pipelines=True)\n",
+    "    view3 = PipelineDeveloperView(pipeline3, allow_open_controller=True, show_sub_pipelines=True)\n",
     "    view3.show()\n",
     "    if run_qt_loop:\n",
     "        app.exec_()"
@@ -741,10 +741,10 @@
    "source": [
     "if globals().get('use_gui', True):\n",
     "    from soma.qt_gui.qt_backend import QtGui\n",
-    "    from capsul.qt_gui.widgets import PipelineDevelopperView\n",
+    "    from capsul.qt_gui.widgets import PipelineDeveloperView\n",
     "    from soma.qt_gui.controller_widget import ControllerWidget\n",
     "\n",
-    "    view = PipelineDevelopperView(xmlpipe)\n",
+    "    view = PipelineDeveloperView(xmlpipe)\n",
     "    controller = ControllerWidget(xmlpipe, live=True)\n",
     "    view.show()\n",
     "    controller.show()\n",
@@ -812,7 +812,7 @@
    "source": [
     "pipeline4 = Pipeline4()\n",
     "if globals().get('use_gui', True):\n",
-    "    view4 = PipelineDevelopperView(pipeline4, allow_open_controller=True, show_sub_pipelines=True)\n",
+    "    view4 = PipelineDeveloperView(pipeline4, allow_open_controller=True, show_sub_pipelines=True)\n",
     "    view4.show()\n",
     "    if run_qt_loop:\n",
     "        app.exec_()"
@@ -923,7 +923,7 @@
    "source": [
     "pipeline5 = Pipeline5()\n",
     "if globals().get('use_gui', True):\n",
-    "    view5 = PipelineDevelopperView(pipeline5, allow_open_controller=True, show_sub_pipelines=True)\n",
+    "    view5 = PipelineDeveloperView(pipeline5, allow_open_controller=True, show_sub_pipelines=True)\n",
     "    view5.show()\n",
     "    if run_qt_loop:\n",
     "        app.exec_()"
@@ -1020,7 +1020,7 @@
    "source": [
     "pipeline6 = Pipeline6()\n",
     "if globals().get('use_gui', True):\n",
-    "    view6 = PipelineDevelopperView(pipeline6, allow_open_controller=True, show_sub_pipelines=True)\n",
+    "    view6 = PipelineDeveloperView(pipeline6, allow_open_controller=True, show_sub_pipelines=True)\n",
     "    view6.show()\n",
     "    if run_qt_loop:\n",
     "        app.exec_()"
@@ -1752,9 +1752,9 @@
    "outputs": [],
    "source": [
     "if globals().get('use_gui', True):\n",
-    "    from capsul.qt_gui.widgets import PipelineDevelopperView\n",
+    "    from capsul.qt_gui.widgets import PipelineDeveloperView\n",
     "\n",
-    "    pv = PipelineDevelopperView(pipeline, allow_open_controller=True, show_sub_pipelines=True)\n",
+    "    pv = PipelineDeveloperView(pipeline, allow_open_controller=True, show_sub_pipelines=True)\n",
     "    pv.show()\n",
     "\n",
     "    if run_qt_loop:\n",
@@ -1895,7 +1895,7 @@
     "    ap_view = AttributedProcessWidget(mp)\n",
     "    ap_view.show()\n",
     "\n",
-    "    pv = PipelineDevelopperView(mp, allow_open_controller=True, show_sub_pipelines=True)\n",
+    "    pv = PipelineDeveloperView(mp, allow_open_controller=True, show_sub_pipelines=True)\n",
     "    pv.show()\n",
     "\n",
     "    if run_qt_loop:\n",
