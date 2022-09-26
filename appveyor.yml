@@ -6,26 +6,30 @@ environment:
 build: off
 
 install:
-  - "export MAINDIR=$PWD"
-  - "python3 -m pip install --upgrade pip"
-  - "pip3 install pydantic"
-  - "pip3 install numpy"
-  - "pip3 install six>=1.13"
-  - "pip3 install traits"
-  - "pip3 install python-dateutil"
-  - "pip3 install nipype"
-  - "git clone --depth=50 --branch=pydantic_controller https://github.com/populse/soma-base.git /tmp/soma-base"
-  - "cd /tmp/soma-base"
-  - "python3 setup.py install"
-  - "git clone --depth=50 --branch=master https://github.com/populse/soma-workflow.git /tmp/soma-workflow"
-  - "cd /tmp/soma-workflow"
-  - "python3 setup.py install"
-  - "git clone --depth=50 --branch=3.0 https://github.com/populse/populse_db.git /tmp/populse_db"
-  - "cd /tmp/populse_db"
-  - "python3 setup.py install"
-  - "cd $MAINDIR"
-  - "python3 setup.py install"
-
+  # - export MAINDIR=$PWD
+  - python3 -m pip install --upgrade pip
+  # - pip3 install pydantic
+  # - pip3 install numpy
+  # - pip3 install six>=1.13
+  # - pip3 install traits
+  # - pip3 install python-dateutil
+  # - pip3 install nipype
+  - python3 -m pip install https://github.com/populse/soma-base.git@pydantic_controller
+  - python3 -m pip install https://github.com/populse/soma-workflow.git
+  - python3 -m pip install https://github.com/populse/populse_db.git@3.0
+  # - "git clone --depth=50 --branch=pydantic_controller https://github.com/populse/soma-base.git /tmp/soma-base"
+  # - "cd /tmp/soma-base"
+  # - "python3 setup.py install"
+  # - "git clone --depth=50 --branch=master https://github.com/populse/soma-workflow.git /tmp/soma-workflow"
+  # - "cd /tmp/soma-workflow"
+  # - "python3 setup.py install"
+  # - "git clone --depth=50 --branch=3.0 https://github.com/populse/populse_db.git /tmp/populse_db"
+  # - "cd /tmp/populse_db"
+  # - "python3 setup.py install"
+  # - "cd $MAINDIR"
+  # - "python3 setup.py install"
+  - python3 -m pip install .
+  
 test_script:
   - "python3 --version"
   - echo $PYTHONPATH
