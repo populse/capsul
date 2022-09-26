@@ -1,5 +1,9 @@
 image: Ubuntu
 
+environment:
+  matrix:
+    - TOXENV: py39
+
 build: off
 
 install:
