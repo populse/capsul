@@ -1,19 +1,22 @@
-image: Ubuntu
+environment:
+  matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
+      PYTHON: 3.9
 
 build: off
 
 install:
-  - python3 -m pip install --upgrade pip
-  - python3 -m pip install git+https://github.com/populse/soma-base.git@pydantic_controller
-  - python3 -m pip install git+https://github.com/populse/soma-workflow.git
-  - python3 -m pip install git+https://github.com/populse/populse_db.git@3.0
-  - python3 -m pip install .
+  - python=$HOME/venv$PYTHON/bin/python
+  - $python -m pip install --upgrade pip
+  - $python -m pip install git+https://github.com/populse/soma-base.git@pydantic_controller
+  - $python -m pip install git+https://github.com/populse/soma-workflow.git
+  - $python -m pip install git+https://github.com/populse/populse_db.git@3.0
+  - $python -m pip install .
 
 test_script:
-  - "python3 --version"
-  - echo $PYTHONPATH
-  - "python3 -c \"import sys; print(sys.path)\""
-  - "python3 -m capsul.test"
+  - python=$HOME/venv$PYTHON/bin/python
+  - $python --version
+  - $python -m capsul.test
 
 notifications:
   - provider: Email
