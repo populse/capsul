@@ -6,6 +6,7 @@ name: test_v3
 on:
   push:
     branches:
+    - master
     - celery_redis
     
   pull_request:
