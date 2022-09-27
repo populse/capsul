@@ -5,10 +5,13 @@ name: test_v3
 
 on:
   push:
-    branches: [ "celery_redis" ]
+    branches:
+    - celery_redis
     
   pull_request:
-    branches: [ "celery_redis", "pydantic_controller" ]
+    branches:
+    - celery_redis
+    - pydantic_controller
 
 permissions:
   contents: read
