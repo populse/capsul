@@ -2,7 +2,6 @@
 
 import unittest
 from capsul.api import Process, Pipeline, executable
-from capsul.pipeline import pipeline_workflow
 from capsul.pipeline import python_export
 from soma.controller import File
 import os

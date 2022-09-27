@@ -80,7 +80,7 @@ class FakeSPMNormalization12BrainVISA(
 class TestPipelineBIDS(ProcessSchema, schema='bids',
                        process=TestPipeline):
     _ = {
-        '*': {'process': 'test_pipeline'}
+        '*': {'pipeline': 'test_pipeline'}
     }
 
 class TestPipelineBrainVISA(ProcessSchema, schema='brainvisa',
@@ -115,7 +115,7 @@ class TestCompletion(unittest.TestCase):
 
         # Configuration base dictionary
         config = {
-            'local': {
+            'builtin': {
                 'config_modules': [
                     'capsul.test.test_fake_morphologist',
                 ],

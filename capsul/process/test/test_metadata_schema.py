@@ -92,7 +92,7 @@ class TestCompletion(unittest.TestCase):
             output.mkdir()
             with (config / f'{app_name}.json').open('w') as f:
                 json.dump({
-                    'local': {
+                    'builtin': {
                         'python_modules': [
                             'capsul.process.test.test_metadata_schema'
                         ],

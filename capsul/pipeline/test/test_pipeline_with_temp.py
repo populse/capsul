@@ -150,7 +150,8 @@ class TestPipelineWithTemp(unittest.TestCase):
             self.assertTrue(os.path.exists(output_name))
             with open(input_name) as f:
                 with open(output_name) as g:
-                    self.assertEqual(f.read() * 3, g.read())
+                    r = g.read()
+                    self.assertEqual(f.read() * 3, r)
             # check temporary filenames
             o = self.iter_pipeline.nodes['node1'].output_image
             self.assertEqual(len(o), 3)
@@ -175,7 +176,6 @@ def test():
 
 
 if __name__ == "__main__":
-    import sys
     from soma.qt_gui.qt_backend import QtGui
     from capsul.qt_gui.widgets import PipelineDeveloperView
 

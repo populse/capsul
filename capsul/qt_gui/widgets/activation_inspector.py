@@ -80,7 +80,7 @@ class ActivationInspectorApp(Application):
         self.controller_window = ControllerWidget(self.pipeline)
         self.activation_window = ActivationInspector(
             self.pipeline, ui_file, self.record_file,
-            developper_view=self.pipeline_window)
+            developer_view=self.pipeline_window)
         self.pipeline_window.show()
         self.activation_window.show()
         self.controller_window.show()
@@ -91,7 +91,7 @@ class ActivationInspector(QtGui.QWidget):
     """ A Widget to display the pipeline activation process step by step.
     """
     def __init__(self, pipeline, ui_file=None, record_file=None,
-                 developper_view=None, parent=None):
+                 developer_view=None, parent=None):
         """ Initialize the ActivationInspector class.
 
         Parameters
@@ -104,7 +104,7 @@ class ActivationInspector(QtGui.QWidget):
         record_file: str (optional)
             a file path where the activation steps are recorded.
             If not specified (None), it will create a temporary file.
-        developper_view: PipelineDeveloperView (optional)
+        developer_view: PipelineDeveloperView (optional)
             if specified it is possible to click on a plug to set a filter
             pattern and to update the pipeline activation accordingly.
         """
@@ -147,7 +147,7 @@ class ActivationInspector(QtGui.QWidget):
         # Store class parameters
         self.pipeline = pipeline
         self.record_file = record_file
-        self.developper_view = developper_view
+        self.developer_view = developer_view
 
         # Set the pipeline record file if folder exists
         if os.path.isdir(os.path.dirname(self.record_file)):
@@ -173,8 +173,8 @@ class ActivationInspector(QtGui.QWidget):
 
         # Dynamically select a filter rule by clicking on the pipeline view
         # plugs
-        if developper_view is not None:
-          developper_view.plug_clicked.connect(self.set_filter_pattern)
+        if developer_view is not None:
+          developer_view.plug_clicked.connect(self.set_filter_pattern)
 
     def show(self):
         """ Shows the widget and its child widgets.

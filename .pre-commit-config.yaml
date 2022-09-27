@@ -26,3 +26,5 @@ repos:
         name: flake8 under python3
         language_version: python3
         exclude: ^(doc/source|capsul)/sphinxext/
+        args: 
+        - --ignore=F722,F821

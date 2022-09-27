@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
-from itertools import chain
 from uuid import uuid4
 import importlib
 
-from populse_db import Database
 from soma.controller import Controller, OpenKeyDictController
 from soma.api import DictWithProxy
 from soma.undefined import undefined
 
-from .application import Capsul, executable
 from .dataset import Dataset
 from .pipeline.pipeline import Process, Pipeline
 from capsul.process.process import NipypeProcess
 from .pipeline.process_iteration import ProcessIteration
-from capsul.config.configuration import get_config_class, ModuleConfiguration
+from capsul.config.configuration import get_config_class
+from .config.configuration import ModuleConfiguration
 
 
 class ExecutionContext(Controller):
@@ -56,115 +53,32 @@ class ExecutionContext(Controller):
             if hasattr(cls, 'init_execution_context'):
                 cls.init_execution_context(self)
 
-
-class ExecutionDatabase:
-    def __init__(self, path):
-        self.db = Database(path)
-        self.collection = None
-    
-    def __enter__(self):
-        session = self.session = self.db.__enter__()
-        if not session.has_collection('status'):
-            session.add_collection('status')
-            status = session['status']
-            status.add_field('status', str)
-            status.add_field('execution_context', dict)
-            status.add_field('start_time', datetime)
-            status.add_field('end_time', datetime)
-            # status.add_field('debug_messages', list[str])
-            status.add_field('error', str)
-            status.add_field('error_detail', str)
-            status.add_field('executable', dict)
-            status[''] = {}
-
-            session.add_collection('jobs', 'uuid')
-            jobs = session['jobs']
-            jobs.add_field('command', list[str])
-            jobs.add_field('wait_for', list[str])
-            jobs.add_field('process', dict)
-            jobs.add_field('parameters_location', list[str])
-
-            session.add_collection('workflow', 'uuid')
-            workflow = session['workflow']
-            workflow.add_field('temporaries', dict)
-            workflow.add_field('parameters', dict[str, list])
-        return self
-    
-    def __exit__(self, *args):
-        self.db.__exit__(*args)
-        self.session = None
-        
-    @property
-    def status(self):
-        row = self.session['status'].document('', fields=['status'], as_list=True)
-        if row is not None:
-            return row[0]
-
-    @status.setter
-    def status(self, status):
-        self.session['status'].update_document('', {'status': status})
-
-    @property
-    def execution_context(self):
-        row = self.session['status'].document('', fields=['execution_context'], as_list=True)
-        if row is not None:
-            return ExecutionContext(config=row[0])
-
-    @execution_context.setter
-    def execution_context(self, execution_context):
-        json_context = execution_context.json()
+    def json(self):
+        json_context = super().json()
         for k in list(json_context):
             # replace module classes with long name, if they are not in the
             # standard location (capsul.config)
-            m = getattr(execution_context, k)
+            m = getattr(self, k)
             if isinstance(m, ModuleConfiguration) \
                     and m.__class__.__module__.split('.') \
                         != ['capsul', 'config', m.name]:
                 cls_name = f'{m.__class__.__module__}.{m.__class__.__name__}'
                 json_context[cls_name] = json_context[k]
                 del json_context[k]
+        return json_context
 
-        self.session['status'].update_document('', {'execution_context': json_context})
-    
-    @property
-    def executable(self):
-        row = self.session['status'].document('', fields=['executable'], as_list=True)
-        if row is not None:
-            return Capsul.executable(row[0])
-
-    @executable.setter
-    def executable(self, executable):
-        self.session['status'].update_document('', {'executable': executable.json()})
-    
-    @property
-    def start_time(self):
-        row = self.session['status'].document('', fields=['start_time'], as_list=True)
-        if row is not None:
-            return row[0]
-
-    @start_time.setter
-    def start_time(self, value):
-        self.session['status'].update_document('', {'start_time': value})
-
-    def save_workflow(self, workflow):
-        for job_uuid, job in workflow.jobs.items():
-            self.session['jobs'][job_uuid] = job
-        self.session['workflow'][''] = {}
-        self.workflow_parameters = workflow.parameters
-
-    @property
-    def workflow_parameters(self):
-        row = self.session['workflow'].document('', fields=['parameters'], as_list=True)
-        if row is not None:
-            return DictWithProxy.from_json(row[0])
-        return None
-    
-    @workflow_parameters.setter
-    def workflow_parameters(self, parameters):
-        self.session['workflow'].update_document('', {'parameters': parameters.json()})
-
-    def jobs(self):
-        return self.session['jobs'].documents()
+    def executable_requirements(self, executable):
+        result = {}
+        if isinstance(executable, ProcessIteration):
+            for process in executable.iterate_over_process_parmeters():
+                if process.activated:
+                    result.update(self.executable_requirements(process))
+        elif isinstance(executable, Pipeline):
+            for node in executable.all_nodes():
+                if node is not executable and isinstance(node, Process) and node.activated:
+                    result.update(self.executable_requirements(node))
+        result.update(getattr(executable, 'requirements', {}))
+        return result
 
 
 class CapsulWorkflow(Controller):
@@ -225,9 +139,13 @@ class CapsulWorkflow(Controller):
             del self.jobs[disabled_job[0]]
     
         # Transform wait_for sets to lists for json storage
-        for job in self.jobs.values():
-            job['wait_for'] = list(job['wait_for'])
-    
+        # and add waited_by
+        for waiting, job in self.jobs.items():
+            wait_for = list(job['wait_for'])
+            job['wait_for'] = wait_for
+            for waited in wait_for:
+                self.jobs[waited].setdefault('waited_by',[]).append(waiting)
+        
     def _create_jobs(self,
                      executable,
                      jobs_per_process,
@@ -336,12 +254,14 @@ class CapsulWorkflow(Controller):
             job_uuid = str(uuid4())
             if disabled:
                 self.jobs[job_uuid] = {
+                    'uuid': job_uuid,
                     'command': None,
                     'wait_for': set(),
                     'waited_by': set(),
                 }
             else:
                 self.jobs[job_uuid] = {
+                    'uuid': job_uuid,
                     'command': ['python', '-m', 'capsul.run', 'process', job_uuid],
                     'wait_for': set(),
                     'process': process.json(include_parameters=False),

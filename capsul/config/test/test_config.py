@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-import unittest
-from capsul.config import (ApplicationConfiguration, ConfigurationLayer,
-                           EngineConfiguration)
-from soma.controller import undefined
-import sys
+import json
 import os
 import os.path as osp
 import shutil
 import tempfile
-import json
+import unittest
+
+from soma.controller import undefined
+
+from capsul.config import ApplicationConfiguration
+from capsul.config.configuration import default_workers_type, default_database_url
 
 
 class TestConfiguration(unittest.TestCase):
@@ -26,8 +27,9 @@ class TestConfiguration(unittest.TestCase):
 
         user_file = osp.join(self.tmp_dir, 'user_conf.json')
         conf_dict = {
-            'local': {
-                'engine_type': 'builtin',
+            'builtin': {
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -44,18 +46,26 @@ class TestConfiguration(unittest.TestCase):
                                               user_file=user_file)
         self.maxDiff = 2000
         self.assertEqual(
-            app_config.asdict(),
-            {'site': {'local': {'engine_type': 'builtin'}},
-             'app_name': 'single_conf',
-             'user': conf_dict,
-             'merged_config': conf_dict,
-             'user_file': user_file})
+            app_config.asdict(), {
+                'site': {
+                    'builtin': {
+                        'workers_type': default_workers_type,
+                        'database_url': default_database_url,
+                    }
+                },
+                'app_name': 'single_conf',
+                'user': conf_dict,
+                'merged_config': conf_dict,
+                'user_file': user_file
+            }
+        )
 
     def test_config_assignment(self):
 
         conf_dict = {
-            'local': {
-                'engine_type': 'builtin',
+            'builtin': {
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -72,25 +82,30 @@ class TestConfiguration(unittest.TestCase):
                                               user_file=None)
         app_config.user = conf_dict
 
-        # print(app_config.asdict())
         self.maxDiff = None
         self.assertEqual(
             app_config.asdict(),
-            {'site': {'local': {'engine_type': 'builtin'}},
+            {'site': {'builtin': {
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
+              }},
              'app_name': 'single_conf2',
              'user': conf_dict,
-             'merged_config': {'local': {'engine_type': 'builtin'}}})
+             'merged_config': {'builtin': {
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
+             }}})
 
     def test_config_merge(self):
         user_conf_dict = {
-            'local': {
+            'builtin': {
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/usr/local/spm12_standalone',
                         'standalone': True},
                     }}}
         site_conf_dict = {
-            'local': {
+            'builtin': {
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/i2bm/local/spm12_standalone',
@@ -107,8 +122,9 @@ class TestConfiguration(unittest.TestCase):
                         'setup_script': '/i2bm/local/fsl/etc/fslconf/fsl.sh'
                     }}}}
         merged_conf_dict = {
-            'local': {
-                'engine_type': 'builtin',
+            'builtin': {
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {

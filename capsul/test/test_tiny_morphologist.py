@@ -10,8 +10,9 @@ from soma.controller import field, File
 from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
-from capsul.config.configuration import ModuleConfiguration
+from capsul.config.configuration import ModuleConfiguration, default_workers_type, default_database_url
 from capsul.dataset import ProcessMetadata, ProcessSchema
+
 
 class FakeSPMConfiguration(ModuleConfiguration):
     ''' SPM configuration module
@@ -190,6 +191,7 @@ class TinyMorphologistBIDS(ProcessSchema, schema='bids', process=TinyMorphologis
     _ = {
         '*': {'process': 'tinymorphologist'}
     }
+    input = {'process': None}
     left_hemisphere = {'part': 'left_hemi'}
     right_hemisphere = {'part': 'right_hemi'}
 
@@ -197,6 +199,7 @@ class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process=TinyM
     _ = {
         '*': {'process': 'tinymorphologist'}
     }
+    input = {'process': None}
     left_hemisphere = {'prefix': 'left_hemi'}
     right_hemisphere = {'prefix': 'right_hemi'}
 
@@ -292,7 +295,7 @@ class TestTinyMorphologist(unittest.TestCase):
 
         # Configuration base dictionary
         config = {
-            'local': {
+            'builtin': {
                 'config_modules': [
                     'capsul.test.test_tiny_morphologist',
                 ],
@@ -321,7 +324,7 @@ class TestTinyMorphologist(unittest.TestCase):
                 'directory': str(fakespm),
                 'version': version,
             }
-            config['local'].setdefault('fakespm', {})[f'fakespm_{version}'] = fakespm_config
+            config['builtin'].setdefault('fakespm', {})[f'fakespm_{version}'] = fakespm_config
             
 
         # Create a configuration file
@@ -341,8 +344,9 @@ class TestTinyMorphologist(unittest.TestCase):
     def test_tiny_morphologist_config(self):
         self.maxDiff = 2000
         expected_config = {
-            'local': {
-                'engine_type': 'builtin',
+            'builtin': {
+                'workers_type': default_workers_type,
+                'database_url': default_database_url,
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),
@@ -413,7 +417,7 @@ class TestTinyMorphologist(unittest.TestCase):
         dict_context = context.asdict()
         self.assertEqual(dict_context, expected_context)
 
-    def test_path_generation(self):
+    def test_tiny_path_generation(self):
         expected = {
             'none': {
                 'template': '!{fakespm.directory}/template',
@@ -474,7 +478,7 @@ class TestTinyMorphologist(unittest.TestCase):
                 metadata.bids.asdict(),
                 {
                     'folder': 'rawdata',
-                    'pipeline': None, 
+                    'process': None, 
                     'sub': 'aleksander', 
                     'ses': 'm0', 
                     'data_type': 'anat', 
@@ -498,15 +502,9 @@ class TestTinyMorphologist(unittest.TestCase):
             #     value = getattr(tiny_morphologist, field.name, undefined)
             #     print(f'!{normalization}!', field.name, value)
 
-            # run it
-            # Note: to run via soma-workflow, just set this:
-            # self.capsul.config.local.engine_type = 'soma_workflow'
             with self.capsul.engine() as engine:
-                status = engine.run(tiny_morphologist)
-            self.assertEqual(
-                status,
-                {'status': 'ended', 'error': None, 'error_detail': None,
-                 'engine_output': ''})
+                status = engine.run(tiny_morphologist, timeout=5)
+                self.assertEqual(status, 'ended')
 
 
     def test_pipeline_iteration(self):
@@ -732,7 +730,7 @@ class TestTinyMorphologist(unittest.TestCase):
         # BIDS fields (sub, ses, acq, etc.)
         inputs = []
         normalizations = []
-        for path in sorted(self.capsul.config.local.dataset.input.find(suffix='T1w', extension='nii')):
+        for path in sorted(self.capsul.config.builtin.dataset.input.find(suffix='T1w', extension='nii')):
             input_metadata = execution_context.dataset['input'].schema.metadata(path)
             inputs.extend([input_metadata]*3)
             normalizations += ['none', 'aims', 'fakespm8']
@@ -755,7 +753,7 @@ class TestTinyMorphologist(unittest.TestCase):
 
         # run it
         # Note: to run via soma-workflow, just set this:
-        # self.capsul.config.local.engine_type = 'soma_workflow'
+        # self.capsul.config.builtin.engine_type = 'soma_workflow'
 
         #status = None
         #try:
@@ -770,21 +768,21 @@ class TestTinyMorphologist(unittest.TestCase):
             #{'status': 'ended', 'error': None, 'error_detail': None,
               #'engine_output': ''})
 
-def test():
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestTinyMorphologist)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
 
 if __name__ == '__main__':
-    import sys
-    sys.stdout.flush()
-    from soma.qt_gui.qt_backend import QtGui
-    from capsul.qt_gui.widgets import PipelineDeveloperView
-    tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
-    app = QtGui.QApplication.instance()
-    if not app:
-        app = QtGui.QApplication(sys.argv)
-    view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
-    view1.show()
-    app.exec_()
-    del view1
+    # import sys
+    # sys.stdout.flush()
+    # from soma.qt_gui.qt_backend import QtGui
+    # from capsul.qt_gui.widgets import PipelineDeveloperView
+    # tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
+    # app = QtGui.QApplication.instance()
+    # if not app:
+    #     app = QtGui.QApplication(sys.argv)
+    # view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
+    # view1.show()
+    # app.exec_()
+    # del view1
+    t = TestTinyMorphologist()
+    t.setUp()
+    t.test_tiny_path_generation()
+    t.tearDown()

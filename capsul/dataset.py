@@ -133,10 +133,10 @@ class BIDSSchema(MetadataSchema):
     schema_name = 'bids'
 
     folder: Literal['sourcedata', 'rawdata', 'derivative']
-    pipeline: str = None
+    process: str = None
     sub: str
     ses: str
-    data_type: str
+    data_type: str = None
     task: str = None
     acq: str = None
     ce: str = None
@@ -144,7 +144,7 @@ class BIDSSchema(MetadataSchema):
     run: str = None
     echo: str = None
     part: str = None
-    suffix: str
+    suffix: str = None
     extension: str
 
     path_pattern = re.compile(
@@ -160,7 +160,7 @@ class BIDSSchema(MetadataSchema):
         r'(?:_run-(?P<run>[^-_/]*))?'
         r'(?:_echo-(?P<echo>[^-_/]*))?'
         r'(?:_part-(?P<part>[^-_/]*))?'
-        r'_(?P<suffix>[^-_/]*)\.(?P<extension>.*)$'
+        r'(?:_(?P<suffix>[^-_/]*))?\.(?P<extension>.*)$'
     )
 
     def __init__(self, base_path='', **kwargs):
@@ -176,11 +176,14 @@ class BIDSSchema(MetadataSchema):
           sub-{sub}/ses-{ses}/{data_type}/sub-{sub}_ses-{ses}[_task-{task}][_acq-{acq}][_ce-{ce}][_rec-{rec}][_run-{run}][_echo-{echo}][_part-{part}]{modality}.{extension}
         '''
         path_list = [self.folder]
-        if self.pipeline:
-            path_list += [self.pipeline]
+        if self.process:
+            path_list += [self.process]
         path_list += [f'sub-{self.sub}',
-                      f'ses-{self.ses}',
-                      self.data_type]
+                      f'ses-{self.ses}']
+        if self.data_type:
+            path_list.append(self.data_type)
+        elif not self.process:
+            raise ValueError('BIDS schema requires a value for either data_type or process')
 
         filename = [f'sub-{self.sub}',
                     f'ses-{self.ses}']
@@ -188,7 +191,10 @@ class BIDSSchema(MetadataSchema):
             value = getattr(self, key, undefined)
             if value:
                 filename.append(f'{key}-{value}')
-        filename.append(f'{self.suffix}.{self.extension}')
+        if self.suffix:
+            filename.append(f'{self.suffix}.{self.extension}')
+        else:
+            filename[-1] += f'.{self.extension}'
         path_list.append('_'.join(filename))
         return path_list
     
@@ -266,7 +272,10 @@ class BIDSSchema(MetadataSchema):
         -------
         Yields a path for every match.
         '''
-        layout = self.__class__(self.base_path, **kwargs)
+        if 'data_type' not in kwargs and 'process' not in kwargs:
+            layout = self.__class__(self.base_path, data_type='*', **kwargs)
+        else:
+            layout = self.__class__(self.base_path, **kwargs)
         for field in layout.fields():
             value = getattr(layout, field.name, undefined) 
             if value is undefined:
@@ -622,7 +631,11 @@ class ProcessMetadata(Controller):
                     # merge attributes
                     level = len(path_schemas) - 1
                     for pipeline_name, process, process_parameter in reversed(path):
-                        dprint(debug, 'pname:', pipeline_name, ', def:', process.definition, ', par:', process_parameter)
+                        dprint(debug, 
+                               'pname:', pipeline_name, 
+                               ', def:', process.definition, 
+                               ', par:', process_parameter,
+                               ', lev:', level)
                         if isinstance(process, ProcessIteration):
                             metadata_schema = path_schemas[level]
                             if metadata_schema:
