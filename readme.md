@@ -1,7 +1,6 @@
 # Capsul v3
 
-[![test_v3](https://github.com/populse/capsul/actions/workflows/test-v3.yml/badge.svg?branch=celery_redis)](https://github.com/populse/capsul/actions/workflows/test-v3.yml)
-
+[![Test v3](https://github.com/populse/capsul/actions/workflows/test-v3.yml/badge.svg?branch=pydantic_controller)](https://github.com/populse/capsul/actions/workflows/test-v3.yml)
 
 This branch contains the code of the future 3.0 release. This is still work in progress and using it is not possible through standards installation means such as Pypi.
 
