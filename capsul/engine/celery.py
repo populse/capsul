@@ -16,7 +16,7 @@ from ..database import execution_database
 from ..database.redis import RedisExecutionDatabase
 from . import Workers
 
-shutdown_countdown = 10
+shutdown_countdown = 30
 
 database_url = os.environ.get('CAPSUL_DATABASE')
 if database_url:
