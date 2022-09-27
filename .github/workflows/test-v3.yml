@@ -6,8 +6,8 @@ name: Test Capsul v3
 on:
   push:
     branches: [ "celery_redis" ]
-  # pull_request:
-  #   branches: [ "master" ]
+  pull_request:
+    branches: [ "pydantic_controller" ]
 
 permissions:
   contents: read
