@@ -11,9 +11,6 @@ install:
   - $python -m pip install git+https://github.com/populse/soma-base.git@pydantic_controller
   - $python -m pip install git+https://github.com/populse/soma-workflow.git
   - $python -m pip install git+https://github.com/populse/populse_db.git@3.0
-  - sudo apt install tree
-  - echo $PWD
-  - tree
   - $python -m pip install .
 
 test_script:
