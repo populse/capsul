@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import sys
 
 # Remove a warning message: see https://github.com/celery/kombu/issues/1339
 import warnings
@@ -92,7 +93,7 @@ class CeleryWorkers(Workers):
                 'CAPSUL_DATABASE': self.database.url,
             })
             cmd = [
-                'celery',
+                sys.executable, '-m', 'celery',
                 '-A', 'capsul.engine.celery',
                 'multi', 'start',
                 'capsul_celery_workers',
