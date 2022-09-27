@@ -1,13 +1,14 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Test Capsul v3
+name: test_v3
 
 on:
   push:
     branches: [ "celery_redis" ]
+    
   pull_request:
-    branches: [ "pydantic_controller" ]
+    branches: [ "celery_redis", "pydantic_controller" ]
 
 permissions:
   contents: read
