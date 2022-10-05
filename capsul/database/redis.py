@@ -212,7 +212,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 return 'capsul:' .. ARGV[1] .. ':' .. name
             end
 
-            local executable = redis.call('get', key('executable'))
+            local label = redis.call('get', key('label'))
             local execution_context = redis.call('get', key('execution_context'))
             local workflow_parameters = redis.call('get', key('workflow_parameters'))
             local status = redis.call('get', key('status'))
@@ -231,7 +231,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     table.insert(jobs, v)
                 end
             end
-            return {executable, execution_context, workflow_parameters, 
+            return {label, execution_context, workflow_parameters, 
                 status, error, error_detail, start_time, end_time, 
                 waiting, ready, ongoing, done, failed, jobs}                
             ''')
@@ -325,6 +325,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
         return RedisExecutionPipeline(self.redis.pipeline(), execution_id)
 
     def store_execution(self,
+            label,
             start_time, 
             executable_json,
             execution_context_json,
@@ -337,6 +338,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
         pipe = self.pipeline(execution_id)
         pipe.pipeline.hset('capsul_ongoing_executions', execution_id, datetime.now().isoformat())
         pipe.pipeline.hset('capsul_undisposed_executions', execution_id, datetime.now().isoformat())
+        pipe.set('label', label)
         pipe.set( 'status', ('ready' if ready else 'ended'))
         pipe.set('start_time', start_time)
         pipe.set('executable', json.dumps(executable_json))
@@ -430,11 +432,11 @@ class RedisExecutionDatabase(ExecutionDatabase):
             return bool(r)
 
     def execution_report_json(self, execution_id):
-        (executable, execution_context, workflow_parameters, status, error,
+        (label, execution_context, workflow_parameters, status, error,
          error_detail, start_time, end_time, waiting, ready,
          ongoing, done, failed, jobs) = self._full_report(args=[execution_id])
         result = dict(
-            executable=json.loads(executable),
+            label=label,
             execution_context=json.loads(execution_context),
             status=status,
             error=error,

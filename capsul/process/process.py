@@ -136,6 +136,9 @@ class Process(Node):
     def requirements(self):
         return getattr(super(), 'requirements', {})
 
+    @property
+    def label(self):
+        return self.name
 
     def json(self, include_parameters=True):
         '''

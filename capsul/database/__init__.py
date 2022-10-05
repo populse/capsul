@@ -55,6 +55,7 @@ class ExecutionDatabase:
             else:
                 ready.append(job['uuid'])
         execution_id = self.store_execution(
+            label=executable.label,
             start_time=self._time_to_json(start_time),
             executable_json=executable_json,
             execution_context_json=execution_context_json,
@@ -141,7 +142,7 @@ class ExecutionDatabase:
     def execution_report(self, execution_id):
         report = self.execution_report_json(execution_id)
         report['execution_id'] = execution_id
-        for n in ('executable', 'execution_context', 'workflow_parameters'):
+        for n in ('execution_context', 'workflow_parameters'):
             convert = getattr(self, f'_{n}_from_json')
             report[n] = convert(report[n])
         for n in ('start_time', 'end_time'):
@@ -169,7 +170,7 @@ class ExecutionDatabase:
         print('====================\n'
               '| Execution report |\n'
               '====================\n', file=file)
-        print('executable:', report['executable'].definition, file=file)
+        print('label:', report['label'], file=file)
         print('status:', report['status'], file=file)
         print('start time:', report['start_time'], file=file)
         print('end time:', report['end_time'], file=file)
@@ -190,7 +191,6 @@ class ExecutionDatabase:
         print('ongoing:', report['ongoing'])
         print('done:', report['done'])
         print('failed:', report['failed'])
-
         now = datetime.now()
         for job in sorted(report['jobs'], key=lambda j: (j.get('start_time') if j.get('start_time') else now)):
             job_uuid = job['uuid']

@@ -1405,4 +1405,11 @@ def test():
     return runtime.wasSuccessful()
 
 if __name__ == '__main__':
-    test()
+    t = TestFakeMorphologist()
+    t.subjects = [f'subject_{i:04}' for i in range(2000)]
+    print(f'Setting up config and data files for {len(t.subjects)} subjects and 3 time points')
+    t.setUp()
+    try:
+        ...
+    finally:
+        t.tearDown()

@@ -63,7 +63,11 @@ class ProcessIteration(Process):
             self._add_plug(parameter)
 
         self.metadata_schema = getattr(self.process, 'metadata_schema', {})
-
+    
+    @property
+    def label(self):
+        return self.process.name + f'[{self.iteration_size()}]'
+    
     def change_iterative_plug(self, parameter, iterative=None):
         '''
         Change a parameter to be iterative (or non-iterative)
@@ -158,3 +162,12 @@ class ProcessIteration(Process):
         if include_parameters:
             result['parameters'] = super(Process,self).json()
         return result
+    
+    def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True,
+                         activated_only=True, process_only=True):
+        return self.process.get_linked_items(
+            node=node,
+            plug_name=plug_name,
+            in_sub_pipelines=in_sub_pipelines,
+            activated_only=activated_only,
+            process_only=process_only)

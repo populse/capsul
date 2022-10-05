@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
+from capsul.qt_gui.execution_gui import execution_widget
 
 from soma.controller import field, File
 from soma.controller import Directory, undefined
@@ -507,7 +508,7 @@ class TestTinyMorphologist(unittest.TestCase):
                 self.assertEqual(status, 'ended')
 
 
-    def test_pipeline_iteration(self):
+    def test_tiny_morphologist_iteration(self):
         expected_completion = {
             'input': [
                         '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
@@ -734,8 +735,6 @@ class TestTinyMorphologist(unittest.TestCase):
             input_metadata = execution_context.dataset['input'].schema.metadata(path)
             inputs.extend([input_metadata]*3)
             normalizations += ['none', 'aims', 'fakespm8']
-        # Set the input data
-#        tiny_morphologist_iteration.input = inputs
         tiny_morphologist_iteration.normalization = normalizations
 
         
@@ -751,38 +750,78 @@ class TestTinyMorphologist(unittest.TestCase):
             self.assertEqual(getattr(tiny_morphologist_iteration, name), value,
                              f'Differing value for parameter {name}')
 
-        # run it
-        # Note: to run via soma-workflow, just set this:
-        # self.capsul.config.builtin.engine_type = 'soma_workflow'
+        with self.capsul.engine() as engine:
+            status = engine.run(tiny_morphologist_iteration, timeout=10)
 
-        #status = None
-        #try:
-            #with self.capsul.engine() as engine:
-                #status = engine.run(tiny_morphologist_iteration)
-        #except Exception:
-            #import traceback
-            #traceback.print_exc()
-
-        #self.assertEqual(
-            #status,
-            #{'status': 'ended', 'error': None, 'error_detail': None,
-              #'engine_output': ''})
+        self.assertEqual(
+            status,
+            {'status': 'ended', 'error': None, 'error_detail': None,
+              'engine_output': ''})
 
 
 if __name__ == '__main__':
-    # import sys
-    # sys.stdout.flush()
-    # from soma.qt_gui.qt_backend import QtGui
+    import sys
+    from soma.qt_gui.qt_backend import Qt
+    
+    qt_app = Qt.QApplication.instance()
+    if not qt_app:
+        qt_app = Qt.QApplication(sys.argv)
+    # 
     # from capsul.qt_gui.widgets import PipelineDeveloperView
     # tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
-    # app = QtGui.QApplication.instance()
-    # if not app:
-    #     app = QtGui.QApplication(sys.argv)
     # view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
     # view1.show()
-    # app.exec_()
+    # qt_app.exec_()
     # del view1
-    t = TestTinyMorphologist()
-    t.setUp()
-    t.test_tiny_path_generation()
-    t.tearDown()
+    self = TestTinyMorphologist()
+    self.subjects = [f'subject{i:04}' for i in range(20)]
+    print(f'Setting up config and data files for {len(self.subjects)} subjects and 3 time points')
+    self.setUp()
+    try:
+        tiny_morphologist_iteration = self.capsul.executable_iteration(
+            'capsul.test.test_tiny_morphologist.TinyMorphologist',
+            non_iterative_plugs=['template'],
+        )
+
+        class TinyMorphologistIterationBrainVISA(ProcessSchema, schema='brainvisa', process=tiny_morphologist_iteration):
+            _ = {
+                '*': {
+                    'suffix': lambda iteration_index, **kwargs: f'{{executable.normalization[{iteration_index}]}}',
+                }
+            }
+
+        engine = self.capsul.engine()
+        execution_context = engine.execution_context(tiny_morphologist_iteration)
+
+        # Parse the dataset with BIDS-specific query (here "suffix" is part
+        #  of BIDS specification). The object returned contains info for main
+        # BIDS fields (sub, ses, acq, etc.)
+        inputs = []
+        normalizations = []
+        for path in sorted(self.capsul.config.builtin.dataset.input.find(suffix='T1w', extension='nii')):
+            input_metadata = execution_context.dataset['input'].schema.metadata(path)
+            inputs.extend([input_metadata]*3)
+            normalizations += ['none', 'aims', 'fakespm8']
+        tiny_morphologist_iteration.normalization = normalizations
+
+        
+        metadata = ProcessMetadata(tiny_morphologist_iteration, execution_context)
+        metadata.bids = inputs
+        metadata.generate_paths(tiny_morphologist_iteration)
+
+        with self.capsul.engine() as engine:
+            execution_id = engine.start(tiny_morphologist_iteration)
+            try:
+                widget = execution_widget(engine.database, execution_id)
+                widget.show()
+                qt_app.exec_()
+                del widget
+                engine.wait(execution_id, timeout=10)
+                engine.raise_for_status(execution_id)
+            except TimeoutError:
+                engine.print_execution_report(engine.execution_report(execution_id))
+                raise
+            finally:
+                engine.dispose(execution_id)
+    finally:
+        self.tearDown()

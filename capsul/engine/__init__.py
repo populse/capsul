@@ -123,8 +123,8 @@ class Workers(Controller):
     def status(self, execution_id):
         return self.database.status(execution_id)
     
-    def wait(self, *args, **kwargs):
-        self.database.wait(*args, **kwargs)
+    def wait(self, execution_id, *args, **kwargs):
+        self.database.wait(execution_id, *args, **kwargs)
 
     def raise_for_status(self, *args, **kwargs):
         self.database.raise_for_status(*args, **kwargs)

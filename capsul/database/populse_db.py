@@ -22,6 +22,7 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
                 }
                 session.add_collection('execution')
                 execution = session['execution']
+                execution.add_field('label', str)
                 execution.add_field('status', str)
                 execution.add_field('error', str)
                 execution.add_field('error_detail', str)
@@ -69,6 +70,7 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
             session['execution'].update_document(execution_id, {name: value})
 
     def store_execution(self,
+            label,
             start_time, 
             executable_json,
             execution_context_json,
@@ -79,6 +81,7 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
         ):
         execution_id = str(uuid4())
         execution = {
+            'label': label,
             'status': 'ready',
             'start_time': start_time,
             'executable': executable_json,
@@ -250,7 +253,7 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
     def execution_report_json(self, execution_id):
         with self.database as session:
             result = dict(
-                executable = self.executable_json(execution_id),
+                label = self.label(execution_id),
                 execution_context = self.execution_context_json(execution_id),
                 status = self.status(execution_id),
                 error = self.error(execution_id),
@@ -262,7 +265,7 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
                 ongoing = self.ongoing(execution_id),
                 done = self.done(execution_id),
                 failed = self.failed(execution_id),
-                jobs = self.jobs_json(execution_id),
+                jobs = list(self.jobs_json(execution_id)),
                 workflow_parameters = self.workflow_parameters_json(execution_id),
                 engine_debug = {}
             )
@@ -281,3 +284,6 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
 
     def tmp(self, execution_id):
         return self._get(execution_id, 'tmp')
+
+    def label(self, execution_id):
+        return self._get(execution_id, 'label')

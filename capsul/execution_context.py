@@ -189,8 +189,6 @@ class CapsulWorkflow(Controller):
                                                                         in_sub_pipelines=False):
                     if dest_node in disabled_nodes:
                         continue
-                    #print('field name:', field.name, ', plug:', plug_name, ', dest_node:', dest_node.name, dest_node.name in nodes_dict, type(dest_node), ', executable:', executable.name, ', process:', process.name)
-                    #print('parameters:', parameters.content)
                     parameters.content[field.name] = nodes_dict[dest_node.name][plug_name]
                     break
                 if field.is_output():
