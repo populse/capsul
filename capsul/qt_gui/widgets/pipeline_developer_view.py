@@ -31,16 +31,13 @@ Classes
 
 '''
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 # System import
 import os
 from pprint import pprint
 import weakref
 import tempfile
 import soma.subprocess
-import distutils.spawn
+import shutil
 import importlib
 import sys
 import types
@@ -73,10 +70,7 @@ from six.moves import range
 from six.moves import zip
 from soma.utils.weak_proxy import proxy_method
 
-try:
-    from traits import api as traits
-except ImportError:
-    from enthought.traits import api as traits
+from traits import api as traits
 
 from soma.qt_gui import qt_backend
 
@@ -3420,7 +3414,7 @@ class PipelineDeveloperView(QGraphicsView):
         Open the right-click menu when triggered from the pipeline background.
         '''
         self.click_pos = QtGui.QCursor.pos()
-        has_dot = distutils.spawn.find_executable('dot')
+        has_dot = shutil.which('dot')
         menu = QtGui.QMenu('Pipeline level menu', None)
         title = menu.addAction('Pipeline level menu')
         title.setEnabled(False)

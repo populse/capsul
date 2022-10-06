@@ -69,8 +69,7 @@ extensions = [ 'sphinx.ext.autodoc',
 try:
     # nbsphinx converts ipython/jupyter notebooks to sphinx docs
     import nbsphinx
-    import distutils.spawn
-    if not distutils.spawn.find_executable('pandoc'):
+    if not shutil.which('pandoc'):
         print('Warning: pandoc is missing. Notebooks will not be included '
               'in the docs')
     else:
@@ -93,8 +92,7 @@ except ImportError as e:
 inheritance_graph_attrs = dict(rankdir="LR", size='"13.0, 40.0"',
                                fontsize=14)  #, ratio='compress')
 #inheritance_alias = {'subprocess32.Popen': 'Popen', 'subprocess.Popen': 'Popen', 'capsul.subprocess.fsl.Popen': 'fsl_Popen', 'capsul.subprocess.spm.Popen': 'spm_Popen'}
-import distutils.spawn
-if not distutils.spawn.find_executable('dot'):
+if not shutil.which('dot'):
     # dot is not installed, inheritance_diagram will not work
     import sphinx.ext.inheritance_diagram
     def null(*args, **kwargs):
