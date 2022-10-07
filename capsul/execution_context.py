@@ -101,6 +101,7 @@ class CapsulWorkflow(Controller):
             process=executable,
             parent_executables=[],
             parameters_location=[],
+            process_iterations={},
             disabled=False)
         self.parameters.content.update(job_parameters.content)
 
@@ -112,17 +113,17 @@ class CapsulWorkflow(Controller):
                         aj = self.jobs[after_job]
                         aj['wait_for'].add(before_job)
                         bj = self.jobs[before_job]
-                        if bj['command'] is None:
+                        if bj['disabled']:
                             bj['waited_by'].add(after_job)
 
         # Resolve disabled jobs
-        disabled_jobs = [(uuid, job) for uuid, job in self.jobs.items() if job['command'] is None]
+        disabled_jobs = [(uuid, job) for uuid, job in self.jobs.items() if job['disabled']]
         for disabled_job in disabled_jobs:
             wait_for = set()
             stack = disabled_job[1]['wait_for']
             while stack:
                 job = stack.pop()
-                if self.jobs[job]['command'] is None:
+                if self.jobs[job]['disabled']:
                     stack.update(self.jobs[job]['wait_for'])
                 else:
                     wait_for.add(job)
@@ -130,7 +131,7 @@ class CapsulWorkflow(Controller):
             stack = list(disabled_job[1]['waited_by'])
             while stack:
                 job = stack.pop(0)
-                if self.jobs[job]['command'] is None:
+                if self.jobs[job]['disabled']:
                     stack.extend(self.jobs[job]['waited_by'])
                 else:
                     waited_by.add(job)
@@ -154,6 +155,7 @@ class CapsulWorkflow(Controller):
                      process,
                      parent_executables,
                      parameters_location,
+                     process_iterations,
                      disabled):
         parameters = self.parameters
         for index in parameters_location:
@@ -180,8 +182,8 @@ class CapsulWorkflow(Controller):
                     parent_executables=parent_executables + [process],
                     parameters_location=parameters_location + ['nodes',
                                                                node_name],
+                    process_iterations=process_iterations,
                     disabled=disabled or node in disabled_nodes)
-                # nodes_dict[node_name].content.update(job_parameters.content)
                 nodes.append(node)
             for field in process.user_fields():
                 for dest_node, plug_name in executable.get_linked_items(process, 
@@ -194,7 +196,10 @@ class CapsulWorkflow(Controller):
                 if field.is_output():
                     for dest_node_name, dest_plug_name, dest_node, dest_plug, is_weak in process.plugs[field.name].links_to:
                         if dest_node.activated and dest_node not in disabled_nodes and not dest_node.field(dest_plug_name).is_output():
-                            process_chronology.setdefault(dest_node.uuid, set()).add(process.uuid)
+                            process_chronology.setdefault(
+                                process_iterations.get(dest_node.uuid, dest_node.uuid),
+                                set()).add(
+                                    process_iterations.get(process.uuid, process.uuid))
             for node in nodes:
                 for plug_name in node.plugs:
                     first = nodes_dict[node.name].get(plug_name)
@@ -226,8 +231,14 @@ class CapsulWorkflow(Controller):
         elif isinstance(process, ProcessIteration):
             parameters['_iterations'] = []
             iteration_index = 0
+            if isinstance(process.process, Pipeline):
+                all_iterated_processes = [p for p in process.process.all_nodes() if isinstance(p, Process)]
+            else:
+                all_iterated_processes = [process.process]
             for inner_process in process.iterate_over_process_parmeters():
                 parameters['_iterations'].append({})
+                for p in all_iterated_processes:
+                    process_iterations.setdefault(p.uuid, []).append(str(iteration_index))
                 job_parameters = self._create_jobs(
                     executable=executable,
                     jobs_per_process=jobs_per_process,
@@ -236,38 +247,49 @@ class CapsulWorkflow(Controller):
                     process=inner_process,
                     parent_executables=parent_executables + [process], 
                     parameters_location=parameters_location + ['_iterations', str(iteration_index)],
+                    process_iterations=process_iterations,
                     disabled=disabled)
                 for k, v in job_parameters.content.items():
                     if k in process.iterative_parameters:
                         parameters.content.setdefault(k, []).append(v)
                     elif k in process.regular_parameters:
                         parameters.content[k] = v
+                for p in all_iterated_processes:
+                    del process_iterations[p.uuid][-1]
                 iteration_index += 1
             if isinstance(executable, Pipeline):
                 for field in process.user_fields():
                     if field.is_output():
                         for dest_node, plug_name in executable.get_linked_items(process, field.name):
-                            process_chronology.setdefault(dest_node.uuid, set()).add(process.uuid)
+                            process_chronology.setdefault(
+                                dest_node.uuid + ','.join(process_iterations.get(dest_node.uuid, [])),
+                                set()).add(
+                                    process.uuid + ','.join(process_iterations.get(process.uuid, []))
+                                )
         elif isinstance(process, Process):
             job_uuid = str(uuid4())
             if disabled:
                 self.jobs[job_uuid] = {
                     'uuid': job_uuid,
-                    'command': None,
+                    'disabled': True,
                     'wait_for': set(),
                     'waited_by': set(),
                 }
             else:
                 self.jobs[job_uuid] = {
                     'uuid': job_uuid,
-                    'command': ['python', '-m', 'capsul.run', 'process', job_uuid],
+                    'disabled': False,
                     'wait_for': set(),
                     'process': process.json(include_parameters=False),
                     'parameters_location': parameters_location
                 }
             for parent_executable in parent_executables:
-                jobs_per_process.setdefault(parent_executable.uuid, set()).add(job_uuid)
-            jobs_per_process.setdefault(process.uuid, set()).add(job_uuid)
+                jobs_per_process.setdefault(
+                    parent_executable.uuid + ','.join(process_iterations.get(parent_executable.uuid, [])),
+                    set()).add(job_uuid)
+            jobs_per_process.setdefault(
+                process.uuid + ','.join(process_iterations.get(process.uuid, [])),
+                set()).add(job_uuid)
             for field in process.user_fields():
                 if getattr(field, 'generate_temporary', False):
                     prefix = f'!{{dataset.tmp.path}}/{process.full_name}'
@@ -282,9 +304,12 @@ class CapsulWorkflow(Controller):
                     value = getattr(process, field.name, None)
                 proxy = parameters.proxy(executable.json_value(value))
                 parameters[field.name] = proxy
-                if field.is_output() and isinstance(executable, Pipeline):
+                if field.is_output() and isinstance(executable, (Pipeline, ProcessIteration)):
                     for dest_node, plug_name in executable.get_linked_items(process, field.name):
-                        process_chronology.setdefault(dest_node.uuid, set()).add(process.uuid)
+                        process_chronology.setdefault(
+                            dest_node.uuid + ','.join(process_iterations.get(dest_node.uuid, [])), 
+                            set()).add(
+                                process.uuid + ','.join(process_iterations.get(process.uuid, [])))
         return parameters
 
     def find_temporary_to_generate(self, executable):

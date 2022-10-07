@@ -200,7 +200,7 @@ class ExecutionDatabase:
             pipeline_node = '.'.join(i for i in job.get('parameters_location', '') if i != 'nodes')
             returncode = job.get('returncode')
             status = job['status']
-            command = ' '.join(f"'{i}'" for i in job.get('command', []))
+            disabled = job['disabled']
             stdout = job.get('stdout')
             stderr = job.get('stderr')
             parameters = report['workflow_parameters']
@@ -220,7 +220,7 @@ class ExecutionDatabase:
             print('returncode:', returncode, file=file)
             print('start time:', start_time, file=file)
             print('end time:', end_time, file=file)
-            print('command:', command, file=file)
+            print('disabled:', disabled, file=file)
             print('wait for:', wait_for, file=file)
             print('waited_by:', waited_by, file=file)
             if parameters:

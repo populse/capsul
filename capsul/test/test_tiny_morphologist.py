@@ -198,7 +198,10 @@ class TinyMorphologistBIDS(ProcessSchema, schema='bids', process=TinyMorphologis
 
 class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process=TinyMorphologist):
     _ = {
-        '*': {'process': 'tinymorphologist'}
+        '*': {'process': 'tinymorphologist'},
+        # 'fakespm_normalization_12.*': {'suffix': 'fakespm12'},
+        # 'fakespm_normalization_8.*': {'suffix': 'fakespm8'},
+        # 'aims_normalization.*': {'suffix': 'aims'},
     }
     input = {'process': None}
     left_hemisphere = {'prefix': 'left_hemi'}
@@ -716,12 +719,12 @@ class TestTinyMorphologist(unittest.TestCase):
             non_iterative_plugs=['template'],
         )
 
-        class TinyMorphologistIterationBrainVISA(ProcessSchema, schema='brainvisa', process=tiny_morphologist_iteration):
-            _ = {
-                '*': {
-                    'suffix': lambda iteration_index, **kwargs: f'{{executable.normalization[{iteration_index}]}}',
-                }
-            }
+        # class TinyMorphologistIterationBrainVISA(ProcessSchema, schema='brainvisa', process=tiny_morphologist_iteration):
+        #     _ = {
+        #         '*': {
+        #             'suffix': lambda iteration_index, **kwargs: f'{{executable.normalization[{iteration_index}]}}',
+        #         }
+        #     }
 
         engine = self.capsul.engine()
         execution_context = engine.execution_context(tiny_morphologist_iteration)
@@ -766,15 +769,8 @@ if __name__ == '__main__':
     qt_app = Qt.QApplication.instance()
     if not qt_app:
         qt_app = Qt.QApplication(sys.argv)
-    # 
-    # from capsul.qt_gui.widgets import PipelineDeveloperView
-    # tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
-    # view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
-    # view1.show()
-    # qt_app.exec_()
-    # del view1
     self = TestTinyMorphologist()
-    self.subjects = [f'subject{i:04}' for i in range(20)]
+    self.subjects = [f'subject{i:04}' for i in range(1)]
     print(f'Setting up config and data files for {len(self.subjects)} subjects and 3 time points')
     self.setUp()
     try:
@@ -782,13 +778,6 @@ if __name__ == '__main__':
             'capsul.test.test_tiny_morphologist.TinyMorphologist',
             non_iterative_plugs=['template'],
         )
-
-        class TinyMorphologistIterationBrainVISA(ProcessSchema, schema='brainvisa', process=tiny_morphologist_iteration):
-            _ = {
-                '*': {
-                    'suffix': lambda iteration_index, **kwargs: f'{{executable.normalization[{iteration_index}]}}',
-                }
-            }
 
         engine = self.capsul.engine()
         execution_context = engine.execution_context(tiny_morphologist_iteration)
@@ -808,18 +797,30 @@ if __name__ == '__main__':
         metadata = ProcessMetadata(tiny_morphologist_iteration, execution_context)
         metadata.bids = inputs
         metadata.generate_paths(tiny_morphologist_iteration)
+        # tiny_morphologist = self.capsul.executable(
+        #     'capsul.test.test_tiny_morphologist.TinyMorphologist',
+        # )
+        # metadata = ProcessMetadata(tiny_morphologist, execution_context)
+        # metadata.bids = inputs[0]
+        # metadata.generate_paths(tiny_morphologist)
 
         with self.capsul.engine() as engine:
             execution_id = engine.start(tiny_morphologist_iteration)
+            # execution_id = engine.start(tiny_morphologist)
             try:
                 widget = execution_widget(engine.database, execution_id)
                 widget.show()
+                # from capsul.qt_gui.widgets import PipelineDeveloperView
+                # tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
+                # view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
+                # view1.show()
                 qt_app.exec_()
                 del widget
-                engine.wait(execution_id, timeout=10)
-                engine.raise_for_status(execution_id)
+                # del view1
+                engine.wait(execution_id, timeout=1000)
+                # engine.raise_for_status(execution_id)
             except TimeoutError:
-                engine.print_execution_report(engine.execution_report(execution_id))
+                # engine.print_execution_report(engine.execution_report(execution_id))
                 raise
             finally:
                 engine.dispose(execution_id)

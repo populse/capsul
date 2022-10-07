@@ -225,8 +225,9 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
                     job = session['job'][(execution_id, uuid)]
                     job['returncode'] = 'Not started because de dependent job failed'
                     session['job'][(execution_id, uuid)] = job
-                    execution['waiting'].remove(uuid)
-                    execution['failed'].append(uuid)
+                    if uuid in execution['waiting']:
+                        execution['waiting'].remove(uuid)
+                        execution['failed'].append(uuid)
                     stack.extend(job.get('waited_by', []))
             else:
                 execution['done'].append(job_uuid)

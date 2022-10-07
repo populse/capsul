@@ -8,7 +8,7 @@ import tempfile
 import traceback
 
 from capsul.database import execution_database
-
+from capsul.run import run_job
 
 from . import Workers
 
@@ -45,20 +45,40 @@ if __name__ == '__main__':
         try:
             database = execution_database(database_url)
             try:
-                env = os.environ.copy()
-                env['CAPSUL_DATABASE'] = database_url
-                env['CAPSUL_EXECUTION_ID'] = execution_id
+                # env = os.environ.copy()
+                # env['CAPSUL_DATABASE'] = database_url
+                # env['CAPSUL_EXECUTION_ID'] = execution_id
                 database.set_tmp(execution_id, tmp)
                 job = database.start_one_job(execution_id, start_time=datetime.now())
                 while job is not None:
-                    command = job['command']
-                    if command is not None:
-                        result = subprocess.run(command, env=env, capture_output=True)
-                        returncode = result.returncode
-                        stdout = result.stdout.decode()
-                        stderr = result.stderr.decode()
-                    else:
-                        returncode = stdout = stderr = None
+                    if not job['disabled']:
+                        returncode, stdout, stderr = run_job(
+                            database_url,
+                            execution_id,
+                            job['uuid'],
+                            same_python=True,
+                            debug=True,
+                        )
+                        # result = subprocess.run(['python', '-m', 'capsul.run', job['uuid']], env=env, capture_output=True)
+                        # returncode = result.returncode
+                        # stdout = result.stdout.decode()
+                        # stderr = result.stderr.decode()
+                    #     import contextlib
+                    #     import io
+                    #     from capsul.run import run
+                    #     stdout = io.StringIO()
+                    #     stderr = io.StringIO()
+                    #     with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                    #         try:
+                    #             run(database_url, execution_id, job['uuid'])
+                    #             returncode = 0
+                    #         except Exception as e:
+                    #             print(traceback.format_exc(), file=stderr)
+                    #             returncode = 1
+                    #     stdout = stdout.getvalue()
+                    #     stderr = stderr.getvalue()
+                    # else:
+                    #     returncode = stdout = stderr = None
                     all_done = database.job_finished(execution_id, job['uuid'], 
                         end_time=datetime.now(),
                         returncode=returncode,

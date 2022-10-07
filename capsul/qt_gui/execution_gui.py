@@ -59,6 +59,12 @@ def update_execution_widget(widget, database, execution_id):
         'failed': '❌',
     }
     jobs = report['jobs']
+
+    # job_tree = {}
+    # for job in jobs:
+    #     p = job['parameters_location']
+
+
     widget._jobs = {job['uuid']: job for job in jobs}
     now = datetime.now()
     count = 0

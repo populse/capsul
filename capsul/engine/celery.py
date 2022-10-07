@@ -24,7 +24,6 @@ if database_url:
 
     @celery_app.task(bind=True, ignore_result=True)
     def check_shutdown(self):
-        print('!check_shutdown!')
         global database_url
         celery_app.control.revoke(self.request.id) # prevent this task from being executed again
         try:
