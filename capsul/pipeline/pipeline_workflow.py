@@ -1296,6 +1296,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             the parent node step name
         study_config: StydyConfig instance (optional)
             used only for iterative nodes, to be passed to create sub-workflows
+        with_links: bool (optional)
+            follow links to include other dependencies
         environment: str (default: "global")
             configuration environment name (default: "global"). See
             :class:`capsul.engine.CapsulEngine` and
@@ -1448,8 +1450,11 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                               if x[0] is not None
                                                   and not isinstance(
                                                       x[0], ProcessNode)]
-                        elif process is pipeline:
-                            continue  # from main input: no dependency link
+                        elif isinstance(snode, PipelineNode):
+                            # either link from main input, or from an
+                            # unconnected optional input in a sub-pipeline:
+                            # no dependency link
+                            continue
                         else:  # ProcessNode
                             sjob = jobs[process]
                             if isinstance(sjob, tuple):  # iteration
