@@ -236,6 +236,8 @@ class CapsulWorkflow(Controller):
             else:
                 all_iterated_processes = [process.process]
             for inner_process in process.iterate_over_process_parmeters():
+                if isinstance(inner_process, Pipeline):
+                    self.find_temporary_to_generate(inner_process)
                 parameters['_iterations'].append({})
                 for p in all_iterated_processes:
                     process_iterations.setdefault(p.uuid, []).append(str(iteration_index))
@@ -371,14 +373,14 @@ class CapsulWorkflow(Controller):
                         if f.is_output():
                             setattr(n.field(p), 'generate_temporary', temporary)
                 self._find_temporary_to_generate(node)
-        elif isinstance(executable, ProcessIteration):
-            for name in executable.iterative_parameters:
-                temporary = getattr(executable.field(name), 'generate_temporary', False)
-                executable.process.field(name).generate_temporary = temporary
-                if isinstance(executable.process, Pipeline):
-                    for n, p in executable.process.get_linked_items(executable.process, name):
-                        f = n.field(p)
-                        if f.is_output():
-                            setattr(n.field(p), 'generate_temporary', temporary)
-            if isinstance(executable.process, Pipeline):
-                self._find_temporary_to_generate(executable.process)
+        # elif isinstance(executable, ProcessIteration):
+        #     for name in executable.iterative_parameters:
+        #         temporary = getattr(executable.field(name), 'generate_temporary', False)
+        #         executable.process.field(name).generate_temporary = temporary
+        #         if isinstance(executable.process, Pipeline):
+        #             for n, p in executable.process.get_linked_items(executable.process, name):
+        #                 f = n.field(p)
+        #                 if f.is_output():
+        #                     setattr(n.field(p), 'generate_temporary', temporary)
+        #     if isinstance(executable.process, Pipeline):
+        #         self._find_temporary_to_generate(executable.process)

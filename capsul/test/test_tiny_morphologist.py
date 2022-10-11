@@ -10,7 +10,7 @@ from capsul.qt_gui.execution_gui import execution_widget
 from soma.controller import field, File
 from soma.controller import Directory, undefined
 
-from capsul.api import Capsul, Process, Pipeline
+from capsul.api import Capsul, Process, Pipeline, CapsulWorkflow
 from capsul.config.configuration import ModuleConfiguration, default_workers_type, default_database_url
 from capsul.dataset import ProcessMetadata, ProcessSchema
 
@@ -190,15 +190,23 @@ class TinyMorphologist(Pipeline):
 
 class TinyMorphologistBIDS(ProcessSchema, schema='bids', process=TinyMorphologist):
     _ = {
-        '*': {'process': 'tinymorphologist'}
+        '*': {'process': 'tinymorphologist'},
+        'split.right_output': {'part': 'right_hemi'},
+        'split.left_output': {'part': 'left_hemi'},
     }
     input = {'process': None}
-    left_hemisphere = {'part': 'left_hemi'}
-    right_hemisphere = {'part': 'right_hemi'}
+    # left_hemisphere = {'part': 'left_hemi'}
+    # right_hemisphere = {'part': 'right_hemi'}
 
 class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process=TinyMorphologist):
+    @staticmethod
+    def test(metadata, process, parameter, iteration_index):
+        print('!!!', process.label, parameter, iteration_index)
+        metadata.process = 'tinymorphologist'
+
     _ = {
-        '*': {'process': 'tinymorphologist'},
+        # '*': {'process': 'tinymorphologist'},
+        '*': test,
         # 'fakespm_normalization_12.*': {'suffix': 'fakespm12'},
         # 'fakespm_normalization_8.*': {'suffix': 'fakespm8'},
         # 'aims_normalization.*': {'suffix': 'aims'},
@@ -452,6 +460,7 @@ class TestTinyMorphologist(unittest.TestCase):
                 'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander.nii',
             },
         }
+
         tiny_morphologist = self.capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')            
         engine = self.capsul.engine()
         execution_context = engine.execution_context(tiny_morphologist)
@@ -502,9 +511,6 @@ class TestTinyMorphologist(unittest.TestCase):
                     'nobias', 'normalized', 'right_hemisphere', 'left_hemisphere'))
             self.maxDiff = 2000
             self.assertEqual(params, expected[normalization])
-            # for field in tiny_morphologist.fields():
-            #     value = getattr(tiny_morphologist, field.name, undefined)
-            #     print(f'!{normalization}!', field.name, value)
 
             with self.capsul.engine() as engine:
                 status = engine.run(tiny_morphologist, timeout=5)
@@ -770,7 +776,7 @@ if __name__ == '__main__':
     if not qt_app:
         qt_app = Qt.QApplication(sys.argv)
     self = TestTinyMorphologist()
-    self.subjects = [f'subject{i:04}' for i in range(1)]
+    # self.subjects = [f'subject{i:04}' for i in range(1)]
     print(f'Setting up config and data files for {len(self.subjects)} subjects and 3 time points')
     self.setUp()
     try:
@@ -797,26 +803,19 @@ if __name__ == '__main__':
         metadata = ProcessMetadata(tiny_morphologist_iteration, execution_context)
         metadata.bids = inputs
         metadata.generate_paths(tiny_morphologist_iteration)
-        # tiny_morphologist = self.capsul.executable(
-        #     'capsul.test.test_tiny_morphologist.TinyMorphologist',
-        # )
-        # metadata = ProcessMetadata(tiny_morphologist, execution_context)
-        # metadata.bids = inputs[0]
-        # metadata.generate_paths(tiny_morphologist)
 
         with self.capsul.engine() as engine:
             execution_id = engine.start(tiny_morphologist_iteration)
-            # execution_id = engine.start(tiny_morphologist)
             try:
                 widget = execution_widget(engine.database, execution_id)
                 widget.show()
-                # from capsul.qt_gui.widgets import PipelineDeveloperView
-                # tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
-                # view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
-                # view1.show()
+                from capsul.qt_gui.widgets import PipelineDeveloperView
+                tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
+                view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
+                view1.show()
                 qt_app.exec_()
                 del widget
-                # del view1
+                del view1
                 engine.wait(execution_id, timeout=1000)
                 # engine.raise_for_status(execution_id)
             except TimeoutError:
