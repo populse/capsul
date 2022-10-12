@@ -65,17 +65,6 @@ class TestPipeline(Pipeline):
         self.export_parameter('right_hemi', 'output', 'right_gw_mesh')
 
 
-class BiasCorrectionBrainVISA(
-        ProcessSchema, schema='brainvisa',
-        process='capsul.test.test_tiny_morphologist.BiasCorrection'):
-    output = {'prefix': 'nobias'}
-
-
-class FakeSPMNormalization12BrainVISA(
-        ProcessSchema, schema='brainvisa',
-        process='capsul.test.test_tiny_morphologist.FakeSPMNormalization12'):
-    output = {'prefix': 'normalized_fakespm12'}
-
 
 class TestPipelineBIDS(ProcessSchema, schema='bids',
                        process=TestPipeline):
@@ -87,8 +76,12 @@ class TestPipelineBrainVISA(ProcessSchema, schema='brainvisa',
                             process=TestPipeline):
     _ = {
         '*': {'process': 'test_pipeline'},
-        'left*.*': {'side': 'L'},
-        'right*.*': {'side': 'R'},
+    }
+    _nodes = {
+        'split': {
+            'left_output':{'side': 'L'},
+            'right_output': {'side': 'R'},
+        }
     }
 
 
@@ -193,7 +186,7 @@ class TestCompletion(unittest.TestCase):
             'right_gw_mesh': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/Raleksander.nii',
         }
 
-        self.maxDiff = 2000
+        self.maxDiff = 3000
         self.assertEqual(params, expected)
 
     @unittest.skip('not working yet')
