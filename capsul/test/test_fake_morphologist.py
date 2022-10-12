@@ -1069,7 +1069,7 @@ class TestFakeMorphologist(unittest.TestCase):
                 })
 
             t0 = time.time()
-            metadata.generate_paths(morphologist, debug=False)
+            metadata.generate_paths(morphologist)
             t1 = time.time()
             print('completion time:', t1 - t0, 's')
 

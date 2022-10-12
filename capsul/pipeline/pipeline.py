@@ -2208,40 +2208,54 @@ class Pipeline(Process):
                 continue
             plug = node.plugs.get(plug_name)
             if plug:
-                if plug.output ^ isinstance(node, Pipeline):
-                    direction = 'links_to'
+                # if plug.output ^ isinstance(node, Pipeline):
+                #     direction = 'links_to'
+                # else:
+                #     direction = 'links_from'
+                if isinstance(node, Pipeline):
+                    if in_sub_pipelines:
+                        directions = ('links_from', 'links_to')
+                    elif plug.output:
+                        directions = ('links_from',)
+                    else:
+                        directions = ('links_to',)
+                elif plug.output:
+                    directions = ('links_to',)
                 else:
-                    direction = 'links_from'
-                for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
-                    if dest_node is node or (activated_only
-                                             and not dest_node.activated):
-                        continue
-                    if isinstance(dest_node, Pipeline):
-                        if in_sub_pipelines:
-                            if dest_node is not self:
-                                for n, p in dest_node.get_linked_items(dest_node, dest_plug_name):
-                                    if n is not node:
-                                        yield (n, p)
+                    directions = ('links_from',)
+                for direction in directions:
+                    # print('!1!', node.full_name, plug_name, direction)
+                    for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
+                        if dest_node is node or (activated_only
+                                                and not dest_node.activated):
+                            continue
+                        # print('!2!', dest_node.full_name, dest_plug_name)
+                        if isinstance(dest_node, Pipeline):
+                            if in_sub_pipelines:
+                                if dest_node is not self:
+                                    for n, p in self.get_linked_items(dest_node, dest_plug_name):
+                                        if n is not node:
+                                            yield (n, p)
+                            else:
+                                yield (dest_node, dest_plug_name)
+                        elif isinstance(dest_node, Switch):
+                            if dest_plug_name == 'switch':
+                                if not process_only:
+                                    yield (dest_node, dest_plug_name)
+                            else:
+                                for input_plug_name, output_plug_name in dest_node.connections():
+                                    if plug.output ^ isinstance(node, Pipeline):
+                                        if dest_plug_name == input_plug_name:
+                                            if not process_only:
+                                                yield (dest_node, output_plug_name)
+                                            stack.append((dest_node, output_plug_name))
+                                    else:
+                                        if dest_plug_name == output_plug_name:
+                                            if not process_only:
+                                                yield (dest_node, input_plug_name)
+                                            stack.append((dest_node, input_plug_name))
                         else:
                             yield (dest_node, dest_plug_name)
-                    elif isinstance(dest_node, Switch):
-                        if dest_plug_name == 'switch':
-                            if not process_only:
-                                yield (dest_node, dest_plug_name)
-                        else:
-                            for input_plug_name, output_plug_name in dest_node.connections():
-                                if plug.output ^ isinstance(node, Pipeline):
-                                    if dest_plug_name == input_plug_name:
-                                        if not process_only:
-                                            yield (dest_node, output_plug_name)
-                                        stack.append((dest_node, output_plug_name))
-                                else:
-                                    if dest_plug_name == output_plug_name:
-                                        if not process_only:
-                                            yield (dest_node, input_plug_name)
-                                        stack.append((dest_node, input_plug_name))
-                    else:
-                        yield (dest_node, dest_plug_name)
 
     def json(self, include_parameters=True):
         result = super().json(include_parameters=include_parameters)

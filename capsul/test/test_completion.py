@@ -79,21 +79,19 @@ class TestPipelineBrainVISA(ProcessSchema, schema='brainvisa',
     }
     _nodes = {
         'split': {
-            'left_output':{'side': 'L'},
-            'right_output': {'side': 'R'},
+            '*': {'seg_directory': 'segmentation'},
+            'left_output':{'side': 'L', 'suffix': ''},
+            'right_output': {'side': 'R', 'suffix': ''},
         }
     }
+    right_gw_mesh = {'extension': 'gii', 'seg_directory': None, 'prefix': ''}
+    left_gw_mesh = {'extension': 'gii', 'seg_directory': None, 'prefix': ''}
+
+
 
 
 datasets = {
-    'input': 'input',
     'template': 'shared',
-    'nobias': 'output',
-    'normalized': 'output',
-    'left_gw_classif': 'output',
-    'left_gw_mesh': 'output',
-    'right_gw_classif': 'output',
-    'right_gw_mesh': 'output',
 }
 
 
@@ -177,19 +175,19 @@ class TestCompletion(unittest.TestCase):
 
         expected = {
             'input': '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-            'template': '!{fakespm.directory}/template',
+            # 'template': '!{fakespm.directory}/template',
+            'template': '!{dataset.shared.path}',
             'nobias': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/nobias_aleksander.nii',
             'normalized': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/nobias_aleksander.nii',
             'left_gw_classif': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Lgrey_white_aleksander.nii',
-            'left_gw_mesh': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/Laleksander.nii',
+            'left_gw_mesh': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/Laleksander.gii',
             'right_gw_classif': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
-            'right_gw_mesh': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/Raleksander.nii',
+            'right_gw_mesh': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/Raleksander.gii',
         }
 
         self.maxDiff = 3000
         self.assertEqual(params, expected)
 
-    @unittest.skip('not working yet')
     def test_iteration_completion(self):
 
         expected_completion = {
@@ -253,21 +251,18 @@ def test():
 
 
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
-    if '-v' in sys.argv[1:]:
-        from soma.qt_gui.qt_backend import Qt
-        from capsul.qt_gui.widgets.pipeline_developer_view \
-            import PipelineDeveloperView
+    from soma.qt_gui.qt_backend import Qt
+    from capsul.qt_gui.widgets.pipeline_developer_view \
+        import PipelineDeveloperView
 
-        app = Qt.QApplication.instance()
-        if app is None:
-            app = Qt.QApplication([])
+    app = Qt.QApplication.instance()
+    if app is None:
+        app = Qt.QApplication([])
 
-        pipeline = executable('capsul.test.test_completion.TestPipeline')
-
-        pv = PipelineDeveloperView(
-            pipeline, allow_open_controller=True, enable_edition=True,
-            show_sub_pipelines=True)
-        pv.auto_dot_node_positions()
-        pv.show()
-        app.exec_()
+    pipeline = executable('capsul.test.test_completion.TestPipeline')
+    pv = PipelineDeveloperView(
+        pipeline, allow_open_controller=True, enable_edition=True,
+        show_sub_pipelines=True)
+    pv.auto_dot_node_positions()
+    pv.show()
+    app.exec_()

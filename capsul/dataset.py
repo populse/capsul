@@ -422,6 +422,11 @@ class MetadataModifier:
         if not process_schema:
             return
 
+        for pattern, modifier in getattr(process_schema, '_', {}).items():
+            if fnmatch.fnmatch(parameter, pattern):
+                self.add_modifier(modifier)
+        modifier = getattr(process_schema, parameter, None)
+        self.add_modifier(modifier)
         pipeline = process.get_pipeline()
         if pipeline:
             pipeline_schema = getattr(pipeline, 'metadata_schemas', {}).get(schema_name)
@@ -433,11 +438,6 @@ class MetadataModifier:
                         for pattern, modifier in node_modifiers.items():
                             if fnmatch.fnmatch(parameter, pattern):
                                 self.add_modifier(modifier)
-        for pattern, modifier in getattr(process_schema, '_', {}).items():
-            if fnmatch.fnmatch(parameter, pattern):
-                self.add_modifier(modifier)
-        modifier = getattr(process_schema, parameter, None)
-        self.add_modifier(modifier)
 
     def __repr__(self):
         return f'MetadataModifier({self.process.label}, {self.parameter}, {self.modifiers})'
@@ -586,14 +586,16 @@ class ProcessMetadata(Controller):
         else:
             path_type = field.path_type
         if path_type:
+            dataset_name = None
+            # 1: get manually given datasets
+            if self.datasets:
+                dataset_name = self.datasets.get(field.name)
             # Associates a Dataset name with the field
-            dataset_name = getattr(field, 'dataset', None)
+            if dataset_name is None:
+                dataset_name = getattr(field, 'dataset', None)
             # fallback 1: get in inner_field (of an inner process)
             if dataset_name is None and inner_field:
                 dataset_name = getattr(inner_field, 'dataset', None)
-            # fallback 2: get manually given datasets
-            if dataset_name is None and self.datasets:
-                dataset_name = self.datasets.get(field.name)
             # fallback 3: use "input" or "output"
             if dataset_name is None and (not self.datasets
                                         or field.name not in self.datasets):
@@ -623,16 +625,20 @@ class ProcessMetadata(Controller):
                             stack = list(process.get_linked_items(process, field.name))
                             while stack:
                                 node, node_parameter = stack.pop(0)
-                                self.dprint(f'    connected to {node.name}.{node_parameter}')
+                                self.dprint(f'    connected to {node.full_name}.{node_parameter}')
                                 todo.insert(0, (node, node_parameter))
                                 done.add((node, node_parameter))
                                 if field.is_output():
                                     for node_field in node.user_fields():
                                         if node.plugs[node_field.name].activated and not node_field.is_output():
-                                            stack.extend(i for i in 
-                                                process.get_linked_items(node, 
-                                                                         node_field.name)
-                                                if i not in done)
+                                            ext = [i for i in 
+                                                   process.get_linked_items(node, 
+                                                                            node_field.name)
+                                                  if i not in done]
+                                            stack.extend(ext)
+                                            if self.debug:
+                                                for n, p in ext:
+                                                    self.dprint(f'        + {n.full_name}.{p}')
                         todo.append((process, field.name))
                         for node, node_parameter in todo:
                             self.dprint(f'    resolve {node.name}.{node_parameter}')
