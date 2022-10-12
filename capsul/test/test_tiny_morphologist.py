@@ -195,18 +195,10 @@ class TinyMorphologistBIDS(ProcessSchema, schema='bids', process=TinyMorphologis
         'split.left_output': {'part': 'left_hemi'},
     }
     input = {'process': None}
-    # left_hemisphere = {'part': 'left_hemi'}
-    # right_hemisphere = {'part': 'right_hemi'}
 
 class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process=TinyMorphologist):
-    @staticmethod
-    def test(metadata, process, parameter, iteration_index):
-        print('!!!', process.label, parameter, iteration_index)
-        metadata.process = 'tinymorphologist'
-
     _ = {
-        # '*': {'process': 'tinymorphologist'},
-        '*': test,
+        '*': {'process': 'tinymorphologist'},
         # 'fakespm_normalization_12.*': {'suffix': 'fakespm12'},
         # 'fakespm_normalization_8.*': {'suffix': 'fakespm8'},
         # 'aims_normalization.*': {'suffix': 'aims'},
