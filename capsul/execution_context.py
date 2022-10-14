@@ -87,7 +87,6 @@ class CapsulWorkflow(Controller):
     
     def __init__(self, executable):
         super().__init__()
-        self.find_temporary_to_generate(executable)
         self.parameters = DictWithProxy(all_proxies=True)
         self.jobs = {}
         jobs_per_process = {}
@@ -165,6 +164,7 @@ class CapsulWorkflow(Controller):
         nodes = []
         nodes_dict = parameters.content.setdefault('nodes', {})
         if isinstance(process, Pipeline):
+            self.find_temporary_to_generate(executable, iteration_process=None)
             disabled_nodes = process.disabled_pipeline_steps_nodes()
             for node_name, node in process.nodes.items():
                 if (node is process 
@@ -196,6 +196,8 @@ class CapsulWorkflow(Controller):
                 if field.is_output():
                     for dest_node_name, dest_plug_name, dest_node, dest_plug, is_weak in process.plugs[field.name].links_to:
                         if dest_node.activated and dest_node not in disabled_nodes and not dest_node.field(dest_plug_name).is_output():
+                            if isinstance(dest_node, Pipeline):
+                                continue
                             process_chronology.setdefault(
                                 process_iterations.get(dest_node.uuid, dest_node.uuid),
                                 set()).add(
@@ -237,7 +239,7 @@ class CapsulWorkflow(Controller):
                 all_iterated_processes = [process.process]
             for inner_process in process.iterate_over_process_parmeters():
                 if isinstance(inner_process, Pipeline):
-                    self.find_temporary_to_generate(inner_process)
+                    self.find_temporary_to_generate(executable, iteration_process=process)
                 parameters['_iterations'].append({})
                 for p in all_iterated_processes:
                     process_iterations.setdefault(p.uuid, []).append(str(iteration_index))
@@ -262,7 +264,9 @@ class CapsulWorkflow(Controller):
             if isinstance(executable, Pipeline):
                 for field in process.user_fields():
                     if field.is_output():
-                        for dest_node, plug_name in executable.get_linked_items(process, field.name):
+                        for dest_node, plug_name in executable.get_linked_items(process, field.name, direction='links_to'):
+                            if isinstance(dest_node, Pipeline):
+                                continue
                             process_chronology.setdefault(
                                 dest_node.uuid + ','.join(process_iterations.get(dest_node.uuid, [])),
                                 set()).add(
@@ -292,6 +296,7 @@ class CapsulWorkflow(Controller):
             jobs_per_process.setdefault(
                 process.uuid + ','.join(process_iterations.get(process.uuid, [])),
                 set()).add(job_uuid)
+            # print('!create_job!', process.full_name)
             for field in process.user_fields():
                 if getattr(field, 'generate_temporary', False):
                     prefix = f'!{{dataset.tmp.path}}/{process.full_name}'
@@ -304,83 +309,133 @@ class CapsulWorkflow(Controller):
                     value = f'{prefix}.{field.name}_{uuid}{suffix}'
                 else:
                     value = getattr(process, field.name, None)
+                # print('  ', field.name, '<-', repr(value), getattr(field, 'generate_temporary', False))
                 proxy = parameters.proxy(executable.json_value(value))
                 parameters[field.name] = proxy
                 if field.is_output() and isinstance(executable, (Pipeline, ProcessIteration)):
-                    for dest_node, plug_name in executable.get_linked_items(process, field.name):
+                    for dest_node, plug_name in executable.get_linked_items(process, field.name, direction='links_to'):
+                        if isinstance(dest_node, Pipeline):
+                            continue
                         process_chronology.setdefault(
                             dest_node.uuid + ','.join(process_iterations.get(dest_node.uuid, [])), 
                             set()).add(
                                 process.uuid + ','.join(process_iterations.get(process.uuid, [])))
         return parameters
 
-    def find_temporary_to_generate(self, executable):
+    def find_temporary_to_generate(self, executable, iteration_process):
+        # print('!temporaries! ->', executable.label, iteration_process and iteration_process.label)
         if isinstance(executable, Pipeline):
-            nodes = executable.all_nodes()
+            nodes = executable.all_nodes(in_iterations=True)
+        elif isinstance(executable, ProcessIteration) and isinstance(executable.process, Pipeline):
+            nodes = executable.process.all_nodes(in_iterations=True)
         else:
             nodes = [executable]
+        # temporaries = set()
         for node in nodes:
+            # print('!temporaries! initialize node', node.full_name)
             for field in node.user_fields():
-                field.generate_temporary = False
-        self._find_temporary_to_generate(executable)
-    
-    
-    def _find_temporary_to_generate(self, executable):
-        """Finds all output fields that are empty and linked to an input
-        and set their generate_temporary attribute to True (ans set it to
-        False for other fields).
-        """
-        if isinstance(executable, Pipeline):
-            for node in executable.nodes.values():
-                if node is executable:
-                    continue
-                if isinstance(node, NipypeProcess):
-                    #nipype processes do not use temporaries, they produce output
-                    # file names
-                    return
-
-                if isinstance(node, ProcessIteration):
-                    iteration_size = node.iteration_size()
+                if (field.output or 
+                    not field.metadata('write', False) or
+                    not node.plugs[field.name].activated):
+                    field.generate_temporary = False
                 else:
-                    iteration_size = None
+                    field.generate_temporary = True
+                    # temporaries.add((node.full_name, field.name))
+                # if isinstance(node, ProcessIteration):
+                #     node.process.field(field.name).generate_temporary = field.generate_temporary
+                # print('!temporaries!   ', field.name, '=', field.generate_temporary)
+        # self._find_temporary_to_generate(executable, iteration_process)
 
-                for plug_name, plug in node.plugs.items():
-                    value = getattr(node, plug_name, undefined)
-                    if not plug.activated or not plug.enabled:
-                        continue
-                    field = node.field(plug_name)
-                    if field.output or not field.metadata('write', False):
-                        continue
-                    if field.is_list() and field.path_type is not None:
-                        if value is not undefined and len([x for x in value if x in ('', undefined)]) == 0:
-                            continue
-                    elif value not in (undefined, '') \
-                            or (field.path_type is None
-                                or len(plug.links_to) == 0):
-                        continue
-                    # check that it is really temporary: not exported
-                    # to the main pipeline
-                    temporary = False
-                    for n, pn in executable.get_linked_items(node, plug_name, in_sub_pipelines=False, process_only=False):
-                        if n is executable:
-                            continue
-                        temporary = True
-                        break
-                    temporary = temporary or getattr(field, 'generate_temporary', False)
-                    field.generate_temporary = temporary
-                    for n, p in executable.get_linked_items(node, field.name):
-                        f = n.field(p)
-                        if f.is_output():
-                            setattr(n.field(p), 'generate_temporary', temporary)
-                self._find_temporary_to_generate(node)
-        # elif isinstance(executable, ProcessIteration):
-        #     for name in executable.iterative_parameters:
-        #         temporary = getattr(executable.field(name), 'generate_temporary', False)
-        #         executable.process.field(name).generate_temporary = temporary
-        #         if isinstance(executable.process, Pipeline):
-        #             for n, p in executable.process.get_linked_items(executable.process, name):
-        #                 f = n.field(p)
-        #                 if f.is_output():
-        #                     setattr(n.field(p), 'generate_temporary', temporary)
-        #     if isinstance(executable.process, Pipeline):
-        #         self._find_temporary_to_generate(executable.process)
+        stack = [(executable, field) for field in executable.user_fields()]
+        while stack:
+            node, field = stack.pop(0)
+            # print('!temporaries! no temporary for', node.full_name, ':', field.name)
+            field.generate_temporary = False
+            # temporaries.discard((node.full_name, field.name))
+            # if isinstance(node, ProcessIteration):
+            #     node.process.field(field.name).generate_temporary = field.generate_temporary
+            #     node = node.process
+            for node, parameter in executable.get_linked_items(
+                    node, field.name, direction='links_from', in_outer_pipelines=True):
+                if isinstance(node, ProcessIteration):
+                    stack.append((node.process, node.process.field(parameter)))
+                    # print('!temporaries!   + ', node.process.full_name, ':', parameter)
+                else:
+                    stack.append((node, node.field(parameter)))
+                    # print('!temporaries!   + ', node.full_name, ':', parameter)
+
+        # print('!temporaries!  parameters with temporary')
+        # for n, p in temporaries:
+            # print('!temporaries!   ', n, ':', p)
+
+
+    # def _find_temporary_to_generate(self, executable, iteration_process):
+    #     """Finds all output fields that are empty and linked to an input
+    #     and set their generate_temporary attribute to True (and set it to
+    #     False for other fields).
+    #     """
+    #     if isinstance(executable, Pipeline):
+    #         print('!temporaries! ---------', executable.full_name, iteration_process and iteration_process.full_name)
+    #         for node in executable.nodes.values():
+    #             if node is executable:
+    #                 continue
+    #             if isinstance(node, NipypeProcess):
+    #                 #nipype processes do not use temporaries, they produce output
+    #                 # file names
+    #                 return
+
+    #             print('!temporaries 2!', node.full_name)
+    #             for plug_name, plug in node.plugs.items():
+    #                 print('!temporaries 3!', plug_name)
+    #                 value = getattr(node, plug_name, undefined)
+    #                 if not plug.activated or not plug.enabled:
+    #                     continue
+    #                 field = node.field(plug_name)
+    #                 print('!  temporaries 3.1!', plug_name, field.output, field.metadata('write', False))
+    #                 if field.output or not field.metadata('write', False):
+    #                     continue
+    #                 print('!  temporaries 3.2!', plug_name)
+    #                 if field.is_list() and field.path_type:
+    #                     if value is not undefined and len([x for x in value if x in ('', undefined)]) == 0:
+    #                         continue
+    #                 elif value not in (undefined, '') \
+    #                         or (not field.path_type
+    #                             or len(plug.links_to) == 0):
+    #                     continue
+    #                 # check that it is really temporary: not exported
+    #                 # to the main pipeline
+    #                 temporary = False
+    #                 item_stack = list(executable.get_linked_items(node, plug_name, 
+    #                     in_sub_pipelines=True, process_only=False, in_outer_pipelines=True,
+    #                     direction='links_to'))
+    #                 print('!  temporaries 3.3!', node.full_name, plug_name)
+    #                 while item_stack:
+    #                     n, pn = item_stack.pop(0)
+    #                     print('!    temporary 3.3.1!  ', n.full_name, pn, n is executable, isinstance(n, Pipeline))
+    #                     if n is executable and iteration_process:
+    #                         print('!    temporary 3.3.2!  ', iteration_process.full_name, pn)
+    #                         item_stack.extend(executable.get_linked_items(iteration_process, pn, 
+    #                             in_sub_pipelines=True, process_only=False, in_outer_pipelines=True,
+    #                             direction='links_to'))
+    #                     if n is executable or isinstance(n, Pipeline):
+    #                         continue
+    #                     temporary = True
+    #                     break
+    #                 temporary = temporary or getattr(field, 'generate_temporary', False)
+    #                 print('!  temporaries 4!', plug_name, temporary)
+    #                 field.generate_temporary = temporary
+    #                 if isinstance(node, ProcessIteration):
+    #                     node.process.field(field.name).generate_temporary = temporary
+    #                 for n, p in executable.get_linked_items(node, field.name, in_outer_pipelines=False):
+    #                     print('!  temporaries 5!', n.full_name, p)
+    #                     if isinstance(n, Pipeline):
+    #                         continue
+    #                     f = n.field(p)
+    #                     if f.is_output():
+    #                         print('!  temporaries 5.1!', n.full_name, p)
+    #                         setattr(f, 'generate_temporary', temporary)
+    #             if isinstance(node, ProcessIteration):
+    #                 self._find_temporary_to_generate(node.process, node)
+    #             else:
+    #                 self._find_temporary_to_generate(node, None)
+

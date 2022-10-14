@@ -15,7 +15,7 @@ from pathlib import Path
 import re
 import sys
 
-from capsul.pipeline.pipeline import  Pipeline
+from capsul.pipeline.pipeline import Process, Pipeline
 from capsul.pipeline.process_iteration import ProcessIteration
 
 from soma.controller import Controller, Literal, Directory
@@ -419,25 +419,24 @@ class MetadataModifier:
         self.modifiers = []
 
         process_schema = getattr(process, 'metadata_schemas', {}).get(schema_name)
-        if not process_schema:
-            return
-
-        for pattern, modifier in getattr(process_schema, '_', {}).items():
-            if fnmatch.fnmatch(parameter, pattern):
-                self.add_modifier(modifier)
-        modifier = getattr(process_schema, parameter, None)
-        self.add_modifier(modifier)
+        if process_schema:
+            for pattern, modifier in getattr(process_schema, '_', {}).items():
+                if fnmatch.fnmatch(parameter, pattern):
+                    self.add_modifier(modifier)
+            modifier = getattr(process_schema, parameter, None)
+            self.add_modifier(modifier)
         pipeline = process.get_pipeline()
         if pipeline:
             pipeline_schema = getattr(pipeline, 'metadata_schemas', {}).get(schema_name)
             if pipeline_schema:
                 nodes_schema = getattr(pipeline_schema, '_nodes', None)
                 if nodes_schema:
-                    node_modifiers = nodes_schema.get(process.name)
-                    if node_modifiers:
-                        for pattern, modifier in node_modifiers.items():
-                            if fnmatch.fnmatch(parameter, pattern):
-                                self.add_modifier(modifier)
+                    # node_modifiers = nodes_schema.get(process.name)
+                    for pattern, node_modifiers in nodes_schema.items():
+                        if fnmatch.fnmatch(process.name, pattern):
+                            for pattern, modifier in node_modifiers.items():
+                                if fnmatch.fnmatch(parameter, pattern):
+                                    self.add_modifier(modifier)
 
     def __repr__(self):
         return f'MetadataModifier({self.process.label}, {self.parameter}, {self.modifiers})'
@@ -458,7 +457,10 @@ class MetadataModifier:
         for modifier in self.modifiers:
             if isinstance(modifier, dict):
                 for k, v in modifier.items():
-                    setattr(metadata, k, v)
+                    if callable(v):
+                        setattr(metadata, k, v(metadata=metadata, process=process, parameter=parameter))
+                    else:
+                        setattr(metadata, k, v)
             else:
                 modifier(metadata, process, parameter)
 
@@ -497,13 +499,13 @@ def dprint(debug, *args, _frame_depth=1, **kwargs):
             head = f'!{frame.function}:{frame.lineno}!'
         finally:
             del frame
-        print(head, ' '.join(f'{i}' for i in args), **kwargs)
+        print(head, ' '.join(f'{i}' for i in args), file=sys.stderr, **kwargs)
 
 
 def dpprint(debug, item):
     if debug:
         from pprint import pprint
-        dprint(debug=debug, _frame_depth=2)
+        dprint(debug=debug, _frame_depth=2, file=sys.stderr)
         pprint(item)
 
 
@@ -576,8 +578,10 @@ class ProcessMetadata(Controller):
         inner_field = None
         inner_field_name = None
         if isinstance(process, Pipeline):
+            # inner_item = next(process.get_linked_items(
+            #                     process, field.name, direction=('links_from' if field.is_output() else 'links_to')), None)
             inner_item = next(process.get_linked_items(
-                                process, field.name), None)
+                                process, field.name, in_outer_pipelines=False), None)
         else:
             inner_item = None
         if inner_item is not None:
@@ -622,20 +626,23 @@ class ProcessMetadata(Controller):
                         todo = []
                         done = set()
                         if isinstance(process, Pipeline):
-                            stack = list(process.get_linked_items(process, field.name))
+                            stack = list(process.get_linked_items(process, field.name, in_outer_pipelines=True))
                             while stack:
                                 node, node_parameter = stack.pop(0)
                                 self.dprint(f'    connected to {node.full_name}.{node_parameter}')
                                 todo.insert(0, (node, node_parameter))
-                                done.add((node, node_parameter))
+                                done.add(node)
                                 if field.is_output():
                                     for node_field in node.user_fields():
                                         if node.plugs[node_field.name].activated and not node_field.is_output():
                                             ext = [i for i in 
                                                    process.get_linked_items(node, 
-                                                                            node_field.name)
-                                                  if i not in done]
+                                                                            node_field.name,
+                                                                            process_only=False,
+                                                                            direction='links_from')
+                                                  if isinstance(i[0], Process) and i[0] not in done]
                                             stack.extend(ext)
+                                            done.update(i[0] for i in ext)
                                             if self.debug:
                                                 for n, p in ext:
                                                     self.dprint(f'        + {n.full_name}.{p}')

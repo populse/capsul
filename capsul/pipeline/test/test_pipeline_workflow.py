@@ -224,7 +224,7 @@ class TestPipelineWorkflow(unittest.TestCase):
                 text = f.read()
                 self.assertEqual(len(text.split('\n')), lens[o])
 
-    def test_iter_workflow_without_temp(self):
+    def test_iter_without_temp(self):
         pipeline = Capsul.executable(DummyPipelineIterSimple)
         self.assertTrue(pipeline is not None)
         niter = 2
@@ -253,6 +253,7 @@ class TestPipelineWorkflow(unittest.TestCase):
 
     def test_iter_workflow(self):
         pipeline = Capsul.executable(DummyPipelineIter)
+
         self.assertTrue(pipeline is not None)
         niter = 2
         pipeline.input = [osp.join(self.tmpdir, 'file_in%d' % i)
@@ -292,48 +293,42 @@ def test():
 
 
 if __name__ == "__main__":
-    verbose = False
-    if len(sys.argv) >= 2 and sys.argv[1] in ('-v', '--verbose'):
-        verbose = True
+    import sys
+    from soma.qt_gui import qt_backend
+    from soma.qt_gui.qt_backend import QtGui
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
-    print("RETURNCODE: ", test())
+    app = QtGui.QApplication.instance()
+    if not app:
+        app = QtGui.QApplication(sys.argv)
+    pipeline = Capsul.executable(DummyPipeline)
+    pipeline.input = '/tmp/file_in.nii'
+    pipeline.output1 = '/tmp/file_out1.nii'
+    pipeline.output2 = '/tmp/file_out2.nii'
+    pipeline.output3 = '/tmp/file_out3.nii'
+    view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view1.show()
 
-    if verbose:
-        import sys
-        from soma.qt_gui import qt_backend
-        # qt_backend.set_qt_backend('PyQt4')
-        from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDeveloperView
+    pipeline2 = Capsul.executable(DummyPipelineIterSimple)
+    pipeline2.input = ['/tmp/file_in1.nii', '/tmp/file_in2.nii']
+    pipeline2.output = '/tmp/file_out.nii'
+    pipeline2.intermediate = ['/tmp/file_out1',
+                                '/tmp/file_out2']
+    view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view2.show()
 
-        app = QtGui.QApplication.instance()
-        if not app:
-            app = QtGui.QApplication(sys.argv)
-        pipeline = DummyPipeline()
-        pipeline.input = '/tmp/file_in.nii'
-        pipeline.output1 = '/tmp/file_out1.nii'
-        pipeline.output2 = '/tmp/file_out2.nii'
-        pipeline.output3 = '/tmp/file_out3.nii'
-        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view1.show()
+    pipeline3 = Capsul.executable(DummyPipelineIter)
+    pipeline3.input = ['/tmp/file_in1.nii', '/tmp/file_in2.nii']
+    pipeline3.output1 = '/tmp/file_out1.nii'
+    pipeline3.output2 = '/tmp/file_out2.nii'
+    pipeline3.output3 = '/tmp/file_out3.nii'
+    view3 = PipelineDeveloperView(pipeline3, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view3.show()
 
-        pipeline2 = DummyPipelineIterSimple()
-        pipeline2.input = ['/tmp/file_in1.nii', '/tmp/file_in2.nii']
-        pipeline2.output = '/tmp/file_out.nii'
-        pipeline2.intermediate = ['/tmp/file_out1',
-                                  '/tmp/file_out2']
-        view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view2.show()
-
-        pipeline3 = DummyPipelineIter()
-        pipeline3.input = ['/tmp/file_in1.nii', '/tmp/file_in2.nii']
-        pipeline3.output1 = '/tmp/file_out1.nii'
-        pipeline3.output2 = '/tmp/file_out2.nii'
-        pipeline3.output3 = '/tmp/file_out3.nii'
-        view3 = PipelineDeveloperView(pipeline3, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view3.show()
-
-        app.exec_()
-        del view1
+    app.exec_()
+    del view1
+    del view2
+    del view3

@@ -447,24 +447,43 @@ class MorphologistBrainVISA(ProcessSchema, schema='brainvisa',
                             process=Morphologist):
     _ = {
         '*': {'process': None, 'modality': 't1mri'},
-        'GreyWhiteClassification.*': {'side': 'L'},
-        'GreyWhiteTopology.*': {'side': 'L'},
-        'GreyWhiteMesh.*': {'sidebis': 'L'},
-        'PialMesh.*': {'sidebis': 'L'},
-        'SulciSkeleton.*': {'side': 'L'},
-        'CorticalFoldsGraph.*': {'side': 'L'},
-        'SulciRecognition.*': {'side': 'L'},
-        '*_1.*': {'side': 'R'},
-        'GreyWhiteMesh_1.*': {'sidebis': 'R', 'side': None},
-        'PialMesh_1.*': {'sidebis': 'R', 'side': None},
-        'SulciRecognition*.*': {
+    }
+
+    _nodes = {
+        'GreyWhiteClassification': {'*': {'side': 'L'}},
+        'GreyWhiteTopology': {'*': {'side': 'L'}},
+        'GreyWhiteMesh' : {'*': {'sidebis': 'L'}},
+        'PialMesh': {'*': {'sidebis': 'L'}},
+        'SulciSkeleton': {'*': {'side': 'L'}},
+        'CorticalFoldsGraph': {'*': {'side': 'L'}},
+        'SulciRecognition': {'*': {'side': 'L'}},
+        '*_1': {'*': {'side': 'R'}},
+        'GreyWhiteMesh_1': {'*': {'sidebis': 'R', 'side': None}},
+        'PialMesh_1': {'*': {'sidebis': 'R', 'side': None}},
+        'SulciRecognition*': {'*': {
             'sulci_graph_version':
                 lambda **kwargs:
                     f'{kwargs["process"].CorticalFoldsGraph_graph_version}',
             'sulci_recognition_session': 'default_session_auto',
-        },
+            'prefix': None,
+            'sidebis': None,
+        }},
     }
-    imported_t1mri = {'analysis': undefined}
+    imported_t1mri = {
+        'analysis': undefined,
+        'side': None,
+        'sidebis': None,
+        'seg_directory': None,
+        'suffix': None,
+        'extension': 'nii',
+    }
+    t1mri_nobias = {
+        'side': None,
+        'sidebis': None,
+        'seg_directory': None,
+        'suffix': None,
+        'extension': 'nii',
+    }
     t1mri_referential= {
         'analysis': undefined,
         'seg_directory': 'registration',
@@ -472,14 +491,22 @@ class MorphologistBrainVISA(ProcessSchema, schema='brainvisa',
         'suffix': lambda **kwargs:
             f'{kwargs["metadata"].acquisition}',
         'extension': 'referential'}
-    reoriented_t1mri = {'analysis': undefined}
     Talairach_transform = {
         'analysis': undefined,
         'seg_directory': 'registration',
+        'prefix': '',
         'short_prefix': 'RawT1-',
         'suffix': lambda **kwargs:
             f'{kwargs["metadata"].acquisition}_TO_Talairach-ACPC',
+        'side': None,
+        'sidebis': None,
         'extension': 'trm'}
+    left_labelled_graph = {
+        'part': 'left_hemi'
+    }
+    right_labelled_graph = {
+        'part': 'right_hemi'
+    }
 
 
 class MorphologistShared(ProcessSchema, schema='shared', process=Morphologist):
@@ -1009,7 +1036,7 @@ class TestFakeMorphologist(unittest.TestCase):
 
         bv_schema_diff = [
           ([], []),
-          (['normalized_t1mri', 'MNI_transform'], ['reoriented_t1mri']),
+          (['normalized_t1mri', 'MNI_transform'], []),
           (['normalized_t1mri', 'MNI_transform',
             'normalization_spm_native_transformation',
             'normalization_spm_native_transformation_pass1'],
@@ -1405,11 +1432,14 @@ def test():
     return runtime.wasSuccessful()
 
 if __name__ == '__main__':
-    t = TestFakeMorphologist()
-    t.subjects = [f'subject_{i:04}' for i in range(2000)]
-    print(f'Setting up config and data files for {len(t.subjects)} subjects and 3 time points')
-    t.setUp()
-    try:
-        ...
-    finally:
-        t.tearDown()
+    morphologist = Capsul.executable('capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
+    parent = morphologist.nodes['SulciRecognition'].get_pipeline()
+    print(parent)
+    # t = TestFakeMorphologist()
+    # t.subjects = [f'subject_{i:04}' for i in range(2000)]
+    # print(f'Setting up config and data files for {len(t.subjects)} subjects and 3 time points')
+    # t.setUp()
+    # try:
+    #     ...
+    # finally:
+    #     t.tearDown()

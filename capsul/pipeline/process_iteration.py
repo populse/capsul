@@ -12,6 +12,7 @@ Classes
 from soma.controller import undefined
 
 from capsul.process.process import Process
+import capsul.pipeline.pipeline
 
 
 class ProcessIteration(Process):
@@ -136,7 +137,8 @@ class ProcessIteration(Process):
     
     def select_iteration_index(self, iteration_index):
         for parameter in self.regular_parameters:
-            setattr(self.process, parameter, getattr(self, parameter, undefined))
+            value = getattr(self, parameter, undefined)
+            setattr(self.process, parameter, value)
         for parameter in self.iterative_parameters:
             values = getattr(self, parameter, undefined)
             if values is not undefined and len(values) != 0:
@@ -164,10 +166,14 @@ class ProcessIteration(Process):
         return result
     
     def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True,
-                         activated_only=True, process_only=True):
-        return self.process.get_linked_items(
-            node=node,
-            plug_name=plug_name,
-            in_sub_pipelines=in_sub_pipelines,
-            activated_only=activated_only,
-            process_only=process_only)
+                         activated_only=True, process_only=True, direction=None,
+                         in_outer_pipelines=False):
+        if isinstance(self.process, capsul.pipeline.pipeline.Pipeline):
+            yield from  self.process.get_linked_items(
+                node=node,
+                plug_name=plug_name,
+                in_sub_pipelines=in_sub_pipelines,
+                activated_only=activated_only,
+                process_only=process_only,
+                direction=direction,
+                in_outer_pipelines=in_outer_pipelines)

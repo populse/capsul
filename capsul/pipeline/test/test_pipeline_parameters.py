@@ -727,7 +727,8 @@ class TestPipelineMethods(unittest.TestCase):
 
         with Capsul().engine() as ce:
             ce.run(pipeline1, timeout=5)
-
+        pipeline1.out
+        
         save_pipeline_parameters(self.path, pipeline1)
 
         # Reinitializing pipeline and loading parameters

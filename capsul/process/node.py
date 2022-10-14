@@ -45,7 +45,7 @@ class Plug(Controller):
         the predecessor plugs of this plug
     """
     enabled : bool = True
-    activated : bool = False
+    activated : bool = True
     output : bool = False
     optional : bool = False
 
