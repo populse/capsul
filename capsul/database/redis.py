@@ -412,7 +412,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
 
     def workers_status(self, workers_id):
-        self.redis.hget(f'capsul:worker:{workers_id}',
+        return self.redis.hget(f'capsul:worker:{workers_id}',
             'status')
 
 
