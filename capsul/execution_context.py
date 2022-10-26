@@ -85,7 +85,7 @@ class CapsulWorkflow(Controller):
     parameters: DictWithProxy
     jobs: dict
     
-    def __init__(self, executable):
+    def __init__(self, executable, debug=False):
         super().__init__()
         self.parameters = DictWithProxy(all_proxies=True)
         self.jobs = {}

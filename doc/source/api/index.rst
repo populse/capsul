@@ -112,7 +112,7 @@ Running external software
 :mod:`capsul.subprocess`
 ------------------------
 
-This module is obsolete and will be replaced by :mod:`~capsul.in_process`. It is still used in Capsul v2 when using :class:`~caspul.study_config.study_config.StudyConfig`.
+This module is obsolete and will be replaced by :mod:`~capsul.in_process`. It is still used in Capsul v2 when using :class:`~capsul.study_config.study_config.StudyConfig`.
 
 
 :mod:`capsul.subprocess.fsl` Classes:

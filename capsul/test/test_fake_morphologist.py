@@ -734,7 +734,7 @@ class TestFakeMorphologist(unittest.TestCase):
         with self.config_file.open('w') as f:
             json.dump(config, f)
 
-        self.capsul = Capsul('test_fake_morphologist', site_file=self.config_file)
+        self.capsul = Capsul('test_fake_morphologist', site_file=self.config_file, user_file=None)
         return super().setUp()
 
     def tearDown(self):

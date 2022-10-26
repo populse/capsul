@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import importlib
 import json
 import os
 import sys
-import importlib
 import tempfile
 
 from soma.controller import (Controller, field,
@@ -14,9 +14,10 @@ from ..dataset import Dataset
 
 
 default_workers_type = 'builtin'
-default_database_url = f'sqlite://{tempfile.gettempdir()}{os.sep}capsul_engine_database.sqlite'
+# default_database_url = f'sqlite://{tempfile.gettempdir()}{os.sep}capsul_engine_database.sqlite'
 # default_workers_type = 'celery'
-# default_database_url = f'redis+socket://{tempfile.gettempdir()}{os.sep}capsul_engine_database.redis'
+default_database_url = f'redis+socket://{tempfile.gettempdir()}{os.sep}capsul_engine_database.redis'
+# default_database_url = 'redis://test:test@localhost:7777'
 
 def full_module_name(module_name):
     '''
@@ -148,8 +149,15 @@ class EngineConfiguration(Controller):
     dataset: OpenKeyDictController[Dataset]
     config_modules: list[str]
     python_modules: list[str]
-    workers_type: str = default_workers_type
+
     database_url: str = default_database_url
+    
+    connection_type : str
+    host: str
+    login: str
+
+    workers_type: str = default_workers_type
+    casa_dir: str
 
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.

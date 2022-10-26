@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import time
 from uuid import uuid4
 
 from populse_db import Database
@@ -7,11 +8,11 @@ from populse_db import Database
 from . import ExecutionDatabase
 
 class Populse_dbExecutionDatabase(ExecutionDatabase):
-    def __init__(self, url):
+    def __init__(self, url, prefix=None):
         super().__init__(url)
-        if url.query or url.fragment:
+        if url.login or url.host or url.query or url.fragment:
             raise ValueError(f'Invalid URL: {self.url}')
-        self.sqlite_file = f'{url.netloc}{url.path}'
+        self.sqlite_file = f'{url.path}'
         self.database = Database(f'sqlite://{self.sqlite_file}')
         with self.database as session:
             if not session.has_collection('execution'):
@@ -20,6 +21,14 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
                 session['global'][''] = {
                     'capsul_connection_count': 1,
                 }
+
+                session.add_collection('worker')
+                worker = session['worker']
+                worker.add_field('label', str)
+                worker.add_field('engine_config', dict)
+                worker.add_field('executions', list[str])
+                worker.add_field('status', str)
+
                 session.add_collection('execution')
                 execution = session['execution']
                 execution.add_field('label', str)
@@ -69,7 +78,52 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
         with self.database as session:
             session['execution'].update_document(execution_id, {name: value})
 
+
+    def new_workers_json(self, label, engine_config_json):
+        workers_id = str(uuid4())
+        with self.database as session:
+            session['worker'][workers_id] = {
+                'label': label,
+                'engine_config': engine_config_json,
+                'executions': [],
+                'status': 'starting',
+            }
+        return workers_id
+
+
+    def workers_started(self, workers_id):
+        with self.database as session:
+            session['worker'].update_document(workers_id, {'status': 'running'})
+
+
+    def workers_status(self, workers_id):
+        with self.database as session:
+            return session['worker'].document(workers_id, fields=['status'], as_list=True)[0]
+
+
+    def dispose_workers(self, workers_id):
+        with self.database as session:
+            del session['worker'][workers_id]
+
+
+    def wait_for_execution(self, workers_id):
+        with self.database as session:
+            workers_active = session['worker'].has_document(workers_id)
+        while workers_active:
+            with self.database as session:
+                executions = session['worker'].document(workers_id, fields=['executions'], as_list=True)[0]
+                if executions:
+                    execution_id = executions[0]
+                    session['worker'].update_document(workers_id, {'executions': executions[1:]})
+                    session.commit()
+                    return execution_id
+            time.sleep(0.5)
+            with self.database as session:
+                workers_active = session['worker'].has_document(workers_id)
+        return None
+
     def store_execution(self,
+            workers_id,
             label,
             start_time, 
             executable_json,
@@ -101,6 +155,9 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
             session['execution'][execution_id] = execution
             for job in jobs:
                 session['job'][(execution_id, job['uuid'])] = job
+            executions = session['worker'].document(workers_id, fields=['executions'], as_list=True)[0]
+            executions.append(execution_id)
+            session['worker'].update_document(workers_id, {'executions': executions})
         return execution_id
     
     def status(self, execution_id):

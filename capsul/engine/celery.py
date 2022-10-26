@@ -29,14 +29,13 @@ if database_url:
         try:
             database = execution_database(database_url)
             try:
-                executions_count = database.redis.llen('capsul_ongoing_executions')
+                executions_count = database.redis.llen('capsul:ongoing_executions')
                 print(f'!executions_count! {executions_count}')
                 #TODO: possible race condition here if a connection to the celery workers
                 # is done right now
                 if not executions_count:
                     # Release special database connection
-                    print('!shutting down celery!')
-                    database.redis.hdel('capsul_connections', 'celery_workers_connection')
+                    database.redis.hdel('capsul:connections', 'celery_workers_connection')
                     celery_app.control.shutdown() # send shutdown signal to all workers
                     return
             finally:
@@ -84,7 +83,7 @@ class CeleryWorkers(Workers):
     def _start(self, execution_id):
         if not isinstance(self.database, RedisExecutionDatabase):
             raise TypeError('Celery workers can only work with a Redis execution database')
-        tmp = self.database.redis.get('capsul_redis_tmp')
+        tmp = self.database.redis.get('capsul:redis_tmp')
         workers_pid_file = f'{tmp}/capsul_celery_workers.pid'
         if not os.path.exists(workers_pid_file):
             env = os.environ.copy()
@@ -103,10 +102,10 @@ class CeleryWorkers(Workers):
             celery_app = Celery('capsul.engine.celery', broker=self.database.url)
             celery_app.send_task('capsul.engine.celery.check_shutdown', countdown=shutdown_countdown)
             # keep a special database connection to prevent the database to shutdown before Celery workers
-            self.database.redis.hset('capsul_connections', 'celery_workers_connection', datetime.now().isoformat())
+            self.database.redis.hset('capsul:connections', 'celery_workers_connection', datetime.now().isoformat())
         else:
             celery_app = Celery('capsul.engine.celery', broker=self.database.url)
-        tmp = tempfile.mkdtemp(prefix='caspul_celery_')
+        tmp = tempfile.mkdtemp(prefix='capsul_celery_')
         try:
             self.database.set_tmp(execution_id, tmp)
             job = self.database.start_one_job(execution_id, start_time=datetime.now())
@@ -120,6 +119,6 @@ class CeleryWorkers(Workers):
     def _cleanup(self, execution_directory):
         pass
 
-    def _debug_info(self, execution_id):
-        #TODO: return the workers log
-        return {}
+
+if __name__ == '__main__':
+    ...

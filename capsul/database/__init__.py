@@ -2,9 +2,12 @@
 from datetime import datetime
 import dateutil.parser
 import importlib
+import os
 from pprint import pprint
-from urllib.parse import urlsplit, urlunsplit
+import re
+import shutil
 import sys
+import tempfile
 import time
 
 from populse_db.database import json_encode, json_decode
@@ -17,18 +20,71 @@ from ..pipeline.pipeline import Process, Pipeline
 
 database_classes = {
     'sqlite': 'capsul.database.populse_db:Populse_dbExecutionDatabase',
+    'redis': 'capsul.database.redis:RedisExecutionDatabase',
     'redis+socket': 'capsul.database.redis:RedisExecutionDatabase',
 }
 
-def execution_database(database_url):
-    url = urlsplit(database_url)
+class URL:
+    pattern = re.compile(
+        r'^(?P<scheme>[^:]+)://'
+        r'(?:(?P<login>[^:]+)(?::(?P<password>[^@]+))?@)?'
+        r'(?:(?P<host>[\w\.]+)(?::(?P<port>\d+))?)?'
+        r'(?P<path>[^;?#]*)'
+        r'(?:;(?P<parameters>[^?#]+))?'
+        r'(?:\?(?P<query>[^#]+))?'
+        r'(?:#(?P<fragment>.+))?$'
+        )
+
+    def __init__(self, string):
+        m = self.pattern.match(string)
+        if not m:
+            raise ValueError(f'Invalid URL: {string}')
+        for k, v in m.groupdict().items():
+            setattr(self, k, v)
+    
+    def __str__(self):
+        if self.login:
+            if self.password:
+                login = f'{self.login}:{self.password}@'
+            else:
+                login = f'{self.login}@'
+        else:
+            login = ''
+        if self.host:
+            if self.port:
+                host = f'{self.host}:{self.port}'
+            else:
+                host = self.host
+        else:
+            host = ''
+        if self.path:
+            path = self.path
+        else:
+            path = ''
+        if self.parameters:
+            parameters = f';{parameters}'
+        else:
+            parameters = ''
+        if self.query:
+            query = f'?{query}'
+        else:
+            query = ''
+        if self.fragment:
+            fragment = f'#{fragment}'
+        else:
+            fragment = ''
+        return f'{self.scheme}://{login}{host}{path}{parameters}{query}{fragment}'
+
+
+def execution_database(database_url, prefix=None):
+    url = URL(database_url)
     class_string = database_classes.get(url.scheme)
     if class_string is None:
         raise ValueError(f'Invalid database URL {database_url}: scheme {url.scheme} is not supported')
     module_name, class_name = class_string.rsplit(':', 1)
     module = importlib.import_module(module_name)
     database_class = getattr(module, class_name)
-    return database_class(url)
+    return database_class(url, prefix=prefix)
 
 
 class ExecutionDatabase:
@@ -37,12 +93,23 @@ class ExecutionDatabase:
 
     @property
     def url(self):
-        url = urlunsplit(self._url)
-        if not self._url.netloc:
-            url = url.replace(':', '://', 1)
-        return url
+        return str(self._url)
     
-    def new_execution(self, executable, execution_context, workflow, start_time):
+    def create_tmp(self, execution_id):
+        tmp = os.path.join(tempfile.gettempdir(), f'capsul_exec_{execution_id}')
+        try:
+            os.mkdir(tmp)
+        except:
+            shutil.rmtree(tmp)
+            raise
+        self.set_tmp(execution_id, tmp)
+    
+    def new_workers(self, engine):
+        return self.new_workers_json(
+            engine.label,
+            engine.config.json())
+    
+    def new_execution(self, executable, workers_id, execution_context, workflow, start_time):
         executable_json = json_encode(executable.json(include_parameters=False))
         execution_context_json = execution_context.json()
         workflow_parameters_json = json_encode(workflow.parameters.json())
@@ -55,6 +122,7 @@ class ExecutionDatabase:
             else:
                 ready.append(job['uuid'])
         execution_id = self.store_execution(
+            workers_id,
             label=executable.label,
             start_time=self._time_to_json(start_time),
             executable_json=executable_json,
@@ -304,8 +372,40 @@ class ExecutionDatabase:
             if enable_parameter_links is not None:
                 executable.enable_parameter_links = enable_parameter_links
 
+
     def start_one_job(self, execution_id, start_time):
         return self.start_one_job_json(execution_id, self._time_to_json(start_time))
     
+
     def job_finished(self, execution_id, job_uuid, end_time, returncode, stdout, stderr):
         return self.job_finished_json(execution_id, job_uuid, self._time_to_json(end_time), returncode, stdout, stderr)
+
+
+    def store_execution(self,
+            workers_id,
+            label,
+            start_time, 
+            executable_json,
+            execution_context_json,
+            workflow_parameters_json,
+            jobs,
+            ready,
+            waiting
+        ):
+        raise NotImplementedError()
+
+
+    def new_workers_json(self, label, engine_config_json):
+        raise NotImplementedError()
+
+
+    def workers_started(self, workers_id):
+        raise NotImplementedError()
+
+
+    def dispose_workers(self, workers_id):
+        raise NotImplementedError()
+
+
+    def wait_for_execution(self, workers_id):
+        raise NotImplementedError()

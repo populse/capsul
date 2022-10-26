@@ -46,45 +46,53 @@ class RedisExecutionPipeline:
         return self.pipeline.execute()
 
 class RedisExecutionDatabase(ExecutionDatabase):
-    def __init__(self, url):
+    def __init__(self, url, prefix=None):
         super().__init__(url)
-        self.uuid = str(uuid4())
-        if url.scheme != 'redis+socket':
-            raise NotImplementedError(f'Redis connection with {self.url} is not implemented')
-
-        self.redis_socket = f'{url.netloc}{url.path}'
-        if not os.path.exists(self.redis_socket):
-            # Start the redis server
-            tmp = tempfile.mkdtemp(prefix='capsul_redis_')
-            try:
-                pid_file = f'{tmp}/redis.pid'
-                log_file = f'{tmp}/redis.log'
-                cmd = [
-                    'redis-server',
-                    '--unixsocket', self.redis_socket,
-                    '--port', '0', # port 0 means no TCP connection
-                    '--daemonize', 'yes',
-                    '--pidfile', pid_file,
-                    '--dir', tmp,
-                    '--logfile', log_file,
-                    '--dbfilename', 'redis.rdb',
-                ]
-                subprocess.run(cmd)
-                for i in range(20):
-                    if os.path.exists(self.redis_socket):
-                        break
-                    time.sleep(0.1)
-                self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
-                                            decode_responses=True)
-                self.redis.set('capsul_redis_tmp', tmp)
-                self.redis.set('capsul_redis_pid_file', pid_file)
-            except Exception:
-                shutil.rmtree(tmp)
+        if prefix:
+            self.uuid = f'{prefix}_{uuid4()}'
         else:
-            self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
+            self.uuid = str(uuid4())
+
+        if url.scheme == 'redis+socket':
+            self.redis_socket = f'{url.path}'
+            if not os.path.exists(self.redis_socket):
+                # Start the redis server
+                tmp = tempfile.mkdtemp(prefix='capsul_redis_')
+                try:
+                    pid_file = f'{tmp}/redis.pid'
+                    log_file = f'{tmp}/redis.log'
+                    cmd = [
+                        'redis-server',
+                        '--unixsocket', self.redis_socket,
+                        '--port', '0', # port 0 means no TCP connection
+                        '--daemonize', 'yes',
+                        '--pidfile', pid_file,
+                        '--dir', tmp,
+                        '--logfile', log_file,
+                        '--dbfilename', 'redis.rdb',
+                    ]
+                    subprocess.run(cmd, cwd=tmp)
+                    for i in range(20):
+                        if os.path.exists(self.redis_socket):
+                            break
+                        time.sleep(0.1)
+                    self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
+                                                decode_responses=True)
+                    self.redis.set('capsul:redis_tmp', tmp)
+                    self.redis.set('capsul:redis_pid_file', pid_file)
+                except Exception:
+                    shutil.rmtree(tmp)
+            else:
+                self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
+                                        decode_responses=True)
+        elif url.scheme == 'redis':
+            self.redis  = redis.Redis(host=url.host, port=url.port,
                                       decode_responses=True)
-        
-        self.redis.hset('capsul_connections', self.uuid, datetime.now().isoformat())
+            if url.login:
+                self.redis.auth(url.password, url.login)
+        else:
+            raise NotImplementedError(f'Redis connection with {self.url} is not implemented')
+        self.redis.hset('capsul:connections', self.uuid, datetime.now().isoformat())
 
         # Some functions are implemented as a Lua script in redis
         # in order to be atomic. In redis these scripts must always
@@ -176,8 +184,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
             if (redis.call('llen', key('ongoing')) ~= 0) or (redis.call('llen', key('ready')) ~= 0) then
                 return false
             else
-                redis.call('hdel', 'capsul_ongoing_executions', execution_id)
-                if redis.call('hexists', 'capsul_undisposed_executions', execution_id) then
+                redis.call('hdel', 'capsul:ongoing_executions', execution_id)
+                if redis.call('hexists', 'capsul:undisposed_executions', execution_id) then
                     if redis.call('llen', key('failed')) ~= 0 then
                         redis.call('set', key('error'), 'Some jobs failed')
                     end
@@ -200,6 +208,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     redis.call('del', key('failed'))
                     redis.call('del', key('jobs'))
                     redis.call('del', key('workflow_parameters'))
+                    redis.call('del', key('label'))
                     local tmp = redis.call('get', key('tmp'))
                     redis.call('del', key('tmp'))
                     return tmp
@@ -243,7 +252,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
             local execution_id = ARGV[1]
 
-            redis.call('hdel', 'capsul_undisposed_executions', execution_id)
+            redis.call('hdel', 'capsul:undisposed_executions', execution_id)
             if redis.call('get', key('status')) == 'ended' then
                 redis.call('del', key('executable'))
                 redis.call('del', key('execution_context'))
@@ -259,6 +268,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 redis.call('del', key('failed'))
                 redis.call('del', key('jobs'))
                 redis.call('del', key('workflow_parameters'))
+                redis.call('del', key('label'))
                 local tmp = redis.call('get', key('tmp'))
                 redis.call('del', key('tmp'))
                 return tmp
@@ -268,14 +278,15 @@ class RedisExecutionDatabase(ExecutionDatabase):
             ''')
 
         self._check_shutdown = self.redis.register_script('''
-            if redis.call('hlen', 'capsul_connections') == 0 and
-                redis.call('hlen', 'capsul_ongoing_executions') == 0 and
-                redis.call('llen', 'capsul_undisposed_executions') == 0
+            if redis.call('get', 'capsul:redis_pid_file') and
+               redis.call('hlen', 'capsul:connections') == 0 and
+               redis.call('hlen', 'capsul:ongoing_executions') == 0 and
+               redis.call('llen', 'capsul:undisposed_executions') == 0
             then
                 -- setting capsul_connection to a string value will prevent
                 -- the creation of new connections because they will use
                 -- hset command that raises an error value type is not a hash
-                redis.call('set', 'capsul_connections', 'shutting down')
+                redis.call('set', 'capsul:connections', 'shutting down')
                 return true
             else
                 return false
@@ -308,8 +319,69 @@ class RedisExecutionDatabase(ExecutionDatabase):
             redis.call('set', key('workflow_parameters'), cjson.encode(workflow_parameters))
             ''')
       
+        self._pop_execution = self.redis.register_script('''
+            local workers_id = ARGV[1]
+            local executions = redis.call('hget', 'capsul:worker' .. workers_id, 'executions')
+            if executions then
+                executions = cjson.decode(executions)
+            else
+                executions = {}
+            end
+            local result = table.remove(executions, 1)
+            redis.call('hset', 'capsul:worker' .. workers_id, 'executions', cjson.encode(executions))
+            return result
+            ''')
+
+        self._store_execution = self.redis.register_script('''
+            local function key(name)
+                return 'capsul:' .. ARGV[1] .. ':' .. name
+            end
+
+            local execution_id = ARGV[1]
+            local workers_id = ARGV[2]
+            local label = ARGV[3]
+            local status = ARGV[4]
+            local start_time = ARGV[5]
+            local executable_json = ARGV[6]
+            local execution_context_json = ARGV[7]
+            local workflow_parameters_json = ARGV[8]
+            local jobs = cjson.decode(ARGV[9])
+            local ready = cjson.decode(ARGV[10])
+            local waiting = cjson.decode(ARGV[11])
+            local now = ARGV[12]
+
+            redis.call('hset', 'capsul:ongoing_executions', execution_id, now)
+            redis.call('hset', 'capsul:undisposed_executions', execution_id, now)
+            redis.call('set', key('label'), label)
+            redis.call('set', key('status'), status)
+            redis.call('set', key('start_time'), start_time)
+            redis.call('set', key('executable'), executable_json)
+            redis.call('set', key('execution_context'), execution_context_json)
+            redis.call('set', key('workflow_parameters'), workflow_parameters_json)
+            if next(ready)  == nil then
+                redis.call('set', key('end_time'), start_time)
+            else
+                redis.call('rpush', key('ready'), unpack(ready))
+            end
+            if next(waiting) ~= nil then
+                redis.call('rpush', key('waiting'), unpack(waiting))
+            end
+            for _, job in ipairs(jobs) do
+                redis.call('hset', key('jobs'), job['uuid'], cjson.encode(job))
+            end
+            local executions = redis.call('hget', 'capsul:worker' .. workers_id, 'executions')
+            if executions then
+                executions = cjson.decode(executions)
+            else
+                executions = {}
+            end
+            table.insert(executions, execution_id)
+            redis.call('hset', 'capsul:worker' .. workers_id, 'executions', cjson.encode(executions))
+
+            ''')
+
     def close(self):
-        self.redis.hdel('capsul_connections', self.uuid)
+        self.redis.hdel('capsul:connections', self.uuid)
         self.check_shutdown()
    
     def key(self, execution_id, name):
@@ -324,7 +396,40 @@ class RedisExecutionDatabase(ExecutionDatabase):
     def pipeline(self, execution_id):
         return RedisExecutionPipeline(self.redis.pipeline(), execution_id)
 
+    def new_workers_json(self, label, engine_config_json):
+        workers_id = str(uuid4())
+        self.redis.hset(f'capsul:worker:{workers_id}', mapping=dict(
+            label=label,
+            engine_config=json.dumps(engine_config_json),
+            executions='[]',
+            status='starting'))
+        return workers_id
+
+
+    def workers_started(self, workers_id):
+        self.redis.hset(f'capsul:worker:{workers_id}',
+            'status', 'running')
+
+
+    def workers_status(self, workers_id):
+        self.redis.hget(f'capsul:worker:{workers_id}',
+            'status')
+
+
+    def dispose_workers(self, workers_id):
+        self.redis.delete(f'capsul:worker:{workers_id}')
+
+
+    def wait_for_execution(self, workers_id):
+        while self.redis.exists(f'capsul:worker:{workers_id}'):
+            execution_id = self._pop_execution(args=[workers_id])
+            if execution_id:
+                return execution_id
+            time.sleep(0.5)
+        return None
+
     def store_execution(self,
+            workers_id,
             label,
             start_time, 
             executable_json,
@@ -335,25 +440,22 @@ class RedisExecutionDatabase(ExecutionDatabase):
             waiting
         ):
         execution_id = str(uuid4())
-        pipe = self.pipeline(execution_id)
-        pipe.pipeline.hset('capsul_ongoing_executions', execution_id, datetime.now().isoformat())
-        pipe.pipeline.hset('capsul_undisposed_executions', execution_id, datetime.now().isoformat())
-        pipe.set('label', label)
-        pipe.set( 'status', ('ready' if ready else 'ended'))
-        pipe.set('start_time', start_time)
-        pipe.set('executable', json.dumps(executable_json))
-        pipe.set('execution_context', json.dumps(execution_context_json))
-        pipe.set('workflow_parameters', json.dumps(workflow_parameters_json))
-        pipe.set_list('ready', ready)
-        pipe.set_list('waiting', waiting)
-        pipe.delete('ongoing')
-        pipe.delete('done')
-        pipe.delete('failed')
-        if not ready:
-            pipe.set('end_time', start_time)
-        for job in jobs:
-            pipe.hset('jobs', job['uuid'], json.dumps(job))
-        pipe.execute()
+        now = datetime.now().isoformat()
+        args = [
+            execution_id,
+            workers_id,
+            label,
+            'ready',
+            start_time,
+            json.dumps(executable_json),
+            json.dumps(execution_context_json),
+            json.dumps(workflow_parameters_json),
+            json.dumps(jobs),
+            json.dumps(ready),
+            json.dumps(waiting),
+            now,
+        ]
+        self._store_execution(args=args)
         return execution_id
     
     def status(self, execution_id):
@@ -460,11 +562,13 @@ class RedisExecutionDatabase(ExecutionDatabase):
             shutil.rmtree(tmp)
     
     def check_shutdown(self):
-        pipe = self.redis.pipeline()
-        pipe.hlen('capsul_connections')
         if self._check_shutdown():
-            tmp = self.redis.get('capsul_redis_tmp')
-            pid_file = self.redis.get('capsul_redis_pid_file')
+            pipeline = self.redis.pipeline()
+            pipeline.get('capsul:redis_tmp')
+            pipeline.delete('capsul:redis_tmp')
+            tmp = pipeline.execute()[0]
+            # tmp = self.redis.get('capsul:redis_tmp')
+            pid_file = self.redis.get('capsul:redis_pid_file')
             
             # Kill the redis server
             self.redis.shutdown()

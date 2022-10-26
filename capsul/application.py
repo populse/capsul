@@ -2,10 +2,11 @@
 import dataclasses
 import importlib
 import importlib.resources
+import inspect
 import json
+import os
 from pathlib import Path
 import types
-import inspect
 import sys
 
 from soma.controller import field, Controller
@@ -67,10 +68,31 @@ class Capsul(Singleton):
 
     '''    
 
-    def __singleton_init__(self, app_name='capsul', site_file=None):
+    def __singleton_init__(self, app_name='capsul', user_file=undefined, site_file=undefined):
+        if user_file is undefined:
+            user_file = os.environ.get('CAPSUL_USER_CONFIG')
+            if user_file is None:
+                user_file = os.path.expanduser('~/.config/capsul/capsul_user.json')
+                if not os.path.exists(user_file):
+                    user_file = None
+            elif not user_file:
+                user_file = None
+        if site_file is undefined:
+            site_file = os.environ.get('CAPSUL_SITE_CONFIG')
+            if site_file is None:
+                for site_file in (os.path.expandvars('$CASA_CONF/capsul_site.json'),
+                                  '/etc/capsul/capsul_site.json'):
+                    if os.path.exists(site_file):
+                        break
+                else:
+                    site_file = None
+            elif not site_file:
+                site_file = None
         if isinstance(site_file, Path):
             site_file=str(site_file)
-        c = ApplicationConfiguration(app_name=app_name, site_file=site_file)
+        if isinstance(user_file, Path):
+            user_file=str(user_file)
+        c = ApplicationConfiguration(app_name=app_name, user_file=user_file, site_file=site_file)
         self.config = c.merged_config
 
     @staticmethod
