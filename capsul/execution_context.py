@@ -330,7 +330,6 @@ class CapsulWorkflow(Controller):
             nodes = executable.process.all_nodes(in_iterations=True)
         else:
             nodes = [executable]
-        # temporaries = set()
         for node in nodes:
             # print('!temporaries! initialize node', node.full_name)
             for field in node.user_fields():
@@ -340,21 +339,17 @@ class CapsulWorkflow(Controller):
                     field.generate_temporary = False
                 else:
                     field.generate_temporary = True
-                    # temporaries.add((node.full_name, field.name))
-                # if isinstance(node, ProcessIteration):
-                #     node.process.field(field.name).generate_temporary = field.generate_temporary
-                # print('!temporaries!   ', field.name, '=', field.generate_temporary)
-        # self._find_temporary_to_generate(executable, iteration_process)
+                if isinstance(node, ProcessIteration):
+                    node.process.field(field.name).generate_temporary = field.generate_temporary
+                # print('!temporaries!  ', field.name, '=', field.generate_temporary)
 
         stack = [(executable, field) for field in executable.user_fields()]
         while stack:
             node, field = stack.pop(0)
             # print('!temporaries! no temporary for', node.full_name, ':', field.name)
             field.generate_temporary = False
-            # temporaries.discard((node.full_name, field.name))
-            # if isinstance(node, ProcessIteration):
-            #     node.process.field(field.name).generate_temporary = field.generate_temporary
-            #     node = node.process
+            if isinstance(node, ProcessIteration):
+                node.process.field(field.name).generate_temporary = field.generate_temporary
             for node, parameter in executable.get_linked_items(
                     node, field.name, direction='links_from', in_outer_pipelines=True):
                 if isinstance(node, ProcessIteration):

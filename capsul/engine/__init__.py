@@ -94,12 +94,17 @@ class Engine(Controller):
             self.database.url, self.workers_id]
         env = os.environ.copy()
         env['CAPSUL_ENGINE_CONFIG'] = str(self.config.json())
-        subprocess.run(
-            workers_command,
-            capture_output=False,
-            check=True,
-            env=env
-        )
+        try:
+            subprocess.run(
+                workers_command,
+                capture_output=False,
+                check=True,
+                env=env
+            )
+            self.database.wait_for_workers(self.workers_id, timeout=10)
+        except Exception as e:
+            quote = lambda x: f"'{x}'"
+            raise RuntimeError(f'Command failed: {" ".join(quote(i) for i in workers_command)}') from e
         return self
        
     def __exit__(self, exception_type, exception_value, exception_traceback):

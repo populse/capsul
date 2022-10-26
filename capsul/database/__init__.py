@@ -80,7 +80,7 @@ def execution_database(database_url, prefix=None):
     url = URL(database_url)
     class_string = database_classes.get(url.scheme)
     if class_string is None:
-        raise ValueError(f'Invalid database URL {database_url}: scheme {url.scheme} is not supported')
+        raise ValueError(f'Invalid database URL {database_url}: scheme {repr(url.scheme)} is not supported')
     module_name, class_name = class_string.rsplit(':', 1)
     module = importlib.import_module(module_name)
     database_class = getattr(module, class_name)
@@ -109,6 +109,15 @@ class ExecutionDatabase:
             engine.label,
             engine.config.json())
     
+    def wait_for_workers(self, workers_id, timeout=None):
+        start = time.time()
+        status = self.workers_status(workers_id)
+        while status != 'ready':
+            if timeout is not None and (time.time() - start) > timeout:
+                raise TimeoutError('Engine workers are too slow to start')
+            time.sleep(0.2)
+            status = self.workers_status(workers_id)
+            
     def new_execution(self, executable, workers_id, execution_context, workflow, start_time):
         executable_json = json_encode(executable.json(include_parameters=False))
         execution_context_json = execution_context.json()
@@ -317,8 +326,8 @@ class ExecutionDatabase:
         start = time.time()
         status = self.status(execution_id)
         if status == 'ready':
-            for i in range(50):
-                time.sleep(0.1)
+            for i in range(100):
+                time.sleep(0.2)
                 status = self.status(execution_id)
                 if status != 'ready':
                     break

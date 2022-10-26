@@ -12,7 +12,7 @@ from capsul.run import run_job
 
           
 if __name__ == '__main__':
-    
+    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     if len(sys.argv) != 3:
         raise ValueError('This command must be called with two '
             'parameters: a database URL and a workers_id')

@@ -602,7 +602,7 @@ class ProcessMetadata(Controller):
                 dataset_name = getattr(inner_field, 'dataset', None)
             # fallback 3: use "input" or "output"
             if dataset_name is None and (not self.datasets
-                                        or field.name not in self.datasets):
+                                         or field.name not in self.datasets):
                 dataset_name = ('output' if field.is_output() else 'input')
             return dataset_name
         return None
