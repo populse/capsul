@@ -408,6 +408,9 @@ class ExecutionDatabase:
         raise NotImplementedError()
 
 
+    def workers_status(self, workers_id):
+        raise NotImplementedError()
+
     def workers_started(self, workers_id):
         raise NotImplementedError()
 
