@@ -97,11 +97,7 @@ class ExecutionDatabase:
     
     def create_tmp(self, execution_id):
         tmp = os.path.join(tempfile.gettempdir(), f'capsul_exec_{execution_id}')
-        try:
-            os.mkdir(tmp)
-        except:
-            shutil.rmtree(tmp)
-            raise
+        os.mkdir(tmp)
         self.set_tmp(execution_id, tmp)
     
     def new_workers(self, engine):
@@ -112,7 +108,7 @@ class ExecutionDatabase:
     def wait_for_workers(self, workers_id, timeout=None):
         start = time.time()
         status = self.workers_status(workers_id)
-        while status != 'ready':
+        while status != 'running':
             if timeout is not None and (time.time() - start) > timeout:
                 raise TimeoutError('Engine workers are too slow to start')
             time.sleep(0.2)

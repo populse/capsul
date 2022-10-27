@@ -18,22 +18,21 @@ if __name__ == '__main__':
     database_url = sys.argv[1]
     workers_id = sys.argv[2]
     database = execution_database(database_url)
+    try:
+        if database.workers_status(workers_id) is None:
+            raise RuntimeError(f'Engine cannot find workers in database: {workers_id}')
+    finally:
+        database.close()
 
-    if database.workers_status(workers_id) is None:
-        raise RuntimeError(f'Engine cannot find workers in database: {workers_id}')
-    
     # Really detach the process from the parent.
     # Whthout this fork, performing Capsul tests shows warning
     # about child processes not properly waited for.
-    if sys.platform.startswith('win'):
-        pid = 0
-    else:
-        pid = os.fork()
+    pid = os.fork()
     if pid == 0:
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        if not sys.platform.startswith('win'):
-            os.setsid()
+        os.setsid()
+        database = execution_database(database_url)
         try:
+            database.workers_started(workers_id)
             execution_id = database.wait_for_execution(workers_id)
             while execution_id:
                 tmp = database.create_tmp(execution_id)

@@ -82,7 +82,7 @@ class Engine(Controller):
             login = getattr(self.config, 'login', None)
             if login:
                 host = f'{login}@{host}'
-            workers_command += ['ssh', host]
+            workers_command += ['ssh', '-f', host]
         elif connection_type != None:
             raise ValueError(f'Unsuported engine connection type: {connection_type}')
         
