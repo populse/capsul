@@ -21,8 +21,7 @@ default_engine_database = {
 
 default_engine_start_workers = {
     'type': 'builtin',
-    # 'count': max(1, int(multiprocessing.cpu_count()/4)),
-    'count': 1,
+    'count': max(1, int(multiprocessing.cpu_count()/4)),
 }
 
 def full_module_name(module_name):

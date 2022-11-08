@@ -124,7 +124,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
             redis.call('hset', execution_key, 'ready', ready)
             if ready  == '[]' then
-                redis.call('hset', execution_key, 'status', 'done')
+                redis.call('hset', execution_key, 'status', 'ended')
                 redis.call('hset', execution_key, 'end_time', start_time)
             end
 
@@ -154,9 +154,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 if next(ready) ~= nil then
                     local job_uuid = table.remove(ready, 1)
                     redis.call('hset', execution_key, 'ready', cjson.encode(ready))
-                    if redis.call('hget', execution_key, 'status') == 'ready' then
-                        redis.call('hset', execution_key, 'status', 'running')
-                    end
                     local job_key = 'job:' .. job_uuid
                     local job = cjson.decode(redis.call('hget', execution_key, job_key))
                     job['start_time'] = ARGV[2]
@@ -169,7 +166,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 end
             end
             if status == 'finalization' then
-                redis.call('hset', execution_key, 'status', 'initialization')
                 return 'end_execution'
             end
             return nil
@@ -259,12 +255,13 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 end
             end
 
+            redis.call('hset', execution_key, 'ready', cjson.encode(ready))
             redis.call('hset', execution_key, 'ongoing', cjson.encode(ongoing))
             redis.call('hset', execution_key, 'failed', cjson.encode(failed))
             redis.call('hset', execution_key, 'waiting', cjson.encode(waiting))
             redis.call('hset', execution_key, 'done', cjson.encode(done))
 
-            if next(ongoing) == nil and next(ready) == nil then
+            if (next(ongoing) == nil) and (next(ready) == nil) then
                 if next(failed) ~= nil then
                     redis.call('hset', execution_key, 'error', 'Some jobs failed')
                 end
@@ -334,7 +331,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
             local worker_id = ARGV[1]
 
             local workers = cjson.decode(redis.call('hget', engine_key, 'workers'))
-            table.remove(workers, table_find(workers, worker_id))
+            table.insert(workers, worker_id)
             redis.call('hset', engine_key, 'workers', cjson.encode(workers))
         ''')
 
@@ -344,7 +341,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
             local worker_id = ARGV[1]
 
             local workers = cjson.decode(redis.call('hget', engine_key, 'workers'))
-            table.insert(workers, worker_id)
+            table.remove(workers, table_find(workers, worker_id))
             redis.call('hset', engine_key, 'workers', cjson.encode(workers))
         ''')
 
@@ -545,13 +542,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
             stdout, 
             stderr
         ]
-        r = self._job_finished(keys=keys, args=args)
-        if isinstance(r, str) and os.path.exists(r):
-            shutil.rmtree(r)
-            return True
-        else:
-            return bool(r)
-
+        self._job_finished(keys=keys, args=args)
     
     def status(self, engine_id, execution_id):
         return self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'status')
@@ -586,9 +577,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
         (label, execution_context, workflow_parameters, status, error,
          error_detail, start_time, end_time, waiting, ready,
          ongoing, done, failed, jobs) = self._full_report(keys=[f'capsul:{engine_id}:{execution_id}'])
-        for j in jobs:
-            print('!!!')
-            print(repr(j))
         result = dict(
             label=label,
             execution_context=json.loads(execution_context),

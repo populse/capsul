@@ -32,9 +32,10 @@ class DummyProcess(Process):
         self.add_field("other_output", float, optional=True, output=True)
 
     def execute(self, context):
-        with open(self.input_image) as i:
-            with open(self.output_image, 'w') as o:
-                o.write(i.read())
+        if os.path.exists(self.input_image):
+            with open(self.input_image) as i:
+                with open(self.output_image, 'w') as o:
+                    o.write(i.read())
         self.other_output = 24.6
 
 

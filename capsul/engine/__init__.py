@@ -86,7 +86,6 @@ class Engine(Controller):
         db_config = self.database.worker_database_config(self.engine_id)
         env = os.environ.copy()
         env['CAPSUL_WORKER_DATABASE'] = json.dumps(db_config)
-        print('!workers to start!', self.database.number_of_workers_to_start(self.engine_id))
         for i in range(self.database.number_of_workers_to_start(self.engine_id)):
             workers_command = self.database.workers_command(self.engine_id)
             try:

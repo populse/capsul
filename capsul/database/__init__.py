@@ -324,9 +324,6 @@ class ExecutionDatabase:
                 raise TimeoutError('Process execution timeout')
             time.sleep(0.1)
             status = self.status(engine_id, execution_id)
-            print('!status!', status)
-            import json
-            print('!workers!', json.loads(self.redis.hget(f'capsul:{engine_id}', 'workers')))
 
     def raise_for_status(self, engine_id, execution_id):
         error = self.error(engine_id, execution_id)
@@ -475,7 +472,7 @@ class ExecutionDatabase:
         '''
         Convert its parameters to JSON and calls job_finished_json()
         '''
-        return self.job_finished_json(engine_id, execution_id, job_uuid, 
+        self.job_finished_json(engine_id, execution_id, job_uuid, 
             self._time_to_json(end_time), returncode, stdout, stderr)
 
 
