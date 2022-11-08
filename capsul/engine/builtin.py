@@ -1,89 +1,70 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+import json
 import os
 import shutil
-import subprocess
 import sys
+import time
 import tempfile
-import traceback
 
-from capsul.database import execution_database
+from capsul.database import engine_database
 from capsul.run import run_job
 
           
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        raise ValueError('This command must be called with two '
-            'parameters: a database URL and a workers_id')
-    database_url = sys.argv[1]
-    workers_id = sys.argv[2]
-    database = execution_database(database_url)
-    try:
-        if database.workers_status(workers_id) is None:
-            raise RuntimeError(f'Engine cannot find workers in database: {workers_id}')
-    finally:
-        database.close()
-
+    if len(sys.argv) != 2:
+        raise ValueError('This command must be called with one '
+            'parameter: an engine id')
+    engine_id = sys.argv[1]
+    db_config = os.environ.get('CAPSUL_WORKER_DATABASE')
+    if not db_config:
+        raise ValueError('Worker command requires CAPSUL_WORKER_DATABASE to be set')
     # Really detach the process from the parent.
     # Whthout this fork, performing Capsul tests shows warning
     # about child processes not properly waited for.
     pid = os.fork()
     if pid == 0:
         os.setsid()
-        database = execution_database(database_url)
-        try:
-            database.workers_started(workers_id)
-            execution_id = database.wait_for_execution(workers_id)
-            while execution_id:
-                tmp = database.create_tmp(execution_id)
-                try:
-                    # env = os.environ.copy()
-                    # env['CAPSUL_DATABASE'] = database_url
-                    # env['CAPSUL_EXECUTION_ID'] = execution_id
-                    job = database.start_one_job(execution_id, start_time=datetime.now())
-                    while job is not None:
-                        if not job['disabled']:
-                            returncode, stdout, stderr = run_job(
-                                database_url,
-                                execution_id,
-                                job['uuid'],
-                                same_python=True,
-                                debug=True,
-                            )
-                            # result = subprocess.run(['python', '-m', 'capsul.run', job['uuid']], env=env, capture_output=True)
-                            # returncode = result.returncode
-                            # stdout = result.stdout.decode()
-                            # stderr = result.stderr.decode()
-                        #     import contextlib
-                        #     import io
-                        #     from capsul.run import run
-                        #     stdout = io.StringIO()
-                        #     stderr = io.StringIO()
-                        #     with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-                        #         try:
-                        #             run(database_url, execution_id, job['uuid'])
-                        #             returncode = 0
-                        #         except Exception as e:
-                        #             print(traceback.format_exc(), file=stderr)
-                        #             returncode = 1
-                        #     stdout = stdout.getvalue()
-                        #     stderr = stderr.getvalue()
-                        # else:
-                        #     returncode = stdout = stderr = None
-                        all_done = database.job_finished(execution_id, job['uuid'], 
+        db_config = json.loads(db_config)
+        with engine_database(db_config) as database:
+            worker_id = database.worker_started(engine_id)
+            print(f'!worker {worker_id}! started', engine_id)
+            try:
+                execution_id, job_uuid = database.pop_job(engine_id, start_time=datetime.now())
+                while job_uuid is not None:
+                    if not job_uuid:
+                        # Empty string means no job available yet
+                        time.sleep(0.2)
+                    elif job_uuid == 'start_execution':
+                        print(f'!worker {worker_id}! start', execution_id)
+                        # This part is done before the processing of any job
+                        tmp = os.path.join(tempfile.gettempdir(), f'capsul_execution_{execution_id}')
+                        os.mkdir(tmp)
+                        try:
+                            database.start_execution(engine_id, execution_id, tmp)
+                        except Exception:
+                            os.rmdir(tmp)
+                    elif job_uuid == 'end_execution':
+                        print(f'!worker {worker_id}! end', execution_id)
+                        tmp = database.end_execution(engine_id, execution_id)
+                        if tmp and os.path.exists(tmp):
+                            shutil.rmtree(tmp)
+                    else:
+                        print(f'!worker {worker_id}! job', execution_id, job_uuid)
+                        returncode, stdout, stderr = run_job(
+                            database,
+                            engine_id,
+                            execution_id,
+                            job_uuid,
+                            same_python=True,
+                            debug=True,
+                        )
+                        database.job_finished(engine_id, execution_id, job_uuid, 
                             end_time=datetime.now(),
                             returncode=returncode,
                             stdout=stdout,
                             stderr=stderr)
-                        if all_done:
-                            break
-                        job = database.start_one_job(execution_id, start_time=datetime.now())
-                except Exception as e:
-                    database.set_error(execution_id,
-                        error=f'Builtin engine loop failure: {e}',
-                        error_detail=f'{traceback.format_exc()}'
-                    )
-                    raise
-                execution_id = database.wait_for_execution(workers_id)
-        finally:
-            database.close()
+                    execution_id, job_uuid = database.pop_job(engine_id, start_time=datetime.now())
+            finally:
+                print(f'!worker {worker_id}! ended' )
+                database.worker_ended(engine_id, worker_id)

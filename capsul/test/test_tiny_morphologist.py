@@ -11,7 +11,7 @@ from soma.controller import field, File
 from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
-from capsul.config.configuration import ModuleConfiguration, default_workers_type, default_database_url
+from capsul.config.configuration import ModuleConfiguration, default_engine_database, default_engine_start_workers
 from capsul.dataset import ProcessMetadata, ProcessSchema, Prepend, Append
 
 
@@ -360,8 +360,8 @@ class TestTinyMorphologist(unittest.TestCase):
         self.maxDiff = 2000
         expected_config = {
             'builtin': {
-                'workers_type': default_workers_type,
-                'database_url': default_database_url,
+                'database': default_engine_database,
+                'start_workers': default_engine_start_workers,
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),

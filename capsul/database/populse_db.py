@@ -106,20 +106,16 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
             del session['worker'][workers_id]
 
 
-    def wait_for_execution(self, workers_id):
+    def get_execution(self, workers_id):
         with self.database as session:
             workers_active = session['worker'].has_document(workers_id)
-        while workers_active:
-            with self.database as session:
+            if workers_active:
                 executions = session['worker'].document(workers_id, fields=['executions'], as_list=True)[0]
                 if executions:
                     execution_id = executions[0]
                     session['worker'].update_document(workers_id, {'executions': executions[1:]})
-                    session.commit()
                     return execution_id
-            time.sleep(0.5)
-            with self.database as session:
-                workers_active = session['worker'].has_document(workers_id)
+                return ''
         return None
 
     def store_execution(self,

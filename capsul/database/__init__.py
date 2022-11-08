@@ -2,12 +2,9 @@
 from datetime import datetime
 import dateutil.parser
 import importlib
-import os
 from pprint import pprint
 import re
-import shutil
 import sys
-import tempfile
 import time
 
 from populse_db.database import json_encode, json_decode
@@ -76,45 +73,48 @@ class URL:
         return f'{self.scheme}://{login}{host}{path}{parameters}{query}{fragment}'
 
 
-def execution_database(database_url, prefix=None):
-    url = URL(database_url)
-    class_string = database_classes.get(url.scheme)
+def engine_database(config):
+    class_string = database_classes.get(config['type'])
     if class_string is None:
-        raise ValueError(f'Invalid database URL {database_url}: scheme {repr(url.scheme)} is not supported')
+        raise ValueError(f'Invalid database type: {config["type"]}')
     module_name, class_name = class_string.rsplit(':', 1)
     module = importlib.import_module(module_name)
     database_class = getattr(module, class_name)
-    return database_class(url, prefix=prefix)
+    return database_class(config)
 
 
 class ExecutionDatabase:
-    def __init__(self, url):
-        self._url = url
+    def __init__(self, config):
+        self.config = config
+        self._path = None
 
     @property
-    def url(self):
-        return str(self._url)
+    def path(self):
+        if self._path is None:
+            self._path = self.config.get('path')
+        return self._path
     
-    def create_tmp(self, execution_id):
-        tmp = os.path.join(tempfile.gettempdir(), f'capsul_exec_{execution_id}')
-        os.mkdir(tmp)
-        self.set_tmp(execution_id, tmp)
+    def workers_command(self, engine_id):
+        workers_command = []
+        config = self.engine_config(engine_id)
+        ssh = config.get('ssh')
+        if ssh:
+            host = ssh.get('host')
+            if not host:
+                raise ValueError('Host is mandatory in configuration for a ssh connection')
+            login = ssh.get('login')
+            if login:
+                host = f'{login}@{host}'
+            workers_command += ['ssh', '-f', host]
+        
+        casa_dir = config.get('casa_dir')
+        if casa_dir:
+            workers_command.append(f'{casa_dir}/bin/bv')
+
+        workers_command += ['python', '-m', f'capsul.engine.builtin', engine_id]
+        return workers_command
     
-    def new_workers(self, engine):
-        return self.new_workers_json(
-            engine.label,
-            engine.config.json())
-    
-    def wait_for_workers(self, workers_id, timeout=None):
-        start = time.time()
-        status = self.workers_status(workers_id)
-        while status != 'running':
-            if timeout is not None and (time.time() - start) > timeout:
-                raise TimeoutError('Engine workers are too slow to start')
-            time.sleep(0.2)
-            status = self.workers_status(workers_id)
-            
-    def new_execution(self, executable, workers_id, execution_context, workflow, start_time):
+    def new_execution(self, executable, engine_id, execution_context, workflow, start_time):
         executable_json = json_encode(executable.json(include_parameters=False))
         execution_context_json = execution_context.json()
         workflow_parameters_json = json_encode(workflow.parameters.json())
@@ -127,7 +127,7 @@ class ExecutionDatabase:
             else:
                 ready.append(job['uuid'])
         execution_id = self.store_execution(
-            workers_id,
+            engine_id,
             label=executable.label,
             start_time=self._time_to_json(start_time),
             executable_json=executable_json,
@@ -139,14 +139,7 @@ class ExecutionDatabase:
         )
         return execution_id
 
-    def _execution_context_from_json(self, execution_context_json):
-        return ExecutionContext(config=execution_context_json)
-
-    def execution_context(self, execution_id):
-        j = self.execution_context_json(execution_id)
-        if j is not None:
-            return self._execution_context_from_json(j)
-
+        
     def _executable_from_json(self, executable_json):
         return Capsul.executable(json_decode(executable_json))
     
@@ -154,20 +147,20 @@ class ExecutionDatabase:
         j = self.executable_json(execution_id)
         if j is not None:
             return self._executable_from_json(j)
-
-    def _workflow_parameters_from_json(self, workflow_parameters_json):
-        return DictWithProxy.from_json(json_decode(workflow_parameters_json))
     
-    def workflow_parameters(self, execution_id):
-        j = self.workflow_parameters_json(execution_id)
+    def workflow_parameters(self, engine_id, execution_id):
+        j = self.workflow_parameters_json(engine_id, execution_id)
         if j:
-            return self._workflow_parameters_from_json(j)
+            return DictWithProxy.from_json(json_decode(j))
 
-    def set_workflow_parameters(self, execution_id, workflow_parameters):
-        self.set_workflow_parameters_json(execution_id, json_encode(workflow_parameters.json()))
 
-    def update_workflow_parameters(self, execution_id, parameters_location, output_values):
-        self.update_workflow_parameters_json(execution_id, parameters_location, json_encode(output_values))
+    def set_workflow_parameters(self, engine_id, execution_id, workflow_parameters):
+        self.set_workflow_parameters_json(engine_id, execution_id, json_encode(workflow_parameters.json()))
+
+
+    def update_workflow_parameters(self, engine_id, execution_id, parameters_location, output_values):
+        self.update_workflow_parameters_json(engine_id, execution_id, parameters_location, json_encode(output_values))
+
 
     @staticmethod
     def _time_from_json(time_json):
@@ -177,17 +170,6 @@ class ExecutionDatabase:
     def _time_to_json(time):
         return time.isoformat()
     
-    def start_time(self, execution_id):
-        j = self.start_time_json(execution_id)
-        if j:
-            return self._time_from_json(j)
-        return None
-
-    def end_time(self, execution_id):
-        j = self.end_time_json(execution_id)
-        if j:
-            return self._time_from_json(j)
-        return None
 
     def _job_from_json(self, job):
         for k in ('start_time', 'end_time'):
@@ -196,6 +178,7 @@ class ExecutionDatabase:
                 job[k] = self._time_from_json(t)
         return job
 
+
     def _job_to_json(self, job):
         for k in ('start_time', 'end_time'):
             t = job.get(k)
@@ -203,21 +186,26 @@ class ExecutionDatabase:
                 job[k] = self._time_to_json(t)
         return job
 
-    def jobs(self, execution_id):
-        return [self._job_from_json(i) for i in self.jobs_json(execution_id)]
 
-    def job(self, execution_id, job_uuid):
-        j = self.job_json(execution_id, job_uuid)
+    def job(self, engine_id, execution_id, job_uuid):
+        j = self.job_json(engine_id, execution_id, job_uuid)
         if j:
             return self._job_from_json(j)
         return None
 
-    def execution_report(self, execution_id):
-        report = self.execution_report_json(execution_id)
+
+    def execution_report(self, engine_id, execution_id):
+        report = self.execution_report_json(engine_id, execution_id)
+        report['engine_id'] = engine_id
         report['execution_id'] = execution_id
-        for n in ('execution_context', 'workflow_parameters'):
-            convert = getattr(self, f'_{n}_from_json')
-            report[n] = convert(report[n])
+        execution_context = report['execution_context']
+        if execution_context is not None:
+            execution_context = ExecutionContext(config=execution_context)
+        report['execution_context'] = execution_context
+        workflow_parameters = report['workflow_parameters']
+        if workflow_parameters is not None:
+            workflow_parameters = DictWithProxy.from_json(workflow_parameters)
+        report['workflow_parameters'] = workflow_parameters        
         for n in ('start_time', 'end_time'):
             j = report.get(n)
             if j:
@@ -318,33 +306,36 @@ class ExecutionDatabase:
                 print(v, file=file)
                 print(file=file)
 
-    def wait(self, execution_id, timeout=None):
+    def wait(self, engine_id, execution_id, timeout=None):
         start = time.time()
-        status = self.status(execution_id)
+        status = self.status(engine_id, execution_id)
         if status == 'ready':
             for i in range(100):
                 time.sleep(0.2)
-                status = self.status(execution_id)
+                status = self.status(engine_id, execution_id)
                 if status != 'ready':
                     break
             else:
-                self.print_execution_report(self.execution_report(execution_id), file=sys.stderr)
+                self.print_execution_report(self.execution_report(engine_id, execution_id), file=sys.stderr)
                 raise SystemError(f'workers are too slow to start execution ({datetime.now()})')
-        status = self.status(execution_id)
-        while status == 'running':
+        status = self.status(engine_id, execution_id)
+        while status != 'ended':
             if timeout is not None and (time.time() - start) > timeout:
                 raise TimeoutError('Process execution timeout')
             time.sleep(0.1)
-            status = self.status(execution_id)
+            status = self.status(engine_id, execution_id)
+            print('!status!', status)
+            import json
+            print('!workers!', json.loads(self.redis.hget(f'capsul:{engine_id}', 'workers')))
 
-    def raise_for_status(self, execution_id):
-        error = self.error(execution_id)
+    def raise_for_status(self, engine_id, execution_id):
+        error = self.error(engine_id, execution_id)
         if error:
-            self.print_execution_report(self.execution_report(execution_id), file=sys.stderr)
+            self.print_execution_report(self.execution_report(engine_id, execution_id), file=sys.stderr)
             raise RuntimeError(error)
 
-    def update_executable(self, executable, execution_id):
-        parameters = self.workflow_parameters(execution_id)
+    def update_executable(self, engine_id, execution_id, executable):
+        parameters = self.workflow_parameters(engine_id, execution_id)
         # print('!update_executable!')
         # from pprint import pprint
         # pprint(parameters.proxy_values)
@@ -378,16 +369,74 @@ class ExecutionDatabase:
                 executable.enable_parameter_links = enable_parameter_links
 
 
-    def start_one_job(self, execution_id, start_time):
-        return self.start_one_job_json(execution_id, self._time_to_json(start_time))
-    
+    def __enter__(self):
+        raise NotImplementedError
 
-    def job_finished(self, execution_id, job_uuid, end_time, returncode, stdout, stderr):
-        return self.job_finished_json(execution_id, job_uuid, self._time_to_json(end_time), returncode, stdout, stderr)
+
+    def __exit__(self, exception_type, exception_value, exception_traceback):
+        raise NotImplementedError
+
+
+    def connect_to_engine(self, engine):
+        '''
+        Creates a connection to an engine in the database.
+        Engine is created if it does not exists.
+        '''
+        raise NotImplementedError
+
+
+    def engine_config(self, engine_id):
+        '''
+        Return the configuration dict stored for an engine
+        '''
+        raise NotImplementedError
+
+
+    def number_of_workers_to_start(self, engine_id):
+        '''
+        Return the number of workers to start in order to reach the
+        workers_count number defined in engine configuration.
+        '''
+        raise NotImplementedError
+
+
+    def worker_database_config(self, engine_id):
+        '''
+        Return database connection settings for workers. This
+        connection may be different than the client connection
+        if the database implementation create engine specific
+        internal access with restricted access rights.
+        '''
+        raise NotImplementedError
+
+
+    def worker_started(self, engine_id):
+        '''
+        Register a new worker that had been started for this engine and
+        return an identifier for it.
+        '''
+        raise NotImplementedError
+
+
+    def worker_ended(self, engine_id, worker_id):
+        '''
+        Remove a worker from the list of workers for this engine.
+        '''
+        raise NotImplementedError
+
+
+    def dispose_engine(self, engine_id):
+        '''
+        Tell Capsul that this engine will not be used anymore by any client.
+        The ressource it uses must be freed as soon as possible. If no 
+        execution is running, engine is destroyed. Otherwise, workers will
+        process ongoing executions and cleanup when done.
+        '''
+        raise NotImplementedError
 
 
     def store_execution(self,
-            workers_id,
+            engine_id,
             label,
             start_time, 
             executable_json,
@@ -397,23 +446,83 @@ class ExecutionDatabase:
             ready,
             waiting
         ):
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
-    def new_workers_json(self, label, engine_config_json):
-        raise NotImplementedError()
+    def execution_context(self, engine_id, execution_id):
+        j = self.execution_context_json(engine_id, execution_id)
+        if j is not None:
+            return ExecutionContext(config=j)
 
 
-    def workers_status(self, workers_id):
-        raise NotImplementedError()
-
-    def workers_started(self, workers_id):
-        raise NotImplementedError()
+    def execution_context_json(self, engine_id, execution_id):
+        raise NotImplementedError
 
 
-    def dispose_workers(self, workers_id):
-        raise NotImplementedError()
+    def pop_job(self, engine_id, start_time):
+        '''
+        Convert its parameters to JSON and calls pop_job_json()
+        '''
+        return self.pop_job_json(engine_id, self._time_to_json(start_time))
+    
 
 
-    def wait_for_execution(self, workers_id):
-        raise NotImplementedError()
+    def pop_job_json(self, engine_id, start_time):
+        raise NotImplementedError
+
+
+    def job_finished(self, engine_id, execution_id, job_uuid, end_time, returncode, stdout, stderr):
+        '''
+        Convert its parameters to JSON and calls job_finished_json()
+        '''
+        return self.job_finished_json(engine_id, execution_id, job_uuid, 
+            self._time_to_json(end_time), returncode, stdout, stderr)
+
+
+    def job_finished_json(self, engine_id, execution_id, job_uuid, end_time, returncode, stdout, stderr):
+        raise NotImplementedError
+
+
+
+    def status(self, engine_id, execution_id):
+        raise NotImplementedError
+
+        
+    def workflow_parameters_json(self, engine_id, execution_id):
+        raise NotImplementedError
+
+
+    def set_workflow_parameters_json(self, engine_id, execution_id, workflow_parameters_json):
+        raise NotImplementedError
+
+
+    def update_workflow_parameters_json(self, engine_id, execution_id, parameters_location, output_values):
+        raise NotImplementedError
+
+
+    def job_json(self, engine_id, execution_id, job_uuid):
+        raise NotImplementedError
+
+   
+    def execution_report_json(self, engine_id, execution_id):
+        raise NotImplementedError
+
+
+    def dispose(self, engine_id, execution_id):
+        raise NotImplementedError
+
+
+    def start_execution(self, engine_id, execution_id, tmp):
+        raise NotImplementedError
+
+
+    def end_execution(self, engine_id, execution_id):
+        raise NotImplementedError
+
+
+    def tmp(self, engine_id, execution_id):
+        raise NotImplementedError
+
+
+    def error(self, engine_id, execution_id):
+        raise NotImplementedError
