@@ -77,7 +77,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                         time.sleep(0.1)
                     self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
                                                 decode_responses=True)
-                    self.redis.delete('capsul:connections') 
+                    self.redis.delete('capsul:shutting_down') 
                     self.redis.set('capsul:redis_tmp', tmp)
                     self.redis.set('capsul:redis_pid_file', pid_file)
                 except Exception:
@@ -92,6 +92,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 self.redis.auth(self.config['password'], self.config['login'])
         else:
             raise NotImplementedError(f'Invalid Redis connection type: {self.config["type"]}')
+        if self.redis.get('capsul:shutting_down'):
+            raise RuntimeError('Cannot connect to database because it is shutting down')
         self.redis.hset('capsul:connections', self.uuid, datetime.now().isoformat())
 
         # Some functions are implemented as a Lua script in redis
@@ -123,7 +125,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
             redis.call('hset', execution_key, 'workflow_parameters', workflow_parameters_json)
 
             redis.call('hset', execution_key, 'ready', ready)
-            if ready  == '[]' then
+            --  An empty list modified with Redis Lua scripts may be encoded as empty dict
+            if ready  == '[]' or ready == '{}' then
                 redis.call('hset', execution_key, 'status', 'ended')
                 redis.call('hset', execution_key, 'end_time', start_time)
             end
@@ -336,13 +339,24 @@ class RedisExecutionDatabase(ExecutionDatabase):
         ''')
 
         self._worker_ended = self.redis.register_script('''
+            local function table_find(array, value)
+                for i, v in pairs(array) do
+                    if v == value then
+                        return i
+                    end
+                end
+            end
+
             local engine_key = KEYS[1]
 
             local worker_id = ARGV[1]
 
-            local workers = cjson.decode(redis.call('hget', engine_key, 'workers'))
-            table.remove(workers, table_find(workers, worker_id))
-            redis.call('hset', engine_key, 'workers', cjson.encode(workers))
+            local workers = redis.call('hget', engine_key, 'workers')
+            if workers then
+                workers = cjson.decode(workers)
+                table.remove(workers, table_find(workers, worker_id))
+                redis.call('hset', engine_key, 'workers', cjson.encode(workers))
+            end
         ''')
 
 
@@ -384,10 +398,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
             if redis.call('get', 'capsul:redis_pid_file') and
                redis.call('hlen', 'capsul:connections') == 0
             then
-                -- setting capsul_connection to a string value will prevent
-                -- the creation of new connections because they will use
-                -- hset command that raises an error value type is not a hash
-                redis.call('set', 'capsul:connections', 'shutting down')
+                redis.call('set', 'capsul:shutting_down', 1)
                 return true
             else
                 return false
@@ -467,11 +478,10 @@ class RedisExecutionDatabase(ExecutionDatabase):
             self.redis.hdel('capsul:engine', label)
             self.redis.hdel(f'capsul:{engine_id}', 'label')
             # Check if some executions had been submited or are ongoing
-            if (self.redis.hget(f'capsul:{engine_id}', 'ready') == '[]' and
-                self.redis.hget(f'capsul:{engine_id}', 'ongoing') == '[]'):
+            # An empty list modified with Redis Lua scripts may be encoded as empty dict
+            if self.redis.hget(f'capsul:{engine_id}', 'executions') in ('{}', '[]'):
                 # Nothing is ongoing, completely remove engine
-                for i in ('config', 'workers', 'ready', 'ongoing', 'ended'):
-                    self.redis.hdel(f'capsul:{engine_id}', i)
+                self.redis.delete(f'capsul:{engine_id}')
 
 
     def store_execution(self,
@@ -516,8 +526,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
             # return None to say to workers that they can die
             return None, None
         else:
-            for execution_id in json.loads(self.redis.hget(f'capsul:{engine_id}',
-                                                           'executions')):
+            for execution_id in json.loads(executions):
                 keys = [
                     f'capsul:{engine_id}:{execution_id}'
                 ]
@@ -543,7 +552,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
             stderr
         ]
         self._job_finished(keys=keys, args=args)
-    
+
+
     def status(self, engine_id, execution_id):
         return self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'status')
 
@@ -615,9 +625,17 @@ class RedisExecutionDatabase(ExecutionDatabase):
             pipeline.delete('capsul:redis_tmp')
             tmp = pipeline.execute()[0]
             pid_file = self.redis.get('capsul:redis_pid_file')
-            
+            self.redis.delete('capsul:redis_pid_file')
+
+            keys = self.redis.keys('capsul:*')
+            if keys == ['capsul:shutting_down']:
+                # Nothing in the database, do not save it
+                save= False
+            else:
+                save = True
+                self.redis.save()
+
             # Kill the redis server
-            self.redis.save()
             self.redis.shutdown()
 
             # Ensure the pid file is deleted
@@ -627,6 +645,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 time.sleep(0.1)
 
             shutil.rmtree(tmp)
+            if not save and os.path.exists(self.path):
+                os.remove(self.path)
 
     
     def start_execution(self, engine_id, execution_id, tmp):
@@ -640,9 +660,12 @@ class RedisExecutionDatabase(ExecutionDatabase):
         self.redis.hdel(f'capsul:{engine_id}:{execution_id}', 'tmp')
         if self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'dispose'):
             executions = json.loads(self.redis.hget(f'capsul:{engine_id}', 'executions'))
-            executions.remove(executions, execution_id)
+            executions.remove(execution_id)
             self.redis.hset(f'capsul:{engine_id}', 'executions', json.dumps(executions))
             self.redis.delete(f'capsul:{engine_id}:{execution_id}')
+            if not executions and not self.redis.hget(f'capsul:{engine_id}', 'label'):
+                # Engine is already disopsed: delete it
+                self.redis.delete(f'capsul:{engine_id}')
         return tmp
 
 

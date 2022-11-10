@@ -101,6 +101,7 @@ class Engine(Controller):
         
        
     def __exit__(self, exception_type, exception_value, exception_traceback):
+        self.database.dispose_engine(self.engine_id)
         self.database.__exit__(exception_type, exception_value, exception_traceback)
         del self.engine_id
     

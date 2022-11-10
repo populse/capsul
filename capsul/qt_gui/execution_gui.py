@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import datetime
 from functools import partial
 from pathlib import Path
@@ -7,20 +8,20 @@ from soma.qt_gui.qt_backend import Qt, loadUi, QtGui
 
 execution_widget_ui = Path(__file__).parent / 'execution_widget.ui'
 
-def execution_widget(database, execution_id):
+def execution_widget(database, engine_id, execution_id):
     global execution_widget_ui
     widget = loadUi(execution_widget_ui)
     widget.current_job = None
-    update_execution_widget(widget, database, execution_id)
-    update_callback = partial(update_execution_widget, widget, database, execution_id)
+    update_execution_widget(widget, database, engine_id, execution_id)
+    update_callback = partial(update_execution_widget, widget, database, engine_id, execution_id)
     job_callback = partial(show_job, widget=widget, database=database)
     widget._keep_ref= (update_callback, job_callback)
     widget.update.clicked.connect(update_callback)
     widget.jobs.currentItemChanged.connect(job_callback)
     return widget
 
-def update_execution_widget(widget, database, execution_id):
-    report = database.execution_report(execution_id)
+def update_execution_widget(widget, database, engine_id, execution_id):
+    report = database.execution_report(engine_id, execution_id)
     widget.date.setText(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
     current_job = widget.current_job
     status = report['status']
@@ -42,6 +43,7 @@ def update_execution_widget(widget, database, execution_id):
         f'<b>status</b>: {report["status"]}<br>'
         f'<b>start time</b>: {report["start_time"]}<br>'
         f'<b>end time</b>: {report["end_time"]}<br>'
+        f'<b>engine_id</b>: {report["engine_id"]}<br>'
         f'<b>execution_id</b>: {report["execution_id"]}<br>'
         'execution context:<pre>\n'
         f'{pformat(report["execution_context"].asdict(), indent=4)}\n<pre>')
@@ -87,6 +89,7 @@ def update_execution_widget(widget, database, execution_id):
             parent_item = items.get(p)
             if parent_item is None:
                 parent_item = Qt.QTreeWidgetItem(pp, ['', p[-1]])
+                parent_item.engine_id = None
                 parent_item.execution_id = None
                 parent_item.job_uuid = None
                 if pp is None:
@@ -105,6 +108,7 @@ def update_execution_widget(widget, database, execution_id):
         else:
             item = Qt.QTreeWidgetItem(parent_item, [status_map.get(status, status), process_definition])
             items[path] = item
+        item.engine_id = engine_id
         item.execution_id = execution_id
         item.job_uuid = job_uuid
         if parent_item is None:
@@ -151,6 +155,7 @@ def show_job(item, widget, database):
     if not item or not item.execution_id:
         text = ''
     else:
+        engine_id = item.engine_id
         execution_id = item.execution_id
         job_uuid = item.job_uuid
         widget.current_job = job_uuid
@@ -165,7 +170,7 @@ def show_job(item, widget, database):
             f'<b>wait for</b>: {job.get("wait_for", [])}<br>'
             f'<b>waited by</b>: {job.get("waited_by", [])}<br>'
         )
-        parameters = database.workflow_parameters(execution_id)
+        parameters = database.workflow_parameters(engine_id, execution_id)
         if parameters:
             for index in job.get('parameters_location', []):
                 if index.isnumeric():

@@ -809,19 +809,19 @@ if __name__ == '__main__':
         with self.capsul.engine() as engine:
             execution_id = engine.start(tiny_morphologist_iteration)
             try:
-                widget = execution_widget(engine.database, execution_id)
+                widget = execution_widget(engine.database, engine.engine_id, execution_id)
                 widget.show()
                 from capsul.qt_gui.widgets import PipelineDeveloperView
                 tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
-                view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
-                view1.show()
+                # view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
+                # view1.show()
                 qt_app.exec_()
                 del widget
-                del view1
+                # del view1
                 engine.wait(execution_id, timeout=1000)
                 # engine.raise_for_status(execution_id)
             except TimeoutError:
-                # engine.print_execution_report(engine.execution_report(execution_id))
+                # engine.print_execution_report(engine.execution_report(engine.engine_id, execution_id))
                 raise
             finally:
                 engine.dispose(execution_id)
