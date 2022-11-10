@@ -433,4 +433,3 @@ class CapsulWorkflow(Controller):
     #                 self._find_temporary_to_generate(node.process, node)
     #             else:
     #                 self._find_temporary_to_generate(node, None)
-
