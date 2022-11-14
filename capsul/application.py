@@ -72,8 +72,13 @@ class Capsul(Singleton):
         if user_file is undefined:
             user_file = os.environ.get('CAPSUL_USER_CONFIG')
             if user_file is None:
-                user_file = os.path.expanduser('~/.config/capsul/capsul_user.json')
-                if not os.path.exists(user_file):
+                for user_file in ('~/.config/capsul/capsul_user.json',
+                                  '~/.config/capsul/capsul_user.py'):
+                    user_file = os.path.expanduser(user_file)
+                    print('!?!', user_file)
+                    if os.path.exists(user_file):
+                        break
+                else:
                     user_file = None
             elif not user_file:
                 user_file = None
@@ -92,6 +97,7 @@ class Capsul(Singleton):
             site_file=str(site_file)
         if isinstance(user_file, Path):
             user_file=str(user_file)
+        print('!!!', user_file)
         c = ApplicationConfiguration(app_name=app_name, user_file=user_file, site_file=site_file)
         self.config = c.merged_config
 

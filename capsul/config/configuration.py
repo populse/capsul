@@ -241,7 +241,8 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
 
         if filename.endswith('.py'):
             context = {}
-            exec(filename, globals=context, locals=context)
+            with open(filename) as f:
+                exec(f.read(), context, context)
             conf = None
             for n in ('config', 'configuration', 'conf'):
                 conf = context.get(n)
