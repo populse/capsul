@@ -624,25 +624,26 @@ class RedisExecutionDatabase(ExecutionDatabase):
             pipeline.get('capsul:redis_tmp')
             pipeline.delete('capsul:redis_tmp')
             tmp = pipeline.execute()[0]
-            pid_file = self.redis.get('capsul:redis_pid_file')
-            self.redis.delete('capsul:redis_pid_file')
+            if tmp:
+                pid_file = self.redis.get('capsul:redis_pid_file')
+                self.redis.delete('capsul:redis_pid_file')
 
-            keys = self.redis.keys('capsul:*')
-            if keys == ['capsul:shutting_down']:
-                # Nothing in the database, do not save it
-                save= False
-            else:
-                save = True
-                self.redis.save()
+                keys = self.redis.keys('capsul:*')
+                if keys == ['capsul:shutting_down']:
+                    # Nothing in the database, do not save it
+                    save= False
+                else:
+                    save = True
+                    self.redis.save()
 
-            # Kill the redis server
-            self.redis.shutdown()
+                # Kill the redis server
+                self.redis.shutdown()
 
-            # Ensure the pid file is deleted
-            for i in range(20):
-                if not os.path.exists(pid_file):
-                    break
-                time.sleep(0.1)
+                # Ensure the pid file is deleted
+                for i in range(20):
+                    if not os.path.exists(pid_file):
+                        break
+                    time.sleep(0.1)
 
             shutil.rmtree(tmp)
             if not save and os.path.exists(self.path):
