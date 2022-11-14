@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-import importlib
+import json
+import os
+import subprocess
 import sys
 
 from soma.controller import Controller
@@ -8,7 +10,7 @@ from soma.controller import Controller
 from ..execution_context import CapsulWorkflow, ExecutionContext
 from ..config.configuration import ModuleConfiguration
 from ..dataset import Dataset
-from ..database import execution_database
+from ..database import engine_database
 
 
 def execution_context(engine_label, engine_config, executable):
@@ -67,39 +69,50 @@ class Engine(Controller):
         super().__init__()
         self.label = label
         self.config = config
-        workers_type = self.config.workers_type
-        try:
-            workers_module = importlib.import_module(
-                f'capsul.engine.{workers_type}')
-        except ImportError:
-            raise ValueError(f'engine type {workers_type} is not known.')
-        self.workers_class = getattr(workers_module, f'{workers_type.capitalize()}Workers')
 
     def __enter__(self):
-        self.database = execution_database(self.config.database_url)
-        self.workers = self.workers_class(self.label, self.config, self.database)
-        return self.workers
+        # Connect to the database
+        self.database = engine_database(self.config.database)
+        self.database.__enter__()
+        # Connect to the engine in the database. Adds the engine in
+        # the database if it does not exist.
+        self.engine_id = self.database.connect_to_engine(self)
 
+        # Starts workers if necessary
+        self.start_workers()
+        return self
+
+    def start_workers(self):
+        db_config = self.database.worker_database_config(self.engine_id)
+        env = os.environ.copy()
+        env['CAPSUL_WORKER_DATABASE'] = json.dumps(db_config)
+        for i in range(self.database.number_of_workers_to_start(self.engine_id)):
+            workers_command = self.database.workers_command(self.engine_id)
+            try:
+                subprocess.run(
+                    workers_command,
+                    capture_output=False,
+                    check=True,
+                    env=env
+                )
+            except Exception as e:
+                quote = lambda x: f"'{x}'"
+                raise RuntimeError(f'Command failed: {" ".join(quote(i) for i in workers_command)}') from e
+        
+       
     def __exit__(self, exception_type, exception_value, exception_traceback):
-        del self.workers
-        self.database.close()
-        del self.database
+        self.database.dispose_engine(self.engine_id)
+        self.database.__exit__(exception_type, exception_value, exception_traceback)
+        del self.engine_id
     
     def execution_context(self, executable):
         return execution_context(self.label, self.config, executable)
 
-
-class Workers(Controller):
-    def __init__(self, engine_label, engine_config, database):
-        self.engine_label = engine_label
-        self.engine_config = engine_config
-        self.database = database
-
-    def start(self, executable, **kwargs):
+    def start(self, executable, debug=False, **kwargs):
         for name, value in kwargs.items():
             setattr(executable, name, value)
-        econtext = execution_context(self.engine_label, self.engine_config, executable)
-        workflow = CapsulWorkflow(executable)
+        econtext = execution_context(self.label, self.config, executable)
+        workflow = CapsulWorkflow(executable, debug=debug)
         # from pprint import pprint
         # print('!start!', flush=True)
         # pprint(workflow.jobs)
@@ -108,41 +121,39 @@ class Workers(Controller):
         # pprint(workflow.parameters.no_proxy())
         # print('----')
         # pprint(workflow.jobs)
-        execution_id = self.database.new_execution(executable, econtext, workflow, start_time=datetime.now())
-        self._start(execution_id)
+        execution_id = self.database.new_execution(executable, self.engine_id, econtext, workflow, start_time=datetime.now())
         return execution_id
 
-    def _start(self, execution_id):
-        raise NotImplementedError(
-            '_start must be implemented in Workers subclasses.')
-
-    def debug_info(self, execution_id):
-        raise NotImplementedError(
-            'debug_info must be implemented in Workers subclasses.')
 
     def status(self, execution_id):
-        return self.database.status(execution_id)
+        return self.database.status(self.engine_id, execution_id)
     
-    def wait(self, *args, **kwargs):
-        self.database.wait(*args, **kwargs)
+
+    def wait(self, execution_id, *args, **kwargs):
+        self.database.wait(self.engine_id, execution_id, *args, **kwargs)
+
 
     def raise_for_status(self, *args, **kwargs):
-        self.database.raise_for_status(*args, **kwargs)
+        self.database.raise_for_status(self.engine_id, *args, **kwargs)
+
 
     def execution_report(self, *args, **kwargs):
-        return self.database.execution_report(*args, **kwargs)
+        return self.database.execution_report(self.engine_id, *args, **kwargs)
 
-    def print_execution_report(self, *args, **kwargs):
-        self.database.print_execution_report(*args, **kwargs)
+
+    def print_execution_report(self, engine_id, *args, **kwargs):
+        self.database.print_execution_report(engine_id, *args, **kwargs)
 
     def update_executable(self, *args, **kwargs):
-        self.database.update_executable(*args, **kwargs)
+        self.database.update_executable(self.engine_id, *args, **kwargs)
+
 
     def dispose(self, *args, **kwargs):
-        self.database.dispose(*args, **kwargs)
+        self.database.dispose(self.engine_id, *args, **kwargs)
 
-    def run(self, executable, timeout=None, print_report=False, **kwargs):
-        execution_id = self.start(executable, **kwargs)
+
+    def run(self, executable, timeout=None, print_report=False, debug=False, **kwargs):
+        execution_id = self.start(executable, debug=debug, **kwargs)
         try:
             try:
                 self.wait(execution_id, timeout=timeout)
@@ -153,8 +164,15 @@ class Workers(Controller):
             self.raise_for_status(execution_id)
             if print_report:
                 self.print_execution_report(self.execution_report(execution_id), file=sys.stdout)
-            self.update_executable(executable, execution_id)
+            self.update_executable(execution_id, executable)
         finally:
             self.dispose(execution_id)
         return status
+
+class Workers(Controller):
+    def __init__(self, engine_label, engine_config, database):
+        self.engine_label = engine_label
+        self.engine_config = engine_config
+        self.database = database
+
     

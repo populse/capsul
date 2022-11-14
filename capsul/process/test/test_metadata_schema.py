@@ -90,7 +90,8 @@ class TestCompletion(unittest.TestCase):
             input.mkdir()
             output = temp_home_dir / 'out'
             output.mkdir()
-            with (config / f'{app_name}.json').open('w') as f:
+            site_file = config / f'{app_name}.json'
+            with site_file.open('w') as f:
                 json.dump({
                     'builtin': {
                         'python_modules': [
@@ -109,7 +110,7 @@ class TestCompletion(unittest.TestCase):
                     }
                 }, f)
             Capsul.delete_singleton()
-            capsul = Capsul(app_name)
+            capsul = Capsul(app_name, site_file=site_file)
 
         except BaseException:  # clean up in case of interruption
             if old_home is None:

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import importlib
 import json
+import multiprocessing
 import os
 import sys
-import importlib
 import tempfile
 
 from soma.controller import (Controller, field,
@@ -13,10 +14,15 @@ from soma.undefined import undefined
 from ..dataset import Dataset
 
 
-default_workers_type = 'builtin'
-default_database_url = f'sqlite://{tempfile.gettempdir()}{os.sep}capsul_engine_database.sqlite'
-# default_workers_type = 'celery'
-# default_database_url = f'redis+socket://{tempfile.gettempdir()}{os.sep}capsul_engine_database.redis'
+default_engine_database = {
+    'type': 'redis+socket',
+    'path': f'{tempfile.gettempdir()}{os.sep}capsul_engine_database.rdb',
+}
+
+default_engine_start_workers = {
+    'type': 'builtin',
+    'count': max(1, int(multiprocessing.cpu_count()/4)),
+}
 
 def full_module_name(module_name):
     '''
@@ -148,8 +154,11 @@ class EngineConfiguration(Controller):
     dataset: OpenKeyDictController[Dataset]
     config_modules: list[str]
     python_modules: list[str]
-    workers_type: str = default_workers_type
-    database_url: str = default_database_url
+
+    database: field(type_=dict, default_factory= lambda: default_engine_database)
+    
+    start_workers: field(type_=dict, default_factory = lambda: default_engine_start_workers)
+
 
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.
@@ -229,13 +238,25 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     def load(self, filename):
         ''' Load configuration from a JSON or YAML file
         '''
-        with open(filename) as f:
-            if filename.endswith('.yaml'):
-                # YAML support is optional, yaml module may not
-                # be installed
-                import yaml
+
+        if filename.endswith('.py'):
+            context = {}
+            exec(filename, globals=context, locals=context)
+            conf = None
+            for n in ('config', 'configuration', 'conf'):
+                conf = context.get(n)
+                if conf:
+                    break
+            if not conf:
+                raise RuntimeError(f'No valid configuration found in "{filename}"')
+        elif filename.endswith('.yaml'):
+            # YAML support is optional, yaml module may not
+            # be installed
+            import yaml
+            with open(filename) as f:
                 conf = yaml.safe_load(f)
-            else:
+        else:
+            with open(filename) as f:
                 conf = json.load(f)
         self.import_dict(conf)
 

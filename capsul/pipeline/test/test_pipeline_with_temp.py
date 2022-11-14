@@ -142,7 +142,6 @@ class TestPipelineWithTemp(unittest.TestCase):
                                                input_name]
             self.iter_pipeline.output = output_name
 
-            # run sequentially
             with Capsul().engine() as ce:
                 ce.run(self.iter_pipeline, timeout=5)
 

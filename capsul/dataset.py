@@ -7,19 +7,21 @@ The main function to be used contains most of the doc: see :func:`generate_paths
 '''
 
 import csv
+import fnmatch
 import functools
 import json
 import operator
 from pathlib import Path
 import re
-import fnmatch
-from capsul.pipeline.pipeline import Process, Pipeline, Switch
+import sys
+
+from capsul.pipeline.pipeline import Process, Pipeline
 from capsul.pipeline.process_iteration import ProcessIteration
 
 from soma.controller import Controller, Literal, Directory
 from soma.undefined import undefined
 
-
+global_debug = False
 
 class Dataset(Controller):
     '''
@@ -408,69 +410,85 @@ class ProcessSchema:
         schemas[schema] = cls
         cls.schema = schema
         setattr(process, 'metadata_schemas', schemas)
+                    
+
+class MetadataModifier:
+    def __init__(self, schema_name, process, parameter):
+        self.process = process
+        self.parameter = parameter
+        self.modifiers = []
+
+        process_schema = getattr(process, 'metadata_schemas', {}).get(schema_name)
+        if process_schema:
+            for pattern, modifier in getattr(process_schema, '_', {}).items():
+                if fnmatch.fnmatch(parameter, pattern):
+                    self.add_modifier(modifier)
+            modifier = getattr(process_schema, parameter, None)
+            self.add_modifier(modifier)
+        pipeline = process.get_pipeline()
+        if pipeline:
+            pipeline_schema = getattr(pipeline, 'metadata_schemas', {}).get(schema_name)
+            if pipeline_schema:
+                nodes_schema = getattr(pipeline_schema, '_nodes', None)
+                if nodes_schema:
+                    # node_modifiers = nodes_schema.get(process.name)
+                    for pattern, node_modifiers in nodes_schema.items():
+                        if fnmatch.fnmatch(process.name, pattern):
+                            for pattern, modifier in node_modifiers.items():
+                                if fnmatch.fnmatch(parameter, pattern):
+                                    self.add_modifier(modifier)
+
+    def __repr__(self):
+        return f'MetadataModifier({self.process.label}, {self.parameter}, {self.modifiers})'
     
-    @classmethod
-    def _update_metadata(cls, metadata, process, pipeline_name, parameter,
-                         iteration_index):
-        # remove top pipeline name
-        if '.' in pipeline_name:
-            pipeline_name = pipeline_name.split('.', 1)[-1]
-            long_parmater = f'{pipeline_name}.{parameter}'
+    @property
+    def is_empty(self):
+        return not self.modifiers
+    
+    def add_modifier(self, modifier):
+        if modifier is None:
+            return
+        if isinstance(modifier, dict) or callable(modifier):
+            self.modifiers.append(modifier)
         else:
-            pipeline_name = ''
-            long_parmater = parameter
-        stack = [v for p, v in getattr(cls, '_', {}).items()
-                 if fnmatch.fnmatch(long_parmater, p)] \
-            + [
-            #getattr(cls, f'{pipeline_name}.{parameter}', None),
-            getattr(cls, parameter, None),
-        ]
-        instance_process_schema = getattr(process, 'metadata_schemas', None)
-        if instance_process_schema:
-            stack += [v
-                      for p, v in getattr(instance_process_schema, '_',
-                                          {}).items()
-                      if fnmatch.fnmatch(long_parmater, p)]
-            #stack.append(getattr(instance_process_schema, f'{pipeline_name}.{parameter}', None))
-            stack.append(getattr(instance_process_schema, parameter, None))
+            raise ValueError(f'Invalid value for schema modification for parameter {self.parameter}: {modifier}')
         
-        while stack:
-            item = stack.pop(0)
-            if item is None:
-                continue
-            elif isinstance(item, list):
-                stack = item + stack
-            elif isinstance(item, dict):
-                for k, v in item.items():
+    def apply(self, metadata, process, parameter):
+        for modifier in self.modifiers:
+            if isinstance(modifier, dict):
+                for k, v in modifier.items():
                     if callable(v):
-                        v = v(metadata=metadata, 
-                              process=process,
-                              parameter=parameter,
-                              iteration_index=iteration_index)
-                    setattr(metadata, k, v)
+                        setattr(metadata, k, v(metadata=metadata, process=process, parameter=parameter))
+                    else:
+                        setattr(metadata, k, v)
             else:
-                stack.insert(0, item(
-                    metadata=metadata, 
-                    process=process,
-                    parameter=parameter,
-                    iteration_index=iteration_index))                
-                
+                modifier(metadata, process, parameter)
 
-    @staticmethod
-    def prepend(key, value, sep='_'):
-        def prepend(metadata, process, parameter, iteration_index,
-                    key=key, value=value,sep=sep):
-            current_prefix = metadata.get(key)
-            metadata[key] = value + (sep + current_prefix if current_prefix else '')
-        return prepend
+class Prepend:
+    def __init__(self, key, value, sep='_'):
+        self.key = key
+        self.value = value
+        self.sep = sep
+    
+    def __call__(self, metadata, process, parameter):
+        current_value = getattr(metadata, self.key, '')
+        setattr(metadata, self.key, self.value + (self.sep + current_value if current_value else ''))
 
-    @staticmethod
-    def append(key, value, sep='_'):
-        def append(metadata, process, parameter, iteration_index,
-                   key=key, value=value,sep=sep):
-            current_prefix = metadata.get(key)
-            metadata[key] = (current_prefix + sep if current_prefix else '') + value
-        return append
+    def __repr__(self):
+        return f'Prepend({repr(self.key)}, {repr(self.value)}{("" if self.sep == "_" else ", sep=" + repr(self.sep))})'
+
+class Append:
+    def __init__(self, key, value, sep='_'):
+        self.key = key
+        self.value = value
+        self.sep = sep
+    
+    def __call__(self, metadata, process, parameter):
+        current_value = getattr(metadata, self.key, '')
+        setattr(metadata, self.key, (current_value + self.sep if current_value else '') + self.value)
+
+    def __repr__(self):
+        return f'Append({repr(self.key)}, {repr(self.value)}{("" if self.sep == "_" else ", sep=" + repr(self.sep))})'
 
 
 def dprint(debug, *args, _frame_depth=1, **kwargs):
@@ -481,24 +499,28 @@ def dprint(debug, *args, _frame_depth=1, **kwargs):
             head = f'!{frame.function}:{frame.lineno}!'
         finally:
             del frame
-        print(head, *args, **kwargs)
+        print(head, ' '.join(f'{i}' for i in args), file=sys.stderr, **kwargs)
 
 
 def dpprint(debug, item):
     if debug:
         from pprint import pprint
-        dprint(debug=debug, _frame_depth=2)
+        dprint(debug=debug, _frame_depth=2, file=sys.stderr)
         pprint(item)
 
 
 class ProcessMetadata(Controller):
-    parameters_per_schema : dict[str, list[str]]
-    dataset_per_parameter : dict
 
-    def __init__(self, executable, execution_context, datasets=None):
+    def __init__(self, executable, execution_context, datasets=None, debug=False):
         super().__init__()
+        self.executable = executable
+        self.execution_context = execution_context
+        self.datasets = datasets
+        self._current_iteration = None
+        self.debug=debug
 
         self.parameters_per_schema = {}
+        self.schema_per_parameter = {}
         self.dataset_per_parameter = {}
         self.iterative_schemas = set()
         if isinstance(executable, ProcessIteration):
@@ -510,41 +532,18 @@ class ProcessMetadata(Controller):
 
         # Associate each field to a dataset
         for field in process.user_fields():
-            inner_field = None
-            inner_field_name = None
-            if isinstance(process, Pipeline):
-                inner_item = next(process.get_linked_items(
-                                    process, field.name), None)
-            else:
-                inner_item = None
-            if inner_item is not None:
-                inner_process, inner_field_name = inner_item
-                path_type = inner_process.field(inner_field_name).path_type
-            else:
-                path_type = field.path_type
-            if path_type:
-                # Associates a Dataset name with the field
-                dataset_name = getattr(field, 'dataset', None)
-                # fallback 1: get in inner_field (of an inner process)
-                if dataset_name is None and inner_field:
-                    dataset_name = getattr(inner_field, 'dataset', None)
-                # fallback 2: get manually given datasets
-                if dataset_name is None and datasets:
-                    dataset_name = datasets.get(field.name)
-                # fallback 3: use "input" or "output"
-                if dataset_name is None and (not datasets
-                                            or field.name not in datasets):
-                    dataset_name = ('output' if field.is_output() else 'input')
-                if dataset_name is None:
-                    # no completion for this field
-                    continue
-                dataset = getattr(execution_context.dataset, dataset_name, None)
-                if dataset:
-                    self.dataset_per_parameter[field.name] = dataset_name
-                    schema = dataset.metadata_schema
-                    self.parameters_per_schema.setdefault(schema, []).append(field.name)
-                    if field.name in iterative_parameters:
-                        self.iterative_schemas.add(schema)
+            dataset_name = self.parameter_dataset_name(executable, field)
+            if dataset_name is None:
+                # no completion for this field
+                continue
+            dataset = getattr(execution_context.dataset, dataset_name, None)
+            if dataset:
+                self.dataset_per_parameter[field.name] = dataset_name
+                schema = dataset.metadata_schema
+                self.parameters_per_schema.setdefault(schema, []).append(field.name)
+                self.schema_per_parameter[field.name] = schema
+                if field.name in iterative_parameters:
+                    self.iterative_schemas.add(schema)
         
         for schema_name in self.parameters_per_schema:
             schema_cls = Dataset.find_schema(schema_name)
@@ -557,9 +556,129 @@ class ProcessMetadata(Controller):
                 self.add_field(schema_name, type_=schema_cls)
                 setattr(self, schema_name, schema_cls())
 
-    def generate_paths(self, executable, debug=False):
-        dprint(debug, executable.definition)
+        if self.debug:
+            self.dprint('Create ProcessMetadata for', self.executable.label)
+            for field in process.user_fields():
+                if field.path_type:
+                    dataset = self.dataset_per_parameter.get(field.name)
+                    schema = self.schema_per_parameter.get(field.name)
+                    self.dprint(f'  {field.name} -> dataset={dataset}, schema={schema}')
+            self.dprint('  Iterative schemas:', self.iterative_schemas)
+    
+    def dprint(self, *args, **kwargs):
+        if isinstance(self.debug, bool) and self.debug:
+            self.debug = sys.stderr
+        if self.debug:
+            print(*args, file=self.debug, **kwargs)
+    
+    def parameter_dataset_name(self, process, field):
+        '''
+        Find the name of the dataset associated to a process parameter
+        '''
+        inner_field = None
+        inner_field_name = None
+        if isinstance(process, Pipeline):
+            # inner_item = next(process.get_linked_items(
+            #                     process, field.name, direction=('links_from' if field.is_output() else 'links_to')), None)
+            inner_item = next(process.get_linked_items(
+                                process, field.name, in_outer_pipelines=False), None)
+        else:
+            inner_item = None
+        if inner_item is not None:
+            inner_process, inner_field_name = inner_item
+            path_type = inner_process.field(inner_field_name).path_type
+        else:
+            path_type = field.path_type
+        if path_type:
+            dataset_name = None
+            # 1: get manually given datasets
+            if self.datasets:
+                dataset_name = self.datasets.get(field.name)
+            # Associates a Dataset name with the field
+            if dataset_name is None:
+                dataset_name = getattr(field, 'dataset', None)
+            # fallback 1: get in inner_field (of an inner process)
+            if dataset_name is None and inner_field:
+                dataset_name = getattr(inner_field, 'dataset', None)
+            # fallback 3: use "input" or "output"
+            if dataset_name is None and (not self.datasets
+                                         or field.name not in self.datasets):
+                dataset_name = ('output' if field.is_output() else 'input')
+            return dataset_name
+        return None
+    
+    def metadata_modifications(self, process):
+        result = {}
+        if isinstance(process, ProcessIteration):
+            for iprocess in process.iterate_over_process_parmeters():
+                iresult = self.metadata_modifications(iprocess.process)
+                for k, v in iresult.items():
+                    if k in process.iterative_parameters:
+                        result.setdefault(k, []).append(v)
+                    else:
+                        result[k] = v
+        else:
+            for field in process.user_fields():                
+                if process.plugs[field.name].activated:
+                    self.dprint(f'  Parse schema modifications for {field.name}')
+                    schema = self.schema_per_parameter.get(field.name)
+                    if schema:
+                        todo = []
+                        done = set()
+                        if isinstance(process, Pipeline):
+                            stack = list(process.get_linked_items(process, field.name, in_outer_pipelines=True))
+                            while stack:
+                                node, node_parameter = stack.pop(0)
+                                self.dprint(f'    connected to {node.full_name}.{node_parameter}')
+                                todo.insert(0, (node, node_parameter))
+                                done.add(node)
+                                if field.is_output():
+                                    for node_field in node.user_fields():
+                                        if node.plugs[node_field.name].activated and not node_field.is_output():
+                                            ext = [i for i in 
+                                                   process.get_linked_items(node, 
+                                                                            node_field.name,
+                                                                            process_only=False,
+                                                                            direction='links_from')
+                                                  if isinstance(i[0], Process) and i[0] not in done]
+                                            stack.extend(ext)
+                                            done.update(i[0] for i in ext)
+                                            if self.debug:
+                                                for n, p in ext:
+                                                    self.dprint(f'        + {n.full_name}.{p}')
+                        todo.append((process, field.name))
+                        for node, node_parameter in todo:
+                            self.dprint(f'    resolve {node.name}.{node_parameter}')
+                            modifier = MetadataModifier(schema, node, node_parameter)
+                            if not modifier.is_empty:
+                                self.dprint(f'        {modifier.modifiers}')
+                                result.setdefault(field.name, []).append(modifier)
+                else:
+                    self.dprint(f'  {field.name} ignored (inactive)')
+        return result
+    
+    def get_schema(self, schema_name):
+        schema = getattr(self, schema_name)
+        if isinstance(schema, list):
+            if schema:
+                schema = schema[self._current_iteration]
+            else:
+                schema = None
+        return schema
+
+    def generate_paths(self, executable):
+        if self.debug:
+            if self._current_iteration is not None:
+                iteration = f'[{self._current_iteration}]'
+            else:
+                iteration = ''
+            self.dprint(f'Generate paths for {executable.name}{iteration}')
+            for field in executable.user_fields():
+                value = getattr(executable, field.name, undefined)
+                self.dprint('       ', field.name, '=', repr(value))
+
         if isinstance(executable, ProcessIteration):
+            empty_iterative_schema = set()
             iteration_size = 0
             for schema in self.iterative_schemas:
                 schema_iteration_size = len(getattr(self, schema))
@@ -569,160 +688,59 @@ class ProcessMetadata(Controller):
                         first_schema = schema
                     elif iteration_size != schema_iteration_size:
                         raise ValueError(f'Iteration on schema {first_schema} has {iteration_size} element(s) which is not equal to schema {schema} ({schema_iteration_size} element(s))')
+                else:
+                    empty_iterative_schema.add(schema)
+            
+            for schema in empty_iterative_schema:
+                setattr(self, schema, [Dataset.find_schema(schema)() for i in range(iteration_size)])
+            
             iteration_values = {}
-            dprint(debug, f'{iteration_size}')
             for iteration in range(iteration_size):
-                metadatas = {}
-                for i in self.parameters_per_schema:
-                    if i in self.iterative_schemas:
-                        metadata_list = getattr(self, i)
-                        if metadata_list:
-                            metadatas[i] = metadata_list[iteration]
-                        else:
-                            metadatas[i] = Dataset.find_schema(i)()
-                    else:
-                        metadatas[i] = getattr(self, i)
-                self._generate_paths(executable=executable, metadatas=metadatas, iteration_index=iteration, debug=debug)
+                self._current_iteration = iteration
+                executable.select_iteration_index(iteration)
+                self.generate_paths(executable.process)
                 for i in executable.iterative_parameters:
                     if executable.field(i).path_type:
                         value = getattr(executable.process, i, undefined)
                         iteration_values.setdefault(i, []).append(value)
-            dpprint(debug, iteration_values)
             for k, v in iteration_values.items():
                 setattr(executable, k, v)
         else:
-            metadatas = dict((i, getattr(self, i)) for i in self.parameters_per_schema)
-            self._generate_paths(executable=executable, metadatas=metadatas, iteration_index=None, debug=debug)
-
-    def _generate_paths(self, executable, metadatas, iteration_index, debug):
-        dprint(debug, executable.definition, f'{iteration_index}')
-        for schema, parameters in self.parameters_per_schema.items():
-            for parameter in parameters:
-                dataset = self.dataset_per_parameter[parameter]
-                metadata = Dataset.find_schema(schema)(base_path=f'!{{dataset.{dataset}.path}}')
-                for other_schema in self.parameters_per_schema:
-                    if other_schema == schema:
+            for schema_name in self.parameters_per_schema:
+                for other_schema_name in self.parameters_per_schema:
+                    if other_schema_name == schema_name:
                         continue
-                    mapping_class = Dataset.find_schema_mapping(other_schema, schema)
-                    if not mapping_class:
-                        continue
-                    mapping_class.map_schemas(metadatas[other_schema], metadata)
-                schema_metadata = metadatas[schema]
-                for field in schema_metadata.fields():
-                    value = getattr(schema_metadata, field.name, None)
-                    if value is not None:
-                        #value = value % metadata.asdict()
-                        setattr(metadata, field.name, value)
-                dprint(debug, '->', parameter, ':', schema)
-                for path in self.follow_links(executable, parameter, debug=debug):
-                    dprint(debug, 'path length', len(path))
-                    # get all pattern rules along the path
-                    path_schemas = []
-                    for pipeline_name, process, process_parameter in path:
-                        metadata_schema = getattr(process, 'metadata_schemas',
-                                                  {}).get(schema)
-                        path_schemas.append(metadata_schema)
-                        if isinstance(process, ProcessIteration):
-                            metadata_schema = getattr(
-                                process.process, 'metadata_schemas',
-                                {}).get(schema)
-                            path_schemas.append(metadata_schema)
-
-                    # merge attributes
-                    level = len(path_schemas) - 1
-                    for pipeline_name, process, process_parameter in reversed(path):
-                        dprint(debug, 
-                               'pname:', pipeline_name, 
-                               ', def:', process.definition, 
-                               ', par:', process_parameter,
-                               ', lev:', level)
-                        if isinstance(process, ProcessIteration):
-                            metadata_schema = path_schemas[level]
-                            if metadata_schema:
-                                dprint(debug, 'iter meta_schema:', metadata_schema, level, iteration_index)
-                                metadata_schema._update_metadata(
-                                    metadata, executable, process.process.name,
-                                    process_parameter, iteration_index)
-                            level -= 1
-                        metadata_schema = path_schemas[level]
-                        if metadata_schema:
-                            metadata_schema._update_metadata(
-                                metadata, executable, pipeline_name,
-                                process_parameter, iteration_index)
-                        level -= 1
-                        # we must also call all parent pipelines schemas with
-                        # the current depth parameter name, since some upper-
-                        # level schemas may use them witht a lower-level name
-                        # (especially for pattern rules such as
-                        # "LeftPipeline.*'
-                        for ilevel in range(level, -1, -1):
-                            metadata_schema = path_schemas[level]
-                            if metadata_schema:
-                                metadata_schema._update_metadata(
-                                    metadata, executable, pipeline_name,
-                                    process_parameter, iteration_index)
-                dpprint(debug, metadata.asdict())
-                path = str(metadata.build_path()) % metadata.asdict()
-                dprint(debug, parameter, '=', path)
-                if isinstance(executable, ProcessIteration):
-                    setattr(executable.process, parameter, path)
-                else:
+                    source = self.get_schema(schema_name)
+                    dest = self.get_schema(other_schema_name)
+                    if source and dest:
+                        mapping = Dataset.find_schema_mapping(schema_name, other_schema_name)
+                        if mapping:
+                            mapping.map_schemas(source, dest)
+            if self.debug:
+                for field in self.fields():
+                    self.dprint('  Metadata for', field.name)
+                    metadata = self.get_schema(field.name)
+                    for f in metadata.fields():
+                        v = getattr(metadata, f.name, undefined)
+                        self.dprint('   ', f.name, '=', repr(v))
+            metadata_modifications = self.metadata_modifications(executable)
+            for schema, parameters in self.parameters_per_schema.items():
+                for parameter in parameters:
+                    self.dprint(f'  find value for {parameter} in schema {schema}')
+                    dataset = self.dataset_per_parameter[parameter]
+                    metadata = Dataset.find_schema(schema)(base_path=f'!{{dataset.{dataset}.path}}')
+                    s = self.get_schema(schema)
+                    if s:
+                        metadata.import_dict(s.asdict())
+                    for modifier in metadata_modifications.get(parameter, []):
+                        modifier.apply(metadata, executable, parameter)
+                    try:
+                        path = str(metadata.build_path())   
+                    except:
+                        path = undefined
+                    if self.debug:
+                        for field in metadata.fields():
+                            value = getattr(metadata, field.name, undefined)
+                            self.dprint(f'    {field.name} = {repr(value)}')
+                        self.dprint(f'    => {path}')
                     setattr(executable, parameter, path)
-
-
-    @staticmethod        
-    def follow_links(executable, parameter_name, debug=False):
-        dprint(debug, executable.definition, parameter_name)
-        main_field = executable.field(parameter_name)
-        if main_field.is_output():
-            direction = 'links_from'
-        else:
-            direction = 'links_to'
-        stack = [([], executable, main_field.name, [])]
-        done = set()
-        while stack:
-            node_name_path, node, field_name, path = stack.pop(0)
-            dprint(debug, 'p:', node_name_path, ', node:', str(node), ', field:', field_name, '...')
-            field = node.field(field_name)
-            if node in done or not node.activated:
-                continue
-            done.add(node)
-            plug = node.plugs.get(field.name)
-            followers = []
-            if isinstance(node, Switch):
-                if field.name != 'switch':
-                    for input_plug_name, output_plug_name in node.connections():
-                        dprint(debug, 'switch', field_name, input_plug_name, output_plug_name, not main_field.is_output())
-                        if not main_field.is_output():
-                            if field_name == input_plug_name:
-                                dprint(debug, 'append')
-                                next_node, next_plug = next(executable.get_linked_items(
-                                    node, output_plug_name))
-                                stack.append((node_name_path, next_node, next_plug, path))
-                        else:
-                            if field_name == output_plug_name:
-                                dprint(debug, 'append')
-                                next_node, next_plug = next(executable.get_linked_items(
-                                    node, input_plug_name))
-                                stack.append((node_name_path, next_node, next_plug, path))
-            elif isinstance(node, Process):
-                path.append(('.'.join(node_name_path + [node.name]), node, field.name))
-                if isinstance(node, Pipeline):
-                    node_name = node.name
-                else:
-                    node_name = None
-                for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
-                    if dest_node in done or not dest_node.activated:
-                        continue
-                    followers.append((node_name, dest_node, dest_plug_name))
-                #if isinstance(node, ProcessIteration):
-                    #followers.append((node.process.name, node.process, field.name))
-            if followers:
-                for next_node_name, next_node, next_plug in followers:
-                    if next_node_name:
-                        next_node_name_path = node_name_path + [next_node_name]
-                    else:
-                        next_node_name_path = node_name_path
-                    stack.append((next_node_name_path, next_node, next_plug, path))
-            else:
-                yield path

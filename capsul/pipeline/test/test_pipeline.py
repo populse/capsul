@@ -32,8 +32,10 @@ class DummyProcess(Process):
         self.add_field("other_output", float, optional=True, output=True)
 
     def execute(self, context):
-        with open(self.output_image, 'w') as f:
-            f.write('dummy output.\n')
+        if os.path.exists(self.input_image):
+            with open(self.input_image) as i:
+                with open(self.output_image, 'w') as o:
+                    o.write(i.read())
         self.other_output = 24.6
 
 
@@ -132,12 +134,12 @@ class TestPipeline(unittest.TestCase):
         tmp = tempfile.mkstemp('', prefix='capsul_test_pipeline')
         ofile = tmp[1]
         os.close(tmp[0])
-        os.unlink(tmp[1])
+        # os.unlink(tmp[1])
         capsul = Capsul()
         try:
             with capsul.engine() as engine:
                 engine.run(self.pipeline, timeout=5,
-                    input_image='/tmp/bloup',
+                    input_image=ofile,
                     output=ofile)
         finally:
             if os.path.exists(tmp[1]):
@@ -209,20 +211,16 @@ def test():
 
 
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
+    from soma.qt_gui.qt_backend import Qt
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
-    if '-v' in sys.argv[1:]:
-        import sys
-        from soma.qt_gui.qt_backend import Qt
-        from capsul.qt_gui.widgets import PipelineDeveloperView
+    app = Qt.QApplication.instance()
+    if not app:
+        app = Qt.QApplication(sys.argv)
 
-        app = Qt.QApplication.instance()
-        if not app:
-            app = Qt.QApplication(sys.argv)
-
-        pipeline = executable(MyPipeline)
-        #setattr(pipeline.nodes_activation, "node2", False)
-        view1 = PipelineDeveloperView(pipeline, allow_open_controller=True)
-        view1.show()
-        app.exec_()
-        del view1
+    pipeline = executable(MyPipeline)
+    setattr(pipeline.nodes_activation, "node2", True)
+    view1 = PipelineDeveloperView(pipeline, allow_open_controller=True)
+    view1.show()
+    app.exec_()
+    del view1

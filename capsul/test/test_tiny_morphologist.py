@@ -5,13 +5,14 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
+from capsul.qt_gui.execution_gui import execution_widget
 
 from soma.controller import field, File
 from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
-from capsul.config.configuration import ModuleConfiguration, default_workers_type, default_database_url
-from capsul.dataset import ProcessMetadata, ProcessSchema
+from capsul.config.configuration import ModuleConfiguration, default_engine_database, default_engine_start_workers
+from capsul.dataset import ProcessMetadata, ProcessSchema, Prepend, Append
 
 
 class FakeSPMConfiguration(ModuleConfiguration):
@@ -46,10 +47,10 @@ class BiasCorrection(Process):
             f.write(content)
 
 class BiasCorrectionBIDS(ProcessSchema, schema='bids', process=BiasCorrection):
-    output = {'part': 'nobias'}
+    output = Prepend('part', 'nobias')
 
 class BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa', process=BiasCorrection):
-    output = {'prefix': 'nobias'}
+    output = Prepend('prefix', 'nobias')
 
 
 class FakeSPMNormalization12(Process):
@@ -80,10 +81,10 @@ class FakeSPMNormalization12(Process):
             f.write(content)
 
 class FakeSPMNormalization12BIDS(ProcessSchema, schema='bids', process=FakeSPMNormalization12):
-    output = {'part': 'normalized_fakespm12'}
+    output = Prepend('part', 'normalized_fakespm12')
 
 class FakeSPMNormalization12BrainVISA(ProcessSchema, schema='brainvisa', process=FakeSPMNormalization12):
-    output = {'prefix': 'normalized_fakespm12'}
+    output = Prepend('prefix', 'normalized_fakespm12')
 
 
 class FakeSPMNormalization8(FakeSPMNormalization12):
@@ -94,10 +95,10 @@ class FakeSPMNormalization8(FakeSPMNormalization12):
     }
 
 class FakeSPMNormalization8BIDS(ProcessSchema, schema='bids', process=FakeSPMNormalization8):
-    output = {'part': 'normalized_fakespm8'}
+    output = Prepend('part', 'normalized_fakespm8')
 
 class FakeSPMNormalization8BrainVISA(ProcessSchema, schema='brainvisa', process=FakeSPMNormalization8):
-    output = {'prefix': 'normalized_fakespm8'}
+    output = Prepend('prefix', 'normalized_fakespm8')
 
 
 class AimsNormalization(Process):
@@ -114,10 +115,10 @@ class AimsNormalization(Process):
             f.write(content)
 
 class AimsNormalizationBIDS(ProcessSchema, schema='bids', process=AimsNormalization):
-    output = {'part': 'normalized_aims'}
+    output = Prepend('part', 'normalized_aims')
 
 class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=AimsNormalization):
-    output = {'prefix': 'normalized_aims'}
+    output = Prepend('prefix', 'normalized_aims')
 
 class SplitBrain(Process):
     input: field(type_=File, extensions=('.nii',))
@@ -135,12 +136,13 @@ class SplitBrain(Process):
                 f.write(side_content)
 
 
-class SplitBrainBIDS(ProcessSchema, schema='bids', process=SplitBrain):
-    output = {'part': 'split'}
-
-
 class SplitBrainBrainVISA(ProcessSchema, schema='brainvisa', process=SplitBrain):
-    output = {'prefix': 'split'}
+    _ = { 
+        'right_output': Append('suffix', 'right'),
+        'left_output': Append('suffix', 'left'),
+    }
+    right_output = Prepend('prefix', 'split')
+    left_output = Prepend('prefix', 'split')
 
 
 class ProcessHemisphere(Process):
@@ -153,6 +155,10 @@ class ProcessHemisphere(Process):
         content = f'{content}Process hemisphere\n'
         with open(self.output, 'w') as f:
             f.write(content)
+
+
+class ProcessHemisphereBrainVISA(ProcessSchema, schema='brainvisa', process=ProcessHemisphere):
+    output = Prepend('prefix', 'hemi')
 
 
 class TinyMorphologist(Pipeline):
@@ -189,19 +195,28 @@ class TinyMorphologist(Pipeline):
 
 class TinyMorphologistBIDS(ProcessSchema, schema='bids', process=TinyMorphologist):
     _ = {
-        '*': {'process': 'tinymorphologist'}
+        '*': {'process': 'tinymorphologist'},
+        'split.right_output': {'part': 'right_hemi'},
+        'split.left_output': {'part': 'left_hemi'},
     }
     input = {'process': None}
-    left_hemisphere = {'part': 'left_hemi'}
-    right_hemisphere = {'part': 'right_hemi'}
 
 class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process=TinyMorphologist):
     _ = {
-        '*': {'process': 'tinymorphologist'}
+        '*': {'process': 'tinymorphologist'},
+    }
+    _nodes = {
+        # 'split': {
+        #     'right_output': {'prefix': 'right_hemi'},
+        #     'left_output': {'prefix': 'left_hemi'}
+        # },
+        # 'fakespm_normalization_12': {'*': Append('suffix', 'fakespm12')},
+        # 'fakespm_normalization_8': {'*': Append('suffix', 'fakespm8')},
+        # 'aims_normalization': {'*': Append('suffix', 'aims')},
     }
     input = {'process': None}
-    left_hemisphere = {'prefix': 'left_hemi'}
-    right_hemisphere = {'prefix': 'right_hemi'}
+    # left_hemisphere = {'prefix': 'left_hemi'}
+    # right_hemisphere = {'prefix': 'right_hemi'}
 
 def concatenate(inputs: list[File], result: File):
     with open(result, 'w') as o:
@@ -332,7 +347,7 @@ class TestTinyMorphologist(unittest.TestCase):
         with self.config_file.open('w') as f:
             json.dump(config, f)
 
-        self.capsul = Capsul('test_tiny_morphologist', site_file=self.config_file)
+        self.capsul = Capsul('test_tiny_morphologist', site_file=self.config_file, user_file=None)
         return super().setUp()
 
     def tearDown(self):
@@ -345,8 +360,8 @@ class TestTinyMorphologist(unittest.TestCase):
         self.maxDiff = 2000
         expected_config = {
             'builtin': {
-                'workers_type': default_workers_type,
-                'database_url': default_database_url,
+                'database': default_engine_database,
+                'start_workers': default_engine_start_workers,
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),
@@ -423,31 +438,32 @@ class TestTinyMorphologist(unittest.TestCase):
                 'template': '!{fakespm.directory}/template',
                 'nobias': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
                 'normalized': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
-                'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/right_hemi_aleksander.nii',
-                'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander.nii',
+                'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_nobias_aleksander_right.nii',
+                'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_nobias_aleksander_left.nii',
             },
             'aims': {
                 'template': '!{fakespm.directory}/template',
                 'nobias': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
-                'normalized': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/normalized_aims_aleksander.nii',
-                'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/right_hemi_aleksander.nii',
-                'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander.nii',
+                'normalized': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/normalized_aims_nobias_aleksander.nii',
+                'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_aims_nobias_aleksander_right.nii',
+                'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_aims_nobias_aleksander_left.nii',
             },
             'fakespm12': {
                 'template': '!{fakespm.directory}/template',
                 'nobias': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
-                'normalized': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/normalized_fakespm12_aleksander.nii',
-                'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/right_hemi_aleksander.nii',
-                'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander.nii',
+                'normalized': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/normalized_fakespm12_nobias_aleksander.nii',
+                'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm12_nobias_aleksander_right.nii',
+                'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm12_nobias_aleksander_left.nii',
             },
             'fakespm8': {
                 'template': '!{fakespm.directory}/template',
                 'nobias': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
-                'normalized': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/normalized_fakespm8_aleksander.nii',
-                'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/right_hemi_aleksander.nii',
-                'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander.nii',
+                'normalized': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/normalized_fakespm8_nobias_aleksander.nii',
+                'right_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_right.nii',
+                'left_hemisphere': '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_left.nii',
             },
         }
+
         tiny_morphologist = self.capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')            
         engine = self.capsul.engine()
         execution_context = engine.execution_context(tiny_morphologist)
@@ -498,16 +514,13 @@ class TestTinyMorphologist(unittest.TestCase):
                     'nobias', 'normalized', 'right_hemisphere', 'left_hemisphere'))
             self.maxDiff = 2000
             self.assertEqual(params, expected[normalization])
-            # for field in tiny_morphologist.fields():
-            #     value = getattr(tiny_morphologist, field.name, undefined)
-            #     print(f'!{normalization}!', field.name, value)
 
             with self.capsul.engine() as engine:
                 status = engine.run(tiny_morphologist, timeout=5)
                 self.assertEqual(status, 'ended')
 
 
-    def test_pipeline_iteration(self):
+    def test_tiny_morphologist_iteration(self):
         expected_completion = {
             'input': [
                         '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
@@ -530,44 +543,44 @@ class TestTinyMorphologist(unittest.TestCase):
                         '!{dataset.input.path}/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
             ],
             'left_hemisphere': [
-                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander_{executable.normalization[0]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander_{executable.normalization[1]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander_{executable.normalization[2]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/left_hemi_aleksander_{executable.normalization[3]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/left_hemi_aleksander_{executable.normalization[4]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/left_hemi_aleksander_{executable.normalization[5]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/left_hemi_aleksander_{executable.normalization[6]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/left_hemi_aleksander_{executable.normalization[7]}.nii',
-                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/left_hemi_aleksander_{executable.normalization[8]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/left_hemi_casimiro_{executable.normalization[9]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/left_hemi_casimiro_{executable.normalization[10]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/left_hemi_casimiro_{executable.normalization[11]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/left_hemi_casimiro_{executable.normalization[12]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/left_hemi_casimiro_{executable.normalization[13]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/left_hemi_casimiro_{executable.normalization[14]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/left_hemi_casimiro_{executable.normalization[15]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/left_hemi_casimiro_{executable.normalization[16]}.nii',
-                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/left_hemi_casimiro_{executable.normalization[17]}.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_nobias_aleksander_left.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_aims_nobias_aleksander_left.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_left.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_nobias_aleksander_left.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_normalized_aims_nobias_aleksander_left.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_left.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_nobias_aleksander_left.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_normalized_aims_nobias_aleksander_left.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_left.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_nobias_casimiro_left.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_normalized_aims_nobias_casimiro_left.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_left.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_nobias_casimiro_left.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_normalized_aims_nobias_casimiro_left.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_left.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_nobias_casimiro_left.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_normalized_aims_nobias_casimiro_left.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_left.nii',
             ],
             'nobias': [
-                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/aleksander_{executable.normalization[0]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/aleksander_{executable.normalization[1]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/aleksander_{executable.normalization[2]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/aleksander_{executable.normalization[3]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/aleksander_{executable.normalization[4]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/aleksander_{executable.normalization[5]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/aleksander_{executable.normalization[6]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/aleksander_{executable.normalization[7]}.nii',
-                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/aleksander_{executable.normalization[8]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/casimiro_{executable.normalization[9]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/casimiro_{executable.normalization[10]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/casimiro_{executable.normalization[11]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/casimiro_{executable.normalization[12]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/casimiro_{executable.normalization[13]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/casimiro_{executable.normalization[14]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/casimiro_{executable.normalization[15]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/casimiro_{executable.normalization[16]}.nii',
-                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/casimiro_{executable.normalization[17]}.nii',
+                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
+                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
+                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
+                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/nobias_aleksander.nii',
+                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/nobias_aleksander.nii',
+                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/nobias_aleksander.nii',
+                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/nobias_aleksander.nii',
+                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/nobias_aleksander.nii',
+                        '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/nobias_aleksander.nii',
+                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/nobias_casimiro.nii',
+                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/nobias_casimiro.nii',
+                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/nobias_casimiro.nii',
+                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/nobias_casimiro.nii',
+                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/nobias_casimiro.nii',
+                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/nobias_casimiro.nii',
+                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/nobias_casimiro.nii',
+                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/nobias_casimiro.nii',
+                        '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/nobias_casimiro.nii',
             ],
             'normalization': ['none',
                                 'aims',
@@ -588,24 +601,24 @@ class TestTinyMorphologist(unittest.TestCase):
                                 'aims',
                                 'fakespm8'],
             'right_hemisphere': [
-                                    '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/right_hemi_aleksander_{executable.normalization[0]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/right_hemi_aleksander_{executable.normalization[1]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/right_hemi_aleksander_{executable.normalization[2]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/right_hemi_aleksander_{executable.normalization[3]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/right_hemi_aleksander_{executable.normalization[4]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/right_hemi_aleksander_{executable.normalization[5]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/right_hemi_aleksander_{executable.normalization[6]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/right_hemi_aleksander_{executable.normalization[7]}.nii',
-                                    '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/right_hemi_aleksander_{executable.normalization[8]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/right_hemi_casimiro_{executable.normalization[9]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/right_hemi_casimiro_{executable.normalization[10]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/right_hemi_casimiro_{executable.normalization[11]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/right_hemi_casimiro_{executable.normalization[12]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/right_hemi_casimiro_{executable.normalization[13]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/right_hemi_casimiro_{executable.normalization[14]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/right_hemi_casimiro_{executable.normalization[15]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/right_hemi_casimiro_{executable.normalization[16]}.nii',
-                                    '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/right_hemi_casimiro_{executable.normalization[17]}.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_nobias_aleksander_right.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_aims_nobias_aleksander_right.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_right.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_nobias_aleksander_right.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_normalized_aims_nobias_aleksander_right.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_right.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_nobias_aleksander_right.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_normalized_aims_nobias_aleksander_right.nii',
+                                '!{dataset.output.path}/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_right.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_nobias_casimiro_right.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_normalized_aims_nobias_casimiro_right.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_right.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_nobias_casimiro_right.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_normalized_aims_nobias_casimiro_right.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_right.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_nobias_casimiro_right.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_normalized_aims_nobias_casimiro_right.nii',
+                                '!{dataset.output.path}/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_right.nii',
             ],
         }
 
@@ -631,44 +644,44 @@ class TestTinyMorphologist(unittest.TestCase):
                         f'{self.tmp}/bids/rawdata/sub-casimiro/ses-m24/anat/sub-casimiro_ses-m24_T1w.nii',
             ],
             'left_hemisphere': [
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/left_hemi_aleksander_fakespm8.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/left_hemi_aleksander_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/left_hemi_aleksander_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/left_hemi_aleksander_fakespm8.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/left_hemi_aleksander_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/left_hemi_aleksander_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/left_hemi_aleksander_fakespm8.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/left_hemi_casimiro_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/left_hemi_casimiro_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/left_hemi_casimiro_fakespm8.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/left_hemi_casimiro_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/left_hemi_casimiro_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/left_hemi_casimiro_fakespm8.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/left_hemi_casimiro_none.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/left_hemi_casimiro_aims.nii',
-                                f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/left_hemi_casimiro_fakespm8.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_nobias_aleksander_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_aims_nobias_aleksander_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_nobias_aleksander_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_normalized_aims_nobias_aleksander_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_nobias_aleksander_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_normalized_aims_nobias_aleksander_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_nobias_casimiro_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_normalized_aims_nobias_casimiro_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_nobias_casimiro_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_normalized_aims_nobias_casimiro_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_nobias_casimiro_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_normalized_aims_nobias_casimiro_left.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_left.nii',
             ],
             'nobias': [
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/aleksander_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/aleksander_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/aleksander_fakespm8.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/aleksander_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/aleksander_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/aleksander_fakespm8.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/aleksander_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/aleksander_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/aleksander_fakespm8.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/casimiro_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/casimiro_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/casimiro_fakespm8.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/casimiro_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/casimiro_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/casimiro_fakespm8.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/casimiro_none.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/casimiro_aims.nii',
-                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/casimiro_fakespm8.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/nobias_aleksander.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/nobias_aleksander.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/nobias_aleksander.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/nobias_aleksander.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/nobias_aleksander.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/nobias_aleksander.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/nobias_aleksander.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/nobias_casimiro.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/nobias_casimiro.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/nobias_casimiro.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/nobias_casimiro.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/nobias_casimiro.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/nobias_casimiro.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/nobias_casimiro.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/nobias_casimiro.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/nobias_casimiro.nii',
             ],
             'normalization': ['none',
                                 'aims',
@@ -689,24 +702,24 @@ class TestTinyMorphologist(unittest.TestCase):
                                 'aims',
                                 'fakespm8'],
             'right_hemisphere': [
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/right_hemi_aleksander_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/right_hemi_aleksander_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/right_hemi_aleksander_fakespm8.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/right_hemi_aleksander_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/right_hemi_aleksander_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/right_hemi_aleksander_fakespm8.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/right_hemi_aleksander_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/right_hemi_aleksander_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/right_hemi_aleksander_fakespm8.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/right_hemi_casimiro_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/right_hemi_casimiro_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/right_hemi_casimiro_fakespm8.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/right_hemi_casimiro_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/right_hemi_casimiro_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/right_hemi_casimiro_fakespm8.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/right_hemi_casimiro_none.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/right_hemi_casimiro_aims.nii',
-                                    f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/right_hemi_casimiro_fakespm8.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_nobias_aleksander_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_aims_nobias_aleksander_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_nobias_aleksander_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_normalized_aims_nobias_aleksander_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m12/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_nobias_aleksander_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_normalized_aims_nobias_aleksander_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/aleksander/tinymorphologist/m24/default_analysis/hemi_split_normalized_fakespm8_nobias_aleksander_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_nobias_casimiro_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_normalized_aims_nobias_casimiro_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m0/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_nobias_casimiro_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_normalized_aims_nobias_casimiro_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m12/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_nobias_casimiro_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_normalized_aims_nobias_casimiro_right.nii',
+                        f'{self.tmp}/brainvisa/whaterver/casimiro/tinymorphologist/m24/default_analysis/hemi_split_normalized_fakespm8_nobias_casimiro_right.nii',
             ]
         }
 
@@ -715,12 +728,12 @@ class TestTinyMorphologist(unittest.TestCase):
             non_iterative_plugs=['template'],
         )
 
-        class TinyMorphologistIterationBrainVISA(ProcessSchema, schema='brainvisa', process=tiny_morphologist_iteration):
-            _ = {
-                '*': {
-                    'suffix': lambda iteration_index, **kwargs: f'{{executable.normalization[{iteration_index}]}}',
-                }
-            }
+        # class TinyMorphologistIterationBrainVISA(ProcessSchema, schema='brainvisa', process=tiny_morphologist_iteration):
+        #     _ = {
+        #         '*': {
+        #             'suffix': lambda iteration_index, **kwargs: f'{{executable.normalization[{iteration_index}]}}',
+        #         }
+        #     }
 
         engine = self.capsul.engine()
         execution_context = engine.execution_context(tiny_morphologist_iteration)
@@ -734,8 +747,6 @@ class TestTinyMorphologist(unittest.TestCase):
             input_metadata = execution_context.dataset['input'].schema.metadata(path)
             inputs.extend([input_metadata]*3)
             normalizations += ['none', 'aims', 'fakespm8']
-        # Set the input data
-#        tiny_morphologist_iteration.input = inputs
         tiny_morphologist_iteration.normalization = normalizations
 
         
@@ -751,38 +762,68 @@ class TestTinyMorphologist(unittest.TestCase):
             self.assertEqual(getattr(tiny_morphologist_iteration, name), value,
                              f'Differing value for parameter {name}')
 
-        # run it
-        # Note: to run via soma-workflow, just set this:
-        # self.capsul.config.builtin.engine_type = 'soma_workflow'
+        with self.capsul.engine() as engine:
+            status = engine.run(tiny_morphologist_iteration, timeout=10)
 
-        #status = None
-        #try:
-            #with self.capsul.engine() as engine:
-                #status = engine.run(tiny_morphologist_iteration)
-        #except Exception:
-            #import traceback
-            #traceback.print_exc()
-
-        #self.assertEqual(
-            #status,
-            #{'status': 'ended', 'error': None, 'error_detail': None,
-              #'engine_output': ''})
+        self.assertEqual(
+            status,
+            'ended')
 
 
 if __name__ == '__main__':
-    # import sys
-    # sys.stdout.flush()
-    # from soma.qt_gui.qt_backend import QtGui
-    # from capsul.qt_gui.widgets import PipelineDeveloperView
-    # tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
-    # app = QtGui.QApplication.instance()
-    # if not app:
-    #     app = QtGui.QApplication(sys.argv)
-    # view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
-    # view1.show()
-    # app.exec_()
-    # del view1
-    t = TestTinyMorphologist()
-    t.setUp()
-    t.test_tiny_path_generation()
-    t.tearDown()
+    import sys
+    from soma.qt_gui.qt_backend import Qt
+    
+    qt_app = Qt.QApplication.instance()
+    if not qt_app:
+        qt_app = Qt.QApplication(sys.argv)
+    self = TestTinyMorphologist()
+    # self.subjects = [f'subject{i:04}' for i in range(1)]
+    print(f'Setting up config and data files for {len(self.subjects)} subjects and 3 time points')
+    self.setUp()
+    try:
+        tiny_morphologist_iteration = self.capsul.executable_iteration(
+            'capsul.test.test_tiny_morphologist.TinyMorphologist',
+            non_iterative_plugs=['template'],
+        )
+
+        engine = self.capsul.engine()
+        execution_context = engine.execution_context(tiny_morphologist_iteration)
+
+        # Parse the dataset with BIDS-specific query (here "suffix" is part
+        #  of BIDS specification). The object returned contains info for main
+        # BIDS fields (sub, ses, acq, etc.)
+        inputs = []
+        normalizations = []
+        for path in sorted(self.capsul.config.builtin.dataset.input.find(suffix='T1w', extension='nii')):
+            input_metadata = execution_context.dataset['input'].schema.metadata(path)
+            inputs.extend([input_metadata]*3)
+            normalizations += ['none', 'aims', 'fakespm8']
+        tiny_morphologist_iteration.normalization = normalizations
+
+        
+        metadata = ProcessMetadata(tiny_morphologist_iteration, execution_context)
+        metadata.bids = inputs
+        metadata.generate_paths(tiny_morphologist_iteration)
+
+        with self.capsul.engine() as engine:
+            execution_id = engine.start(tiny_morphologist_iteration)
+            try:
+                widget = execution_widget(engine.database, engine.engine_id, execution_id)
+                widget.show()
+                from capsul.qt_gui.widgets import PipelineDeveloperView
+                tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
+                # view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
+                # view1.show()
+                qt_app.exec_()
+                del widget
+                # del view1
+                engine.wait(execution_id, timeout=1000)
+                # engine.raise_for_status(execution_id)
+            except TimeoutError:
+                # engine.print_execution_report(engine.execution_report(engine.engine_id, execution_id))
+                raise
+            finally:
+                engine.dispose(execution_id)
+    finally:
+        self.tearDown()

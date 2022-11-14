@@ -8,11 +8,10 @@ import unittest
 import time
 import copy
 
-from soma.controller import field, File
 from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
-from capsul.config.configuration import ModuleConfiguration, default_workers_type, default_database_url
+from capsul.config.configuration import ModuleConfiguration, default_engine_database, default_engine_start_workers
 from capsul.dataset import ProcessMetadata, ProcessSchema, MetadataSchema
 
 class FakeSPMConfiguration(ModuleConfiguration):
@@ -447,24 +446,43 @@ class MorphologistBrainVISA(ProcessSchema, schema='brainvisa',
                             process=Morphologist):
     _ = {
         '*': {'process': None, 'modality': 't1mri'},
-        'GreyWhiteClassification.*': {'side': 'L'},
-        'GreyWhiteTopology.*': {'side': 'L'},
-        'GreyWhiteMesh.*': {'sidebis': 'L'},
-        'PialMesh.*': {'sidebis': 'L'},
-        'SulciSkeleton.*': {'side': 'L'},
-        'CorticalFoldsGraph.*': {'side': 'L'},
-        'SulciRecognition.*': {'side': 'L'},
-        '*_1.*': {'side': 'R'},
-        'GreyWhiteMesh_1.*': {'sidebis': 'R', 'side': None},
-        'PialMesh_1.*': {'sidebis': 'R', 'side': None},
-        'SulciRecognition*.*': {
+    }
+
+    _nodes = {
+        'GreyWhiteClassification': {'*': {'side': 'L'}},
+        'GreyWhiteTopology': {'*': {'side': 'L'}},
+        'GreyWhiteMesh' : {'*': {'sidebis': 'L'}},
+        'PialMesh': {'*': {'sidebis': 'L'}},
+        'SulciSkeleton': {'*': {'side': 'L'}},
+        'CorticalFoldsGraph': {'*': {'side': 'L'}},
+        'SulciRecognition': {'*': {'side': 'L'}},
+        '*_1': {'*': {'side': 'R'}},
+        'GreyWhiteMesh_1': {'*': {'sidebis': 'R', 'side': None}},
+        'PialMesh_1': {'*': {'sidebis': 'R', 'side': None}},
+        'SulciRecognition*': {'*': {
             'sulci_graph_version':
                 lambda **kwargs:
                     f'{kwargs["process"].CorticalFoldsGraph_graph_version}',
             'sulci_recognition_session': 'default_session_auto',
-        },
+            'prefix': None,
+            'sidebis': None,
+        }},
     }
-    imported_t1mri = {'analysis': undefined}
+    imported_t1mri = {
+        'analysis': undefined,
+        'side': None,
+        'sidebis': None,
+        'seg_directory': None,
+        'suffix': None,
+        'extension': 'nii',
+    }
+    t1mri_nobias = {
+        'side': None,
+        'sidebis': None,
+        'seg_directory': None,
+        'suffix': None,
+        'extension': 'nii',
+    }
     t1mri_referential= {
         'analysis': undefined,
         'seg_directory': 'registration',
@@ -472,14 +490,22 @@ class MorphologistBrainVISA(ProcessSchema, schema='brainvisa',
         'suffix': lambda **kwargs:
             f'{kwargs["metadata"].acquisition}',
         'extension': 'referential'}
-    reoriented_t1mri = {'analysis': undefined}
     Talairach_transform = {
         'analysis': undefined,
         'seg_directory': 'registration',
+        'prefix': '',
         'short_prefix': 'RawT1-',
         'suffix': lambda **kwargs:
             f'{kwargs["metadata"].acquisition}_TO_Talairach-ACPC',
+        'side': None,
+        'sidebis': None,
         'extension': 'trm'}
+    left_labelled_graph = {
+        'part': 'left_hemi'
+    }
+    right_labelled_graph = {
+        'part': 'right_hemi'
+    }
 
 
 class MorphologistShared(ProcessSchema, schema='shared', process=Morphologist):
@@ -707,7 +733,7 @@ class TestFakeMorphologist(unittest.TestCase):
         with self.config_file.open('w') as f:
             json.dump(config, f)
 
-        self.capsul = Capsul('test_fake_morphologist', site_file=self.config_file)
+        self.capsul = Capsul('test_fake_morphologist', site_file=self.config_file, user_file=None)
         return super().setUp()
 
     def tearDown(self):
@@ -722,8 +748,8 @@ class TestFakeMorphologist(unittest.TestCase):
         self.maxDiff = 2000
         expected_config = {
             'builtin': {
-                'workers_type': default_workers_type,
-                'database_url': default_database_url,
+                'database': default_engine_database,
+                'start_workers': default_engine_start_workers,
                 'dataset': {
                     'input': {
                         'path': str(self.tmp / 'bids'),
@@ -1009,7 +1035,7 @@ class TestFakeMorphologist(unittest.TestCase):
 
         bv_schema_diff = [
           ([], []),
-          (['normalized_t1mri', 'MNI_transform'], ['reoriented_t1mri']),
+          (['normalized_t1mri', 'MNI_transform'], []),
           (['normalized_t1mri', 'MNI_transform',
             'normalization_spm_native_transformation',
             'normalization_spm_native_transformation_pass1'],
@@ -1069,7 +1095,7 @@ class TestFakeMorphologist(unittest.TestCase):
                 })
 
             t0 = time.time()
-            metadata.generate_paths(morphologist, debug=False)
+            metadata.generate_paths(morphologist)
             t1 = time.time()
             print('completion time:', t1 - t0, 's')
 
@@ -1405,4 +1431,14 @@ def test():
     return runtime.wasSuccessful()
 
 if __name__ == '__main__':
-    test()
+    morphologist = Capsul.executable('capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
+    parent = morphologist.nodes['SulciRecognition'].get_pipeline()
+    print(parent)
+    # t = TestFakeMorphologist()
+    # t.subjects = [f'subject_{i:04}' for i in range(2000)]
+    # print(f'Setting up config and data files for {len(t.subjects)} subjects and 3 time points')
+    # t.setUp()
+    # try:
+    #     ...
+    # finally:
+    #     t.tearDown()
