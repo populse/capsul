@@ -1,0 +1,9 @@
+<html>
+    <body>
+        <ul>
+        {%- for field in capsul.config.fields() %}
+        <li>{{field.name}}</li>
+        {%- endfor %}
+        </ul>
+    </body>
+</html>
