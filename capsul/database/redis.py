@@ -13,40 +13,33 @@ import redis
 from . import ExecutionDatabase
 
 
-class RedisExecutionPipeline:
-    def __init__(self, pipeline, execution_id):
-        self.pipeline = pipeline
-        self.execution_id = execution_id
-
-    def key(self, name):
-        return f'capsul:{self.execution_id}:{name}'
-    
-    def get(self, name):
-        return self.pipeline.get(self.key(name))
-
-    def set(self, name, value):
-        self.pipeline.set(self.key(name), value)
-
-    def set_list(self, name, values):
-        key = self.key(name)
-        self.pipeline.delete(key)
-        if values:
-            self.pipeline.rpush(key, *values)
-
-    def hset(self, name, item, value):
-        self.pipeline.hset(self.key(name), item, value)
-
-    def rpush(self, name, value):
-        self.pipeline.rpush(self.key(name), value)
-
-    def delete(self, name):
-        self.pipeline.delete(self.key(name))
-
-    def execute(self):
-        return self.pipeline.execute()
-
 class RedisExecutionDatabase(ExecutionDatabase):
-    def __enter__(self):
+    @property
+    def is_ready(self):
+        if self.config['type'] == 'redis+socket':
+            return os.path.exists(f'{self.path}.socket')
+        else:
+            r = self._connect(socket_connect_timeout=1)
+            try:
+                r.ping()
+                return True
+            except (redis.ConnectionError, redis.TimeoutError):
+                return False
+
+    def _connect(self, **kwargs):
+      return redis.Redis(host=self.config['host'], port=self.config.get('port'),
+                         **kwargs)
+
+    @property
+    def is_connected(self):
+        return hasattr(self, 'redis')
+
+
+    def engine_id(self, label):
+        return self.redis.hget('capsul:engine', label)
+
+
+    def _enter(self):
         self.uuid = str(uuid4())
 
         if self.config['type'] == 'redis+socket':
@@ -86,8 +79,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
                                           decode_responses=True)
         elif self.config['type'] == 'redis':
-            self.redis  = redis.Redis(host=self.config['host'], port=self.config.get('port'),
-                                      decode_responses=True)
+            self.redis = self._connect(decode_responses=True)
             if self.config.get('login'):
                 self.redis.auth(self.config['password'], self.config['login'])
         else:
@@ -404,17 +396,15 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 return false
             end
             ''')
-
-        return self
     
 
-    def __exit__(self, exception_type, exception_value, exception_traceback):
+    def _exit(self):
         self.redis.hdel('capsul:connections', self.uuid)
         self.check_shutdown()
         del self.redis
    
 
-    def connect_to_engine(self, engine):
+    def get_or_create_engine(self, engine):
         engine_id = self.redis.hget('capsul:engine', engine.label)
         if not engine_id:
             # Create new engine in database
@@ -438,11 +428,9 @@ class RedisExecutionDatabase(ExecutionDatabase):
         raise ValueError(f'Invalid engine_id: {engine_id}')
 
 
-    def number_of_workers_to_start(self, engine_id):
-        config = self.engine_config(engine_id)
+    def workers_count(self, engine_id):
         workers = json.loads(self.redis.hget(f'capsul:{engine_id}', 'workers'))
-        requested = config.get('start_workers', {}).get('count', 0)
-        return max(0, requested - len(workers))
+        return len(workers)
 
 
     def worker_database_config(self, engine_id):

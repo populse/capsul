@@ -75,7 +75,6 @@ class Capsul(Singleton):
                 for user_file in ('~/.config/capsul/capsul_user.json',
                                   '~/.config/capsul/capsul_user.py'):
                     user_file = os.path.expanduser(user_file)
-                    print('!?!', user_file)
                     if os.path.exists(user_file):
                         break
                 else:
@@ -97,7 +96,6 @@ class Capsul(Singleton):
             site_file=str(site_file)
         if isinstance(user_file, Path):
             user_file=str(user_file)
-        print('!!!', user_file)
         c = ApplicationConfiguration(app_name=app_name, user_file=user_file, site_file=site_file)
         self.config = c.merged_config
 
@@ -124,6 +122,12 @@ class Capsul(Singleton):
         '''
         return executable(definition, **kwargs)
 
+    def engines(self):
+        for field in self.config.fields():
+            if field.name != 'databases':
+                yield self.engine(field.name)
+    
+    
     def engine(self, name='builtin'):
         ''' Get a :class:`~capsul.engine.Engine` instance
         '''
@@ -133,7 +137,7 @@ class Capsul(Singleton):
         engine_config = getattr(self.config, name, None)
         if engine_config is None:
             raise ValueError(f'engine "{name}" is not configured.')
-        return Engine(name, engine_config)
+        return Engine(name, engine_config, databases_config=self.config.databases)
     
     def dataset(self, path):
         ''' Get a :class:`~.dataset.DataSet` instance associated with the given path

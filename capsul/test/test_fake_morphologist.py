@@ -11,7 +11,7 @@ import copy
 from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
-from capsul.config.configuration import ModuleConfiguration, default_engine_database, default_engine_start_workers
+from capsul.config.configuration import ModuleConfiguration, default_engine_start_workers
 from capsul.dataset import ProcessMetadata, ProcessSchema, MetadataSchema
 
 class FakeSPMConfiguration(ModuleConfiguration):
@@ -747,8 +747,15 @@ class TestFakeMorphologist(unittest.TestCase):
     def test_fake_morphologist_config(self):
         self.maxDiff = 2000
         expected_config = {
+            'databases': {
+                'builtin': {
+                    'path': '/tmp/capsul_engine_database.rdb',
+                    'type': 'redis+socket'
+                }
+            },
+
             'builtin': {
-                'database': default_engine_database,
+                'database': 'builtin',
                 'start_workers': default_engine_start_workers,
                 'dataset': {
                     'input': {

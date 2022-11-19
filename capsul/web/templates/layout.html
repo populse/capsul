@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title or 'Capsul'}}</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  {%- if server_type=='qt' %}
+  <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
+  <script type="text/javascript">
+    var backend = null;
+    window.onload = function()
+    {
+        new QWebChannel(qt.webChannelTransport, function(channel) {
+            backend = channel.objects.backend;
+            <!-- backend.print('page loaded'); -->
+        });
+    }
+  </script>
+{%- else %}
+<script type="text/javascript">
+  class Backend {};
+  {%- for name, method in backends.items() %}
+    Backend.prototype.{{name}} = function ({% for p in method._params %}{{p}}, {% endfor %}{% if method._return %}handler{% endif %}) {
+      var xmlhttp = new XMLHttpRequest();
+    {%- if method._return %}
+      xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var result = JSON.parse(this.responseText);
+            handler(result);
+        }
+      };
+      {%- endif %}
+  
+      xmlhttp.open("GET", "{{base_url}}/backend/{{name}}"{% for p in method._params %} + "/" + {{p}}{% endfor %}, true);
+      xmlhttp.send();
+    }
+  {%- endfor %}
+
+  var backend = null;
+  window.onload = function()
+  {
+      backend = new Backend();
+  }
+
+</script>
+{%- endif %}
+{% block head -%}
+{%- endblock %}
+</head>
+
+<body>
+{% block body -%}
+{%- endblock %}
+{% block script -%}
+{%- endblock %}
+</body>
+</html>

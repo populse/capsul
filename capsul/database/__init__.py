@@ -87,13 +87,26 @@ class ExecutionDatabase:
     def __init__(self, config):
         self.config = config
         self._path = None
+        self.nested_context = 0
 
     @property
     def path(self):
         if self._path is None:
             self._path = self.config.get('path')
         return self._path
+
+    def __enter__(self):
+        if self.nested_context == 0:
+            self._enter()
+        self.nested_context += 1
+        return self
+            
+    def __exit__(self, exception_type, exception_value, exception_traceback):
+        self.nested_context -= 1
+        if self.nested_context == 0:
+            self._exit()
     
+
     def workers_command(self, engine_id):
         workers_command = []
         config = self.engine_config(engine_id)
@@ -366,18 +379,33 @@ class ExecutionDatabase:
                 executable.enable_parameter_links = enable_parameter_links
 
 
-    def __enter__(self):
+    @property
+    def is_ready(self):
+        raise NotImplementedError
+
+    
+    @property
+    def is_connected(self):
         raise NotImplementedError
 
 
-    def __exit__(self, exception_type, exception_value, exception_traceback):
+    def engine_id(self, label):
         raise NotImplementedError
 
 
-    def connect_to_engine(self, engine):
+    def _enter(self):
+        raise NotImplementedError
+
+
+    def _exit(self):
+        raise NotImplementedError
+
+
+    def get_or_create_engine(self, engine):
         '''
-        Creates a connection to an engine in the database.
-        Engine is created if it does not exists.
+        If engine with given label is in the database, simply return its
+        engine_id. Otherwise, create a new engine in the database and return
+        its engine_id.
         '''
         raise NotImplementedError
 
@@ -389,10 +417,9 @@ class ExecutionDatabase:
         raise NotImplementedError
 
 
-    def number_of_workers_to_start(self, engine_id):
+    def workers_count(self, engine_id):
         '''
-        Return the number of workers to start in order to reach the
-        workers_count number defined in engine configuration.
+        Return the number of workers that are running.
         '''
         raise NotImplementedError
 

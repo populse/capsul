@@ -1,9 +1,37 @@
-<html>
-    <body>
-        <ul>
-        {%- for field in capsul.config.fields() %}
-        <li>{{field.name}}</li>
-        {%- endfor %}
-        </ul>
-    </body>
-</html>
+{% extends 'layout.html' %}
+{%block body %}
+  <h1>The dashboard</h1>
+
+  <table>
+  <thead>
+    <th>Label</th>
+    <th>Connected</th>
+  </thead>
+  <tbody>
+  {%- for engine in capsul.engines() %}
+    {%- set status = engine.engine_status() -%}
+    <tr>
+      <td><a href="{{base_url}}/engine/{{engine.label}}">{{engine.label}}</a></td>
+      {% if status['database_connected'] %}
+      <td>✅ <button>Disconnect</button></td>
+      {% else %}
+      <td>❌ <button id="connect">Connect</button></td>
+      {% endif %}
+    </tr>
+  {%- endfor %}
+  </tbody>
+  </table>
+  <input id="input"><button id="button">go</button>
+  <p id="result"></p>
+{% endblock %}
+{% block script %}
+<script>
+  document.getElementById("button").addEventListener("click", (event) => {
+      backend.print("clicked");
+      backend.hello(document.getElementById("input").value,
+        function (value) {
+          document.getElementById("result").innerText = value;
+        });
+  });
+</script>
+{% endblock %}

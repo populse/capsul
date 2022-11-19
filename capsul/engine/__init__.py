@@ -63,52 +63,81 @@ def execution_context(engine_label, engine_config, executable):
         setattr(execution_context, module_name,  valid_config)
     return execution_context
 
-class Engine(Controller):
+class Engine:
 
-    def __init__(self, label, config):
+    def __init__(self, label, config, databases_config):
         super().__init__()
         self.label = label
         self.config = config
+        self.database_config = databases_config[self.config.database]
+        self.database = engine_database(self.database_config)
+        self.nested_context = 0
 
     def __enter__(self):
-        # Connect to the database
-        self.database = engine_database(self.config.database)
-        self.database.__enter__()
-        # Connect to the engine in the database. Adds the engine in
-        # the database if it does not exist.
-        self.engine_id = self.database.connect_to_engine(self)
-
-        # Starts workers if necessary
-        self.start_workers()
+        if self.nested_context == 0:
+            # Connect to the database
+            self.database.__enter__()
+            # Connect to the engine in the database. Adds the engine in
+            # the database if it does not exist.
+            self.engine_id = self.database.get_or_create_engine(self)
+        self.nested_context += 1
         return self
+
+    def engine_status(self):
+        result = {
+        }
+        result['database_connected'] = self.database.is_connected
+        if result['database_connected']:
+            result['database_ready'] = True
+            database = self.database
+        else:
+            result['database_ready'] = self.database.is_ready
+            if result['database_ready']:
+                database = engine_database(self.database_config)
+            else:
+                database = None
+        if database:
+            with database:
+                engine_id = result['engine_id'] = database.engine_id(self.label)
+                if engine_id:
+                    result['workers_count'] = database.workers_count(engine_id)
+        return result
+
 
     def start_workers(self):
         db_config = self.database.worker_database_config(self.engine_id)
-        env = os.environ.copy()
-        env['CAPSUL_WORKER_DATABASE'] = json.dumps(db_config)
-        for i in range(self.database.number_of_workers_to_start(self.engine_id)):
-            workers_command = self.database.workers_command(self.engine_id)
-            try:
-                subprocess.run(
-                    workers_command,
-                    capture_output=False,
-                    check=True,
-                    env=env
-                )
-            except Exception as e:
-                quote = lambda x: f"'{x}'"
-                raise RuntimeError(f'Command failed: {" ".join(quote(i) for i in workers_command)}') from e
+        requested = self.config.start_workers.get('count', 0)
+        start_count = max(0, requested - self.database.workers_count(self.engine_id))
+        if start_count:
+            env = os.environ.copy()
+            env['CAPSUL_WORKER_DATABASE'] = json.dumps(db_config)
+            for i in range(start_count):
+                workers_command = self.database.workers_command(self.engine_id)
+                try:
+                    subprocess.run(
+                        workers_command,
+                        capture_output=False,
+                        check=True,
+                        env=env
+                    )
+                except Exception as e:
+                    quote = lambda x: f"'{x}'"
+                    raise RuntimeError(f'Command failed: {" ".join(quote(i) for i in workers_command)}') from e
         
        
     def __exit__(self, exception_type, exception_value, exception_traceback):
-        self.database.dispose_engine(self.engine_id)
-        self.database.__exit__(exception_type, exception_value, exception_traceback)
-        del self.engine_id
+        self.nested_context -= 1
+        if self.nested_context == 0:
+            self.database.dispose_engine(self.engine_id)
+            self.database.__exit__(exception_type, exception_value, exception_traceback)
+            del self.engine_id
     
     def execution_context(self, executable):
         return execution_context(self.label, self.config, executable)
 
     def start(self, executable, debug=False, **kwargs):
+        # Starts workers if necessary
+        self.start_workers()
         for name, value in kwargs.items():
             setattr(executable, name, value)
         econtext = execution_context(self.label, self.config, executable)

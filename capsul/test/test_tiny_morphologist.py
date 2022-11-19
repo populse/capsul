@@ -11,7 +11,7 @@ from soma.controller import field, File
 from soma.controller import Directory, undefined
 
 from capsul.api import Capsul, Process, Pipeline
-from capsul.config.configuration import ModuleConfiguration, default_engine_database, default_engine_start_workers
+from capsul.config.configuration import ModuleConfiguration, default_engine_start_workers
 from capsul.dataset import ProcessMetadata, ProcessSchema, Prepend, Append
 
 
@@ -359,8 +359,15 @@ class TestTinyMorphologist(unittest.TestCase):
     def test_tiny_morphologist_config(self):
         self.maxDiff = 2000
         expected_config = {
+            'databases': {
+                'builtin': {
+                    'path': '/tmp/capsul_engine_database.rdb',
+                    'type': 'redis+socket'
+                }
+            },
+
             'builtin': {
-                'database': default_engine_database,
+                'database': 'builtin',
                 'start_workers': default_engine_start_workers,
                 'dataset': {
                     'input': {

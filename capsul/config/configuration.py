@@ -14,7 +14,7 @@ from soma.undefined import undefined
 from ..dataset import Dataset
 
 
-default_engine_database = {
+default_builtin_database = {
     'type': 'redis+socket',
     'path': f'{tempfile.gettempdir()}{os.sep}capsul_engine_database.rdb',
 }
@@ -155,7 +155,7 @@ class EngineConfiguration(Controller):
     config_modules: list[str]
     python_modules: list[str]
 
-    database: field(type_=dict, default_factory= lambda: default_engine_database)
+    database: str = 'builtin'
     
     start_workers: field(type_=dict, default_factory = lambda: default_engine_start_workers)
 
@@ -229,12 +229,19 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
 
     def __init__(self):
         super().__init__()
+        self.add_field('databases', dict[str, dict],
+            default_factory=lambda: {'builtin': default_builtin_database})
         self.add_field(
             'builtin', EngineConfiguration, default_factory=EngineConfiguration,
             doc='Default builtin computing resource config. Elements are config '
             'modules which should be registered in the application (spm, fsl, '
             '...)')
 
+    def import_dict(self, d, clear=False):
+        builtin = self.databases['builtin']
+        super().import_dict(d, clear=clear)
+        self.databases.setdefault('builtin', builtin)
+    
     def load(self, filename):
         ''' Load configuration from a JSON or YAML file
         '''

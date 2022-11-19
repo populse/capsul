@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
-from jinja2 import Environment, PackageLoader, select_autoescape
 
-from capsul.api import Capsul
+import http, http.server
+import sys
 
-env = Environment(
-    loader=PackageLoader('capsul.web'),
-    autoescape=select_autoescape()
-)
+from capsul.web import CapsulHTTPHandler, CapsulBrowserWindow
 
-capsul = Capsul()
-template = env.get_template('dashboard.html')
-print(template.render(capsul=capsul))
+from soma.qt_gui.qt_backend import Qt
+
+
+    
+
+# httpd = http.server.HTTPServer(('', 8080), CapsulHTTPHandler)
+# httpd.serve_forever()
+
+app = Qt.QApplication(sys.argv)
+w = CapsulBrowserWindow()
+w.browser.page()._load_template('dashboard')
+w.show()
+app.exec_()
