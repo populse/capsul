@@ -20,6 +20,15 @@ class WebRoutes:
         self.base_url = base_url
         self.server_type = server_type
         self._backend = backend
+        if backend:
+            cls = backend.__class__
+            self._backend_methods = {}
+            for attr in cls.__dict__:
+                if attr.startswith('_'):
+                    continue
+                self._backend_methods[attr] = getattr(cls, attr)
+        else:
+            self._backend_methods = None
     
 
     def _result(self, template, **kwargs):
@@ -27,37 +36,27 @@ class WebRoutes:
         kwargs['base_url'] = self.base_url
         kwargs['server_type'] = self.server_type
         if self._backend:
-            cls = self._backend.__class__
-            backends = {}
-            for attr in cls.__dict__:
-                if attr.startswith('_'):
-                    continue
-                backends[attr] = getattr(cls, attr)
-            kwargs['backends'] = backends
+            kwargs['backends'] = self._backend_methods
         return (template, kwargs)
 
 
-    def _resolve(self, path):
+    def _resolve(self, path, *args):
         if path:
             if path[0] == '/':
                 path = path[1:]
             paths = path.split('/')
-            if paths:
-                name = paths[0]
-                args = paths[1:]
-                method = getattr(self, name, None)
+            name = paths[0]
+            path_args = paths[1:]
+            method = getattr(self, name, None)
+            if method:
+                return method(*(tuple(path_args) + args))
+            if path.startswith('backend/') and self._backend:
+                name = path[8:]
+                method = getattr(self._backend, name, None)
                 if method:
                     return method(*args)
-                if name == 'backend' and self._backend and args:
-                    name = args[0]
-                    args = args[1:]
-                    method = getattr(self._backend, name)
-                    if method:
-                        result = method(*args)
-                        if result is None:
-                            return 'none'
-                        else:
-                            return result
+        raise ValueError('Invalid path')
+
 
     def dashboard(self):
         return self._result('dashboard.html')
@@ -103,15 +102,31 @@ class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler):
         super().__init__(request, client_address, server)
 
 
-    def send_head(self):
-        # abandon query parameters
+    def do_GET(self):
+        # Read JSON body if any
+        print('!do_GET! Content-Type', self.headers.get('Content-Type'))
+        if self.headers.get('Content-Type') == 'application/json':
+            print('!do_GET! Content-Length', self.headers.get('Content-Length'))
+            length = int(self.headers.get('Content-Length'))
+            if length:
+                args = json.loads(self.rfile.read(length))
+                print('!do_GET! args', args)
+        else:
+            args = []
         path = self.path.split('?',1)[0]
         path = path.split('#',1)[0]
-        template_data = self.routes._resolve(path)
+        try:
+            template_data = self.routes._resolve(path, *args)
+        except ValueError as e:
+            self.send_error(400, str(e))
+            return None
+        except Exception as e:
+            self.send_error(500, str(e))
+            return None
+        
         header = {}
         if template_data is None:
-            self.send_error(http.HTTPStatus.NOT_FOUND, "Page not found")
-            return None
+            body = None
         elif isinstance(template_data, tuple):
             template, data = template_data
             try:
@@ -119,30 +134,42 @@ class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler):
             except jinja2.TemplateNotFound:
                 self.send_error(http.HTTPStatus.NOT_FOUND, "Template not found")
                 return None
-            header['Content-type'] = 'text/html'
+            header['Content-Type'] = 'text/html'
             header['Last-Modified'] = self.date_time_string(os.stat(template.filename).st_mtime)
             body = template.render(**data)
         else:
-            header['Content-type'] = 'application/json'
+            header['Content-Type'] = 'application/json'
+            # The following line introduces a security issue by allowing any 
+            # site to use the backend. But this is a demo only server.
             header['Access-Control-Allow-Origin'] = '*'
+            header['Access-Control-Allow-Methods'] = 'GET,POST'
+            header['Access-Control-Allow-Headers'] = 'Content-Type'
             body = json.dumps(template_data)
         
         self.send_response(http.HTTPStatus.OK)
         for k, v in header.items():
             self.send_header(k, v)
-        self.send_header("Content-Length", str(len(body)))
+
+        if body is not None:
+            body = body.encode('utf8')
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        else:
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+
+    def do_OPTION(self):
+        # The following line introduces a security issue by allowing any 
+        # site to use the backend. But this is a demo only server.
+        self.send_response(http.HTTPStatus.OK)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET,POST')
+        self.send_header('Access-Control-Allow-HEADERS', 'Content-Type')
         self.end_headers()
-        return body
 
-
-    def do_GET(self):
-        f = self.send_head()
-        if f is not None:
-           self.wfile.write(f.encode('utf8'))
-
-
-    def do_HEAD(self):
-        self.send_head()
+    def do_POST(self):
+        return self.do_GET()
 
 
 class CapsulWebPage(QWebEnginePage):
@@ -154,7 +181,8 @@ class CapsulWebPage(QWebEnginePage):
         )
         self._routes = WebRoutes()
         self._backend = WebBackend()
-        
+
+
     def _load_template(self, path):
         template_data = self._routes._resolve(path)
         if template_data:

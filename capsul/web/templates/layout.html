@@ -21,20 +21,24 @@
 <script type="text/javascript">
   class Backend {};
   {%- for name, method in backends.items() %}
-    Backend.prototype.{{name}} = function ({% for p in method._params %}{{p}}, {% endfor %}{% if method._return %}handler{% endif %}) {
-      var xmlhttp = new XMLHttpRequest();
+  Backend.prototype.{{name}} = function ({% for p in method._params %}{{p}}, {% endfor %}{% if method._return %}handler{% endif %}) {
     {%- if method._return %}
-      xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var result = JSON.parse(this.responseText);
-            handler(result);
-        }
-      };
-      {%- endif %}
-  
-      xmlhttp.open("GET", "{{base_url}}/backend/{{name}}"{% for p in method._params %} + "/" + {{p}}{% endfor %}, true);
-      xmlhttp.send();
-    }
+        const args = Object.values(arguments).slice(0,-1);
+    {%- else %}
+      const args = Object.values(arguments);
+    {%- endif %}
+    const f = fetch("{{base_url}}/backend/{{name}}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(args)
+    });
+    {%- if method._return %}
+      const r = f.then(response => response.json());
+      r.then(data => handler(data));
+    {%- endif %}
+  }
   {%- endfor %}
 
   var backend = null;
