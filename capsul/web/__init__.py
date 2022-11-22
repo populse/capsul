@@ -139,14 +139,14 @@ class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler):
             body = template.render(**data)
         else:
             header['Content-Type'] = 'application/json'
-            # The following line introduces a security issue by allowing any 
-            # site to use the backend. But this is a demo only server.
-            header['Access-Control-Allow-Origin'] = '*'
-            header['Access-Control-Allow-Methods'] = 'GET,POST'
-            header['Access-Control-Allow-Headers'] = 'Content-Type'
             body = json.dumps(template_data)
         
         self.send_response(http.HTTPStatus.OK)
+        # The following line introduces a security issue by allowing any 
+        # site to use the backend. But this is a demo only server.
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET,POST')
+        self.send_header('Access-Control-Allow-HEADERS', 'Content-Type')
         for k, v in header.items():
             self.send_header(k, v)
 
@@ -159,7 +159,7 @@ class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler):
             self.send_header("Content-Length", "0")
             self.end_headers()
 
-    def do_OPTION(self):
+    def do_OPTIONS(self):
         # The following line introduces a security issue by allowing any 
         # site to use the backend. But this is a demo only server.
         self.send_response(http.HTTPStatus.OK)

@@ -27,8 +27,9 @@
 {% block script %}
 <script>
   document.getElementById("button").addEventListener("click", (event) => {
+      const input_value = document.getElementById("input").value;
       backend.print("clicked");
-      backend.hello(document.getElementById("input").value,
+      backend.hello(input_value,
         function (value) {
           document.getElementById("result").innerText = value;
         });
