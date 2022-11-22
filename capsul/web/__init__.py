@@ -68,6 +68,7 @@ class WebRoutes:
         if engine:
             return self._result('engine.html', engine=engine)
 
+
 def backend(function):
     args = [type for name, type in function.__annotations__.items() if name != 'return']
     return_type = function.__annotations__.get('return')
@@ -79,14 +80,17 @@ def backend(function):
     result._return = return_type
     return result
 
+
 class WebBackend(Qt.QObject):
     @backend
     def print(self, text: str):
         print('python:', text)
 
+
     @backend
     def hello(self, text: str) -> str:
         return f'Hello, {text} !'
+
 
 class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server):
@@ -104,13 +108,10 @@ class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         # Read JSON body if any
-        print('!do_GET! Content-Type', self.headers.get('Content-Type'))
         if self.headers.get('Content-Type') == 'application/json':
-            print('!do_GET! Content-Length', self.headers.get('Content-Length'))
             length = int(self.headers.get('Content-Length'))
             if length:
                 args = json.loads(self.rfile.read(length))
-                print('!do_GET! args', args)
         else:
             args = []
         path = self.path.split('?',1)[0]
