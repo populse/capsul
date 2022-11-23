@@ -124,7 +124,7 @@ class ExecutionDatabase:
             login = ssh.get('login')
             if login:
                 host = f'{login}@{host}'
-            workers_command += ['ssh', '-f', host]
+            workers_command += ['ssh', '-o', 'StrictHostKeyChecking=no', '-f', host]
             db_config = db_config.replace('"',r'\"').replace(',', r'\,')
         
         casa_dir = config.get('casa_dir')
