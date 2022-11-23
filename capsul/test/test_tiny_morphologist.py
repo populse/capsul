@@ -5,7 +5,6 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
-from capsul.qt_gui.execution_gui import execution_widget
 
 from soma.controller import field, File
 from soma.controller import Directory, undefined
@@ -780,6 +779,7 @@ class TestTinyMorphologist(unittest.TestCase):
 if __name__ == '__main__':
     import sys
     from soma.qt_gui.qt_backend import Qt
+    from capsul.qt_gui.execution_gui import execution_widget
     
     qt_app = Qt.QApplication.instance()
     if not qt_app:
