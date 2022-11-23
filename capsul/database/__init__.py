@@ -110,6 +110,7 @@ class ExecutionDatabase:
 
     def workers_command(self, engine_id):
         db_config = self.worker_database_config(self.engine_id)
+        db_config = json.dumps(db_config, separators=(',',':'))
         workers_command = []
         config = self.engine_config(engine_id)
         config = config.get('start_workers')
@@ -124,12 +125,13 @@ class ExecutionDatabase:
             if login:
                 host = f'{login}@{host}'
             workers_command += ['ssh', '-f', host]
+            db_config = db_config.replace('"',r'\"').replace(',', r'\,')
         
         casa_dir = config.get('casa_dir')
         if casa_dir:
             workers_command.append(f'{casa_dir}/bin/bv')
 
-        workers_command += ['python', '-m', f'capsul.engine.builtin', engine_id, json.dumps(db_config)]
+        workers_command += ['python', '-m', f'capsul.engine.builtin', engine_id, db_config]
         return workers_command
     
     def new_execution(self, executable, engine_id, execution_context, workflow, start_time):

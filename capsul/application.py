@@ -85,7 +85,9 @@ class Capsul(Singleton):
             site_file = os.environ.get('CAPSUL_SITE_CONFIG')
             if site_file is None:
                 for site_file in (os.path.expandvars('$CASA_CONF/capsul_site.json'),
-                                  '/etc/capsul/capsul_site.json'):
+                                  os.path.expandvars('$CASA_CONF/capsul_site.py'),
+                                  '/etc/capsul/capsul_site.json',
+                                  '/etc/capsul/capsul_site.py'):
                     if os.path.exists(site_file):
                         break
                 else:
