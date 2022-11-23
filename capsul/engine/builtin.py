@@ -12,20 +12,17 @@ from capsul.run import run_job
 
           
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        raise ValueError('This command must be called with one '
-            'parameter: an engine id')
+    if len(sys.argv) != 3:
+        raise ValueError('This command must be called with two '
+            'parameters: an engine id and a database configuration')
     engine_id = sys.argv[1]
-    db_config = os.environ.get('CAPSUL_WORKER_DATABASE')
-    if not db_config:
-        raise ValueError('Worker command requires CAPSUL_WORKER_DATABASE to be set')
+    db_config = json.loads(sys.argv[2])
     # Really detach the process from the parent.
     # Whthout this fork, performing Capsul tests shows warning
     # about child processes not properly waited for.
     pid = os.fork()
     if pid == 0:
         os.setsid()
-        db_config = json.loads(db_config)
         with engine_database(db_config) as database:
             worker_id = database.worker_started(engine_id)
             # print(f'!worker {worker_id}! started', engine_id)

@@ -105,12 +105,12 @@ class Engine:
 
 
     def start_workers(self):
-        db_config = self.database.worker_database_config(self.engine_id)
+        # db_config = self.database.worker_database_config(self.engine_id)
         requested = self.config.start_workers.get('count', 0)
         start_count = max(0, requested - self.database.workers_count(self.engine_id))
         if start_count:
-            env = os.environ.copy()
-            env['CAPSUL_WORKER_DATABASE'] = json.dumps(db_config)
+            # env = os.environ.copy()
+            # env['CAPSUL_WORKER_DATABASE'] = json.dumps(db_config)
             for i in range(start_count):
                 workers_command = self.database.workers_command(self.engine_id)
                 try:
@@ -118,7 +118,7 @@ class Engine:
                         workers_command,
                         capture_output=False,
                         check=True,
-                        env=env
+                        # env=env
                     )
                 except Exception as e:
                     quote = lambda x: f"'{x}'"
