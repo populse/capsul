@@ -2,6 +2,7 @@
 from datetime import datetime
 import dateutil.parser
 import importlib
+import json
 from pprint import pprint
 import re
 import sys
@@ -108,8 +109,13 @@ class ExecutionDatabase:
     
 
     def workers_command(self, engine_id):
+        db_config = self.worker_database_config(self.engine_id)
+        db_config = json.dumps(db_config, separators=(',',':'))
         workers_command = []
         config = self.engine_config(engine_id)
+        config = config.get('start_workers')
+        if not config:
+            raise RuntimeError('No configuration defined to start workers')
         ssh = config.get('ssh')
         if ssh:
             host = ssh.get('host')
@@ -118,13 +124,14 @@ class ExecutionDatabase:
             login = ssh.get('login')
             if login:
                 host = f'{login}@{host}'
-            workers_command += ['ssh', '-f', host]
+            workers_command += ['ssh', '-o', 'StrictHostKeyChecking=no', '-f', host]
+            db_config = db_config.replace('"',r'\"').replace(',', r'\,')
         
         casa_dir = config.get('casa_dir')
         if casa_dir:
             workers_command.append(f'{casa_dir}/bin/bv')
 
-        workers_command += ['python', '-m', f'capsul.engine.builtin', engine_id]
+        workers_command += ['python', '-m', f'capsul.engine.builtin', engine_id, db_config]
         return workers_command
     
     def new_execution(self, executable, engine_id, execution_context, workflow, start_time):

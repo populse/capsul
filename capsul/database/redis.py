@@ -75,6 +75,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     self.redis.set('capsul:redis_pid_file', pid_file)
                 except Exception:
                     shutil.rmtree(tmp)
+                    raise
             else:
                 self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
                                           decode_responses=True)
