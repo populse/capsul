@@ -4,49 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{title or 'Capsul'}}</title>
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="{{base_url}}/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="{{base_url}}/static/capsul.css">
 {%- if server_type=='qt' %}
   <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
-  <script type="text/javascript">
-    var backend = null;
-    window.onload = function()
-    {
-        new QWebChannel(qt.webChannelTransport, function(channel) {
-            backend = channel.objects.backend;
-        });
-    }
-  </script>
+  <script type="text/javascript" src="{{base_url}}/qt_backend.js"></script>
 {%- else %}
-  <script type="text/javascript">
-    class Backend {};
-    {%- for name, method in backends.items() %}
-    Backend.prototype.{{name}} = function ({% for p in method._params %}{{p}}, {% endfor %}{% if method._return %}handler{% endif %}) {
-      {%- if method._return %}
-          const args = Object.values(arguments).slice(0,-1);
-      {%- else %}
-        const args = Object.values(arguments);
-      {%- endif %}
-      const f = fetch("{{base_url}}/backend/{{name}}", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(args)
-      });
-      {%- if method._return %}
-        const r = f.then(response => response.json());
-        r.then(data => handler(data));
-      {%- endif %}
-    }
-    {%- endfor %}
-
-    var backend = null;
-    window.onload = function()
-    {
-        backend = new Backend();
-    }
-
-  </script>
+  <script type="text/javascript" src="{{base_url}}/html_backend.js"></script>
 {%- endif %}
 {% block head -%}
 {%- endblock %}

@@ -1,4 +1,9 @@
 {% extends 'layout.html' %}
 {%block body %}
 <h1>Engine {{engine.label}}</h1>
+<table>
+    {%- for k, v in engine.engine_status().items() %}
+    <tr><th>{{k}}</th><td>{{v}}</td></tr>
+    {% endfor %}
+</table>
 {% endblock %}

@@ -1,75 +1,26 @@
 # -*- coding: utf-8 -*-
-import inspect
+import importlib
 import json
 import http, http.server
+import mimetypes
 import os
 
 import jinja2
 
 from soma.qt_gui.qt_backend import Qt, QtWidgets
-from soma.qt_gui.qt_backend.QtCore import pyqtSlot, QUrl
-from soma.qt_gui.qt_backend.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+from soma.qt_gui.qt_backend.QtCore import pyqtSlot, QUrl, QBuffer, QIODevice
+from soma.qt_gui.qt_backend.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile
+from soma.qt_gui.qt_backend.QtWebEngineCore import QWebEngineUrlSchemeHandler, QWebEngineUrlScheme, QWebEngineUrlRequestJob
 from soma.qt_gui.qt_backend.QtWebChannel import QWebChannel
-
-from capsul.api import Capsul
 
 
 class WebRoutes:
-    def __init__(self, base_url='capsul://', server_type='qt', backend=None):
-        self.capsul = Capsul()
-        self.base_url = base_url
-        self.server_type = server_type
-        self._backend = backend
-        if backend:
-            cls = backend.__class__
-            self._backend_methods = {}
-            for attr in cls.__dict__:
-                if attr.startswith('_'):
-                    continue
-                self._backend_methods[attr] = getattr(cls, attr)
-        else:
-            self._backend_methods = None
-    
-
     def _result(self, template, **kwargs):
-        kwargs['capsul'] = self.capsul
-        kwargs['base_url'] = self.base_url
-        kwargs['server_type'] = self.server_type
-        if self._backend:
-            kwargs['backends'] = self._backend_methods
         return (template, kwargs)
 
 
-    def _resolve(self, path, *args):
-        if path:
-            if path[0] == '/':
-                path = path[1:]
-            paths = path.split('/')
-            name = paths[0]
-            path_args = paths[1:]
-            method = getattr(self, name, None)
-            if method:
-                return method(*(tuple(path_args) + args))
-            if path.startswith('backend/') and self._backend:
-                name = path[8:]
-                method = getattr(self._backend, name, None)
-                if method:
-                    return method(*args)
-        raise ValueError('Invalid path')
 
-
-    def dashboard(self):
-        return self._result('dashboard.html')
-
-
-
-    def engine(self, engine_id):
-        engine = self.capsul.engine(engine_id)
-        if engine:
-            return self._result('engine.html', engine=engine)
-
-
-def backend(function):
+def backend_decorator(function):
     args = [type for name, type in function.__annotations__.items() if name != 'return']
     return_type = function.__annotations__.get('return')
     if return_type:
@@ -81,28 +32,87 @@ def backend(function):
     return result
 
 
-class WebBackend(Qt.QObject):
-    @backend
-    def print(self, text: str):
-        print('python:', text)
+class WebBackendMeta(type(Qt.QObject)):
+    def __new__(cls, name, bases, dict):
+        for k, v in dict.items():
+            if callable(v) and v.__annotations__:
+                dict[k] = backend_decorator(v)
+        return super().__new__(cls, name, bases, dict)
 
 
-    @backend
-    def hello(self, text: str) -> str:
-        return f'Hello, {text} !'
+class WebBackend(Qt.QObject, metaclass=WebBackendMeta):
+    pass
 
 
-class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler):
+class WebHandler:
+    def __init__(self, capsul, base_url, server_type, routes, backend=None, static=None, **kwargs):
+        self.routes = routes
+        routes.handler = self
+        self.backend = backend
+        m = importlib.import_module('capsul.web')
+        self.static_directory = os.path.join(os.path.dirname(m.__file__), 'static')
+        self.jinja = kwargs
+        self.capsul = self.jinja['capsul'] = capsul
+        self.base_url = self.jinja['base_url'] = base_url 
+        self.server_type = self.jinja['server_type'] = server_type
+
+
+    def resolve(self, path, *args):
+        if path:
+            if path[0] == '/':
+                path = path[1:]
+            paths = path.split('/')
+            name = paths[0]
+            path_args = paths[1:]
+
+            if name in self.routes._templates and not path_args:
+                return (name, self.jinja)
+            method = getattr(self.routes, name, None)
+            if method:
+                template, kwargs = method(*(tuple(path_args) + args))
+                kwargs.update(self.jinja)
+                return (template, kwargs)
+            if path.startswith('backend/') and self.backend:
+                name = path[8:]
+                method = getattr(self.backend, name, None)
+                if method:
+                    return method(*args)
+            elif path.startswith('static/') and self.static_directory:
+                path = path[7:]
+                return (os.path.join(self.static_directory, path), None)
+        raise ValueError('Invalid path')
+
+
+class CapsulHTTPHandlerMeta(type(http.server.BaseHTTPRequestHandler)):
+    def __new__(cls, name, bases, dict, capsul=None, base_url=None, routes=None, backend=None, static=None):
+        if name != 'CapsulHTTPHandler':
+            l = locals()
+            missing = [i for i in ('capsul', 'base_url', 'routes') if l.get(i) is None]
+            if missing:
+                raise TypeError(f'CapsulHTTPHandlerMeta.__new__() missing {len(missing)} required positional arguments: {", ".join(missing)}')
+            backend_methods = {}
+            for attr in backend.__class__.__dict__:
+                if attr.startswith('_'):
+                    continue
+                backend_methods[attr] = getattr(backend.__class__, attr)
+            dict['_handler'] = WebHandler(
+                server_type='http',
+                capsul=capsul,
+                base_url=base_url,
+                routes=routes, 
+                backend=backend,
+                static=static,
+                backend_methods=backend_methods)
+        return super().__new__(cls, name, bases, dict)
+
+
+
+class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler, metaclass=CapsulHTTPHandlerMeta):
     def __init__(self, request, client_address, server):
         self.jinja = jinja2.Environment(
             loader=jinja2.PackageLoader('capsul.web'),
             autoescape=jinja2.select_autoescape()
         )
-        host, port = server.server_address
-        if not host:
-            host = 'localhost'
-        base_url = f'http://{host}:{port}'
-        self.routes = WebRoutes(base_url=base_url, server_type='http', backend=WebBackend())
         super().__init__(request, client_address, server)
 
 
@@ -117,12 +127,13 @@ class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler):
         path = self.path.split('?',1)[0]
         path = path.split('#',1)[0]
         try:
-            template_data = self.routes._resolve(path, *args)
+            template_data = self._handler.resolve(path, *args)
         except ValueError as e:
             self.send_error(400, str(e))
             return None
         except Exception as e:
             self.send_error(500, str(e))
+            raise
             return None
         
         header = {}
@@ -130,14 +141,26 @@ class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler):
             body = None
         elif isinstance(template_data, tuple):
             template, data = template_data
-            try:
-                template = self.jinja.get_template(template)
-            except jinja2.TemplateNotFound:
-                self.send_error(http.HTTPStatus.NOT_FOUND, "Template not found")
-                return None
-            header['Content-Type'] = 'text/html'
-            header['Last-Modified'] = self.date_time_string(os.stat(template.filename).st_mtime)
-            body = template.render(**data)
+            if data is None:
+                try:
+                    s = os.stat(template)
+                except FileNotFoundError:
+                    self.send_error(http.HTTPStatus.NOT_FOUND, "File not found")
+                    return None
+                f, extension = os.path.splitext(template)
+                mime_type = mimetypes.types_map.get(extension, 'text/plain')
+                header['Content-Type'] = mime_type
+                header['Last-Modified'] = self.date_time_string(os.stat(template).st_mtime)
+                body = open(template).read()
+            else:
+                try:
+                    template = self.jinja.get_template(template)
+                except jinja2.TemplateNotFound:
+                    self.send_error(http.HTTPStatus.NOT_FOUND, "Template not found")
+                    return None
+                header['Content-Type'] = 'text/html'
+                header['Last-Modified'] = self.date_time_string(os.stat(template.filename).st_mtime)
+                body = template.render(**data)
         else:
             header['Content-Type'] = 'application/json'
             body = json.dumps(template_data)
@@ -173,58 +196,76 @@ class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler):
         return self.do_GET()
 
 
-class CapsulWebPage(QWebEnginePage):
-    def __init__(self, *args):
-        super().__init__(*args)
+class CapsulSchemeHandler(QWebEngineUrlSchemeHandler):
+    def __init__(self, parent, capsul, routes, backend):
+        super().__init__(parent)
         self._jinja = jinja2.Environment(
             loader=jinja2.PackageLoader('capsul.web'),
             autoescape=jinja2.select_autoescape()
         )
-        self._routes = WebRoutes()
-        self._backend = WebBackend()
+        self._handler = WebHandler(
+            capsul=capsul,
+            base_url='capsul://',
+            server_type='qt',
+            routes=routes,
+            backend=backend)
 
+    def requestStarted(self, request):
+        url = request.requestUrl()
+        path = url.toString()[9:]
 
-    def _load_template(self, path):
-        template_data = self._routes._resolve(path)
+        try:
+            template_data = self._handler.resolve(path)
+        except ValueError as e:
+            request.fail(QWebEngineUrlRequestJob.UrlNotFound)
+            return None
+        except Exception as e:
+            request.fail(QWebEngineUrlRequestJob.Failed)
+            return None
+        body = None
         if template_data:
             template, data = template_data
-            try:
-                template = self._jinja.get_template(template)
-            except jinja2.TemplateNotFound:
-                return False
-            html = template.render(**data)
-            self.setHtml(html, QUrl(f'capsul://{path}'))
+            if data is None:
+                body = open(template).read()
+            else:
+                try:
+                    template = self._jinja.get_template(template)
+                except jinja2.TemplateNotFound:
+                    return False
+                body = template.render(**data)
 
-
-    def acceptNavigationRequest(self, url,  _type, isMainFrame):
-        if url.scheme() == 'capsul':
-            self._load_template(f'{url.host()}{url.path()}')
-            return False
-        return super().acceptNavigationRequest(url,  _type, isMainFrame)
-
-
-class CapsulWebEngineView(QWebEngineView):
-    def createWindow(self, wintype):
-        w = super().createWindow(wintype)
-        if not w:
-            try:
-                self.source_window = CapsulBrowserWindow()
-                self.source_window.show()
-                w = self.source_window.browser
-            except Exception as e:
-                print('ERROR: Cannot create browser window:', e)
-                w = None
-        return w
+        if isinstance(body, str):
+            body = body.encode('utf8')
+        buf = QBuffer(parent=self)
+        request.destroyed.connect(buf.deleteLater)
+        buf.open(QIODevice.WriteOnly)
+        buf.write(body)
+        buf.seek(0)
+        buf.close()
+        mime_type = mimetypes.guess_type(path)[0]
+        if mime_type is None:
+            mime_type = 'text/html'
+        request.reply(mime_type.encode(), buf)
 
 
 class CapsulBrowserWindow(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, starting_route, capsul, routes, backend):
         super(QtWidgets.QMainWindow, self).__init__()
-        self.browser = CapsulWebEngineView()
+        if not QWebEngineUrlScheme.schemeByName(b'capsul').name():
+            scheme = QWebEngineUrlScheme(b'capsul')
+            scheme.setSyntax(QWebEngineUrlScheme.Syntax.Path)
+            QWebEngineUrlScheme.registerScheme(scheme)
+
+            profile = QWebEngineProfile.defaultProfile()
+            capsul.url_scheme_handler = CapsulSchemeHandler(None, capsul=capsul, routes=routes, backend=backend)
+            profile.installUrlSchemeHandler(b'capsul', capsul.url_scheme_handler)
+
+
+        self.browser = QWebEngineView()
 
         self.channel = QWebChannel()
-        page = CapsulWebPage(self)
-        self.channel.registerObject('backend', page._backend)
-        self.browser.setPage(page)
+        self.channel.registerObject('backend', capsul.url_scheme_handler._handler.backend)
         self.browser.page().setWebChannel(self.channel)
         self.setCentralWidget(self.browser)
+        if starting_route:
+            self.browser.setUrl(QUrl(starting_route))

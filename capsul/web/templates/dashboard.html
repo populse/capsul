@@ -21,6 +21,8 @@
   {%- endfor %}
   </tbody>
   </table>
+
+  <h1>Test server interactions</h1>
   <input id="input"><button id="button">go</button>
   <p id="result"></p>
 {% endblock %}
@@ -30,7 +32,7 @@
       const input_value = document.getElementById("input").value;
       backend.print("clicked");
       backend.hello(input_value,
-        function (value) {
+        value => {
           document.getElementById("result").innerText = value;
         });
   });
