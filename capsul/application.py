@@ -98,6 +98,7 @@ class Capsul(Singleton):
             site_file=str(site_file)
         if isinstance(user_file, Path):
             user_file=str(user_file)
+        self.label = app_name
         c = ApplicationConfiguration(app_name=app_name, user_file=user_file, site_file=site_file)
         self.config = c.merged_config
 

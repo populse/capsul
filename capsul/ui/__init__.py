@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys
-
 from capsul.web import WebRoutes, WebBackend
 
 from soma.qt_gui.qt_backend import Qt
