@@ -49,7 +49,7 @@ class WebHandler:
         self.routes = routes
         routes.handler = self
         self.backend = backend
-        m = importlib.import_module('capsul.web')
+        m = importlib.import_module('capsul.ui')
         self.static_directory = os.path.join(os.path.dirname(m.__file__), 'static')
         self.jinja = kwargs
         self.capsul = self.jinja['capsul'] = capsul
@@ -110,7 +110,7 @@ class CapsulHTTPHandlerMeta(type(http.server.BaseHTTPRequestHandler)):
 class CapsulHTTPHandler(http.server.BaseHTTPRequestHandler, metaclass=CapsulHTTPHandlerMeta):
     def __init__(self, request, client_address, server):
         self.jinja = jinja2.Environment(
-            loader=jinja2.PackageLoader('capsul.web'),
+            loader=jinja2.PackageLoader('capsul.ui'),
             autoescape=jinja2.select_autoescape()
         )
         super().__init__(request, client_address, server)
@@ -200,7 +200,7 @@ class CapsulSchemeHandler(QWebEngineUrlSchemeHandler):
     def __init__(self, parent, capsul, routes, backend):
         super().__init__(parent)
         self._jinja = jinja2.Environment(
-            loader=jinja2.PackageLoader('capsul.web'),
+            loader=jinja2.PackageLoader('capsul.ui'),
             autoescape=jinja2.select_autoescape()
         )
         self._handler = WebHandler(
