@@ -127,6 +127,10 @@ class ExecutionDatabase:
             workers_command += ['ssh', '-o', 'StrictHostKeyChecking=no', '-f', host]
             db_config = db_config.replace('"',r'\"').replace(',', r'\,')
         
+        if config.get('type') == 'torque':
+            qsub = config.get('qsub', 'qsub')
+            workers_command += [qsub, '-l', 'ncpus=1', '-e', '/dev/null', '-o', '/dev/null', '--']
+        
         casa_dir = config.get('casa_dir')
         if casa_dir:
             workers_command.append(f'{casa_dir}/bin/bv')

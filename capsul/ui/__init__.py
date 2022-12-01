@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from capsul.api import Capsul
 from capsul.web import WebRoutes, WebBackend
 
 from soma.qt_gui.qt_backend import Qt
@@ -22,9 +23,5 @@ class CapsulRoutes(WebRoutes):
 
 
 class CapsulBackend(WebBackend):
-    def print(self, text: str):
-        print('python:', text)
-
-
-    def hello(self, text: str) -> str:
-        return f'Hello, {text} !'
+    def engines(self) -> list:
+        return [engine.engine_status() for engine in Capsul().engines()]

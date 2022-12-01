@@ -5,8 +5,8 @@ from soma.qt_gui.qt_backend import Qt
 from capsul.web import CapsulBrowserWindow
 
 
-# import http, http.server
-# from capsul.web import CapsulHTTPHandler
+import http, http.server
+from capsul.web import CapsulHTTPHandler
 
 # class Handler(CapsulHTTPHandler, base_url='http://localhost:8080'):
 #     pass

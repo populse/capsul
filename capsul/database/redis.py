@@ -19,16 +19,19 @@ class RedisExecutionDatabase(ExecutionDatabase):
         if self.config['type'] == 'redis+socket':
             return os.path.exists(f'{self.path}.socket')
         else:
-            r = self._connect(socket_connect_timeout=1)
             try:
+                r = self._connect(socket_connect_timeout=0.2)
                 r.ping()
                 return True
-            except (redis.ConnectionError, redis.TimeoutError):
+            except (redis.ConnectionError, redis.TimeoutError) as e:
                 return False
 
     def _connect(self, **kwargs):
-      return redis.Redis(host=self.config['host'], port=self.config.get('port'),
-                         **kwargs)
+        r = redis.Redis(host=self.config['host'], port=self.config.get('port'),
+                        **kwargs)
+        if self.config.get('login'):
+            r.auth(self.config['password'], self.config['login'])
+        return r
 
     @property
     def is_connected(self):
@@ -81,8 +84,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
                                           decode_responses=True)
         elif self.config['type'] == 'redis':
             self.redis = self._connect(decode_responses=True)
-            if self.config.get('login'):
-                self.redis.auth(self.config['password'], self.config['login'])
         else:
             raise NotImplementedError(f'Invalid Redis connection type: {self.config["type"]}')
         if self.redis.get('capsul:shutting_down'):
@@ -419,6 +420,9 @@ class RedisExecutionDatabase(ExecutionDatabase):
             # Create association between label and engine_id
             self.redis.hset(f'capsul:{engine_id}', 'label', engine.label)
             self.redis.hset('capsul:engine', engine.label, engine_id)
+        else:
+            # Update configuration
+            self.redis.hset(f'capsul:{engine_id}', 'config', json.dumps(engine.config.json()))
         return engine_id
     
 
@@ -634,9 +638,9 @@ class RedisExecutionDatabase(ExecutionDatabase):
                         break
                     time.sleep(0.1)
 
-            shutil.rmtree(tmp)
-            if not save and os.path.exists(self.path):
-                os.remove(self.path)
+                shutil.rmtree(tmp)
+                if not save and os.path.exists(self.path):
+                    os.remove(self.path)
 
     
     def start_execution(self, engine_id, execution_id, tmp):

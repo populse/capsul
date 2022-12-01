@@ -1,7 +1,7 @@
 var backend = {};
-window.onload = function()
-{
+window.addEventListener("load", (event) => {
     new QWebChannel(qt.webChannelTransport, function(channel) {
         backend = channel.objects.backend;
+        event.currentTarget.dispatchEvent(backend_ready);
     });
-}
+});

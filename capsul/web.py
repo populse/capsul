@@ -506,5 +506,9 @@ class CapsulBrowserWindow(QtWidgets.QMainWindow):
         self.channel.registerObject('backend', capsul.url_scheme_handler._handler.backend)
         self.browser.page().setWebChannel(self.channel)
         self.setCentralWidget(self.browser)
+        self.browser.iconChanged.connect(self.set_icon)
         if starting_url:
             self.browser.setUrl(QUrl(starting_url))
+
+    def set_icon(self):
+        self.setWindowIcon(self.browser.icon())

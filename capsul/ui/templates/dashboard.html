@@ -1,40 +1,55 @@
 {% extends 'layout.html' %}
 {%block body %}
-  <h1>The dashboard</h1>
+  <h1>Capsul engines</h1>
 
   <table>
   <thead>
     <th>Label</th>
-    <th>Connected</th>
+    <th>Database</th>
+    <th>Workers</th>
   </thead>
-  <tbody>
-  {%- for engine in capsul.engines() %}
-    {%- set status = engine.engine_status() -%}
-    <tr>
-      <td><a href="{{base_url}}/engine/{{engine.label}}">{{engine.label}}</a></td>
-      {% if status['database_connected'] %}
-      <td>✅ <button>Disconnect</button></td>
-      {% else %}
-      <td>❌ <button id="connect">Connect</button></td>
-      {% endif %}
-    </tr>
-  {%- endfor %}
+  <tbody id="engines_table">
   </tbody>
   </table>
-
-  <h1>Test server interactions</h1>
-  <input id="input"><button id="button">go</button>
-  <p id="result"></p>
 {% endblock %}
 {% block script %}
 <script>
-  document.getElementById("button").addEventListener("click", (event) => {
-      const input_value = document.getElementById("input").value;
-      backend.print("clicked");
-      backend.hello(input_value,
-        value => {
-          document.getElementById("result").innerText = value;
-        });
+  function set_engines(engines_status) {
+    let engines_table = document.getElementById("engines_table");
+    engines_status.forEach(engine_status => {
+      let tr = document.createElement("tr");
+      
+      let td = document.createElement("td");
+      td.innerHTML = '<a href="{{base_url}}/engine/' + engine_status['label'] + '">' + engine_status["label"] + '</a>';
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      if (engine_status['database_connected']) {
+        td.innerHTML = '✅';
+      } else if (engine_status['database_ready']) {
+        td.innerHTML = '⭕';
+      } else {
+        td.innerHTML = '❌';
+      }
+      tr.appendChild(td);
+      
+      td = document.createElement('td');
+      let count = engine_status['workers_count'];
+      if ( count == undefined ) {
+        if ( engine_status['database_ready'] ) {
+          count = 0;
+        } else {
+          count = '❔';
+        }
+      }
+      td.innerHTML = count
+      tr.appendChild(td);
+
+      engines_table.appendChild(tr);
+    });
+  }
+  window.addEventListener("backend_ready", (event) => {
+    backend.engines(set_engines);
   });
 </script>
 {% endblock %}

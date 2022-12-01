@@ -21,7 +21,7 @@ Backend.prototype.{{name}} = function ({% for p in method._params %}{{p}}, {% en
 {%- endfor %}
 
 var backend = null;
-window.onload = function()
-{
-    backend = new Backend();
-}
+window.addEventListener("load", (event) => {
+  backend = new Backend();
+  event.currentTarget.dispatchEvent(backend_ready);
+});
