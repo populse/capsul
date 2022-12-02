@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+{%block body %}
+<h1><span id="process_label">Process</span> execution report</h1>
+<table>
+    <tbody id="details_table">
+    </tbody>
+</table>
+
+<h2>Jobs</h2>
+<div id="jobs">
+</div>
+{% endblock %}
+{% block script %}
+<script>
+  function set_execution_report(report) {
+    let status_icon;
+    if ( report['failed'].length )
+        status_icon = '❌';
+    else if ( report['ongoing'].length )
+        status_icon = '🏃';
+    else if ( report['waiting'].length || report['ready'].length)
+        status_icon = '⏳';
+    else
+        status_icon = '✅';
+
+    const h1 = document.getElementById('process_label');
+    h1.innerText = status_icon + ' ' + report['label'];
+
+    const job_status_icon = {
+        'ongoing': '🏃',
+        'done': '✅',
+        'failed': '❌',
+        'ready': '⏳',
+        'waiting': '⏳',
+    }
+
+    let details_table = document.getElementById('details_table');
+    let tr = document.createElement("tr");
+    tr.innerHTML = '<tr><th>Status</th><td>' + status_icon + ' ' + status + '</td><tr>';
+    details_table.appendChild(tr);
+    for ( const i of ['waiting', 'ready', 'ongoing', 'done', 'failed']) {
+        tr = document.createElement('tr');
+        tr.innerHTML= '<th>' + i + 
+          '</th><td>' + job_status_icon[i] + ' ' + report[i].length + '</td>';
+        details_table.appendChild(tr);    let status_icon;
+    if ( report['failed'].length )
+        status_icon = '❌';
+    else if ( report['ongoing'].length )
+        status_icon = '🏃';
+    else if ( report['waiting'].length || report['ready'].length)
+        status_icon = '⏳';
+    else
+        status_icon = '✅';
+
+    }
+    for ( const i of ['start_time', 'end_time', 'engine_id', 'execution_id']) {
+        tr = document.createElement('tr');
+        tr.innerHTML= '<th>' + i + '</th><td>' + report[i] + '</td>';
+        details_table.appendChild(tr);
+    }
+  
+
+    let jobs = document.getElementById('jobs');
+    for (const job of report['jobs']) {
+        jobs.appendChild(document.createElement('hr'));
+        let table = document.createElement('table');
+        table.innerHTML = '<tbody>' +
+          '<tr><th>process</th><td>' + job.process.definition + '</td></tr>' +
+          '<tr><th>job_uuid</th><td>' + job.uuid + '</td></tr>' +
+          '<tr><th>return code</th><td>' + job.returncode + '</td></tr>' +
+          '<tr><th>start time</th><td>' + job.start_time + '</td></tr>' +
+          '<tr><th>end time</th><td>' + job.end_time + '</td></tr>' +
+          '<tr><th>wait for</th><td>' + JSON.stringify(job.wait_for ?? []) + '</td></tr>' +
+          '<tr><th>waited by</th><td>' + JSON.stringify(job.waited_by ?? []) + '</td></tr>' +
+          '</tbody>';
+        jobs.appendChild(table);
+    }
+  }
+
+  window.addEventListener("backend_ready", (event) => {
+    backend.execution_report('{{engine_label}}', '{{execution_id}}', set_execution_report);
+  });
+</script>
+{% endblock %}

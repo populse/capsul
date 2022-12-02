@@ -220,8 +220,6 @@ class ExecutionDatabase:
 
     def execution_report(self, engine_id, execution_id):
         report = self.execution_report_json(engine_id, execution_id)
-        report['engine_id'] = engine_id
-        report['execution_id'] = execution_id
         execution_context = report['execution_context']
         if execution_context is not None:
             execution_context = ExecutionContext(config=execution_context)
@@ -421,6 +419,15 @@ class ExecutionDatabase:
         raise NotImplementedError
 
 
+    def engine_connections(self, engine_id):
+        '''
+        Return the current number of active connections to
+        an engine. This number is incremented within the context
+        of an engine (with the `with` statement).
+        '''
+        raise NotImplementedError
+
+
     def engine_config(self, engine_id):
         '''
         Return the configuration dict stored for an engine
@@ -466,6 +473,24 @@ class ExecutionDatabase:
         The ressource it uses must be freed as soon as possible. If no 
         execution is running, engine is destroyed. Otherwise, workers will
         process ongoing executions and cleanup when done.
+        '''
+        raise NotImplementedError
+
+
+    def executions_summary(self, engine_id):
+        '''
+        Returns a JSON-compatible list whose elements contains some
+        information about each execution. Each list element is a dict
+        with the following items:
+            - label: a kind of name of the execution to display to users
+            - engine_id: id of the engine containing execution
+            - execution_id: id of the execution
+            - status: status of the execution
+            - waiting: number of jobs in the waiting list
+            - ready: number of jobs in the ready list
+            - ongoing: number of jobs in the ongoing list
+            - done: number of jobs in the done list
+            - failed: number of jobs in the failed list
         '''
         raise NotImplementedError
 

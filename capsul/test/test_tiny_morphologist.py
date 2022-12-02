@@ -830,7 +830,5 @@ if __name__ == '__main__':
             except TimeoutError:
                 # engine.print_execution_report(engine.execution_report(engine.engine_id, execution_id))
                 raise
-            finally:
-                engine.dispose(execution_id)
     finally:
         self.tearDown()

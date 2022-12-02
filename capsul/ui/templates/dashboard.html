@@ -24,12 +24,10 @@
       tr.appendChild(td);
 
       td = document.createElement("td");
-      if (engine_status['database_connected']) {
+      if (engine_status['database_ready']) {
         td.innerHTML = '✅';
-      } else if (engine_status['database_ready']) {
-        td.innerHTML = '⭕';
       } else {
-        td.innerHTML = '❌';
+        td.innerHTML = '⭕';
       }
       tr.appendChild(td);
       

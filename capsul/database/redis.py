@@ -423,7 +423,12 @@ class RedisExecutionDatabase(ExecutionDatabase):
         else:
             # Update configuration
             self.redis.hset(f'capsul:{engine_id}', 'config', json.dumps(engine.config.json()))
+        self.redis.hincrby(f'capsul:{engine_id}', 'connections', 1)
         return engine_id
+    
+
+    def engine_connections(self, engine_id):
+        return self.redis.hget(f'capsul:{engine_id}', 'connections')
     
 
     def engine_config(self, engine_id):
@@ -467,14 +472,43 @@ class RedisExecutionDatabase(ExecutionDatabase):
     def dispose_engine(self, engine_id):
         label = self.redis.hget(f'capsul:{engine_id}', 'label')
         if label:
-            # Removes association between label and engine_id
-            self.redis.hdel('capsul:engine', label)
-            self.redis.hdel(f'capsul:{engine_id}', 'label')
-            # Check if some executions had been submited or are ongoing
-            # An empty list modified with Redis Lua scripts may be encoded as empty dict
-            if self.redis.hget(f'capsul:{engine_id}', 'executions') in ('{}', '[]'):
-                # Nothing is ongoing, completely remove engine
-                self.redis.delete(f'capsul:{engine_id}')
+            connections = self.redis.hincrby(f'capsul:{engine_id}', 'connections', -1)
+            if connections == 0:
+                # Removes association between label and engine_id
+                self.redis.hdel('capsul:engine', label)
+                self.redis.hdel(f'capsul:{engine_id}', 'label')
+                # Check if some executions had been submited or are ongoing
+                # An empty list modified with Redis Lua scripts may be encoded as empty dict
+                if self.redis.hget(f'capsul:{engine_id}', 'executions') in ('{}', '[]'):
+                    # Nothing is ongoing, completely remove engine
+                    self.redis.delete(f'capsul:{engine_id}')
+
+    def executions_summary(self, engine_id):
+        result = []
+        executions = self.redis.hget(f'capsul:{engine_id}', 'executions')
+        if executions:
+            executions = json.loads(executions)
+            for execution_id in executions:
+                execution_key = f'capsul:{engine_id}:{execution_id}'
+                info = {
+                    'label': self.redis.hget(execution_key, 'label'),
+                    'status': self.status(engine_id, execution_id),
+                    'waiting': len(json.loads(
+                        self.redis.hget(execution_key, 'waiting'))),
+                    'ready': len(json.loads(
+                        self.redis.hget(execution_key, 'ready'))),
+                    'ongoing': len(json.loads(
+                        self.redis.hget(execution_key, 'ongoing'))),
+                    'done': len(json.loads(
+                        self.redis.hget(execution_key, 'done'))),
+                    'failed': len(json.loads(
+                        self.redis.hget(execution_key, 'failed'))),
+                    'engine_label': self.redis.hget(f'capsul:{engine_id}', 'label'),
+                    'execution_id': execution_id,
+                }
+                result.append(info)
+        return result
+
 
 
     def store_execution(self,
@@ -582,6 +616,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
          ongoing, done, failed, jobs) = self._full_report(keys=[f'capsul:{engine_id}:{execution_id}'])
         result = dict(
             label=label,
+            engine_id = engine_id,
+            execution_id=execution_id,
             execution_context=json.loads(execution_context),
             status=status,
             error=error,

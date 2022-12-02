@@ -102,6 +102,7 @@ class Engine:
                 engine_id = result['engine_id'] = database.engine_id(self.label)
                 if engine_id:
                     result['workers_count'] = database.workers_count(engine_id)
+                    result['connections'] = database.engine_connections(engine_id)
         return result
 
 
@@ -125,7 +126,8 @@ class Engine:
     def __exit__(self, exception_type, exception_value, exception_traceback):
         self.nested_context -= 1
         if self.nested_context == 0:
-            self.database.dispose_engine(self.engine_id)
+            if 'CAPSUL_DEBUG' not in os.environ:
+                self.database.dispose_engine(self.engine_id)
             self.database.__exit__(exception_type, exception_value, exception_traceback)
             del self.engine_id
     
@@ -150,6 +152,11 @@ class Engine:
         execution_id = self.database.new_execution(executable, self.engine_id, econtext, workflow, start_time=datetime.now())
         return execution_id
 
+
+    def executions_summary(self):
+        with self:
+            return self.database.executions_summary(self.engine_id)
+    
 
     def status(self, execution_id):
         return self.database.status(self.engine_id, execution_id)
@@ -192,7 +199,8 @@ class Engine:
                 self.print_execution_report(self.execution_report(execution_id), file=sys.stdout)
             self.update_executable(execution_id, executable)
         finally:
-            self.dispose(execution_id)
+            if 'CAPSUL_DEBUG' not in os.environ:
+                self.dispose(execution_id)
         return status
 
 class Workers(Controller):

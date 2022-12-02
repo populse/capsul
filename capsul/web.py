@@ -95,7 +95,7 @@ class WebBackendMeta(type(Qt.QObject)):
                 args = [type for name, type in v.__annotations__.items() if name != 'return']
                 return_type = v.__annotations__.get('return')
                 if return_type:
-                    result = pyqtSlot(*args, result=return_type)(v)
+                    result = pyqtSlot(*args, result=Qt.QVariant)(v)
                 else:
                     result = pyqtSlot(*args)(v)
                 result._params = [name for name in v.__annotations__ if name != 'return']

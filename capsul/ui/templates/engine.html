@@ -2,8 +2,61 @@
 {%block body %}
 <h1>Engine {{engine.label}}</h1>
 <table>
-    {%- for k, v in engine.engine_status().items() %}
-    <tr><th>{{k}}</th><td>{{v}}</td></tr>
-    {% endfor %}
+    <tbody  id="status_table">
+    </tbody>
 </table>
+
+<h2>Executions</h2>
+<table>
+    <thead>
+      <th>Label</th>
+      <th>Status</th>
+      <th>Waiting</th>
+      <th>Ready</th>
+      <th>Ongoing</th>
+      <th>Done</th>
+      <th>Failed</th>
+    </thead>
+    <tbody id="executions_table">
+    </tbody>
+</table>
+{% endblock %}
+{% block script %}
+<script>
+  function set_engine_status(engine_status) {
+    let status_table = document.getElementById("status_table");
+    for (const [name, value] of Object.entries(engine_status)) {
+      let tr = document.createElement("tr");
+      tr.innerHTML = '<tr><th>' + name + '</th><td>' + value + '</td></tr>'
+      status_table.appendChild(tr);
+    }
+  }
+
+  function set_executions_summary(executions_summary) {
+    let status_table = document.getElementById("executions_table");
+    for (const e of executions_summary) {
+      let status_icon;
+      if ( e['failed'] )
+          status_icon = '❌';
+      else if ( e['ongoing'] )
+          status_icon = '🏃';
+      else if ( e['waiting'] || e['ready'])
+          status_icon = '⏳';
+      else
+          status_icon = '✅';
+        let tr = document.createElement("tr");
+      tr.innerHTML = '<tr><td><a href="{{base_url}}/execution/' +
+        e['engine_label'] + '/' + e['execution_id'] + '">' + status_icon + ' ' + e['label'] +
+        '</td><td>' + e['status'] + '</td><td>' + e['waiting'] + '</td><td>' +
+        e['ready'] + '</td><td>' + e['ongoing'] + '</td><td>' + e['done'] +
+        '</td><td>' + e['failed'] + '</td></tr>';
+      status_table.appendChild(tr);
+    }
+  }
+
+  window.addEventListener("backend_ready", (event) => {
+    backend.engine_status('{{engine.label}}', set_engine_status);
+    backend.executions_summary('{{engine.label}}', set_executions_summary);
+  });
+</script>
 {% endblock %}
