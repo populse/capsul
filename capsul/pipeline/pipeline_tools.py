@@ -504,7 +504,7 @@ def save_dot_graph(dot_graph, filename, **kwargs):
                            for aname, val in six.iteritems(props)])
         if len(props) != 0:
             attstr = ' ' + attstr
-        fileobj.write('  %s [label="%s" style="filled"%s];\n'
+        fileobj.write('  "%s" [label="%s" style="filled"%s];\n'
                       % (id, node, attstr))
     for edge, descr in six.iteritems(dot_graph[1]):
         props = descr[0]
