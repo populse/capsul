@@ -886,6 +886,10 @@ class ProcessNode(Node):
     def completion_engine(self, value):
         try:
             self.process.completion_engine = value
+            if value is not None:
+                # move the completion engine process to node level
+                # in order to allow access to nodes links
+                value.process = weak_proxy(self, value._clear_node)
         except ReferenceError:
             pass
 
