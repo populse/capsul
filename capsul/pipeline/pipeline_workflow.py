@@ -196,7 +196,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
 
     def _replace_in_list(rlist, temp_map):
         for i, item in enumerate(rlist):
-            if isinstance(item, (list, tuple)):
+            if isinstance(item, (list, tuple, set)):
                 deeperlist = list(item)
                 _replace_in_list(deeperlist, temp_map)
                 if isinstance(item, tuple):
