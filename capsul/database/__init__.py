@@ -281,7 +281,7 @@ class ExecutionDatabase:
             start_time = job.get('start_time')
             end_time = job.get('end_time')
             pipeline_node = '.'.join(i for i in job.get('parameters_location', '') if i != 'nodes')
-            returncode = job.get('returncode')
+            return_code = job.get('return_code')
             status = job['status']
             disabled = job['disabled']
             stdout = job.get('stdout')
@@ -300,7 +300,7 @@ class ExecutionDatabase:
             print('process:', process_definition, file=file)
             print('pipeline node:', pipeline_node, file=file)
             print('status:', status, file=file)
-            print('returncode:', returncode, file=file)
+            print('return code:', return_code, file=file)
             print('start time:', start_time, file=file)
             print('end time:', end_time, file=file)
             print('disabled:', disabled, file=file)
@@ -410,11 +410,14 @@ class ExecutionDatabase:
         raise NotImplementedError
 
 
-    def get_or_create_engine(self, engine):
+    def get_or_create_engine(self, engine, update_database=False):
         '''
         If engine with given label is in the database, simply return its
         engine_id. Otherwise, create a new engine in the database and return
         its engine_id.
+
+        if `update_database` is `True`, the current configuration is
+        copied in the database even if the engine already exists.
         '''
         raise NotImplementedError
 
@@ -531,15 +534,15 @@ class ExecutionDatabase:
         raise NotImplementedError
 
 
-    def job_finished(self, engine_id, execution_id, job_uuid, end_time, returncode, stdout, stderr):
+    def job_finished(self, engine_id, execution_id, job_uuid, end_time, return_code, stdout, stderr):
         '''
         Convert its parameters to JSON and calls job_finished_json()
         '''
         self.job_finished_json(engine_id, execution_id, job_uuid, 
-            self._time_to_json(end_time), returncode, stdout, stderr)
+            self._time_to_json(end_time), return_code, stdout, stderr)
 
 
-    def job_finished_json(self, engine_id, execution_id, job_uuid, end_time, returncode, stdout, stderr):
+    def job_finished_json(self, engine_id, execution_id, job_uuid, end_time, return_code, stdout, stderr):
         raise NotImplementedError
 
 

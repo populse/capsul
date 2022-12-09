@@ -36,7 +36,7 @@ def run_all_tests(modules=[]):
     process = soma.subprocess.Popen(cmd, stdout=soma.subprocess.PIPE,
                                stderr=soma.subprocess.PIPE, shell=True)
     stdout, stderr = process.communicate()
-    if process.returncode:
+    if process.return_code:
         error = "Error will running cmd: {0}\n{1}".format(cmd, stderr)
         #raise StandardError(error)
 

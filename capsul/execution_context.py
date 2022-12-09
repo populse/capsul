@@ -191,17 +191,19 @@ class CapsulWorkflow(Controller):
                                                                         in_sub_pipelines=False):
                     if dest_node in disabled_nodes:
                         continue
-                    parameters.content[field.name] = nodes_dict[dest_node.name][plug_name]
+                    parameters.content[field.name] = nodes_dict.get(dest_node.name, {}).get(plug_name)
                     break
                 if field.is_output():
                     for dest_node_name, dest_plug_name, dest_node, dest_plug, is_weak in process.plugs[field.name].links_to:
-                        if dest_node.activated and dest_node not in disabled_nodes and not dest_node.field(dest_plug_name).is_output():
+                        if (isinstance(dest_node, Process) and dest_node.activated and 
+                            dest_node not in disabled_nodes and 
+                            not dest_node.field(dest_plug_name).is_output()):
                             if isinstance(dest_node, Pipeline):
                                 continue
                             process_chronology.setdefault(
-                                process_iterations.get(dest_node.uuid, dest_node.uuid),
+                                dest_node.uuid + ','.join(process_iterations.get(dest_node.uuid, [])),
                                 set()).add(
-                                    process_iterations.get(process.uuid, process.uuid))
+                                    process.uuid + ','.join(process_iterations.get(process.uuid, [])))
             for node in nodes:
                 for plug_name in node.plugs:
                     first = nodes_dict[node.name].get(plug_name)
@@ -264,7 +266,8 @@ class CapsulWorkflow(Controller):
             if isinstance(executable, Pipeline):
                 for field in process.user_fields():
                     if field.is_output():
-                        for dest_node, plug_name in executable.get_linked_items(process, field.name, direction='links_to'):
+                        for dest_node, plug_name in executable.get_linked_items(process, field.name, 
+                                direction='links_to'):
                             if isinstance(dest_node, Pipeline):
                                 continue
                             process_chronology.setdefault(
@@ -313,7 +316,8 @@ class CapsulWorkflow(Controller):
                 proxy = parameters.proxy(executable.json_value(value))
                 parameters[field.name] = proxy
                 if field.is_output() and isinstance(executable, (Pipeline, ProcessIteration)):
-                    for dest_node, plug_name in executable.get_linked_items(process, field.name, direction='links_to'):
+                    for dest_node, plug_name in executable.get_linked_items(process, field.name, 
+                            direction='links_to'):
                         if isinstance(dest_node, Pipeline):
                             continue
                         process_chronology.setdefault(

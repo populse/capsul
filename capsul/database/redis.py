@@ -138,7 +138,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
         self._pop_job = self.redis.register_script('''
             local execution_key = KEYS[1]
 
-            local start_time = ARGV[2]
+            local start_time = ARGV[1]
 
             local status = redis.call('hget', execution_key, 'status')
 
@@ -153,7 +153,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     redis.call('hset', execution_key, 'ready', cjson.encode(ready))
                     local job_key = 'job:' .. job_uuid
                     local job = cjson.decode(redis.call('hget', execution_key, job_key))
-                    job['start_time'] = ARGV[2]
+                    job['start_time'] = start_time
                     job = cjson.encode(job)
                     redis.call('hset', execution_key, job_key, job)
                     local ongoing = cjson.decode(redis.call('hget', execution_key, 'ongoing'))
@@ -176,21 +176,21 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     end
                 end
             end
-
+            
             local engine_key = KEYS[1]
             local execution_key = KEYS[2]
 
             local execution_id = ARGV[1]
             local job_uuid = ARGV[2]
             local end_time = ARGV[3]
-            local returncode = ARGV[4]
+            local return_code = ARGV[4]
             local stdout = ARGV[5]
             local stderr = ARGV[6]
 
             local job_key = 'job:' .. job_uuid
             local job = cjson.decode(redis.call('hget', execution_key, job_key))
             job['end_time'] = end_time
-            job['returncode'] = returncode
+            job['return_code'] = return_code
             job['stdout'] = stdout
             job['stderr'] = stderr
             redis.call('hset', execution_key, job_key, cjson.encode(job))
@@ -204,7 +204,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
             table.remove(ongoing, table_find(ongoing, job_uuid))
 
-            if returncode ~= '0' then
+            if return_code ~= '0' then
                 table.insert(failed, job_uuid)
 
                 local stack = {}
@@ -218,14 +218,16 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 while uuid do
                     local job_key = 'job:' .. uuid
                     job = cjson.decode(redis.call('hget', execution_key, job_key))
-                    job['returncode'] = 'Not started because de dependent job failed'
+                    job['return_code'] = 'Not started because de dependent job failed'
                     redis.call('hset', execution_key, job_key, cjson.encode(job))
-
-                    table.remove(waiting, table_find(waiting, uuid))
-                    table.insert(failed, uuid)
-                    if job['waited_by'] then
-                        for key, value in ipairs(job['waited_by']) do
-                            table.insert(stack, value)
+                    local waiting_index = table_find(waiting, uuid)
+                    if waiting_index then
+                        table.remove(waiting, waiting_index)
+                        table.insert(failed, uuid)
+                        if job['waited_by'] then
+                            for key, value in ipairs(job['waited_by']) do
+                                table.insert(stack, value)
+                            end
                         end
                     end
                     uuid = table.remove(stack)
@@ -406,7 +408,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
         del self.redis
    
 
-    def get_or_create_engine(self, engine):
+    def get_or_create_engine(self, engine, update_database=False):
         engine_id = self.redis.hget('capsul:engine', engine.label)
         if not engine_id:
             # Create new engine in database
@@ -420,8 +422,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
             # Create association between label and engine_id
             self.redis.hset(f'capsul:{engine_id}', 'label', engine.label)
             self.redis.hset('capsul:engine', engine.label, engine_id)
-        else:
-            # Update configuration
+        elif update_database:
+            # Update configuration stored in database
             self.redis.hset(f'capsul:{engine_id}', 'config', json.dumps(engine.config.json()))
         self.redis.hincrby(f'capsul:{engine_id}', 'connections', 1)
         return engine_id
@@ -565,7 +567,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
             return '', ''
 
     def job_finished_json(self, engine_id, execution_id, job_uuid, 
-                          end_time, returncode, stdout, stderr):
+                          end_time, return_code, stdout, stderr):
         keys = [
             f'capsul:{engine_id}',
             f'capsul:{engine_id}:{execution_id}'
@@ -574,7 +576,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
             execution_id, 
             job_uuid, 
             end_time, 
-            returncode, 
+            return_code, 
             stdout, 
             stderr
         ]

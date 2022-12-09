@@ -1438,14 +1438,83 @@ def test():
     return runtime.wasSuccessful()
 
 if __name__ == '__main__':
-    morphologist = Capsul.executable('capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
-    parent = morphologist.nodes['SulciRecognition'].get_pipeline()
-    print(parent)
-    # t = TestFakeMorphologist()
-    # t.subjects = [f'subject_{i:04}' for i in range(2000)]
-    # print(f'Setting up config and data files for {len(t.subjects)} subjects and 3 time points')
-    # t.setUp()
-    # try:
-    #     ...
-    # finally:
-    #     t.tearDown()
+    import sys
+    from soma.qt_gui.qt_backend import Qt
+    from capsul.web import CapsulBrowserWindow
+
+    qt_app = Qt.QApplication.instance()
+    if not qt_app:
+        qt_app = Qt.QApplication(sys.argv)
+    self = TestFakeMorphologist()
+    self.subjects = [f'subject{i:04}' for i in range(2)]
+    print(f'Setting up config and data files for {len(self.subjects)}')
+    self.setUp()
+    try:
+        morphologist_iteration = Capsul.executable_iteration(
+            'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist',
+            non_iterative_plugs=['template'],
+        )
+
+        engine = self.capsul.engine()
+        execution_context = engine.execution_context(morphologist_iteration)
+
+        # Parse the dataset with BIDS-specific query (here "suffix" is part
+        #  of BIDS specification). The object returned contains info for main
+        # BIDS fields (sub, ses, acq, etc.)
+        count = 0
+        iter_meta = []
+        select_Talairach = []
+        perform_skull_stripped_renormalization = []
+        Normalization_select_Normalization_pipeline = []
+        spm_normalization_version = []
+
+        for path in sorted(
+                self.capsul.config.builtin.dataset.input.find(suffix='T1w',
+                                                            extension='nii')):
+            input_metadata \
+                = execution_context.dataset['input'].schema.metadata(path)
+            iter_meta.extend([input_metadata]*3)
+            select_Talairach += ['StandardACPC', 'Normalization',
+                                 'Normalization']
+            perform_skull_stripped_renormalization += [
+                'initial', 'skull_stripped', 'skull_stripped']
+            Normalization_select_Normalization_pipeline += [
+                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM']
+            spm_normalization_version += [
+                'normalization_t1_spm12_reinit',
+                'normalization_t1_spm12_reinit',
+                'normalization_t1_spm8_reinit']
+
+        # Set the input data
+        morphologist_iteration.select_Talairach = select_Talairach
+        morphologist_iteration.perform_skull_stripped_renormalization \
+            = perform_skull_stripped_renormalization
+        morphologist_iteration.Normalization_select_Normalization_pipeline \
+            = Normalization_select_Normalization_pipeline
+        morphologist_iteration.spm_normalization_version \
+            = spm_normalization_version
+
+        metadata = ProcessMetadata(morphologist_iteration, execution_context,
+                                   datasets=datasets)
+        metadata.bids = iter_meta
+        print('ITER:', morphologist_iteration.iterative_parameters)
+        print('left_labelled_graph is path:', morphologist_iteration.field('left_labelled_graph').path_type)
+        print('BEFORE GENERATE PATHS')
+        metadata.generate_paths(morphologist_iteration)
+        print('AFTER GENERATE PATHS')
+        print('left_labelled_graph:', getattr(morphologist_iteration, 'left_labelled_graph', undefined))
+
+        with self.capsul.engine() as engine:
+            execution_id = engine.start(morphologist_iteration)
+            try:
+                widget = CapsulBrowserWindow()
+                widget.show()
+                qt_app.exec_()
+                del widget
+                engine.wait(execution_id, timeout=1000)
+                engine.raise_for_status(execution_id)
+            except TimeoutError:
+                # engine.print_execution_report(engine.execution_report(engine.engine_id, execution_id))
+                raise
+    finally:
+        self.tearDown()

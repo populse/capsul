@@ -47,7 +47,7 @@ if __name__ == '__main__':
                         if tmp and os.path.exists(tmp):
                             shutil.rmtree(tmp)
                     else:
-                        returncode, stdout, stderr = run_job(
+                        return_code, stdout, stderr = run_job(
                             database,
                             engine_id,
                             execution_id,
@@ -58,7 +58,7 @@ if __name__ == '__main__':
                         # print(f'!worker {worker_id}! job', execution_id, job_uuid, database.job_finished)
                         database.job_finished(engine_id, execution_id, job_uuid, 
                             end_time=datetime.now(),
-                            returncode=returncode,
+                            return_code=return_code,
                             stdout=stdout,
                             stderr=stderr)
                     execution_id, job_uuid = database.pop_job(engine_id, start_time=datetime.now())

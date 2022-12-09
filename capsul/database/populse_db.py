@@ -254,13 +254,13 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
             executions.update_document(execution_id, execution)
             return result
     
-    def job_finished_json(self, execution_id, job_uuid, end_time, returncode, stdout, stderr):
+    def job_finished_json(self, execution_id, job_uuid, end_time, return_code, stdout, stderr):
         with self.database as session:
             session['job'].update_document(
                 (execution_id, job_uuid),
                 {
                     'end_time': end_time,
-                    'returncode': returncode,
+                    'return_code': return_code,
                     'stdout': stdout,
                     'stderr': stderr,
                 })
@@ -270,13 +270,13 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
             execution['ongoing'].remove(job_uuid)
 
             job = session['job'][(execution_id, job_uuid)]
-            if returncode:
+            if return_code:
                 execution['failed'].append(job_uuid)
                 stack = list(job.get('waited_by', []))
                 while stack:
                     uuid = stack.pop(0)
                     job = session['job'][(execution_id, uuid)]
-                    job['returncode'] = 'Not started because de dependent job failed'
+                    job['return_code'] = 'Not started because de dependent job failed'
                     session['job'][(execution_id, uuid)] = job
                     if uuid in execution['waiting']:
                         execution['waiting'].remove(uuid)

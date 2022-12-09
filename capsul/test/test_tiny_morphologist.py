@@ -779,13 +779,13 @@ class TestTinyMorphologist(unittest.TestCase):
 if __name__ == '__main__':
     import sys
     from soma.qt_gui.qt_backend import Qt
-    from capsul.qt_gui.execution_gui import execution_widget
-    
+    from capsul.web import CapsulBrowserWindow
+
     qt_app = Qt.QApplication.instance()
     if not qt_app:
         qt_app = Qt.QApplication(sys.argv)
     self = TestTinyMorphologist()
-    # self.subjects = [f'subject{i:04}' for i in range(1)]
+    self.subjects = [f'subject{i:04}' for i in range(500)]
     print(f'Setting up config and data files for {len(self.subjects)} subjects and 3 time points')
     self.setUp()
     try:
@@ -816,7 +816,7 @@ if __name__ == '__main__':
         with self.capsul.engine() as engine:
             execution_id = engine.start(tiny_morphologist_iteration)
             try:
-                widget = execution_widget(engine.database, engine.engine_id, execution_id)
+                widget = CapsulBrowserWindow()
                 widget.show()
                 from capsul.qt_gui.widgets import PipelineDeveloperView
                 tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')

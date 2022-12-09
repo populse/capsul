@@ -21,10 +21,10 @@ def run_job(database, engine_id, execution_id, job_uuid, same_python=False, debu
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
             try:
                 execute_job(database, engine_id, execution_id, job_uuid, debug=debug)
-                returncode = 0
+                return_code = 0
             except Exception as e:
                 print(traceback.format_exc(), file=stderr)
-                returncode = 1
+                return_code = 1
         stdout = stdout.getvalue()
         stderr = stderr.getvalue()
     else:
@@ -33,10 +33,10 @@ def run_job(database, engine_id, execution_id, job_uuid, same_python=False, debu
         if debug:
             env['CAPSUL_DEBUG'] = '1'
         result = subprocess.run(['python', '-m', 'capsul.run', engine_id, job_uuid], env=env, capture_output=True)
-        returncode = result.returncode
+        return_code = result.returncode
         stdout = result.stdout.decode()
         stderr = result.stderr.decode()
-    return returncode, stdout, stderr
+    return return_code, stdout, stderr
 
 
 
@@ -66,6 +66,10 @@ def execute_job(database, engine_id, execution_id, job_uuid, debug=False):
     for field in process.user_fields():
         if field.name in parameters and parameters[field.name] is not None:
             value = parameters.no_proxy(parameters[field.name])
+            if value == {} and field.is_list():
+                # In redis database, LUA converts empty lists to empty dict
+                # when encoding json.
+                value = []
             setattr(process, field.name, value)
     execution_context.executable = process
     process.resolve_paths(execution_context)

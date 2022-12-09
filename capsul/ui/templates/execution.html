@@ -58,23 +58,100 @@
         tr.innerHTML= '<th>' + i + '</th><td>' + report[i] + '</td>';
         details_table.appendChild(tr);
     }
-  
 
-    let jobs = document.getElementById('jobs');
-    for (const job of report['jobs']) {
-        jobs.appendChild(document.createElement('hr'));
-        let table = document.createElement('table');
-        table.innerHTML = '<tbody>' +
-          '<tr><th>process</th><td>' + job.process.definition + '</td></tr>' +
-          '<tr><th>job_uuid</th><td>' + job.uuid + '</td></tr>' +
-          '<tr><th>return code</th><td>' + job.returncode + '</td></tr>' +
-          '<tr><th>start time</th><td>' + job.start_time + '</td></tr>' +
-          '<tr><th>end time</th><td>' + job.end_time + '</td></tr>' +
-          '<tr><th>wait for</th><td>' + JSON.stringify(job.wait_for ?? []) + '</td></tr>' +
-          '<tr><th>waited by</th><td>' + JSON.stringify(job.waited_by ?? []) + '</td></tr>' +
-          '</tbody>';
-        jobs.appendChild(table);
+    // sort jobs according to start-time and end time
+    let jobs = report['jobs'];
+    jobs.sort(
+        (a,b) => {
+            return [! report.ongoing.includes(a.uuid), a.start_time || 'x', a.end_time || 'x'] >
+                   [! report.ongoing.includes(b.uuid), b.start_time || 'x', b.end_time || 'x'];
+        }
+    )
+
+    let jobs_element = document.getElementById('jobs');
+    for (const job of jobs) {
+        let parent_element = jobs_element;
+        let path = [];
+        parameters = job.parameters_location
+        let i = 0
+        while (i < parameters.length) {
+            if (['nodes', '_iterations'].includes(parameters[i])) {
+                path.push(parameters[i+1])
+                i += 2;
+            } else throw `Cannot parse parameters_location: ${parameters[i]}`;
+            id = path.join('.');
+            let path_element = document.getElementById(id);
+            if (! path_element) {
+                let details = document.createElement('details');
+                // details.setAttribute('open', 1);
+                parent_element.appendChild(details);
+                let e = document.createElement('summary');
+                e.innerText = path[path.length -1];
+                details.appendChild(e);
+                path_element = document.createElement('ul');
+                path_element.setAttribute('id', id);
+                details.appendChild(path_element);
+            }
+            parent_element = path_element;
+        }
+
+        let status;
+        if (report.failed.includes(job.uuid)) {
+            if (job.start_time)
+                status = '❌';
+            else
+                status = '🛑';
+        } else if (report.ongoing.includes(job.uuid)) {
+            status = '🏃';
+        } else if (report.waiting.includes(job.uuid) || report.ready.includes(job.uuid)) {
+            status = '⏳';
+        } else {
+            status = '✅';
+        }
+
+        let li = document.createElement('li');
+        parent_element.appendChild(li);
+        let job_element = document.createElement('details');
+        job_element.setAttribute('open', 1);
+        li.appendChild(job_element);
+        let summary = document.createElement('summary');
+        summary.innerText = job.process.definition;
+        summary.setAttribute('status', status);
+        job_element.appendChild(summary);
+
+        let ul = document.createElement('ul');
+        const stdout = job.stdout || ''
+        const stderr = job.stderr || '';
+        ul.innerHTML = 
+            '<li><strong>process: </strong>' + job.process.definition + '</li>' +
+            '<li><strong>path: </strong>' + path.join('.') + '</li>' +
+            '<li><strong>job uuid: </strong>' + job.uuid + '</li>' +
+            '<li><strong>return code: </strong>' + job.return_code + '</li>' +
+            '<li><strong>start time: </strong>' + job.start_time + '</li>' +
+            '<li><strong>end time: </strong>' + job.end_time + '</li>' +
+            '<li><strong>wait for: </strong>' + JSON.stringify(job.wait_for ?? []) + '</li>' +
+            '<li><strong>waited by: </strong>' + JSON.stringify(job.waited_by ?? []) + '</li>' +
+            '<li><details><summary><strong>stdout</strong> (' + stdout.length + '):</summary><pre>' +
+                stdout + '</pre></details></li>' +
+            '<li><details><summary><strong>stderr</strong> (' + stderr.length + '):</summary><pre>' +
+                stderr + '</pre></details></li>';
+        job_element.appendChild(ul);
     }
+
+    for (summary of document.querySelectorAll('summary')) {
+        let inner_summaries = summary.nextElementSibling.querySelectorAll('summary');
+        if (inner_summaries.length > 0) {
+            let status = '';
+            for (inner_summary of inner_summaries) {
+                const inner_status = inner_summary.getAttribute('status');
+                if (inner_status && ! status.includes(inner_status)) {
+                    status = status + inner_status
+                }
+            }
+            summary.setAttribute('status', status);
+        }
+      }    
+
   }
 
   window.addEventListener("backend_ready", (event) => {

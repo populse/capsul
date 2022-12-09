@@ -164,7 +164,7 @@ def show_job(item, widget, database):
             f'<b>job_uuid</b>: {job["uuid"]}<br>'
             f'<b>process</b>: {job.get("process", {}).get("definition")}<br>'
             f'<b>pipeline node</b>: {".".join(i for i in job.get("parameters_location", "") if i != "nodes")}<br>'
-            f'<b>return code</b>: {job.get("returncode")}<br>'
+            f'<b>return code</b>: {job.get("return_code")}<br>'
             f'<b>start time</b>: {job.get("start_time")}<br>'
             f'<b>end time</b>: {job.get("end_time")}<br>'
             f'<b>wait for</b>: {job.get("wait_for", [])}<br>'

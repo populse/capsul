@@ -131,7 +131,7 @@ class Capsul(Singleton):
                 yield self.engine(field.name)
     
     
-    def engine(self, name='builtin'):
+    def engine(self, name='builtin', update_database=False):
         ''' Get a :class:`~capsul.engine.Engine` instance
         '''
         from .engine import Engine
@@ -140,7 +140,8 @@ class Capsul(Singleton):
         engine_config = getattr(self.config, name, None)
         if engine_config is None:
             raise ValueError(f'engine "{name}" is not configured.')
-        return Engine(name, engine_config, databases_config=self.config.databases)
+        return Engine(name, engine_config, databases_config=self.config.databases,
+                      update_database=update_database)
     
     def dataset(self, path):
         ''' Get a :class:`~.dataset.DataSet` instance associated with the given path

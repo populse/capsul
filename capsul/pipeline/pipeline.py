@@ -2237,6 +2237,8 @@ class Pipeline(Process):
                                 (in_outer_pipelines and isinstance(dest_node, Pipeline))):
                                 for n, p in self.get_linked_items(dest_node,
                                                                   dest_plug_name,
+                                                                  activated_only=activated_only,
+                                                                  process_only=process_only,
                                                                   in_sub_pipelines=in_sub_pipelines,
                                                                   direction=current_direction,
                                                                   in_outer_pipelines=in_outer_pipelines):

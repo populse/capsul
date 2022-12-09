@@ -65,13 +65,14 @@ def execution_context(engine_label, engine_config, executable):
 
 class Engine:
 
-    def __init__(self, label, config, databases_config):
+    def __init__(self, label, config, databases_config, update_database=False):
         super().__init__()
         self.label = label
         self.config = config
         self.database_config = databases_config[self.config.database]
         self.database = engine_database(self.database_config)
         self.nested_context = 0
+        self.update_database = update_database
 
     def __enter__(self):
         if self.nested_context == 0:
@@ -79,7 +80,8 @@ class Engine:
             self.database.__enter__()
             # Connect to the engine in the database. Adds the engine in
             # the database if it does not exist.
-            self.engine_id = self.database.get_or_create_engine(self)
+            self.engine_id = self.database.get_or_create_engine(self,
+                update_database=self.update_database)
         self.nested_context += 1
         return self
 

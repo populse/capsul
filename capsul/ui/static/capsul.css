@@ -25,3 +25,18 @@ thead tr,
   tbody tr:nth-child(even) td {
     background-color:rgb(210, 245, 218);    
 }
+
+/* Remove bullets and margin for lists inside
+   jobs element.
+ */
+.jobs > li, ul {
+    list-style-type: none;
+    margin-top:  0;
+    margin-bottom: 0;
+}
+
+summary[status]::before {
+    content: attr(status) ' ';
+}
+  
+  
