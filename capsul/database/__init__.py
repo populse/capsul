@@ -141,7 +141,8 @@ class ExecutionDatabase:
     def new_execution(self, executable, engine_id, execution_context, workflow, start_time):
         executable_json = json_encode(executable.json(include_parameters=False))
         execution_context_json = execution_context.json()
-        workflow_parameters_json = json_encode(workflow.parameters.json())
+        workflow_parameters_values_json = json_encode(workflow.parameters_values)
+        workflow_parameters_dict_json = workflow.parameters_dict
         ready = []
         waiting = []
         jobs = [self._job_to_json(job.copy()) for job in workflow.jobs.values()]
@@ -156,7 +157,8 @@ class ExecutionDatabase:
             start_time=self._time_to_json(start_time),
             executable_json=executable_json,
             execution_context_json=execution_context_json,
-            workflow_parameters_json=workflow_parameters_json,
+            workflow_parameters_values_json=workflow_parameters_values_json,
+            workflow_parameters_dict_json=workflow_parameters_dict_json,
             jobs=jobs,
             ready=ready,
             waiting=waiting,
@@ -172,19 +174,6 @@ class ExecutionDatabase:
         if j is not None:
             return self._executable_from_json(j)
     
-    def workflow_parameters(self, engine_id, execution_id):
-        j = self.workflow_parameters_json(engine_id, execution_id)
-        if j:
-            return DictWithProxy.from_json(json_decode(j))
-
-
-    def set_workflow_parameters(self, engine_id, execution_id, workflow_parameters):
-        self.set_workflow_parameters_json(engine_id, execution_id, json_encode(workflow_parameters.json()))
-
-
-    def update_workflow_parameters(self, engine_id, execution_id, parameters_location, output_values):
-        self.update_workflow_parameters_json(engine_id, execution_id, parameters_location, json_encode(output_values))
-
 
     @staticmethod
     def _time_from_json(time_json):
@@ -224,10 +213,6 @@ class ExecutionDatabase:
         if execution_context is not None:
             execution_context = ExecutionContext(config=execution_context)
         report['execution_context'] = execution_context
-        workflow_parameters = report['workflow_parameters']
-        if workflow_parameters is not None:
-            workflow_parameters = DictWithProxy.from_json(workflow_parameters)
-        report['workflow_parameters'] = workflow_parameters        
         for n in ('start_time', 'end_time'):
             j = report.get(n)
             if j:
@@ -286,12 +271,8 @@ class ExecutionDatabase:
             disabled = job['disabled']
             stdout = job.get('stdout')
             stderr = job.get('stderr')
-            parameters = report['workflow_parameters']
-            if parameters:
-                for index in job.get('parameters_location', []):
-                    if index.isnumeric():
-                        index = int(index)
-                    parameters = parameters[index]
+            input_parameters = job.get('input_parameters')
+            output_parameters = job.get('output_parameters')
             wait_for = job.get('wait_for', [])
             waited_by = job.get('waited_by', [])
 
@@ -306,11 +287,16 @@ class ExecutionDatabase:
             print('disabled:', disabled, file=file)
             print('wait for:', wait_for, file=file)
             print('waited_by:', waited_by, file=file)
-            if parameters:
-                print('parameters:', file=file)
-                pprint(parameters.no_proxy(), stream=file)
+            if input_parameters:
+                print('input parameters:', file=file)
+                pprint(input_parameters, stream=file)
             else:
-                print('parameters: none', file=file)
+                print('input parameters: none', file=file)
+            if output_parameters:
+                print('output parameters:', file=file)
+                pprint(output_parameters, stream=file)
+            else:
+                print('output parameters: none', file=file)
             if stdout:
                 print('---------- standard output ----------', file=file)
                 print(stdout, file=file)
@@ -354,7 +340,10 @@ class ExecutionDatabase:
             raise RuntimeError(error)
 
     def update_executable(self, engine_id, execution_id, executable):
-        parameters = self.workflow_parameters(engine_id, execution_id)
+        parameters = DictWithProxy.from_json(dict(
+            proxy_values = self.workflow_parameters_values(engine_id, execution_id),
+            content = self.workflow_parameters_dict(engine_id, execution_id),
+        ))
         # print('!update_executable!')
         # from pprint import pprint
         # pprint(parameters.proxy_values)
@@ -504,7 +493,8 @@ class ExecutionDatabase:
             start_time, 
             executable_json,
             execution_context_json,
-            workflow_parameters_json,
+            workflow_parameters_values_json,
+            workflow_parameters_dict_json,
             jobs,
             ready,
             waiting
@@ -534,6 +524,15 @@ class ExecutionDatabase:
         raise NotImplementedError
 
 
+    def get_job_input_parameters(self, engine_id, execution_id, job_uuid):
+        '''
+        Return a dictionary of input parameters to use for a job. Also store
+        the returned dict with the job to ease the creation of job execution
+        monitoring tools.
+        '''
+        raise NotImplementedError
+       
+
     def job_finished(self, engine_id, execution_id, job_uuid, end_time, return_code, stdout, stderr):
         '''
         Convert its parameters to JSON and calls job_finished_json()
@@ -551,15 +550,15 @@ class ExecutionDatabase:
         raise NotImplementedError
 
         
-    def workflow_parameters_json(self, engine_id, execution_id):
+    def workflow_parameters_values(self, engine_id, execution_id):
+        return json_decode(self.workflow_parameters_values_json(engine_id, execution_id))
+    
+
+    def workflow_parameters_values_json(self, engine_id, execution_id):
         raise NotImplementedError
 
 
-    def set_workflow_parameters_json(self, engine_id, execution_id, workflow_parameters_json):
-        raise NotImplementedError
-
-
-    def update_workflow_parameters_json(self, engine_id, execution_id, parameters_location, output_values):
+    def workflow_parameters_dict_json(self, engine_id, execution_id):
         raise NotImplementedError
 
 

@@ -10,7 +10,7 @@ import copy
 
 from soma.controller import Directory, undefined
 
-from capsul.api import Capsul, Process, Pipeline
+from capsul.api import Capsul
 from capsul.config.configuration import ModuleConfiguration, default_engine_start_workers
 from capsul.dataset import ProcessMetadata, ProcessSchema, MetadataSchema
 
@@ -795,6 +795,7 @@ class TestFakeMorphologist(unittest.TestCase):
         
         context = engine.execution_context(morphologist)
         expected_context = {
+            'config_modules': ['capsul.test.test_fake_morphologist'],
             'dataset': {
                 'input': {
                     'path': str(self.tmp / 'bids'),
@@ -1437,6 +1438,108 @@ def test():
     runtime = unittest.TextTestRunner(verbosity=2).run(suite)
     return runtime.wasSuccessful()
 
+
+
+
+def with_iteration(engine):
+    morphologist_iteration = Capsul.executable_iteration(
+        'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist',
+        non_iterative_plugs=['template'],
+    )
+
+    execution_context = engine.execution_context(morphologist_iteration)
+
+    # Parse the dataset with BIDS-specific query (here "suffix" is part
+    #  of BIDS specification). The object returned contains info for main
+    # BIDS fields (sub, ses, acq, etc.)
+    count = 0
+    iter_meta = []
+    select_Talairach = []
+    perform_skull_stripped_renormalization = []
+    Normalization_select_Normalization_pipeline = []
+    spm_normalization_version = []
+
+    for path in sorted(
+            self.capsul.config.builtin.dataset.input.find(suffix='T1w',
+                                                        extension='nii')):
+        input_metadata \
+            = execution_context.dataset['input'].schema.metadata(path)
+        iter_meta.extend([input_metadata]*3)
+        select_Talairach += ['StandardACPC', 'Normalization',
+                            'Normalization']
+        perform_skull_stripped_renormalization += [
+            'initial', 'skull_stripped', 'skull_stripped']
+        Normalization_select_Normalization_pipeline += [
+            'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM']
+        spm_normalization_version += [
+            'normalization_t1_spm12_reinit',
+            'normalization_t1_spm12_reinit',
+            'normalization_t1_spm8_reinit']
+
+    # Set the input data
+    morphologist_iteration.select_Talairach = select_Talairach
+    morphologist_iteration.perform_skull_stripped_renormalization \
+        = perform_skull_stripped_renormalization
+    morphologist_iteration.Normalization_select_Normalization_pipeline \
+        = Normalization_select_Normalization_pipeline
+    morphologist_iteration.spm_normalization_version \
+        = spm_normalization_version
+
+    metadata = ProcessMetadata(morphologist_iteration, execution_context,
+                               datasets=datasets)
+    metadata.bids = iter_meta
+    metadata.generate_paths(morphologist_iteration)
+
+    execution_id = engine.start(morphologist_iteration)
+    return execution_id
+
+
+def without_iteration(engine):    
+    select_Talairach=[
+        'StandardACPC', 
+        'Normalization', 
+        'Normalization']
+    perform_skull_stripped_renormalization = [
+        'initial', 
+        'skull_stripped', 
+        'skull_stripped']
+    Normalization_select_Normalization_pipeline = [
+        'NormalizeSPM', 
+        'Normalization_AimsMIRegister',
+        'NormalizeSPM']
+    spm_normalization_version = [
+        'normalization_t1_spm12_reinit',
+        'normalization_t1_spm12_reinit',
+        'normalization_t1_spm8_reinit']
+
+    execution_ids = []
+    for path in sorted(
+            self.capsul.config.builtin.dataset.input.find(suffix='T1w',
+                                                        extension='nii')):
+        for i in range(3):
+            morphologist = Capsul.executable(
+                'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist',
+            )
+            execution_context = engine.execution_context(morphologist)
+            input_metadata \
+                = execution_context.dataset['input'].schema.metadata(path)
+
+            # Set the input data
+            morphologist.select_Talairach = select_Talairach[i]
+            morphologist.perform_skull_stripped_renormalization \
+                = perform_skull_stripped_renormalization[i]
+            morphologist.Normalization_select_Normalization_pipeline \
+                = Normalization_select_Normalization_pipeline[i]
+            morphologist.spm_normalization_version \
+                = spm_normalization_version[i]
+
+            metadata = ProcessMetadata(morphologist, execution_context,
+                                       datasets=datasets)
+            metadata.bids = input_metadata
+            metadata.generate_paths(morphologist)
+            execution_ids.append(engine.start(morphologist))
+    return execution_ids
+
 if __name__ == '__main__':
     import sys
     from soma.qt_gui.qt_backend import Qt
@@ -1446,75 +1549,26 @@ if __name__ == '__main__':
     if not qt_app:
         qt_app = Qt.QApplication(sys.argv)
     self = TestFakeMorphologist()
-    self.subjects = [f'subject{i:04}' for i in range(2)]
+    self.subjects = [f'subject{i:04}' for i in range(20)]
     print(f'Setting up config and data files for {len(self.subjects)}')
     self.setUp()
     try:
-        morphologist_iteration = Capsul.executable_iteration(
-            'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist',
-            non_iterative_plugs=['template'],
-        )
-
-        engine = self.capsul.engine()
-        execution_context = engine.execution_context(morphologist_iteration)
-
-        # Parse the dataset with BIDS-specific query (here "suffix" is part
-        #  of BIDS specification). The object returned contains info for main
-        # BIDS fields (sub, ses, acq, etc.)
-        count = 0
-        iter_meta = []
-        select_Talairach = []
-        perform_skull_stripped_renormalization = []
-        Normalization_select_Normalization_pipeline = []
-        spm_normalization_version = []
-
-        for path in sorted(
-                self.capsul.config.builtin.dataset.input.find(suffix='T1w',
-                                                            extension='nii')):
-            input_metadata \
-                = execution_context.dataset['input'].schema.metadata(path)
-            iter_meta.extend([input_metadata]*3)
-            select_Talairach += ['StandardACPC', 'Normalization',
-                                 'Normalization']
-            perform_skull_stripped_renormalization += [
-                'initial', 'skull_stripped', 'skull_stripped']
-            Normalization_select_Normalization_pipeline += [
-                'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM']
-            spm_normalization_version += [
-                'normalization_t1_spm12_reinit',
-                'normalization_t1_spm12_reinit',
-                'normalization_t1_spm8_reinit']
-
-        # Set the input data
-        morphologist_iteration.select_Talairach = select_Talairach
-        morphologist_iteration.perform_skull_stripped_renormalization \
-            = perform_skull_stripped_renormalization
-        morphologist_iteration.Normalization_select_Normalization_pipeline \
-            = Normalization_select_Normalization_pipeline
-        morphologist_iteration.spm_normalization_version \
-            = spm_normalization_version
-
-        metadata = ProcessMetadata(morphologist_iteration, execution_context,
-                                   datasets=datasets)
-        metadata.bids = iter_meta
-        print('ITER:', morphologist_iteration.iterative_parameters)
-        print('left_labelled_graph is path:', morphologist_iteration.field('left_labelled_graph').path_type)
-        print('BEFORE GENERATE PATHS')
-        metadata.generate_paths(morphologist_iteration)
-        print('AFTER GENERATE PATHS')
-        print('left_labelled_graph:', getattr(morphologist_iteration, 'left_labelled_graph', undefined))
-
         with self.capsul.engine() as engine:
-            execution_id = engine.start(morphologist_iteration)
-            try:
-                widget = CapsulBrowserWindow()
-                widget.show()
-                qt_app.exec_()
-                del widget
-                engine.wait(execution_id, timeout=1000)
-                engine.raise_for_status(execution_id)
-            except TimeoutError:
-                # engine.print_execution_report(engine.execution_report(engine.engine_id, execution_id))
-                raise
+            widget = CapsulBrowserWindow()
+            widget.show()
+            # import cProfile
+            # cProfile.run(
+            #     'execution_ids = without_iteration(engine)',
+            #     '/tmp/without_iteration')       
+            # cProfile.run(
+            #     'execution_ids = with_iteration(engine)',
+            #     '/tmp/with_iteration')
+            start = time.time()
+            execution_ids = with_iteration(engine)
+            print('Duration:', time.time() - start)
+            qt_app.exec_()
+            del widget
+            for execution_id in execution_ids:
+                engine.dispose(execution_id)
     finally:
         self.tearDown()

@@ -2171,7 +2171,8 @@ class Pipeline(Process):
     
     def dispatch_value(self, node, name, value):
         for node, plug in self.dispatch_plugs(node, name):
-            setattr(node, plug, value)
+            if getattr(node, plug, None) != value:
+                setattr(node, plug, value)
     
     def dispatch_plugs(self, node, name):
         enable_parameter_links = self.enable_parameter_links

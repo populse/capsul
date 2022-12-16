@@ -9,6 +9,7 @@ import sys
 import traceback
 
 from soma.undefined import undefined
+from populse_db.database import json_decode, json_encode
 
 from .application import Capsul
 from .database import engine_database
@@ -48,29 +49,22 @@ def execute_job(database, engine_id, execution_id, job_uuid, debug=False):
     job = database.job(engine_id, execution_id, job_uuid)
     if job is None:
         raise ValueError(f'No such job: {job_uuid}')
+    job_parameters = database.get_job_input_parameters(engine_id, execution_id, job['uuid'])
     process_json = job['process']
-    parameters_location = job['parameters_location']
     process = Capsul.executable(process_json)
     if debug:
-        print(f'---- init {process.definition} {parameters_location} ----')
-    workflow_parameters = database.workflow_parameters(engine_id, execution_id)
-    parameters = workflow_parameters
-    for index in parameters_location:
-        if index.isnumeric():
-            index = int(index)
-        parameters = parameters[index]
-    if debug:
         from pprint import pprint
-        pprint(parameters.no_proxy())
+        print(f'---- init {process.definition} ----')
+        pprint(job_parameters)
         print(f'----')
     for field in process.user_fields():
-        if field.name in parameters and parameters[field.name] is not None:
-            value = parameters.no_proxy(parameters[field.name])
+        value = job_parameters.get(field.name)
+        if value is not None:
             if value == {} and field.is_list():
                 # In redis database, LUA converts empty lists to empty dict
                 # when encoding json.
                 value = []
-            setattr(process, field.name, value)
+            setattr(process, field.name, json_decode(value))
     execution_context.executable = process
     process.resolve_paths(execution_context)
     if debug:
@@ -95,9 +89,9 @@ def execute_job(database, engine_id, execution_id, job_uuid, debug=False):
         if field.output:
             value = getattr(process, field.name, undefined)
             if value is not undefined:
-                output_values[field.name] = value
+                output_values[field.name] = json_encode(value)
     if output_values is not None:
-        database.update_workflow_parameters(engine_id, execution_id, parameters_location, output_values)
+        database.set_job_output_parameters(engine_id, execution_id, job['uuid'], output_values)
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:

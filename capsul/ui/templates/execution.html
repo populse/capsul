@@ -59,6 +59,10 @@
         details_table.appendChild(tr);
     }
 
+    tr = document.createElement('tr');
+    tr.innerHTML= '<th>execution context</th><td><pre>' + JSON.stringify(report['execution_context'], undefined, 2) + '</pre></td>';
+    details_table.appendChild(tr);
+
     // sort jobs according to start-time and end time
     let jobs = report['jobs'];
     jobs.sort(
@@ -131,6 +135,7 @@
             '<li><strong>end time: </strong>' + job.end_time + '</li>' +
             '<li><strong>wait for: </strong>' + JSON.stringify(job.wait_for ?? []) + '</li>' +
             '<li><strong>waited by: </strong>' + JSON.stringify(job.waited_by ?? []) + '</li>' +
+            '<li><strong>parameters index: </strong><pre>' + JSON.stringify(job.parameters_index, undefined, 2) + '</pre></li>' +
             '<li><details><summary><strong>stdout</strong> (' + stdout.length + '):</summary><pre>' +
                 stdout + '</pre></details></li>' +
             '<li><details><summary><strong>stderr</strong> (' + stderr.length + '):</summary><pre>' +

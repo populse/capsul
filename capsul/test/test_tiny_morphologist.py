@@ -398,6 +398,7 @@ class TestTinyMorphologist(unittest.TestCase):
         
         context = engine.execution_context(tiny_morphologist)
         expected_context = {
+            'config_modules': ['capsul.test.test_tiny_morphologist'],
             'dataset': {
                 'input': {
                     'path': str(self.tmp / 'bids'),

@@ -15,6 +15,11 @@ from capsul.process.process import Process
 import capsul.pipeline.pipeline
 
 
+class IndependentExecutables:
+    def __init__(self):
+        self.executables = []
+
+
 class ProcessIteration(Process):
 
     _doc_path = 'api/pipeline.html#processiteration'
@@ -136,6 +141,8 @@ class ProcessIteration(Process):
             yield self.process
     
     def select_iteration_index(self, iteration_index):
+        if isinstance(self.process, capsul.pipeline.pipeline.Pipeline):
+            self.process.delay_update_nodes_and_plugs_activation()
         for parameter in self.regular_parameters:
             value = getattr(self, parameter, undefined)
             setattr(self.process, parameter, value)
@@ -149,6 +156,8 @@ class ProcessIteration(Process):
             else:
                 value = undefined
             setattr(self.process, parameter, value)
+        if isinstance(self.process, capsul.pipeline.pipeline.Pipeline):
+            self.process.restore_update_nodes_and_plugs_activation()
 
     def json(self, include_parameters=True):
         result = {

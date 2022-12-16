@@ -102,10 +102,11 @@ class RedisExecutionDatabase(ExecutionDatabase):
             local start_time = ARGV[3]
             local executable_json = ARGV[4]
             local execution_context_json = ARGV[5]
-            local workflow_parameters_json = ARGV[6]
-            local jobs = cjson.decode(ARGV[7])
-            local ready = ARGV[8]
-            local waiting = ARGV[9]
+            local workflow_parameters_values_json = ARGV[6]
+            local workflow_parameters_dict_json = ARGV[7]
+            local jobs = cjson.decode(ARGV[8])
+            local ready = ARGV[9]
+            local waiting = ARGV[10]
 
             local executions = cjson.decode(redis.call('hget', engine_key, 'executions'))
             table.insert(executions, execution_id)
@@ -116,7 +117,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
             redis.call('hset', execution_key, 'start_time', start_time)
             redis.call('hset', execution_key, 'executable', executable_json)
             redis.call('hset', execution_key, 'execution_context', execution_context_json)
-            redis.call('hset', execution_key, 'workflow_parameters', workflow_parameters_json)
+            redis.call('hset', execution_key, 'workflow_parameters_values', workflow_parameters_values_json)
+            redis.call('hset', execution_key, 'workflow_parameters_dict', workflow_parameters_dict_json)
 
             redis.call('hset', execution_key, 'ready', ready)
             --  An empty list modified with Redis Lua scripts may be encoded as empty dict
@@ -329,9 +331,12 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
             local worker_id = ARGV[1]
 
-            local workers = cjson.decode(redis.call('hget', engine_key, 'workers'))
-            table.insert(workers, worker_id)
-            redis.call('hset', engine_key, 'workers', cjson.encode(workers))
+            local workers = redis.call('hget', engine_key, 'workers')
+            if workers then
+                workers = cjson.decode(workers)
+                table.insert(workers, worker_id)
+                redis.call('hset', engine_key, 'workers', cjson.encode(workers))
+            end
         ''')
 
         self._worker_ended = self.redis.register_script('''
@@ -361,7 +366,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
             local label = redis.call('hget', execution_key, 'label')
             local execution_context = redis.call('hget', execution_key, 'execution_context')
-            local workflow_parameters = redis.call('hget', execution_key, 'workflow_parameters')
             local status = redis.call('hget', execution_key, 'status')
             local error = redis.call('hget', execution_key, 'error')
             local error_detail = redis.call('hget', execution_key, 'error_detail')
@@ -384,9 +388,9 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 end
             until cursor == 0
 
-            return {label, execution_context, workflow_parameters, 
-                status, error, error_detail, start_time, end_time, 
-                waiting, ready, ongoing, done, failed, jobs}                
+            return {label, execution_context, status, error, error_detail,
+                start_time, end_time, waiting, ready, ongoing, done, failed,
+                jobs}                
             ''')
 
 
@@ -401,6 +405,23 @@ class RedisExecutionDatabase(ExecutionDatabase):
             end
             ''')
     
+        self._set_job_output_parameters  = self.redis.register_script('''
+            local execution_key = KEYS[1]
+
+            local job_uuid = ARGV[1]
+            local output_parameters = cjson.decode(ARGV[2])
+
+            local job_key = 'job:' .. job_uuid
+            local values = cjson.decode(redis.call('hget', execution_key, 'workflow_parameters_values'))
+            local job = cjson.decode(redis.call('hget', execution_key, job_key))
+            local indices = job['parameters_index']
+            for name, value in pairs(output_parameters) do
+                values[indices[name]+1] = value
+            end
+            job['output_parameters'] = output_parameters
+            redis.call('hset', execution_key, job_key, cjson.encode(job))
+            redis.call('hset', execution_key, 'workflow_parameters_values', cjson.encode(values))
+        ''')
 
     def _exit(self):
         self.redis.hdel('capsul:connections', self.uuid)
@@ -481,7 +502,9 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 self.redis.hdel(f'capsul:{engine_id}', 'label')
                 # Check if some executions had been submited or are ongoing
                 # An empty list modified with Redis Lua scripts may be encoded as empty dict
-                if self.redis.hget(f'capsul:{engine_id}', 'executions') in ('{}', '[]'):
+                executions = json.loads(self.redis.hget(f'capsul:{engine_id}', 'executions'))
+                if all(not self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'dispose') 
+                       for execution_id in executions):
                     # Nothing is ongoing, completely remove engine
                     self.redis.delete(f'capsul:{engine_id}')
 
@@ -519,7 +542,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
             start_time, 
             executable_json,
             execution_context_json,
-            workflow_parameters_json,
+            workflow_parameters_values_json,
+            workflow_parameters_dict_json,
             jobs,
             ready,
             waiting
@@ -535,7 +559,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
             start_time,
             json.dumps(executable_json),
             json.dumps(execution_context_json),
-            json.dumps(workflow_parameters_json),
+            json.dumps(workflow_parameters_values_json),
+            json.dumps(workflow_parameters_dict_json),
             json.dumps(jobs),
             json.dumps(ready),
             json.dumps(waiting),
@@ -587,24 +612,38 @@ class RedisExecutionDatabase(ExecutionDatabase):
         return self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'status')
 
         
-    def workflow_parameters_json(self, engine_id, execution_id):
-        return json.loads(self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'workflow_parameters') or 'null')
+    def workflow_parameters_values_json(self, engine_id, execution_id):
+        return json.loads(self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'workflow_parameters_values') or 'null')
 
 
-    def set_workflow_parameters_json(self, engine_id, execution_id, workflow_parameters_json):
-        self.redis.hset(f'capsul:{engine_id}:{execution_id}', 'workflow_parameters',
-                        json.dumps(workflow_parameters_json))
+    def workflow_parameters_dict(self, engine_id, execution_id):
+        return json.loads(self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'workflow_parameters_dict') or 'null')
 
 
-    def update_workflow_parameters_json(self, engine_id, execution_id, parameters_location, output_values):
+    def get_job_input_parameters(self, engine_id, execution_id, job_uuid):
+        values = self.workflow_parameters_values_json(engine_id, execution_id)
+        job = self.job_json(engine_id, execution_id, job_uuid)
+        indices = job.get('parameters_index', {})
+        result = {}
+        for k, i in indices.items():
+            if isinstance(i, list):
+                result[k] = [values[j] for j in i]
+            else:
+                result[k] = values[i]
+        job['input_parameters'] = result
+        self.redis.hset(f'capsul:{engine_id}:{execution_id}', f'job:{job_uuid}', json.dumps(job))
+        return result        
+
+
+    def set_job_output_parameters(self, engine_id, execution_id, job_uuid, output_parameters):
         keys = [
             f'capsul:{engine_id}:{execution_id}'
         ]
         args = [
-            json.dumps(parameters_location),
-            json.dumps(output_values)
+            job_uuid, 
+            json.dumps(output_parameters),
         ]
-        self._update_workflow_parameters(keys=keys, args=args)
+        self._set_job_output_parameters(keys=keys, args=args)
 
 
     def job_json(self, engine_id, execution_id, job_uuid):
@@ -613,7 +652,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
 
     def execution_report_json(self, engine_id, execution_id):
-        (label, execution_context, workflow_parameters, status, error,
+        (label, execution_context, status, error,
          error_detail, start_time, end_time, waiting, ready,
          ongoing, done, failed, jobs) = self._full_report(keys=[f'capsul:{engine_id}:{execution_id}'])
         result = dict(
@@ -632,7 +671,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
             done=done,
             failed=failed,
             jobs=[json.loads(i) for i in jobs],
-            workflow_parameters =json.loads(workflow_parameters),
             engine_debug = {},
         )
         return result

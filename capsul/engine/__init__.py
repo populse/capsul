@@ -9,17 +9,12 @@ from soma.controller import Controller
 
 from ..execution_context import CapsulWorkflow, ExecutionContext
 from ..config.configuration import ModuleConfiguration
-from ..dataset import Dataset
 from ..database import engine_database
 
 
 def execution_context(engine_label, engine_config, executable):
-    execution_context = ExecutionContext(executable=executable)
-    python_modules = getattr(engine_config, 'python_modules', ())
-    if python_modules:
-        execution_context.python_modules = python_modules
-    for name, cfg in getattr(engine_config, 'dataset', {}).items():
-        setattr(execution_context.dataset, name, Dataset(path=cfg.path, metadata_schema=cfg.metadata_schema))
+    execution_context = ExecutionContext(executable=executable,
+        config=engine_config.asdict())
 
     req_to_check = execution_context.executable_requirements(executable)
     done_req = []  # record requirements to avoid loops
@@ -88,6 +83,7 @@ class Engine:
     def engine_status(self):
         result = {
             'label': self.label,
+            'config': self.config.json(),
         }
         result['database_connected'] = self.database.is_connected
         if result['database_connected']:
@@ -138,10 +134,9 @@ class Engine:
 
     def start(self, executable, debug=False, **kwargs):
         # Starts workers if necessary
-        self.start_workers()
         for name, value in kwargs.items():
             setattr(executable, name, value)
-        econtext = execution_context(self.label, self.config, executable)
+        econtext = self.execution_context(executable)
         workflow = CapsulWorkflow(executable, debug=debug)
         # from pprint import pprint
         # print('!start!', flush=True)
@@ -151,7 +146,9 @@ class Engine:
         # pprint(workflow.parameters.no_proxy())
         # print('----')
         # pprint(workflow.jobs)
-        execution_id = self.database.new_execution(executable, self.engine_id, econtext, workflow, start_time=datetime.now())
+        execution_id = self.database.new_execution(executable, self.engine_id,
+            econtext, workflow, start_time=datetime.now())
+        self.start_workers()
         return execution_id
 
 
