@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import os
 import os.path as osp
-import sys
 from soma.controller import File
 from capsul.api import Capsul, Process, Pipeline
 from capsul.execution_context import CapsulWorkflow
@@ -163,17 +161,6 @@ class TestPipelineWorkflow(unittest.TestCase):
         except Exception:
             pass
         Capsul.delete_singleton()
-
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_requirements(self):
-        engine = self.study_config.engine
-        with engine.settings as session:
-            session.remove_config('spm', 'global', 'spm12-standalone')
-        self.pipeline.enable_all_pipeline_steps()
-        # Commented out to avoid error with flake8
-        # with self.assertRaises(ValueError):
-        #     wf = pipeline_workflow.workflow_from_pipeline(
-        #         self.pipeline, study_config=self.study_config)
 
 
     def test_full_wf(self):
