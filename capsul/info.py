@@ -8,7 +8,7 @@ import sys
 
 # Capsul current version
 version_major = 2
-version_minor = 3
+version_minor = 4
 version_micro = 0
 version_extra = ""
 
