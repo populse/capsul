@@ -59,7 +59,7 @@ def to_warp_func(parameter1, parameter2, parameter3):
 <process>
     <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
     <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" 
-     doc="Mehod for thresolding."/>
+     doc="Method for thresolding."/>
     <input name="threshold" type="float" doc="Threshold value."/>
     <return name="output_image" type="file" doc="Name of the output image."/>
 </process>
@@ -191,8 +191,8 @@ def divides_single_list(a, b):
 class TestLoadFromDescription(unittest.TestCase):
     """ Class to test function to process loading mechanism.
     """
-    def test_process_warpping(self):
-        """ Method to test the function to process on the fly warpping.
+    def test_process_warping(self):
+        """ Method to test the function to process on the fly warping.
         """
         process = get_process_instance(
             "capsul.process.test.test_load_from_description.to_warp_func")
@@ -205,8 +205,8 @@ class TestLoadFromDescription(unittest.TestCase):
         self.assertEqual(process.output1, 1)
         self.assertEqual(process.output2, "done")
 
-    def test_pipeline_warpping(self):
-        """ Method to test the xml description to pipeline on the fly warpping.
+    def test_pipeline_warping(self):
+        """ Method to test the xml description to pipeline on the fly warping.
         """
         pipeline = get_process_instance("capsul.process.test.xml_pipeline")
         self.assertTrue(isinstance(pipeline, Pipeline))

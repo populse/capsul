@@ -509,7 +509,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     ####################################################################
 
     def get_commandline(self):
-        """ Method to generate a comandline representation of the process.
+        """ Method to generate a commandline representation of the process.
 
         If not implemented, it will generate a commandline running python,
         instaitiating the current process, and calling its
@@ -596,7 +596,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
     def params_to_command(self):
         '''
-        Generates a comandline representation of the process.
+        Generates a commandline representation of the process.
 
         If not implemented, it will generate a commandline running python,
         instaitiating the current process, and calling its
@@ -686,7 +686,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         variable.
 
         If the process has outputs, the ``SOMAWF_OUTUT_PARAMS`` environment
-        variable should contain the location of an output file which whill be
+        variable should contain the location of an output file which will be
         written with a dict containing output parameters values.
         '''
         from capsul.engine import capsul_engine
@@ -1298,7 +1298,7 @@ class FileCopyProcess(Process):
 
         # restore initial values, keeping outputs
         # The situation here is that:
-        # * output_directory should drive "final" output valules
+        # * output_directory should drive "final" output values
         # * we may have been using a temporary output directory, thus output
         #   values are already set to this temp dir, not the final one.
         #   (at least when use_temp_output_dir is set).
@@ -1358,7 +1358,7 @@ class FileCopyProcess(Process):
 
         shutil.rmtree(tmp_output)
         del self._destination
-        self.destinaton = self._former_output_directory
+        self.destination = self._former_output_directory
         if hasattr(self, 'output_directory'):
             self.output_directory = self._former_output_directory
         del self._former_output_directory

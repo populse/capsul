@@ -175,7 +175,7 @@ def lists2dict(list_of_pipeline_description, url, d):
     Parameters
     ----------
     list_of_pipeline_description: list of list of str (mandatory)
-        the splited module names to organize bu modules
+        the splited module names to organize by modules
     url: str (mandatory)
         the url to the module documentation
 

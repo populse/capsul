@@ -367,7 +367,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
     # > output traits
     for trait_name, trait in nipype_instance.output_spec().items():
 
-        # Relax nipye exists trait contrain
+        # Relax nipye exists trait constraint
         relax_exists_constraint(trait)
 
         # Clone the nipype trait
