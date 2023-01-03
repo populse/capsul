@@ -2,6 +2,7 @@
 '''
 Classes
 =======
+
 :class:`CapsulMainWindow`
 -------------------------
 '''
@@ -400,7 +401,7 @@ class CapsulMainWindow(MyQUiLoader):
             # Display the window
             win.exec_()
 
-        # No Pipeline loaded, cant't show the documentation message
+        # No Pipeline loaded, can't show the documentation message
         # Display a message box
         else:
             QtGui.QMessageBox.information(
