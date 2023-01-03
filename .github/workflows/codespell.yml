@@ -17,4 +17,4 @@ jobs:
       - uses: codespell-project/actions-codespell@master
         with:
           skip: icones.py,scikit-learn,bootstrap.css
-          ignore_words_list: fo,nd,nin
+          ignore_words_list: fo,nd,nin,FOM,fom
