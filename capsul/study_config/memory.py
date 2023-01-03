@@ -665,7 +665,7 @@ def has_attribute(trait, attribute_name, attribute_value=None,
         True if input given trait has an attribute and optionally if it
         is set to a particular value.
     """
-    # Count the nomber of trait having the target attribute
+    # Count the number of trait having the target attribute
     count = 0
 
     # Check the current trait

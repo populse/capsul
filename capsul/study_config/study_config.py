@@ -304,7 +304,7 @@ class StudyConfig(Controller):
          Only pipeline nodes can be filtered on the 'execute_qc_nodes'
          attribute.
 
-         A valid output directory is exepcted to execute the process or the
+         A valid output directory is expected to execute the process or the
          pepeline without soma-workflow.
 
         Parameters
