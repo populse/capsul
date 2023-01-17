@@ -12,9 +12,9 @@ matrix:
         - 2.7
     - os: linux
       language: python
-      name: python 3.7
+      name: python 3.9
       python:
-        - 3.7
+        - 3.9
 
 before_install:
     # osx deps
@@ -52,18 +52,10 @@ install:
     - if [[ $TRAVIS_OS_NAME == linux ]]; then pip install pre-commit; fi
     # to test notebooks
     - pip install jupyter nbconvert
-    - if [[ "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then sudo apt-get install -y pandoc graphviz; pip install sphinx sphinx-gallery pandoc nbsphinx "PyQt5<5.13"; fi
     - python -c 'import sys; sys.exit(0 if sys.version_info >= (2, 7) else 1)' && pip install nipype || echo "testing without nipype."
     #- pip install soma-workflow
     - python setup.py install
-    - export CAPSUL_SOURCE_DIR=$PWD
-    - export SOMABASE_INTERSPHINX_URL=http://brainvisa.info/soma-base/sphinx
-    - export SOMAWORKFLOW_INTERSPHINX_URL=http://brainvisa.info/soma-workflow/sphinx
     - export QT_API=pyqt5
-    # build doc; set .nojekyll otherwise github.io doesn't copy dirs starting
-    # with '_' (such as '_static')
-    - if [[  "$TRAVIS_OS_NAME" = "linux" && "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then cd doc && make html && touch build/html/.nojekyll && cd ..; fi
-    - if [[ -n "$GITHUB_ACCESS_TOKEN" ]]; then export PUSH_DOC_TO_GH_PAGES=yes; fi
     # don't stay in source directory to actually use the installed capsul
     - cd ..
 
@@ -76,16 +68,6 @@ script:
 
 after_success:
     - codecov
-
-deploy:
-  provider: pages
-  skip_cleanup: true
-  github_token: $GITHUB_ACCESS_TOKEN
-  target-branch: gh-pages
-  local-dir: doc/build/html
-  on:
-    branch: master
-    condition: $PUSH_DOC_TO_GH_PAGES == yes && $TRAVIS_OS_NAME == linux && $TRAVIS_PYTHON_VERSION == 3.7
 
 cache:
   directories:
