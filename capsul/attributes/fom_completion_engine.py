@@ -133,7 +133,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         output_found = False
         shared_fom = None
 
-       # print('create_attributes_with_fom for', self.process, ', FCE:', self, ', foms:', {n: f.fom_names[-1] for n, f in modules_data.foms.items()})
+        # print('create_attributes_with_fom for', self.process, ', FCE:', self, ', foms:', {n: f.fom_names[-1] for n, f in modules_data.foms.items()})
 
         foms = SortedDictionary()
         foms.update(modules_data.foms)
@@ -204,9 +204,10 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
         found = False
         for schema, fom_type in sel_foms.items():
+            # print('schema:', schema, fom_type)
             fom = modules_data.all_foms[fom_type]
-            atp = modules_data.fom_atp.get(schema) \
-                or modules_data.fom_atp['all'].get(schema)
+            atp = modules_data.fom_atp['all'].get(fom_type) \
+                or modules_data.fom_atp.get(schema)
 
             if atp is None:
                 continue
@@ -219,7 +220,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 continue
 
             found = True
-            #print('completion using FOM:', schema, fom_type, 'for', process.id)
+            # print('completion using FOM:', schema, fom_type, 'for', process.id, ', atp:', atp)
             #break
 
             for parameter in fom_patterns:
