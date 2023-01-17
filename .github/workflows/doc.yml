@@ -33,14 +33,21 @@ jobs:
       - name: "Install Python dependencies"
         run: |
           pip3 install setuptools
-          pip3 install numpy 'six>=1.13' 'argparse' 'traits>=4.0' 'soma-workflow>=3.0' 'populse-db>=2.2' 'PyYAML'  # 'soma-base>=5.1'
+          pip3 install numpy 'six>=1.13' 'argparse' 'traits>=4.0' 'populse-db>=2.2' 'PyYAML' 'PyQt5'  # 'soma-base>=5.1' 'soma-workflow>=3.3'
           # for docs only
           sudo apt-get install -y pandoc graphviz
-          pip install sphinx sphinx-gallery pandoc nbsphinx
+          pip install sphinx sphinx-gallery pandoc nbsphinx ipykernel
+          python -m ipykernel install --user --name python3
           # while soma-base 5.1 is not in pip yet
           pushd ..
           git clone https://github.com/populse/soma-base.git
           cd soma-base
+          python setup.py install
+          popd
+          # while soma-workflow 3.3 is not in pip yet
+          pushd ..
+          git clone https://github.com/populse/soma-workflow.git
+          cd soma-workflow
           python setup.py install
           popd
           # python setup.py install
