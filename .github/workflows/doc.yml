@@ -33,10 +33,16 @@ jobs:
       - name: "Install Python dependencies"
         run: |
           pip3 install setuptools
-          pip3 install numpy 'six>=1.13' 'argparse' 'traits>=4.0' 'soma-base>=4.6' 'soma-workflow>=3.0' 'populse-db>=2.2' 'PyYAML'
+          pip3 install numpy 'six>=1.13' 'argparse' 'traits>=4.0' 'soma-workflow>=3.0' 'populse-db>=2.2' 'PyYAML'  # 'soma-base>=5.1'
           # for docs only
           sudo apt-get install -y pandoc graphviz
           pip install sphinx sphinx-gallery pandoc nbsphinx
+          # while soma-base 5.1 is not in pip yet
+          pushd ..
+          git clone https://github.com/populse/soma-base.git
+          cd soma-base
+          python setup.py install
+          popd
           # python setup.py install
 
       - name: "Build Sphinx Doc"
@@ -45,7 +51,7 @@ jobs:
           export CAPSUL_SOURCE_DIR=$PWD
           cd doc
           export SOMABASE_INTERSPHINX_URL=https://populse.github.io/soma-base
-          export SOMAWORKFLOW_INTERSPHINX_URL=http://brainvisa.info/soma-workflow
+          export SOMAWORKFLOW_INTERSPHINX_URL=http://populse.github.io/soma-workflow
           export QT_API=pyqt5
           python -m sphinx -b html source build/html
           touch build/html/.nojekyll
